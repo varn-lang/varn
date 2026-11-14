@@ -7,6 +7,8 @@ pub use class::{ClassLayout, FieldLayout};
 pub enum ScalarRepr {
     Bool,
 
+    Char,
+
     I64,
 
     F64,
@@ -24,6 +26,7 @@ impl ScalarRepr {
             Self::F64 => 3,
             Self::Ref => 4,
             Self::Boxed => 5,
+            Self::Char => 6,
         }
     }
 }
@@ -34,7 +37,7 @@ impl ScalarRepr {
     pub const fn holds_reference(self) -> bool {
         match self {
             ScalarRepr::Ref | ScalarRepr::Boxed => true,
-            ScalarRepr::Bool | ScalarRepr::I64 | ScalarRepr::F64 => false,
+            ScalarRepr::Bool | ScalarRepr::Char | ScalarRepr::I64 | ScalarRepr::F64 => false,
         }
     }
 }
@@ -56,6 +59,7 @@ impl TypeLayout {
     pub const fn of_field(kind: Option<RuntimeKind>) -> Self {
         match kind {
             Some(RuntimeKind::Bool) => Self::new(1, 1, ScalarRepr::Bool),
+            Some(RuntimeKind::Char) => Self::new(4, 4, ScalarRepr::Char),
             Some(RuntimeKind::Int) => Self::new(8, 8, ScalarRepr::I64),
             Some(RuntimeKind::Float) => Self::new(8, 8, ScalarRepr::F64),
             Some(
@@ -73,7 +77,6 @@ impl TypeLayout {
             Some(
                 RuntimeKind::Null
                 | RuntimeKind::Str
-                | RuntimeKind::Char
                 | RuntimeKind::BigInt
                 | RuntimeKind::Decimal
                 | RuntimeKind::Tuple

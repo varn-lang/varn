@@ -112,6 +112,10 @@ pub(crate) fn load_compact(
             let v = b.ins().uextend(types::I64, b8);
             emit::box_bool(b, v)
         }
+        ScalarRepr::Char => {
+            let v = b.ins().uload32(m, data_base, off);
+            emit::box_char(b, v)
+        }
         ScalarRepr::I64 => {
             let v = b.ins().load(types::I64, m, data_base, off);
             emit::box_int(b, v)
@@ -177,6 +181,10 @@ pub(crate) fn store_compact_native(
     match TypeLayout::of_field(tag).repr {
         ScalarRepr::Bool => {
             b.ins().istore8(m, native, data_base, off);
+            b.ins().jump(cont, &[]);
+        }
+        ScalarRepr::Char => {
+            b.ins().istore32(m, native, data_base, off);
             b.ins().jump(cont, &[]);
         }
         ScalarRepr::I64 => {
@@ -250,6 +258,9 @@ pub(crate) fn store_compact(
     match TypeLayout::of_field(tag).repr {
         ScalarRepr::Bool => {
             b.ins().istore8(m, payload, data_base, off);
+        }
+        ScalarRepr::Char => {
+            b.ins().istore32(m, payload, data_base, off);
         }
         ScalarRepr::I64 => {
             b.ins().store(m, payload, data_base, off);

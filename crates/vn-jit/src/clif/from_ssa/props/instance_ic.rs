@@ -101,6 +101,7 @@ fn emit_scalar_read(
         ScalarRepr::I64,
         ScalarRepr::F64,
         ScalarRepr::Bool,
+        ScalarRepr::Char,
         ScalarRepr::Ref,
         ScalarRepr::Boxed,
     ];
@@ -128,6 +129,10 @@ fn emit_scalar_read(
                 let b8 = b.ins().load(types::I8, m, addr, 0);
                 let v = b.ins().uextend(types::I64, b8);
                 box_bool(b, v)
+            }
+            ScalarRepr::Char => {
+                let v = b.ins().uload32(m, addr, 0);
+                crate::clif::emit::box_char(b, v)
             }
             ScalarRepr::Ref => {
                 let raw = b.ins().load(types::I64, m, addr, 0);
@@ -256,12 +261,13 @@ fn emit_scalar_write(
     cont: Block,
     slow: Block,
 ) {
-    use vn_types::vm_value::{KIND_BOOL, KIND_FLOAT, KIND_INT};
+    use vn_types::vm_value::{KIND_BOOL, KIND_CHAR, KIND_FLOAT, KIND_INT};
     let m = cranelift_codegen::ir::MemFlagsData::trusted();
     let reprs = [
         ScalarRepr::I64,
         ScalarRepr::F64,
         ScalarRepr::Bool,
+        ScalarRepr::Char,
         ScalarRepr::Ref,
         ScalarRepr::Boxed,
     ];
@@ -277,11 +283,12 @@ fn emit_scalar_write(
         b.ins().brif(is_repr, write, &[], next, &[]);
         b.switch_to_block(write);
         match repr {
-            ScalarRepr::I64 | ScalarRepr::F64 | ScalarRepr::Bool => {
+            ScalarRepr::I64 | ScalarRepr::F64 | ScalarRepr::Bool | ScalarRepr::Char => {
                 let want = match repr {
                     ScalarRepr::I64 => KIND_INT,
                     ScalarRepr::F64 => KIND_FLOAT,
                     ScalarRepr::Bool => KIND_BOOL,
+                    ScalarRepr::Char => KIND_CHAR,
                     ScalarRepr::Ref | ScalarRepr::Boxed => {
                         unreachable!("the enclosing arm only admits scalar reprs")
                     }
@@ -293,6 +300,8 @@ fn emit_scalar_write(
                 if repr == ScalarRepr::Bool {
                     let byte = b.ins().ireduce(types::I8, value_payload);
                     b.ins().store(m, byte, addr, 0);
+                } else if repr == ScalarRepr::Char {
+                    b.ins().istore32(m, value_payload, addr, 0);
                 } else {
                     b.ins().store(m, value_payload, addr, 0);
                 }

@@ -24,6 +24,23 @@ function successor(c: char): char { return char.fromCode(c.charCodeAt() + 1) }
 function choose(first: bool, a: char, b: char): char { return first ? a : b }
 function marker(c: char = '*'): char { return c }
 
+interface Marked { mut mark: char }
+function readMark(m: Marked): char { return m.mark }
+function writeMark(m: Marked, c: char): void { m.mark = c }
+class Cell {
+    mark: char = '?';
+    flag: bool = false;
+    code: int = 0;
+    note: char? = null;
+    constructor(mark: char, code: int) { this.mark = mark; this.code = code; }
+    bump(): void { this.mark = char.fromCode(this.mark.charCodeAt() + 1) }
+}
+function markedTotal(cells: Cell[]): int {
+    let t = 0
+    for (const c of cells) { if (c.mark == 'b') { t = t + c.code } }
+    return t
+}
+
 await describe("34 char type", async () => {
     await it("tests", async () => {
         
@@ -125,5 +142,25 @@ await describe("34 char type", async () => {
         const held: dynamic = 'q'
         const narrowed: char = held as char
         expect(narrowed == 'q').toBe(true)
+    });
+
+    await it("a char field holds its code point in four bytes", async () => {
+        const cells: Cell[] = []
+        for (let i = 0; i < 3000; i = i + 1) { cells.push(new Cell(i % 2 == 0 ? 'a' : 'b', i)) }
+        for (const c of cells) { c.bump() }
+        expect(markedTotal(cells)).toBe(2248500)
+        let viaInterface: char = 'x'
+        for (let i = 0; i < 2000; i = i + 1) { viaInterface = readMark(cells[i]) }
+        expect(viaInterface).toBe('c')
+        writeMark(cells[0], '😀')
+        expect(cells[0].mark).toBe('😀')
+        const copy = cells[1] with { mark: 'z' }
+        expect(copy.mark).toBe('z')
+        expect(cells[1].mark).toBe('c')
+        expect(cells[1].note).toBe(null)
+        cells[1].note = 'n'
+        expect(cells[1].note).toBe('n')
+        expect(cells[2].flag).toBe(false)
+        expect(cells[2].code).toBe(2)
     });
 });

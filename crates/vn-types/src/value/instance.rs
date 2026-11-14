@@ -78,6 +78,13 @@ impl InstanceData {
     }
 
     #[inline(always)]
+    unsafe fn read_u32(&self, offset: usize) -> u32 {
+        unsafe {
+            let ptr = self.raw_payload_ptr().add(offset) as *const u32;
+            ptr.read()
+        }
+    }
+
     unsafe fn read_u64(&self, offset: usize) -> u64 {
         unsafe {
             let ptr = self.raw_payload_ptr().add(offset) as *const u64;
@@ -171,6 +178,7 @@ impl InstanceData {
         unsafe {
             Some(match layout.repr {
                 ScalarRepr::Bool => VmValue::from_bool(self.read_bool(offset)),
+                ScalarRepr::Char => VmValue::from_char(char::from_u32(self.read_u32(offset))?),
                 ScalarRepr::I64 => VmValue::from_int(self.read_i64(offset)),
                 ScalarRepr::F64 => VmValue::from_f64(self.read_f64(offset)),
                 ScalarRepr::Ref => {
@@ -207,6 +215,12 @@ impl InstanceData {
                         return Err("cannot store non-bool in a bool field");
                     }
                     self.write_bool(offset, val.as_bool());
+                }
+                ScalarRepr::Char => {
+                    let Some(c) = val.as_char() else {
+                        return Err("cannot store non-char in a char field");
+                    };
+                    self.write_u32(offset, u32::from(c));
                 }
                 ScalarRepr::I64 => {
                     if !val.is_int() {
@@ -264,7 +278,7 @@ impl InstanceData {
                     crate::HeapRef::from_addr(raw).map(VmValue::from_heap)
                 }
                 ScalarRepr::Boxed => Some(self.read_vm_value(offset)),
-                ScalarRepr::Bool | ScalarRepr::I64 | ScalarRepr::F64 => {
+                ScalarRepr::Bool | ScalarRepr::Char | ScalarRepr::I64 | ScalarRepr::F64 => {
                     unreachable!("GcLayout lists only Ref and Boxed slots")
                 }
             }
@@ -288,6 +302,13 @@ impl InstanceData {
     }
 
     #[inline(always)]
+    unsafe fn write_u32(&self, offset: usize, val: u32) {
+        unsafe {
+            let ptr = self.raw_payload_ptr().add(offset) as *mut u32;
+            ptr.write(val);
+        }
+    }
+
     unsafe fn write_bool(&self, offset: usize, val: bool) {
         unsafe {
             let ptr = self.raw_payload_ptr().add(offset);

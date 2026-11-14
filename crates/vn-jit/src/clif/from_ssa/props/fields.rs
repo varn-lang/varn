@@ -39,6 +39,7 @@ pub(crate) fn emit_get_fixed_field(
             (SlotKind::Int, ScalarRepr::I64)
                 | (SlotKind::Float, ScalarRepr::F64)
                 | (SlotKind::Bool, ScalarRepr::Bool)
+                | (SlotKind::Char, ScalarRepr::Char)
         );
         if native {
             let v = emit_get_fixed_field_native(
@@ -120,6 +121,7 @@ fn emit_get_fixed_field_native(
             let b8 = b.ins().load(types::I8, m, data_base, off);
             b.ins().uextend(types::I64, b8)
         }
+        ScalarRepr::Char => b.ins().uload32(m, data_base, off),
         ScalarRepr::Ref | ScalarRepr::Boxed => {
             return Err("from_ssa: native field read of a non-scalar repr".into());
         }
@@ -165,6 +167,7 @@ pub(crate) fn emit_set_fixed_field(
         (vk, repr),
         (SlotKind::Int, ScalarRepr::I64)
             | (SlotKind::Bool, ScalarRepr::Bool)
+            | (SlotKind::Char, ScalarRepr::Char)
             | (SlotKind::Bool, ScalarRepr::I64)
             | (SlotKind::Int, ScalarRepr::Bool)
             | (SlotKind::Float, ScalarRepr::F64)
