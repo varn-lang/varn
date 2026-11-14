@@ -133,6 +133,15 @@ static TYPELOSS: Info = Info {
     in_all: false,
     groups: &[],
 };
+static LAYOUT: Info = Info {
+    id: "layout",
+    aliases: &[],
+    title: "layout de cada clase: offset, bytes y representación por campo",
+    stage: Stage::Compile,
+    per_module: PerModule::No,
+    in_all: false,
+    groups: &[],
+};
 static TIR: Info = Info {
     id: "tir",
     aliases: &[],
@@ -192,6 +201,7 @@ pub static ALL: &[&dyn Phase] = &[
     &SUMMARY,
     &TYPELOSS,
     &TIR,
+    &LAYOUT,
     &TIERS,
     &BAILS,
     &CLIF,

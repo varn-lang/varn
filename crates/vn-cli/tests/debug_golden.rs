@@ -14,6 +14,7 @@ const PHASES: &[&str] = &[
     "check:types",
     "tir",
     "tir:check",
+    "layout",
     "bytecode",
     "summary",
     "typeloss",

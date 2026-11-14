@@ -142,7 +142,7 @@ fn compiled(
         }
     }
 
-    if debug.tir || debug.tir_check {
+    if debug.tir || debug.tir_check || debug.layout {
         vn_debug::tir::debug_tir(
             program,
             arena,

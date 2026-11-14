@@ -228,6 +228,7 @@ fn apply_registered(flags: &mut DebugFlags, id: &str) {
         "summary" => flags.summary = true,
         "typeloss" => flags.typeloss = true,
         "tir" => flags.tir = true,
+        "layout" => flags.layout = true,
         "tiers" => flags.tiers = true,
         "bails" => flags.bails = true,
         "clif" => flags.clif_all_on(),

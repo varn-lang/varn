@@ -26,6 +26,10 @@ pub fn debug_tir(
         Section::new("tir").close();
     }
 
+    if flags.layout {
+        crate::layout::debug_layout(&module, flags);
+    }
+
     if flags.tir_check {
         let source = std::fs::read_to_string(program.filename.as_ref()).unwrap_or_default();
         let lines = vn_compiler::from_tir::compile::line_starts_of(&source);

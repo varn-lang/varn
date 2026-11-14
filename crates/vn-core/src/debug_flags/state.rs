@@ -35,6 +35,7 @@ pub struct DebugFlags {
 
     pub tir: bool,
     pub tir_check: bool,
+    pub layout: bool,
 
     pub clif: bool,
     pub clif_route: bool,

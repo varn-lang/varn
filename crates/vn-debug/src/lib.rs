@@ -9,6 +9,7 @@ pub mod error;
 pub mod expr;
 pub mod flags;
 pub mod fmt;
+pub mod layout;
 pub mod loop_diagnostics;
 pub mod machine;
 pub mod modules;
