@@ -82,7 +82,10 @@ TirModule {
                     FieldLayout {
                         name: "message",
                         kind: Some(
-                            Str,
+                            FieldKind {
+                                kind: Str,
+                                nullable: false,
+                            },
                         ),
                         offset: 0,
                         layout: TypeLayout {
@@ -94,7 +97,10 @@ TirModule {
                     FieldLayout {
                         name: "name",
                         kind: Some(
-                            Str,
+                            FieldKind {
+                                kind: Str,
+                                nullable: false,
+                            },
                         ),
                         offset: 16,
                         layout: TypeLayout {
@@ -106,7 +112,10 @@ TirModule {
                     FieldLayout {
                         name: "stack",
                         kind: Some(
-                            Str,
+                            FieldKind {
+                                kind: Str,
+                                nullable: false,
+                            },
                         ),
                         offset: 32,
                         layout: TypeLayout {
@@ -118,7 +127,10 @@ TirModule {
                     FieldLayout {
                         name: "cause",
                         kind: Some(
-                            Class,
+                            FieldKind {
+                                kind: Class,
+                                nullable: true,
+                            },
                         ),
                         offset: 48,
                         layout: TypeLayout {

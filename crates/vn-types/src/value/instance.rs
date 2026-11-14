@@ -3,7 +3,10 @@ use crate::vm_value::VmValue;
 use std::cell::{RefCell, UnsafeCell};
 use std::ptr;
 use std::rc::Rc;
-use vn_core::layout::{ClassLayout, FieldLayout, ScalarRepr, TypeLayout, COMPACT_REF_NULL};
+use vn_core::layout::{
+    ClassLayout, FieldLayout, ScalarRepr, TypeLayout, COMPACT_BOOL_NULL, COMPACT_CHAR_NULL,
+    COMPACT_REF_NULL,
+};
 
 thread_local! {
     static LAYOUT_CACHE: RefCell<Option<(u32, Rc<ClassLayout>)>> = const { RefCell::new(None) };
@@ -71,10 +74,11 @@ impl InstanceData {
 
     #[inline(always)]
     unsafe fn read_bool(&self, offset: usize) -> bool {
-        unsafe {
-            let ptr = self.raw_payload_ptr().add(offset);
-            *ptr != 0
-        }
+        unsafe { self.read_u8(offset) != 0 }
+    }
+
+    unsafe fn read_u8(&self, offset: usize) -> u8 {
+        unsafe { *self.raw_payload_ptr().add(offset) }
     }
 
     #[inline(always)]
@@ -141,7 +145,7 @@ impl InstanceData {
     }
 
     #[inline]
-    pub fn read_field_at(&self, offset: u32, tag: Option<vn_core::RuntimeKind>) -> Option<VmValue> {
+    pub fn read_field_at(&self, offset: u32, tag: Option<vn_core::FieldKind>) -> Option<VmValue> {
         self.read_scalar(offset, &TypeLayout::of_field(tag))
     }
 
@@ -149,7 +153,7 @@ impl InstanceData {
     pub fn write_field_at(
         &self,
         offset: u32,
-        tag: Option<vn_core::RuntimeKind>,
+        tag: Option<vn_core::FieldKind>,
         val: VmValue,
     ) -> Result<(), &'static str> {
         self.write_scalar(offset, &TypeLayout::of_field(tag), val)
@@ -178,7 +182,15 @@ impl InstanceData {
         unsafe {
             Some(match layout.repr {
                 ScalarRepr::Bool => VmValue::from_bool(self.read_bool(offset)),
+                ScalarRepr::NullableBool => match self.read_u8(offset) {
+                    COMPACT_BOOL_NULL => VmValue::null(),
+                    byte => VmValue::from_bool(byte != 0),
+                },
                 ScalarRepr::Char => VmValue::from_char(char::from_u32(self.read_u32(offset))?),
+                ScalarRepr::NullableChar => match self.read_u32(offset) {
+                    COMPACT_CHAR_NULL => VmValue::null(),
+                    code => VmValue::from_char(char::from_u32(code)?),
+                },
                 ScalarRepr::I64 => VmValue::from_int(self.read_i64(offset)),
                 ScalarRepr::F64 => VmValue::from_f64(self.read_f64(offset)),
                 ScalarRepr::Ref => {
@@ -221,6 +233,24 @@ impl InstanceData {
                         return Err("cannot store non-char in a char field");
                     };
                     self.write_u32(offset, u32::from(c));
+                }
+                ScalarRepr::NullableBool => {
+                    if val.is_null() {
+                        self.write_u8(offset, COMPACT_BOOL_NULL);
+                    } else if val.is_bool() {
+                        self.write_bool(offset, val.as_bool());
+                    } else {
+                        return Err("cannot store non-bool in a bool? field");
+                    }
+                }
+                ScalarRepr::NullableChar => {
+                    if val.is_null() {
+                        self.write_u32(offset, COMPACT_CHAR_NULL);
+                    } else if let Some(c) = val.as_char() {
+                        self.write_u32(offset, u32::from(c));
+                    } else {
+                        return Err("cannot store non-char in a char? field");
+                    }
                 }
                 ScalarRepr::I64 => {
                     if !val.is_int() {
@@ -278,7 +308,12 @@ impl InstanceData {
                     crate::HeapRef::from_addr(raw).map(VmValue::from_heap)
                 }
                 ScalarRepr::Boxed => Some(self.read_vm_value(offset)),
-                ScalarRepr::Bool | ScalarRepr::Char | ScalarRepr::I64 | ScalarRepr::F64 => {
+                ScalarRepr::Bool
+                | ScalarRepr::NullableBool
+                | ScalarRepr::Char
+                | ScalarRepr::NullableChar
+                | ScalarRepr::I64
+                | ScalarRepr::F64 => {
                     unreachable!("GcLayout lists only Ref and Boxed slots")
                 }
             }
@@ -310,10 +345,11 @@ impl InstanceData {
     }
 
     unsafe fn write_bool(&self, offset: usize, val: bool) {
-        unsafe {
-            let ptr = self.raw_payload_ptr().add(offset);
-            *ptr = val as u8;
-        }
+        unsafe { self.write_u8(offset, u8::from(val)) }
+    }
+
+    unsafe fn write_u8(&self, offset: usize, val: u8) {
+        unsafe { *self.raw_payload_ptr().add(offset) = val }
     }
 
     #[inline(always)]

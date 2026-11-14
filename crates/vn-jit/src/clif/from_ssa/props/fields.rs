@@ -90,7 +90,7 @@ fn emit_get_fixed_field_native(
     obj: Value,
     ivar: Option<cranelift_frontend::Variable>,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     slot: u16,
     dest: vn_types::register_meta::SlotKind,
 ) -> Result<Value, String> {
@@ -122,7 +122,10 @@ fn emit_get_fixed_field_native(
             b.ins().uextend(types::I64, b8)
         }
         ScalarRepr::Char => b.ins().uload32(m, data_base, off),
-        ScalarRepr::Ref | ScalarRepr::Boxed => {
+        ScalarRepr::NullableBool
+        | ScalarRepr::NullableChar
+        | ScalarRepr::Ref
+        | ScalarRepr::Boxed => {
             return Err("from_ssa: native field read of a non-scalar repr".into());
         }
     };
@@ -155,7 +158,7 @@ pub(crate) fn emit_set_fixed_field(
     value: u32,
     slot: u16,
     offset: u32,
-    kind: Option<vn_core::RuntimeKind>,
+    kind: Option<vn_core::FieldKind>,
 ) -> Result<(), String> {
     use vn_core::layout::{ScalarRepr, TypeLayout};
     use vn_types::register_meta::SlotKind;
@@ -168,6 +171,8 @@ pub(crate) fn emit_set_fixed_field(
         (SlotKind::Int, ScalarRepr::I64)
             | (SlotKind::Bool, ScalarRepr::Bool)
             | (SlotKind::Char, ScalarRepr::Char)
+            | (SlotKind::Bool, ScalarRepr::NullableBool)
+            | (SlotKind::Char, ScalarRepr::NullableChar)
             | (SlotKind::Bool, ScalarRepr::I64)
             | (SlotKind::Int, ScalarRepr::Bool)
             | (SlotKind::Float, ScalarRepr::F64)

@@ -1,9 +1,11 @@
 use cranelift_codegen::ir::{condcodes::IntCC, types, Block, InstBuilder, Value};
 use cranelift_codegen::isa::CallConv;
 use cranelift_frontend::{FunctionBuilder, Variable};
-use vn_core::layout::{ScalarRepr, TypeLayout, COMPACT_REF_NULL};
+use vn_core::layout::{
+    ScalarRepr, TypeLayout, COMPACT_BOOL_NULL, COMPACT_CHAR_NULL, COMPACT_REF_NULL,
+};
 use vn_types::register_meta::SlotKind;
-use vn_types::vm_value::{KIND_HEAP, KIND_NULL};
+use vn_types::vm_value::{KIND_BOOL, KIND_CHAR, KIND_HEAP, KIND_NULL};
 
 use super::super::emit::{self, call_helper_void, unbox_f64_coerce};
 use crate::JitHelpers;
@@ -96,7 +98,7 @@ pub(crate) fn load_compact(
     instance_var: Option<Variable>,
     obj: Value,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     slot: usize,
 ) -> Value {
     let slow = b.create_block();
@@ -112,9 +114,17 @@ pub(crate) fn load_compact(
             let v = b.ins().uextend(types::I64, b8);
             emit::box_bool(b, v)
         }
+        ScalarRepr::NullableBool => {
+            let b8 = b.ins().load(types::I8, m, data_base, off);
+            emit::box_niche(b, b8, i64::from(COMPACT_BOOL_NULL), KIND_BOOL)
+        }
         ScalarRepr::Char => {
             let v = b.ins().uload32(m, data_base, off);
             emit::box_char(b, v)
+        }
+        ScalarRepr::NullableChar => {
+            let v = b.ins().uload32(m, data_base, off);
+            emit::box_niche(b, v, i64::from(COMPACT_CHAR_NULL), KIND_CHAR)
         }
         ScalarRepr::I64 => {
             let v = b.ins().load(types::I64, m, data_base, off);
@@ -168,7 +178,7 @@ pub(crate) fn store_compact_native(
     native: Value,
     value: SlotKind,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     slot: usize,
 ) {
     let slow = b.create_block();
@@ -179,11 +189,11 @@ pub(crate) fn store_compact_native(
     let off = offset as i32;
     let m = cranelift_codegen::ir::MemFlagsData::new();
     match TypeLayout::of_field(tag).repr {
-        ScalarRepr::Bool => {
+        ScalarRepr::Bool | ScalarRepr::NullableBool => {
             b.ins().istore8(m, native, data_base, off);
             b.ins().jump(cont, &[]);
         }
-        ScalarRepr::Char => {
+        ScalarRepr::Char | ScalarRepr::NullableChar => {
             b.ins().istore32(m, native, data_base, off);
             b.ins().jump(cont, &[]);
         }
@@ -234,7 +244,7 @@ pub(crate) fn store_compact(
     obj: Value,
     value: Value,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     slot: usize,
 ) {
     let slow = b.create_block();
@@ -259,8 +269,16 @@ pub(crate) fn store_compact(
         ScalarRepr::Bool => {
             b.ins().istore8(m, payload, data_base, off);
         }
+        ScalarRepr::NullableBool => {
+            let raw = emit::unbox_niche(b, value_tag, payload, i64::from(COMPACT_BOOL_NULL));
+            b.ins().istore8(m, raw, data_base, off);
+        }
         ScalarRepr::Char => {
             b.ins().istore32(m, payload, data_base, off);
+        }
+        ScalarRepr::NullableChar => {
+            let raw = emit::unbox_niche(b, value_tag, payload, i64::from(COMPACT_CHAR_NULL));
+            b.ins().istore32(m, raw, data_base, off);
         }
         ScalarRepr::I64 => {
             b.ins().store(m, payload, data_base, off);

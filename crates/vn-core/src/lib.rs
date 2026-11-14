@@ -66,7 +66,7 @@ pub use numeric::{
     MAX_STR_BYTES, SHIFT_MAX,
 };
 pub use numeric_conv::{float_to_int, NumericDomain, ValueConv};
-pub use runtime_kind::{FieldAccess, RuntimeKind};
+pub use runtime_kind::{FieldAccess, FieldKind, RuntimeKind};
 pub use term::{chalk, chalk_fmt, Chalk};
 pub use token::{ContextualKeyword, ParsedNumber, Token, TokenKind};
 pub use trivia::{Trivia, TriviaKind};

@@ -233,8 +233,8 @@ fn imm_text(at: At, kind: ImmKind, code: &[u16], offset: usize) -> Option<String
         ImmKind::ModuleSlot => format!("slot{v}"),
         ImmKind::FieldSlot => format!("field{v}"),
         ImmKind::FieldOffset => format!("+{v}"),
-        ImmKind::Tag => match vn_core::RuntimeKind::from_u8(v as u8) {
-            Some(kind) => format!(":{}", kind.name()),
+        ImmKind::Tag => match vn_core::FieldKind::decode(v as u8) {
+            Some(field) => format!(":{field}"),
             None => ":dynamic".to_owned(),
         },
         ImmKind::Conv => match vn_core::ValueConv::from_u8(v as u8) {

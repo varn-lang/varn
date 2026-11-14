@@ -125,8 +125,8 @@ impl ClassObj {
         *self.layout.borrow_mut() = layout;
     }
 
-    pub fn extend_layout(self: &Rc<Self>, own: &[(RuntimeString, Option<vn_core::RuntimeKind>)]) {
-        let mut fields: Vec<(RuntimeString, Option<vn_core::RuntimeKind>)> = self
+    pub fn extend_layout(self: &Rc<Self>, own: &[(RuntimeString, Option<vn_core::FieldKind>)]) {
+        let mut fields: Vec<(RuntimeString, Option<vn_core::FieldKind>)> = self
             .layout()
             .fields
             .iter()

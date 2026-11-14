@@ -74,19 +74,70 @@ impl RuntimeKind {
             .filter_map(Self::from_u8)
             .find(|k| k.name() == name)
     }
+}
 
-    pub const fn encode(kind: Option<Self>) -> u8 {
-        match kind {
-            Some(k) => k as u8,
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct FieldKind {
+    pub kind: RuntimeKind,
+    pub nullable: bool,
+}
+
+impl FieldKind {
+    const NULLABLE_BIT: u8 = 0x80;
+
+    pub const fn exact(kind: RuntimeKind) -> Self {
+        Self {
+            kind,
+            nullable: false,
+        }
+    }
+
+    pub const fn nullable(kind: RuntimeKind) -> Self {
+        Self {
+            kind,
+            nullable: true,
+        }
+    }
+
+    pub const fn encode(field: Option<Self>) -> u8 {
+        match field {
+            Some(Self {
+                kind,
+                nullable: false,
+            }) => kind as u8,
+            Some(Self {
+                kind,
+                nullable: true,
+            }) => kind as u8 | Self::NULLABLE_BIT,
             None => u8::MAX,
         }
+    }
+
+    pub const fn decode(raw: u8) -> Option<Self> {
+        match RuntimeKind::from_u8(raw & !Self::NULLABLE_BIT) {
+            Some(kind) => Some(Self {
+                kind,
+                nullable: raw & Self::NULLABLE_BIT != 0,
+            }),
+            None => None,
+        }
+    }
+}
+
+impl std::fmt::Display for FieldKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.kind.name())?;
+        if self.nullable {
+            f.write_str("?")?;
+        }
+        Ok(())
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum FieldAccess {
     Slot,
-    Compact(Option<RuntimeKind>),
+    Compact(Option<FieldKind>),
 }
 
 impl FieldAccess {
@@ -94,12 +145,11 @@ impl FieldAccess {
         match self {
             Self::Slot => 0,
             Self::Compact(kind) => {
-                debug_assert_ne!(
-                    kind,
-                    Some(RuntimeKind::Null),
+                debug_assert!(
+                    kind.is_none_or(|field| field.kind != RuntimeKind::Null),
                     "a field is never laid out as null"
                 );
-                RuntimeKind::encode(kind)
+                FieldKind::encode(kind)
             }
         }
     }
@@ -108,7 +158,7 @@ impl FieldAccess {
         if raw == 0 {
             Self::Slot
         } else {
-            Self::Compact(RuntimeKind::from_u8(raw))
+            Self::Compact(FieldKind::decode(raw))
         }
     }
 }

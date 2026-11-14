@@ -7,9 +7,17 @@ pub struct ModuleClasses {
     pub types: vn_tir::TyTable,
 }
 
-fn is_unboxed_kind(kind: vn_core::RuntimeKind) -> bool {
-    use vn_core::RuntimeKind as K;
-    matches!(kind, K::Int | K::Float | K::Bool | K::Char)
+fn is_unboxed_kind(field: vn_core::FieldKind) -> bool {
+    use vn_core::layout::{ScalarRepr, TypeLayout};
+    match TypeLayout::of_field(Some(field)).repr {
+        ScalarRepr::Bool
+        | ScalarRepr::NullableBool
+        | ScalarRepr::Char
+        | ScalarRepr::NullableChar
+        | ScalarRepr::I64
+        | ScalarRepr::F64 => true,
+        ScalarRepr::Ref | ScalarRepr::Boxed => false,
+    }
 }
 
 /// Los slots deben coincidir exacto. Los tipos solo importan por

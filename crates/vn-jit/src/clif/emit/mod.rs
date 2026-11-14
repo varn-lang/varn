@@ -69,6 +69,46 @@ pub(super) fn box_char(
     b.ins().iconcat(tag, payload)
 }
 
+pub(super) fn box_niche(
+    b: &mut FunctionBuilder,
+    raw: cranelift_codegen::ir::Value,
+    niche: i64,
+    kind: u64,
+) -> cranelift_codegen::ir::Value {
+    let raw = if b.func.dfg.value_type(raw) == types::I64 {
+        raw
+    } else {
+        b.ins().uextend(types::I64, raw)
+    };
+    let is_null = b
+        .ins()
+        .icmp_imm_u(cranelift_codegen::ir::condcodes::IntCC::Equal, raw, niche);
+    let null_tag = b
+        .ins()
+        .iconst(types::I64, vn_types::vm_value::KIND_NULL as i64);
+    let kind_tag = b.ins().iconst(types::I64, kind as i64);
+    let zero = b.ins().iconst(types::I64, 0);
+    let tag = b.ins().select(is_null, null_tag, kind_tag);
+    let payload = b.ins().select(is_null, zero, raw);
+    b.ins().iconcat(tag, payload)
+}
+
+pub(super) fn unbox_niche(
+    b: &mut FunctionBuilder,
+    value_tag: cranelift_codegen::ir::Value,
+    payload: cranelift_codegen::ir::Value,
+    niche: i64,
+) -> cranelift_codegen::ir::Value {
+    let kind = b.ins().band_imm_u(value_tag, KIND_MASK);
+    let is_null = b.ins().icmp_imm_u(
+        cranelift_codegen::ir::condcodes::IntCC::Equal,
+        kind,
+        vn_types::vm_value::KIND_NULL as i64,
+    );
+    let niche = b.ins().iconst(types::I64, niche);
+    b.ins().select(is_null, niche, payload)
+}
+
 pub(super) fn unbox_char(
     b: &mut FunctionBuilder,
     v: cranelift_codegen::ir::Value,

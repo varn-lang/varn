@@ -238,7 +238,7 @@ pub enum SsaOp {
         value: u32,
         slot: u16,
         offset: u32,
-        kind: Option<vn_core::RuntimeKind>,
+        kind: Option<vn_core::FieldKind>,
     },
 
     MakeClass {

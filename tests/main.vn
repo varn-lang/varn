@@ -345,6 +345,7 @@ import "./353-forwarded-extension-members.vn"
 import "./354-records-are-values.vn"
 import "./355-regex-literal-lexing.vn"
 import "./356-heap-values-are-references.vn"
+import "./357-nullable-scalar-fields.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

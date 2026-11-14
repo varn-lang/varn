@@ -10,7 +10,7 @@ use crate::value::VmValue;
 pub(crate) fn get_fixed_field_at(
     obj: VmValue,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     heap: &Heap,
 ) -> VmResult<VmValue> {
     if obj.is_heap()
@@ -27,7 +27,7 @@ pub(crate) fn get_fixed_field_at(
 pub(crate) fn set_fixed_field_at(
     obj: VmValue,
     offset: u32,
-    tag: Option<vn_core::RuntimeKind>,
+    tag: Option<vn_core::FieldKind>,
     val: VmValue,
     heap: &mut Heap,
 ) -> VmResult<()> {

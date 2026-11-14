@@ -9,7 +9,9 @@ use crate::flags::DebugFlags;
 fn repr_name(repr: ScalarRepr) -> &'static str {
     match repr {
         ScalarRepr::Bool => "bool",
+        ScalarRepr::NullableBool => "bool?",
         ScalarRepr::Char => "char",
+        ScalarRepr::NullableChar => "char?",
         ScalarRepr::I64 => "i64",
         ScalarRepr::F64 => "f64",
         ScalarRepr::Ref => "ref",
@@ -63,8 +65,7 @@ pub fn debug_layout(module: &TirModule, flags: &DebugFlags) {
                 field.name.to_string(),
                 field
                     .kind
-                    .map_or("—", vn_core::RuntimeKind::name)
-                    .to_string(),
+                    .map_or_else(|| "—".to_string(), |kind| kind.to_string()),
                 field.offset.to_string(),
                 field.layout.size.to_string(),
                 repr_name(field.layout.repr).to_string(),

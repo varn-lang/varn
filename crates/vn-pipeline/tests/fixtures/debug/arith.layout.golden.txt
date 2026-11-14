@@ -1,11 +1,11 @@
 
   layout ─────────────────────────────────────────── <fixtures>/arith.vn
 [Error] 56 B · alineación 8 · 4 slot(s) que traza el GC · referencia
-  campo   │ tipo  │ offset │ bytes │ repr 
-  ────────┼───────┼────────┼───────┼──────
-  message │ str   │      0 │    16 │ boxed
-  name    │ str   │     16 │    16 │ boxed
-  stack   │ str   │     32 │    16 │ boxed
-  cause   │ class │     48 │     8 │ ref  
+  campo   │ tipo   │ offset │ bytes │ repr 
+  ────────┼────────┼────────┼───────┼──────
+  message │ str    │      0 │    16 │ boxed
+  name    │ str    │     16 │    16 │ boxed
+  stack   │ str    │     32 │    16 │ boxed
+  cause   │ class? │     48 │     8 │ ref  
   `boxed` es un VmValue de 16 bytes; `—` es un tipo sin representación propia.
   ── end: layout ──

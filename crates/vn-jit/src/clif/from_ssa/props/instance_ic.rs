@@ -1,10 +1,10 @@
 use cranelift_codegen::ir::{condcodes::IntCC, types, Block, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
-use vn_core::layout::{ScalarRepr, COMPACT_REF_NULL};
+use vn_core::layout::{ScalarRepr, COMPACT_BOOL_NULL, COMPACT_CHAR_NULL, COMPACT_REF_NULL};
 use vn_types::chunk::{CacheEntry, ICKind};
 use vn_types::vm_value::{KIND_HEAP, KIND_NULL};
 
-use super::super::super::emit::{box_bool, box_f64, box_int, KIND_MASK};
+use super::super::super::emit::{box_bool, box_f64, box_int, box_niche, unbox_niche, KIND_MASK};
 use super::super::Ctx;
 
 pub(super) fn emit_instance_hit(
@@ -101,7 +101,9 @@ fn emit_scalar_read(
         ScalarRepr::I64,
         ScalarRepr::F64,
         ScalarRepr::Bool,
+        ScalarRepr::NullableBool,
         ScalarRepr::Char,
+        ScalarRepr::NullableChar,
         ScalarRepr::Ref,
         ScalarRepr::Boxed,
     ];
@@ -130,9 +132,27 @@ fn emit_scalar_read(
                 let v = b.ins().uextend(types::I64, b8);
                 box_bool(b, v)
             }
+            ScalarRepr::NullableBool => {
+                let b8 = b.ins().load(types::I8, m, addr, 0);
+                box_niche(
+                    b,
+                    b8,
+                    i64::from(COMPACT_BOOL_NULL),
+                    vn_types::vm_value::KIND_BOOL,
+                )
+            }
             ScalarRepr::Char => {
                 let v = b.ins().uload32(m, addr, 0);
                 crate::clif::emit::box_char(b, v)
+            }
+            ScalarRepr::NullableChar => {
+                let v = b.ins().uload32(m, addr, 0);
+                box_niche(
+                    b,
+                    v,
+                    i64::from(COMPACT_CHAR_NULL),
+                    vn_types::vm_value::KIND_CHAR,
+                )
             }
             ScalarRepr::Ref => {
                 let raw = b.ins().load(types::I64, m, addr, 0);
@@ -267,7 +287,9 @@ fn emit_scalar_write(
         ScalarRepr::I64,
         ScalarRepr::F64,
         ScalarRepr::Bool,
+        ScalarRepr::NullableBool,
         ScalarRepr::Char,
+        ScalarRepr::NullableChar,
         ScalarRepr::Ref,
         ScalarRepr::Boxed,
     ];
@@ -289,7 +311,10 @@ fn emit_scalar_write(
                     ScalarRepr::F64 => KIND_FLOAT,
                     ScalarRepr::Bool => KIND_BOOL,
                     ScalarRepr::Char => KIND_CHAR,
-                    ScalarRepr::Ref | ScalarRepr::Boxed => {
+                    ScalarRepr::NullableBool
+                    | ScalarRepr::NullableChar
+                    | ScalarRepr::Ref
+                    | ScalarRepr::Boxed => {
                         unreachable!("the enclosing arm only admits scalar reprs")
                     }
                 };
@@ -304,6 +329,29 @@ fn emit_scalar_write(
                     b.ins().istore32(m, value_payload, addr, 0);
                 } else {
                     b.ins().store(m, value_payload, addr, 0);
+                }
+                b.ins().jump(cont, &[]);
+            }
+            ScalarRepr::NullableBool | ScalarRepr::NullableChar => {
+                let (want, niche) = if repr == ScalarRepr::NullableBool {
+                    (KIND_BOOL, i64::from(COMPACT_BOOL_NULL))
+                } else {
+                    (KIND_CHAR, i64::from(COMPACT_CHAR_NULL))
+                };
+                let is_kind = b.ins().icmp_imm_u(IntCC::Equal, value_kind, want as i64);
+                let is_null = b
+                    .ins()
+                    .icmp_imm_u(IntCC::Equal, value_kind, KIND_NULL as i64);
+                let ok = b.ins().bor(is_kind, is_null);
+                let store = b.create_block();
+                b.ins().brif(ok, store, &[], slow, &[]);
+                b.switch_to_block(store);
+                let (value_tag, _) = b.ins().isplit(value);
+                let raw = unbox_niche(b, value_tag, value_payload, niche);
+                if repr == ScalarRepr::NullableBool {
+                    b.ins().istore8(m, raw, addr, 0);
+                } else {
+                    b.ins().istore32(m, raw, addr, 0);
                 }
                 b.ins().jump(cont, &[]);
             }

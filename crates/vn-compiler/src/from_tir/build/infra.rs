@@ -34,7 +34,7 @@ impl<'m> Builder<'m> {
         &self,
         obj_ty: BackendTy,
         slot: u16,
-    ) -> Option<(u32, Option<vn_core::RuntimeKind>)> {
+    ) -> Option<(u32, Option<vn_core::FieldKind>)> {
         let BackendTy::Class(c) = obj_ty.non_nullable(&self.tir.types) else {
             return None;
         };

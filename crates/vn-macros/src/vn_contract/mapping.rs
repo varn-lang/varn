@@ -32,17 +32,40 @@ fn primitive_mapped(name: &str) -> Option<Mapped> {
     }
 }
 
+fn mapped_kind(m: &Mapped) -> Option<TS2> {
+    match m {
+        Mapped::Int => Some(quote! { Int }),
+        Mapped::Float => Some(quote! { Float }),
+        Mapped::Bool => Some(quote! { Bool }),
+        Mapped::Char => Some(quote! { Char }),
+        Mapped::Str | Mapped::StrRecv => Some(quote! { Str }),
+        Mapped::Array => Some(quote! { Array }),
+        Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => None,
+    }
+}
+
 pub(super) fn mapped_tag_path(m: &Mapped) -> TS2 {
-    let name = match m {
-        Mapped::Int => quote! { Int },
-        Mapped::Float => quote! { Float },
-        Mapped::Bool => quote! { Bool },
-        Mapped::Char => quote! { Char },
-        Mapped::Str | Mapped::StrRecv => quote! { Str },
-        Mapped::Array => quote! { Array },
-        Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => return quote! { None },
+    let (inner, nullable) = match m {
+        Mapped::Opt(inner) => (inner.as_ref(), true),
+        Mapped::Int
+        | Mapped::Float
+        | Mapped::Bool
+        | Mapped::Char
+        | Mapped::Str
+        | Mapped::StrRecv
+        | Mapped::Array
+        | Mapped::Dynamic
+        | Mapped::Void => (m, false),
     };
-    quote! { Some(::vn_core::RuntimeKind::#name) }
+    match (mapped_kind(inner), nullable) {
+        (Some(name), false) => {
+            quote! { Some(::vn_core::FieldKind::exact(::vn_core::RuntimeKind::#name)) }
+        }
+        (Some(name), true) => {
+            quote! { Some(::vn_core::FieldKind::nullable(::vn_core::RuntimeKind::#name)) }
+        }
+        (None, false | true) => quote! { None },
+    }
 }
 
 pub(super) fn receiver_mapped(class: &str) -> Mapped {

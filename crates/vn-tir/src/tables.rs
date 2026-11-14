@@ -86,7 +86,7 @@ impl ClassInfo {
                 slot,
             });
         }
-        let kinds: Vec<(Arc<str>, Option<vn_core::RuntimeKind>)> = out
+        let kinds: Vec<(Arc<str>, Option<vn_core::FieldKind>)> = out
             .iter()
             .map(|f| (f.name.clone(), f.ty.field_kind(types)))
             .collect();

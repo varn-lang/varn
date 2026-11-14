@@ -1,4 +1,4 @@
-use crate::RuntimeKind;
+use crate::{FieldKind, RuntimeKind};
 
 mod class;
 pub use class::{ClassLayout, FieldLayout};
@@ -7,7 +7,11 @@ pub use class::{ClassLayout, FieldLayout};
 pub enum ScalarRepr {
     Bool,
 
+    NullableBool,
+
     Char,
+
+    NullableChar,
 
     I64,
 
@@ -27,17 +31,28 @@ impl ScalarRepr {
             Self::Ref => 4,
             Self::Boxed => 5,
             Self::Char => 6,
+            Self::NullableBool => 7,
+            Self::NullableChar => 8,
         }
     }
 }
 
 pub const COMPACT_REF_NULL: u64 = 0;
 
+pub const COMPACT_BOOL_NULL: u8 = 2;
+
+pub const COMPACT_CHAR_NULL: u32 = 0x11_0000;
+
 impl ScalarRepr {
     pub const fn holds_reference(self) -> bool {
         match self {
             ScalarRepr::Ref | ScalarRepr::Boxed => true,
-            ScalarRepr::Bool | ScalarRepr::Char | ScalarRepr::I64 | ScalarRepr::F64 => false,
+            ScalarRepr::Bool
+            | ScalarRepr::NullableBool
+            | ScalarRepr::Char
+            | ScalarRepr::NullableChar
+            | ScalarRepr::I64
+            | ScalarRepr::F64 => false,
         }
     }
 }
@@ -56,31 +71,70 @@ impl TypeLayout {
         Self { size, align, repr }
     }
 
-    pub const fn of_field(kind: Option<RuntimeKind>) -> Self {
+    pub const fn of_field(field: Option<FieldKind>) -> Self {
+        match field {
+            Some(FieldKind {
+                kind,
+                nullable: false,
+            }) => Self::of_kind(kind),
+            Some(FieldKind {
+                kind,
+                nullable: true,
+            }) => Self::of_nullable(kind),
+            None => Self::BOXED,
+        }
+    }
+
+    const fn of_nullable(kind: RuntimeKind) -> Self {
         match kind {
-            Some(RuntimeKind::Bool) => Self::new(1, 1, ScalarRepr::Bool),
-            Some(RuntimeKind::Char) => Self::new(4, 4, ScalarRepr::Char),
-            Some(RuntimeKind::Int) => Self::new(8, 8, ScalarRepr::I64),
-            Some(RuntimeKind::Float) => Self::new(8, 8, ScalarRepr::F64),
-            Some(
-                RuntimeKind::Array
-                | RuntimeKind::Map
-                | RuntimeKind::Set
-                | RuntimeKind::Object
-                | RuntimeKind::Class
-                | RuntimeKind::Function
-                | RuntimeKind::Task
-                | RuntimeKind::Bytes
-                | RuntimeKind::Generator
-                | RuntimeKind::AsyncGenerator
-                | RuntimeKind::BigInt
-                | RuntimeKind::Decimal
-                | RuntimeKind::Tuple
-                | RuntimeKind::Range
-                | RuntimeKind::Enum
-                | RuntimeKind::TaskHandle,
-            ) => Self::new(8, 8, ScalarRepr::Ref),
-            Some(RuntimeKind::Null | RuntimeKind::Str | RuntimeKind::Opaque) | None => Self::BOXED,
+            RuntimeKind::Bool => Self::new(1, 1, ScalarRepr::NullableBool),
+            RuntimeKind::Char => Self::new(4, 4, ScalarRepr::NullableChar),
+            RuntimeKind::Int | RuntimeKind::Float => Self::BOXED,
+            RuntimeKind::Null
+            | RuntimeKind::Str
+            | RuntimeKind::Opaque
+            | RuntimeKind::Array
+            | RuntimeKind::Map
+            | RuntimeKind::Set
+            | RuntimeKind::Object
+            | RuntimeKind::Class
+            | RuntimeKind::Function
+            | RuntimeKind::Task
+            | RuntimeKind::Bytes
+            | RuntimeKind::Generator
+            | RuntimeKind::AsyncGenerator
+            | RuntimeKind::BigInt
+            | RuntimeKind::Decimal
+            | RuntimeKind::Tuple
+            | RuntimeKind::Range
+            | RuntimeKind::Enum
+            | RuntimeKind::TaskHandle => Self::of_kind(kind),
+        }
+    }
+
+    const fn of_kind(kind: RuntimeKind) -> Self {
+        match kind {
+            RuntimeKind::Bool => Self::new(1, 1, ScalarRepr::Bool),
+            RuntimeKind::Char => Self::new(4, 4, ScalarRepr::Char),
+            RuntimeKind::Int => Self::new(8, 8, ScalarRepr::I64),
+            RuntimeKind::Float => Self::new(8, 8, ScalarRepr::F64),
+            RuntimeKind::Array
+            | RuntimeKind::Map
+            | RuntimeKind::Set
+            | RuntimeKind::Object
+            | RuntimeKind::Class
+            | RuntimeKind::Function
+            | RuntimeKind::Task
+            | RuntimeKind::Bytes
+            | RuntimeKind::Generator
+            | RuntimeKind::AsyncGenerator
+            | RuntimeKind::BigInt
+            | RuntimeKind::Decimal
+            | RuntimeKind::Tuple
+            | RuntimeKind::Range
+            | RuntimeKind::Enum
+            | RuntimeKind::TaskHandle => Self::new(8, 8, ScalarRepr::Ref),
+            RuntimeKind::Null | RuntimeKind::Str | RuntimeKind::Opaque => Self::BOXED,
         }
     }
 }

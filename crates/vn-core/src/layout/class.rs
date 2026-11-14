@@ -1,19 +1,19 @@
 use super::{GcLayout, GcSlot, TypeLayout};
-use crate::RuntimeKind;
+use crate::FieldKind;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct FieldLayout {
     pub name: Arc<str>,
 
-    pub kind: Option<RuntimeKind>,
+    pub kind: Option<FieldKind>,
 
     pub offset: u32,
     pub layout: TypeLayout,
 }
 
 impl FieldLayout {
-    pub fn at(offset: u32, kind: Option<RuntimeKind>) -> Self {
+    pub fn at(offset: u32, kind: Option<FieldKind>) -> Self {
         Self {
             name: Arc::from(""),
             kind,
@@ -38,7 +38,7 @@ pub struct ClassLayout {
 }
 
 impl ClassLayout {
-    pub fn from_fields(fields_in: &[(Arc<str>, Option<RuntimeKind>)]) -> Self {
+    pub fn from_fields(fields_in: &[(Arc<str>, Option<FieldKind>)]) -> Self {
         let mut fields = Vec::with_capacity(fields_in.len());
         let mut cur_offset = 0u32;
         let mut max_align = 8u32;

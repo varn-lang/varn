@@ -111,7 +111,7 @@ pub enum InstKind {
 
         offset: u32,
 
-        tag: Option<vn_core::RuntimeKind>,
+        tag: Option<vn_core::FieldKind>,
     },
 
     SetIndex {

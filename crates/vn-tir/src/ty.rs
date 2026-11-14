@@ -143,10 +143,20 @@ impl BackendTy {
         )
     }
 
-    pub fn field_kind(self, types: &TyTable) -> Option<vn_core::RuntimeKind> {
+    pub fn field_kind(self, types: &TyTable) -> Option<vn_core::FieldKind> {
+        if let BackendTy::Nullable(_) = self {
+            return self
+                .non_nullable(types)
+                .exact_field_kind()
+                .map(vn_core::FieldKind::nullable);
+        }
+        self.exact_field_kind().map(vn_core::FieldKind::exact)
+    }
+
+    fn exact_field_kind(self) -> Option<vn_core::RuntimeKind> {
         use vn_core::RuntimeKind as T;
         match self {
-            BackendTy::Literal(_) => self.representation().field_kind(types),
+            BackendTy::Literal(_) => self.representation().exact_field_kind(),
             BackendTy::Int => Some(T::Int),
             BackendTy::Float => Some(T::Float),
             BackendTy::Bool => Some(T::Bool),
@@ -159,11 +169,6 @@ impl BackendTy {
             BackendTy::Set(_) => Some(T::Set),
             BackendTy::Map(..) => Some(T::Map),
             BackendTy::Class(_) => Some(T::Class),
-            BackendTy::Nullable(_) => {
-                let kind = self.non_nullable(types).field_kind(types)?;
-                let repr = vn_core::layout::TypeLayout::of_field(Some(kind)).repr;
-                (repr == vn_core::layout::ScalarRepr::Ref).then_some(kind)
-            }
             BackendTy::Tuple(_) => Some(T::Tuple),
             BackendTy::Enum(_) => Some(T::Enum),
             BackendTy::Fn(_) | BackendTy::Dynamic(DynReason::Callable) => Some(T::Function),
@@ -186,6 +191,7 @@ impl BackendTy {
                 | DynReason::Boxed
                 | DynReason::Runtime,
             )
+            | BackendTy::Nullable(_)
             | BackendTy::Void
             | BackendTy::Never => None,
         }
