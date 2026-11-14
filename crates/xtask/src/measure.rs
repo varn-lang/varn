@@ -114,19 +114,22 @@ pub(super) fn measure_benchmarks(
         let mut bench_files: HashMap<String, PathBuf> = HashMap::new();
         for rt in runtimes {
             let rel = match rt.name.as_str() {
-                "vn" | "vn-base" => Some(bench.vn),
-                "python" => bench.py,
-                _ => Some(bench.ts),
+                "vn" | "vn-base" => Some(bench.vn_file()),
+                "python" => bench.py_file(),
+                _ => Some(bench.ts_file()),
             };
             if let Some(r) = rel {
-                let full = match rt.name.as_str() {
-                    "vn" | "vn-base" => bench_dir.join("vn").join(r),
-                    "python" => bench_dir.join(r),
-                    _ => bench_dir.join("ts").join(r),
-                };
-                if full.is_file() {
-                    bench_files.insert(rt.name.clone(), full);
+                let full = bench_dir.join(r);
+                if !full.is_file() {
+                    return Err(format!(
+                        "benchmark `{}` has no file for {} at {}",
+                        bench.name,
+                        rt.name,
+                        full.display()
+                    )
+                    .into());
                 }
+                bench_files.insert(rt.name.clone(), full);
             }
         }
 
