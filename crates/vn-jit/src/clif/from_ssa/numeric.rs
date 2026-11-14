@@ -168,12 +168,13 @@ struct Expected {
 
 impl Expected {
     fn of(conv: ValueConv) -> Option<Self> {
-        use vn_types::vm_value::{KIND_BOOL, KIND_FLOAT, KIND_INT};
+        use vn_types::vm_value::{KIND_BOOL, KIND_CHAR, KIND_FLOAT, KIND_INT};
         let (kind, nullable) = match conv {
             ValueConv::ExpectStr => (ExpectedKind::Str, false),
             ValueConv::ExpectStrOrNull => (ExpectedKind::Str, true),
             ValueConv::ExpectBool => (ExpectedKind::Tag(KIND_BOOL), false),
             ValueConv::ExpectBoolOrNull => (ExpectedKind::Tag(KIND_BOOL), true),
+            ValueConv::ExpectChar => (ExpectedKind::Tag(KIND_CHAR), false),
             ValueConv::ExpectInt => (ExpectedKind::Tag(KIND_INT), false),
             ValueConv::ExpectIntOrNull => (ExpectedKind::Tag(KIND_INT), true),
             ValueConv::ExpectFloat => (ExpectedKind::Tag(KIND_FLOAT), false),

@@ -158,6 +158,13 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
                 Err(not_a(LangPrimitive::Bool, nullable, v, heap))
             };
         }
+        ValueConv::ExpectChar => {
+            return if v.is_char() {
+                Ok(v)
+            } else {
+                Err(not_a(LangPrimitive::Char, false, v, heap))
+            };
+        }
         ValueConv::ExpectInt | ValueConv::ExpectIntOrNull => {
             let nullable = conv == ValueConv::ExpectIntOrNull;
             return if heap.is_int(v) || (nullable && v.is_null()) {
@@ -201,7 +208,8 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
         | ValueConv::ExpectFloat
         | ValueConv::ExpectIntOrNull
         | ValueConv::ExpectFloatOrNull
-        | ValueConv::ExpectRef => Ok(v),
+        | ValueConv::ExpectRef
+        | ValueConv::ExpectChar => Ok(v),
         ValueConv::FloatToInt
         | ValueConv::BigIntToInt
         | ValueConv::DecimalToInt

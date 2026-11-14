@@ -13,6 +13,7 @@ fn bool_out(b: &mut FunctionBuilder, cond: Value, dest: Option<SlotKind>) -> Out
         Some(SlotKind::Bool) => Out::Native(cond),
         Some(SlotKind::Int)
         | Some(SlotKind::Float)
+        | Some(SlotKind::Char)
         | Some(SlotKind::Str)
         | Some(SlotKind::Ref)
         | Some(SlotKind::Dynamic)

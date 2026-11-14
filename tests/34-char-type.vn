@@ -20,6 +20,10 @@ function occurrences(text: str, target: char): int {
     return n
 }
 
+function successor(c: char): char { return char.fromCode(c.charCodeAt() + 1) }
+function choose(first: bool, a: char, b: char): char { return first ? a : b }
+function marker(c: char = '*'): char { return c }
+
 await describe("34 char type", async () => {
     await it("tests", async () => {
         
@@ -109,5 +113,17 @@ await describe("34 char type", async () => {
         expect(occurrences("banana", 'a')).toBe(3)
         expect(sameBool(true, false)).toBe(false)
         expect(differ('x', 'x')).toBe(false)
+    });
+
+    await it("a char travels natively through compiled calls", async () => {
+        let last: char = 'a'
+        for (let i = 0; i < 5000; i = i + 1) { last = choose(i % 2 == 0, successor('a'), 'a') }
+        expect(last).toBe('a')
+        expect(successor('y')).toBe('z')
+        expect(marker()).toBe('*')
+        expect(marker('#')).toBe('#')
+        const held: dynamic = 'q'
+        const narrowed: char = held as char
+        expect(narrowed == 'q').toBe(true)
     });
 });

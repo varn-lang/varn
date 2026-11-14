@@ -78,6 +78,7 @@ impl<'m> Builder<'m> {
                 vn_types::register_meta::SlotKind::Int
                     | vn_types::register_meta::SlotKind::Float
                     | vn_types::register_meta::SlotKind::Bool
+                    | vn_types::register_meta::SlotKind::Char
             )
         }) {
             return None;

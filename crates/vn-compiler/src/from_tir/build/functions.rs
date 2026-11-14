@@ -149,6 +149,7 @@ impl<'m> Builder<'m> {
             BackendTy::Float => Some(vn_core::ValueConv::ExpectFloat),
             BackendTy::Bool => Some(vn_core::ValueConv::ExpectBool),
             BackendTy::Str => Some(vn_core::ValueConv::ExpectStr),
+            BackendTy::Char => Some(vn_core::ValueConv::ExpectChar),
             BackendTy::Literal(_)
             | BackendTy::Dynamic(_)
             | BackendTy::Nullable(_)
@@ -156,8 +157,7 @@ impl<'m> Builder<'m> {
             | BackendTy::BigInt
             | BackendTy::Void
             | BackendTy::Never => return Ok(()),
-            BackendTy::Char
-            | BackendTy::Bytes
+            BackendTy::Bytes
             | BackendTy::Enum(_)
             | BackendTy::Fn(_)
             | BackendTy::Array(_)

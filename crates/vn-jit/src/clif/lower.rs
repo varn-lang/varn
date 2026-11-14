@@ -62,7 +62,12 @@ pub trait ClifLinker {
 
 fn boxed_slots(proto: &FunctionProto) -> bool {
     use vn_types::register_meta::SlotKind;
-    let scalar = |k: &SlotKind| matches!(k, SlotKind::Int | SlotKind::Float | SlotKind::Bool);
+    let scalar = |k: &SlotKind| {
+        matches!(
+            k,
+            SlotKind::Int | SlotKind::Float | SlotKind::Bool | SlotKind::Char
+        )
+    };
     proto.param_kinds.iter().any(|k| !scalar(k)) || !scalar(&proto.return_kind)
 }
 

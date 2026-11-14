@@ -29,6 +29,7 @@ pub(super) fn box_native(
         SlotKind::Int => box_int(b, x),
         SlotKind::Float => box_f64(b, x),
         SlotKind::Bool => box_bool(b, x),
+        SlotKind::Char => super::super::emit::box_char(b, x),
         SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => x,
     }
 }
@@ -52,6 +53,7 @@ pub(super) fn unbox_dest(
         vn_types::register_meta::SlotKind::Int => unbox_int(b, boxed),
         vn_types::register_meta::SlotKind::Float => unbox_f64_coerce(b, boxed),
         vn_types::register_meta::SlotKind::Bool => super::super::emit::unbox_bool(b, boxed),
+        vn_types::register_meta::SlotKind::Char => super::super::emit::unbox_char(b, boxed),
         vn_types::register_meta::SlotKind::Str
         | vn_types::register_meta::SlotKind::Ref
         | vn_types::register_meta::SlotKind::Dynamic => boxed,

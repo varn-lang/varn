@@ -6,7 +6,10 @@ use vn_types::ssa::SsaTerm;
 use super::{heap, load_value, Ctx};
 
 fn scalar_return(k: SlotKind) -> bool {
-    matches!(k, SlotKind::Int | SlotKind::Float | SlotKind::Bool)
+    matches!(
+        k,
+        SlotKind::Int | SlotKind::Float | SlotKind::Bool | SlotKind::Char
+    )
 }
 
 fn store_boxed_return(b: &mut FunctionBuilder, ctx: &Ctx<'_>, boxed: Value) -> Result<(), String> {
@@ -37,7 +40,7 @@ fn truthy(
     let x = load_value(b, ctx, values, v)?;
     Ok(match ctx.ssa.value_ty(v) {
         SlotKind::Bool => x,
-        SlotKind::Int | SlotKind::Float => b.ins().iconst(types::I8, 1),
+        SlotKind::Int | SlotKind::Float | SlotKind::Char => b.ins().iconst(types::I8, 1),
         SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
             let (tag, payload) = b.ins().isplit(x);
             super::super::emit::call_helper(b, ctx.cc, ctx.helpers.truthy, &[tag, payload])

@@ -339,7 +339,10 @@ fn entry_param(
             }
         }
         Activation::Framed => {
-            if !matches!(declared, SlotKind::Int | SlotKind::Float | SlotKind::Bool) {
+            if !matches!(
+                declared,
+                SlotKind::Int | SlotKind::Float | SlotKind::Bool | SlotKind::Char
+            ) {
                 store::load_home_value(b, ctx, 1 + k as u32, kind)
             } else if declared != kind {
                 Err(mismatch())

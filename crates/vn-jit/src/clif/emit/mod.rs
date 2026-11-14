@@ -54,6 +54,28 @@ pub(super) fn unbox_bool(
     }
 }
 
+pub(super) fn box_char(
+    b: &mut FunctionBuilder,
+    v: cranelift_codegen::ir::Value,
+) -> cranelift_codegen::ir::Value {
+    let tag = b
+        .ins()
+        .iconst(types::I64, vn_types::vm_value::KIND_CHAR as i64);
+    let payload = if b.func.dfg.value_type(v) == types::I64 {
+        v
+    } else {
+        b.ins().uextend(types::I64, v)
+    };
+    b.ins().iconcat(tag, payload)
+}
+
+pub(super) fn unbox_char(
+    b: &mut FunctionBuilder,
+    v: cranelift_codegen::ir::Value,
+) -> cranelift_codegen::ir::Value {
+    unbox_bool(b, v)
+}
+
 pub(super) fn box_f64(
     b: &mut FunctionBuilder,
     v: cranelift_codegen::ir::Value,

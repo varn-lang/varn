@@ -169,6 +169,7 @@ pub(super) fn spill(
             vn_types::register_meta::SlotKind::Int => super::super::super::emit::box_int(b, x),
             vn_types::register_meta::SlotKind::Float => super::super::super::emit::box_f64(b, x),
             vn_types::register_meta::SlotKind::Bool => super::super::super::emit::box_bool(b, x),
+            vn_types::register_meta::SlotKind::Char => super::super::super::emit::box_char(b, x),
             vn_types::register_meta::SlotKind::Str
             | vn_types::register_meta::SlotKind::Ref
             | vn_types::register_meta::SlotKind::Dynamic => x,

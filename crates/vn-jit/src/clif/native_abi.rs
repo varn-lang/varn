@@ -13,7 +13,7 @@ pub(crate) enum NativeClass {
 impl NativeClass {
     pub(crate) fn of(kind: SlotKind) -> Self {
         match kind {
-            SlotKind::Int | SlotKind::Bool => NativeClass::Word,
+            SlotKind::Int | SlotKind::Bool | SlotKind::Char => NativeClass::Word,
             SlotKind::Float => NativeClass::Float,
             SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => NativeClass::Boxed,
         }
@@ -97,6 +97,7 @@ fn kind_code(kind: SlotKind) -> u64 {
         SlotKind::Str => 3,
         SlotKind::Ref => 4,
         SlotKind::Dynamic => 5,
+        SlotKind::Char => 6,
     }
 }
 

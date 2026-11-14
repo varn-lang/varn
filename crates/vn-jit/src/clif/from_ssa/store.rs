@@ -128,7 +128,7 @@ pub(super) fn home_load(b: &mut FunctionBuilder, ctx: &Ctx<'_>, reg: u32) -> Res
 
 pub(super) fn clif_ty(kind: SlotKind) -> Option<cranelift_codegen::ir::Type> {
     match kind {
-        SlotKind::Int | SlotKind::Bool => Some(types::I64),
+        SlotKind::Int | SlotKind::Bool | SlotKind::Char => Some(types::I64),
         SlotKind::Float => Some(types::F64),
         SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => Some(types::I128),
     }

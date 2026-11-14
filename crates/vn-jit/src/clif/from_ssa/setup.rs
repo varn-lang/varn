@@ -46,7 +46,12 @@ pub(super) fn prepare<'s>(
     {
         return Err("from_ssa: not a leaf-compatible proto".into());
     }
-    let scalar = |k: SlotKind| matches!(k, SlotKind::Int | SlotKind::Float | SlotKind::Bool);
+    let scalar = |k: SlotKind| {
+        matches!(
+            k,
+            SlotKind::Int | SlotKind::Float | SlotKind::Bool | SlotKind::Char
+        )
+    };
     let frameless = !(ssa.values.iter().any(|v| is_heap(v.ty))
         || !proto.param_kinds.iter().all(|k| scalar(*k))
         || !scalar(proto.return_kind)

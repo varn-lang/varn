@@ -259,7 +259,7 @@ pub(super) fn emit_pure_err_ret(b: &mut FunctionBuilder, ctx: &Ctx<'_>) -> Resul
 pub(super) fn emit_placeholder_return(b: &mut FunctionBuilder, ctx: &Ctx<'_>) {
     match ctx.activation {
         Activation::Framed => match ctx.proto.return_kind {
-            SlotKind::Int | SlotKind::Bool => {
+            SlotKind::Int | SlotKind::Bool | SlotKind::Char => {
                 let z = b.ins().iconst(types::I64, 0);
                 b.ins().return_(&[z]);
             }

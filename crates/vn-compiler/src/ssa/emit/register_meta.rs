@@ -48,6 +48,7 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
         BackendTy::Int => SlotKind::Int,
         BackendTy::Float => SlotKind::Float,
         BackendTy::Bool => SlotKind::Bool,
+        BackendTy::Char => SlotKind::Char,
         BackendTy::Str => SlotKind::Str,
 
         BackendTy::Class(_)
@@ -61,7 +62,6 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
         | BackendTy::Dynamic(DynReason::Runtime) => SlotKind::Ref,
 
         BackendTy::Nullable(_)
-        | BackendTy::Char
         | BackendTy::Decimal
         | BackendTy::BigInt
         | BackendTy::Void

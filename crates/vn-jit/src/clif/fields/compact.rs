@@ -202,6 +202,7 @@ pub(crate) fn store_compact_native(
     let boxed = match value {
         SlotKind::Int => emit::box_int(b, native),
         SlotKind::Bool => emit::box_bool(b, native),
+        SlotKind::Char => emit::box_char(b, native),
         SlotKind::Float => emit::box_f64(b, native),
         SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
             unreachable!("native field store only carries scalar values")

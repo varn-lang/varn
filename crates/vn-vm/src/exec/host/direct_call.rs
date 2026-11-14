@@ -15,6 +15,7 @@ fn kind_accepts(kind: SlotKind, arg: VmValue) -> bool {
     match kind {
         SlotKind::Int => arg.is_int(),
         SlotKind::Bool => arg.is_bool(),
+        SlotKind::Char => arg.is_char(),
         SlotKind::Float => arg.is_f64() || arg.is_int(),
         SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => true,
     }

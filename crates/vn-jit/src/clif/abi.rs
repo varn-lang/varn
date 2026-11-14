@@ -32,7 +32,10 @@ pub(super) fn raw_signature(proto: &FunctionProto, nparams: usize, cc: CallConv)
             sig.params.push(AbiParam::new(types::I64));
         }
     }
-    if proto.return_kind == SlotKind::Int || proto.return_kind == SlotKind::Bool {
+    if matches!(
+        proto.return_kind,
+        SlotKind::Int | SlotKind::Bool | SlotKind::Char
+    ) {
         sig.returns.push(AbiParam::new(types::I64));
     } else if proto.return_kind == SlotKind::Float {
         sig.returns.push(AbiParam::new(types::F64));
@@ -199,6 +202,7 @@ pub(super) fn build_wrapper(
                 let un = match proto.param_kinds.get(i) {
                     Some(SlotKind::Int) => super::emit::unbox_int(&mut b, boxed),
                     Some(SlotKind::Bool) => super::emit::unbox_bool(&mut b, boxed),
+                    Some(SlotKind::Char) => super::emit::unbox_char(&mut b, boxed),
                     _ if proto.param_kinds.get(i) == Some(&SlotKind::Float)
                         || super::emit::meta_is_float(&proto.register_meta, 1 + i) =>
                     {
@@ -214,7 +218,7 @@ pub(super) fn build_wrapper(
             }
             let call = b.ins().call(raw_ref, &args);
             match proto.return_kind {
-                SlotKind::Int | SlotKind::Bool | SlotKind::Float => {
+                SlotKind::Int | SlotKind::Bool | SlotKind::Char | SlotKind::Float => {
                     let raw_res = b.inst_results(call)[0];
                     retag_raw_return(&mut b, raw_res, proto.return_kind)
                 }
@@ -255,6 +259,7 @@ pub(crate) fn push_native_arg(
 ) {
     match class {
         NativeClass::Word if kind == SlotKind::Bool => args.push(super::emit::unbox_bool(b, boxed)),
+        NativeClass::Word if kind == SlotKind::Char => args.push(super::emit::unbox_char(b, boxed)),
         NativeClass::Word => args.push(super::emit::unbox_int(b, boxed)),
         NativeClass::Float => args.push(super::emit::unbox_f64_coerce(b, boxed)),
         NativeClass::Boxed => {

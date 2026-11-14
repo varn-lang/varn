@@ -20,7 +20,9 @@ impl Elem {
         match kind {
             SlotKind::Int => Elem::Int,
             SlotKind::Float => Elem::Float,
-            SlotKind::Bool | SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => Elem::Boxed,
+            SlotKind::Bool | SlotKind::Char | SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
+                Elem::Boxed
+            }
         }
     }
 

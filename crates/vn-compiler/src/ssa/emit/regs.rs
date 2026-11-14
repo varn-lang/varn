@@ -270,7 +270,7 @@ pub(crate) fn var_reg(var: VarId, nparams: usize) -> u8 {
     }
 }
 
-const POOLS: usize = 6;
+const POOLS: usize = 7;
 
 fn pool_index(k: vn_types::register_meta::SlotKind) -> usize {
     use vn_types::register_meta::SlotKind;
@@ -281,5 +281,6 @@ fn pool_index(k: vn_types::register_meta::SlotKind) -> usize {
         SlotKind::Str => 3,
         SlotKind::Ref => 4,
         SlotKind::Dynamic => 5,
+        SlotKind::Char => 6,
     }
 }

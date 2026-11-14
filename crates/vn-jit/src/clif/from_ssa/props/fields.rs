@@ -101,6 +101,7 @@ fn emit_get_fixed_field_native(
         vn_types::register_meta::SlotKind::Float => types::F64,
         vn_types::register_meta::SlotKind::Int
         | vn_types::register_meta::SlotKind::Bool
+        | vn_types::register_meta::SlotKind::Char
         | vn_types::register_meta::SlotKind::Str
         | vn_types::register_meta::SlotKind::Ref
         | vn_types::register_meta::SlotKind::Dynamic => types::I64,

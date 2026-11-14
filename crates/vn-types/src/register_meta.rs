@@ -5,6 +5,7 @@ pub enum SlotKind {
     Int,
     Float,
     Bool,
+    Char,
 
     Str,
 
@@ -20,6 +21,7 @@ impl SlotKind {
             SlotKind::Int => Some(ValueConv::ExpectInt),
             SlotKind::Float => Some(ValueConv::ExpectFloat),
             SlotKind::Bool => Some(ValueConv::ExpectBool),
+            SlotKind::Char => Some(ValueConv::ExpectChar),
             SlotKind::Str => Some(ValueConv::ExpectStr),
             SlotKind::Ref => Some(ValueConv::ExpectRef),
             SlotKind::Dynamic => None,
@@ -44,7 +46,7 @@ impl SlotClass {
             SlotKind::Int => SlotClass::Gpr,
             SlotKind::Float => SlotClass::Fpr,
             SlotKind::Ref => SlotClass::Ref,
-            SlotKind::Dynamic | SlotKind::Bool | SlotKind::Str => SlotClass::Dyn,
+            SlotKind::Dynamic | SlotKind::Bool | SlotKind::Char | SlotKind::Str => SlotClass::Dyn,
         }
     }
 

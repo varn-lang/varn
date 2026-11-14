@@ -96,6 +96,7 @@ pub(super) fn emit_get(
             SlotKind::Int => Out::Native(res),
             SlotKind::Float
             | SlotKind::Bool
+            | SlotKind::Char
             | SlotKind::Str
             | SlotKind::Ref
             | SlotKind::Dynamic => Out::Boxed(box_int(b, res)),
