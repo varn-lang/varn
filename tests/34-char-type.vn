@@ -1,4 +1,5 @@
 import { describe, it, expect } from "std:test";
+import { Csv, Json } from "std:encoding";
 
 
 
@@ -202,5 +203,13 @@ await describe("34 char type", async () => {
         expect(mixed.length).toBe(3)
         expect(mixed[0]).toBe('q')
         expect(mixed[1]).toBe(1)
+    });
+
+    await it("a char serializes as a one-character string", async () => {
+        const wide: char[] = ['h', 'é', '😀']
+        expect(Json.stringify(wide)).toBe("[\"h\",\"é\",\"😀\"]")
+        expect(Json.stringify(new Glyph('"'))).toBe("{\"mark\":\"\\\"\"}")
+        const rows: char[][] = [['a', ','], ['b', 'c']]
+        expect(Csv.stringify(rows)).toBe("a,\",\"\nb,c\n")
     });
 });

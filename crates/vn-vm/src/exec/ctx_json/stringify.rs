@@ -111,6 +111,10 @@ pub(super) fn write_json_vm(ctx: &ExecCtx, val: VmValue, out: &mut String, depth
         write_json_float(f, out);
         return;
     }
+    if let Some(c) = val.as_char() {
+        write_quoted_str(c.encode_utf8(&mut [0u8; 4]), out);
+        return;
+    }
     if val.is_sso() {
         let mut buf = [0u8; vn_types::vm_value::SSO_MAX_LEN];
         write_quoted_str(val.sso_as_str(&mut buf), out);
