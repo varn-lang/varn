@@ -73,11 +73,7 @@ impl GenState {
     }
 
     pub(crate) fn resume_input(&self) -> VmValue {
-        if self.closing.get() {
-            VmValue::from_bool(true)
-        } else {
-            VmValue::null()
-        }
+        VmValue::from_bool(self.closing.get())
     }
 
     pub(crate) fn close(&self) {

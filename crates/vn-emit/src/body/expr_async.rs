@@ -1,7 +1,6 @@
 use super::context::FnEmitter;
-use super::small_utils::bool_lit;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, DynReason, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt};
+use vn_tir::{BackendTy, DynReason, Resolution, Span, TirExpr, TirExprKind, TirStmt};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_await(&mut self, argument: ExprId, ty: BackendTy, span: Span) -> TirExpr {
@@ -38,29 +37,19 @@ impl<'a> FnEmitter<'a> {
         argument: Option<ExprId>,
         span: Span,
     ) -> Vec<TirStmt> {
-        let dyn_ty = BackendTy::Dynamic(DynReason::Declared);
         let yield_expr = self.lower_yield(argument, span);
         let mut out = std::mem::take(&mut self.pending);
-        let resumed = self.fresh_local(dyn_ty);
+        let closing = self.fresh_local(BackendTy::Bool);
         out.push(TirStmt::Let {
-            local: resumed,
-            ty: dyn_ty,
+            local: closing,
+            ty: BackendTy::Bool,
             init: Some(yield_expr),
         });
         out.push(TirStmt::If {
             cond: TirExpr {
-                kind: TirExprKind::Binary {
-                    op: TirBinOp::Eq,
-                    lhs: Box::new(TirExpr {
-                        kind: TirExprKind::Var,
-                        ty: dyn_ty,
-                        res: Resolution::Local(resumed),
-                        span,
-                    }),
-                    rhs: Box::new(bool_lit(true)),
-                },
+                kind: TirExprKind::Var,
                 ty: BackendTy::Bool,
-                res: Resolution::None,
+                res: Resolution::Local(closing),
                 span,
             },
             then_body: vec![TirStmt::Return(None)],

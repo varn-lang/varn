@@ -250,7 +250,7 @@ pub trait NativeCtx: crate::Buffers {
         v.is_null()
     }
 
-    fn resume_generator(&mut self, _generator: VmValue, _input: VmValue) -> crate::NativeFnResult {
+    fn resume_generator(&mut self, _generator: VmValue, _closing: bool) -> crate::NativeFnResult {
         Err(crate::NativeError::failure(
             "generators can only be resumed by the VM",
         ))

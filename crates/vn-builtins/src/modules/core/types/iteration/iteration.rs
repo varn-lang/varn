@@ -5,7 +5,7 @@ pub struct GeneratorImpl;
 pub struct AsyncGeneratorImpl;
 
 fn resume(ctx: &mut dyn NativeCtx, this: VmValue) -> Result<VmValue, NativeError> {
-    ctx.resume_generator(this, VmValue::null())
+    ctx.resume_generator(this, false)
 }
 
 vn_contract! {

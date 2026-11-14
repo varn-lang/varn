@@ -307,7 +307,7 @@ impl NativeCtx for ExecCtx {
         unsafe { &mut *self.resources.get() }
     }
 
-    fn resume_generator(&mut self, generator: VmValue, input: VmValue) -> vn_types::NativeFnResult {
+    fn resume_generator(&mut self, generator: VmValue, closing: bool) -> vn_types::NativeFnResult {
         let state = self
             .heap
             .generator_of(generator)
@@ -315,7 +315,7 @@ impl NativeCtx for ExecCtx {
         if state.is_async {
             return Ok(self.step_generator_task(&state));
         }
-        self.resume_generator(&state, input)
+        self.resume_generator(&state, VmValue::from_bool(closing))
             .map_err(vn_types::NativeError::from)
     }
 

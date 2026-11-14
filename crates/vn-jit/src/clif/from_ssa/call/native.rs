@@ -22,7 +22,7 @@ pub(crate) fn emit_call_native_op(
     }
     let receiver = heap::boxed_value(b, ctx, values, object)?;
     if args.len() <= 1 && op_id == vn_core::op_id::KnownOp::GeneratorNext.id() {
-        return emit_generator_next(b, ctx, values, receiver, args.first().copied());
+        return emit_generator_next(b, ctx, receiver);
     }
     if args.len() == 1
         && (op_id == vn_core::op_id::KnownOp::StrCharCodeAt.id()
@@ -210,26 +210,16 @@ pub(crate) fn emit_call_native_op(
 fn emit_generator_next(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
-    values: &[Option<Value>],
     receiver: Value,
-    input: Option<u32>,
 ) -> Result<Value, String> {
     let exec_ctx = ctx.exec_ctx;
     let (gen_tag, gen_payload) = b.ins().isplit(receiver);
-    let (in_tag, in_payload) = match input {
-        Some(v) => heap::boxed_parts(b, ctx, values, v)?,
-        None => (
-            b.ins()
-                .iconst(types::I64, vn_types::vm_value::KIND_NULL as i64),
-            b.ins().iconst(types::I64, 0),
-        ),
-    };
     let out = super::direct::entry_out_slot(b);
     let entry = super::super::super::emit::call_helper(
         b,
         ctx.cc,
         ctx.helpers.generator_enter,
-        &[exec_ctx, gen_tag, gen_payload, in_tag, in_payload, out],
+        &[exec_ctx, gen_tag, gen_payload, out],
     );
     let entered = b.create_block();
     let merge = b.create_block();

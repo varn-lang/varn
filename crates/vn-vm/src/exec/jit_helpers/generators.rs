@@ -8,14 +8,11 @@ pub(crate) extern "C" fn jit_generator_enter(
     ctx: *mut ExecCtx,
     gen_tag: u64,
     gen_payload: u64,
-    input_tag: u64,
-    input_payload: u64,
     out: *mut usize,
 ) -> usize {
     unsafe {
         let ctx_ref = &mut *ctx;
         let receiver = VmValue::from_raw_parts(gen_tag, gen_payload);
-        let input = VmValue::from_raw_parts(input_tag, input_payload);
         let Some(state) = ctx_ref.heap.generator_of(receiver) else {
             jit_propagate_error(
                 ctx_ref,
@@ -26,7 +23,7 @@ pub(crate) extern "C" fn jit_generator_enter(
         let result = if state.is_async {
             Ok(ctx_ref.step_generator_task(&state))
         } else {
-            match ctx_ref.enter_generator(&state, input) {
+            match ctx_ref.enter_generator(&state, VmValue::from_bool(false)) {
                 Ok(Entry::Done(v)) => Ok(v),
                 Ok(Entry::Mounted(depth)) => match ctx_ref.generator_entry(depth) {
                     Some(entry) => {
