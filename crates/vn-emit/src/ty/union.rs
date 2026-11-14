@@ -35,7 +35,14 @@ pub(super) fn lower_union(
         if matches!(first, BackendTy::Dynamic(_)) {
             return None;
         }
-        iter.all(|t| t == first).then_some(first)
+        let rest: Vec<BackendTy> = iter.collect();
+        if rest.iter().all(|t| *t == first) {
+            return Some(first);
+        }
+        let base = first.representation();
+        rest.iter()
+            .all(|t| t.representation() == base)
+            .then_some(base)
     }
 
     if non_null.len() == member_ids.len() {
