@@ -36,6 +36,12 @@ impl ArrayRepr {
                 .collect::<Option<Vec<char>>>()
                 .map(ArrayRepr::Char);
         }
+        if first.is_bool() && items.iter().all(|v| v.is_bool()) {
+            return Some(ArrayRepr::Bool(items.iter().map(|v| v.as_bool()).collect()));
+        }
+        if first.is_heap() && items.iter().all(|v| v.is_heap()) {
+            return Some(ArrayRepr::Ref(items.iter().map(|v| v.as_heap()).collect()));
+        }
         None
     }
 }
@@ -76,6 +82,8 @@ impl VmArray {
             ArrayRepr::I64(_) => SlotKind::Int,
             ArrayRepr::F64(_) => SlotKind::Float,
             ArrayRepr::Char(_) => SlotKind::Char,
+            ArrayRepr::Bool(_) => SlotKind::Bool,
+            ArrayRepr::Ref(_) => SlotKind::Ref,
         }
     }
 
@@ -87,14 +95,6 @@ impl VmArray {
     #[inline(always)]
     pub fn is_empty(&self) -> bool {
         self.repr().is_empty()
-    }
-
-    #[inline(always)]
-    pub fn as_boxed(&self) -> Option<&Vec<VmValue>> {
-        match self.repr() {
-            ArrayRepr::Boxed(v) => Some(&v.items),
-            ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => None,
-        }
     }
 }
 

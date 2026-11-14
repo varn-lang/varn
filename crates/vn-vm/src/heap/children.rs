@@ -54,11 +54,16 @@ fn for_each_heap_child(
         | HeapObj::FrozenModule(_)
         | HeapObj::Buffer(_) => {}
         HeapObj::Module(m) => m.exports.iter().for_each(|&v| value(v)),
-        HeapObj::Array(arr) | HeapObj::Tuple(arr) => {
-            if let Some(items) = arr.as_boxed() {
-                items.iter().for_each(|&v| value(v));
+        HeapObj::Array(arr) | HeapObj::Tuple(arr) => match arr.repr() {
+            vn_types::ArrayRepr::Boxed(items) => items.iter().for_each(|&v| value(v)),
+            vn_types::ArrayRepr::Ref(items) => {
+                items.iter().for_each(|&r| value(VmValue::from_heap(r)))
             }
-        }
+            vn_types::ArrayRepr::I64(_)
+            | vn_types::ArrayRepr::F64(_)
+            | vn_types::ArrayRepr::Char(_)
+            | vn_types::ArrayRepr::Bool(_) => {}
+        },
         HeapObj::Object(obj_ref) => {
             let guard = obj_ref.borrow();
             guard.for_each_field(|_, v| value(v));

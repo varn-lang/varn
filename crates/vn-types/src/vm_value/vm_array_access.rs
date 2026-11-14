@@ -1,4 +1,4 @@
-use super::{ArrayRepr, BoxedElems, VmArray, VmValue};
+use super::{ArrayRepr, BoxedElems, HeapRef, VmArray, VmValue};
 use crate::memory::ExternalLedger;
 
 #[inline(always)]
@@ -19,6 +19,8 @@ impl VmArray {
             ArrayRepr::I64(v) => v.get(idx).map(|&n| VmValue::from_int(n)),
             ArrayRepr::F64(v) => v.get(idx).map(|&f| VmValue::from_f64(f)),
             ArrayRepr::Char(v) => v.get(idx).map(|&c| VmValue::from_char(c)),
+            ArrayRepr::Bool(v) => v.get(idx).map(|&b| VmValue::from_bool(b)),
+            ArrayRepr::Ref(v) => v.get(idx).map(|&r| VmValue::from_heap(r)),
         }
     }
 
@@ -61,6 +63,24 @@ impl VmArray {
                         return true;
                     }
                 }
+                ArrayRepr::Bool(v) => {
+                    if idx >= v.len() {
+                        return false;
+                    }
+                    if val.is_bool() {
+                        v[idx] = val.as_bool();
+                        return true;
+                    }
+                }
+                ArrayRepr::Ref(v) => {
+                    if idx >= v.len() {
+                        return false;
+                    }
+                    if val.is_heap() {
+                        v[idx] = val.as_heap();
+                        return true;
+                    }
+                }
             }
         }
 
@@ -96,6 +116,18 @@ impl VmArray {
                         return;
                     }
                 }
+                ArrayRepr::Bool(v) => {
+                    if val.is_bool() {
+                        push_vec(v, val.as_bool());
+                        return;
+                    }
+                }
+                ArrayRepr::Ref(v) => {
+                    if val.is_heap() {
+                        push_vec(v, val.as_heap());
+                        return;
+                    }
+                }
             }
         }
         self.push_repr_change(val);
@@ -113,10 +145,20 @@ impl VmArray {
             } else if let Some(c) = val.as_char() {
                 ExternalLedger::grow(std::mem::size_of::<char>());
                 *self.repr_mut() = ArrayRepr::Char(vec![c]);
+            } else if val.is_bool() {
+                ExternalLedger::grow(std::mem::size_of::<bool>());
+                *self.repr_mut() = ArrayRepr::Bool(vec![val.as_bool()]);
+            } else if val.is_heap() {
+                ExternalLedger::grow(std::mem::size_of::<HeapRef>());
+                *self.repr_mut() = ArrayRepr::Ref(vec![val.as_heap()]);
             } else {
                 match self.repr_mut() {
                     ArrayRepr::Boxed(v) => v.items.push(val),
-                    ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
+                    ArrayRepr::I64(_)
+                    | ArrayRepr::F64(_)
+                    | ArrayRepr::Char(_)
+                    | ArrayRepr::Bool(_)
+                    | ArrayRepr::Ref(_) => {
                         unreachable!("checked Boxed above")
                     }
                 }
@@ -133,6 +175,8 @@ impl VmArray {
             ArrayRepr::I64(v) => v.pop().map(VmValue::from_int),
             ArrayRepr::F64(v) => v.pop().map(VmValue::from_f64),
             ArrayRepr::Char(v) => v.pop().map(VmValue::from_char),
+            ArrayRepr::Bool(v) => v.pop().map(VmValue::from_bool),
+            ArrayRepr::Ref(v) => v.pop().map(VmValue::from_heap),
         }
     }
 
@@ -146,6 +190,8 @@ impl VmArray {
                     ArrayRepr::I64(v) => v.iter().map(|&n| VmValue::from_int(n)).collect(),
                     ArrayRepr::F64(v) => v.iter().map(|&f| VmValue::from_f64(f)).collect(),
                     ArrayRepr::Char(v) => v.iter().map(|&c| VmValue::from_char(c)).collect(),
+                    ArrayRepr::Bool(v) => v.iter().map(|&b| VmValue::from_bool(b)).collect(),
+                    ArrayRepr::Ref(v) => v.iter().map(|&r| VmValue::from_heap(r)).collect(),
                     ArrayRepr::Boxed(_) => unreachable!(),
                 };
                 ExternalLedger::grow(boxed.capacity() * std::mem::size_of::<VmValue>());
@@ -154,7 +200,11 @@ impl VmArray {
         }
         match self.repr_mut() {
             ArrayRepr::Boxed(v) => &mut v.items,
-            ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => unreachable!(),
+            ArrayRepr::I64(_)
+            | ArrayRepr::F64(_)
+            | ArrayRepr::Char(_)
+            | ArrayRepr::Bool(_)
+            | ArrayRepr::Ref(_) => unreachable!(),
         }
     }
 
@@ -162,7 +212,11 @@ impl VmArray {
     pub fn get_i64(&self, idx: usize) -> Option<i64> {
         match self.repr() {
             ArrayRepr::I64(v) => v.get(idx).copied(),
-            ArrayRepr::Boxed(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => None,
+            ArrayRepr::Boxed(_)
+            | ArrayRepr::F64(_)
+            | ArrayRepr::Char(_)
+            | ArrayRepr::Bool(_)
+            | ArrayRepr::Ref(_) => None,
         }
     }
 
@@ -173,9 +227,12 @@ impl VmArray {
                 v[idx] = val;
                 true
             }
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
-                false
-            }
+            ArrayRepr::Boxed(_)
+            | ArrayRepr::I64(_)
+            | ArrayRepr::F64(_)
+            | ArrayRepr::Char(_)
+            | ArrayRepr::Bool(_)
+            | ArrayRepr::Ref(_) => false,
         }
     }
 
@@ -183,7 +240,11 @@ impl VmArray {
     pub fn get_f64(&self, idx: usize) -> Option<f64> {
         match self.repr() {
             ArrayRepr::F64(v) => v.get(idx).copied(),
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::Char(_) => None,
+            ArrayRepr::Boxed(_)
+            | ArrayRepr::I64(_)
+            | ArrayRepr::Char(_)
+            | ArrayRepr::Bool(_)
+            | ArrayRepr::Ref(_) => None,
         }
     }
 
@@ -194,9 +255,12 @@ impl VmArray {
                 v[idx] = val;
                 true
             }
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
-                false
-            }
+            ArrayRepr::Boxed(_)
+            | ArrayRepr::I64(_)
+            | ArrayRepr::F64(_)
+            | ArrayRepr::Char(_)
+            | ArrayRepr::Bool(_)
+            | ArrayRepr::Ref(_) => false,
         }
     }
 }

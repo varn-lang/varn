@@ -1,4 +1,4 @@
-use super::VmValue;
+use super::{HeapRef, VmValue};
 
 #[repr(C, u8)]
 #[derive(Debug)]
@@ -10,6 +10,10 @@ pub enum ArrayRepr {
     F64(Vec<f64>) = 2,
 
     Char(Vec<char>) = 3,
+
+    Bool(Vec<bool>) = 4,
+
+    Ref(Vec<HeapRef>) = 5,
 }
 
 #[repr(C)]
@@ -51,6 +55,8 @@ impl ArrayRepr {
             ArrayRepr::I64(_) => 1,
             ArrayRepr::F64(_) => 2,
             ArrayRepr::Char(_) => 3,
+            ArrayRepr::Bool(_) => 4,
+            ArrayRepr::Ref(_) => 5,
         }
     }
 
@@ -61,6 +67,8 @@ impl ArrayRepr {
             ArrayRepr::I64(v) => v.len(),
             ArrayRepr::F64(v) => v.len(),
             ArrayRepr::Char(v) => v.len(),
+            ArrayRepr::Bool(v) => v.len(),
+            ArrayRepr::Ref(v) => v.len(),
         }
     }
 
@@ -75,6 +83,8 @@ impl ArrayRepr {
             ArrayRepr::I64(v) => (v.capacity() * std::mem::size_of::<i64>()) as u64,
             ArrayRepr::F64(v) => (v.capacity() * std::mem::size_of::<f64>()) as u64,
             ArrayRepr::Char(v) => (v.capacity() * std::mem::size_of::<char>()) as u64,
+            ArrayRepr::Bool(v) => (v.capacity() * std::mem::size_of::<bool>()) as u64,
+            ArrayRepr::Ref(v) => (v.capacity() * std::mem::size_of::<HeapRef>()) as u64,
         }
     }
 }

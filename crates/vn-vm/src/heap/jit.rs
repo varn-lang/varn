@@ -90,6 +90,14 @@ impl Heap {
             let char_disc =
                 unsafe { *(&char_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(char_disc, 3, "ArrayRepr::Char discriminant must read 3");
+            let bool_repr = ArrayRepr::Bool(vec![true, false, true]);
+            let bool_disc =
+                unsafe { *(&bool_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
+            assert_eq!(bool_disc, 4, "ArrayRepr::Bool discriminant must read 4");
+            let ref_repr = ArrayRepr::Ref(Vec::new());
+            let ref_disc =
+                unsafe { *(&ref_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
+            assert_eq!(ref_disc, 5, "ArrayRepr::Ref discriminant must read 5");
 
             (ArrayRepr::DISC_OFF, ptr_off, len_off)
         };

@@ -16,15 +16,7 @@ pub(crate) fn stringify_csv(
 
     match ctx.heap.get(value.as_heap()) {
         Some(HeapObj::Array(arr)) => {
-            let repr = arr.repr();
-            let items = match repr {
-                vn_types::ArrayRepr::Boxed(v) => v.as_vec(),
-                vn_types::ArrayRepr::I64(_)
-                | vn_types::ArrayRepr::F64(_)
-                | vn_types::ArrayRepr::Char(_) => {
-                    return Err("CSV stringify expects a boxed array".to_string())
-                }
-            };
+            let items: Vec<VmValue> = (0..arr.len()).filter_map(|i| arr.get_vm(i)).collect();
 
             if items.is_empty() {
                 return Ok(String::new());
@@ -148,6 +140,34 @@ pub(crate) fn stringify_csv(
                                             &mut out,
                                             ctx,
                                             VmValue::from_char(cell),
+                                            delim_char,
+                                        );
+                                    }
+                                    out.push('\n');
+                                }
+                                vn_types::ArrayRepr::Bool(row_items) => {
+                                    for (i, &cell) in row_items.iter().enumerate() {
+                                        if i > 0 {
+                                            out.push(delim_char);
+                                        }
+                                        write_vm_value_csv(
+                                            &mut out,
+                                            ctx,
+                                            VmValue::from_bool(cell),
+                                            delim_char,
+                                        );
+                                    }
+                                    out.push('\n');
+                                }
+                                vn_types::ArrayRepr::Ref(row_items) => {
+                                    for (i, &cell) in row_items.iter().enumerate() {
+                                        if i > 0 {
+                                            out.push(delim_char);
+                                        }
+                                        write_vm_value_csv(
+                                            &mut out,
+                                            ctx,
+                                            VmValue::from_heap(cell),
                                             delim_char,
                                         );
                                     }

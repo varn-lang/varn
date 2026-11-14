@@ -177,6 +177,22 @@ pub(super) fn write_json_vm(ctx: &ExecCtx, val: VmValue, out: &mut String, depth
                             write_json_vm(ctx, VmValue::from_char(elem), out, depth + 1);
                         }
                     }
+                    vn_types::ArrayRepr::Bool(items) => {
+                        for (i, &elem) in items.iter().enumerate() {
+                            if i > 0 {
+                                out.push(',');
+                            }
+                            write_json_vm(ctx, VmValue::from_bool(elem), out, depth + 1);
+                        }
+                    }
+                    vn_types::ArrayRepr::Ref(items) => {
+                        for (i, &elem) in items.iter().enumerate() {
+                            if i > 0 {
+                                out.push(',');
+                            }
+                            write_json_vm(ctx, VmValue::from_heap(elem), out, depth + 1);
+                        }
+                    }
                     vn_types::ArrayRepr::F64(items) => {
                         for (i, &elem) in items.iter().enumerate() {
                             if i > 0 {

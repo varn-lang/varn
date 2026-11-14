@@ -1,0 +1,85 @@
+import { describe, it, expect } from "std:test";
+import { Json } from "std:encoding";
+
+class Node { v: int = 0; constructor(v: int) { this.v = v } }
+
+function flags(n: int): bool[] {
+    const out: bool[] = []
+    for (let i = 0; i < n; i = i + 1) { out.push(i % 3 == 0) }
+    return out
+}
+function countTrue(xs: bool[]): int {
+    let k = 0
+    for (let i = 0; i < xs.length; i = i + 1) { if (xs[i]) { k = k + 1 } }
+    return k
+}
+function flip(xs: bool[]): void { for (let i = 0; i < xs.length; i = i + 1) { xs[i] = !xs[i] } }
+function nodes(n: int): Node[] {
+    const out: Node[] = []
+    for (let i = 0; i < n; i = i + 1) { out.push(new Node(i)) }
+    return out
+}
+function sumNodes(xs: Node[]): int {
+    let t = 0
+    for (let i = 0; i < xs.length; i = i + 1) { t = t + xs[i].v }
+    return t
+}
+function rotate(xs: Node[]): void {
+    const first = xs[0]
+    for (let i = 0; i + 1 < xs.length; i = i + 1) { xs[i] = xs[i + 1] }
+    xs[xs.length - 1] = first
+}
+function totalLength(xs: str[]): int {
+    let t = 0
+    for (let i = 0; i < xs.length; i = i + 1) { t = t + xs[i].length }
+    return t
+}
+
+await describe("358 bool and reference arrays", async () => {
+    await it("a bool array is filled, flipped and scanned in compiled loops", async () => {
+        let total = 0
+        for (let r = 0; r < 200; r = r + 1) {
+            const fs = flags(90)
+            total = total + countTrue(fs)
+            flip(fs)
+            total = total + countTrue(fs) * 2
+        }
+        expect(total).toBe(30000)
+        const bs: bool[] = []
+        bs.push(true)
+        bs[0] = false
+        expect(bs[0]).toBe(false)
+        expect(bs.pop()).toBe(false)
+        expect(bs.length).toBe(0)
+        expect(Json.stringify([true, false, true])).toBe("[true,false,true]")
+    });
+
+    await it("an array of instances holds references the collector keeps alive", async () => {
+        let total = 0
+        for (let r = 0; r < 200; r = r + 1) {
+            const ns = nodes(40)
+            rotate(ns)
+            total = total + sumNodes(ns) + ns[0].v
+        }
+        expect(total).toBe(156200)
+        const ns = nodes(3)
+        expect(ns.pop()?.v).toBe(2)
+        expect(ns[1].v).toBe(1)
+        expect(Json.stringify(ns)).toBe("[{\"v\":0},{\"v\":1}]")
+        const mixed: (Node | int)[] = [new Node(7)]
+        mixed.push(3)
+        expect(mixed.length).toBe(2)
+        expect(mixed[1]).toBe(3)
+    });
+
+    await it("a string array keeps every string when short and long ones mix", async () => {
+        const words: str[] = ["a long string that lives in the heap", "another long string in the heap!!"]
+        let w = 0
+        for (let i = 0; i < 300; i = i + 1) { w = w + totalLength(words) }
+        expect(w).toBe(20700)
+        words.push("ab")
+        expect(words.length).toBe(3)
+        expect(words[2]).toBe("ab")
+        expect(totalLength(words)).toBe(71)
+    });
+});
