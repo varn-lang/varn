@@ -1,3 +1,4 @@
+mod copy;
 mod fixed;
 pub(crate) mod meta;
 
@@ -5,6 +6,7 @@ mod get_set;
 mod intrinsic;
 mod specialized;
 
+pub(crate) use copy::copy_value;
 pub(crate) use fixed::{get_fixed_field, get_fixed_field_at, set_fixed_field, set_fixed_field_at};
 pub(crate) use get_set::{
     find_getter, find_setter, get_property, get_property_maybe, set_property,

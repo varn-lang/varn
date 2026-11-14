@@ -5,6 +5,29 @@ import { describe, it, expect } from "std:test";
 class User(public id: int, public name: str, public role: str = "guest") {}
 
 class ServerNode(public host: str, public port: int, public isMaster: bool = false) {}
+
+class Shape {
+    sides: int = 3;
+    scale: float = 1.5;
+    filled: bool = true;
+    describe(): str { return "shape" }
+}
+
+class Square extends Shape {
+    corner: str = "sharp";
+    override describe(): str { return "square" }
+}
+
+interface Labelled {
+    label: str;
+    shout(): str;
+}
+
+class Badge implements Labelled {
+    label: str;
+    constructor(label: str) { this.label = label; }
+    shout(): str { return this.label + "!" }
+}
 await describe("89 raw strings and with expressions", async () => {
         await it("Raw string with unescaped quotes, backslashes and multiline content", async () => {
         let jsonStr = """{
@@ -58,6 +81,27 @@ await describe("89 raw strings and with expressions", async () => {
         expect(node1.port).toBe(5000);
         expect(node1.isMaster).toBe(false);
         });
-        
+
+        await it("`with` on a class instance keeps its runtime class and its methods", async () => {
+        const base: Shape = new Square();
+        const copy = base with { sides: 4, filled: false };
+        expect(copy is Square).toBe(true);
+        expect(copy.describe()).toBe("square");
+        expect(copy.sides).toBe(4);
+        expect(copy.scale).toBe(1.5);
+        expect(copy.filled).toBe(false);
+        expect((copy as Square).corner).toBe("sharp");
+        expect(base.sides).toBe(3);
+        expect(base.filled).toBe(true);
+        const u = new User(1, "Ann") with { name: "Bea" };
+        expect(u is User).toBe(true);
+        });
+
+        await it("`with` through an interface keeps the implementing class", async () => {
+        const held: Labelled = new Badge("go");
+        const renamed = held with { label: "stop" };
+        expect(renamed.shout()).toBe("stop!");
+        expect(held.shout()).toBe("go!");
+        });
 
 });

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use vn_core::ast::{ArrayEl, ExprId, ObjectProp};
 use vn_tir::{
     BackendTy, DynReason, Resolution, Span, TirArg, TirArrayEl, TirExpr, TirExprKind,
-    TirObjectEntry,
+    TirObjectEntry, TirStmt,
 };
 
 impl<'a> FnEmitter<'a> {
@@ -168,19 +168,68 @@ impl<'a> FnEmitter<'a> {
         {
             return self.lower_value_with(class, object, properties, ty, span);
         }
-        let mut entries = vec![TirObjectEntry::Spread(self.lower_expr(object))];
+        let source = self.lower_expr(object);
+        let mut given: Vec<(Arc<str>, TirExpr)> = Vec::new();
         for p in properties {
             if let ObjectProp::Property { key, value, .. } = p
                 && let Some(name) = prop_key_name(key)
             {
-                entries.push(TirObjectEntry::Field {
-                    name,
-                    value: self.lower_expr(*value),
-                });
+                given.push((name, self.lower_expr(*value)));
             }
         }
+        self.copy_with(source, given, ty, span)
+    }
+
+    pub(super) fn copy_with(
+        &mut self,
+        source: TirExpr,
+        given: Vec<(Arc<str>, TirExpr)>,
+        ty: BackendTy,
+        span: Span,
+    ) -> TirExpr {
+        let copy = self.fresh_local(ty);
+        let copy_var = TirExpr {
+            kind: TirExprKind::Var,
+            ty,
+            res: Resolution::Local(copy),
+            span,
+        };
+        let duplicate = TirExpr {
+            kind: TirExprKind::MethodCall {
+                recv: Box::new(source),
+                name: Arc::from(vn_core::runtime_ops::COPY),
+                args: Vec::new(),
+            },
+            ty,
+            res: Resolution::NativeOp(vn_core::runtime_ops::op_id(vn_core::runtime_ops::COPY)),
+            span,
+        };
+        let mut stmts = vec![TirStmt::Let {
+            local: copy,
+            ty,
+            init: Some(duplicate),
+        }];
+        for (name, value) in given {
+            let field_ty = self
+                .class_of(ty)
+                .and_then(|ci| ci.field(&name))
+                .map_or(value.ty, |field| field.ty);
+            let target = self.field_place(copy_var.clone(), name, field_ty, span);
+            stmts.push(TirStmt::Expr(TirExpr {
+                kind: TirExprKind::Assign {
+                    target: Box::new(target),
+                    value: Box::new(value),
+                },
+                ty: field_ty,
+                res: Resolution::None,
+                span,
+            }));
+        }
         TirExpr {
-            kind: TirExprKind::ObjectLit { entries },
+            kind: TirExprKind::Seq {
+                stmts,
+                value: Box::new(copy_var),
+            },
             ty,
             res: Resolution::None,
             span,

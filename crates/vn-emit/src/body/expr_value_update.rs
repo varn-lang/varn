@@ -4,7 +4,7 @@ use super::small_utils::assign_bin_op;
 use std::sync::Arc;
 use vn_core::ast::operators::AssignOp;
 use vn_core::ast::{ExprId, ExprKind};
-use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind, TirObjectEntry, TirStmt};
+use vn_tir::{BackendTy, Span, TirExpr, TirStmt};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn is_value_field_place(&self, expr: ExprId) -> bool {
@@ -145,16 +145,6 @@ impl<'a> FnEmitter<'a> {
         {
             return self.value_with_given(class, source, vec![(name, value)], ty, span);
         }
-        TirExpr {
-            kind: TirExprKind::ObjectLit {
-                entries: vec![
-                    TirObjectEntry::Spread(source),
-                    TirObjectEntry::Field { name, value },
-                ],
-            },
-            ty,
-            res: Resolution::None,
-            span,
-        }
+        self.copy_with(source, vec![(name, value)], ty, span)
     }
 }

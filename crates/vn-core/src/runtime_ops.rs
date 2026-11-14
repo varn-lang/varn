@@ -10,8 +10,9 @@ pub const STR_INDEX: &str = "str-index";
 pub const INHERITED: &str = "inherited";
 pub const PARSE_TYPED: &str = "parse-typed";
 pub const META: &str = "meta";
+pub const COPY: &str = "copy";
 
-pub const ALL: [&str; 12] = [
+pub const ALL: [&str; 13] = [
     CONFORM,
     DECODE,
     VERIFY_CALL,
@@ -24,6 +25,7 @@ pub const ALL: [&str; 12] = [
     INHERITED,
     PARSE_TYPED,
     META,
+    COPY,
 ];
 
 pub const COUNT: u64 = ALL.len() as u64;

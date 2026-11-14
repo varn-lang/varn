@@ -42,7 +42,18 @@ const RUNTIME_OPS: [(&str, NativeFn); vn_core::runtime_ops::ALL.len()] = [
         crate::exec::conform::parse_typed_native,
     ),
     (vn_core::runtime_ops::META, meta_native),
+    (vn_core::runtime_ops::COPY, copy_native),
 ];
+
+fn copy_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult {
+    let [value] = args else {
+        return Err(NativeError::type_error("copy: expected one value"));
+    };
+    match ctx.boundary_mut() {
+        Some(boundary) => boundary.copy(*value),
+        None => Err(NativeError::type_error("copy: this context has no heap")),
+    }
+}
 
 fn meta_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult {
     let [target, key] = args else {
@@ -275,6 +286,11 @@ pub(crate) fn verify_call(
 }
 
 impl Boundary for ExecCtx {
+    fn copy(&mut self, value: VmValue) -> NativeFnResult {
+        crate::exec::props::copy_value(value, &mut self.heap)
+            .map_err(|error| NativeError::type_error(error.to_string()))
+    }
+
     fn meta(&mut self, target: VmValue, key: vn_core::MetaKey) -> NativeFnResult {
         crate::exec::props::meta::resolve_meta(target, key, &mut self.heap)
             .map_err(|error| NativeError::type_error(error.to_string()))
