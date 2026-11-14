@@ -26,9 +26,9 @@
   block@0 │ v0:Ref, v1:Dynamic
   Box.map (native)
     kinds (10 regs):
-  block   │ kinds                                                     
-  ────────┼───────────────────────────────────────────────────────────
-  block@0 │ v0:Dynamic, v1:Ref, v2:Ref, v3:Dynamic, v4:Dynamic, v5:Ref
+  block   │ kinds                                                 
+  ────────┼───────────────────────────────────────────────────────
+  block@0 │ v0:Ref, v1:Ref, v2:Ref, v3:Dynamic, v4:Dynamic, v5:Ref
   <closure> (native)
     kinds (7 regs):
   block   │ kinds                                         

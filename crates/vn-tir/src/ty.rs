@@ -164,12 +164,30 @@ impl BackendTy {
                 let repr = vn_core::layout::TypeLayout::of_field(Some(kind)).repr;
                 (repr == vn_core::layout::ScalarRepr::Ref).then_some(kind)
             }
-            BackendTy::Tuple(_)
-            | BackendTy::Enum(_)
-            | BackendTy::Fn(_)
+            BackendTy::Tuple(_) => Some(T::Tuple),
+            BackendTy::Enum(_) => Some(T::Enum),
+            BackendTy::Fn(_) | BackendTy::Dynamic(DynReason::Callable) => Some(T::Function),
+            BackendTy::Dynamic(DynReason::Range(_)) => Some(T::Range),
+            BackendTy::Dynamic(DynReason::TaskHandle(_)) => Some(T::TaskHandle),
+            BackendTy::Dynamic(
+                DynReason::HostBoundary
+                | DynReason::Union
+                | DynReason::IndexSignature
+                | DynReason::Declared
+                | DynReason::Awaitable(_)
+                | DynReason::Yields(_)
+                | DynReason::ClassObject(_)
+                | DynReason::CoreMember
+                | DynReason::Spread
+                | DynReason::Interface(_)
+                | DynReason::Shape(_)
+                | DynReason::Unrecorded
+                | DynReason::Generic
+                | DynReason::Boxed
+                | DynReason::Runtime,
+            )
             | BackendTy::Void
-            | BackendTy::Never
-            | BackendTy::Dynamic(_) => None,
+            | BackendTy::Never => None,
         }
     }
 

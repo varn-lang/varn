@@ -29,8 +29,8 @@ fn <module> (arity: 1, regs: 15, upvalues: 0)
   0033 │  14 │ Move                [0m │ r13 = r6
   0035 │  14 │ LoadNull            [0m │ r14 = null
   0036 │  14 │ LoadNull            [0m │ r12 = null
-  0037 │  14 │ [35mCall                [0m │ r8 = r1, (r12..r14)
-  0040 │  14 │ [33mThrow               [0m │ r8
+  0037 │  14 │ [35mCall                [0m │ r3 = r1, (r12..r14)
+  0040 │  14 │ [33mThrow               [0m │ r3
   0042 │  15 │ [36mLoadGlobalIdx       [0m │ r1 = global@2
   0044 │  15 │ LoadNull            [0m │ r12 = null
   0045 │  15 │ [35mCall                [0m │ r3 = r1, (r12)
@@ -43,8 +43,8 @@ fn <module> (arity: 1, regs: 15, upvalues: 0)
   0061 │  16 │ Move                [0m │ r13 = r6
   0063 │  16 │ LoadNull            [0m │ r14 = null
   0064 │  16 │ LoadNull            [0m │ r12 = null
-  0065 │  16 │ [35mCall                [0m │ r8 = r1, (r12..r14)
-  0068 │  16 │ [33mThrow               [0m │ r8
+  0065 │  16 │ [35mCall                [0m │ r9 = r1, (r12..r14)
+  0068 │  16 │ [33mThrow               [0m │ r9
   0070 │  17 │ LoadNull            [0m │ r12 = null
   0071 │  17 │ [35mCall                [0m │ r2 = r3, (r12)
   0074 │  17 │ [32mNeqImm              [0m │ r5 = r2 != 2
@@ -54,13 +54,13 @@ fn <module> (arity: 1, regs: 15, upvalues: 0)
   0083 │  17 │ Move                [0m │ r13 = r6
   0085 │  17 │ LoadNull            [0m │ r14 = null
   0086 │  17 │ LoadNull            [0m │ r12 = null
-  0087 │  17 │ [35mCall                [0m │ r8 = r1, (r12..r14)
-  0090 │  17 │ [33mThrow               [0m │ r8
+  0087 │  17 │ [35mCall                [0m │ r3 = r1, (r12..r14)
+  0090 │  17 │ [33mThrow               [0m │ r3
   0092 │  18 │ [36mLoadNativeGlobalIdx [0m │ r1 = native@0
   0094 │  18 │ [36mLoadConst           [0m │ r6 = #5  [2m;[0m [32m"closure ok"[0m
   0096 │  18 │ Move                [0m │ r13 = r6
   0098 │  18 │ LoadNull            [0m │ r12 = null
-  0099 │  18 │ [35mCall                [0m │ r7 = r1, (r12..r13)
+  0099 │  18 │ [35mCall                [0m │ r8 = r1, (r12..r13)
   0102 │  18 │ LoadNull            [0m │ r11 = null
   0103 │  18 │ [33mReturn              [0m │ r11
 

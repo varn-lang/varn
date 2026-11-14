@@ -59,13 +59,17 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
         | BackendTy::Map(..)
         | BackendTy::Set(_)
         | BackendTy::Tuple(_)
-        | BackendTy::Dynamic(DynReason::Runtime) => SlotKind::Ref,
-
-        BackendTy::Nullable(_)
         | BackendTy::Decimal
         | BackendTy::BigInt
-        | BackendTy::Void
-        | BackendTy::Never
-        | BackendTy::Dynamic(_) => SlotKind::Dynamic,
+        | BackendTy::Dynamic(
+            DynReason::Runtime
+            | DynReason::Callable
+            | DynReason::Range(_)
+            | DynReason::TaskHandle(_),
+        ) => SlotKind::Ref,
+
+        BackendTy::Nullable(_) | BackendTy::Void | BackendTy::Never | BackendTy::Dynamic(_) => {
+            SlotKind::Dynamic
+        }
     }
 }

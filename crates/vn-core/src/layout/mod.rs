@@ -72,20 +72,15 @@ impl TypeLayout {
                 | RuntimeKind::Task
                 | RuntimeKind::Bytes
                 | RuntimeKind::Generator
-                | RuntimeKind::AsyncGenerator,
-            ) => Self::new(8, 8, ScalarRepr::Ref),
-            Some(
-                RuntimeKind::Null
-                | RuntimeKind::Str
+                | RuntimeKind::AsyncGenerator
                 | RuntimeKind::BigInt
                 | RuntimeKind::Decimal
                 | RuntimeKind::Tuple
                 | RuntimeKind::Range
                 | RuntimeKind::Enum
-                | RuntimeKind::Opaque
                 | RuntimeKind::TaskHandle,
-            )
-            | None => Self::BOXED,
+            ) => Self::new(8, 8, ScalarRepr::Ref),
+            Some(RuntimeKind::Null | RuntimeKind::Str | RuntimeKind::Opaque) | None => Self::BOXED,
         }
     }
 }
