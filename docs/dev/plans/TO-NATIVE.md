@@ -52,7 +52,7 @@ Hechos que condicionan el plan:
 
 ## 2. Items
 
-### N1. Los tipos que siempre viven en el heap son una referencia
+### N1. Los tipos que siempre viven en el heap son una referencia — hecho (`e88371a7`)
 
 - **Qué cambia:** tupla, enum, función, rango, task handle, `BigInt` y
   `Decimal` pasan a `ScalarRepr::Ref` (8 B, null por `COMPACT_REF_NULL`) en los
@@ -70,7 +70,25 @@ Hechos que condicionan el plan:
 - **Comparación:** en Rust, Swift, C# y Kotlin un tipo referencia ocupa un
   puntero en un campo.
 
-### N2. Una variante sin datos es un valor inmediato
+### N2. Una variante sin datos es un valor inmediato — requiere decisión del dueño
+
+- **Hallazgo al implementarlo:** un inmediato necesita la identidad de su enum
+  para imprimirse, compararse y resolver métodos. Esa identidad no existe en
+  compilación: un enum se registra en tiempo de ejecución (`CLASS_REGISTRY`,
+  local al hilo) y un valor enviado a otro hilo viaja por nombre y se
+  reconstruye sin clase. Codificar un índice de registro en la palabra de
+  etiqueta obliga a que un campo de enum vuelva a ocupar 16 B, más que los 8 B
+  de `Ref` que ya le da N1. Hay dos diseños de raíz:
+  - **A. Inmediato con identidad de ejecución:** `KIND_ENUM | índice << 8` y
+    la etiqueta declarada en el payload, con un registro por heap indexado por
+    (módulo, nombre). Quita la asignación y la lectura de memoria de
+    `GetEnumTag` y la igualdad, pero el campo y el registro siguen siendo
+    un par de 16 B.
+  - **B. Modelo de C# y Swift:** en código tipado un enum sin datos es su
+    etiqueta en un registro nativo y en un campo de 8 B (o menos), y la
+    identidad se añade solo al convertirlo a `dynamic` o a código genérico
+    borrado. Es el diseño de máxima resolución estática, pero exige una
+    conversión en cada frontera de borrado, igual que N5.
 
 - **Qué cambia:** un nuevo `KIND_ENUM` (7) cuyo payload identifica la variante:
   un registro de enums en tiempo de ejecución (id del enum) y la etiqueta
@@ -92,7 +110,7 @@ Hechos que condicionan el plan:
   su discriminante entero; Rust y Swift guardan los enums con datos como una
   unión con etiqueta.
 
-### N3. Los escalares nulables usan un nicho en los campos
+### N3. Los escalares nulables usan un nicho en los campos — hecho (`abbf7d1d`)
 
 - **Qué cambia:** `bool?` en 1 B (2 es null), `char?` en 4 B (0x110000 es null),
   enum inmediato nulable en 8 B (un payload reservado es null). `int?` y
@@ -105,7 +123,7 @@ Hechos que condicionan el plan:
   (nicho por encima de 0x10FFFF) y `Option<i64>` en 16 B; Swift hace lo mismo
   con sus *extra inhabitants*.
 
-### N4. Arrays de bool y de referencias sin caja
+### N4. Arrays de bool y de referencias sin caja — hecho (`980eaa78`)
 
 - **Qué cambia:** `ArrayRepr::Bool(Vec<bool>)` (1 B por elemento) y
   `ArrayRepr::Ref` (punteros de 8 B con nicho de null) para elementos que
@@ -138,4 +156,7 @@ Hechos que condicionan el plan:
 
 ## 3. Orden
 
-N1 → N2 → N3 → N4. N3 usa el enum inmediato de N2. N5 y N6 esperan sus decisiones.
+N1, N3 y N4 están hechos. N2, N5 y N6 esperan decisión del dueño: N2 y N5
+comparten la pregunta de qué pasa en la frontera con el código genérico
+borrado, así que conviene decidirlas juntas. El nicho de enum nulable de N3
+espera a N2.
