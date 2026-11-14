@@ -12,6 +12,14 @@ class Glyph {
     constructor(mark: char) { this.mark = mark; }
 }
 
+function sameBool(a: bool, b: bool): bool { return a == b }
+function differ(a: char, b: char): bool { return a != b }
+function occurrences(text: str, target: char): int {
+    let n = 0
+    for (const c of text.chars()) { if (c == target) { n = n + 1 } }
+    return n
+}
+
 await describe("34 char type", async () => {
     await it("tests", async () => {
         
@@ -89,5 +97,17 @@ await describe("34 char type", async () => {
         for (let i = 0; i < 200; i = i + 1) { glyphs.push(new Glyph(char.fromCode(65 + i % 26))) }
         expect(glyphs[27].mark).toBe('B')
         expect(glyphs[27].mark == 'B').toBe(true)
+    });
+
+    await it("bool and char values compare with their own typed equality", async () => {
+        let agree = 0
+        for (let i = 0; i < 3000; i = i + 1) {
+            if (sameBool(i % 2 == 0, i % 3 == 0)) { agree = agree + 1 }
+            if (differ('a', i % 2 == 0 ? 'a' : 'b')) { agree = agree + 1 }
+        }
+        expect(agree).toBe(3000)
+        expect(occurrences("banana", 'a')).toBe(3)
+        expect(sameBool(true, false)).toBe(false)
+        expect(differ('x', 'x')).toBe(false)
     });
 });

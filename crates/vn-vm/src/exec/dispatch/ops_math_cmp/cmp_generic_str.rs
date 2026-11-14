@@ -22,6 +22,8 @@ impl ExecCtx {
             OpCode::Eq | OpCode::EqStr => {
                 VmValue::from_bool(crate::exec::compare::eq(a, b, &self.heap))
             }
+            OpCode::EqBool | OpCode::EqChar => VmValue::from_bool(a.bits_eq(b)),
+            OpCode::NeqBool | OpCode::NeqChar => VmValue::from_bool(!a.bits_eq(b)),
             OpCode::Neq | OpCode::NeqStr => {
                 VmValue::from_bool(crate::exec::compare::neq(a, b, &self.heap))
             }
@@ -358,6 +360,10 @@ impl ExecCtx {
             | OpCode::NeqFloat
             | OpCode::EqStr
             | OpCode::NeqStr
+            | OpCode::EqBool
+            | OpCode::NeqBool
+            | OpCode::EqChar
+            | OpCode::NeqChar
             | OpCode::ModInt
             | OpCode::PowInt
             | OpCode::Intrinsic

@@ -100,6 +100,8 @@ fn compare_fact(
                 | SsaBinOp::StrConcat
                 | SsaBinOp::StrEq
                 | SsaBinOp::StrNe
+                | SsaBinOp::BitsEq
+                | SsaBinOp::BitsNe
                 | SsaBinOp::Dyn(_)) => *other,
             },
         ),

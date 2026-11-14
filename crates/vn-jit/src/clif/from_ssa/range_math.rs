@@ -129,6 +129,8 @@ pub(super) fn header_check(
         | SsaBinOp::StrConcat
         | SsaBinOp::StrEq
         | SsaBinOp::StrNe
+        | SsaBinOp::BitsEq
+        | SsaBinOp::BitsNe
         | SsaBinOp::Dyn(_) => None,
     }
 }

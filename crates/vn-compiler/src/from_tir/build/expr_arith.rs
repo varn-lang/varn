@@ -25,7 +25,11 @@ impl<'m> Builder<'m> {
         let op_ty = if lt == rt
             && matches!(
                 lt,
-                BackendTy::Int | BackendTy::Float | BackendTy::Bool | BackendTy::Str
+                BackendTy::Int
+                    | BackendTy::Float
+                    | BackendTy::Bool
+                    | BackendTy::Str
+                    | BackendTy::Char
             ) {
             lt
         } else {

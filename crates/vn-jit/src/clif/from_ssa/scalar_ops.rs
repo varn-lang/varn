@@ -63,7 +63,9 @@ pub(super) fn emit_bin(
         FloatGe => bool_f64(b, FloatCC::GreaterThanOrEqual, a, c),
 
         Dyn(_) => return Err("from_ssa: a Dyn operator is lowered by dynop".into()),
-        StrConcat | StrEq | StrNe => return Err("from_ssa: concat is a heap op".into()),
+        StrConcat | StrEq | StrNe | BitsEq | BitsNe => {
+            return Err("from_ssa: concat is a heap op".into())
+        }
         IntDiv | IntMod | IntPow | FloatMod | FloatPow => unreachable!("lowered above"),
     })
 }
@@ -116,6 +118,8 @@ pub(super) fn checked_int(
         | SsaBinOp::StrConcat
         | SsaBinOp::StrEq
         | SsaBinOp::StrNe
+        | SsaBinOp::BitsEq
+        | SsaBinOp::BitsNe
         | SsaBinOp::Dyn(_) => {
             let (r, o) = b.ins().smul_overflow(a, c);
             (r, o, helpers.mul)

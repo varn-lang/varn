@@ -285,6 +285,8 @@ pub(super) fn analyze(
                     | SsaBinOp::StrConcat
                     | SsaBinOp::StrEq
                     | SsaBinOp::StrNe
+                    | SsaBinOp::BitsEq
+                    | SsaBinOp::BitsNe
                     | SsaBinOp::Dyn(_) => None,
                 };
                 if let Some(r) = r

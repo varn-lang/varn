@@ -103,7 +103,11 @@ impl ExecCtx {
             OpCode::Eq
             | OpCode::Neq
             | OpCode::EqStr
+            | OpCode::EqBool
+            | OpCode::EqChar
             | OpCode::NeqStr
+            | OpCode::NeqBool
+            | OpCode::NeqChar
             | OpCode::Lt
             | OpCode::Lte
             | OpCode::Gt

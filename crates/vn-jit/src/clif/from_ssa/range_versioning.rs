@@ -110,6 +110,8 @@ pub(super) fn version_plans(
                         | SsaBinOp::StrConcat
                         | SsaBinOp::StrEq
                         | SsaBinOp::StrNe
+                        | SsaBinOp::BitsEq
+                        | SsaBinOp::BitsNe
                         | SsaBinOp::Dyn(_) => mul_range(a, c),
                     };
                     if let Some(r) = r

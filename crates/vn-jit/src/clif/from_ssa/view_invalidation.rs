@@ -57,7 +57,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
             | SsaBinOp::FloatLe
             | SsaBinOp::FloatGt
             | SsaBinOp::FloatGe => true,
-            SsaBinOp::StrEq | SsaBinOp::StrNe => true,
+            SsaBinOp::StrEq | SsaBinOp::StrNe | SsaBinOp::BitsEq | SsaBinOp::BitsNe => true,
             SsaBinOp::IntDiv
             | SsaBinOp::IntMod
             | SsaBinOp::IntPow

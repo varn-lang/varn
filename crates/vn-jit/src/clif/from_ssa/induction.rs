@@ -76,6 +76,8 @@ pub(super) fn in_range_steps(
             | SsaBinOp::StrConcat
             | SsaBinOp::StrEq
             | SsaBinOp::StrNe
+            | SsaBinOp::BitsEq
+            | SsaBinOp::BitsNe
             | SsaBinOp::Dyn(_) => continue,
         };
         let (k, bound) = if blk.params.contains(&k) {
@@ -140,6 +142,8 @@ pub(super) fn in_range_steps(
                     | SsaBinOp::StrConcat
                     | SsaBinOp::StrEq
                     | SsaBinOp::StrNe
+                    | SsaBinOp::BitsEq
+                    | SsaBinOp::BitsNe
                     | SsaBinOp::Dyn(_) => false,
                 };
                 if proven {

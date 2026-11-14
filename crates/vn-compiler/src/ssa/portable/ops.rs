@@ -40,6 +40,8 @@ pub(super) fn project_bin(
         OpCode::NeqFloat => SsaBinOp::FloatNe,
         OpCode::EqStr => SsaBinOp::StrEq,
         OpCode::NeqStr => SsaBinOp::StrNe,
+        OpCode::EqBool | OpCode::EqChar => SsaBinOp::BitsEq,
+        OpCode::NeqBool | OpCode::NeqChar => SsaBinOp::BitsNe,
         OpCode::LtFloat => SsaBinOp::FloatLt,
         OpCode::LteFloat => SsaBinOp::FloatLe,
         OpCode::GtFloat => SsaBinOp::FloatGt,

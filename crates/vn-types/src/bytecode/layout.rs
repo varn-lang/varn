@@ -165,7 +165,11 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
         | O::EqFloat
         | O::NeqFloat
         | O::EqStr
+        | O::EqBool
+        | O::EqChar
         | O::NeqStr
+        | O::NeqBool
+        | O::NeqChar
         | O::GetIndex
         | O::ArrayGetIndex
         | O::BytesGetIndex

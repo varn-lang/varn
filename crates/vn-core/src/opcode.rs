@@ -211,12 +211,17 @@ pub enum OpCode {
     GteImm,
     EqImm,
     NeqImm,
+
+    EqBool,
+    NeqBool,
+    EqChar,
+    NeqChar,
 }
 
 impl OpCode {
     #[inline(always)]
     pub fn from_u8(v: u8) -> Option<Self> {
-        if v <= OpCode::NeqImm as u8 {
+        if v <= OpCode::NeqChar as u8 {
             Some(unsafe { std::mem::transmute::<u8, OpCode>(v) })
         } else {
             None

@@ -88,9 +88,19 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
             Instanceof => OpCode::Instanceof,
             In => OpCode::In,
         },
-        BackendTy::Bool
-        | BackendTy::Char
-        | BackendTy::Bytes
+        BackendTy::Bool => match op {
+            Eq => OpCode::EqBool,
+            Ne => OpCode::NeqBool,
+            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
+            | Shl | Shr | Ushr | Instanceof | In => dynamic_opcode(op),
+        },
+        BackendTy::Char => match op {
+            Eq => OpCode::EqChar,
+            Ne => OpCode::NeqChar,
+            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
+            | Shl | Shr | Ushr | Instanceof | In => dynamic_opcode(op),
+        },
+        BackendTy::Bytes
         | BackendTy::Enum(_)
         | BackendTy::Fn(_)
         | BackendTy::Dynamic(_)
@@ -103,27 +113,32 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
         | BackendTy::Set(_)
         | BackendTy::Tuple(_)
         | BackendTy::Class(_)
-        | BackendTy::Nullable(_) => match op {
-            Add => OpCode::Add,
-            Sub => OpCode::Sub,
-            Mul => OpCode::Mul,
-            Div => OpCode::Div,
-            Mod => OpCode::Mod,
-            Pow => OpCode::Pow,
-            Eq => OpCode::Eq,
-            Ne => OpCode::Neq,
-            Lt => OpCode::Lt,
-            Le => OpCode::Lte,
-            Gt => OpCode::Gt,
-            Ge => OpCode::Gte,
-            BitAnd => OpCode::BitAnd,
-            BitOr => OpCode::BitOr,
-            BitXor => OpCode::BitXor,
-            Shl => OpCode::Shl,
-            Shr => OpCode::Shr,
-            Ushr => OpCode::Ushr,
-            Instanceof => OpCode::Instanceof,
-            In => OpCode::In,
-        },
+        | BackendTy::Nullable(_) => dynamic_opcode(op),
+    }
+}
+
+fn dynamic_opcode(op: HirBinOp) -> OpCode {
+    use HirBinOp::*;
+    match op {
+        Add => OpCode::Add,
+        Sub => OpCode::Sub,
+        Mul => OpCode::Mul,
+        Div => OpCode::Div,
+        Mod => OpCode::Mod,
+        Pow => OpCode::Pow,
+        Eq => OpCode::Eq,
+        Ne => OpCode::Neq,
+        Lt => OpCode::Lt,
+        Le => OpCode::Lte,
+        Gt => OpCode::Gt,
+        Ge => OpCode::Gte,
+        BitAnd => OpCode::BitAnd,
+        BitOr => OpCode::BitOr,
+        BitXor => OpCode::BitXor,
+        Shl => OpCode::Shl,
+        Shr => OpCode::Shr,
+        Ushr => OpCode::Ushr,
+        Instanceof => OpCode::Instanceof,
+        In => OpCode::In,
     }
 }

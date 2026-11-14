@@ -151,7 +151,11 @@ impl ExecCtx {
             | OpCode::EqFloat
             | OpCode::NeqFloat
             | OpCode::EqStr
+            | OpCode::EqBool
+            | OpCode::EqChar
             | OpCode::NeqStr
+            | OpCode::NeqBool
+            | OpCode::NeqChar
             | OpCode::ModInt
             | OpCode::PowInt
             | OpCode::Intrinsic
@@ -320,7 +324,11 @@ impl ExecCtx {
             | OpCode::EqFloat
             | OpCode::NeqFloat
             | OpCode::EqStr
+            | OpCode::EqBool
+            | OpCode::EqChar
             | OpCode::NeqStr
+            | OpCode::NeqBool
+            | OpCode::NeqChar
             | OpCode::ModInt
             | OpCode::PowInt
             | OpCode::Intrinsic

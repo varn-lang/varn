@@ -232,6 +232,25 @@ pub(super) fn emit(
             );
             Out::Native(cond)
         }
+        SsaOp::Binary {
+            op: op @ (vn_types::ssa::SsaBinOp::BitsEq | vn_types::ssa::SsaBinOp::BitsNe),
+            lhs,
+            rhs,
+        } => {
+            use cranelift_codegen::ir::condcodes::IntCC;
+            let (a_tag, a_payload) = heap::boxed_parts(b, ctx, values, *lhs)?;
+            let (c_tag, c_payload) = heap::boxed_parts(b, ctx, values, *rhs)?;
+            let tag_eq = b.ins().icmp(IntCC::Equal, a_tag, c_tag);
+            let payload_eq = b.ins().icmp(IntCC::Equal, a_payload, c_payload);
+            let same = b.ins().band(tag_eq, payload_eq);
+            let same = b.ins().uextend(cranelift_codegen::ir::types::I64, same);
+            let cond = if *op == vn_types::ssa::SsaBinOp::BitsEq {
+                same
+            } else {
+                b.ins().bxor_imm_u(same, 1)
+            };
+            Out::Native(cond)
+        }
         SsaOp::BuildStr { parts } => {
             let boxed = heap::emit_build_str(b, ctx, values, parts)?;
             Out::Boxed(boxed)

@@ -39,6 +39,9 @@ pub enum SsaBinOp {
     StrEq,
     StrNe,
 
+    BitsEq,
+    BitsNe,
+
     Dyn(DynBinOp),
 }
 
