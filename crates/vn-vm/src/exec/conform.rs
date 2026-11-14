@@ -177,7 +177,7 @@ fn fit_in(cx: &Cx, v: VmValue, desc: &TypeDesc, scope: Option<&Scope>) -> Option
         TypeDesc::Literal(value) => exact(match value {
             vn_core::TypeLiteral::Int(n) => v.is_int() && v.as_int() == *n,
             vn_core::TypeLiteral::Bool(b) => v.is_bool() && v.as_bool() == *b,
-            vn_core::TypeLiteral::Char(c) => heap.char_of(v) == Some(*c),
+            vn_core::TypeLiteral::Char(c) => v.as_char() == Some(*c),
             vn_core::TypeLiteral::Str(s) => {
                 heap.is_string(v) && heap.str_repr_borrowed(v).as_ref() == s
             }

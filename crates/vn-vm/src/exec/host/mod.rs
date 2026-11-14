@@ -265,10 +265,6 @@ impl NativeCtx for ExecCtx {
         self.heap.alloc_decimal(value)
     }
 
-    fn alloc_char(&mut self, value: char) -> VmValue {
-        self.heap.alloc_char(value)
-    }
-
     fn alloc_map(&mut self, entries: Vec<(VmValue, VmValue)>) -> VmValue {
         self.host_alloc_map(entries)
     }
@@ -337,10 +333,6 @@ impl NativeCtx for ExecCtx {
         };
         self.close_generator_state(&state)
             .map_err(vn_types::NativeError::from)
-    }
-
-    fn as_char(&self, v: VmValue) -> Option<char> {
-        self.heap.char_of(v)
     }
 
     fn as_bigint(&self, v: VmValue) -> Option<num_bigint::BigInt> {

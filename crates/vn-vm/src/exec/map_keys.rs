@@ -64,7 +64,6 @@ impl ExecCtx {
                 | HeapObj::Range(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_)
-                | HeapObj::Char(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_),
             )

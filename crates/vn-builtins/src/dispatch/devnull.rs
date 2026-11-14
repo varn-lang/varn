@@ -9,9 +9,6 @@ impl vn_types::NativeCtx for DevNullModuleCtx {
     fn alloc_decimal(&mut self, _value: bigdecimal::BigDecimal) -> VmValue {
         VmValue::null()
     }
-    fn alloc_char(&mut self, _value: char) -> VmValue {
-        VmValue::null()
-    }
     fn alloc_map(&mut self, _entries: Vec<(VmValue, VmValue)>) -> VmValue {
         VmValue::null()
     }

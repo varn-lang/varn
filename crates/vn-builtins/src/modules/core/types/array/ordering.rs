@@ -83,7 +83,7 @@ fn natural_scalar_cmp(ctx: &dyn NativeCtx, a: VmValue, b: VmValue) -> Option<Ord
     if a.is_bool() && b.is_bool() {
         return Some(a.as_bool().cmp(&b.as_bool()));
     }
-    if let (Some(x), Some(y)) = (ctx.as_char(a), ctx.as_char(b)) {
+    if let (Some(x), Some(y)) = (a.as_char(), b.as_char()) {
         return Some(x.cmp(&y));
     }
     if let (Some(x), Some(y)) = (ctx.as_bigint(a), ctx.as_bigint(b)) {

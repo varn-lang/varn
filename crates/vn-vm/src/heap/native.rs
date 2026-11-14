@@ -275,10 +275,6 @@ impl NativeCtx for Heap {
         panic!("resources() unavailable on bare Heap")
     }
 
-    fn as_char(&self, v: VmValue) -> Option<char> {
-        self.deref().char_of(v)
-    }
-
     fn as_bigint(&self, v: VmValue) -> Option<num_bigint::BigInt> {
         self.deref().bigint_of(v)
     }
@@ -305,10 +301,6 @@ impl NativeCtx for Heap {
 
     fn alloc_range_data(&mut self, range: vn_types::value::RangeData) -> VmValue {
         self.deref_mut().alloc_range_data(range)
-    }
-
-    fn alloc_char(&mut self, value: char) -> VmValue {
-        self.deref_mut().alloc_char(value)
     }
 
     fn alloc_bigint(&mut self, value: num_bigint::BigInt) -> VmValue {

@@ -52,7 +52,6 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
 
         BackendTy::Class(_)
         | BackendTy::Array(_)
-        | BackendTy::Char
         | BackendTy::Bytes
         | BackendTy::Enum(_)
         | BackendTy::Fn(_)
@@ -62,6 +61,7 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
         | BackendTy::Dynamic(DynReason::Runtime) => SlotKind::Ref,
 
         BackendTy::Nullable(_)
+        | BackendTy::Char
         | BackendTy::Decimal
         | BackendTy::BigInt
         | BackendTy::Void

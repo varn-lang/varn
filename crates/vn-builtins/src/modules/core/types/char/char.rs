@@ -31,13 +31,13 @@ vn_contract! {
         fn isAscii(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_ascii() }
         fn isPunctuation(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_ascii_punctuation() }
 
-        fn toUppercase(ctx: &mut dyn NativeCtx, this: char) -> VmValue {
+        fn toUppercase(_ctx: &mut dyn NativeCtx, this: char) -> VmValue {
             let u = this.to_uppercase().next().unwrap_or(this);
-            ctx.alloc_char(u)
+            VmValue::from_char(u)
         }
-        fn toLowercase(ctx: &mut dyn NativeCtx, this: char) -> VmValue {
+        fn toLowercase(_ctx: &mut dyn NativeCtx, this: char) -> VmValue {
             let l = this.to_lowercase().next().unwrap_or(this);
-            ctx.alloc_char(l)
+            VmValue::from_char(l)
         }
     }
 }

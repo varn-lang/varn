@@ -56,30 +56,6 @@ impl ExecCtx {
     }
 
     pub(crate) fn exec_typeof(&self, v: VmValue) -> &'static str {
-        use vn_core::RuntimeKind;
-        if v.is_null() {
-            return RuntimeKind::Null.name();
-        }
-        if v.is_int() {
-            return RuntimeKind::Int.name();
-        }
-        if v.is_f64() {
-            return RuntimeKind::Float.name();
-        }
-        if v.is_bool() {
-            return RuntimeKind::Bool.name();
-        }
-        if v.is_sso() {
-            return RuntimeKind::Str.name();
-        }
-        if !v.is_heap() {
-            return vn_core::UNKNOWN;
-        }
-        let r = v.as_heap();
-        match self.heap.get(r) {
-            Some(obj) => obj.tag().name(),
-            None if self.heap.instance(r).is_some() => RuntimeKind::Object.name(),
-            None => vn_core::UNKNOWN,
-        }
+        crate::exec::advanced::typeof_val(v, &self.heap)
     }
 }

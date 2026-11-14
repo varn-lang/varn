@@ -234,7 +234,6 @@ pub(super) fn write_json_vm(ctx: &ExecCtx, val: VmValue, out: &mut String, depth
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )

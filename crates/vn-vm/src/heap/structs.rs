@@ -51,7 +51,6 @@ pub struct HeapInner {
     pub(crate) young_lazies: Vec<Rc<crate::task::LazyTask>>,
     pub(super) bigint_interner: FxHashMap<num_bigint::BigInt, HeapRef>,
     pub(super) decimal_interner: FxHashMap<bigdecimal::BigDecimal, HeapRef>,
-    pub(super) char_interner: FxHashMap<char, HeapRef>,
     pub(super) major_work: Vec<HeapRef>,
     pub hotspot: Option<Rc<RefCell<HotspotCounters>>>,
     pub(super) identity_index: FxHashMap<usize, HeapRef>,
@@ -82,7 +81,6 @@ impl HeapInner {
             young_lazies: Vec::new(),
             bigint_interner: FxHashMap::default(),
             decimal_interner: FxHashMap::default(),
-            char_interner: FxHashMap::default(),
             major_work: Vec::new(),
             gc_collections: 0,
             gc_time: GcTime::default(),
@@ -122,7 +120,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Spread(_) => None,
         }
     }

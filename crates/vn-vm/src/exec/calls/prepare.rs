@@ -46,7 +46,6 @@ pub(crate) fn try_prepare_call_fast(
         | HeapObj::EnumVariant(_)
         | HeapObj::BigInt(_)
         | HeapObj::Decimal(_)
-        | HeapObj::Char(_)
         | HeapObj::Generator(_)
         | HeapObj::Spread(_) => None,
     }
@@ -252,7 +251,6 @@ pub(crate) fn prepare_call(
             | HeapObj::Range(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => {}
         }

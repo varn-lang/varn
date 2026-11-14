@@ -20,6 +20,9 @@ pub(crate) fn typeof_val(val: VmValue, heap: &Heap) -> &'static str {
     if val.is_sso() {
         return RuntimeKind::Str.name();
     }
+    if val.is_char() {
+        return RuntimeKind::Char.name();
+    }
     if val.is_heap() {
         let r = val.as_heap();
         return match heap.get(r) {
@@ -56,7 +59,6 @@ pub(crate) fn instanceof(obj: VmValue, class_nv: VmValue, heap: &Heap) -> bool {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
@@ -85,9 +87,7 @@ pub(crate) fn instanceof(obj: VmValue, class_nv: VmValue, heap: &Heap) -> bool {
         n if n == vn_core::RuntimeKind::Float.name() => return obj.is_f64() || obj.is_int(),
         n if n == vn_core::RuntimeKind::Bool.name() => return obj.is_bool(),
         n if n == vn_core::RuntimeKind::Null.name() => return obj.is_null(),
-        n if n == vn_core::RuntimeKind::Char.name() => {
-            return obj.is_heap() && matches!(heap.get(obj.as_heap()), Some(HeapObj::Char(_)))
-        }
+        n if n == vn_core::RuntimeKind::Char.name() => return obj.is_char(),
         n if n == vn_core::RuntimeKind::Decimal.name() => {
             return obj.is_heap() && matches!(heap.get(obj.as_heap()), Some(HeapObj::Decimal(_)))
         }
@@ -122,7 +122,6 @@ pub(crate) fn instanceof(obj: VmValue, class_nv: VmValue, heap: &Heap) -> bool {
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -172,7 +171,6 @@ pub(crate) fn op_in(key: VmValue, obj: VmValue, heap: &Heap) -> bool {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

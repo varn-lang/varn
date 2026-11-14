@@ -63,7 +63,6 @@ fn decimal_of(v: VmValue, heap: &Heap) -> Option<Decimal> {
             | HeapObj::Range(_)
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

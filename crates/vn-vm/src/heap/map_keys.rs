@@ -30,10 +30,6 @@ impl HeapInner {
                 }
                 self.lookup_str_map_key(s.as_str())
             }
-            Some(HeapObj::Char(c)) => self
-                .char_interner
-                .get(c)
-                .map(|&p| MapKey(VmValue::from_heap(p))),
             Some(HeapObj::BigInt(b)) => self
                 .bigint_interner
                 .get(b)
@@ -109,7 +105,6 @@ impl HeapInner {
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -127,10 +122,6 @@ impl HeapInner {
             return MapKey(self.alloc_str_interned(s_owned));
         }
         match self.get(v.as_heap()) {
-            Some(HeapObj::Char(c)) => {
-                let c = *c;
-                MapKey(self.alloc_char(c))
-            }
             Some(HeapObj::BigInt(b)) => {
                 let b = b.clone();
                 MapKey(self.alloc_bigint(*b))

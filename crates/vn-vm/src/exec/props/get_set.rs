@@ -35,7 +35,6 @@ pub(crate) fn find_getter(obj: VmValue, key: &str, heap: &Heap) -> Option<VmValu
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
@@ -71,7 +70,6 @@ pub(crate) fn find_setter(obj: VmValue, key: &str, heap: &Heap) -> Option<VmValu
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
@@ -192,7 +190,6 @@ pub(crate) fn set_property(obj: VmValue, key: &str, val: VmValue, heap: &mut Hea
             | HeapObj::Range(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
@@ -251,7 +248,6 @@ pub(super) fn resolve_own_data_property(obj: VmValue, key: &str, heap: &Heap) ->
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

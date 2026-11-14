@@ -16,6 +16,8 @@ pub const KIND_HEAP: u64 = 4;
 
 pub const KIND_SSO: u64 = 5;
 
+pub const KIND_CHAR: u64 = 6;
+
 const SSO_LEN_SHIFT: u32 = 8;
 
 pub const SSO_MAX_LEN: usize = 8;
@@ -125,6 +127,27 @@ impl VmValue {
             tag: KIND_HEAP,
             payload: r.addr(),
         }
+    }
+
+    #[inline(always)]
+    pub fn from_char(c: char) -> Self {
+        Self {
+            tag: KIND_CHAR,
+            payload: u64::from(u32::from(c)),
+        }
+    }
+
+    #[inline(always)]
+    pub fn is_char(self) -> bool {
+        self.kind() == KIND_CHAR
+    }
+
+    #[inline(always)]
+    pub fn as_char(self) -> Option<char> {
+        if !self.is_char() {
+            return None;
+        }
+        u32::try_from(self.payload).ok().and_then(char::from_u32)
     }
 
     #[inline(always)]

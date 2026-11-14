@@ -31,7 +31,6 @@ fn external_bytes_body(cells: &CellSpace, r: HeapRef) -> u64 {
         | HeapObj::EnumVariant(_)
         | HeapObj::BigInt(_)
         | HeapObj::Decimal(_)
-        | HeapObj::Char(_)
         | HeapObj::Generator(_)
         | HeapObj::Spread(_) => 0,
     }

@@ -33,7 +33,6 @@ pub(crate) fn fast_length(val: VmValue, heap: &Heap) -> Option<VmValue> {
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )

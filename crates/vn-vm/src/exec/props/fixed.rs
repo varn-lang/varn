@@ -76,7 +76,6 @@ pub(crate) fn get_fixed_field(obj: VmValue, slot: usize, heap: &mut Heap) -> VmR
                 | HeapObj::Range(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -146,7 +145,6 @@ pub(crate) fn set_fixed_field(
                     | HeapObj::Range(_)
                     | HeapObj::BigInt(_)
                     | HeapObj::Decimal(_)
-                    | HeapObj::Char(_)
                     | HeapObj::Generator(_)
                     | HeapObj::Spread(_),
                 )

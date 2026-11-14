@@ -47,7 +47,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -92,7 +91,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -123,34 +121,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
-            | HeapObj::Spread(_) => None,
-        }
-    }
-
-    pub(crate) fn char_of(&self, v: VmValue) -> Option<char> {
-        match self.get(self.heap_ref(v)?)? {
-            HeapObj::Char(c) => Some(*c),
-            HeapObj::Str(_)
-            | HeapObj::Array(_)
-            | HeapObj::Tuple(_)
-            | HeapObj::Object(_)
-            | HeapObj::Buffer(_)
-            | HeapObj::Module(_)
-            | HeapObj::FrozenModule(_)
-            | HeapObj::VmClosure(_)
-            | HeapObj::Class(_)
-            | HeapObj::NativeFn(..)
-            | HeapObj::BoundMethod(_)
-            | HeapObj::Map(_)
-            | HeapObj::Set(_)
-            | HeapObj::Task(_)
-            | HeapObj::TaskHandle(_)
-            | HeapObj::Range(_)
-            | HeapObj::EnumVariant(_)
-            | HeapObj::BigInt(_)
-            | HeapObj::Decimal(_)
-            | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
     }
@@ -176,7 +146,6 @@ impl HeapInner {
             | HeapObj::Range(_)
             | HeapObj::EnumVariant(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -203,7 +172,6 @@ impl HeapInner {
             | HeapObj::Range(_)
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -230,7 +198,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -257,7 +224,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }
@@ -284,7 +250,6 @@ impl HeapInner {
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_) => None,
         }

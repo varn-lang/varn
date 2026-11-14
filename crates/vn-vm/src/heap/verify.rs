@@ -172,7 +172,6 @@ impl HeapInner {
             | super::obj::HeapObj::EnumVariant(_)
             | super::obj::HeapObj::BigInt(_)
             | super::obj::HeapObj::Decimal(_)
-            | super::obj::HeapObj::Char(_)
             | super::obj::HeapObj::Generator(_)
             | super::obj::HeapObj::Spread(_) => String::new(),
         }

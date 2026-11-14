@@ -35,7 +35,6 @@ impl Heap {
             strings: inner.string_interner.len(),
             bigints: inner.bigint_interner.len(),
             decimals: inner.decimal_interner.len(),
-            chars: inner.char_interner.len(),
         };
 
         let mut counts: FxHashMap<&'static str, (usize, usize)> = FxHashMap::default();

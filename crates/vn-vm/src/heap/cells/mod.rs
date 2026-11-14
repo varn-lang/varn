@@ -64,7 +64,6 @@ impl SlotState {
 
 pub(crate) enum SweptInterned {
     Str(vn_types::RuntimeString),
-    Char(char),
     BigInt(Box<num_bigint::BigInt>),
     Decimal(Box<bigdecimal::BigDecimal>),
 }

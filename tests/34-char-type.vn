@@ -7,6 +7,11 @@ function describeChar(c: char): str {
     if (c is char) return "yes"
     return "no"
 }
+class Glyph {
+    mark: char = '?';
+    constructor(mark: char) { this.mark = mark; }
+}
+
 await describe("34 char type", async () => {
     await it("tests", async () => {
         
@@ -67,5 +72,22 @@ await describe("34 char type", async () => {
         }
         expect(built).toBe("Hello")
         
+    });
+
+    await it("a char is an immediate value wherever it travels", async () => {
+        const held: dynamic = 'q'
+        expect(held is char).toBe(true)
+        expect(held::type).toBe("char")
+        const seen = new Set<char>()
+        seen.add('x')
+        seen.add('x')
+        expect(seen.size).toBe(1)
+        const counts = new Map<char, int>()
+        counts.set('k', 2)
+        expect(counts.get('k')).toBe(2)
+        const glyphs: Glyph[] = []
+        for (let i = 0; i < 200; i = i + 1) { glyphs.push(new Glyph(char.fromCode(65 + i % 26))) }
+        expect(glyphs[27].mark).toBe('B')
+        expect(glyphs[27].mark == 'B').toBe(true)
     });
 });

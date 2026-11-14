@@ -134,8 +134,8 @@ impl FromVm for VnStr {
 
 impl FromVm for char {
     #[inline]
-    fn from_vm(ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
-        ctx.as_char(v)
+    fn from_vm(_ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
+        v.as_char()
             .ok_or_else(|| NativeError::type_error(format!("expected char, got {v:?}")))
     }
 }
@@ -209,8 +209,8 @@ impl IntoVm for &str {
 
 impl IntoVm for char {
     #[inline]
-    fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
-        ctx.alloc_char(self)
+    fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
+        VmValue::from_char(self)
     }
 }
 

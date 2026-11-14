@@ -18,6 +18,9 @@ pub(crate) fn eq(a: VmValue, b: VmValue, heap: &Heap) -> bool {
     if a.is_null() || b.is_null() {
         return false;
     }
+    if a.is_char() || b.is_char() {
+        return a.bits_eq(b);
+    }
     if heap.is_int(a) && b.is_f64() {
         return (heap.as_int(a) as f64) == b.as_f64();
     }
@@ -63,7 +66,6 @@ pub(crate) fn eq(a: VmValue, b: VmValue, heap: &Heap) -> bool {
                 }
                 return sa.as_str() == sb.as_str();
             }
-            (Some(HeapObj::Char(ca)), Some(HeapObj::Char(cb))) => return ca == cb,
             (Some(HeapObj::BigInt(a)), Some(HeapObj::BigInt(b))) => return a == b,
             (Some(HeapObj::Decimal(da)), Some(HeapObj::Decimal(db))) => return da == db,
             (Some(HeapObj::EnumVariant(_)), Some(HeapObj::EnumVariant(_))) => {
@@ -108,7 +110,6 @@ pub(crate) fn eq(a: VmValue, b: VmValue, heap: &Heap) -> bool {
                 | HeapObj::Task(_)
                 | HeapObj::TaskHandle(_)
                 | HeapObj::Range(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -143,7 +144,6 @@ pub(crate) fn eq(a: VmValue, b: VmValue, heap: &Heap) -> bool {
                 | HeapObj::Task(_)
                 | HeapObj::TaskHandle(_)
                 | HeapObj::Range(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -287,15 +287,15 @@ fn text_bytes<'a>(
     if v.is_sso() {
         return Some(v.sso_as_str(buf).as_bytes());
     }
+    if let Some(c) = v.as_char() {
+        let (head, _) = buf.split_at_mut(4);
+        return Some(c.encode_utf8(head).as_bytes());
+    }
     if !v.is_heap() {
         return None;
     }
     match heap.get(v.as_heap()) {
         Some(HeapObj::Str(s)) => Some(s.as_str().as_bytes()),
-        Some(HeapObj::Char(c)) => {
-            let (head, _) = buf.split_at_mut(4);
-            Some(c.encode_utf8(head).as_bytes())
-        }
         Some(
             HeapObj::Array(_)
             | HeapObj::Tuple(_)

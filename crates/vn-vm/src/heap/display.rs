@@ -25,6 +25,12 @@ impl HeapInner {
         } else if nv.is_sso() {
             let mut buf = [0u8; vn_types::vm_value::SSO_MAX_LEN];
             Self::write_text(nv.sso_as_str(&mut buf), out, !path.is_empty());
+        } else if let Some(c) = nv.as_char() {
+            if path.is_empty() {
+                out.push(c);
+            } else {
+                let _ = write!(out, "{c:?}");
+            }
         } else if nv.is_heap() {
             self.write_heap_repr(nv, out, path);
         } else {
@@ -121,13 +127,6 @@ impl HeapInner {
         };
         match obj {
             HeapObj::Str(s) => Self::write_text(s.as_ref(), out, nested),
-            HeapObj::Char(c) => {
-                if nested {
-                    let _ = write!(out, "{c:?}");
-                } else {
-                    out.push(*c);
-                }
-            }
             HeapObj::Array(a) => {
                 let items: Vec<VmValue> = (0..a.len()).filter_map(|i| a.get_vm(i)).collect();
                 self.write_list("[", "]", items.into_iter(), out, path);

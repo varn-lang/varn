@@ -47,7 +47,6 @@ fn for_each_heap_child(
     };
     match obj {
         HeapObj::Str(_)
-        | HeapObj::Char(_)
         | HeapObj::BigInt(_)
         | HeapObj::Decimal(_)
         | HeapObj::Range(_)

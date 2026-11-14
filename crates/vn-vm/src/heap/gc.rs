@@ -92,7 +92,6 @@ impl HeapInner {
         let cells = &self.cells;
         let doomed = |r: &mut HeapRef| cells.state(*r) == SlotState::Free || cells.will_die(*r);
         self.string_interner.retain(|_, idx| !doomed(idx));
-        self.char_interner.retain(|_, idx| !doomed(idx));
         self.bigint_interner.retain(|_, idx| !doomed(idx));
         self.decimal_interner.retain(|_, idx| !doomed(idx));
         self.identity_index.retain(|_, idx| !doomed(idx));
@@ -155,9 +154,6 @@ impl HeapInner {
             match key {
                 super::cells::SweptInterned::Str(s) => {
                     self.string_interner.remove(&s);
-                }
-                super::cells::SweptInterned::Char(c) => {
-                    self.char_interner.remove(&c);
                 }
                 super::cells::SweptInterned::BigInt(n) => {
                     self.bigint_interner.remove(&n);

@@ -345,7 +345,6 @@ impl Boundary for ExecCtx {
                 | HeapObj::Task(_)
                 | HeapObj::TaskHandle(_)
                 | HeapObj::Range(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_)
                 | HeapObj::BigInt(_)

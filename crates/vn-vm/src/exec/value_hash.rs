@@ -34,6 +34,11 @@ fn feed(v: VmValue, heap: &Heap, h: &mut rustc_hash::FxHasher, depth: u32) {
         3u8.hash(h);
         return;
     }
+    if let Some(c) = v.as_char() {
+        7u8.hash(h);
+        c.hash(h);
+        return;
+    }
     if heap.is_string(v) {
         4u8.hash(h);
         heap.str_repr_borrowed(v).as_ref().hash(h);
@@ -91,10 +96,6 @@ fn feed(v: VmValue, heap: &Heap, h: &mut rustc_hash::FxHasher, depth: u32) {
                 fields = fields.wrapping_add(field.finish());
             }
             fields.hash(h);
-        }
-        Some(HeapObj::Char(c)) => {
-            7u8.hash(h);
-            c.hash(h);
         }
         Some(HeapObj::BigInt(b)) => {
             8u8.hash(h);

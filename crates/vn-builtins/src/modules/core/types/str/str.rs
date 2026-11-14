@@ -187,8 +187,8 @@ vn_contract! {
             }
             this.replace(from.as_ref(), to)
         }
-        fn chars(ctx: &mut dyn NativeCtx, this: &VnStr) -> Vec<VmValue> {
-            this.as_str().chars().map(|c| ctx.alloc_char(c)).collect()
+        fn chars(_ctx: &mut dyn NativeCtx, this: &VnStr) -> Vec<VmValue> {
+            this.as_str().chars().map(VmValue::from_char).collect()
         }
 
         fn split(ctx: &mut dyn NativeCtx, this: &VnStr, separator: Option<VmValue>) -> Vec<VmValue> {

@@ -16,7 +16,6 @@ pub(super) fn class_for_property(val: VmValue, heap: &Heap) -> Option<Rc<ClassOb
     let kind = match heap.get(val.as_heap())? {
         HeapObj::BigInt(_) => vn_core::RuntimeKind::BigInt,
         HeapObj::Decimal(_) => vn_core::RuntimeKind::Decimal,
-        HeapObj::Char(_) => vn_core::RuntimeKind::Char,
         HeapObj::Str(_)
         | HeapObj::Array(_)
         | HeapObj::Tuple(_)
@@ -68,7 +67,6 @@ pub(super) fn resolve_intrinsic_method_property(
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -115,7 +113,6 @@ pub(crate) fn get_class(val: VmValue, heap: &Heap) -> Option<Rc<ClassObj>> {
                 | HeapObj::TaskHandle(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Spread(_),
             )
             | None => None,
@@ -129,6 +126,8 @@ pub(crate) fn get_class(val: VmValue, heap: &Heap) -> Option<Rc<ClassObj>> {
         vn_core::RuntimeKind::Bool
     } else if val.is_sso() {
         vn_core::RuntimeKind::Str
+    } else if val.is_char() {
+        vn_core::RuntimeKind::Char
     } else if val.is_null() {
         vn_core::RuntimeKind::Null
     } else {
@@ -170,7 +169,6 @@ pub(crate) fn bind_method_to_receiver(
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

@@ -4,16 +4,6 @@ use super::structs::HeapInner;
 use crate::value::VmValue;
 
 impl HeapInner {
-    pub(crate) fn alloc_char(&mut self, c: char) -> VmValue {
-        if let Some(&idx) = self.char_interner.get(&c) {
-            return VmValue::from_heap(idx);
-        }
-        let idx = self.cells.alloc(HeapObj::Char(c), SlotState::Old);
-        self.note_old(idx);
-        self.char_interner.insert(c, idx);
-        VmValue::from_heap(idx)
-    }
-
     pub(crate) fn alloc_bigint(&mut self, n: num_bigint::BigInt) -> VmValue {
         if let Some(&idx) = self.bigint_interner.get(&n) {
             return VmValue::from_heap(idx);

@@ -58,7 +58,6 @@ fn numeric_of(v: VmValue, heap: &Heap) -> VmResult<Numeric> {
             | HeapObj::TaskHandle(_)
             | HeapObj::Range(_)
             | HeapObj::EnumVariant(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

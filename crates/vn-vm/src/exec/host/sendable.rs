@@ -16,6 +16,9 @@ pub(super) fn to_sendable(
     if val.is_int() {
         return Ok(vn_types::value::SendValue::Int(val.as_int()));
     }
+    if let Some(c) = val.as_char() {
+        return Ok(vn_types::value::SendValue::Char(c));
+    }
     if val.is_f64() {
         return Ok(vn_types::value::SendValue::Float(val.as_f64().to_bits()));
     }
@@ -90,7 +93,6 @@ pub(super) fn to_sendable(
             }
             Some(HeapObj::BigInt(b)) => Ok(vn_types::value::SendValue::BigInt((**b).clone())),
             Some(HeapObj::Decimal(d)) => Ok(vn_types::value::SendValue::Decimal((**d).clone())),
-            Some(HeapObj::Char(c)) => Ok(vn_types::value::SendValue::Char(*c)),
             Some(HeapObj::EnumVariant(d)) => {
                 let d = d.clone();
                 let slots = d

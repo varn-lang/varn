@@ -84,7 +84,6 @@ pub(crate) unsafe extern "C" fn jit_array_get_fast(
                             | crate::heap::HeapObj::EnumVariant(_)
                             | crate::heap::HeapObj::BigInt(_)
                             | crate::heap::HeapObj::Decimal(_)
-                            | crate::heap::HeapObj::Char(_)
                             | crate::heap::HeapObj::Generator(_)
                             | crate::heap::HeapObj::Spread(_),
                         )
@@ -125,7 +124,6 @@ pub(crate) unsafe extern "C" fn jit_array_get_fast(
                 | crate::heap::HeapObj::EnumVariant(_)
                 | crate::heap::HeapObj::BigInt(_)
                 | crate::heap::HeapObj::Decimal(_)
-                | crate::heap::HeapObj::Char(_)
                 | crate::heap::HeapObj::Generator(_)
                 | crate::heap::HeapObj::Spread(_),
             )
@@ -204,7 +202,6 @@ pub(crate) unsafe extern "C" fn jit_array_set_fast(
                         | crate::heap::HeapObj::EnumVariant(_)
                         | crate::heap::HeapObj::BigInt(_)
                         | crate::heap::HeapObj::Decimal(_)
-                        | crate::heap::HeapObj::Char(_)
                         | crate::heap::HeapObj::Generator(_)
                         | crate::heap::HeapObj::Spread(_),
                     )

@@ -97,7 +97,7 @@ impl SendValue {
             }
             SendValue::BigInt(b) => ctx.alloc_bigint(b.clone()),
             SendValue::Decimal(d) => ctx.alloc_decimal(d.clone()),
-            SendValue::Char(c) => ctx.alloc_char(*c),
+            SendValue::Char(c) => VmValue::from_char(*c),
             SendValue::Array(items) => {
                 let mut vm_items = Vec::with_capacity(items.len());
                 for item in items {

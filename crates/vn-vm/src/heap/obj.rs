@@ -34,7 +34,6 @@ pub enum HeapObj {
     EnumVariant(Box<EnumVariantData>),
     BigInt(Box<num_bigint::BigInt>),
     Decimal(Box<bigdecimal::BigDecimal>),
-    Char(char),
     Generator(Rc<crate::generator::GenState>),
     Spread(VmValue),
 }
@@ -52,9 +51,6 @@ impl HeapObj {
             HeapObj::VmClosure(c) => Some(DeadEntry::Identity(Rc::as_ptr(c) as usize)),
             HeapObj::Str(s) if s.is_interned() => Some(DeadEntry::Interned(
                 crate::heap::cells::SweptInterned::Str(s.to_shared()),
-            )),
-            HeapObj::Char(c) => Some(DeadEntry::Interned(
-                crate::heap::cells::SweptInterned::Char(*c),
             )),
             HeapObj::BigInt(n) => Some(DeadEntry::Interned(
                 crate::heap::cells::SweptInterned::BigInt(n.clone()),
@@ -87,7 +83,6 @@ impl HeapObj {
             HeapObj::Class(_) | HeapObj::Generator(_) | HeapObj::VmClosure(_) | HeapObj::Str(_) => {
                 STATE_NEEDS_DROP | STATE_SIDE_TABLE
             }
-            HeapObj::Char(_) => STATE_SIDE_TABLE,
             HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
             | HeapObj::Array(_)
@@ -128,7 +123,6 @@ impl HeapObj {
             HeapObj::EnumVariant(_) => RuntimeKind::Enum,
             HeapObj::BigInt(_) => RuntimeKind::BigInt,
             HeapObj::Decimal(_) => RuntimeKind::Decimal,
-            HeapObj::Char(_) => RuntimeKind::Char,
             HeapObj::Generator(g) if g.is_async => RuntimeKind::AsyncGenerator,
             HeapObj::Generator(_) => RuntimeKind::Generator,
             HeapObj::Spread(_) => RuntimeKind::Array,

@@ -44,7 +44,7 @@ pub(crate) fn invoke_runtime_static(
             let start = stack
                 .pop()
                 .ok_or_else(|| RuntimeError::new("range: stack empty"))?;
-            let r = match (heap.char_of(start), heap.char_of(end)) {
+            let r = match (start.as_char(), end.as_char()) {
                 (Some(a), Some(b)) => vn_types::value::RangeData {
                     elem: vn_types::value::RangeElem::Char,
                     ..vn_types::value::RangeData::int(a as i64, b as i64, flag != 0)

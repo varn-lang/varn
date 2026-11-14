@@ -62,7 +62,6 @@ pub(super) fn resolve_specialized_property(
             | HeapObj::Range(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

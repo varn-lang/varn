@@ -49,7 +49,6 @@ fn class_of(obj: VmValue, heap: &Heap) -> Option<Rc<ClassObj>> {
         | HeapObj::EnumVariant(_)
         | HeapObj::BigInt(_)
         | HeapObj::Decimal(_)
-        | HeapObj::Char(_)
         | HeapObj::Generator(_)
         | HeapObj::Spread(_) => None,
     }
@@ -67,6 +66,9 @@ pub(crate) fn type_name(obj: VmValue, heap: &Heap) -> String {
     }
     if obj.is_sso() {
         return RuntimeKind::Str.name().into();
+    }
+    if obj.is_char() {
+        return RuntimeKind::Char.name().into();
     }
     if obj.is_null() {
         return RuntimeKind::Null.name().into();
@@ -154,7 +156,6 @@ pub(crate) fn resolve_meta(obj: VmValue, key: MetaKey, heap: &mut Heap) -> VmRes
                         | HeapObj::Range(_)
                         | HeapObj::BigInt(_)
                         | HeapObj::Decimal(_)
-                        | HeapObj::Char(_)
                         | HeapObj::Generator(_)
                         | HeapObj::Spread(_),
                     )

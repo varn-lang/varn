@@ -13,6 +13,7 @@ pub(crate) fn value_kind_name(v: VmValue) -> &'static str {
         KIND_FLOAT => K::Float.name(),
         KIND_HEAP => K::Object.name(),
         KIND_SSO => K::Str.name(),
+        KIND_CHAR => K::Char.name(),
         _ => vn_core::LangPrimitive::Dynamic.name(),
     }
 }

@@ -133,7 +133,6 @@ pub(crate) fn map_set_index(
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -228,7 +227,7 @@ pub(crate) fn get_index(obj: VmValue, key: VmValue, heap: &mut Heap) -> VmResult
                 Some(raw) => Ok(match r.elem {
                     vn_types::value::RangeElem::Int => VmValue::from_int(raw),
                     vn_types::value::RangeElem::Char => {
-                        heap.alloc_char(vn_types::value::RangeData::char_of(raw))
+                        VmValue::from_char(vn_types::value::RangeData::char_of(raw))
                     }
                 }),
                 None => Err(RuntimeError::out_of_range(
@@ -259,7 +258,6 @@ pub(crate) fn get_index(obj: VmValue, key: VmValue, heap: &mut Heap) -> VmResult
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
@@ -293,7 +291,6 @@ fn index_instance_fallback(obj: VmValue, key: VmValue, heap: &mut Heap) -> VmRes
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)
-                | HeapObj::Char(_)
                 | HeapObj::Generator(_)
                 | HeapObj::Spread(_),
             )
@@ -381,7 +378,6 @@ pub(crate) fn set_index(obj: VmValue, key: VmValue, val: VmValue, heap: &mut Hea
             | HeapObj::EnumVariant(_)
             | HeapObj::BigInt(_)
             | HeapObj::Decimal(_)
-            | HeapObj::Char(_)
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )

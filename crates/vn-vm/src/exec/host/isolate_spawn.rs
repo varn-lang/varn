@@ -97,7 +97,6 @@ pub(super) fn spawn_isolate(
                                 | HeapObj::EnumVariant(_)
                                 | HeapObj::BigInt(_)
                                 | HeapObj::Decimal(_)
-                                | HeapObj::Char(_)
                                 | HeapObj::Generator(_)
                                 | HeapObj::Spread(_),
                             )

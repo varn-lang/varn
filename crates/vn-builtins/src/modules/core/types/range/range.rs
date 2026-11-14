@@ -33,7 +33,7 @@ fn elements(ctx: &mut dyn NativeCtx, r: &RangeData) -> Result<Vec<VmValue>, Nati
 fn raw_of(ctx: &dyn NativeCtx, r: &RangeData, val: VmValue) -> Option<i64> {
     match r.elem {
         RangeElem::Int => ctx.is_int(val).then(|| ctx.as_int(val)),
-        RangeElem::Char => ctx.as_char(val).map(|c| c as i64),
+        RangeElem::Char => val.as_char().map(|c| c as i64),
     }
 }
 

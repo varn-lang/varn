@@ -47,7 +47,6 @@ pub trait NativeCtx: crate::Buffers {
     fn alloc_object(&mut self) -> VmValue;
     fn alloc_bigint(&mut self, value: num_bigint::BigInt) -> VmValue;
     fn alloc_decimal(&mut self, value: bigdecimal::BigDecimal) -> VmValue;
-    fn alloc_char(&mut self, value: char) -> VmValue;
     fn alloc_map(&mut self, entries: Vec<(VmValue, VmValue)>) -> VmValue;
     fn alloc_set(&mut self, items: Vec<VmValue>) -> VmValue;
     fn alloc_enum_variant(&mut self, data: crate::value::EnumVariantData) -> VmValue;
@@ -264,10 +263,6 @@ pub trait NativeCtx: crate::Buffers {
         Ok(())
     }
 
-    fn as_char(&self, _v: VmValue) -> Option<char> {
-        None
-    }
-
     fn as_bigint(&self, _v: VmValue) -> Option<num_bigint::BigInt> {
         None
     }
@@ -293,7 +288,9 @@ pub trait NativeCtx: crate::Buffers {
     fn range_element(&mut self, range: &crate::value::RangeData, raw: i64) -> VmValue {
         match range.elem {
             crate::value::RangeElem::Int => self.int_val(raw),
-            crate::value::RangeElem::Char => self.alloc_char(crate::value::RangeData::char_of(raw)),
+            crate::value::RangeElem::Char => {
+                VmValue::from_char(crate::value::RangeData::char_of(raw))
+            }
         }
     }
 
