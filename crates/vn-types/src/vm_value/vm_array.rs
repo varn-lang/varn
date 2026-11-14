@@ -29,6 +29,13 @@ impl ArrayRepr {
         if first.is_f64() && items.iter().all(|v| v.is_f64()) {
             return Some(ArrayRepr::F64(items.iter().map(|v| v.as_f64()).collect()));
         }
+        if first.is_char() {
+            return items
+                .iter()
+                .map(|v| v.as_char())
+                .collect::<Option<Vec<char>>>()
+                .map(ArrayRepr::Char);
+        }
         None
     }
 }
@@ -68,6 +75,7 @@ impl VmArray {
             ArrayRepr::Boxed(_) => SlotKind::Dynamic,
             ArrayRepr::I64(_) => SlotKind::Int,
             ArrayRepr::F64(_) => SlotKind::Float,
+            ArrayRepr::Char(_) => SlotKind::Char,
         }
     }
 
@@ -85,7 +93,7 @@ impl VmArray {
     pub fn as_boxed(&self) -> Option<&Vec<VmValue>> {
         match self.repr() {
             ArrayRepr::Boxed(v) => Some(&v.items),
-            ArrayRepr::I64(_) | ArrayRepr::F64(_) => None,
+            ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => None,
         }
     }
 }

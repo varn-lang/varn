@@ -165,6 +165,14 @@ pub(super) fn write_json_vm(ctx: &ExecCtx, val: VmValue, out: &mut String, depth
                             write_int(elem, out);
                         }
                     }
+                    vn_types::ArrayRepr::Char(items) => {
+                        for (i, &elem) in items.iter().enumerate() {
+                            if i > 0 {
+                                out.push(',');
+                            }
+                            write_json_vm(ctx, VmValue::from_char(elem), out, depth + 1);
+                        }
+                    }
                     vn_types::ArrayRepr::F64(items) => {
                         for (i, &elem) in items.iter().enumerate() {
                             if i > 0 {

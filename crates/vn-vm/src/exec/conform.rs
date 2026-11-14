@@ -344,6 +344,7 @@ fn fit_elements(cx: &Cx, arr: &VmArray, el: &TypeDesc, scope: Option<&Scope>) ->
     let unboxed_fits = match arr.repr() {
         ArrayRepr::I64(_) => matches!(el, TypeDesc::Int),
         ArrayRepr::F64(_) => matches!(el, TypeDesc::Float),
+        ArrayRepr::Char(_) => matches!(el, TypeDesc::Char),
         ArrayRepr::Boxed(_) => false,
     };
     if unboxed_fits || el.is_any() {

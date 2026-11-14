@@ -41,6 +41,20 @@ function markedTotal(cells: Cell[]): int {
     return t
 }
 
+function alternating(n: int): char[] {
+    const out: char[] = []
+    for (let i = 0; i < n; i = i + 1) { out.push(i % 2 == 0 ? 'a' : 'z') }
+    return out
+}
+function countOf(xs: char[], c: char): int {
+    let k = 0
+    for (let i = 0; i < xs.length; i = i + 1) { if (xs[i] == c) { k = k + 1 } }
+    return k
+}
+function advanceAll(xs: char[]): void {
+    for (let i = 0; i < xs.length; i = i + 1) { xs[i] = char.fromCode(xs[i].charCodeAt() + 1) }
+}
+
 await describe("34 char type", async () => {
     await it("tests", async () => {
         
@@ -162,5 +176,31 @@ await describe("34 char type", async () => {
         expect(cells[1].note).toBe('n')
         expect(cells[2].flag).toBe(false)
         expect(cells[2].code).toBe(2)
+    });
+
+    await it("a char array stores its elements unboxed", async () => {
+        let total = 0
+        for (let r = 0; r < 300; r = r + 1) {
+            const xs = alternating(50)
+            advanceAll(xs)
+            total = total + countOf(xs, 'b') + countOf(xs, '{') * 2
+        }
+        expect(total).toBe(22500)
+        const wide: char[] = ['h', 'é', '😀']
+        expect(wide[2]).toBe('😀')
+        wide[0] = 'ß'
+        expect(wide[0]).toBe('ß')
+        expect(wide.pop()).toBe('😀')
+        expect(wide.length).toBe(2)
+        const grown: char[] = []
+        grown.push('x')
+        grown[0] = 'k'
+        expect(grown.pop()).toBe('k')
+        expect(grown.length).toBe(0)
+        const mixed: (char | int)[] = ['q', 1]
+        mixed.push('w')
+        expect(mixed.length).toBe(3)
+        expect(mixed[0]).toBe('q')
+        expect(mixed[1]).toBe(1)
     });
 });

@@ -19,7 +19,9 @@ pub(crate) fn stringify_csv(
             let repr = arr.repr();
             let items = match repr {
                 vn_types::ArrayRepr::Boxed(v) => v.as_vec(),
-                vn_types::ArrayRepr::I64(_) | vn_types::ArrayRepr::F64(_) => {
+                vn_types::ArrayRepr::I64(_)
+                | vn_types::ArrayRepr::F64(_)
+                | vn_types::ArrayRepr::Char(_) => {
                     return Err("CSV stringify expects a boxed array".to_string())
                 }
             };
@@ -134,6 +136,20 @@ pub(crate) fn stringify_csv(
                                             out.push(delim_char);
                                         }
                                         out.push_str(&cell.to_string());
+                                    }
+                                    out.push('\n');
+                                }
+                                vn_types::ArrayRepr::Char(row_items) => {
+                                    for (i, &cell) in row_items.iter().enumerate() {
+                                        if i > 0 {
+                                            out.push(delim_char);
+                                        }
+                                        write_vm_value_csv(
+                                            &mut out,
+                                            ctx,
+                                            VmValue::from_char(cell),
+                                            delim_char,
+                                        );
                                     }
                                     out.push('\n');
                                 }

@@ -86,6 +86,10 @@ impl Heap {
             let f64_disc =
                 unsafe { *(&f64_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(f64_disc, 2, "ArrayRepr::F64 discriminant must read 2");
+            let char_repr = ArrayRepr::Char(vec!['a', 'b', 'c']);
+            let char_disc =
+                unsafe { *(&char_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
+            assert_eq!(char_disc, 3, "ArrayRepr::Char discriminant must read 3");
 
             (ArrayRepr::DISC_OFF, ptr_off, len_off)
         };

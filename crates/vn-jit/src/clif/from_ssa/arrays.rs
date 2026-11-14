@@ -3,7 +3,8 @@ use cranelift_frontend::FunctionBuilder;
 use vn_types::register_meta::SlotKind;
 
 use super::super::emit::{
-    array_disc, box_f64, box_int, emit_array_payload, unbox_f64_coerce, unbox_int,
+    array_disc, box_char, box_f64, box_int, emit_array_payload, unbox_char, unbox_f64_coerce,
+    unbox_int,
 };
 use super::{heap, load_value, Ctx, Out};
 
@@ -11,6 +12,7 @@ use super::{heap, load_value, Ctx, Out};
 enum Elem {
     Int,
     Float,
+    Char,
 
     Boxed,
 }
@@ -20,9 +22,8 @@ impl Elem {
         match kind {
             SlotKind::Int => Elem::Int,
             SlotKind::Float => Elem::Float,
-            SlotKind::Bool | SlotKind::Char | SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
-                Elem::Boxed
-            }
+            SlotKind::Char => Elem::Char,
+            SlotKind::Bool | SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => Elem::Boxed,
         }
     }
 
@@ -31,12 +32,41 @@ impl Elem {
             Elem::Boxed => 0,
             Elem::Int => 1,
             Elem::Float => 2,
+            Elem::Char => 3,
+        }
+    }
+
+    fn scale(self) -> i64 {
+        match self {
+            Elem::Char => 2,
+            Elem::Int | Elem::Float => 3,
+            Elem::Boxed => 4,
+        }
+    }
+
+    fn load(self, b: &mut FunctionBuilder, addr: Value) -> Value {
+        let m = cranelift_codegen::ir::MemFlagsData::trusted();
+        match self {
+            Elem::Char => b.ins().uload32(m, addr, 0),
+            Elem::Int | Elem::Float | Elem::Boxed => b.ins().load(self.clif_ty(), m, addr, 0),
+        }
+    }
+
+    fn store(self, b: &mut FunctionBuilder, v: Value, addr: Value) {
+        let m = cranelift_codegen::ir::MemFlagsData::trusted();
+        match self {
+            Elem::Char => {
+                b.ins().istore32(m, v, addr, 0);
+            }
+            Elem::Int | Elem::Float | Elem::Boxed => {
+                b.ins().store(m, v, addr, 0);
+            }
         }
     }
 
     fn clif_ty(self) -> types::Type {
         match self {
-            Elem::Int => types::I64,
+            Elem::Int | Elem::Char => types::I64,
             Elem::Float => types::F64,
             Elem::Boxed => types::I128,
         }
@@ -46,6 +76,7 @@ impl Elem {
         match self {
             Elem::Int => unbox_int(b, v),
             Elem::Float => unbox_f64_coerce(b, v),
+            Elem::Char => unbox_char(b, v),
             Elem::Boxed => v,
         }
     }
@@ -54,6 +85,7 @@ impl Elem {
         match self {
             Elem::Int => box_int(b, v),
             Elem::Float => box_f64(b, v),
+            Elem::Char => box_char(b, v),
             Elem::Boxed => v,
         }
     }
@@ -166,15 +198,9 @@ pub(super) fn emit_get(
     b.ins().brif(is_match, matched, &[], other, &[]);
 
     b.switch_to_block(matched);
-    let scale = if want == Elem::Boxed { 4 } else { 3 };
-    let off = b.ins().ishl_imm_u(key, scale);
+    let off = b.ins().ishl_imm_u(key, want.scale());
     let addr = b.ins().iadd(data, off);
-    let v = b.ins().load(
-        want.clif_ty(),
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        addr,
-        0,
-    );
+    let v = want.load(b, addr);
     b.ins().jump(merge, &[v.into()]);
 
     b.switch_to_block(other);
@@ -222,7 +248,7 @@ pub(super) fn emit_get(
     b.switch_to_block(merge);
     let res = b.block_params(merge)[0];
     Ok(match want {
-        Elem::Int | Elem::Float => Out::Native(res),
+        Elem::Int | Elem::Float | Elem::Char => Out::Native(res),
         Elem::Boxed => Out::Boxed(res),
     })
 }
@@ -256,10 +282,9 @@ pub(super) fn emit_set(
         b.ins().brif(is_match, matched, &[], other, &[]);
 
         b.switch_to_block(matched);
-        let off = b.ins().ishl_imm_u(key, 3);
+        let off = b.ins().ishl_imm_u(key, src.scale());
         let addr = b.ins().iadd(data, off);
-        b.ins()
-            .store(cranelift_codegen::ir::MemFlagsData::trusted(), raw, addr, 0);
+        src.store(b, raw, addr);
         b.ins().jump(merge, &[]);
 
         b.switch_to_block(other);

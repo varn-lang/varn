@@ -18,6 +18,7 @@ impl VmArray {
             ArrayRepr::Boxed(v) => v.get(idx).copied(),
             ArrayRepr::I64(v) => v.get(idx).map(|&n| VmValue::from_int(n)),
             ArrayRepr::F64(v) => v.get(idx).map(|&f| VmValue::from_f64(f)),
+            ArrayRepr::Char(v) => v.get(idx).map(|&c| VmValue::from_char(c)),
         }
     }
 
@@ -51,6 +52,15 @@ impl VmArray {
                         return true;
                     }
                 }
+                ArrayRepr::Char(v) => {
+                    if idx >= v.len() {
+                        return false;
+                    }
+                    if let Some(c) = val.as_char() {
+                        v[idx] = c;
+                        return true;
+                    }
+                }
             }
         }
 
@@ -80,6 +90,12 @@ impl VmArray {
                         return;
                     }
                 }
+                ArrayRepr::Char(v) => {
+                    if let Some(c) = val.as_char() {
+                        push_vec(v, c);
+                        return;
+                    }
+                }
             }
         }
         self.push_repr_change(val);
@@ -94,10 +110,15 @@ impl VmArray {
             } else if val.is_f64() {
                 ExternalLedger::grow(std::mem::size_of::<f64>());
                 *self.repr_mut() = ArrayRepr::F64(vec![val.as_f64()]);
+            } else if let Some(c) = val.as_char() {
+                ExternalLedger::grow(std::mem::size_of::<char>());
+                *self.repr_mut() = ArrayRepr::Char(vec![c]);
             } else {
                 match self.repr_mut() {
                     ArrayRepr::Boxed(v) => v.items.push(val),
-                    ArrayRepr::I64(_) | ArrayRepr::F64(_) => unreachable!("checked Boxed above"),
+                    ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
+                        unreachable!("checked Boxed above")
+                    }
                 }
             }
             return;
@@ -111,6 +132,7 @@ impl VmArray {
             ArrayRepr::Boxed(v) => v.items.pop(),
             ArrayRepr::I64(v) => v.pop().map(VmValue::from_int),
             ArrayRepr::F64(v) => v.pop().map(VmValue::from_f64),
+            ArrayRepr::Char(v) => v.pop().map(VmValue::from_char),
         }
     }
 
@@ -123,6 +145,7 @@ impl VmArray {
                 let boxed: Vec<VmValue> = match repr {
                     ArrayRepr::I64(v) => v.iter().map(|&n| VmValue::from_int(n)).collect(),
                     ArrayRepr::F64(v) => v.iter().map(|&f| VmValue::from_f64(f)).collect(),
+                    ArrayRepr::Char(v) => v.iter().map(|&c| VmValue::from_char(c)).collect(),
                     ArrayRepr::Boxed(_) => unreachable!(),
                 };
                 ExternalLedger::grow(boxed.capacity() * std::mem::size_of::<VmValue>());
@@ -131,7 +154,7 @@ impl VmArray {
         }
         match self.repr_mut() {
             ArrayRepr::Boxed(v) => &mut v.items,
-            ArrayRepr::I64(_) | ArrayRepr::F64(_) => unreachable!(),
+            ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => unreachable!(),
         }
     }
 
@@ -139,7 +162,7 @@ impl VmArray {
     pub fn get_i64(&self, idx: usize) -> Option<i64> {
         match self.repr() {
             ArrayRepr::I64(v) => v.get(idx).copied(),
-            ArrayRepr::Boxed(_) | ArrayRepr::F64(_) => None,
+            ArrayRepr::Boxed(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => None,
         }
     }
 
@@ -150,7 +173,9 @@ impl VmArray {
                 v[idx] = val;
                 true
             }
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) => false,
+            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
+                false
+            }
         }
     }
 
@@ -158,7 +183,7 @@ impl VmArray {
     pub fn get_f64(&self, idx: usize) -> Option<f64> {
         match self.repr() {
             ArrayRepr::F64(v) => v.get(idx).copied(),
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) => None,
+            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::Char(_) => None,
         }
     }
 
@@ -169,7 +194,9 @@ impl VmArray {
                 v[idx] = val;
                 true
             }
-            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) => false,
+            ArrayRepr::Boxed(_) | ArrayRepr::I64(_) | ArrayRepr::F64(_) | ArrayRepr::Char(_) => {
+                false
+            }
         }
     }
 }

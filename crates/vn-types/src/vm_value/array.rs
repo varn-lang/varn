@@ -8,6 +8,8 @@ pub enum ArrayRepr {
     I64(Vec<i64>) = 1,
 
     F64(Vec<f64>) = 2,
+
+    Char(Vec<char>) = 3,
 }
 
 #[repr(C)]
@@ -48,6 +50,7 @@ impl ArrayRepr {
             ArrayRepr::Boxed(_) => 0,
             ArrayRepr::I64(_) => 1,
             ArrayRepr::F64(_) => 2,
+            ArrayRepr::Char(_) => 3,
         }
     }
 
@@ -57,6 +60,7 @@ impl ArrayRepr {
             ArrayRepr::Boxed(v) => v.len(),
             ArrayRepr::I64(v) => v.len(),
             ArrayRepr::F64(v) => v.len(),
+            ArrayRepr::Char(v) => v.len(),
         }
     }
 
@@ -70,6 +74,7 @@ impl ArrayRepr {
             ArrayRepr::Boxed(v) => (v.items.capacity() * std::mem::size_of::<VmValue>()) as u64,
             ArrayRepr::I64(v) => (v.capacity() * std::mem::size_of::<i64>()) as u64,
             ArrayRepr::F64(v) => (v.capacity() * std::mem::size_of::<f64>()) as u64,
+            ArrayRepr::Char(v) => (v.capacity() * std::mem::size_of::<char>()) as u64,
         }
     }
 }
