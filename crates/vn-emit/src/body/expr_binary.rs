@@ -16,46 +16,26 @@ impl<'a> FnEmitter<'a> {
         let lhs = self.lower_expr(left);
         let rhs = self.lower_expr(right);
 
-        if op == BinaryOp::Eq || op == BinaryOp::NotEq {
-            let is_null_expr = |e: &TirExpr| -> bool {
-                matches!(e.kind, TirExprKind::NullLit)
-                    || e.ty.non_nullable(self.tt) == BackendTy::Never
-            };
-            let l_null = is_null_expr(&lhs);
-            let r_null = is_null_expr(&rhs);
-            if l_null || r_null {
-                let is_eq = op == BinaryOp::Eq;
-                if l_null && r_null {
-                    return TirExpr {
-                        kind: TirExprKind::BoolLit(is_eq),
-                        ty: BackendTy::Bool,
-                        res: Resolution::None,
-                        span,
-                    };
-                }
-                let target = if r_null { lhs } else { rhs };
-                let is_null = TirExpr {
-                    kind: TirExprKind::Unary {
-                        op: TirUnOp::IsNull,
-                        operand: Box::new(target),
-                    },
-                    ty: BackendTy::Bool,
-                    res: Resolution::None,
-                    span,
-                };
-                if is_eq {
-                    return is_null;
-                }
-                return TirExpr {
-                    kind: TirExprKind::Unary {
-                        op: TirUnOp::Not,
-                        operand: Box::new(is_null),
-                    },
-                    ty: BackendTy::Bool,
-                    res: Resolution::None,
-                    span,
-                };
-            }
+        match op {
+            BinaryOp::Eq => return self.equality(TirBinOp::Eq, lhs, rhs, span),
+            BinaryOp::NotEq => return self.equality(TirBinOp::Ne, lhs, rhs, span),
+            BinaryOp::Add
+            | BinaryOp::Sub
+            | BinaryOp::Mul
+            | BinaryOp::Div
+            | BinaryOp::Mod
+            | BinaryOp::Pow
+            | BinaryOp::Lt
+            | BinaryOp::Gt
+            | BinaryOp::LtEq
+            | BinaryOp::GtEq
+            | BinaryOp::BitAnd
+            | BinaryOp::BitOr
+            | BinaryOp::BitXor
+            | BinaryOp::Shl
+            | BinaryOp::Shr
+            | BinaryOp::UShr
+            | BinaryOp::In => {}
         }
 
         let Some(top) = bin_op(op) else {
@@ -82,6 +62,116 @@ impl<'a> FnEmitter<'a> {
                 rhs: Box::new(rhs),
             },
             ty: node_ty,
+            res: Resolution::None,
+            span,
+        }
+    }
+
+    pub(super) fn equality(
+        &mut self,
+        op: TirBinOp,
+        lhs: TirExpr,
+        rhs: TirExpr,
+        span: Span,
+    ) -> TirExpr {
+        let is_eq = op == TirBinOp::Eq;
+        let is_null_expr = |e: &TirExpr| -> bool {
+            matches!(e.kind, TirExprKind::NullLit) || e.ty.non_nullable(self.tt) == BackendTy::Never
+        };
+        let (l_null, r_null) = (is_null_expr(&lhs), is_null_expr(&rhs));
+        if l_null && r_null {
+            return bool_lit(is_eq);
+        }
+        if l_null || r_null {
+            let target = if r_null { lhs } else { rhs };
+            let is_null = unary_bool(TirUnOp::IsNull, target, span);
+            return if is_eq {
+                is_null
+            } else {
+                unary_bool(TirUnOp::Not, is_null, span)
+            };
+        }
+        let literal = |e: &TirExpr| {
+            if let TirExprKind::BoolLit(value) = e.kind {
+                Some(value)
+            } else {
+                None
+            }
+        };
+        let bool_side = match (literal(&lhs), literal(&rhs)) {
+            (Some(value), None) if rhs.ty == BackendTy::Bool => Some((value, rhs.clone())),
+            (None, Some(value)) if lhs.ty == BackendTy::Bool => Some((value, lhs.clone())),
+            (Some(_), Some(_)) | (Some(_), None) | (None, Some(_)) | (None, None) => None,
+        };
+        if let Some((value, other)) = bool_side {
+            return if value == is_eq {
+                other
+            } else {
+                unary_bool(TirUnOp::Not, other, span)
+            };
+        }
+        if let (BackendTy::Enum(l), BackendTy::Enum(r)) = (lhs.ty, rhs.ty)
+            && l == r
+            && self.tags_decide_equality(l, &lhs, &rhs)
+        {
+            let (lhs, rhs) = (self.enum_tag(lhs), self.enum_tag(rhs));
+            return TirExpr {
+                kind: TirExprKind::Binary {
+                    op,
+                    lhs: Box::new(lhs),
+                    rhs: Box::new(rhs),
+                },
+                ty: BackendTy::Bool,
+                res: Resolution::None,
+                span,
+            };
+        }
+        let (lhs, rhs, ty) = self.coerce_binary_operands(op, lhs, rhs, BackendTy::Bool);
+        TirExpr {
+            kind: TirExprKind::Binary {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            },
+            ty,
+            res: Resolution::None,
+            span,
+        }
+    }
+
+    fn unit_variant_tag(&self, e: &TirExpr) -> Option<i64> {
+        let Resolution::EnumVariant { enum_id, tag } = e.res else {
+            return None;
+        };
+        let constant = matches!(&e.kind, TirExprKind::MakeVariant { args } if args.is_empty())
+            || matches!(e.kind, TirExprKind::Field { .. });
+        let unit = self
+            .m
+            .enums
+            .get(enum_id.0 as usize)
+            .and_then(|info| info.variant_at(tag))
+            .is_some_and(|variant| variant.payload.is_empty());
+        (constant && unit).then_some(tag)
+    }
+
+    fn tags_decide_equality(&self, id: vn_tir::EnumId, lhs: &TirExpr, rhs: &TirExpr) -> bool {
+        let payload_free = self
+            .m
+            .enums
+            .get(id.0 as usize)
+            .is_some_and(|info| info.variants.iter().all(|v| v.payload.is_empty()));
+        payload_free || self.unit_variant_tag(lhs).is_some() || self.unit_variant_tag(rhs).is_some()
+    }
+
+    fn enum_tag(&self, e: TirExpr) -> TirExpr {
+        let span = e.span;
+        let kind = match self.unit_variant_tag(&e) {
+            Some(tag) => TirExprKind::IntLit(tag),
+            None => TirExprKind::Discriminant { value: Box::new(e) },
+        };
+        TirExpr {
+            kind,
+            ty: BackendTy::Int,
             res: Resolution::None,
             span,
         }
@@ -224,5 +314,17 @@ impl<'a> FnEmitter<'a> {
             res: Resolution::None,
             span,
         }
+    }
+}
+
+fn unary_bool(op: TirUnOp, operand: TirExpr, span: Span) -> TirExpr {
+    TirExpr {
+        kind: TirExprKind::Unary {
+            op,
+            operand: Box::new(operand),
+        },
+        ty: BackendTy::Bool,
+        res: Resolution::None,
+        span,
     }
 }

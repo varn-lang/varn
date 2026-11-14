@@ -47,17 +47,7 @@ impl<'a> FnEmitter<'a> {
             }
             MatchPattern::Literal(lit) => {
                 let l = self.lower_expr(*lit);
-                let cond = TirExpr {
-                    kind: TirExprKind::Binary {
-                        op: TirBinOp::Eq,
-                        lhs: Box::new(s.clone()),
-                        rhs: Box::new(l),
-                    },
-                    ty: BackendTy::Bool,
-                    res: Resolution::None,
-                    span: s.span,
-                };
-                (cond, vec![])
+                (self.equality(TirBinOp::Eq, s.clone(), l, s.span), vec![])
             }
             MatchPattern::Tuple(items) => {
                 let mut cond = self.present_guard(s);
