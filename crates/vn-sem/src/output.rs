@@ -46,7 +46,12 @@ pub struct ForeignEnum {
     pub members: Vec<ForeignEnumMember>,
 }
 
-pub type ForeignVariant = (Arc<str>, Vec<(Arc<str>, Type)>);
+#[derive(Clone, Debug)]
+pub struct ForeignVariant {
+    pub name: Arc<str>,
+    pub tag: i64,
+    pub fields: Vec<(Arc<str>, Type)>,
+}
 
 #[derive(Clone, Debug)]
 pub struct ForeignEnumMember {

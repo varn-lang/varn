@@ -290,15 +290,19 @@ pub fn build(bind: &BindResult, desugar: &vn_sem::output::Desugarings, tt: &mut 
             variants: f
                 .variants
                 .iter()
-                .enumerate()
-                .map(|(tag, (name, fields))| VariantInfo {
-                    name: name.clone(),
-                    tag: tag as u16,
-                    payload: fields
+                .map(|variant| VariantInfo {
+                    name: variant.name.clone(),
+                    tag: variant.tag,
+                    payload: variant
+                        .fields
                         .iter()
                         .map(|(_, ty)| lower_type(ty, &bind.ty_table, &bind.interner, tt, &scoped))
                         .collect(),
-                    field_names: fields.iter().map(|(field, _)| field.clone()).collect(),
+                    field_names: variant
+                        .fields
+                        .iter()
+                        .map(|(field, _)| field.clone())
+                        .collect(),
                 })
                 .collect(),
         }

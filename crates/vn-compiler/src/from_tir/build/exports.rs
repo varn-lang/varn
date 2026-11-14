@@ -115,7 +115,7 @@ impl<'m> Builder<'m> {
             let value = self.emit(
                 InstKind::GetFixedField {
                     object: enum_v,
-                    slot: variant.tag,
+                    slot: variant.slot,
                     offset: 0,
                     tag: vn_core::FieldAccess::Slot,
                 },

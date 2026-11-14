@@ -164,7 +164,7 @@ pub enum TirExprKind {
 
     VariantPayload {
         value: Box<TirExpr>,
-        tag: u16,
+        tag: i64,
         field: u16,
     },
 

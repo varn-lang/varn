@@ -159,13 +159,16 @@ pub(super) fn imported_variants(
         .iter()
         .filter(|info| info.binding.as_deref() == Some(local))
         .flat_map(|info| {
-            info.variants.iter().filter_map(|variant| {
-                let global = slots.get(&info.variant_global(&variant.name)?)?;
-                Some(vn_tir::TirImportedVariant {
-                    tag: variant.tag,
-                    global: *global,
+            info.variants
+                .iter()
+                .enumerate()
+                .filter_map(|(slot, variant)| {
+                    let global = slots.get(&info.variant_global(&variant.name)?)?;
+                    Some(vn_tir::TirImportedVariant {
+                        slot: u16::try_from(slot).ok()?,
+                        global: *global,
+                    })
                 })
-            })
         })
         .collect()
 }

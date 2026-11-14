@@ -27,7 +27,7 @@ pub enum Resolution {
 
     NativeDecode { plain: u64, typed: u64 },
 
-    EnumVariant { enum_id: EnumId, tag: u16 },
+    EnumVariant { enum_id: EnumId, tag: i64 },
 
     ByName { name: Arc<str>, why: DynReason },
 }

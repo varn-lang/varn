@@ -80,6 +80,17 @@ impl<'r> super::super::Binder<'r> {
             .entry(id_rc.clone())
             .and_modify(|held: &mut Vec<Arc<str>>| held.extend(variant_names.clone()))
             .or_insert(variant_names);
+        let held_tags = self.enum_variant_tags.entry(id_rc.clone()).or_default();
+        let mut next = held_tags.last().map_or(0, |last| last + 1);
+        for member in &e.members {
+            if let Some(value) = member.init.and_then(|init| {
+                vn_sem::types::numeric_literal::const_int_value(self.ast_arena, init)
+            }) {
+                next = value;
+            }
+            held_tags.push(next);
+            next += 1;
+        }
 
         let mut variants_info = Vec::new();
         let type_param_names: Vec<Arc<str>> = e

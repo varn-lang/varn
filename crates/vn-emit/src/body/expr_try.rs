@@ -72,8 +72,8 @@ impl<'a> FnEmitter<'a> {
         &mut self,
         hoisted: TirExpr,
         eid: vn_tir::EnumId,
-        fail_tag: u16,
-        pass_tag: u16,
+        fail_tag: i64,
+        pass_tag: i64,
         payload_ty: BackendTy,
         ty: BackendTy,
     ) -> TirExpr {
@@ -91,7 +91,7 @@ impl<'a> FnEmitter<'a> {
                 op: TirBinOp::Eq,
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
-                    kind: TirExprKind::IntLit(fail_tag as i64),
+                    kind: TirExprKind::IntLit(fail_tag),
                     ty: BackendTy::Int,
                     res: Resolution::None,
                     span,

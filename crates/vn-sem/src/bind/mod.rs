@@ -146,6 +146,8 @@ pub struct BindResult {
     #[serde(serialize_with = "crate::portable::canonical::sorted")]
     pub sum_type_variants: FxHashMap<Arc<str>, Vec<Arc<str>>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted")]
+    pub enum_variant_tags: FxHashMap<Arc<str>, Vec<i64>>,
+    #[serde(serialize_with = "crate::portable::canonical::sorted")]
     pub sum_variant_parent: FxHashMap<Arc<str>, Arc<str>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted")]
     pub sum_variant_fields: FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>,
@@ -219,8 +221,24 @@ impl BindResult {
                 .cloned()
                 .unwrap_or_default()
         };
+        let tag = |at: usize| {
+            self.enum_variant_tags
+                .get(name)
+                .and_then(|tags| tags.get(at).copied())
+                .unwrap_or(at as i64)
+        };
         if let Some(variants) = self.sum_type_variants.get(name) {
-            return Some(variants.iter().map(|v| (v.clone(), fields(v))).collect());
+            return Some(
+                variants
+                    .iter()
+                    .enumerate()
+                    .map(|(at, v)| VariantLayout {
+                        name: v.clone(),
+                        tag: tag(at),
+                        fields: fields(v),
+                    })
+                    .collect(),
+            );
         }
         let members = self.type_members.enums.get(name)?;
         Some(
@@ -236,13 +254,23 @@ impl BindResult {
                                 | ClassMemberKind::Constructor
                         )
                 })
-                .map(|m| (m.name.clone(), fields(&m.name)))
+                .enumerate()
+                .map(|(at, m)| VariantLayout {
+                    name: m.name.clone(),
+                    tag: tag(at),
+                    fields: fields(&m.name),
+                })
                 .collect(),
         )
     }
 }
 
-pub type VariantLayout = (Arc<str>, Vec<(Arc<str>, Type)>);
+#[derive(Clone, Debug)]
+pub struct VariantLayout {
+    pub name: Arc<str>,
+    pub tag: i64,
+    pub fields: Vec<(Arc<str>, Type)>,
+}
 
 impl BindResult {
     pub fn global_symbols(&self) -> impl Iterator<Item = &Symbol> {

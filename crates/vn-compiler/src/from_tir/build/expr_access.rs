@@ -59,7 +59,7 @@ impl<'m> Builder<'m> {
     fn lower_variant_constant(
         &mut self,
         enum_id: vn_tir::EnumId,
-        tag: u16,
+        tag: i64,
         ty: BackendTy,
     ) -> Result<Value> {
         let unsupported = || OptError::Unsupported("from_tir: variant constant without a slot");

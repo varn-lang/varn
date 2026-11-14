@@ -40,15 +40,19 @@ pub(super) fn build_enums(
                 .enum_layout(name)
                 .unwrap_or_default()
                 .into_iter()
-                .enumerate()
-                .map(|(tag, (variant, fields))| VariantInfo {
-                    name: variant,
-                    tag: tag as u16,
-                    payload: fields
+                .map(|variant| VariantInfo {
+                    name: variant.name,
+                    tag: variant.tag,
+                    payload: variant
+                        .fields
                         .iter()
                         .map(|(_, ty)| lower_type(ty, table, interner, tt, names))
                         .collect(),
-                    field_names: fields.iter().map(|(field, _)| field.clone()).collect(),
+                    field_names: variant
+                        .fields
+                        .iter()
+                        .map(|(field, _)| field.clone())
+                        .collect(),
                 })
                 .collect(),
         })

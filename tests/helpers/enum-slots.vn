@@ -17,3 +17,10 @@ export enum Token {
     Num(value: int),
     Word(text: str)
 }
+
+export enum Frame {
+    Text = 1,
+    Close = 8,
+    Ping = 9,
+    Pong
+}

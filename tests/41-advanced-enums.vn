@@ -1,4 +1,5 @@
 import { describe, it, expect } from "std:test";
+import { Frame } from "./helpers/enum-slots.vn";
 
 
 // 1. Basic Enums & Singleton Identity
@@ -71,6 +72,16 @@ enum CustomDisplay implements Display {
         return "CustomDisplay." + this.name
     }
 }
+enum Signed { Below = -2, Next, Far = 70000, After }
+
+function signedName(s: Signed): str {
+    return match (s) { Below => "below", Next => "next", Far => "far", After => "after" }
+}
+
+function frameName(f: Frame): str {
+    return match (f) { Frame.Text => "text", Frame.Close => "close", Frame.Ping => "ping", Frame.Pong => "pong" }
+}
+
 await describe("41 advanced enums", async () => {
     await it("tests", async () => {
         
@@ -127,5 +138,19 @@ await describe("41 advanced enums", async () => {
         expect(CustomDisplay.A.toString()).toBe("CustomDisplay.A")
         
         
+    });
+
+    await it("a variant's tag is its declared value, for local and imported enums", async () => {
+        expect(signedName(Signed.Below)).toBe("below")
+        expect(signedName(Signed.After)).toBe("after")
+        expect(Signed.Next.rawValue).toBe(-1)
+        expect(Signed.After.rawValue).toBe(70001)
+        const ping = Frame.Ping
+        expect(ping.rawValue).toBe(9)
+        expect(ping == Frame.Ping).toBe(true)
+        expect(ping == Frame.Pong).toBe(false)
+        expect(Frame.Pong.rawValue).toBe(10)
+        expect(frameName(ping)).toBe("ping")
+        expect(frameName(Frame.Close)).toBe("close")
     });
 });

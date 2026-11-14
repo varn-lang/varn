@@ -265,7 +265,7 @@ impl<'a> FnEmitter<'a> {
                 op: TirBinOp::Eq,
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
-                    kind: TirExprKind::IntLit(tag as i64),
+                    kind: TirExprKind::IntLit(tag),
                     ty: BackendTy::Int,
                     res: Resolution::None,
                     span: s.span,

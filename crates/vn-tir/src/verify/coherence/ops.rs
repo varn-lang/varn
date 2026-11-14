@@ -174,7 +174,7 @@ pub(super) fn check_variant_payload(
     m: &TirModule,
     e: &TirExpr,
     value: &TirExpr,
-    tag: u16,
+    tag: i64,
     field: u16,
     errors: &mut Vec<VerifyError>,
 ) {

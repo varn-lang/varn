@@ -93,7 +93,7 @@ pub enum TirImportKind {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TirImportedVariant {
-    pub tag: u16,
+    pub slot: u16,
     pub global: u32,
 }
 

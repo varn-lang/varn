@@ -38,12 +38,14 @@ impl Checker<'_> {
             };
             let variants = layout
                 .into_iter()
-                .map(|(variant, fields)| {
-                    let payload = fields
+                .map(|variant| vn_sem::output::ForeignVariant {
+                    fields: variant
+                        .fields
                         .iter()
                         .map(|(field, ty)| (field.clone(), self.reintern_foreign_ty(owner, *ty)))
-                        .collect();
-                    (variant, payload)
+                        .collect(),
+                    name: variant.name,
+                    tag: variant.tag,
                 })
                 .collect();
             let type_params = Self::declared_type_params(owner, &name);

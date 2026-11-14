@@ -44,14 +44,16 @@ pub(super) fn emit_enum(
             | ClassMember::StaticBlock { .. } => None,
         })
         .collect();
-    let mut tag = 0i64;
-    for m in &en.members {
-        if let Some(init) = m.init
-            && let vn_core::ast::ExprKind::IntLiteral { value, .. } = &ast_arena.expr(init).kind
-        {
-            tag = *value;
-        }
+    let info = enum_id.and_then(|id| ctx.enums.get(id.0 as usize));
+    for (position, m) in en.members.iter().enumerate() {
         let member_name = ctx.interner.resolve(m.id);
+        let tag = info
+            .and_then(|info| {
+                info.variants
+                    .iter()
+                    .find(|v| v.name.as_ref() == member_name)
+            })
+            .map_or(position as i64, |variant| variant.tag);
         let fields: Vec<Arc<str>> = m
             .payload_fields
             .iter()
@@ -84,7 +86,6 @@ pub(super) fn emit_enum(
             fields,
             const_args,
         });
-        tag += 1;
     }
 
     let this_cid = ctx.names.class_id(&name);

@@ -3,7 +3,7 @@ use vn_core::ast::{Arg, AstId, ExprId, ExprKind};
 use vn_tir::{BackendTy, EnumId, Resolution, Span, TirExpr, TirExprKind};
 
 impl<'a> FnEmitter<'a> {
-    pub(super) fn enum_variant(&self, object: ExprId, variant: &str) -> Option<(EnumId, u16)> {
+    pub(super) fn enum_variant(&self, object: ExprId, variant: &str) -> Option<(EnumId, i64)> {
         let ExprKind::Identifier { name } = &self.ast_arena.expr(object).kind else {
             return None;
         };
@@ -17,7 +17,7 @@ impl<'a> FnEmitter<'a> {
         self.variant_of(EnumId(at as u32), variant)
     }
 
-    pub(super) fn bare_variant(&mut self, e: ExprId, variant: &str) -> Option<(EnumId, u16)> {
+    pub(super) fn bare_variant(&mut self, e: ExprId, variant: &str) -> Option<(EnumId, i64)> {
         let table = self.m.checker_table;
         let checked = self.expr_table.get(&e.index())?.ty;
         let value = if let vn_core::TypeKind::Fn(fid) = table.get(checked.0) {
@@ -51,7 +51,7 @@ impl<'a> FnEmitter<'a> {
         Some(make_variant(enum_id, tag, args, span))
     }
 
-    fn variant_of(&self, enum_id: EnumId, variant: &str) -> Option<(EnumId, u16)> {
+    fn variant_of(&self, enum_id: EnumId, variant: &str) -> Option<(EnumId, i64)> {
         let info = self.m.enums.get(enum_id.0 as usize)?;
         let v = info.variants.iter().find(|v| v.name.as_ref() == variant)?;
         Some((enum_id, v.tag))
@@ -60,7 +60,7 @@ impl<'a> FnEmitter<'a> {
 
 pub(super) fn make_variant(
     enum_id: EnumId,
-    tag: u16,
+    tag: i64,
     args: Vec<vn_tir::TirArg>,
     span: Span,
 ) -> TirExpr {

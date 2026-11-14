@@ -160,7 +160,7 @@ impl ClassInfo {
 #[derive(Debug, Clone)]
 pub struct VariantInfo {
     pub name: Arc<str>,
-    pub tag: u16,
+    pub tag: i64,
     pub payload: Vec<BackendTy>,
     pub field_names: Vec<Arc<str>>,
 }
@@ -185,7 +185,7 @@ impl EnumInfo {
         self.members.get(slot as usize)
     }
 
-    pub fn variant_at(&self, tag: u16) -> Option<&VariantInfo> {
+    pub fn variant_at(&self, tag: i64) -> Option<&VariantInfo> {
         self.variants.iter().find(|v| v.tag == tag)
     }
 

@@ -55,6 +55,7 @@ pub struct Binder<'r> {
     pub(crate) source_file: Arc<str>,
     pub(crate) decl_kinds: FxHashMap<Arc<str>, vn_sem::bind::DeclKind>,
     pub(crate) sum_type_variants: FxHashMap<Arc<str>, Vec<Arc<str>>>,
+    pub(crate) enum_variant_tags: FxHashMap<Arc<str>, Vec<i64>>,
     pub(crate) sum_variant_parent: FxHashMap<Arc<str>, Arc<str>>,
     pub(crate) sum_variant_fields: FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>,
     pub(crate) extensions: Extensions,
