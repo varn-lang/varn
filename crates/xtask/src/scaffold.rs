@@ -134,7 +134,7 @@ pub fn run(args: &[String]) -> Result<(), String> {
         i += 1;
     }
     let mod_name =
-        mod_name.ok_or("usage: cargo xtask std-scaffold <mod> [--class Name] [--dry-run]")?;
+        mod_name.ok_or("usage: cargo run -p xtask -- std-scaffold <mod> [--class Name] [--dry-run]")?;
     if !valid_mod(&mod_name) {
         return Err(format!(
             "invalid module name '{mod_name}': lowercase alphanumeric/underscore"

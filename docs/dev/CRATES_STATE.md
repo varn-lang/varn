@@ -178,7 +178,7 @@ Sin conteos de líneas: viven en el código (`find crates -name "*.rs" | xargs w
 | `vn-text` | Shaping de texto (host) |
 | `vn-rt` | Runtime estático para binarios AOT |
 | `vn-shadow` | Binario `vn-shadow` |
-| `xtask` | Herramientas (`cargo xtask`) |
+| `xtask` | Herramientas (`cargo run -p xtask --`) |
 
 ---
 

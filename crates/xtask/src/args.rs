@@ -47,7 +47,7 @@ pub(super) fn parse_args() -> Result<Opts, String> {
             parse_option(&mut opts, &first, &mut args)?;
         } else {
             return Err(format!(
-                "Unknown command: '{first}'. Usage: cargo xtask compare [options]"
+                "Unknown command: '{first}'. Usage: cargo run -p xtask -- compare [options]"
             ));
         }
     }
@@ -146,12 +146,12 @@ fn parse_option(
 
 pub(super) fn print_help() {
     println!(
-        r#"cargo xtask compare — High-precision runtime benchmark comparison harness
-cargo xtask std-scaffold <mod> [--class Name] [--dry-run] — New stdlib module scaffold
+        r#"cargo run -p xtask -- compare — High-precision runtime benchmark comparison harness
+cargo run -p xtask -- std-scaffold <mod> [--class Name] [--dry-run] — New stdlib module scaffold
 
 USAGE:
-    cargo xtask compare [OPTIONS]
-    cargo xtask bench [OPTIONS]
+    cargo run -p xtask -- compare [OPTIONS]
+    cargo run -p xtask -- bench [OPTIONS]
 
 OPTIONS:
     -r, --runs <N>         Total runs per benchmark per runtime (default: 7, min: 3)

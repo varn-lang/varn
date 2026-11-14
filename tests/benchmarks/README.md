@@ -1,4 +1,4 @@
-> Estado verificado 2026-11-13: VIGENTE — metodología (checksum antes que tiempo, `cargo xtask compare`, re-medir siempre). Sin tabla de ratios históricos que borrar: no hay.
+> Estado verificado 2026-11-13: VIGENTE — metodología (checksum antes que tiempo, `cargo run -p xtask -- compare`, re-medir siempre). Sin tabla de ratios históricos que borrar: no hay.
 >
 # Benchmarks
 
@@ -12,7 +12,7 @@ directamente sin transpilar.
 - `ts/` — contrapartes TypeScript para Bun/Node.
 - `js/` — contrapartes JavaScript planas (las corren Bun y Node).
 - `py/` — contrapartes Python + `_harness.py` compartido.
-- `scripts/` — `compare.ps1`, wrapper de `cargo xtask compare`.
+- `scripts/` — `compare.ps1`, wrapper de `cargo run -p xtask -- compare`.
 
 ## Tabla comparativa: `compare.ps1`
 
@@ -109,7 +109,7 @@ Mayores brechas en estado estable (vn / mejor rival): `sort_objects` 222 / 72,
 distinto al de su par `.ts` no está midiendo el mismo trabajo, y su número es
 basura. Ya pasó: durante semanas `bench_dto` construía 664 DTOs en vez de 43 332
 y por eso "ganaba". Antes de citar un tiempo, comprobar que `vn` y `bun` imprimen
-lo mismo. `cargo xtask compare` lo verifica solo: firma vacía o con números
+lo mismo. `cargo run -p xtask -- compare` lo verifica solo: firma vacía o con números
 distintos sale como `MISMATCH` y queda fuera del ratio.
 
 **Qué compara la firma.** Se ignoran líneas de timing (`elapsed|took|time`) y

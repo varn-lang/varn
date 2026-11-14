@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-  Runtime comparison harness wrapper delegating to native Rust `cargo xtask compare`.
+  Runtime comparison harness wrapper delegating to native Rust `cargo run -p xtask -- compare`.
 
 .DESCRIPTION
   Forwarding wrapper for the native Rust benchmark comparison harness.
   You can also invoke it directly via:
-    cargo xtask compare [OPTIONS]
-    cargo xtask bench [OPTIONS]
+    cargo run -p xtask -- compare [OPTIONS]
+    cargo run -p xtask -- bench [OPTIONS]
 
 .PARAMETER Runs
   Repetitions per benchmark per runtime (default 7). Two are discarded as warmup.
@@ -50,7 +50,7 @@ param(
 )
 
 $root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$cargoArgs = @('xtask', 'compare')
+$cargoArgs = @('run', '--package', 'xtask', '--', 'compare')
 
 if ($Runs -ne 7) { $cargoArgs += @('--runs', $Runs.ToString()) }
 if ($Only) {
