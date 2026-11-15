@@ -2,8 +2,6 @@ use super::{CheckerTyTable, Type};
 use vn_core::ast::{AstArena, ExprId, ExprKind, UnaryOp};
 use vn_core::TypeKind;
 
-const F64_EXACT_INT: i64 = 1 << 53;
-
 pub fn const_int_value(arena: &AstArena, expr: ExprId) -> Option<i64> {
     const_int_literal(arena, expr, &mut Vec::new())
 }
@@ -79,9 +77,15 @@ pub fn int_literal_adopts(target: &Type, value: i64, table: &CheckerTyTable) -> 
 pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -> Option<Type> {
     use vn_core::LangPrimitive as P;
     match table.get(target.0) {
-        TypeKind::Primitive(P::Num(vn_core::NumKind::Float(_))) => (-F64_EXACT_INT..=F64_EXACT_INT)
-            .contains(&value)
-            .then_some(Type::Float),
+        TypeKind::Primitive(P::Num(vn_core::NumKind::Float(k))) => {
+            let exact = 1i64 << k.mantissa_bits();
+            (-exact..=exact)
+                .contains(&value)
+                .then_some(Type::num(vn_core::NumKind::Float(k)))
+        }
+        TypeKind::Primitive(P::Num(vn_core::NumKind::Int(k))) => (k != vn_core::IntKind::I64
+            && k.contains(i128::from(value)))
+        .then_some(Type::num(vn_core::NumKind::Int(k))),
         TypeKind::Primitive(P::Decimal) => Some(Type::Decimal),
         TypeKind::Primitive(P::BigInt) => Some(Type::BigInt),
         TypeKind::Union(list) => {

@@ -40,15 +40,15 @@ pub(super) fn plain_literal_matches(
     let TypeKind::Primitive(p) = table.get(target.0) else {
         return false;
     };
+    let kind = &arena.expr(expr).kind;
+    if let (ExprKind::IntLiteral { value, .. }, P::Num(vn_core::NumKind::Int(width))) = (kind, p) {
+        return width.contains(i128::from(*value));
+    }
     matches!(
-        (&arena.expr(expr).kind, p),
+        (kind, p),
         (ExprKind::StrLiteral { .. }, P::Str)
             | (ExprKind::BoolLiteral { .. }, P::Bool)
             | (ExprKind::CharLiteral { .. }, P::Char)
-            | (
-                ExprKind::IntLiteral { .. },
-                P::Num(vn_core::NumKind::Int(_))
-            )
             | (
                 ExprKind::FloatLiteral { .. },
                 P::Num(vn_core::NumKind::Float(_))

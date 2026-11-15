@@ -6,9 +6,10 @@ use vn_core::TypeKind;
 pub fn numeric_operand(t: &Type, table: &CheckerTyTable) -> Option<vn_core::NumericOperand> {
     use vn_core::NumericOperand;
     match table.get(t.0) {
-        TypeKind::Primitive(vn_core::LangPrimitive::INT)
-        | TypeKind::Literal(vn_core::TypeLiteral::Int(_)) => Some(NumericOperand::Int),
-        TypeKind::Primitive(vn_core::LangPrimitive::FLOAT) => Some(NumericOperand::Float),
+        TypeKind::Primitive(vn_core::LangPrimitive::Num(k)) => Some(NumericOperand::Num(k)),
+        TypeKind::Literal(vn_core::TypeLiteral::Int(_)) => {
+            Some(NumericOperand::Num(vn_core::NumKind::INT))
+        }
         TypeKind::Primitive(vn_core::LangPrimitive::Decimal) => Some(NumericOperand::Decimal),
         TypeKind::Primitive(vn_core::LangPrimitive::BigInt) => Some(NumericOperand::BigInt),
         TypeKind::Primitive(_)
@@ -39,8 +40,7 @@ pub fn numeric_binary_type(l: &Type, r: &Type, table: &CheckerTyTable) -> Option
     use vn_core::NumericOperand;
     let kind = vn_core::binary_operand_kind(numeric_operand(l, table), numeric_operand(r, table))?;
     Some(match kind {
-        NumericOperand::Int => Type::Int,
-        NumericOperand::Float => Type::Float,
+        NumericOperand::Num(k) => Type::num(k),
         NumericOperand::Decimal => Type::Decimal,
         NumericOperand::BigInt => Type::BigInt,
     })

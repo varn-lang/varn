@@ -221,8 +221,7 @@ pub fn mod_int(a: i64, b: i64) -> Result<i64, IntDivFault> {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NumericOperand {
-    Int,
-    Float,
+    Num(crate::NumKind),
     Decimal,
     BigInt,
 }
@@ -233,22 +232,15 @@ pub fn binary_operand_kind(
 ) -> Option<NumericOperand> {
     use NumericOperand::*;
     match (l?, r?) {
-        (Int, Int) => Some(Int),
-        (Float, Float) => Some(Float),
+        (Num(a), Num(b)) => (a == b).then_some(Num(a)),
         (Decimal, Decimal) => Some(Decimal),
         (BigInt, BigInt) => Some(BigInt),
-        (Int, Float)
-        | (Float, Int)
-        | (Decimal, Float)
-        | (Float, Decimal)
-        | (BigInt, Float)
-        | (Float, BigInt)
-        | (BigInt, Decimal)
+        (Num(_), Decimal)
+        | (Num(_), BigInt)
+        | (Decimal, Num(_))
         | (Decimal, BigInt)
-        | (Decimal, Int)
-        | (Int, Decimal)
-        | (BigInt, Int)
-        | (Int, BigInt) => None,
+        | (BigInt, Num(_))
+        | (BigInt, Decimal) => None,
     }
 }
 
