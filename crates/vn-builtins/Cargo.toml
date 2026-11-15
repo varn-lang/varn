@@ -70,9 +70,7 @@ rustc-hash   = { workspace = true }
 parking_lot  = { workspace = true, optional = true }
 
 [build-dependencies]
-vn-core   = { path = "../vn-core" }
-vn-lexer  = { path = "../vn-lexer" }
-vn-parser = { path = "../vn-parser" }
+vn-contract = { path = "../vn-contract" }
 
 [lints]
 workspace = true

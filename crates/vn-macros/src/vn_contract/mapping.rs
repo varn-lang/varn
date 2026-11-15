@@ -19,6 +19,33 @@ pub(crate) enum Mapped {
     Opt(Box<Mapped>),
 }
 
+impl Mapped {
+    pub(crate) fn of(ty: &vn_contract::ContractTy) -> Self {
+        use vn_contract::ContractTy as T;
+        match ty {
+            T::Num(vn_core::NumKind::Int(_)) => Self::Int,
+            T::Num(vn_core::NumKind::Float(_)) => Self::Float,
+            T::Bool => Self::Bool,
+            T::Char => Self::Char,
+            T::Str => Self::Str,
+            T::Void => Self::Void,
+            T::Opt(inner) => Self::Opt(Box::new(Self::of(inner))),
+            T::Array(_) => Self::Array,
+            T::Null
+            | T::Never
+            | T::BigInt
+            | T::Decimal
+            | T::Dynamic
+            | T::Tuple(_)
+            | T::Union(_)
+            | T::Generic(..)
+            | T::Named(_)
+            | T::Fn
+            | T::Other => Self::Dynamic,
+        }
+    }
+}
+
 fn primitive_mapped(name: &str) -> Option<Mapped> {
     use vn_core::LangPrimitive as P;
     match P::from_str(name)? {

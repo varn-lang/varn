@@ -63,7 +63,8 @@ fn emit_spec_entry(out: &mut impl Write, id: &str, kind_expr: &str, contract: &P
     let include_path = contract.to_string_lossy().replace('\\', "/");
     let source =
         fs::read_to_string(contract).unwrap_or_else(|e| panic!("cannot read {include_path}: {e}"));
-    let surface = ContractSurface::parse(&source, &include_path);
+    let surface = vn_contract::parse(&source, &include_path)
+        .unwrap_or_else(|e| panic!("contract {include_path}: {e}"));
     let exports: String = surface
         .exports
         .iter()
@@ -75,72 +76,4 @@ fn emit_spec_entry(out: &mut impl Write, id: &str, kind_expr: &str, contract: &P
         r#"    ModuleSpec::new("{id}", {kind_expr}, "crates/vn-builtins/{include_path}").with_source(include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/{include_path}"))).with_exports(&[{exports}]){code},"#,
     )
     .unwrap();
-}
-
-struct ContractSurface {
-    exports: Vec<String>,
-    has_code: bool,
-}
-
-impl ContractSurface {
-    fn parse(source: &str, name: &str) -> Self {
-        use vn_core::ast::{Decl, ExportDecl, StmtKind};
-        let (tokens, lexeme_buf, _) = vn_lexer::scan(source, name);
-        let (program, interner, arena) =
-            vn_parser::parse(tokens, lexeme_buf, name, vn_core::AtomInterner::new())
-                .unwrap_or_else(|_| panic!("cannot parse contract {name}"));
-        let mut exports = Vec::new();
-        let mut has_code = false;
-        for &stmt in &program.body {
-            let StmtKind::Decl(decl) = &arena.stmt(stmt).kind else {
-                continue;
-            };
-            let Decl::Export(export) = decl.as_ref() else {
-                continue;
-            };
-            let ExportDecl::Decl { declaration, .. } = export else {
-                has_code = true;
-                continue;
-            };
-            let name = |a: vn_core::Atom| interner.resolve(a).to_string();
-            let (names, declared): (Vec<String>, bool) = match declaration.as_ref() {
-                Decl::Function(f) => (vec![name(f.id)], f.modifiers.is_declare),
-                Decl::Class(c) => (c.id.map(name).into_iter().collect(), c.modifiers.is_declare),
-                Decl::Interface(i) => (vec![name(i.id)], true),
-                Decl::TypeAlias(t) => (vec![name(t.id)], true),
-                Decl::Namespace(n) => (vec![name(n.id)], n.is_declare),
-                Decl::Enum(e) => (vec![name(e.id)], e.is_declare),
-                Decl::SumType(st) => (vec![name(st.id)], false),
-                Decl::Variable(v) => (
-                    v.declarators
-                        .iter()
-                        .filter_map(|d| match &d.id {
-                            vn_core::ast::Pattern::Identifier { name: n, .. } => Some(name(*n)),
-                            vn_core::ast::Pattern::Array { .. }
-                            | vn_core::ast::Pattern::Tuple { .. }
-                            | vn_core::ast::Pattern::Object { .. }
-                            | vn_core::ast::Pattern::Assignment { .. }
-                            | vn_core::ast::Pattern::Rest { .. } => None,
-                        })
-                        .collect(),
-                    v.is_declare,
-                ),
-                Decl::Extension(ext) => (
-                    Vec::new(),
-                    ext.members.iter().all(|member| {
-                        matches!(
-                            member,
-                            vn_core::ast::ExtensionMember::Method(f) if f.modifiers.is_declare
-                        )
-                    }),
-                ),
-                Decl::Import(_) | Decl::Export(_) => (Vec::new(), false),
-            };
-            exports.extend(names);
-            has_code |= !declared;
-        }
-        exports.sort();
-        exports.dedup();
-        ContractSurface { exports, has_code }
-    }
 }

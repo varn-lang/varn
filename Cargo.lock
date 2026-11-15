@@ -3743,12 +3743,11 @@ dependencies = [
  "tar",
  "urlencoding",
  "uuid",
+ "vn-contract",
  "vn-core",
  "vn-gpu",
- "vn-lexer",
  "vn-macros",
  "vn-modules",
- "vn-parser",
  "vn-text",
  "vn-types",
  "vn-ui",
@@ -3808,6 +3807,15 @@ dependencies = [
  "vn-core",
  "vn-tir",
  "vn-types",
+]
+
+[[package]]
+name = "vn-contract"
+version = "0.1.0"
+dependencies = [
+ "vn-core",
+ "vn-lexer",
+ "vn-parser",
 ]
 
 [[package]]
@@ -3951,6 +3959,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
+ "vn-contract",
  "vn-core",
  "vn-lexer",
  "vn-parser",

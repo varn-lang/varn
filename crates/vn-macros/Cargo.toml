@@ -10,6 +10,7 @@ proc-macro = true
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full"] }
+vn-contract = { path = "../vn-contract" }
 vn-core = { path = "../vn-core" }
 vn-lexer = { path = "../vn-lexer" }
 vn-parser = { path = "../vn-parser" }
