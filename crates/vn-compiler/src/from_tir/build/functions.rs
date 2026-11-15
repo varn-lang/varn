@@ -145,8 +145,8 @@ impl<'m> Builder<'m> {
         let var = VarId::Param(i);
         let supplied = self.read_var(var, self.current)?;
         let conv = match ty {
-            BackendTy::Int => Some(vn_core::ValueConv::ExpectInt),
-            BackendTy::Float => Some(vn_core::ValueConv::ExpectFloat),
+            BackendTy::Num(vn_core::NumKind::Int(_)) => Some(vn_core::ValueConv::ExpectInt),
+            BackendTy::Num(vn_core::NumKind::Float(_)) => Some(vn_core::ValueConv::ExpectFloat),
             BackendTy::Bool => Some(vn_core::ValueConv::ExpectBool),
             BackendTy::Str => Some(vn_core::ValueConv::ExpectStr),
             BackendTy::Char => Some(vn_core::ValueConv::ExpectChar),

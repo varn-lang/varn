@@ -116,8 +116,7 @@ fn check_args(
     let element = match sig.params.get(fixed) {
         Some(BackendTy::Array(elem)) if sig.has_rest => Some(m.types.get(*elem)),
         Some(BackendTy::Literal(_))
-        | Some(BackendTy::Int)
-        | Some(BackendTy::Float)
+        | Some(BackendTy::Num(_))
         | Some(BackendTy::Bool)
         | Some(BackendTy::Char)
         | Some(BackendTy::Str)

@@ -171,7 +171,7 @@ impl<'a> FnEmitter<'a> {
         };
         TirExpr {
             kind,
-            ty: BackendTy::Int,
+            ty: BackendTy::INT,
             res: Resolution::None,
             span,
         }
@@ -212,8 +212,8 @@ impl<'a> FnEmitter<'a> {
             && (matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str))
         {
             BackendTy::Str
-        } else if l == BackendTy::Float || r == BackendTy::Float {
-            BackendTy::Float
+        } else if l == BackendTy::FLOAT || r == BackendTy::FLOAT {
+            BackendTy::FLOAT
         } else if matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str) {
             BackendTy::Str
         } else {

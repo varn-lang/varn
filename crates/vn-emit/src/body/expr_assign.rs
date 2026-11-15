@@ -142,8 +142,7 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Array(el) => self.tt.get(el),
             BackendTy::Map(_, val) => self.tt.get(val),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

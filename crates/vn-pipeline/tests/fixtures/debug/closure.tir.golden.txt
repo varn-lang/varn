@@ -19,16 +19,16 @@ TirModule {
             ),
         ],
         dedup: {
-            Str: 2,
-            Never: 0,
-            Dynamic(
-                Declared,
-            ): 3,
             Class(
                 ClassId(
                     0,
                 ),
             ): 1,
+            Str: 2,
+            Never: 0,
+            Dynamic(
+                Declared,
+            ): 3,
         },
         lists: [],
         shapes: [],
@@ -205,7 +205,9 @@ TirModule {
         },
         Signature {
             params: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
             return_ty: Dynamic(
                 Callable,
@@ -214,9 +216,13 @@ TirModule {
         },
         Signature {
             params: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
-            return_ty: Int,
+            return_ty: Num(
+                int,
+            ),
             has_rest: false,
         },
         Signature {
@@ -228,23 +234,31 @@ TirModule {
         },
         Signature {
             params: [],
-            return_ty: Int,
-            has_rest: false,
-        },
-        Signature {
-            params: [
-                Int,
-            ],
-            return_ty: Dynamic(
-                Callable,
+            return_ty: Num(
+                int,
             ),
             has_rest: false,
         },
         Signature {
             params: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
-            return_ty: Int,
+            return_ty: Dynamic(
+                Callable,
+            ),
+            has_rest: false,
+        },
+        Signature {
+            params: [
+                Num(
+                    int,
+                ),
+            ],
+            return_ty: Num(
+                int,
+            ),
             has_rest: false,
         },
         Signature {
@@ -256,12 +270,16 @@ TirModule {
         },
         Signature {
             params: [],
-            return_ty: Int,
+            return_ty: Num(
+                int,
+            ),
             has_rest: false,
         },
         Signature {
             params: [],
-            return_ty: Int,
+            return_ty: Num(
+                int,
+            ),
             has_rest: false,
         },
         Signature {
@@ -283,7 +301,9 @@ TirModule {
                 3,
             ),
             params: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
             return_ty: Dynamic(
                 Callable,
@@ -332,20 +352,26 @@ TirModule {
                 Callable,
             ),
             locals: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
             body: [
                 Let {
                     local: LocalId(
                         0,
                     ),
-                    ty: Int,
+                    ty: Num(
+                        int,
+                    ),
                     init: Some(
                         TirExpr {
                             kind: IntLit(
                                 0,
                             ),
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 126,
@@ -392,9 +418,13 @@ TirModule {
                 4,
             ),
             params: [
-                Int,
+                Num(
+                    int,
+                ),
             ],
-            return_ty: Int,
+            return_ty: Num(
+                int,
+            ),
             locals: [],
             body: [
                 Return(
@@ -404,7 +434,9 @@ TirModule {
                                 op: Add,
                                 lhs: TirExpr {
                                     kind: Var,
-                                    ty: Int,
+                                    ty: Num(
+                                        int,
+                                    ),
                                     res: Param(
                                         0,
                                     ),
@@ -415,7 +447,9 @@ TirModule {
                                 },
                                 rhs: TirExpr {
                                     kind: Var,
-                                    ty: Int,
+                                    ty: Num(
+                                        int,
+                                    ),
                                     res: Upvalue(
                                         0,
                                     ),
@@ -425,7 +459,9 @@ TirModule {
                                     },
                                 },
                             },
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 69,
@@ -448,7 +484,9 @@ TirModule {
                 6,
             ),
             params: [],
-            return_ty: Int,
+            return_ty: Num(
+                int,
+            ),
             locals: [],
             body: [
                 Expr(
@@ -456,7 +494,9 @@ TirModule {
                         kind: Assign {
                             target: TirExpr {
                                 kind: Var,
-                                ty: Int,
+                                ty: Num(
+                                    int,
+                                ),
                                 res: Upvalue(
                                     0,
                                 ),
@@ -470,7 +510,9 @@ TirModule {
                                     op: Add,
                                     lhs: TirExpr {
                                         kind: Var,
-                                        ty: Int,
+                                        ty: Num(
+                                            int,
+                                        ),
                                         res: Upvalue(
                                             0,
                                         ),
@@ -483,7 +525,9 @@ TirModule {
                                         kind: IntLit(
                                             1,
                                         ),
-                                        ty: Int,
+                                        ty: Num(
+                                            int,
+                                        ),
                                         res: None,
                                         span: Span {
                                             start: 163,
@@ -491,7 +535,9 @@ TirModule {
                                         },
                                     },
                                 },
-                                ty: Int,
+                                ty: Num(
+                                    int,
+                                ),
                                 res: None,
                                 span: Span {
                                     start: 159,
@@ -499,7 +545,9 @@ TirModule {
                                 },
                             },
                         },
-                        ty: Int,
+                        ty: Num(
+                            int,
+                        ),
                         res: None,
                         span: Span {
                             start: 155,
@@ -511,7 +559,9 @@ TirModule {
                     Some(
                         TirExpr {
                             kind: Var,
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: Upvalue(
                                 0,
                             ),
@@ -611,7 +661,9 @@ TirModule {
                                             kind: IntLit(
                                                 5,
                                             ),
-                                            ty: Int,
+                                            ty: Num(
+                                                int,
+                                            ),
                                             res: None,
                                             span: Span {
                                                 start: 214,
@@ -672,7 +724,9 @@ TirModule {
                                             kind: IntLit(
                                                 3,
                                             ),
-                                            ty: Int,
+                                            ty: Num(
+                                                int,
+                                            ),
                                             res: None,
                                             span: Span {
                                                 start: 226,
@@ -682,7 +736,9 @@ TirModule {
                                     ),
                                 ],
                             },
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 221,
@@ -693,7 +749,9 @@ TirModule {
                             kind: IntLit(
                                 8,
                             ),
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 232,
@@ -873,7 +931,9 @@ TirModule {
                                 },
                                 args: [],
                             },
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 301,
@@ -884,7 +944,9 @@ TirModule {
                             kind: IntLit(
                                 1,
                             ),
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 314,
@@ -1005,7 +1067,9 @@ TirModule {
                                 },
                                 args: [],
                             },
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 358,
@@ -1016,7 +1080,9 @@ TirModule {
                             kind: IntLit(
                                 2,
                             ),
-                            ty: Int,
+                            ty: Num(
+                                int,
+                            ),
                             res: None,
                             span: Span {
                                 start: 371,

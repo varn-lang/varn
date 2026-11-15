@@ -3,7 +3,7 @@ use vn_tir::*;
 
 pub fn module_with_point() -> TirModule {
     let mut types = TyTable::default();
-    let _ = types.intern(BackendTy::Int);
+    let _ = types.intern(BackendTy::INT);
     TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -14,7 +14,7 @@ pub fn module_with_point() -> TirModule {
             Arc::from("Point"),
             vn_tir::Ancestry::Root,
             vec![
-                ("x".into(), BackendTy::Int),
+                ("x".into(), BackendTy::INT),
                 ("label".into(), BackendTy::Str),
             ],
             &vn_tir::TyTable::default(),
@@ -56,5 +56,5 @@ pub fn expr(kind: TirExprKind, ty: BackendTy, res: Resolution) -> TirExpr {
 }
 
 pub fn int(v: i64) -> TirExpr {
-    expr(TirExprKind::IntLit(v), BackendTy::Int, Resolution::None)
+    expr(TirExprKind::IntLit(v), BackendTy::INT, Resolution::None)
 }

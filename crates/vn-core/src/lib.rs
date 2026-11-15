@@ -18,6 +18,7 @@ pub mod kinds;
 pub mod lang_type;
 pub mod layout;
 pub mod module_id;
+pub mod num_kind;
 pub mod numeric;
 pub mod numeric_big;
 pub mod numeric_conv;
@@ -58,6 +59,7 @@ pub use source::{SourceLocation, SourceRange};
 pub use accessor::AccessorKind;
 pub use intrinsics::{MemberKey, MetaKey};
 pub use module_id::{ImportSpecifier, ModuleId, ModuleKind};
+pub use num_kind::{FloatKind, IntKind, NumKind};
 pub use numeric::{
     add_int, binary_operand_kind, ceil_div_int, checked_int, clamp_index, div_int, fixed_digits,
     float_to_fixed, float_to_string, floor_div_int, fmax, fmin, fsign, mod_int, mul_int, neg_int,

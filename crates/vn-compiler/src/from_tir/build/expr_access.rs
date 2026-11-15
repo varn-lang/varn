@@ -97,8 +97,7 @@ impl<'m> Builder<'m> {
                 | vn_core::TypeLiteral::Bool(_)
                 | vn_core::TypeLiteral::Char(_),
             )
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Bytes
@@ -128,14 +127,14 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         let obj = self.lower_expr(object)?;
         let idx = self.lower_expr(index)?;
-        let kind = if self.value_ty(obj) == BackendTy::Str && self.value_ty(idx) == BackendTy::Int {
+        let kind = if self.value_ty(obj) == BackendTy::Str && self.value_ty(idx) == BackendTy::INT {
             InstKind::CallNativeOp {
                 object: obj,
                 args: vec![idx],
                 op_id: vn_core::runtime_ops::op_id(vn_core::runtime_ops::STR_INDEX),
             }
         } else if matches!(object.ty, vn_tir::BackendTy::Bytes)
-            && matches!(self.value_ty(idx), BackendTy::Int | BackendTy::Dynamic(_))
+            && matches!(self.value_ty(idx), BackendTy::INT | BackendTy::Dynamic(_))
         {
             InstKind::BytesGetIndex {
                 object: obj,

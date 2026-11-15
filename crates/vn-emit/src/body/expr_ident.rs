@@ -38,7 +38,7 @@ fn native_global_ty(idx: u32) -> BackendTy {
     match NATIVE_GLOBALS.get(idx as usize).map(|g| g.value) {
         Some(NativeValue::Function) => BackendTy::Dynamic(DynReason::Callable),
         Some(NativeValue::Class) => BackendTy::Dynamic(DynReason::Runtime),
-        Some(NativeValue::Float) => BackendTy::Float,
+        Some(NativeValue::Float) => BackendTy::FLOAT,
         None => BackendTy::Dynamic(DynReason::Unrecorded),
     }
 }

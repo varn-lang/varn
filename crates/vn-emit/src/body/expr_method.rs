@@ -79,8 +79,7 @@ impl<'a> FnEmitter<'a> {
                 Some((slot, ci.method_at(slot)?.sig))
             }),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -215,7 +214,7 @@ impl<'a> FnEmitter<'a> {
                 }
             }
             OperatorShape::CompareToZero(op) => {
-                let compared = self.method_call(recv, name, args, BackendTy::Int, None, span);
+                let compared = self.method_call(recv, name, args, BackendTy::INT, None, span);
                 TirExpr {
                     kind: TirExprKind::Binary {
                         op: bin_op(op).expect("comparison operators lower to a TirBinOp"),

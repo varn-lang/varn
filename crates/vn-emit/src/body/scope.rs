@@ -58,8 +58,7 @@ impl<'a> FnEmitter<'a> {
             self.yield_ty = match declared {
                 BackendTy::Dynamic(DynReason::Yields(yielded)) => self.tt.get(yielded),
                 other @ BackendTy::Literal(_)
-                | other @ BackendTy::Int
-                | other @ BackendTy::Float
+                | other @ BackendTy::Num(_)
                 | other @ BackendTy::Bool
                 | other @ BackendTy::Char
                 | other @ BackendTy::Str
@@ -82,8 +81,7 @@ impl<'a> FnEmitter<'a> {
             self.return_ty = match declared {
                 BackendTy::Dynamic(DynReason::Awaitable(result)) => self.tt.get(result),
                 other @ BackendTy::Literal(_)
-                | other @ BackendTy::Int
-                | other @ BackendTy::Float
+                | other @ BackendTy::Num(_)
                 | other @ BackendTy::Bool
                 | other @ BackendTy::Char
                 | other @ BackendTy::Str
@@ -333,9 +331,9 @@ impl<'a> FnEmitter<'a> {
 
 fn literal_ty(kind: &ExprKind) -> Option<BackendTy> {
     if matches!(kind, ExprKind::IntLiteral { .. }) {
-        Some(BackendTy::Int)
+        Some(BackendTy::INT)
     } else if matches!(kind, ExprKind::FloatLiteral { .. }) {
-        Some(BackendTy::Float)
+        Some(BackendTy::FLOAT)
     } else if matches!(kind, ExprKind::BoolLiteral { .. }) {
         Some(BackendTy::Bool)
     } else if matches!(kind, ExprKind::StrLiteral { .. }) {

@@ -6,8 +6,7 @@ impl<'a> FnEmitter<'a> {
         match container.non_nullable(self.tt) {
             BackendTy::Map(..) => self.nullable_of(slot),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -37,8 +36,8 @@ impl<'a> FnEmitter<'a> {
         match ty {
             BackendTy::Nullable(_) | BackendTy::Dynamic(_) | BackendTy::Void => ty,
             member @ BackendTy::Literal(_)
-            | member @ BackendTy::Int
-            | member @ BackendTy::Float
+            | member @ BackendTy::Num(vn_core::NumKind::Int(_))
+            | member @ BackendTy::Num(vn_core::NumKind::Float(_))
             | member @ BackendTy::Bool
             | member @ BackendTy::Char
             | member @ BackendTy::Str

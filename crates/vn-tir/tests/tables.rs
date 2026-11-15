@@ -8,13 +8,13 @@ fn inheritance_lays_out_by_prefix() {
     let base = ClassInfo::new(
         Arc::from("Base"),
         vn_tir::Ancestry::Root,
-        vec![("a".into(), BackendTy::Int), ("b".into(), BackendTy::Bool)],
+        vec![("a".into(), BackendTy::INT), ("b".into(), BackendTy::Bool)],
         &vn_tir::TyTable::default(),
     );
     let derived = ClassInfo::new(
         Arc::from("Derived"),
         vn_tir::Ancestry::Local(ClassId(0), &base),
-        vec![("c".into(), BackendTy::Float)],
+        vec![("c".into(), BackendTy::FLOAT)],
         &vn_tir::TyTable::default(),
     );
 
@@ -36,8 +36,8 @@ fn slots_are_dense_and_ordered() {
         Arc::from("P"),
         vn_tir::Ancestry::Root,
         vec![
-            ("x".into(), BackendTy::Int),
-            ("y".into(), BackendTy::Int),
+            ("x".into(), BackendTy::INT),
+            ("y".into(), BackendTy::INT),
             ("z".into(), BackendTy::Str),
         ],
         &vn_tir::TyTable::default(),
@@ -51,10 +51,10 @@ fn declared_types_reach_the_layout() {
     let c = ClassInfo::new(
         Arc::from("P"),
         vn_tir::Ancestry::Root,
-        vec![("n".into(), BackendTy::Int), ("s".into(), BackendTy::Str)],
+        vec![("n".into(), BackendTy::INT), ("s".into(), BackendTy::Str)],
         &vn_tir::TyTable::default(),
     );
-    assert_eq!(c.field("n").map(|f| f.ty), Some(BackendTy::Int));
+    assert_eq!(c.field("n").map(|f| f.ty), Some(BackendTy::INT));
     assert_eq!(c.field("s").map(|f| f.ty), Some(BackendTy::Str));
 }
 

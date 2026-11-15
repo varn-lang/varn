@@ -65,7 +65,7 @@ impl<'a> FnEmitter<'a> {
                 let length = self.field_access(
                     s.clone(),
                     Arc::from(vn_core::MemberKey::Length.as_str()),
-                    BackendTy::Int,
+                    BackendTy::INT,
                     s.span,
                 );
                 let op = match rest {
@@ -205,8 +205,7 @@ impl<'a> FnEmitter<'a> {
             .or_else(|| match s.ty.non_nullable(self.tt) {
                 BackendTy::Enum(e) => Some(e),
                 BackendTy::Literal(_)
-                | BackendTy::Int
-                | BackendTy::Float
+                | BackendTy::Num(_)
                 | BackendTy::Bool
                 | BackendTy::Char
                 | BackendTy::Str
@@ -246,7 +245,7 @@ impl<'a> FnEmitter<'a> {
             kind: TirExprKind::Discriminant {
                 value: Box::new(s.clone()),
             },
-            ty: BackendTy::Int,
+            ty: BackendTy::INT,
             res: Resolution::None,
             span: s.span,
         };
@@ -256,7 +255,7 @@ impl<'a> FnEmitter<'a> {
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
                     kind: TirExprKind::IntLit(tag),
-                    ty: BackendTy::Int,
+                    ty: BackendTy::INT,
                     res: Resolution::None,
                     span: s.span,
                 }),

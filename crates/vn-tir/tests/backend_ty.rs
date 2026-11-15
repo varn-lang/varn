@@ -5,10 +5,10 @@ use vn_tir::{BackendTy, DynReason, TyTable};
 #[test]
 fn interning_round_trips_and_dedups() {
     let mut t = TyTable::default();
-    let a = t.intern(BackendTy::Int);
-    let b = t.intern(BackendTy::Int);
+    let a = t.intern(BackendTy::INT);
+    let b = t.intern(BackendTy::INT);
     assert_eq!(a, b, "the same type must intern to the same id");
-    assert_eq!(t.get(a), BackendTy::Int);
+    assert_eq!(t.get(a), BackendTy::INT);
 
     let arr_int = BackendTy::Array(a);
     let x = t.intern(arr_int);
@@ -19,24 +19,24 @@ fn interning_round_trips_and_dedups() {
 #[test]
 fn type_lists_round_trip() {
     let mut t = TyTable::default();
-    let l = t.intern_list(&[BackendTy::Int, BackendTy::Str, BackendTy::Bool]);
+    let l = t.intern_list(&[BackendTy::INT, BackendTy::Str, BackendTy::Bool]);
     assert_eq!(
         t.get_list(l),
-        &[BackendTy::Int, BackendTy::Str, BackendTy::Bool]
+        &[BackendTy::INT, BackendTy::Str, BackendTy::Bool]
     );
 }
 
 #[test]
 fn nullable_keeps_its_payload() {
     let mut t = TyTable::default();
-    let int_id = t.intern(BackendTy::Int);
+    let int_id = t.intern(BackendTy::INT);
     let n = BackendTy::Nullable(int_id);
 
-    assert_eq!(n.non_nullable(&t), BackendTy::Int);
+    assert_eq!(n.non_nullable(&t), BackendTy::INT);
 
     let n_id = t.intern(n);
     let nn = BackendTy::Nullable(n_id);
-    assert_eq!(nn.non_nullable(&t), BackendTy::Int);
+    assert_eq!(nn.non_nullable(&t), BackendTy::INT);
 
     assert_eq!(BackendTy::Str.non_nullable(&t), BackendTy::Str);
 

@@ -196,8 +196,7 @@ impl Builder<'_> {
             ) => {
                 return self.lower_conform(v, node_ty, ty, kind);
             }
-            vn_tir::BackendTy::Int
-            | vn_tir::BackendTy::Float
+            vn_tir::BackendTy::Num(_)
             | vn_tir::BackendTy::Bool
             | vn_tir::BackendTy::Str
             | vn_tir::BackendTy::Nullable(_)
@@ -227,15 +226,17 @@ impl Builder<'_> {
             }
             BackendTy::Str => vn_core::ValueConv::ExpectStr,
             BackendTy::Bool => vn_core::ValueConv::ExpectBool,
-            BackendTy::Int => vn_core::ValueConv::ExpectInt,
-            BackendTy::Float => vn_core::ValueConv::ExpectFloat,
+            BackendTy::Num(vn_core::NumKind::Int(_)) => vn_core::ValueConv::ExpectInt,
+            BackendTy::Num(vn_core::NumKind::Float(_)) => vn_core::ValueConv::ExpectFloat,
             BackendTy::Nullable(inner) => {
                 let conv = match self.tir.types.get(inner) {
                     BackendTy::Literal(_) => return self.lower_conform(v, node_ty, ty, kind),
                     BackendTy::Str => vn_core::ValueConv::ExpectStrOrNull,
                     BackendTy::Bool => vn_core::ValueConv::ExpectBoolOrNull,
-                    BackendTy::Int => vn_core::ValueConv::ExpectIntOrNull,
-                    BackendTy::Float => vn_core::ValueConv::ExpectFloatOrNull,
+                    BackendTy::Num(vn_core::NumKind::Int(_)) => vn_core::ValueConv::ExpectIntOrNull,
+                    BackendTy::Num(vn_core::NumKind::Float(_)) => {
+                        vn_core::ValueConv::ExpectFloatOrNull
+                    }
                     BackendTy::Dynamic(_)
                     | BackendTy::Char
                     | BackendTy::Bytes

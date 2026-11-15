@@ -116,7 +116,7 @@ impl<'m> Builder<'m> {
         let by_value = |key: &TirExpr| {
             matches!(
                 key.ty.representation(),
-                BackendTy::Str | BackendTy::Int | BackendTy::Bool
+                BackendTy::Str | BackendTy::INT | BackendTy::Bool
             )
         };
         if !entries.iter().all(|(key, _)| by_value(key)) {

@@ -80,8 +80,7 @@ pub enum DynReason {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum BackendTy {
     Literal(TypeLiteral<LiteralStrId>),
-    Int,
-    Float,
+    Num(vn_core::NumKind),
     Bool,
     Char,
 
@@ -104,14 +103,16 @@ pub enum BackendTy {
 }
 
 impl BackendTy {
+    pub const INT: Self = Self::Num(vn_core::NumKind::INT);
+    pub const FLOAT: Self = Self::Num(vn_core::NumKind::FLOAT);
+
     pub fn representation(self) -> Self {
         match self {
-            BackendTy::Literal(TypeLiteral::Int(_)) => BackendTy::Int,
+            BackendTy::Literal(TypeLiteral::Int(_)) => BackendTy::INT,
             BackendTy::Literal(TypeLiteral::Str(_)) => BackendTy::Str,
             BackendTy::Literal(TypeLiteral::Bool(_)) => BackendTy::Bool,
             BackendTy::Literal(TypeLiteral::Char(_)) => BackendTy::Char,
-            other @ BackendTy::Int
-            | other @ BackendTy::Float
+            other @ BackendTy::Num(_)
             | other @ BackendTy::Bool
             | other @ BackendTy::Char
             | other @ BackendTy::Str
@@ -157,8 +158,7 @@ impl BackendTy {
         use vn_core::RuntimeKind as T;
         match self {
             BackendTy::Literal(_) => self.representation().exact_field_kind(),
-            BackendTy::Int => Some(T::Int),
-            BackendTy::Float => Some(T::Float),
+            BackendTy::Num(k) => Some(T::of_num(k)),
             BackendTy::Bool => Some(T::Bool),
             BackendTy::Str => Some(T::Str),
             BackendTy::Bytes => Some(T::Bytes),
@@ -208,8 +208,7 @@ impl BackendTy {
                 t.get(inner).non_nullable_with_depth(t, depth + 1)
             }
             other @ BackendTy::Literal(_)
-            | other @ BackendTy::Int
-            | other @ BackendTy::Float
+            | other @ BackendTy::Num(_)
             | other @ BackendTy::Bool
             | other @ BackendTy::Char
             | other @ BackendTy::Str
@@ -233,7 +232,7 @@ impl BackendTy {
     pub fn is_unboxed_scalar(self) -> bool {
         matches!(
             self.representation(),
-            BackendTy::Int | BackendTy::Float | BackendTy::Bool | BackendTy::Char
+            BackendTy::Num(_) | BackendTy::Bool | BackendTy::Char
         )
     }
 }
@@ -396,8 +395,7 @@ impl TyTable {
                 )))
             }
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

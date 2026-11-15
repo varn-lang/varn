@@ -27,10 +27,10 @@ fn assignable_with_depth(m: &TirModule, from: BackendTy, to: BackendTy, depth: u
         return true;
     }
 
-    if from == BackendTy::Int
+    if from == BackendTy::INT
         && matches!(
             to,
-            BackendTy::Float | BackendTy::Decimal | BackendTy::BigInt
+            BackendTy::FLOAT | BackendTy::Decimal | BackendTy::BigInt
         )
     {
         return true;

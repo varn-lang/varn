@@ -22,7 +22,7 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
     use HirBinOp::*;
     match ty {
         BackendTy::Literal(_) => bin_opcode(op, ty.representation()),
-        BackendTy::Int => match op {
+        BackendTy::Num(vn_core::NumKind::Int(_)) => match op {
             Add => OpCode::AddInt,
             Sub => OpCode::SubInt,
             Mul => OpCode::MulInt,
@@ -44,7 +44,7 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
             Instanceof => OpCode::Instanceof,
             In => OpCode::In,
         },
-        BackendTy::Float => match op {
+        BackendTy::Num(vn_core::NumKind::Float(_)) => match op {
             Add => OpCode::AddFloat,
             Sub => OpCode::SubFloat,
             Mul => OpCode::MulFloat,

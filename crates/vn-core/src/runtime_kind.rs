@@ -29,6 +29,13 @@ pub enum RuntimeKind {
 }
 
 impl RuntimeKind {
+    pub const fn of_num(kind: crate::NumKind) -> Self {
+        match kind {
+            crate::NumKind::Int(_) => Self::Int,
+            crate::NumKind::Float(_) => Self::Float,
+        }
+    }
+
     pub const fn name(self) -> &'static str {
         match self {
             Self::Null => "null",

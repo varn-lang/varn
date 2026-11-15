@@ -270,7 +270,7 @@ fn check_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Veri
         }
         TirExprKind::ObjectKeys { operand } => check_expr(m, f, operand, errors),
         TirExprKind::Length { operand } => {
-            if e.ty != BackendTy::Int {
+            if e.ty != BackendTy::INT {
                 errors.push(VerifyError::new(
                     format!("Length must produce Int, node says {:?}", e.ty),
                     e.span,

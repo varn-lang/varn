@@ -256,8 +256,7 @@ fn supplied(arg: &TirArg) -> Option<bool> {
         | vn_tir::BackendTy::Void
         | vn_tir::BackendTy::Never => None,
         vn_tir::BackendTy::Literal(_)
-        | vn_tir::BackendTy::Int
-        | vn_tir::BackendTy::Float
+        | vn_tir::BackendTy::Num(_)
         | vn_tir::BackendTy::Bool
         | vn_tir::BackendTy::Char
         | vn_tir::BackendTy::Str

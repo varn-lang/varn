@@ -5,7 +5,7 @@ use vn_tir::*;
 fn bare_null_returns_from_any_nullable_function() {
     let mut m = module_with_point();
     let never_id = m.types.intern(BackendTy::Never);
-    let int_id = m.types.intern(BackendTy::Int);
+    let int_id = m.types.intern(BackendTy::INT);
     m.signatures.push(Signature {
         params: vec![],
         return_ty: BackendTy::Nullable(int_id),
@@ -35,7 +35,7 @@ fn bare_null_returns_from_any_nullable_function() {
 fn int_argument_widens_to_a_float_parameter() {
     let mut m = module_with_point();
     m.signatures.push(Signature {
-        params: vec![BackendTy::Float],
+        params: vec![BackendTy::FLOAT],
         return_ty: BackendTy::Void,
         has_rest: false,
     });
@@ -43,7 +43,7 @@ fn int_argument_widens_to_a_float_parameter() {
         force_inline: false,
         name: Arc::from("takesFloat"),
         sig: SigId(1),
-        params: vec![BackendTy::Float],
+        params: vec![BackendTy::FLOAT],
         return_ty: BackendTy::Void,
         locals: vec![],
         body: vec![],
@@ -122,7 +122,7 @@ fn int_addition_is_int() {
             lhs: Box::new(int(1)),
             rhs: Box::new(int(2)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     )));
     assert!(verify_module(&m).is_ok());
@@ -151,7 +151,7 @@ fn mixed_operands_without_a_cast_are_rejected() {
     let mut m = module_with_point();
     let f = expr(
         TirExprKind::FloatLit(1.5),
-        BackendTy::Float,
+        BackendTy::FLOAT,
         Resolution::None,
     );
     m.top_level.body.push(TirStmt::Expr(expr(
@@ -160,7 +160,7 @@ fn mixed_operands_without_a_cast_are_rejected() {
             lhs: Box::new(int(1)),
             rhs: Box::new(f),
         },
-        BackendTy::Float,
+        BackendTy::FLOAT,
         Resolution::None,
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -179,7 +179,7 @@ fn comparison_produces_bool() {
             lhs: Box::new(int(1)),
             rhs: Box::new(int(2)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -226,7 +226,7 @@ fn a_correct_field_read_verifies() {
             object: Box::new(recv),
             name: "x".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::FieldSlot(0),
     )));
     assert!(verify_module(&m).is_ok(), "{:?}", verify_module(&m));

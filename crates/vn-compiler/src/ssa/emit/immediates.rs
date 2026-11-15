@@ -26,7 +26,7 @@ pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<I
         op,
         lhs,
         rhs,
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
     } = kind
     else {
         return None;

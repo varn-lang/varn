@@ -164,7 +164,7 @@ fn walk_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Verif
         }
         TirExprKind::Discriminant { value } => {
             walk_expr(m, f, value, errors);
-            if e.ty != BackendTy::Int {
+            if e.ty != BackendTy::INT {
                 errors.push(VerifyError::new(
                     format!("Discriminant must produce Int, node says {:?}", e.ty),
                     e.span,

@@ -58,8 +58,8 @@ pub(super) fn numeric_domain(bt: BackendTy) -> Option<vn_core::NumericDomain> {
     use vn_core::NumericDomain as D;
     Some(match bt {
         BackendTy::Literal(_) => return numeric_domain(bt.representation()),
-        BackendTy::Int => D::Int,
-        BackendTy::Float => D::Float,
+        BackendTy::Num(vn_core::NumKind::Int(_)) => D::Int,
+        BackendTy::Num(vn_core::NumKind::Float(_)) => D::Float,
         BackendTy::BigInt => D::BigInt,
         BackendTy::Decimal => D::Decimal,
         BackendTy::Bool

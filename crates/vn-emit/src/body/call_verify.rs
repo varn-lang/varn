@@ -17,8 +17,7 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Dynamic(reason) => untyped_reason(reason),
             BackendTy::Array(el) => self.tt.contains(el) && self.is_untyped(self.tt.get(el)),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -144,8 +143,7 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Nullable(_) => self.cast_to(arg, param),
             BackendTy::Dynamic(_) => self.cast_to(arg, param),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

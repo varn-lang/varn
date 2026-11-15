@@ -138,8 +138,8 @@ pub(super) fn fold_binary(
 
 pub(super) fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
     match kind {
-        InstKind::ConstInt(_) => Some(BackendTy::Int),
-        InstKind::ConstFloat(_) => Some(BackendTy::Float),
+        InstKind::ConstInt(_) => Some(BackendTy::INT),
+        InstKind::ConstFloat(_) => Some(BackendTy::FLOAT),
         InstKind::ConstBool(_) => Some(BackendTy::Bool),
         InstKind::ConstStr(_) => Some(BackendTy::Str),
 

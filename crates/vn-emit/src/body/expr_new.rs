@@ -72,8 +72,7 @@ impl<'a> FnEmitter<'a> {
         let built = match ty.non_nullable(self.tt) {
             BackendTy::Class(foreign) => class.or(Some(foreign)),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

@@ -75,10 +75,10 @@ fn let_type_mismatch_is_rejected() {
 #[test]
 fn let_with_matching_type_verifies() {
     let mut m = module_with_point();
-    m.top_level.locals.push(BackendTy::Int);
+    m.top_level.locals.push(BackendTy::INT);
     m.top_level.body.push(TirStmt::Let {
         local: LocalId(1),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         init: Some(int(42)),
     });
     assert!(verify_module(&m).is_ok());
@@ -106,7 +106,7 @@ fn return_with_correct_type_verifies() {
         enums: vec![],
         signatures: vec![Signature {
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             has_rest: false,
         }],
         functions: vec![],
@@ -118,7 +118,7 @@ fn return_with_correct_type_verifies() {
             name: Arc::from("<module>"),
             sig: SigId(0),
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             locals: vec![],
             body: vec![],
             has_this: false,
@@ -149,7 +149,7 @@ fn bare_return_in_non_void_function_is_rejected() {
         enums: vec![],
         signatures: vec![Signature {
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             has_rest: false,
         }],
         functions: vec![],
@@ -161,7 +161,7 @@ fn bare_return_in_non_void_function_is_rejected() {
             name: Arc::from("<module>"),
             sig: SigId(0),
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             locals: vec![],
             body: vec![],
             has_this: false,
@@ -191,7 +191,7 @@ fn return_of_never_type_is_valid_anywhere() {
         enums: vec![],
         signatures: vec![Signature {
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             has_rest: false,
         }],
         functions: vec![],
@@ -203,7 +203,7 @@ fn return_of_never_type_is_valid_anywhere() {
             name: Arc::from("<module>"),
             sig: SigId(0),
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             locals: vec![],
             body: vec![],
             has_this: false,
@@ -223,7 +223,7 @@ fn return_of_never_type_is_valid_anywhere() {
 #[test]
 fn return_nonnull_when_function_returns_nullable_is_valid() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -262,7 +262,7 @@ fn return_nonnull_when_function_returns_nullable_is_valid() {
 #[test]
 fn return_nullable_when_function_returns_nonnull_is_rejected() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -273,7 +273,7 @@ fn return_nullable_when_function_returns_nonnull_is_rejected() {
         enums: vec![],
         signatures: vec![Signature {
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             has_rest: false,
         }],
         functions: vec![],
@@ -285,7 +285,7 @@ fn return_nullable_when_function_returns_nonnull_is_rejected() {
             name: Arc::from("<module>"),
             sig: SigId(0),
             params: vec![],
-            return_ty: BackendTy::Int,
+            return_ty: BackendTy::INT,
             locals: vec![],
             body: vec![],
             has_this: false,

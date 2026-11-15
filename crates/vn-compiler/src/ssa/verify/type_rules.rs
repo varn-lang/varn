@@ -66,7 +66,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         InstKind::ConstInt(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
-                if dty != BackendTy::Int {
+                if dty != BackendTy::INT {
                     return Err(format!(
                         "ConstInt defines v{}: {dty:?}, expected Int",
                         dest.0
@@ -77,7 +77,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         InstKind::ConstFloat(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
-                if dty != BackendTy::Float {
+                if dty != BackendTy::FLOAT {
                     return Err(format!(
                         "ConstFloat defines v{}: {dty:?}, expected Float",
                         dest.0
@@ -166,7 +166,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         | InstKind::BytesGetIndex { index, .. }
         | InstKind::BytesSetIndex { index, .. } => {
             let ity = func.value_ty(*index);
-            if ity != BackendTy::Int && !ity.is_boxed() {
+            if ity != BackendTy::INT && !ity.is_boxed() {
                 return Err(format!(
                     "Array index expects Int or Dynamic, got v{}: {ity:?}",
                     index.0
@@ -250,8 +250,8 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
 pub(crate) fn convert_result_ty(conv: vn_core::ValueConv) -> BackendTy {
     use vn_core::ValueConv::*;
     match conv {
-        IntToFloat | DynToFloat | BigIntToFloat | DecimalToFloat => BackendTy::Float,
-        FloatToInt | BigIntToInt | DecimalToInt | DynToInt => BackendTy::Int,
+        IntToFloat | DynToFloat | BigIntToFloat | DecimalToFloat => BackendTy::FLOAT,
+        FloatToInt | BigIntToInt | DecimalToInt | DynToInt => BackendTy::INT,
         IntToBigInt | IntToDecimal | FloatToBigInt | FloatToDecimal | BigIntToDecimal
         | DecimalToBigInt => BackendTy::Dynamic(DynReason::Boxed),
         ExpectStr => BackendTy::Str,
@@ -260,16 +260,16 @@ pub(crate) fn convert_result_ty(conv: vn_core::ValueConv) -> BackendTy {
         ExpectStrOrNull | ExpectBoolOrNull | ExpectIntOrNull | ExpectFloatOrNull | ExpectRef => {
             BackendTy::Dynamic(DynReason::Boxed)
         }
-        ExpectInt => BackendTy::Int,
-        ExpectFloat => BackendTy::Float,
+        ExpectInt => BackendTy::INT,
+        ExpectFloat => BackendTy::FLOAT,
     }
 }
 
 fn convert_operand_ty(conv: vn_core::ValueConv) -> Option<BackendTy> {
     use vn_core::ValueConv::*;
     match conv {
-        IntToFloat => Some(BackendTy::Int),
-        FloatToInt | FloatToBigInt | FloatToDecimal => Some(BackendTy::Float),
+        IntToFloat => Some(BackendTy::INT),
+        FloatToInt | FloatToBigInt | FloatToDecimal => Some(BackendTy::FLOAT),
         IntToBigInt | IntToDecimal | BigIntToInt | DecimalToInt | DynToInt | DynToFloat
         | BigIntToFloat | DecimalToFloat | BigIntToDecimal | DecimalToBigInt | ExpectStr
         | ExpectBool | ExpectStrOrNull | ExpectBoolOrNull | ExpectInt | ExpectFloat

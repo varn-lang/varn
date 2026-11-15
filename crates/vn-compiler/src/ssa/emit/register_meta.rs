@@ -45,8 +45,8 @@ pub(crate) fn slot_kind_of(ty: BackendTy) -> vn_types::register_meta::SlotKind {
     use vn_types::register_meta::SlotKind;
     match ty {
         BackendTy::Literal(_) => slot_kind_of(ty.representation()),
-        BackendTy::Int => SlotKind::Int,
-        BackendTy::Float => SlotKind::Float,
+        BackendTy::Num(vn_core::NumKind::Int(_)) => SlotKind::Int,
+        BackendTy::Num(vn_core::NumKind::Float(_)) => SlotKind::Float,
         BackendTy::Bool => SlotKind::Bool,
         BackendTy::Char => SlotKind::Char,
         BackendTy::Str => SlotKind::Str,

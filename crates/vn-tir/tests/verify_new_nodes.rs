@@ -13,7 +13,7 @@ fn expr(kind: TirExprKind, ty: BackendTy, res: Resolution) -> TirExpr {
 }
 
 fn int(v: i64) -> TirExpr {
-    expr(TirExprKind::IntLit(v), BackendTy::Int, Resolution::None)
+    expr(TirExprKind::IntLit(v), BackendTy::INT, Resolution::None)
 }
 
 fn func(name: &str, is_async: bool, is_generator: bool, body: Vec<TirStmt>) -> TirFunction {
@@ -65,7 +65,7 @@ fn await_in_a_non_async_function_is_rejected() {
         TirExprKind::Await {
             future: Box::new(int(1)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     ))];
     let m = module(func("<module>", false, false, body));
@@ -78,7 +78,7 @@ fn await_in_an_async_function_is_fine() {
         TirExprKind::Await {
             future: Box::new(int(1)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     ))];
     let m = module(func("<module>", true, false, body));
@@ -105,7 +105,7 @@ fn is_null_must_produce_bool() {
             op: TirUnOp::IsNull,
             operand: Box::new(int(1)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     ))];
     let m = module(func("<module>", false, false, body));
@@ -118,7 +118,7 @@ fn discriminant_of_a_non_enum_is_rejected() {
         TirExprKind::Discriminant {
             value: Box::new(int(1)),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::None,
     ))];
     let m = module(func("<module>", false, false, body));
@@ -129,7 +129,7 @@ fn discriminant_of_a_non_enum_is_rejected() {
 
 fn module_with_enum(top_level: TirFunction) -> TirModule {
     let mut types = TyTable::default();
-    let _ = types.intern(BackendTy::Int);
+    let _ = types.intern(BackendTy::INT);
     TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -143,7 +143,7 @@ fn module_with_enum(top_level: TirFunction) -> TirModule {
             variants: vec![VariantInfo {
                 name: Arc::from("Circle"),
                 tag: 0,
-                payload: vec![BackendTy::Int],
+                payload: vec![BackendTy::INT],
                 field_names: vec![Arc::from("radius")],
             }],
             members: vec![],
@@ -201,7 +201,7 @@ fn variant_payload_out_of_range_field_is_rejected() {
             tag: 0,
             field: 7,
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::EnumVariant {
             enum_id: EnumId(0),
             tag: 0,

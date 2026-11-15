@@ -13,7 +13,7 @@ fn module() -> TirModule {
         classes: vec![ClassInfo::new(
             Arc::from("P"),
             vn_tir::Ancestry::Root,
-            vec![("x".into(), BackendTy::Int)],
+            vec![("x".into(), BackendTy::INT)],
             &vn_tir::TyTable::default(),
         )],
         enums: vec![],
@@ -85,7 +85,7 @@ fn name_dispatch_on_a_known_class_is_counted_not_rejected() {
             object: Box::new(recv),
             name: "x".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::ByName {
             name: "x".into(),
             why: DynReason::Declared,
@@ -113,7 +113,7 @@ fn the_static_ratio_is_reported() {
             object: Box::new(recv),
             name: "x".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::FieldSlot(0),
     )));
 

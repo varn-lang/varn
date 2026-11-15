@@ -17,7 +17,7 @@ impl<'m> Builder<'m> {
             op,
             TirBinOp::Eq | TirBinOp::Ne | TirBinOp::Lt | TirBinOp::Le | TirBinOp::Gt | TirBinOp::Ge
         );
-        if !is_cmp && matches!(ty, BackendTy::Int | BackendTy::Float | BackendTy::Str) {
+        if !is_cmp && matches!(ty, BackendTy::Num(_) | BackendTy::Str) {
             l = self.coerce(l, ty);
             r = self.coerce(r, ty);
         }
@@ -25,11 +25,7 @@ impl<'m> Builder<'m> {
         let op_ty = if lt == rt
             && matches!(
                 lt,
-                BackendTy::Int
-                    | BackendTy::Float
-                    | BackendTy::Bool
-                    | BackendTy::Str
-                    | BackendTy::Char
+                BackendTy::Num(_) | BackendTy::Bool | BackendTy::Str | BackendTy::Char
             ) {
             lt
         } else {
@@ -62,7 +58,7 @@ impl<'m> Builder<'m> {
         let v = self.lower_expr(operand)?;
         match op {
             TirUnOp::IsNull => match self.value_ty(v) {
-                BackendTy::Literal(_) | BackendTy::Int | BackendTy::Float | BackendTy::Bool => {
+                BackendTy::Literal(_) | BackendTy::Num(_) | BackendTy::Bool => {
                     Ok(self.emit(InstKind::ConstBool(false), BackendTy::Bool))
                 }
                 BackendTy::Str
@@ -107,8 +103,7 @@ impl<'m> Builder<'m> {
         match self.value_ty(v) {
             BackendTy::Bool => Some(v),
             BackendTy::Literal(_) => None,
-            BackendTy::Int
-            | BackendTy::Float
+            BackendTy::Num(_)
             | BackendTy::Str
             | BackendTy::Array(_)
             | BackendTy::Map(..)
@@ -117,8 +112,7 @@ impl<'m> Builder<'m> {
             | BackendTy::Class(_) => Some(self.emit(InstKind::ConstBool(true), BackendTy::Bool)),
             BackendTy::Nullable(inner) => match self.tir.types.get(inner) {
                 BackendTy::Literal(_) => None,
-                BackendTy::Int
-                | BackendTy::Float
+                BackendTy::Num(_)
                 | BackendTy::Str
                 | BackendTy::Array(_)
                 | BackendTy::Map(..)
@@ -190,8 +184,8 @@ impl<'m> Builder<'m> {
         }
         let from = match self.value_ty(v) {
             literal @ BackendTy::Literal(_) => super::ops::numeric_domain(literal.representation()),
-            BackendTy::Int => Some(D::Int),
-            BackendTy::Float => Some(D::Float),
+            BackendTy::Num(vn_core::NumKind::Int(_)) => Some(D::Int),
+            BackendTy::Num(vn_core::NumKind::Float(_)) => Some(D::Float),
             BackendTy::Bool
             | BackendTy::Str
             | BackendTy::Char

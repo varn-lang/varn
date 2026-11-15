@@ -10,7 +10,7 @@ pub(super) fn project_bin(
     ty: BackendTy,
 ) -> Option<SsaBinOp> {
     use DynBinOp as D;
-    let int = ty == BackendTy::Int;
+    let int = ty == BackendTy::INT;
     Some(match crate::lower::binary_opcode(op, ty, lhs_ty, rhs_ty) {
         OpCode::AddInt => SsaBinOp::IntAdd,
         OpCode::SubInt => SsaBinOp::IntSub,
@@ -177,12 +177,12 @@ pub(super) fn project_bin(
 
 pub(super) fn project_un(op: HirUnOp, operand_ty: Option<BackendTy>) -> Option<SsaUnOp> {
     Some(match (op, operand_ty) {
-        (HirUnOp::Neg, Some(BackendTy::Int)) => SsaUnOp::NegInt,
-        (HirUnOp::Neg, Some(BackendTy::Float)) => SsaUnOp::NegFloat,
+        (HirUnOp::Neg, Some(BackendTy::INT)) => SsaUnOp::NegInt,
+        (HirUnOp::Neg, Some(BackendTy::FLOAT)) => SsaUnOp::NegFloat,
         (HirUnOp::Neg, _) => SsaUnOp::Dyn(DynUnOp::Neg),
         (HirUnOp::Not, Some(BackendTy::Bool)) => SsaUnOp::Not,
         (HirUnOp::Not, _) => SsaUnOp::Dyn(DynUnOp::Not),
-        (HirUnOp::BitNot, Some(BackendTy::Int)) => SsaUnOp::BitNotInt,
+        (HirUnOp::BitNot, Some(BackendTy::INT)) => SsaUnOp::BitNotInt,
         (HirUnOp::BitNot, _) => SsaUnOp::Dyn(DynUnOp::BitNot),
 
         (HirUnOp::Typeof, _) => return None,

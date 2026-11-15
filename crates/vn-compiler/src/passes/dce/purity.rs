@@ -56,8 +56,8 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | Range { .. } => true,
 
         Binary { op, ty, .. } => {
-            let typed = matches!(ty, BackendTy::Int | BackendTy::Float | BackendTy::Bool);
-            let int_can_overflow = *ty == BackendTy::Int
+            let typed = matches!(ty, BackendTy::Num(_) | BackendTy::Bool);
+            let int_can_overflow = *ty == BackendTy::INT
                 && matches!(
                     op,
                     HirBinOp::Add
@@ -90,9 +90,9 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         }
         Unary { op, ty, .. } => match op {
             HirUnOp::Typeof => true,
-            HirUnOp::Neg => matches!(ty, BackendTy::Float),
+            HirUnOp::Neg => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
             HirUnOp::Not | HirUnOp::BitNot => {
-                matches!(ty, BackendTy::Int | BackendTy::Float | BackendTy::Bool)
+                matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
             }
         },
 

@@ -20,7 +20,7 @@ fn method_call_arity_mismatch_is_rejected() {
         enums: vec![],
         signatures: vec![
             Signature {
-                params: vec![BackendTy::Int],
+                params: vec![BackendTy::INT],
                 return_ty: BackendTy::Void,
                 has_rest: false,
             },
@@ -91,7 +91,7 @@ fn method_call_with_correct_arity_verifies() {
         enums: vec![],
         signatures: vec![
             Signature {
-                params: vec![BackendTy::Int],
+                params: vec![BackendTy::INT],
                 return_ty: BackendTy::Void,
                 has_rest: false,
             },
@@ -140,7 +140,7 @@ fn method_call_with_correct_arity_verifies() {
 #[test]
 fn method_call_arg_nonnull_into_nullable_param_passes() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -207,7 +207,7 @@ fn method_call_arg_nonnull_into_nullable_param_passes() {
 #[test]
 fn method_call_arg_nullable_into_nonnull_param_rejected() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
         imports: vec![],
@@ -225,7 +225,7 @@ fn method_call_arg_nullable_into_nonnull_param_rejected() {
         enums: vec![],
         signatures: vec![
             Signature {
-                params: vec![BackendTy::Int],
+                params: vec![BackendTy::INT],
                 return_ty: BackendTy::Void,
                 has_rest: false,
             },

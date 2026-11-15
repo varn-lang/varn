@@ -182,8 +182,7 @@ impl<'a> FnEmitter<'a> {
         let elem_ty = match src.ty.non_nullable(self.tt) {
             BackendTy::Array(e) => self.tt.get(e),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -260,8 +259,7 @@ impl<'a> FnEmitter<'a> {
                 .unwrap_or(BackendTy::Dynamic(DynReason::Declared)),
             BackendTy::Dynamic(reason) => BackendTy::Dynamic(reason),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -285,8 +283,8 @@ impl<'a> FnEmitter<'a> {
         let read_ty = match elem.ty {
             BackendTy::Nullable(_) | BackendTy::Dynamic(_) => elem.ty,
             t @ BackendTy::Literal(_)
-            | t @ BackendTy::Int
-            | t @ BackendTy::Float
+            | t @ BackendTy::Num(vn_core::NumKind::Int(_))
+            | t @ BackendTy::Num(vn_core::NumKind::Float(_))
             | t @ BackendTy::Bool
             | t @ BackendTy::Char
             | t @ BackendTy::Str
@@ -306,7 +304,7 @@ impl<'a> FnEmitter<'a> {
         let len = self.field_access(
             arr,
             Arc::from(vn_core::MemberKey::Length.as_str()),
-            BackendTy::Int,
+            BackendTy::INT,
             span,
         );
         let present = TirExpr {

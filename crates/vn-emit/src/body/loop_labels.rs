@@ -16,7 +16,7 @@ pub(super) struct LoopFrame {
 fn int(value: i64) -> TirExpr {
     TirExpr {
         kind: TirExprKind::IntLit(value),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::None,
         span: Span::EMPTY,
     }
@@ -25,7 +25,7 @@ fn int(value: i64) -> TirExpr {
 fn flag_var(flag: LocalId) -> TirExpr {
     TirExpr {
         kind: TirExprKind::Var,
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::Local(flag),
         span: Span::EMPTY,
     }
@@ -103,7 +103,7 @@ impl<'a> FnEmitter<'a> {
                 0,
                 TirStmt::Let {
                     local: flag,
-                    ty: BackendTy::Int,
+                    ty: BackendTy::INT,
                     init: Some(int(0)),
                 },
             );
@@ -153,7 +153,7 @@ impl<'a> FnEmitter<'a> {
         let flag = match self.loops[target].flag {
             Some(flag) => flag,
             None => {
-                let flag = self.fresh_local(BackendTy::Int);
+                let flag = self.fresh_local(BackendTy::INT);
                 self.loops[target].flag = Some(flag);
                 flag
             }

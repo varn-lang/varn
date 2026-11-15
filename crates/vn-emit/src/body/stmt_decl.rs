@@ -239,8 +239,7 @@ impl<'a> FnEmitter<'a> {
                                 | DynReason::Runtime,
                             ) => false,
                             BackendTy::Literal(_)
-                            | BackendTy::Int
-                            | BackendTy::Float
+                            | BackendTy::Num(_)
                             | BackendTy::Bool
                             | BackendTy::Char
                             | BackendTy::Str
@@ -265,8 +264,7 @@ impl<'a> FnEmitter<'a> {
                             self.declared_ty(d.id.range().start.offset).unwrap_or(ty)
                         }
                         BackendTy::Literal(_)
-                        | BackendTy::Int
-                        | BackendTy::Float
+                        | BackendTy::Num(_)
                         | BackendTy::Bool
                         | BackendTy::Char
                         | BackendTy::Str

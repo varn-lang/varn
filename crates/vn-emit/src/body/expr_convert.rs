@@ -11,7 +11,7 @@ impl<'a> FnEmitter<'a> {
         span: Span,
     ) -> TirExpr {
         let inner = self.lower_expr(expression);
-        if matches!(inner.ty, BackendTy::Enum(_)) && matches!(ty, BackendTy::Int) {
+        if matches!(inner.ty, BackendTy::Enum(_)) && matches!(ty, BackendTy::INT) {
             return self.field_access(
                 inner,
                 Arc::from(vn_core::MemberKey::RawValue.as_str()),

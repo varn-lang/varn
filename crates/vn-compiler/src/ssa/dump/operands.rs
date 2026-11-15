@@ -18,8 +18,8 @@ pub(super) fn val(v: Value) -> String {
 pub(super) fn ty(t: BackendTy) -> &'static str {
     match t {
         BackendTy::Literal(_) => ty(t.representation()),
-        BackendTy::Int => vn_core::LangPrimitive::Int.name(),
-        BackendTy::Float => vn_core::LangPrimitive::Float.name(),
+        BackendTy::Num(vn_core::NumKind::Int(_)) => vn_core::LangPrimitive::Int.name(),
+        BackendTy::Num(vn_core::NumKind::Float(_)) => vn_core::LangPrimitive::Float.name(),
         BackendTy::Bool => vn_core::LangPrimitive::Bool.name(),
         BackendTy::Str => vn_core::LangPrimitive::Str.name(),
         BackendTy::Dynamic(DynReason::Runtime) => "ref",

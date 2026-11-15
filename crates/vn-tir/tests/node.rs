@@ -6,26 +6,26 @@ use vn_tir::{BackendTy, Resolution, Span, TirArrayEl, TirExpr, TirExprKind};
 fn every_node_kind_carries_a_type() {
     let lit = TirExpr {
         kind: TirExprKind::IntLit(42),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::None,
         span: Span::EMPTY,
     };
-    assert_eq!(lit.ty, BackendTy::Int);
+    assert_eq!(lit.ty, BackendTy::INT);
 
     let arr = TirExpr {
         kind: TirExprKind::ArrayLit(vec![TirArrayEl::Expr(lit)]),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::None,
         span: Span::EMPTY,
     };
-    assert_eq!(arr.ty, BackendTy::Int);
+    assert_eq!(arr.ty, BackendTy::INT);
 }
 
 #[test]
 fn field_access_is_one_kind_with_a_resolution() {
     let recv = TirExpr {
         kind: TirExprKind::IntLit(0),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::None,
         span: Span::EMPTY,
     };
@@ -34,7 +34,7 @@ fn field_access_is_one_kind_with_a_resolution() {
             object: Box::new(recv.clone()),
             name: "x".into(),
         },
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::FieldSlot(0),
         span: Span::EMPTY,
     };
@@ -43,7 +43,7 @@ fn field_access_is_one_kind_with_a_resolution() {
             object: Box::new(recv),
             name: "x".into(),
         },
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::ByName {
             name: "x".into(),
             why: vn_tir::DynReason::IndexSignature,

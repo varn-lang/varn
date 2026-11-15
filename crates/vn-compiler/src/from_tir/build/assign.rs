@@ -95,7 +95,7 @@ impl<'m> Builder<'m> {
                 let obj = self.lower_expr(object)?;
                 let idx = self.lower_expr(index)?;
                 let kind = if matches!(object.ty, vn_tir::BackendTy::Bytes)
-                    && matches!(self.value_ty(idx), BackendTy::Int | BackendTy::Dynamic(_))
+                    && matches!(self.value_ty(idx), BackendTy::INT | BackendTy::Dynamic(_))
                 {
                     InstKind::BytesSetIndex {
                         object: obj,
@@ -284,7 +284,7 @@ impl<'m> Builder<'m> {
 fn native_global_ty(index: u32) -> BackendTy {
     use vn_core::abi::{NativeValue, NATIVE_GLOBALS};
     match NATIVE_GLOBALS.get(index as usize).map(|g| g.value) {
-        Some(NativeValue::Float) => BackendTy::Float,
+        Some(NativeValue::Float) => BackendTy::FLOAT,
         Some(NativeValue::Class | NativeValue::Function) | None => {
             BackendTy::Dynamic(DynReason::Runtime)
         }

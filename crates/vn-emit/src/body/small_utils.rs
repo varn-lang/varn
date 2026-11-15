@@ -72,7 +72,7 @@ pub(super) fn assign_bin_op(op: vn_core::ast::operators::AssignOp) -> Result<Opt
 pub(super) fn int_lit(v: i64) -> TirExpr {
     TirExpr {
         kind: TirExprKind::IntLit(v),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         res: Resolution::None,
         span: Span::EMPTY,
     }

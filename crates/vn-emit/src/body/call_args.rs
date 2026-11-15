@@ -69,9 +69,9 @@ impl<'a> FnEmitter<'a> {
         let target = param.non_nullable(self.tt);
         let wider = matches!(
             target,
-            BackendTy::Float | BackendTy::Decimal | BackendTy::BigInt
+            BackendTy::FLOAT | BackendTy::Decimal | BackendTy::BigInt
         );
-        if arg.ty.representation() == BackendTy::Int && wider {
+        if arg.ty.representation() == BackendTy::INT && wider {
             self.cast_to(arg, target)
         } else {
             arg

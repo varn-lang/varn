@@ -60,7 +60,7 @@ impl<'a> FnEmitter<'a> {
                 kind: TirExprKind::Discriminant {
                     value: Box::new(obj),
                 },
-                ty: BackendTy::Int,
+                ty: BackendTy::INT,
                 res: Resolution::None,
                 span,
             };
@@ -76,7 +76,7 @@ impl<'a> FnEmitter<'a> {
                 kind: TirExprKind::Length {
                     operand: Box::new(obj),
                 },
-                ty: BackendTy::Int,
+                ty: BackendTy::INT,
                 res: Resolution::None,
                 span,
             };

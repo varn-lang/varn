@@ -4,7 +4,7 @@ use vn_tir::*;
 #[test]
 fn let_with_nullable_declared_and_nonnull_init_is_valid() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let nullable_int = BackendTy::Nullable(int_id);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
@@ -48,7 +48,7 @@ fn let_with_nullable_declared_and_nonnull_init_is_valid() {
 #[test]
 fn let_with_nonnull_declared_and_nullable_init_is_rejected() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let nullable_int = BackendTy::Nullable(int_id);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
@@ -84,7 +84,7 @@ fn let_with_nonnull_declared_and_nullable_init_is_rejected() {
     };
     m.top_level.body.push(TirStmt::Let {
         local: LocalId(0),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         init: Some(expr(
             TirExprKind::IntLit(42),
             nullable_int,
@@ -101,7 +101,7 @@ fn let_with_nonnull_declared_and_nullable_init_is_rejected() {
 #[test]
 fn let_declared_nullable_int_init_str_should_fail() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let nullable_int = BackendTy::Nullable(int_id);
     let mut m = TirModule {
         source_file: Arc::from("test.vn"),
@@ -154,7 +154,7 @@ fn let_declared_nullable_int_init_str_should_fail() {
 #[test]
 fn let_declared_nullable_int_init_nullable_str_should_fail() {
     let mut types = TyTable::default();
-    let int_id = types.intern(BackendTy::Int);
+    let int_id = types.intern(BackendTy::INT);
     let str_id = types.intern(BackendTy::Str);
     let nullable_int = BackendTy::Nullable(int_id);
     let nullable_str = BackendTy::Nullable(str_id);
@@ -209,7 +209,7 @@ fn let_declared_nullable_int_init_nullable_str_should_fail() {
 #[test]
 fn deeply_nested_nullable_chain_terminates_without_false_positive() {
     let mut types = TyTable::default();
-    let mut id = types.intern(BackendTy::Int);
+    let mut id = types.intern(BackendTy::INT);
     for _ in 0..40 {
         id = types.intern(BackendTy::Nullable(id));
     }
@@ -253,7 +253,7 @@ fn deeply_nested_nullable_chain_terminates_without_false_positive() {
         ty: deeply_nullable,
         init: Some(expr(
             TirExprKind::IntLit(42),
-            BackendTy::Int,
+            BackendTy::INT,
             Resolution::None,
         )),
     });

@@ -137,7 +137,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::MapGetIndex { .. } => facts.memory_stable,
 
         InstKind::Binary { op, ty, .. } => {
-            let typed = matches!(ty, BackendTy::Int | BackendTy::Float);
+            let typed = matches!(ty, BackendTy::Num(_));
             let safe_op = matches!(
                 op,
                 HirBinOp::Add
@@ -153,7 +153,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
             typed && safe_op
         }
         InstKind::Unary { op, ty, .. } => {
-            matches!(ty, BackendTy::Int | BackendTy::Float | BackendTy::Bool)
+            matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
                 && matches!(op, HirUnOp::Neg | HirUnOp::Not)
         }
         InstKind::LoadGlobal(_) | InstKind::LoadGlobalIdx(_) | InstKind::LoadNativeGlobalIdx(_) => {

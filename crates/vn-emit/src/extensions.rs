@@ -202,8 +202,7 @@ pub(super) fn emit_extensions(
         let this_cid = match recv_ty {
             BackendTy::Class(cid) => Some(cid),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

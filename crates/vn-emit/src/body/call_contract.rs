@@ -189,8 +189,7 @@ impl<'a> FnEmitter<'a> {
             let ty = match param {
                 BackendTy::Nullable(_) | BackendTy::Dynamic(_) => *param,
                 BackendTy::Literal(_)
-                | BackendTy::Int
-                | BackendTy::Float
+                | BackendTy::Num(_)
                 | BackendTy::Bool
                 | BackendTy::Char
                 | BackendTy::Str

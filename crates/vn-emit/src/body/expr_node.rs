@@ -14,11 +14,11 @@ impl<'a> FnEmitter<'a> {
 
         let kind = match &self.ast_arena.expr(e).kind {
             ExprKind::IntLiteral { value, .. } => Some(match ty {
-                BackendTy::Float => TirExprKind::FloatLit(*value as f64),
+                BackendTy::Num(vn_core::NumKind::Float(_)) => TirExprKind::FloatLit(*value as f64),
                 BackendTy::Decimal => TirExprKind::DecimalLit(Arc::from(value.to_string())),
                 BackendTy::BigInt => TirExprKind::BigIntLit(Arc::from(value.to_string())),
                 BackendTy::Literal(_)
-                | BackendTy::Int
+                | BackendTy::Num(vn_core::NumKind::Int(_))
                 | BackendTy::Bool
                 | BackendTy::Char
                 | BackendTy::Str
@@ -374,7 +374,7 @@ impl<'a> FnEmitter<'a> {
                         name: Arc::from(key.as_str()),
                         args: vec![vn_tir::TirArg::Expr(TirExpr {
                             kind: TirExprKind::IntLit(key.index()),
-                            ty: BackendTy::Int,
+                            ty: BackendTy::INT,
                             res: Resolution::None,
                             span,
                         })],

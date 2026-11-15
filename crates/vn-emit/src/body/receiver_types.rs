@@ -6,8 +6,7 @@ impl<'a> FnEmitter<'a> {
         match ty.non_nullable(self.tt) {
             BackendTy::Class(c) => self.m.classes.get(c.0 as usize),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -58,8 +57,8 @@ impl<'a> FnEmitter<'a> {
         use vn_core::RuntimeKind as K;
         let kind = match ty {
             BackendTy::Literal(_) => return self.static_type_name(ty.representation()),
-            BackendTy::Int => K::Int,
-            BackendTy::Float => K::Float,
+            BackendTy::Num(vn_core::NumKind::Int(_)) => K::Int,
+            BackendTy::Num(vn_core::NumKind::Float(_)) => K::Float,
             BackendTy::Bool => K::Bool,
             BackendTy::Char => K::Char,
             BackendTy::Str => K::Str,
@@ -109,8 +108,8 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Str => T::Str,
             BackendTy::Map(..) => T::Map,
             BackendTy::Set(_) => T::Set,
-            BackendTy::Int => T::Int,
-            BackendTy::Float => T::Float,
+            BackendTy::Num(vn_core::NumKind::Int(_)) => T::Int,
+            BackendTy::Num(vn_core::NumKind::Float(_)) => T::Float,
             BackendTy::Bool => T::Bool,
             BackendTy::Char => T::Char,
             BackendTy::Bytes => T::Bytes,

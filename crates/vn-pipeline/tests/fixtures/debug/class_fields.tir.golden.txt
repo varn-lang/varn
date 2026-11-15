@@ -26,19 +26,19 @@ TirModule {
         dedup: {
             Class(
                 ClassId(
-                    1,
-                ),
-            ): 1,
-            Never: 0,
-            Str: 2,
-            Class(
-                ClassId(
                     0,
                 ),
             ): 3,
+            Str: 2,
+            Never: 0,
             Dynamic(
                 Declared,
             ): 4,
+            Class(
+                ClassId(
+                    1,
+                ),
+            ): 1,
         },
         lists: [],
         shapes: [],
@@ -53,7 +53,9 @@ TirModule {
             fields: [
                 FieldInfo {
                     name: "_celsius",
-                    ty: Float,
+                    ty: Num(
+                        float,
+                    ),
                     slot: 0,
                 },
             ],
@@ -279,26 +281,34 @@ TirModule {
         },
         Signature {
             params: [
-                Float,
+                Num(
+                    float,
+                ),
             ],
             return_ty: Void,
             has_rest: false,
         },
         Signature {
             params: [],
-            return_ty: Float,
+            return_ty: Num(
+                float,
+            ),
             has_rest: false,
         },
         Signature {
             params: [
-                Float,
+                Num(
+                    float,
+                ),
             ],
             return_ty: Void,
             has_rest: false,
         },
         Signature {
             params: [],
-            return_ty: Float,
+            return_ty: Num(
+                float,
+            ),
             has_rest: false,
         },
         Signature {
@@ -320,7 +330,9 @@ TirModule {
                 3,
             ),
             params: [
-                Float,
+                Num(
+                    float,
+                ),
             ],
             return_ty: Void,
             locals: [],
@@ -345,7 +357,9 @@ TirModule {
                                     },
                                     name: "_celsius",
                                 },
-                                ty: Float,
+                                ty: Num(
+                                    float,
+                                ),
                                 res: FieldSlot(
                                     0,
                                 ),
@@ -356,7 +370,9 @@ TirModule {
                             },
                             value: TirExpr {
                                 kind: Var,
-                                ty: Float,
+                                ty: Num(
+                                    float,
+                                ),
                                 res: Param(
                                     0,
                                 ),
@@ -366,7 +382,9 @@ TirModule {
                                 },
                             },
                         },
-                        ty: Float,
+                        ty: Num(
+                            float,
+                        ),
                         res: None,
                         span: Span {
                             start: 85,
@@ -392,7 +410,9 @@ TirModule {
                 4,
             ),
             params: [],
-            return_ty: Float,
+            return_ty: Num(
+                float,
+            ),
             locals: [],
             body: [
                 Return(
@@ -414,7 +434,9 @@ TirModule {
                                 },
                                 name: "_celsius",
                             },
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: FieldSlot(
                                 0,
                             ),
@@ -443,7 +465,9 @@ TirModule {
                 5,
             ),
             params: [
-                Float,
+                Num(
+                    float,
+                ),
             ],
             return_ty: Void,
             locals: [],
@@ -468,7 +492,9 @@ TirModule {
                                     },
                                     name: "_celsius",
                                 },
-                                ty: Float,
+                                ty: Num(
+                                    float,
+                                ),
                                 res: FieldSlot(
                                     0,
                                 ),
@@ -479,7 +505,9 @@ TirModule {
                             },
                             value: TirExpr {
                                 kind: Var,
-                                ty: Float,
+                                ty: Num(
+                                    float,
+                                ),
                                 res: Param(
                                     0,
                                 ),
@@ -489,7 +517,9 @@ TirModule {
                                 },
                             },
                         },
-                        ty: Float,
+                        ty: Num(
+                            float,
+                        ),
                         res: None,
                         span: Span {
                             start: 209,
@@ -515,7 +545,9 @@ TirModule {
                 6,
             ),
             params: [],
-            return_ty: Float,
+            return_ty: Num(
+                float,
+            ),
             locals: [],
             body: [
                 Return(
@@ -543,7 +575,9 @@ TirModule {
                                                 },
                                                 name: "_celsius",
                                             },
-                                            ty: Float,
+                                            ty: Num(
+                                                float,
+                                            ),
                                             res: FieldSlot(
                                                 0,
                                             ),
@@ -556,7 +590,9 @@ TirModule {
                                             kind: FloatLit(
                                                 1.8,
                                             ),
-                                            ty: Float,
+                                            ty: Num(
+                                                float,
+                                            ),
                                             res: None,
                                             span: Span {
                                                 start: 295,
@@ -564,7 +600,9 @@ TirModule {
                                             },
                                         },
                                     },
-                                    ty: Float,
+                                    ty: Num(
+                                        float,
+                                    ),
                                     res: None,
                                     span: Span {
                                         start: 279,
@@ -575,7 +613,9 @@ TirModule {
                                     kind: FloatLit(
                                         32.0,
                                     ),
-                                    ty: Float,
+                                    ty: Num(
+                                        float,
+                                    ),
                                     res: None,
                                     span: Span {
                                         start: 301,
@@ -583,7 +623,9 @@ TirModule {
                                     },
                                 },
                             },
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: None,
                             span: Span {
                                 start: 279,
@@ -690,7 +732,9 @@ TirModule {
         params: [],
         return_ty: Void,
         locals: [
-            Float,
+            Num(
+                float,
+            ),
             Class(
                 ClassId(
                     0,
@@ -732,7 +776,9 @@ TirModule {
                                             kind: FloatLit(
                                                 100.0,
                                             ),
-                                            ty: Float,
+                                            ty: Num(
+                                                float,
+                                            ),
                                             res: None,
                                             span: Span {
                                                 start: 341,
@@ -788,7 +834,9 @@ TirModule {
                                 name: "get celsius",
                                 args: [],
                             },
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: VtableSlot(
                                 0,
                             ),
@@ -801,7 +849,9 @@ TirModule {
                             kind: FloatLit(
                                 100.0,
                             ),
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: None,
                             span: Span {
                                 start: 365,
@@ -923,7 +973,9 @@ TirModule {
                                 name: "get fahrenheit",
                                 args: [],
                             },
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: VtableSlot(
                                 2,
                             ),
@@ -936,7 +988,9 @@ TirModule {
                             kind: FloatLit(
                                 212.0,
                             ),
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: None,
                             span: Span {
                                 start: 424,
@@ -1040,13 +1094,17 @@ TirModule {
                                 local: LocalId(
                                     0,
                                 ),
-                                ty: Float,
+                                ty: Num(
+                                    float,
+                                ),
                                 init: Some(
                                     TirExpr {
                                         kind: FloatLit(
                                             0.0,
                                         ),
-                                        ty: Float,
+                                        ty: Num(
+                                            float,
+                                        ),
                                         res: None,
                                         span: Span {
                                             start: 476,
@@ -1080,7 +1138,9 @@ TirModule {
                                             Expr(
                                                 TirExpr {
                                                     kind: Var,
-                                                    ty: Float,
+                                                    ty: Num(
+                                                        float,
+                                                    ),
                                                     res: Local(
                                                         LocalId(
                                                             0,
@@ -1107,7 +1167,9 @@ TirModule {
                         ],
                         value: TirExpr {
                             kind: Var,
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: Local(
                                 LocalId(
                                     0,
@@ -1119,7 +1181,9 @@ TirModule {
                             },
                         },
                     },
-                    ty: Float,
+                    ty: Num(
+                        float,
+                    ),
                     res: None,
                     span: Span {
                         start: 476,
@@ -1153,7 +1217,9 @@ TirModule {
                                 name: "get fahrenheit",
                                 args: [],
                             },
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: VtableSlot(
                                 2,
                             ),
@@ -1166,7 +1232,9 @@ TirModule {
                             kind: FloatLit(
                                 32.0,
                             ),
-                            ty: Float,
+                            ty: Num(
+                                float,
+                            ),
                             res: None,
                             span: Span {
                                 start: 500,

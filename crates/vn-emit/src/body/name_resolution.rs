@@ -46,8 +46,7 @@ impl<'a> FnEmitter<'a> {
         match receiver.non_nullable(self.tt) {
             BackendTy::Dynamic(reason) => reason,
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str

@@ -20,8 +20,7 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Array(el) => self.tt.get(el),
             BackendTy::Map(_, val) => self.tt.get(val),
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Bool
             | BackendTy::Char
             | BackendTy::Str
@@ -54,8 +53,8 @@ impl<'a> FnEmitter<'a> {
             UpdateOp::Increment => TirBinOp::Add,
             UpdateOp::Decrement => TirBinOp::Sub,
         };
-        let step = if node_ty == BackendTy::Float {
-            self.cast_to(int_lit(1), BackendTy::Float)
+        let step = if node_ty == BackendTy::FLOAT {
+            self.cast_to(int_lit(1), BackendTy::FLOAT)
         } else {
             int_lit(1)
         };
@@ -115,8 +114,8 @@ impl<'a> FnEmitter<'a> {
             UpdateOp::Increment => TirBinOp::Add,
             UpdateOp::Decrement => TirBinOp::Sub,
         };
-        let step = if t.ty == BackendTy::Float {
-            self.cast_to(int_lit(1), BackendTy::Float)
+        let step = if t.ty == BackendTy::FLOAT {
+            self.cast_to(int_lit(1), BackendTy::FLOAT)
         } else {
             int_lit(1)
         };

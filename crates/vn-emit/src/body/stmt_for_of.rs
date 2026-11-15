@@ -57,14 +57,14 @@ impl<'a> FnEmitter<'a> {
                 end,
                 inclusive,
             } = &self.ast_arena.expr(right).kind
-            && matches!(self.expr_ty(*start).representation(), BackendTy::Int)
-            && matches!(self.expr_ty(*end).representation(), BackendTy::Int)
+            && matches!(self.expr_ty(*start).representation(), BackendTy::INT)
+            && matches!(self.expr_ty(*end).representation(), BackendTy::INT)
         {
             let (start, end, inclusive) = (*start, *end, *inclusive);
             let lo = self.lower_expr(start);
             let hi = self.lower_expr(end);
             let hi = if inclusive {
-                binary(TirBinOp::Add, hi, int_lit(1), BackendTy::Int)
+                binary(TirBinOp::Add, hi, int_lit(1), BackendTy::INT)
             } else {
                 hi
             };
@@ -104,7 +104,7 @@ impl<'a> FnEmitter<'a> {
                     me.field_access(
                         range.clone(),
                         Arc::from(key.as_str()),
-                        BackendTy::Int,
+                        BackendTy::INT,
                         Span::EMPTY,
                     )
                 };
@@ -115,8 +115,8 @@ impl<'a> FnEmitter<'a> {
                 let stride = self.hoist(stride);
                 out.extend(std::mem::take(&mut self.pending));
                 out.extend(self.int_loop(left, int_lit(0), count, body, move |i| {
-                    let offset = binary(TirBinOp::Mul, i, stride, BackendTy::Int);
-                    binary(TirBinOp::Add, start, offset, BackendTy::Int)
+                    let offset = binary(TirBinOp::Mul, i, stride, BackendTy::INT);
+                    binary(TirBinOp::Add, start, offset, BackendTy::INT)
                 }));
             }
             Some(ForOfPlan::Protocol {
@@ -158,17 +158,17 @@ impl<'a> FnEmitter<'a> {
         let mut out = Vec::new();
         let hi = self.hoist(hi);
         out.extend(std::mem::take(&mut self.pending));
-        let i = self.fresh_local(BackendTy::Int);
+        let i = self.fresh_local(BackendTy::INT);
         out.push(TirStmt::Let {
             local: i,
-            ty: BackendTy::Int,
-            init: Some(binary(TirBinOp::Sub, lo, int_lit(1), BackendTy::Int)),
+            ty: BackendTy::INT,
+            init: Some(binary(TirBinOp::Sub, lo, int_lit(1), BackendTy::INT)),
         });
-        let ivar = || local_var(i, BackendTy::Int);
+        let ivar = || local_var(i, BackendTy::INT);
         let mut loop_body = vec![
             assign(
                 ivar(),
-                binary(TirBinOp::Add, ivar(), int_lit(1), BackendTy::Int),
+                binary(TirBinOp::Add, ivar(), int_lit(1), BackendTy::INT),
             ),
             TirStmt::If {
                 cond: binary(TirBinOp::Lt, ivar(), hi, BackendTy::Bool),
@@ -206,23 +206,23 @@ impl<'a> FnEmitter<'a> {
         element: impl FnOnce(TirExpr) -> TirExpr,
     ) -> Vec<TirStmt> {
         let mut out = Vec::new();
-        let idx = self.fresh_local(BackendTy::Int);
+        let idx = self.fresh_local(BackendTy::INT);
         out.push(TirStmt::Let {
             local: idx,
-            ty: BackendTy::Int,
+            ty: BackendTy::INT,
             init: Some(int_lit(-1)),
         });
-        let idx_var = || local_var(idx, BackendTy::Int);
+        let idx_var = || local_var(idx, BackendTy::INT);
         let len = self.field_access(
             sized,
             Arc::from(MemberKey::Length.as_str()),
-            BackendTy::Int,
+            BackendTy::INT,
             Span::EMPTY,
         );
         let mut loop_body = vec![
             assign(
                 idx_var(),
-                binary(TirBinOp::Add, idx_var(), int_lit(1), BackendTy::Int),
+                binary(TirBinOp::Add, idx_var(), int_lit(1), BackendTy::INT),
             ),
             TirStmt::If {
                 cond: binary(TirBinOp::Lt, idx_var(), len, BackendTy::Bool),

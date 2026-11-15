@@ -72,7 +72,7 @@ fn simplify(
     let representation = ty.representation();
     match &representation {
         BackendTy::Literal(_) => None,
-        BackendTy::Int => {
+        BackendTy::Num(vn_core::NumKind::Int(_)) => {
             let li = int_const.get(&l).copied();
             let ri = int_const.get(&r).copied();
             match op {
@@ -117,7 +117,7 @@ fn simplify(
                 | HirBinOp::In => None,
             }
         }
-        BackendTy::Float => {
+        BackendTy::Num(vn_core::NumKind::Float(_)) => {
             let is_one = |v: Value| float_const.get(&v).copied() == Some(1.0);
             match op {
                 HirBinOp::Mul => {
@@ -172,8 +172,8 @@ fn simplify(
 
 fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
     match kind {
-        InstKind::ConstInt(_) => Some(BackendTy::Int),
-        InstKind::ConstFloat(_) => Some(BackendTy::Float),
+        InstKind::ConstInt(_) => Some(BackendTy::INT),
+        InstKind::ConstFloat(_) => Some(BackendTy::FLOAT),
         InstKind::ConstBool(_) => Some(BackendTy::Bool),
         InstKind::ConstStr(_) => Some(BackendTy::Str),
         InstKind::ConstChar(_) => Some(BackendTy::Char),

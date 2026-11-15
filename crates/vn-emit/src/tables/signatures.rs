@@ -32,8 +32,7 @@ pub(crate) fn intern_signature(
                         BackendTy::Dynamic(_) | BackendTy::Nullable(_) => inner,
                         _ if p.optional => BackendTy::Nullable(tt.intern(inner)),
                         BackendTy::Literal(_)
-                        | BackendTy::Int
-                        | BackendTy::Float
+                        | BackendTy::Num(_)
                         | BackendTy::Bool
                         | BackendTy::Char
                         | BackendTy::Str

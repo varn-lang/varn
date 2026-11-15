@@ -72,8 +72,7 @@ fn check_ty_recursive(
                 }
             }
         }
-        BackendTy::Int
-        | BackendTy::Float
+        BackendTy::Num(_)
         | BackendTy::Bool
         | BackendTy::Char
         | BackendTy::Str
@@ -98,8 +97,7 @@ pub(super) fn check_res(
     let receiver_class = |recv: &TirExpr| match recv.ty.non_nullable(&m.types) {
         BackendTy::Class(c) => Some(c),
         BackendTy::Literal(_)
-        | BackendTy::Int
-        | BackendTy::Float
+        | BackendTy::Num(_)
         | BackendTy::Bool
         | BackendTy::Char
         | BackendTy::Str
@@ -163,8 +161,7 @@ pub(super) fn check_res(
                                 .and_then(|info| info.member_at(*slot))
                                 .is_some(),
                             BackendTy::Literal(_)
-                            | BackendTy::Int
-                            | BackendTy::Float
+                            | BackendTy::Num(_)
                             | BackendTy::Bool
                             | BackendTy::Char
                             | BackendTy::Str

@@ -9,8 +9,7 @@ impl<'a> FnEmitter<'a> {
         match lowered.ty {
             BackendTy::Bool | BackendTy::Dynamic(_) => lowered,
             BackendTy::Literal(_)
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Char
             | BackendTy::Str
             | BackendTy::Bytes
@@ -62,7 +61,7 @@ impl<'a> FnEmitter<'a> {
     }
 
     pub(super) fn assert_type(&self, e: TirExpr, ty: BackendTy) -> TirExpr {
-        let numeric = matches!(ty.non_nullable(self.tt), BackendTy::Int | BackendTy::Float);
+        let numeric = matches!(ty.non_nullable(self.tt), BackendTy::Num(_));
         if !numeric && self.crosses_dynamic_boundary(&e, ty) {
             self.guard_dynamic(e, ty)
         } else {
@@ -79,8 +78,7 @@ impl<'a> FnEmitter<'a> {
             BackendTy::Literal(_)
             | BackendTy::Str
             | BackendTy::Bool
-            | BackendTy::Int
-            | BackendTy::Float
+            | BackendTy::Num(_)
             | BackendTy::Class(_) => true,
             BackendTy::Array(_)
             | BackendTy::Map(..)

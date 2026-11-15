@@ -82,7 +82,7 @@ impl<'a> FnEmitter<'a> {
             kind: TirExprKind::Discriminant {
                 value: Box::new(hoisted.clone()),
             },
-            ty: BackendTy::Int,
+            ty: BackendTy::INT,
             res: Resolution::None,
             span,
         };
@@ -92,7 +92,7 @@ impl<'a> FnEmitter<'a> {
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
                     kind: TirExprKind::IntLit(fail_tag),
-                    ty: BackendTy::Int,
+                    ty: BackendTy::INT,
                     res: Resolution::None,
                     span,
                 }),

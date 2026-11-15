@@ -78,8 +78,12 @@ impl<'m> Builder<'m> {
                     }
                     None => match declared {
                         BackendTy::Literal(_) => self.zero_value(declared.representation()),
-                        BackendTy::Int => self.emit(InstKind::ConstInt(0), declared),
-                        BackendTy::Float => self.emit(InstKind::ConstFloat(0.0), declared),
+                        BackendTy::Num(vn_core::NumKind::Int(_)) => {
+                            self.emit(InstKind::ConstInt(0), declared)
+                        }
+                        BackendTy::Num(vn_core::NumKind::Float(_)) => {
+                            self.emit(InstKind::ConstFloat(0.0), declared)
+                        }
                         BackendTy::Bool => self.emit(InstKind::ConstBool(false), declared),
                         BackendTy::Str
                         | BackendTy::Char

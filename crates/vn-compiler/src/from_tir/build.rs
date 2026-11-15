@@ -33,8 +33,8 @@ impl<'m> Builder<'m> {
     fn lower_expr(&mut self, e: &TirExpr) -> Result<Value> {
         let ty = e.ty.representation();
         match &e.kind {
-            TirExprKind::IntLit(n) => Ok(self.emit(InstKind::ConstInt(*n), BackendTy::Int)),
-            TirExprKind::FloatLit(f) => Ok(self.emit(InstKind::ConstFloat(*f), BackendTy::Float)),
+            TirExprKind::IntLit(n) => Ok(self.emit(InstKind::ConstInt(*n), BackendTy::INT)),
+            TirExprKind::FloatLit(f) => Ok(self.emit(InstKind::ConstFloat(*f), BackendTy::FLOAT)),
             TirExprKind::BoolLit(b) => Ok(self.emit(InstKind::ConstBool(*b), BackendTy::Bool)),
             TirExprKind::StrLit(s) => Ok(self.emit(InstKind::ConstStr(s.clone()), BackendTy::Str)),
 
@@ -111,7 +111,7 @@ impl<'m> Builder<'m> {
 
             TirExprKind::Discriminant { value } => {
                 let v = self.lower_expr(value)?;
-                Ok(self.emit(InstKind::GetEnumTag { operand: v }, BackendTy::Int))
+                Ok(self.emit(InstKind::GetEnumTag { operand: v }, BackendTy::INT))
             }
             TirExprKind::VariantPayload { value, field, .. } => {
                 let v = self.lower_expr(value)?;

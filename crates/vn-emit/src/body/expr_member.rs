@@ -127,7 +127,7 @@ impl<'a> FnEmitter<'a> {
                             lhs: Box::new(e),
                             rhs: Box::new(int_lit(1)),
                         },
-                        ty: BackendTy::Int,
+                        ty: BackendTy::INT,
                         res: Resolution::None,
                         span,
                     };
@@ -169,8 +169,7 @@ impl<'a> FnEmitter<'a> {
                         .unwrap_or(ty)
                 }
                 BackendTy::Literal(_)
-                | BackendTy::Int
-                | BackendTy::Float
+                | BackendTy::Num(_)
                 | BackendTy::Bool
                 | BackendTy::Char
                 | BackendTy::Str

@@ -142,7 +142,10 @@ pub(super) fn emit_value(
             wire_byte,
         } if args.len() == 1
             && vn_core::intrinsic_ops::math::is_unary_math(*wire_byte)
-            && matches!(value_tys.get(args[0].0 as usize), Some(BackendTy::Float)) =>
+            && matches!(
+                value_tys.get(args[0].0 as usize),
+                Some(BackendTy::Num(vn_core::NumKind::Float(_)))
+            ) =>
         {
             calls::emit_intrinsic_direct(chunk, d, args, *wire_byte, reg, line);
         }

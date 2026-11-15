@@ -13,7 +13,7 @@ fn empty_module() -> TirModule {
         classes: vec![ClassInfo::new(
             Arc::from("P"),
             vn_tir::Ancestry::Root,
-            vec![("x".into(), BackendTy::Int)],
+            vec![("x".into(), BackendTy::INT)],
             &vn_tir::TyTable::default(),
         )],
         enums: vec![],
@@ -90,7 +90,7 @@ fn an_out_of_range_field_slot_is_rejected() {
             object: Box::new(recv),
             name: "nope".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::FieldSlot(7),
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -106,16 +106,16 @@ fn a_field_slot_on_non_class_receiver_is_rejected() {
     let mut m = empty_module();
     let recv = expr(
         TirExprKind::Var,
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::Local(LocalId(0)),
     );
-    m.top_level.locals.push(BackendTy::Int);
+    m.top_level.locals.push(BackendTy::INT);
     m.top_level.body.push(TirStmt::Expr(expr(
         TirExprKind::Field {
             object: Box::new(recv),
             name: "nope".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::FieldSlot(0),
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -157,10 +157,10 @@ fn a_vtable_slot_on_non_class_receiver_is_rejected() {
     let mut m = empty_module();
     let recv = expr(
         TirExprKind::Var,
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::Local(LocalId(0)),
     );
-    m.top_level.locals.push(BackendTy::Int);
+    m.top_level.locals.push(BackendTy::INT);
     m.top_level.body.push(TirStmt::Expr(expr(
         TirExprKind::MethodCall {
             recv: Box::new(recv),
@@ -201,7 +201,7 @@ fn out_of_range_local_is_rejected() {
     let mut m = empty_module();
     m.top_level.body.push(TirStmt::Expr(expr(
         TirExprKind::Var,
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::Local(LocalId(5)),
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -218,7 +218,7 @@ fn out_of_range_param_is_rejected() {
     let mut m = empty_module();
     m.top_level.body.push(TirStmt::Expr(expr(
         TirExprKind::Var,
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::Param(5),
     )));
     let errs = verify_module(&m).unwrap_err();
@@ -287,7 +287,7 @@ fn a_dangling_type_handle_on_a_field_object_does_not_panic() {
             object: Box::new(recv),
             name: "x".into(),
         },
-        BackendTy::Int,
+        BackendTy::INT,
         Resolution::FieldSlot(0),
     )));
 
@@ -321,7 +321,7 @@ fn out_of_range_let_local_is_rejected() {
     let mut m = empty_module();
     m.top_level.body.push(TirStmt::Let {
         local: LocalId(5),
-        ty: BackendTy::Int,
+        ty: BackendTy::INT,
         init: None,
     });
     let errs = verify_module(&m).unwrap_err();
@@ -356,7 +356,7 @@ fn a_dangling_vtable_sig_is_rejected() {
     m.classes = vec![ClassInfo::new_with_methods(
         Arc::from("P"),
         vn_tir::Ancestry::Root,
-        vec![("x".into(), BackendTy::Int)],
+        vec![("x".into(), BackendTy::INT)],
         vec![("m".into(), SigId(99))],
         vec![],
         &vn_tir::TyTable::default(),
