@@ -72,6 +72,7 @@ pub enum NativeValue {
     Float,
 }
 
+#[derive(Clone, Copy)]
 pub struct NativeGlobal {
     pub name: &'static str,
     pub value: NativeValue,
@@ -81,10 +82,10 @@ const fn native(name: &'static str, value: NativeValue) -> NativeGlobal {
     NativeGlobal { name, value }
 }
 
-pub const NATIVE_GLOBALS: &[NativeGlobal] = {
+const BASE_GLOBALS: [NativeGlobal; 26] = {
     use crate::{BuiltinType as B, LangPrimitive as P, RuntimeErrorKind as E};
     use NativeValue::{Class, Float, Function};
-    &[
+    [
         native("print", Function),
         native(B::Array.name(), Class),
         native(B::Bytes.name(), Class),
@@ -113,6 +114,30 @@ pub const NATIVE_GLOBALS: &[NativeGlobal] = {
         native("sameValue", Function),
     ]
 };
+
+const WIDTH_CLASSES: usize = crate::NumKind::ALL.len() - 2;
+
+const ALL_GLOBALS: [NativeGlobal; 26 + WIDTH_CLASSES] = {
+    let mut out = [native("", NativeValue::Function); 26 + WIDTH_CLASSES];
+    let mut i = 0;
+    while i < BASE_GLOBALS.len() {
+        out[i] = BASE_GLOBALS[i];
+        i += 1;
+    }
+    let mut next = BASE_GLOBALS.len();
+    let mut k = 0;
+    while k < crate::NumKind::ALL.len() {
+        let kind = crate::NumKind::ALL[k];
+        if !kind.is_default_width() {
+            out[next] = native(kind.name(), NativeValue::Class);
+            next += 1;
+        }
+        k += 1;
+    }
+    out
+};
+
+pub const NATIVE_GLOBALS: &[NativeGlobal] = &ALL_GLOBALS;
 
 pub fn native_global_index(name: &str) -> Option<u32> {
     NATIVE_GLOBALS

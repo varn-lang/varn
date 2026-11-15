@@ -42,6 +42,8 @@ native_modules! {
         types::bytes::NATIVE_ENTRIES,
         types::char::NATIVE_ENTRIES,
         types::decimal::NATIVE_ENTRIES,
+        types::fixed_float::NATIVE_ENTRIES,
+        types::fixed_int::NATIVE_ENTRIES,
         types::float::NATIVE_ENTRIES,
         types::int::NATIVE_ENTRIES,
         types::iteration::NATIVE_ENTRIES,

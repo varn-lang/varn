@@ -39,6 +39,81 @@ pub fn into_native_ret<T: IntoNativeRet>(value: T) -> Result<T::Ok, NativeError>
     value.into_native_ret()
 }
 
+macro_rules! narrow_int {
+    ($($kind:ty),* $(,)?) => {$(
+        impl FromVm for $kind {
+            #[inline]
+            fn from_vm(ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
+                let wide = i64::from_vm(ctx, v)?;
+                <$kind>::try_from(wide).map_err(|_| {
+                    NativeError::integer_overflow(format!(
+                        "integer overflow: {wide} does not fit {}",
+                        stringify!($kind)
+                    ))
+                })
+            }
+        }
+    )*};
+}
+
+narrow_int!(i8, i16, i32, u8, u16, u32);
+
+macro_rules! narrow_int_into {
+    ($($kind:ty),* $(,)?) => {$(
+        impl IntoVm for $kind {
+            #[inline]
+            fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
+                VmValue::from_int(i64::from(self))
+            }
+        }
+    )*};
+}
+
+narrow_int_into!(i8, i16, u8, u16, u32);
+
+impl FromVm for u64 {
+    fn from_vm(ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
+        if v.is_int() {
+            let value = v.as_int();
+            return u64::try_from(value).map_err(|_| {
+                NativeError::integer_overflow(format!("integer overflow: {value} does not fit u64"))
+            });
+        }
+        ctx.as_bigint(v)
+            .ok_or_else(|| NativeError::type_error(format!("expected u64, got {v:?}")))
+            .and_then(|big| {
+                u64::try_from(&big).map_err(|_| {
+                    NativeError::integer_overflow(format!(
+                        "integer overflow: {big} does not fit u64"
+                    ))
+                })
+            })
+    }
+}
+
+impl IntoVm for u64 {
+    fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
+        match i64::try_from(self) {
+            Ok(small) => VmValue::from_int(small),
+            Err(_) => ctx.alloc_bigint(num_bigint::BigInt::from(self)),
+        }
+    }
+}
+
+impl FromVm for f32 {
+    #[inline]
+    fn from_vm(ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
+        f64::from_vm(ctx, v).map(|wide| wide as f32)
+    }
+}
+
+impl IntoVm for f32 {
+    #[inline]
+    fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
+        VmValue::from_f64(f64::from(self))
+    }
+}
+
 impl FromVm for VmValue {
     #[inline]
     fn from_vm(_ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {

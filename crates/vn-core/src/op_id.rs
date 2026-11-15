@@ -96,6 +96,15 @@ pub fn is_core_class(tag: RuntimeKind) -> bool {
     CORE_CLASSES.contains(&tag)
 }
 
+pub fn core_class_names() -> impl Iterator<Item = &'static str> {
+    CORE_CLASSES.into_iter().filter_map(core_class_name).chain(
+        crate::NumKind::ALL
+            .into_iter()
+            .filter(|kind| !kind.is_default_width())
+            .map(crate::NumKind::name),
+    )
+}
+
 pub fn core_class_name(tag: RuntimeKind) -> Option<&'static str> {
     is_core_class(tag).then(|| tag.name())
 }

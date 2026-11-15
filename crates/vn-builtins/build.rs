@@ -32,6 +32,17 @@ fn collect_modules(root: &Path, dir: &Path, layer: &str, kind: &str, out: &mut i
         .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("vn"))
         .map(|p| p.as_path())
         .collect();
+    let templates: Vec<&Path> = paths
+        .iter()
+        .filter(|p| {
+            p.is_file()
+                && p.extension().and_then(|e| e.to_str()) == Some(vn_contract::template::EXTENSION)
+        })
+        .map(|p| p.as_path())
+        .collect();
+    for template in templates {
+        emit_template_entries(out, layer, kind, template);
+    }
     match contracts.as_slice() {
         [] => {}
         [contract] => {
@@ -56,6 +67,30 @@ fn collect_modules(root: &Path, dir: &Path, layer: &str, kind: &str, out: &mut i
 
     for sub in paths.iter().filter(|p| p.is_dir()) {
         collect_modules(root, sub, layer, kind, out);
+    }
+}
+
+fn emit_template_entries(out: &mut impl Write, layer: &str, kind_expr: &str, template: &Path) {
+    let shown = template.to_string_lossy().replace('\\', "/");
+    let text = fs::read_to_string(template).unwrap_or_else(|e| panic!("cannot read {shown}: {e}"));
+    let kinds = vn_contract::template::kinds(&text).unwrap_or_else(|e| panic!("{shown}: {e}"));
+    for kind in kinds {
+        let source = vn_contract::template::instantiate(&text, kind);
+        let name = format!("{shown}#{}", kind.name());
+        let surface =
+            vn_contract::parse(&source, &name).unwrap_or_else(|e| panic!("template {name}: {e}"));
+        let exports: String = surface
+            .exports
+            .iter()
+            .map(|e| format!(r#""{e}","#))
+            .collect();
+        let code = if surface.has_code { ".with_code()" } else { "" };
+        writeln!(
+            out,
+            r#"    ModuleSpec::new("{layer}:types/{id}", {kind_expr}, "crates/vn-builtins/{shown}").with_source({source:?}).with_exports(&[{exports}]){code},"#,
+            id = kind.name(),
+        )
+        .unwrap();
     }
 }
 

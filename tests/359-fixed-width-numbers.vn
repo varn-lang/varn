@@ -188,4 +188,74 @@ await describe("359 fixed-width numbers", async () => {
         expect(sums[49]).toBe(TOP - 49);
         expect(`${sums[0]}`).toBe("18446744073709551615");
     });
+    await it("every width states its limits", () => {
+        expect(u8.MAX_VALUE).toBe(255);
+        expect(u8.MIN_VALUE).toBe(0);
+        expect(i8.MIN_VALUE).toBe(-128);
+        expect(i16.MAX_VALUE).toBe(32767);
+        expect(u32.MAX_VALUE).toBe(4294967295);
+        expect(i32.MIN_VALUE).toBe(-2147483648);
+        expect(u64.MAX_VALUE).toBe(18446744073709551615n as u64);
+        expect(u8.BITS).toBe(8);
+        expect(u64.BITS).toBe(64);
+        expect(f32.EPSILON as float).toBe(1.1920928955078125e-7);
+    });
+
+    await it("wrapping, saturating and checked arithmetic are explicit", () => {
+        const a: u8 = 200;
+        expect(a.wrappingAdd(100)).toBe(44);
+        expect(a.saturatingAdd(100)).toBe(255);
+        expect(a.checkedAdd(100) == null).toBe(true);
+        expect(a.checkedAdd(50)).toBe(250);
+        expect(a.wrappingMul(3)).toBe(88);
+        const low: i8 = -128;
+        expect(low.wrappingSub(1)).toBe(127);
+        expect(low.saturatingSub(1)).toBe(-128);
+        const top: u64 = u64.MAX_VALUE;
+        expect(top.wrappingAdd(2)).toBe(1);
+        expect(top.checkedMul(2) == null).toBe(true);
+        expect(top.saturatingAdd(1)).toBe(top);
+    });
+
+    await it("division and remainder follow the declared rounding", () => {
+        const a: i32 = -7;
+        expect(a.div(2)).toBe(-3);
+        expect(a.floorDiv(2)).toBe(-4);
+        expect(a.ceilDiv(2)).toBe(-3);
+        expect(a.rem(2)).toBe(-1);
+        expect(a.mod(2)).toBe(1);
+        expect(overflows(() => (a.div(0)) == 0)).toBe(false);
+        const edge: i8 = -128;
+        expect(overflows(() => edge.div(-1) == 0)).toBe(true);
+    });
+
+    await it("bit intrinsics act on the stored width", () => {
+        const a: u8 = 0b1011_0001;
+        expect(a.countOnes()).toBe(4);
+        expect(a.leadingZeros()).toBe(0);
+        expect(a.trailingZeros()).toBe(0);
+        expect(a.rotateLeft(1)).toBe(0b0110_0011);
+        expect(a.rotateRight(1)).toBe(0b1101_1000);
+        const wide: u32 = 0x1234_5678;
+        expect(wide.swapBytes()).toBe(0x7856_3412);
+        expect((1 as u16).leadingZeros()).toBe(15);
+    });
+
+    await it("conversion and text methods", () => {
+        const a: u8 = 200;
+        expect(a.toString()).toBe("200");
+        expect(a.toHex()).toBe("c8");
+        expect(a.toBinary()).toBe("11001000");
+        expect(a.toInt()).toBe(200);
+        expect(a.toFloat()).toBe(200.0);
+        expect(u8.parse("17")).toBe(17);
+        expect(u8.tryParse("256") == null).toBe(true);
+        expect(i16.tryParse("-5")).toBe(-5);
+        expect((-5 as i16).abs()).toBe(5);
+        expect(u64.MAX_VALUE.toString()).toBe("18446744073709551615");
+        expect(overflows(() => u64.MAX_VALUE.toInt() == 0)).toBe(true);
+        const f: f32 = 2.5;
+        expect(f.floor() as float).toBe(2.0);
+        expect(f.toFloat()).toBe(2.5);
+    });
 });

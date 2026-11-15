@@ -116,6 +116,7 @@ pub(crate) fn expand(input: TokenStream) -> TokenStream {
             | Mapped::Str
             | Mapped::StrRecv
             | Mapped::Array
+            | Mapped::Narrow(_)
             | Mapped::List(_)
             | Mapped::Dynamic
             | Mapped::Void

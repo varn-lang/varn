@@ -7,11 +7,13 @@ pub(super) struct NativesInput {
     pub(super) sections: Vec<Section>,
 }
 
+#[derive(Clone)]
 pub(super) struct Section {
     pub(super) class: Option<String>,
     pub(super) members: Vec<UserMember>,
 }
 
+#[derive(Clone)]
 pub(super) struct UserMember {
     pub(super) name: Ident,
     pub(super) params: Vec<Pat>,
@@ -31,11 +33,17 @@ impl Parse for NativesInput {
             if is_class_section(input) {
                 let keyword: Ident = input.parse()?;
                 debug_assert_eq!(keyword, "class");
+                let template = input.parse::<Token![$]>().is_ok();
                 let class: Ident = input.parse()?;
+                let class = if template {
+                    format!("${}", class.unraw())
+                } else {
+                    class.unraw().to_string()
+                };
                 let inner;
                 braced!(inner in input);
                 sections.push(Section {
-                    class: Some(class.unraw().to_string()),
+                    class: Some(class),
                     members: members(&inner)?,
                 });
             } else {
@@ -58,7 +66,13 @@ fn is_class_section(input: ParseStream) -> bool {
     let Ok(keyword) = fork.call(Ident::parse_any) else {
         return false;
     };
-    keyword == "class" && fork.peek(Ident::peek_any) && fork.peek2(syn::token::Brace)
+    if keyword != "class" {
+        return false;
+    }
+    if fork.peek(Token![$]) {
+        let _ = fork.parse::<Token![$]>();
+    }
+    fork.peek(Ident::peek_any) && fork.peek2(syn::token::Brace)
 }
 
 fn members(input: ParseStream) -> syn::Result<Vec<UserMember>> {

@@ -32,10 +32,7 @@ pub(super) fn core_static_ops(bind: &BindResult) -> FxHashMap<(Arc<str>, Arc<str
     let Some(core) = bind.core.as_ref() else {
         return out;
     };
-    for tag in vn_core::op_id::CORE_CLASSES {
-        let Some(cname) = vn_core::op_id::core_class_name(tag) else {
-            continue;
-        };
+    for cname in vn_core::op_id::core_class_names() {
         let Some(info) = core.class_members.get(cname) else {
             continue;
         };
@@ -73,10 +70,7 @@ pub(super) fn core_method_ops(bind: &BindResult) -> FxHashMap<(Arc<str>, Arc<str
     let Some(core) = bind.core.as_ref() else {
         return out;
     };
-    for tag in vn_core::op_id::CORE_CLASSES {
-        let Some(cname) = vn_core::op_id::core_class_name(tag) else {
-            continue;
-        };
+    for cname in vn_core::op_id::core_class_names() {
         let Some(info) = core.class_members.get(cname) else {
             continue;
         };

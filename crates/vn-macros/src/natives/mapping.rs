@@ -8,6 +8,7 @@ use crate::contract_members::{Kind, Member};
 pub(crate) enum Mapped {
     Int,
     Float,
+    Narrow(vn_core::NumKind),
     Bool,
     Char,
     Str,
@@ -21,20 +22,32 @@ pub(crate) enum Mapped {
 }
 
 impl Mapped {
+    pub(crate) fn num(kind: vn_core::NumKind) -> Self {
+        match kind {
+            vn_core::NumKind::Int(vn_core::IntKind::I64) => Self::Int,
+            vn_core::NumKind::Float(vn_core::FloatKind::F64) => Self::Float,
+            narrow @ (vn_core::NumKind::Int(_) | vn_core::NumKind::Float(_)) => {
+                Self::Narrow(narrow)
+            }
+        }
+    }
+
     pub(crate) fn of(ty: &vn_contract::ContractTy) -> Self {
         use vn_contract::ContractTy as T;
         match ty {
-            T::Num(vn_core::NumKind::Int(_)) => Self::Int,
-            T::Num(vn_core::NumKind::Float(_)) => Self::Float,
+            T::Num(kind) => Self::num(*kind),
             T::Bool => Self::Bool,
             T::Char => Self::Char,
             T::Str => Self::Str,
             T::Void => Self::Void,
             T::Opt(inner) => Self::Opt(Box::new(Self::of(inner))),
             T::Array(inner) => match Self::of(inner) {
-                element @ (Self::Int | Self::Float | Self::Bool | Self::Char | Self::Str) => {
-                    Self::List(Box::new(element))
-                }
+                element @ (Self::Int
+                | Self::Float
+                | Self::Narrow(_)
+                | Self::Bool
+                | Self::Char
+                | Self::Str) => Self::List(Box::new(element)),
                 Self::StrRecv
                 | Self::Array
                 | Self::List(_)
@@ -60,13 +73,28 @@ impl Mapped {
 fn primitive_mapped(name: &str) -> Option<Mapped> {
     use vn_core::LangPrimitive as P;
     match P::from_str(name)? {
-        P::Num(vn_core::NumKind::Int(_)) => Some(Mapped::Int),
-        P::Num(vn_core::NumKind::Float(_)) => Some(Mapped::Float),
+        P::Num(kind) => Some(Mapped::num(kind)),
         P::Bool => Some(Mapped::Bool),
         P::Char => Some(Mapped::Char),
         P::Str => Some(Mapped::Str),
         P::Void => Some(Mapped::Void),
         P::Null | P::BigInt | P::Decimal | P::Never | P::Dynamic | P::Error => None,
+    }
+}
+
+pub(super) fn rust_num(kind: vn_core::NumKind) -> TS2 {
+    use vn_core::{FloatKind, IntKind, NumKind};
+    match kind {
+        NumKind::Int(IntKind::I8) => quote!(i8),
+        NumKind::Int(IntKind::I16) => quote!(i16),
+        NumKind::Int(IntKind::I32) => quote!(i32),
+        NumKind::Int(IntKind::I64) => quote!(i64),
+        NumKind::Int(IntKind::U8) => quote!(u8),
+        NumKind::Int(IntKind::U16) => quote!(u16),
+        NumKind::Int(IntKind::U32) => quote!(u32),
+        NumKind::Int(IntKind::U64) => quote!(u64),
+        NumKind::Float(FloatKind::F32) => quote!(f32),
+        NumKind::Float(FloatKind::F64) => quote!(f64),
     }
 }
 
@@ -78,7 +106,9 @@ fn mapped_kind(m: &Mapped) -> Option<TS2> {
         Mapped::Char => Some(quote! { Char }),
         Mapped::Str | Mapped::StrRecv => Some(quote! { Str }),
         Mapped::Array => Some(quote! { Array }),
-        Mapped::List(_) | Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => None,
+        Mapped::Narrow(_) | Mapped::List(_) | Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => {
+            None
+        }
     }
 }
 
@@ -87,6 +117,7 @@ pub(super) fn mapped_tag_path(m: &Mapped) -> TS2 {
         Mapped::Opt(inner) => (inner.as_ref(), true),
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Str
@@ -122,6 +153,7 @@ pub(super) fn param_ty(m: &Mapped) -> TS2 {
     match m {
         Mapped::Int => quote!(i64),
         Mapped::Float => quote!(f64),
+        Mapped::Narrow(kind) => rust_num(*kind),
         Mapped::Bool => quote!(bool),
         Mapped::Char => quote!(char),
         Mapped::Str => quote!(&str),
@@ -150,6 +182,7 @@ pub(super) fn owned_ty(m: &Mapped) -> TS2 {
         }
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Array
@@ -170,6 +203,7 @@ pub(super) fn ret_ty(m: &Mapped) -> TS2 {
         }
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::StrRecv
@@ -188,6 +222,7 @@ pub(super) fn call_expr(binding: &Ident, m: &Mapped) -> TS2 {
         }
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Array
@@ -205,7 +240,9 @@ pub(super) fn map_to_arg_type_token(m: &Mapped) -> TS2 {
         Mapped::Bool => quote!(::vn_types::ArgType::Bool),
         Mapped::Char => quote!(::vn_types::ArgType::Char),
         Mapped::Str | Mapped::StrRecv => quote!(::vn_types::ArgType::Str),
-        Mapped::Array | Mapped::List(_) => quote!(::vn_types::ArgType::Generic),
+        Mapped::Array | Mapped::List(_) | Mapped::Narrow(_) => {
+            quote!(::vn_types::ArgType::Generic)
+        }
         Mapped::Dynamic => quote!(::vn_types::ArgType::Generic),
         Mapped::Void => quote!(::vn_types::ArgType::Void),
         Mapped::Opt(_) => quote!(::vn_types::ArgType::Generic),
@@ -266,6 +303,7 @@ pub(super) fn default_value_token(m: &Mapped) -> TS2 {
         Mapped::Dynamic => quote!(::vn_types::VmValue::null()),
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Str
@@ -282,6 +320,7 @@ fn element_ty(m: &Mapped) -> TS2 {
         Mapped::Str | Mapped::StrRecv => quote!(::vn_types::VnStr),
         Mapped::Int
         | Mapped::Float
+        | Mapped::Narrow(_)
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Array

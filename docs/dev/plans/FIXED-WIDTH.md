@@ -75,6 +75,16 @@ consumidores consultan métodos en vez de enumerar anchos (Ley 16).
 - **W5. `ArrayRepr` de ancho real** y `Elem::Num` en el JIT.
 - **W6. JIT.** Operaciones nativas de 8, 16 y 32 bits, `u64`, `f32`; eliminación
   de chequeos por rangos.
+- **W7a. API de las clases nuevas — hecho.** Una plantilla de contrato por
+  familia (`fixed_int.tpl`, `fixed_float.tpl`; `$T` es el tipo y `// @signed` /
+  `// @unsigned` filtran líneas) que `build.rs` instancia en un módulo core por
+  ancho y `natives! { class $T { ... } }` expande una vez por ancho, con `T` el
+  tipo de Rust y `K` el `NumKind`. Da `MIN_VALUE`, `MAX_VALUE`, `BITS`, `parse`,
+  `tryParse`, texto, `wrapping*`, `saturating*`, `checked*`, división con
+  redondeo declarado y las instrucciones de bits (`countOnes`, `leadingZeros`,
+  `trailingZeros`, `rotateLeft`, `rotateRight`, `swapBytes`).
+- **W7b. Migrar `int` y `float` a las mismas plantillas** (borra `int.vn`,
+  `int.rs`, `float.vn`, `float.rs`) y extender `Bytes` sobre `u8[]`.
 - **W7. `std`.** `wrapping*`, `saturating*`, `checked*`, conversiones, `Bytes`
   sobre `u8[]`.
 

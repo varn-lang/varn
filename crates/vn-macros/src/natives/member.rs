@@ -242,7 +242,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
         );
         out.generated_entry_idents.push(fn_entry_ident.clone());
         out.fn_entries.push(quote! {
-            static #fn_entry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
+            pub static #fn_entry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
                 module_id: #module,
                 namespace_path: #ns,
                 symbol_name: #sym,
@@ -284,7 +284,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
             );
             out.generated_entry_idents.push(mentry_ident.clone());
             out.method_entries.push(quote! {
-                static #mentry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
+                pub static #mentry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
                     module_id: #module,
                     namespace_path: #class_name_str,
                     symbol_name: #sym,

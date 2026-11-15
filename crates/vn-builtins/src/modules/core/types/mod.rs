@@ -10,6 +10,10 @@ pub mod bytes;
 pub mod char;
 #[path = "decimal/decimal.rs"]
 pub mod decimal;
+#[path = "fixed_float/fixed_float.rs"]
+pub mod fixed_float;
+#[path = "fixed_int/fixed_int.rs"]
+pub mod fixed_int;
 #[path = "float/float.rs"]
 pub mod float;
 #[path = "int/int.rs"]

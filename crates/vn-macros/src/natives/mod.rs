@@ -31,9 +31,14 @@ pub(crate) fn expand(input: TokenStream) -> TokenStream {
     };
 
     let mut sections = Vec::new();
-    let mut entries = Vec::new();
+    let mut entries: Vec<proc_macro2::TokenStream> = Vec::new();
     for section in &input.sections {
-        match expand_section(&site.module, section, &source, &contract_path) {
+        let expanded = if section.class.as_deref().is_some_and(|c| c.starts_with('$')) {
+            expand_template(&site.module, section, &source, &contract_path)
+        } else {
+            expand_section(&site.module, section, &source, &contract_path, None)
+        };
+        match expanded {
             Ok((tokens, idents)) => {
                 sections.push(tokens);
                 entries.extend(idents);
@@ -115,7 +120,12 @@ fn sole_contract(dir: &Path) -> Result<PathBuf, String> {
         .map_err(|e| format!("cannot read `{}`: {e}", dir.display()))?
         .flatten()
         .map(|e| e.path())
-        .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("vn"))
+        .filter(|p| {
+            matches!(
+                p.extension().and_then(|e| e.to_str()),
+                Some("vn") | Some(vn_contract::template::EXTENSION)
+            )
+        })
         .collect();
     found.sort();
     match found.as_slice() {
@@ -128,12 +138,61 @@ fn sole_contract(dir: &Path) -> Result<PathBuf, String> {
     }
 }
 
+fn kind_tokens(kind: vn_core::NumKind) -> proc_macro2::TokenStream {
+    use vn_core::{FloatKind, IntKind, NumKind};
+    match kind {
+        NumKind::Int(IntKind::I8) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::I8)),
+        NumKind::Int(IntKind::I16) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::I16)),
+        NumKind::Int(IntKind::I32) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::I32)),
+        NumKind::Int(IntKind::I64) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::I64)),
+        NumKind::Int(IntKind::U8) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::U8)),
+        NumKind::Int(IntKind::U16) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::U16)),
+        NumKind::Int(IntKind::U32) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::U32)),
+        NumKind::Int(IntKind::U64) => quote!(::vn_core::NumKind::Int(::vn_core::IntKind::U64)),
+        NumKind::Float(FloatKind::F32) => {
+            quote!(::vn_core::NumKind::Float(::vn_core::FloatKind::F32))
+        }
+        NumKind::Float(FloatKind::F64) => {
+            quote!(::vn_core::NumKind::Float(::vn_core::FloatKind::F64))
+        }
+    }
+}
+
+fn expand_template(
+    module: &str,
+    section: &Section,
+    template: &str,
+    contract_path: &str,
+) -> Result<(proc_macro2::TokenStream, Vec<proc_macro2::TokenStream>), String> {
+    let kinds = vn_contract::template::kinds(template)?;
+    let mut tokens = Vec::new();
+    let mut entries = Vec::new();
+    for kind in kinds {
+        let instance = Section {
+            class: Some(kind.name().to_string()),
+            members: section.members.clone(),
+        };
+        let source = vn_contract::template::instantiate(template, kind);
+        let (expanded, idents) = expand_section(
+            module,
+            &instance,
+            &source,
+            &format!("{contract_path}#{}", kind.name()),
+            Some(kind),
+        )?;
+        tokens.push(expanded);
+        entries.extend(idents);
+    }
+    Ok((quote! { #(#tokens)* }, entries))
+}
+
 fn expand_section(
     module: &str,
     section: &Section,
     source: &str,
     contract_path: &str,
-) -> Result<(proc_macro2::TokenStream, Vec<syn::Ident>), String> {
+    instance: Option<vn_core::NumKind>,
+) -> Result<(proc_macro2::TokenStream, Vec<proc_macro2::TokenStream>), String> {
     let contract =
         match crate::contract_parse::lookup(source, contract_path, section.class.as_deref()) {
             Ok(contract) => contract,
@@ -188,7 +247,11 @@ fn expand_section(
         }
         member::generate(&cx, m, user, &mut generated);
     }
-    if let Some(at) = claimed.iter().position(|c| !c) {
+    if let Some(at) = claimed
+        .iter()
+        .position(|c| !c)
+        .filter(|_| instance.is_none())
+    {
         return Err(format!(
             "`{prefix}::{}` is not in the contract `{contract_path}`",
             section.members[at].key()
@@ -231,7 +294,7 @@ fn expand_section(
                 Ok(ctx.alloc_class(cls.clone()))
             }
 
-            static #entry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
+            pub static #entry_ident: ::vn_types::NativeOpEntry = ::vn_types::NativeOpEntry {
                 module_id: #module,
                 namespace_path: "",
                 symbol_name: #class,
@@ -256,7 +319,34 @@ fn expand_section(
 
         #registration
     };
-    Ok((tokens, generated_entry_idents))
+    let Some(kind) = instance else {
+        return Ok((
+            tokens,
+            generated_entry_idents
+                .into_iter()
+                .map(|i| quote!(#i))
+                .collect(),
+        ));
+    };
+    let scope = format_ident!("__vn_instance_{}", sanitize(&prefix));
+    let rust = mapping::rust_num(kind);
+    let kind_value = kind_tokens(kind);
+    let entries = generated_entry_idents
+        .iter()
+        .map(|i| quote!(#scope::#i))
+        .collect();
+    Ok((
+        quote! {
+            #[allow(dead_code, unused, clippy::all)]
+            mod #scope {
+                use super::*;
+                type T = #rust;
+                const K: ::vn_core::NumKind = #kind_value;
+                #tokens
+            }
+        },
+        entries,
+    ))
 }
 
 pub(super) fn sanitize(s: &str) -> String {

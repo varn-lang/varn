@@ -180,6 +180,13 @@ impl NumKind {
         }
     }
 
+    pub fn range_text(self) -> String {
+        match self {
+            Self::Int(k) => format!("{}..={}", k.min(), k.max()),
+            Self::Float(k) => format!("-{0}..={0}", k.max_finite()),
+        }
+    }
+
     pub const fn is_int(self) -> bool {
         matches!(self, Self::Int(_))
     }

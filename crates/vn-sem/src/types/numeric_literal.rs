@@ -143,13 +143,39 @@ pub fn float_literal_adopts(target: &Type, value: f64, table: &CheckerTyTable) -
 }
 
 pub fn float_literal_adoption(target: &Type, value: f64, table: &CheckerTyTable) -> Option<Type> {
-    let TypeKind::Primitive(vn_core::LangPrimitive::Num(vn_core::NumKind::Float(k))) =
-        table.get(target.0)
-    else {
-        return None;
-    };
-    (k != vn_core::FloatKind::F64 && value.is_finite() && value.abs() <= k.max_finite())
-        .then_some(Type::num(vn_core::NumKind::Float(k)))
+    match table.get(target.0) {
+        TypeKind::Primitive(vn_core::LangPrimitive::Num(vn_core::NumKind::Float(k))) => {
+            (k != vn_core::FloatKind::F64 && value.is_finite() && value.abs() <= k.max_finite())
+                .then_some(Type::num(vn_core::NumKind::Float(k)))
+        }
+        TypeKind::Union(list) => {
+            let members = table.get_list(list);
+            members
+                .iter()
+                .map(|m| Type::resolved(*m))
+                .find_map(|member| float_literal_adoption(&member, value, table))
+        }
+        TypeKind::Primitive(_)
+        | TypeKind::Literal(_)
+        | TypeKind::This
+        | TypeKind::Array(_)
+        | TypeKind::Intersection(_)
+        | TypeKind::Tuple(_)
+        | TypeKind::Named(..)
+        | TypeKind::Generic(..)
+        | TypeKind::TemplateLiteral(_)
+        | TypeKind::Fn(_)
+        | TypeKind::Record(_)
+        | TypeKind::Interface(_)
+        | TypeKind::Typeof(_)
+        | TypeKind::KeyOf(_)
+        | TypeKind::IndexedAccess { .. }
+        | TypeKind::Mapped { .. }
+        | TypeKind::Conditional { .. }
+        | TypeKind::Infer(_)
+        | TypeKind::EnumVariant { .. }
+        | TypeKind::TypePredicate { .. } => None,
+    }
 }
 
 pub fn int_literal_adopts(target: &Type, value: i64, table: &CheckerTyTable) -> bool {
@@ -175,7 +201,7 @@ pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -
             let admits_int = members.iter().any(|m| {
                 matches!(
                     table.get(*m),
-                    TypeKind::Primitive(P::Num(vn_core::NumKind::Int(_)))
+                    TypeKind::Primitive(P::Num(vn_core::NumKind::INT))
                         | TypeKind::Literal(vn_core::TypeLiteral::Int(_))
                 )
             });
@@ -184,6 +210,12 @@ pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -
             }
             [Type::Float, Type::Decimal, Type::BigInt]
                 .into_iter()
+                .chain(
+                    vn_core::NumKind::ALL
+                        .into_iter()
+                        .filter(|kind| !kind.is_default_width())
+                        .map(Type::num),
+                )
                 .filter(|candidate| members.contains(&candidate.0))
                 .find_map(|candidate| int_literal_adoption(&candidate, value, table))
         }
