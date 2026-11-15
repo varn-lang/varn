@@ -9,7 +9,7 @@ fn intrinsic_ids_are_fixed_and_small() {
     let t = CheckerTyTable::new();
     assert_eq!(
         t.get(CheckerTyId::INT),
-        TypeKind::Primitive(vn_core::LangPrimitive::Int)
+        TypeKind::Primitive(vn_core::LangPrimitive::INT)
     );
     assert_eq!(
         t.get(CheckerTyId::STR),
@@ -21,7 +21,7 @@ fn intrinsic_ids_are_fixed_and_small() {
     );
     assert_eq!(
         t.get(CheckerTyId::FLOAT),
-        TypeKind::Primitive(vn_core::LangPrimitive::Float)
+        TypeKind::Primitive(vn_core::LangPrimitive::FLOAT)
     );
     assert_eq!(
         t.get(CheckerTyId::DYNAMIC),
@@ -35,13 +35,13 @@ fn content_ids_are_order_independent() {
     let mut left = CheckerTyTable::new();
     let mut right = CheckerTyTable::new();
 
-    let l_int = left.intern(TypeKind::Primitive(vn_core::LangPrimitive::Int));
+    let l_int = left.intern(TypeKind::Primitive(vn_core::LangPrimitive::INT));
     let l_arr = left.intern(TypeKind::Array(l_int));
     let l_list = left.intern_list(&[l_int, CheckerTyId::STR]);
     let l_union = left.intern(TypeKind::Union(l_list));
 
     let r_str = right.intern(TypeKind::Primitive(vn_core::LangPrimitive::Str));
-    let r_int = right.intern(TypeKind::Primitive(vn_core::LangPrimitive::Int));
+    let r_int = right.intern(TypeKind::Primitive(vn_core::LangPrimitive::INT));
     let r_list = right.intern_list(&[r_int, r_str]);
     let r_union = right.intern(TypeKind::Union(r_list));
     let r_arr = right.intern(TypeKind::Array(r_int));

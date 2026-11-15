@@ -37,13 +37,28 @@ impl CheckerTyId {
     pub const DYNAMIC: CheckerTyId = CheckerTyId(10);
     pub const THIS: CheckerTyId = CheckerTyId(11);
     pub const ERROR: CheckerTyId = CheckerTyId(12);
+
+    pub const fn num(kind: vn_core::NumKind) -> CheckerTyId {
+        use vn_core::{FloatKind, IntKind, NumKind};
+        match kind {
+            NumKind::Int(IntKind::I64) => Self::INT,
+            NumKind::Float(FloatKind::F64) => Self::FLOAT,
+            NumKind::Int(IntKind::I8) => CheckerTyId(13),
+            NumKind::Int(IntKind::I16) => CheckerTyId(14),
+            NumKind::Int(IntKind::I32) => CheckerTyId(15),
+            NumKind::Int(IntKind::U8) => CheckerTyId(16),
+            NumKind::Int(IntKind::U16) => CheckerTyId(17),
+            NumKind::Int(IntKind::U32) => CheckerTyId(18),
+            NumKind::Int(IntKind::U64) => CheckerTyId(19),
+            NumKind::Float(FloatKind::F32) => CheckerTyId(20),
+        }
+    }
 }
 
 pub(super) fn seeded_id(kind: &InternedTypeKind) -> Option<CheckerTyId> {
     match kind {
         TypeKind::Primitive(p) => Some(match p {
-            LangPrimitive::Int => CheckerTyId::INT,
-            LangPrimitive::Float => CheckerTyId::FLOAT,
+            LangPrimitive::Num(k) => CheckerTyId::num(*k),
             LangPrimitive::Decimal => CheckerTyId::DECIMAL,
             LangPrimitive::BigInt => CheckerTyId::BIGINT,
             LangPrimitive::Str => CheckerTyId::STR,

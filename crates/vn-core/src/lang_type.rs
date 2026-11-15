@@ -9,8 +9,7 @@ pub const TYPE_ALIASES_MODULE: &str = "core:types/aliases";
 pub enum LangPrimitive {
     Null,
     Bool,
-    Int,
-    Float,
+    Num(crate::NumKind),
     BigInt,
     Decimal,
     Char,
@@ -22,11 +21,14 @@ pub enum LangPrimitive {
 }
 
 impl LangPrimitive {
+    pub const INT: Self = Self::Num(crate::NumKind::INT);
+    pub const FLOAT: Self = Self::Num(crate::NumKind::FLOAT);
+
     pub const ALL: [Self; 11] = [
         Self::Null,
         Self::Bool,
-        Self::Int,
-        Self::Float,
+        Self::INT,
+        Self::FLOAT,
         Self::BigInt,
         Self::Decimal,
         Self::Char,
@@ -40,8 +42,7 @@ impl LangPrimitive {
         match self {
             Self::Null => "null",
             Self::Bool => "bool",
-            Self::Int => "int",
-            Self::Float => "float",
+            Self::Num(k) => k.name(),
             Self::BigInt => "bigint",
             Self::Decimal => "decimal",
             Self::Char => "char",
@@ -83,8 +84,7 @@ impl LangPrimitive {
     pub const fn core_module(self) -> Option<&'static str> {
         match self {
             Self::Bool => Some("core:types/bool"),
-            Self::Int => Some("core:types/int"),
-            Self::Float => Some("core:types/float"),
+            Self::Num(k) => Some(k.core_module()),
             Self::BigInt => Some("core:types/bigint"),
             Self::Decimal => Some("core:types/decimal"),
             Self::Char => Some("core:types/char"),
@@ -94,7 +94,7 @@ impl LangPrimitive {
     }
 
     pub const fn is_numeric(self) -> bool {
-        matches!(self, Self::Int | Self::Float | Self::BigInt | Self::Decimal)
+        matches!(self, Self::Num(_) | Self::BigInt | Self::Decimal)
     }
 }
 

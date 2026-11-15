@@ -36,8 +36,7 @@ pub fn resolve_type_node(
     let default_interner = vn_core::AtomInterner::new();
     let interner = ctx.and_then(|c| c.interner()).unwrap_or(&default_interner);
     match &node.kind {
-        TypeKind::Primitive(vn_core::LangPrimitive::Int) => Type::Int,
-        TypeKind::Primitive(vn_core::LangPrimitive::Float) => Type::Float,
+        TypeKind::Primitive(vn_core::LangPrimitive::Num(k)) => Type::num(*k),
         TypeKind::Primitive(vn_core::LangPrimitive::Decimal) => Type::Decimal,
         TypeKind::Primitive(vn_core::LangPrimitive::BigInt) => Type::BigInt,
         TypeKind::Primitive(vn_core::LangPrimitive::Str) => Type::Str,

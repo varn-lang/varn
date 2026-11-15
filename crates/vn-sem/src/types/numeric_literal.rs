@@ -79,7 +79,7 @@ pub fn int_literal_adopts(target: &Type, value: i64, table: &CheckerTyTable) -> 
 pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -> Option<Type> {
     use vn_core::LangPrimitive as P;
     match table.get(target.0) {
-        TypeKind::Primitive(P::Float) => (-F64_EXACT_INT..=F64_EXACT_INT)
+        TypeKind::Primitive(P::Num(vn_core::NumKind::Float(_))) => (-F64_EXACT_INT..=F64_EXACT_INT)
             .contains(&value)
             .then_some(Type::Float),
         TypeKind::Primitive(P::Decimal) => Some(Type::Decimal),
@@ -89,7 +89,8 @@ pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -
             let admits_int = members.iter().any(|m| {
                 matches!(
                     table.get(*m),
-                    TypeKind::Primitive(P::Int) | TypeKind::Literal(vn_core::TypeLiteral::Int(_))
+                    TypeKind::Primitive(P::Num(vn_core::NumKind::Int(_)))
+                        | TypeKind::Literal(vn_core::TypeLiteral::Int(_))
                 )
             });
             if admits_int {

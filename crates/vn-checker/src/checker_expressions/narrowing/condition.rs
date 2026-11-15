@@ -56,8 +56,7 @@ impl<'r> Checker<'r> {
     pub(crate) fn never_false(&self, ty: Type, bind: &BindResult) -> bool {
         match self.ty_table.get(ty.0) {
             TypeKind::Primitive(
-                LangPrimitive::Int
-                | LangPrimitive::Float
+                LangPrimitive::Num(_)
                 | LangPrimitive::BigInt
                 | LangPrimitive::Decimal
                 | LangPrimitive::Char

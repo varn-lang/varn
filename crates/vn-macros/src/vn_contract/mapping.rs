@@ -22,8 +22,8 @@ pub(crate) enum Mapped {
 fn primitive_mapped(name: &str) -> Option<Mapped> {
     use vn_core::LangPrimitive as P;
     match P::from_str(name)? {
-        P::Int => Some(Mapped::Int),
-        P::Float => Some(Mapped::Float),
+        P::Num(vn_core::NumKind::Int(_)) => Some(Mapped::Int),
+        P::Num(vn_core::NumKind::Float(_)) => Some(Mapped::Float),
         P::Bool => Some(Mapped::Bool),
         P::Char => Some(Mapped::Char),
         P::Str => Some(Mapped::Str),

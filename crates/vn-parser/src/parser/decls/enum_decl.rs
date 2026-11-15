@@ -63,7 +63,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                         (
                             s.type_node(
                                 field_range,
-                                vn_core::TypeKind::Primitive(vn_core::LangPrimitive::Int),
+                                vn_core::TypeKind::Primitive(vn_core::LangPrimitive::INT),
                             ),
                             Some(expr),
                         )
@@ -73,7 +73,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                         (
                             s.type_node(
                                 field_range,
-                                vn_core::TypeKind::Primitive(vn_core::LangPrimitive::Float),
+                                vn_core::TypeKind::Primitive(vn_core::LangPrimitive::FLOAT),
                             ),
                             Some(expr),
                         )

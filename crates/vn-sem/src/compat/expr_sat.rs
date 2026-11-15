@@ -40,7 +40,7 @@ pub fn expr_satisfies_target_type(
         let literal_elem = matches!(
             table.get(elem_ty.0),
             TypeKind::Primitive(
-                vn_core::LangPrimitive::Float
+                vn_core::LangPrimitive::FLOAT
                     | vn_core::LangPrimitive::Decimal
                     | vn_core::LangPrimitive::BigInt
             )

@@ -26,8 +26,7 @@ const fn primitive_is_hashable(primitive: LangPrimitive) -> bool {
     match primitive {
         LangPrimitive::Null
         | LangPrimitive::Bool
-        | LangPrimitive::Int
-        | LangPrimitive::Float
+        | LangPrimitive::Num(_)
         | LangPrimitive::BigInt
         | LangPrimitive::Decimal
         | LangPrimitive::Char

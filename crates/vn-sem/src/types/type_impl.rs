@@ -17,6 +17,10 @@ impl Type {
     pub const Error: Type = Type::resolved(CheckerTyId::ERROR);
     pub const This: Type = Type::resolved(CheckerTyId::THIS);
 
+    pub const fn num(kind: vn_core::NumKind) -> Type {
+        Type::resolved(CheckerTyId::num(kind))
+    }
+
     pub fn primitive(p: vn_core::LangPrimitive, table: &mut CheckerTyTable) -> Self {
         Type::resolved(table.intern(TypeKind::Primitive(p)))
     }
@@ -25,12 +29,17 @@ impl Type {
         fn base(p: vn_core::LangPrimitive) -> Type {
             use vn_core::LangPrimitive as P;
             match p {
-                P::Int => Type::Int,
+                P::Num(vn_core::NumKind::Int(_)) => Type::Int,
                 P::Str => Type::Str,
                 P::Bool => Type::Bool,
                 P::Char => Type::Char,
                 P::Error => Type::Error,
-                P::Null | P::Float | P::BigInt | P::Decimal | P::Void | P::Never => Type::Dynamic,
+                P::Null
+                | P::Num(vn_core::NumKind::Float(_))
+                | P::BigInt
+                | P::Decimal
+                | P::Void
+                | P::Never => Type::Dynamic,
                 P::Dynamic => Type::Dynamic,
             }
         }
@@ -285,8 +294,7 @@ impl Type {
     pub fn stdlib_key<'t>(&self, table: &'t CheckerTyTable) -> Option<&'t str> {
         match table.get(self.0) {
             TypeKind::Primitive(p) => match p {
-                vn_core::LangPrimitive::Int => Some(vn_core::LangPrimitive::Int.name()),
-                vn_core::LangPrimitive::Float => Some(vn_core::LangPrimitive::Float.name()),
+                vn_core::LangPrimitive::Num(k) => Some(k.name()),
                 vn_core::LangPrimitive::Decimal => Some(vn_core::LangPrimitive::Decimal.name()),
                 vn_core::LangPrimitive::BigInt => Some(vn_core::LangPrimitive::BigInt.name()),
                 vn_core::LangPrimitive::Str => Some(vn_core::LangPrimitive::Str.name()),

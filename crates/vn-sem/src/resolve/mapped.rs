@@ -59,7 +59,7 @@ pub(super) fn resolve_mapped(
     if keys.is_empty() {
         let key_ty = match table.get(source.0) {
             TypeKind::Primitive(vn_core::LangPrimitive::Str) => Some(Type::Str),
-            TypeKind::Primitive(vn_core::LangPrimitive::Int) => Some(Type::Int),
+            TypeKind::Primitive(vn_core::LangPrimitive::INT) => Some(Type::Int),
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
             | TypeKind::This

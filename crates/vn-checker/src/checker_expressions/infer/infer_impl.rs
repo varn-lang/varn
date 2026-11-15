@@ -211,7 +211,7 @@ impl<'r> Checker<'r> {
                         let inner = self.infer_type(rec, operand, bind);
                         if inner.is_int() {
                             Type::primitive(
-                                vn_core::LangPrimitive::Int,
+                                vn_core::LangPrimitive::INT,
                                 &mut *std::sync::Arc::make_mut(&mut self.ty_table),
                             )
                         } else {

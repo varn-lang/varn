@@ -106,9 +106,9 @@ pub const NATIVE_GLOBALS: &[NativeGlobal] = {
         native(P::Char.name(), Class),
         native("debug", Function),
         native(P::Decimal.name(), Class),
-        native(P::Float.name(), Class),
+        native(P::FLOAT.name(), Class),
         native("input", Function),
-        native(P::Int.name(), Class),
+        native(P::INT.name(), Class),
         native(P::Str.name(), Class),
         native("sameValue", Function),
     ]

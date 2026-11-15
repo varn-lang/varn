@@ -111,8 +111,8 @@ pub(crate) fn unwrap_export(decl: &Decl) -> &Decl {
 
 fn scalar(p: LangPrimitive) -> Mapped {
     match p {
-        LangPrimitive::Int => Mapped::Int,
-        LangPrimitive::Float => Mapped::Float,
+        LangPrimitive::Num(vn_core::NumKind::Int(_)) => Mapped::Int,
+        LangPrimitive::Num(vn_core::NumKind::Float(_)) => Mapped::Float,
         LangPrimitive::Bool => Mapped::Bool,
         LangPrimitive::Char => Mapped::Char,
         LangPrimitive::Str => Mapped::Str,

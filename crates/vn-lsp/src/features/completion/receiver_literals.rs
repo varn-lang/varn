@@ -9,8 +9,8 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         TokenKind::IntegerLiteral
         | TokenKind::HexLiteral
         | TokenKind::BinaryLiteral
-        | TokenKind::OctalLiteral => LangPrimitive::Int,
-        TokenKind::FloatLiteral => LangPrimitive::Float,
+        | TokenKind::OctalLiteral => LangPrimitive::INT,
+        TokenKind::FloatLiteral => LangPrimitive::FLOAT,
         TokenKind::DecimalLiteral => LangPrimitive::Decimal,
         TokenKind::BigIntLiteral => LangPrimitive::BigInt,
         TokenKind::True | TokenKind::False => LangPrimitive::Bool,

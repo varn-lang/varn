@@ -257,8 +257,7 @@ fn lower_shape(
 
 fn lower_primitive(p: LangPrimitive) -> BackendTy {
     match p {
-        LangPrimitive::Int => BackendTy::INT,
-        LangPrimitive::Float => BackendTy::FLOAT,
+        LangPrimitive::Num(k) => BackendTy::Num(k),
         LangPrimitive::Bool => BackendTy::Bool,
         LangPrimitive::Char => BackendTy::Char,
         LangPrimitive::Str => BackendTy::Str,

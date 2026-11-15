@@ -105,7 +105,7 @@ pub fn infer_expr_type(
                 UnaryOp::Minus | UnaryOp::Plus => inner,
                 UnaryOp::Not => Type::Bool,
                 UnaryOp::BitNot => match table.get(inner.0) {
-                    TypeKind::Primitive(vn_core::LangPrimitive::Int) => Type::Int,
+                    TypeKind::Primitive(vn_core::LangPrimitive::INT) => Type::Int,
                     TypeKind::Primitive(_)
                     | TypeKind::Literal(_)
                     | TypeKind::This

@@ -170,7 +170,7 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
             return if heap.is_int(v) || (nullable && v.is_null()) {
                 Ok(v)
             } else {
-                Err(not_a(LangPrimitive::Int, nullable, v, heap))
+                Err(not_a(LangPrimitive::INT, nullable, v, heap))
             };
         }
         ValueConv::ExpectFloat | ValueConv::ExpectFloatOrNull => {
@@ -180,7 +180,7 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
             } else if heap.is_int(v) {
                 Ok(VmValue::from_f64(heap.as_int(v) as f64))
             } else {
-                Err(not_a(LangPrimitive::Float, nullable, v, heap))
+                Err(not_a(LangPrimitive::FLOAT, nullable, v, heap))
             };
         }
         ValueConv::IntToFloat

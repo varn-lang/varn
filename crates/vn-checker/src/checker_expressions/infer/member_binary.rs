@@ -49,7 +49,7 @@ pub(super) fn infer_member_type(
         TypeKind::Array(_elem) => {
             if prop_name_str == vn_core::MemberKey::Length.as_str() {
                 return Type::primitive(
-                    vn_core::LangPrimitive::Int,
+                    vn_core::LangPrimitive::INT,
                     &mut *std::sync::Arc::make_mut(&mut checker.ty_table),
                 );
             }
@@ -177,7 +177,7 @@ pub(super) fn infer_binary_type(
                 | BinaryOp::UShr => {
                     if l.is_int() && r.is_int() {
                         return Type::primitive(
-                            vn_core::LangPrimitive::Int,
+                            vn_core::LangPrimitive::INT,
                             &mut *std::sync::Arc::make_mut(&mut checker.ty_table),
                         );
                     }

@@ -135,6 +135,19 @@ impl NumKind {
     pub const INT: Self = Self::Int(IntKind::I64);
     pub const FLOAT: Self = Self::Float(FloatKind::F64);
 
+    pub const ALL: [Self; 10] = [
+        Self::Int(IntKind::I64),
+        Self::Float(FloatKind::F64),
+        Self::Int(IntKind::I8),
+        Self::Int(IntKind::I16),
+        Self::Int(IntKind::I32),
+        Self::Int(IntKind::U8),
+        Self::Int(IntKind::U16),
+        Self::Int(IntKind::U32),
+        Self::Int(IntKind::U64),
+        Self::Float(FloatKind::F32),
+    ];
+
     pub const fn bits(self) -> u32 {
         match self {
             Self::Int(k) => k.bits(),
@@ -163,6 +176,21 @@ impl NumKind {
 
     pub const fn is_default_width(self) -> bool {
         matches!(self, Self::Int(IntKind::I64) | Self::Float(FloatKind::F64))
+    }
+
+    pub const fn core_module(self) -> &'static str {
+        match self {
+            Self::Int(IntKind::I8) => "core:types/i8",
+            Self::Int(IntKind::I16) => "core:types/i16",
+            Self::Int(IntKind::I32) => "core:types/i32",
+            Self::Int(IntKind::I64) => "core:types/int",
+            Self::Int(IntKind::U8) => "core:types/u8",
+            Self::Int(IntKind::U16) => "core:types/u16",
+            Self::Int(IntKind::U32) => "core:types/u32",
+            Self::Int(IntKind::U64) => "core:types/u64",
+            Self::Float(FloatKind::F32) => "core:types/f32",
+            Self::Float(FloatKind::F64) => "core:types/float",
+        }
     }
 
     pub fn from_name(name: &str) -> Option<Self> {

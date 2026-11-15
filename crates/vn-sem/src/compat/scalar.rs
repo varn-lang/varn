@@ -45,8 +45,14 @@ pub(super) fn plain_literal_matches(
         (ExprKind::StrLiteral { .. }, P::Str)
             | (ExprKind::BoolLiteral { .. }, P::Bool)
             | (ExprKind::CharLiteral { .. }, P::Char)
-            | (ExprKind::IntLiteral { .. }, P::Int)
-            | (ExprKind::FloatLiteral { .. }, P::Float)
+            | (
+                ExprKind::IntLiteral { .. },
+                P::Num(vn_core::NumKind::Int(_))
+            )
+            | (
+                ExprKind::FloatLiteral { .. },
+                P::Num(vn_core::NumKind::Float(_))
+            )
     )
 }
 

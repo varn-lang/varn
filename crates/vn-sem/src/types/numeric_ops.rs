@@ -6,9 +6,9 @@ use vn_core::TypeKind;
 pub fn numeric_operand(t: &Type, table: &CheckerTyTable) -> Option<vn_core::NumericOperand> {
     use vn_core::NumericOperand;
     match table.get(t.0) {
-        TypeKind::Primitive(vn_core::LangPrimitive::Int)
+        TypeKind::Primitive(vn_core::LangPrimitive::INT)
         | TypeKind::Literal(vn_core::TypeLiteral::Int(_)) => Some(NumericOperand::Int),
-        TypeKind::Primitive(vn_core::LangPrimitive::Float) => Some(NumericOperand::Float),
+        TypeKind::Primitive(vn_core::LangPrimitive::FLOAT) => Some(NumericOperand::Float),
         TypeKind::Primitive(vn_core::LangPrimitive::Decimal) => Some(NumericOperand::Decimal),
         TypeKind::Primitive(vn_core::LangPrimitive::BigInt) => Some(NumericOperand::BigInt),
         TypeKind::Primitive(_)

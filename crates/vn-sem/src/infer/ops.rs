@@ -51,8 +51,8 @@ pub(crate) fn infer_binary(
             let r = infer_expr_type(right, arena, ctx, table).apparent(table);
             match (table.get(l.0), table.get(r.0)) {
                 (
-                    TypeKind::Primitive(vn_core::LangPrimitive::Int),
-                    TypeKind::Primitive(vn_core::LangPrimitive::Int),
+                    TypeKind::Primitive(vn_core::LangPrimitive::INT),
+                    TypeKind::Primitive(vn_core::LangPrimitive::INT),
                 ) => Type::Int,
                 _ => Type::Dynamic,
             }

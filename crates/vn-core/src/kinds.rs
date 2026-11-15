@@ -13,7 +13,7 @@ pub enum TypeLiteral<N> {
 impl<N> TypeLiteral<N> {
     pub const fn base(&self) -> LangPrimitive {
         match self {
-            TypeLiteral::Int(_) => LangPrimitive::Int,
+            TypeLiteral::Int(_) => LangPrimitive::INT,
             TypeLiteral::Str(_) => LangPrimitive::Str,
             TypeLiteral::Bool(_) => LangPrimitive::Bool,
             TypeLiteral::Char(_) => LangPrimitive::Char,

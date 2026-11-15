@@ -247,7 +247,7 @@ pub(super) fn resolve_indexed_access(
                 TypeKind::Primitive(vn_core::LangPrimitive::Str)
             ) && matches!(
                 table.get(index.0),
-                TypeKind::Primitive(vn_core::LangPrimitive::Int)
+                TypeKind::Primitive(vn_core::LangPrimitive::INT)
             ) {
                 return Type::Str;
             }

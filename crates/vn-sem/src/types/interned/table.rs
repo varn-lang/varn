@@ -34,12 +34,13 @@ impl CheckerTyTable {
     pub fn new() -> Self {
         let mut base = CheckerTyBase::default();
 
+        for kind in vn_core::NumKind::ALL {
+            base.entries.insert(
+                CheckerTyId::num(kind),
+                TypeKind::Primitive(LangPrimitive::Num(kind)),
+            );
+        }
         for (id, kind) in [
-            (CheckerTyId::INT, TypeKind::Primitive(LangPrimitive::Int)),
-            (
-                CheckerTyId::FLOAT,
-                TypeKind::Primitive(LangPrimitive::Float),
-            ),
             (
                 CheckerTyId::DECIMAL,
                 TypeKind::Primitive(LangPrimitive::Decimal),
