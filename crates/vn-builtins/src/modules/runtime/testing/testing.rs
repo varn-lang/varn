@@ -1,9 +1,7 @@
 use std::sync::atomic::{AtomicU64, Ordering};
-use vn_macros::vn_contract;
-use vn_types::NativeError;
+use vn_macros::natives;
 use vn_types::{NativeCtx, VmValue};
 
-pub struct TestingRuntime;
 
 
 static PASSED: AtomicU64 = AtomicU64::new(0);
@@ -101,23 +99,13 @@ fn deep_equal(ctx: &dyn NativeCtx, a: VmValue, b: VmValue) -> bool {
     false
 }
 
-vn_contract! {
-    module: "runtime:testing",
-    contract: "src/modules/runtime/testing/testing_runtime.vn",
-    impl TestingRuntime {
-        fn deepEq(ctx: &mut dyn NativeCtx, a: VmValue, b: VmValue) -> Result<bool, NativeError> {
-            Ok(deep_equal(ctx, a, b))
-        }
-        fn contains(
-            ctx: &mut dyn NativeCtx,
-            container: VmValue,
-            item: VmValue,
-        ) -> Result<bool, NativeError> {
-            Ok(ctx.is_array(container)
-                && (0..ctx.array_len(container)).any(|i| {
-                    let element = ctx.array_get(container, i).unwrap_or_else(VmValue::null);
-                    deep_equal(ctx, element, item)
-                }))
-        }
-    }
+natives! {
+    deepEq(ctx, a, b) => deep_equal(ctx, a, b),
+    contains(ctx, container, item) => {
+        Ok(ctx.is_array(container)
+            && (0..ctx.array_len(container)).any(|i| {
+                let element = ctx.array_get(container, i).unwrap_or_else(VmValue::null);
+                deep_equal(ctx, element, item)
+            }))
+    },
 }

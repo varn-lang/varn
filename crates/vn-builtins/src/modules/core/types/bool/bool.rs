@@ -1,20 +1,11 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::{NativeCtx, NativeFnResult, VmValue};
 
-pub struct Bool;
 
-vn_contract! {
-    module: "globals",
-    class: "bool",
-    contract: "src/modules/core/types/bool/bool.vn",
-    impl Bool {
-        fn toString(_ctx: &mut dyn NativeCtx, this: bool) -> String {
-            if this { "true".to_string() } else { "false".to_string() }
-        }
-
-        fn valueOf(_ctx: &mut dyn NativeCtx, this: bool) -> bool {
-            this
-        }
+natives! {
+    class bool {
+        toString(this) => if this { "true".to_string() } else { "false".to_string() },
+        valueOf(this) => this,
     }
 }
 

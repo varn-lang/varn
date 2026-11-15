@@ -2,11 +2,9 @@
 use std::sync::OnceLock;
 use std::time::Instant;
 use vn_core::StdErrorClass;
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::NativeError;
-use vn_types::{NativeCtx, VmValue};
 
-pub struct SysRuntime;
 
 static START_TIME: OnceLock<Instant> = OnceLock::new();
 
@@ -18,46 +16,40 @@ fn clock_origin() -> Instant {
         .unwrap_or_else(Instant::now)
 }
 
-vn_contract! {
-    module: "runtime:sys",
-    contract: "src/modules/runtime/sys/sys_runtime.vn",
-    impl SysRuntime {
-        fn platform(_ctx: &mut dyn NativeCtx) -> Result<String, NativeError> {
-            Ok(std::env::consts::OS.to_string())
+natives! {
+    platform() => std::env::consts::OS.to_string(),
+    cwd() => {
+        (std::env::current_dir()
+            .map(|p| p.to_string_lossy().into_owned())
+            .map_err(|e| format!("sys.cwd: cannot read the current directory: {e}"))).map_err(|e| NativeError::std(StdErrorClass::Io, e))
+    },
+    args(ctx) => std::env::args().map(|s| ctx.alloc_str_owned(s)).collect::<Vec<_>>(),
+    exit(code) => terminate(code.unwrap_or(0) as i32),
+    env(ctx, key) => {
+        if !ctx.check_env(key) {
+            return Err(NativeError::capability("sys.env", key));
         }
-        fn cwd(_ctx: &mut dyn NativeCtx) -> Result<String, NativeError> {
-            (std::env::current_dir()
-                .map(|p| p.to_string_lossy().into_owned())
-                .map_err(|e| format!("sys.cwd: cannot read the current directory: {e}"))).map_err(|e| NativeError::std(StdErrorClass::Io, e))
-        }
-        fn args(ctx: &mut dyn NativeCtx) -> Result<Vec<VmValue>, NativeError> {
-            Ok(std::env::args().map(|s| ctx.alloc_str_owned(s)).collect())
-        }
-        fn exit(_ctx: &mut dyn NativeCtx, code: Option<i64>) -> Result<(), NativeError> {
-            std::process::exit(code.unwrap_or(0) as i32)
-        }
-        fn env(ctx: &mut dyn NativeCtx, key: &str) -> Result<Option<String>, NativeError> {
-            if !ctx.check_env(key) {
-                return Err(NativeError::capability("sys.env", key));
-            }
-            match std::env::var(key) {
-                Ok(value) => Ok(Some(value)),
-                Err(std::env::VarError::NotPresent) => Ok(None),
-                Err(std::env::VarError::NotUnicode(_)) => {
-                    Err(NativeError::std(StdErrorClass::Parse, format!("sys.env: variable '{key}' is not valid Unicode")))
-                }
+        match std::env::var(key) {
+            Ok(value) => Ok(Some(value)),
+            Err(std::env::VarError::NotPresent) => Ok(None),
+            Err(std::env::VarError::NotUnicode(_)) => {
+                Err(NativeError::std(StdErrorClass::Parse, format!("sys.env: variable '{key}' is not valid Unicode")))
             }
         }
-        fn setEnv(ctx: &mut dyn NativeCtx, key: &str, val: &str) -> Result<(), NativeError> {
-            if !ctx.check_env(key) {
-                return Err(NativeError::capability("sys.env", key));
-            }
-            unsafe { std::env::set_var(key, val) };
-            Ok(())
+    },
+    setEnv(ctx, key, val) => {
+        if !ctx.check_env(key) {
+            return Err(NativeError::capability("sys.env", key));
         }
-        fn now(_ctx: &mut dyn NativeCtx) -> Result<f64, NativeError> {
-            let start = START_TIME.get_or_init(clock_origin);
-            Ok(start.elapsed().as_secs_f64() * 1000.0)
-        }
-    }
+        unsafe { std::env::set_var(key, val) };
+        Ok(())
+    },
+    now() => {
+        let start = START_TIME.get_or_init(clock_origin);
+        Ok(start.elapsed().as_secs_f64() * 1000.0)
+    },
+}
+
+fn terminate(code: i32) {
+    std::process::exit(code)
 }

@@ -10,6 +10,35 @@ pub trait IntoVm {
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue;
 }
 
+pub trait IntoNativeRet {
+    type Ok;
+
+    fn into_native_ret(self) -> Result<Self::Ok, NativeError>;
+}
+
+impl<T: IntoVm> IntoNativeRet for T {
+    type Ok = T;
+
+    #[inline]
+    fn into_native_ret(self) -> Result<T, NativeError> {
+        Ok(self)
+    }
+}
+
+impl<T> IntoNativeRet for Result<T, NativeError> {
+    type Ok = T;
+
+    #[inline]
+    fn into_native_ret(self) -> Result<T, NativeError> {
+        self
+    }
+}
+
+#[inline]
+pub fn into_native_ret<T: IntoNativeRet>(value: T) -> Result<T::Ok, NativeError> {
+    value.into_native_ret()
+}
+
 impl FromVm for VmValue {
     #[inline]
     fn from_vm(_ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {

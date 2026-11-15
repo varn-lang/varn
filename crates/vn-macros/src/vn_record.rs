@@ -5,7 +5,7 @@ use syn::parse::{Parse, ParseStream};
 use syn::{Ident, LitStr, Token, Visibility};
 
 use crate::contract_records::{record_fields, RecordSource};
-use crate::vn_contract::Mapped;
+use crate::natives::Mapped;
 
 struct RecordInput {
     contract: LitStr,

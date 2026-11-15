@@ -1,43 +1,34 @@
-use vn_macros::vn_contract;
-use vn_types::{NativeCtx, VmValue};
+use vn_macros::natives;
+use vn_types::{VmValue};
 
-pub struct Char;
 
-vn_contract! {
-    module: "globals",
-    class: "char",
-    contract: "src/modules/core/types/char/char.vn",
-    impl Char {
-        fn fromCode(_ctx: &mut dyn NativeCtx, code: i64) -> char {
-            char::from_u32(code as u32).unwrap_or(char::REPLACEMENT_CHARACTER)
-        }
-
-        fn toString(_ctx: &mut dyn NativeCtx, this: char) -> String { this.to_string() }
-        fn toStr(_ctx: &mut dyn NativeCtx, this: char) -> String { this.to_string() }
-        fn charCodeAt(_ctx: &mut dyn NativeCtx, this: char, pos: Option<i64>) -> i64 {
+natives! {
+    class char {
+        fromCode(code) => char::from_u32(code as u32).unwrap_or(char::REPLACEMENT_CHARACTER),
+        toString(this) => this.to_string(),
+        toStr(this) => this.to_string(),
+        charCodeAt(this, pos) => {
             if let Some(p) = pos
                 && p != 0 {
                     return -1;
                 }
             this as i64
-        }
-
-        fn isAlphabetic(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_alphabetic() }
-        fn isAlphanumeric(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_alphanumeric() }
-        fn isDigit(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_ascii_digit() }
-        fn isWhitespace(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_whitespace() }
-        fn isUppercase(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_uppercase() }
-        fn isLowercase(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_lowercase() }
-        fn isAscii(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_ascii() }
-        fn isPunctuation(_ctx: &mut dyn NativeCtx, this: char) -> bool { this.is_ascii_punctuation() }
-
-        fn toUppercase(_ctx: &mut dyn NativeCtx, this: char) -> VmValue {
+        },
+        isAlphabetic(this) => this.is_alphabetic(),
+        isAlphanumeric(this) => this.is_alphanumeric(),
+        isDigit(this) => this.is_ascii_digit(),
+        isWhitespace(this) => this.is_whitespace(),
+        isUppercase(this) => this.is_uppercase(),
+        isLowercase(this) => this.is_lowercase(),
+        isAscii(this) => this.is_ascii(),
+        isPunctuation(this) => this.is_ascii_punctuation(),
+        toUppercase(this) => {
             let u = this.to_uppercase().next().unwrap_or(this);
             VmValue::from_char(u)
-        }
-        fn toLowercase(_ctx: &mut dyn NativeCtx, this: char) -> VmValue {
+        },
+        toLowercase(this) => {
             let l = this.to_lowercase().next().unwrap_or(this);
             VmValue::from_char(l)
-        }
+        },
     }
 }

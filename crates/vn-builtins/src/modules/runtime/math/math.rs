@@ -1,37 +1,28 @@
-use vn_macros::vn_contract;
-use vn_types::NativeError;
-use vn_types::NativeCtx;
+use vn_macros::natives;
 
-pub struct MathRuntime;
 
-vn_contract! {
-    module: "runtime:math",
-    contract: "src/modules/runtime/math/math_runtime.vn",
-    impl MathRuntime {
-        fn abs(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.abs()) }
-        fn sqrt(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.sqrt()) }
-        fn sin(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.sin()) }
-        fn cos(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.cos()) }
-        fn tan(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.tan()) }
-        fn floor(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.floor()) }
-        fn ceil(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.ceil()) }
-        fn round(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.round()) }
-        fn random(_ctx: &mut dyn NativeCtx) -> Result<f64, NativeError> {
-            Ok(rand::random())
-        }
-        fn acos(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.acos()) }
-        fn asin(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.asin()) }
-        fn atan(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.atan()) }
-        fn atan2(_ctx: &mut dyn NativeCtx, y: f64, x: f64) -> Result<f64, NativeError> { Ok(y.atan2(x)) }
-        fn exp(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.exp()) }
-        fn log(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.ln()) }
-        fn log10(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.log10()) }
-        fn log2(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.log2()) }
-        fn pow(_ctx: &mut dyn NativeCtx, x: f64, y: f64) -> Result<f64, NativeError> { Ok(x.powf(y)) }
-        fn cbrt(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(x.cbrt()) }
-        fn hypot(_ctx: &mut dyn NativeCtx, x: f64, y: f64) -> Result<f64, NativeError> { Ok(x.hypot(y)) }
-        fn max2(_ctx: &mut dyn NativeCtx, x: f64, y: f64) -> Result<f64, NativeError> { Ok(vn_core::fmax(x, y)) }
-        fn min2(_ctx: &mut dyn NativeCtx, x: f64, y: f64) -> Result<f64, NativeError> { Ok(vn_core::fmin(x, y)) }
-        fn sign(_ctx: &mut dyn NativeCtx, x: f64) -> Result<f64, NativeError> { Ok(vn_core::fsign(x)) }
-    }
+natives! {
+    abs(x) => x.abs(),
+    sqrt(x) => x.sqrt(),
+    sin(x) => x.sin(),
+    cos(x) => x.cos(),
+    tan(x) => x.tan(),
+    floor(x) => x.floor(),
+    ceil(x) => x.ceil(),
+    round(x) => x.round(),
+    random() => rand::random::<f64>(),
+    acos(x) => x.acos(),
+    asin(x) => x.asin(),
+    atan(x) => x.atan(),
+    atan2(y, x) => y.atan2(x),
+    exp(x) => x.exp(),
+    log(x) => x.ln(),
+    log10(x) => x.log10(),
+    log2(x) => x.log2(),
+    pow(x, y) => x.powf(y),
+    cbrt(x) => x.cbrt(),
+    hypot(x, y) => x.hypot(y),
+    max2(x, y) => vn_core::fmax(x, y),
+    min2(x, y) => vn_core::fmin(x, y),
+    sign(x) => vn_core::fsign(x),
 }

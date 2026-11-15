@@ -1,70 +1,54 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::{NativeCtx, NativeError, NativeFnResult, VmValue};
 
-pub struct Float;
 
-vn_contract! {
-    module: "globals",
-    class: "float",
-    contract: "src/modules/core/types/float/float.vn",
-    impl Float {
-
-        fn MAX_VALUE(_ctx: &mut dyn NativeCtx) -> f64 { f64::MAX }
-        fn LOWEST(_ctx: &mut dyn NativeCtx) -> f64 { f64::MIN }
-        fn MIN_POSITIVE(_ctx: &mut dyn NativeCtx) -> f64 { f64::MIN_POSITIVE }
-        fn NAN(_ctx: &mut dyn NativeCtx) -> f64 { f64::NAN }
-        fn INFINITY(_ctx: &mut dyn NativeCtx) -> f64 { f64::INFINITY }
-        fn NEG_INFINITY(_ctx: &mut dyn NativeCtx) -> f64 { f64::NEG_INFINITY }
-        fn EPSILON(_ctx: &mut dyn NativeCtx) -> f64 { f64::EPSILON }
-
-        fn parse(_ctx: &mut dyn NativeCtx, s: &str) -> Result<f64, NativeError> {
+natives! {
+    class float {
+        MAX_VALUE => f64::MAX,
+        LOWEST => f64::MIN,
+        MIN_POSITIVE => f64::MIN_POSITIVE,
+        NAN => f64::NAN,
+        INFINITY => f64::INFINITY,
+        NEG_INFINITY => f64::NEG_INFINITY,
+        EPSILON => f64::EPSILON,
+        parse(s) => {
             s.trim()
                 .parse::<f64>()
                 .map_err(|e| NativeError::std(vn_core::StdErrorClass::Parse, format!("float.parse({s:?}): {e}")))
-        }
-        fn tryParse(_ctx: &mut dyn NativeCtx, s: &str) -> Option<f64> {
-            s.trim().parse::<f64>().ok()
-        }
-        fn isNaN(_ctx: &mut dyn NativeCtx, this: f64) -> bool { this.is_nan() }
-        fn isFinite(_ctx: &mut dyn NativeCtx, this: f64) -> bool { this.is_finite() }
-        fn isInfinite(_ctx: &mut dyn NativeCtx, this: f64) -> bool { this.is_infinite() }
-
-
-        fn toString(_ctx: &mut dyn NativeCtx, this: f64) -> String { vn_core::float_to_string(this) }
-        fn valueOf(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this }
-        fn toFixed(_ctx: &mut dyn NativeCtx, this: f64, digits: Option<i64>) -> Result<String, NativeError> {
+        },
+        tryParse(s) => s.trim().parse::<f64>().ok(),
+        isNaN(this) => this.is_nan(),
+        isFinite(this) => this.is_finite(),
+        isInfinite(this) => this.is_infinite(),
+        toString(this) => vn_core::float_to_string(this),
+        valueOf(this) => this,
+        toFixed(this, digits) => {
             let d = vn_core::fixed_digits(digits).ok_or_else(|| {
                 NativeError::range_error(format!("toFixed: digits must be within 0..={}", vn_core::FIXED_MAX_DIGITS))
             })?;
             Ok(vn_core::float_to_fixed(this, d))
-        }
-        fn abs(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this.abs() }
-        fn sign(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { vn_core::fsign(this) }
-        fn negate(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { -this }
-        fn min(_ctx: &mut dyn NativeCtx, this: f64, other: f64) -> f64 { vn_core::fmin(this, other) }
-        fn max(_ctx: &mut dyn NativeCtx, this: f64, other: f64) -> f64 { vn_core::fmax(this, other) }
-        fn clamp(_ctx: &mut dyn NativeCtx, this: f64, lo: f64, hi: f64) -> Result<f64, NativeError> {
+        },
+        abs(this) => this.abs(),
+        sign(this) => vn_core::fsign(this),
+        negate(this) => -this,
+        min(this, other) => vn_core::fmin(this, other),
+        max(this, other) => vn_core::fmax(this, other),
+        clamp(this, lo, hi) => {
             if lo > hi {
                 return Err(NativeError::range_error(format!("clamp: the lower bound {lo} is above the upper bound {hi}")));
             }
             Ok(vn_core::fmin(vn_core::fmax(this, lo), hi))
-        }
-        fn pow(_ctx: &mut dyn NativeCtx, this: f64, exponent: f64) -> f64 { this.powf(exponent) }
-        fn isInteger(_ctx: &mut dyn NativeCtx, this: f64) -> bool {
-            this.is_finite() && this.fract() == 0.0
-        }
-        fn floor(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this.floor() }
-        fn ceil(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this.ceil() }
-        fn round(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this.round() }
-        fn trunc(_ctx: &mut dyn NativeCtx, this: f64) -> f64 { this.trunc() }
-
-
-
-
-        fn toInt(_ctx: &mut dyn NativeCtx, this: f64) -> Result<i64, NativeError> {
+        },
+        pow(this, exponent) => this.powf(exponent),
+        isInteger(this) => this.is_finite() && this.fract() == 0.0,
+        floor(this) => this.floor(),
+        ceil(this) => this.ceil(),
+        round(this) => this.round(),
+        trunc(this) => this.trunc(),
+        toInt(this) => {
             vn_core::float_to_int(this)
                 .ok_or_else(|| NativeError::integer_overflow(format!("integer overflow: {this} does not fit int")))
-        }
+        },
     }
 }
 

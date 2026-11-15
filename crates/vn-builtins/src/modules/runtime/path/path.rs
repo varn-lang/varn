@@ -1,8 +1,7 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::NativeError;
 use vn_types::{NativeCtx, VnArray};
 
-pub struct PathRuntime;
 
 fn main_sep() -> char {
     std::path::MAIN_SEPARATOR
@@ -260,58 +259,30 @@ fn str_array(ctx: &mut dyn NativeCtx, arr: VnArray) -> Result<Vec<String>, Strin
     Ok(out)
 }
 
-vn_contract! {
-    module: "runtime:path",
-    contract: "src/modules/runtime/path/path_runtime.vn",
-    impl PathRuntime {
-        fn sep(_ctx: &mut dyn NativeCtx) -> Result<String, NativeError> {
-            Ok(main_sep().to_string())
+natives! {
+    sep() => main_sep().to_string(),
+    delimiter() => {
+        if cfg!(windows) {
+            Ok(";".to_string())
+        } else {
+            Ok(":".to_string())
         }
-
-        fn delimiter(_ctx: &mut dyn NativeCtx) -> Result<String, NativeError> {
-            if cfg!(windows) {
-                Ok(";".to_string())
-            } else {
-                Ok(":".to_string())
-            }
-        }
-
-        fn normalize(_ctx: &mut dyn NativeCtx, p: &str) -> Result<String, NativeError> {
-            Ok(normalize_inner(p, main_sep()))
-        }
-
-        fn dirname(_ctx: &mut dyn NativeCtx, p: &str) -> Result<String, NativeError> {
-            Ok(dirname_inner(p))
-        }
-
-        fn basename(
-            _ctx: &mut dyn NativeCtx,
-            p: &str,
-            ext: Option<&str>,
-        ) -> Result<String, NativeError> {
-            Ok(basename_inner(p, ext))
-        }
-
-        fn extname(_ctx: &mut dyn NativeCtx, p: &str) -> Result<String, NativeError> {
-            Ok(extname_inner(p))
-        }
-
-        fn isAbsolute(_ctx: &mut dyn NativeCtx, p: &str) -> Result<bool, NativeError> {
-            Ok(is_absolute_inner(p))
-        }
-
-        fn join(ctx: &mut dyn NativeCtx, segments: VnArray) -> Result<String, NativeError> {
-            let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
-            Ok(join_inner(&segs, main_sep()))
-        }
-
-        fn resolve(ctx: &mut dyn NativeCtx, segments: VnArray) -> Result<String, NativeError> {
-            let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
-            let cwd = std::env::current_dir()
-                .map_err(|e| coded("E_PATH_IO", e)).map_err(NativeError::range_error)?
-                .to_string_lossy()
-                .into_owned();
-            Ok(resolve_inner(&segs, main_sep(), &cwd))
-        }
-    }
+    },
+    normalize(p) => normalize_inner(p, main_sep()),
+    dirname(p) => dirname_inner(p),
+    basename(p, ext) => basename_inner(p, ext),
+    extname(p) => extname_inner(p),
+    isAbsolute(p) => is_absolute_inner(p),
+    join(ctx, segments) => {
+        let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
+        Ok(join_inner(&segs, main_sep()))
+    },
+    resolve(ctx, segments) => {
+        let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
+        let cwd = std::env::current_dir()
+            .map_err(|e| coded("E_PATH_IO", e)).map_err(NativeError::range_error)?
+            .to_string_lossy()
+            .into_owned();
+        Ok(resolve_inner(&segs, main_sep(), &cwd))
+    },
 }

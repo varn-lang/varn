@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, LazyLock, PoisonError, RwLock};
 use vn_core::StdErrorClass;
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::NativeError;
 use vn_types::{NativeCtx, VmValue};
 
@@ -46,7 +46,6 @@ fn handle_of(slot: usize, generation: u32) -> i64 {
     (i64::from(generation) << SLOT_BITS) | slot as i64
 }
 
-pub struct RegexClass;
 
 vn_macros::vn_record! {
     contract: "src/modules/core/types/regex/regex.vn",
@@ -204,12 +203,9 @@ pub(crate) fn regex_argument(
     Some(of_instance(ctx, value))
 }
 
-vn_contract! {
-    module: "globals",
-    class: "Regex",
-    contract: "src/modules/core/types/regex/regex.vn",
-    impl RegexClass {
-        fn constructor(ctx: &mut dyn NativeCtx, this: VmValue, pattern: &str, flags: Option<&str>) -> Result<VmValue, NativeError> {
+natives! {
+    class Regex {
+        constructor(ctx, this, pattern, flags) => {
             let flags = flags.unwrap_or("");
             let (handle, _) = intern(pattern, flags)?;
             let source = ctx.alloc_str(pattern);
@@ -218,45 +214,27 @@ vn_contract! {
             ctx.set_field(this, OPTIONS_FIELD, options);
             ctx.set_field(this, HANDLE_FIELD, VmValue::from_int(handle));
             Ok(this)
-        }
-
-        fn pattern(ctx: &mut dyn NativeCtx, this: VmValue) -> String {
-            text_field(ctx, this, SOURCE_FIELD)
-        }
-
-        fn flags(ctx: &mut dyn NativeCtx, this: VmValue) -> String {
-            text_field(ctx, this, OPTIONS_FIELD)
-        }
-
-        fn test(ctx: &mut dyn NativeCtx, this: VmValue, text: &str) -> bool {
-            of_instance(ctx, this).is_match(text)
-        }
-
-        fn exec(ctx: &mut dyn NativeCtx, this: VmValue, text: &str) -> Option<VmValue> {
+        },
+        pattern(ctx, this) => text_field(ctx, this, SOURCE_FIELD),
+        flags(ctx, this) => text_field(ctx, this, OPTIONS_FIELD),
+        test(ctx, this, text) => of_instance(ctx, this).is_match(text),
+        exec(ctx, this, text) => {
             let re = of_instance(ctx, this);
             let mut index = CharIndex::new(text);
             re.captures(text).map(|caps| match_record(ctx, &caps, &mut index))
-        }
-
-        fn findAll(ctx: &mut dyn NativeCtx, this: VmValue, text: &str) -> Vec<VmValue> {
+        },
+        findAll(ctx, this, text) => {
             let re = of_instance(ctx, this);
             let mut index = CharIndex::new(text);
             re.captures_iter(text)
                 .map(|caps| match_record(ctx, &caps, &mut index))
                 .collect()
-        }
-
-        fn replace(ctx: &mut dyn NativeCtx, this: VmValue, text: &str, replacement: &str) -> String {
-            of_instance(ctx, this).replacen(text, 1, replacement).into_owned()
-        }
-
-        fn replaceAll(ctx: &mut dyn NativeCtx, this: VmValue, text: &str, replacement: &str) -> String {
-            of_instance(ctx, this).replace_all(text, replacement).into_owned()
-        }
-
-        fn split(ctx: &mut dyn NativeCtx, this: VmValue, text: &str) -> Vec<VmValue> {
+        },
+        replace(ctx, this, text, replacement) => of_instance(ctx, this).replacen(text, 1, replacement).into_owned(),
+        replaceAll(ctx, this, text, replacement) => of_instance(ctx, this).replace_all(text, replacement).into_owned(),
+        split(ctx, this, text) => {
             let re = of_instance(ctx, this);
             re.split(text).map(|p| ctx.alloc_str(p)).collect()
-        }
+        },
     }
 }

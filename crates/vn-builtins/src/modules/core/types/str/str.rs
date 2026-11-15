@@ -1,11 +1,10 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::str_util::{
     char_len, char_range_to_bytes, find_bytes,
 };
 use crate::modules::types::regex::regex_argument;
-use vn_types::{NativeCtx, NativeFnResult, VmValue, VnStr};
+use vn_types::{NativeCtx, NativeFnResult, VmValue};
 
-pub struct Str;
 
 fn normalize_idx(idx: i64, len: i64) -> usize {
     if idx < 0 {
@@ -15,15 +14,10 @@ fn normalize_idx(idx: i64, len: i64) -> usize {
     }
 }
 
-vn_contract! {
-    module: "globals",
-    class: "str",
-    contract: "src/modules/core/types/str/str.vn",
-    impl Str {
-
-        fn EMPTY(_ctx: &mut dyn NativeCtx) -> String { String::new() }
-
-        fn fromCharCode(_ctx: &mut dyn NativeCtx, codes: &[VmValue]) -> String {
+natives! {
+    class str {
+        EMPTY => String::new(),
+        fromCharCode(codes) => {
             let mut res = String::new();
             for &v in codes {
                 if v.is_int()
@@ -32,10 +26,8 @@ vn_contract! {
                     }
             }
             res
-        }
-
-
-        fn join(ctx: &mut dyn NativeCtx, arr: ::vn_types::VnArray, sep: Option<&str>) -> String {
+        },
+        join(ctx, arr, sep) => {
             let sep = sep.unwrap_or("");
             let len = arr.len(ctx);
             if len == 0 {
@@ -51,18 +43,12 @@ vn_contract! {
                 }
             }
             out
-        }
-
-
-        fn length(_ctx: &mut dyn NativeCtx, this: &VnStr) -> i64 {
-            char_len(this, this.is_ascii()) as i64
-        }
-
-
-        fn toString(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String { this.to_string() }
-        fn toStr(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String { this.to_string() }
-        fn valueOf(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String { this.to_string() }
-        fn toLowerCase(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String {
+        },
+        length(this) => char_len(this, this.is_ascii()) as i64,
+        toString(this) => this.to_string(),
+        toStr(this) => this.to_string(),
+        valueOf(this) => this.to_string(),
+        toLowerCase(this) => {
             if this.is_ascii() {
                 let mut bytes = this.as_bytes().to_vec();
                 bytes.make_ascii_lowercase();
@@ -70,8 +56,8 @@ vn_contract! {
             } else {
                 this.to_lowercase()
             }
-        }
-        fn toUpperCase(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String {
+        },
+        toUpperCase(this) => {
             if this.is_ascii() {
                 let mut bytes = this.as_bytes().to_vec();
                 bytes.make_ascii_uppercase();
@@ -79,38 +65,29 @@ vn_contract! {
             } else {
                 this.to_uppercase()
             }
-        }
-        fn trim(ctx: &mut dyn NativeCtx, this: &VnStr) -> VmValue {
+        },
+        trim(ctx, this) => {
             let s = this.as_str();
             let t = s.trim();
             ctx.str_sub(this, t.as_ptr() as usize - s.as_ptr() as usize, t.len())
-        }
-        fn trimStart(ctx: &mut dyn NativeCtx, this: &VnStr) -> VmValue {
+        },
+        trimStart(ctx, this) => {
             let s = this.as_str();
             let t = s.trim_start();
             ctx.str_sub(this, t.as_ptr() as usize - s.as_ptr() as usize, t.len())
-        }
-        fn trimEnd(ctx: &mut dyn NativeCtx, this: &VnStr) -> VmValue {
+        },
+        trimEnd(ctx, this) => {
             let s = this.as_str();
             let t = s.trim_end();
             ctx.str_sub(this, t.as_ptr() as usize - s.as_ptr() as usize, t.len())
-        }
-
-
-        fn includes(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> bool { find_bytes(this, search).is_some() }
-        fn contains(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> bool { find_bytes(this, search).is_some() }
-        fn startsWith(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> bool { this.starts_with(search) }
-        fn endsWith(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> bool { this.ends_with(search) }
-
-        fn indexOf(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> Option<i64> {
-            vn_types::str_util::char_index_of(this, search).map(|at| at as i64)
-        }
-        fn lastIndexOf(_ctx: &mut dyn NativeCtx, this: &VnStr, search: &str) -> Option<i64> {
-            vn_types::str_util::char_last_index_of(this, search).map(|at| at as i64)
-        }
-
-
-        fn substring(ctx: &mut dyn NativeCtx, this: &VnStr, start: i64, end: Option<i64>) -> Result<VmValue, vn_types::NativeError> {
+        },
+        includes(this, search) => find_bytes(this, search).is_some(),
+        contains(this, search) => find_bytes(this, search).is_some(),
+        startsWith(this, search) => this.starts_with(search),
+        endsWith(this, search) => this.ends_with(search),
+        indexOf(this, search) => vn_types::str_util::char_index_of(this, search).map(|at| at as i64),
+        lastIndexOf(this, search) => vn_types::str_util::char_last_index_of(this, search).map(|at| at as i64),
+        substring(ctx, this, start, end) => {
             let ascii = this.is_ascii();
             let len = char_len(this, ascii);
             let (s, e) = vn_types::str_util::substring_bounds(len, start, end).map_err(|message| {
@@ -118,8 +95,8 @@ vn_contract! {
             })?;
             let (bs, be) = char_range_to_bytes(this, ascii, s, e);
             Ok(ctx.str_sub(this, bs, be - bs))
-        }
-        fn slice(ctx: &mut dyn NativeCtx, this: &VnStr, start: i64, end: Option<i64>) -> VmValue {
+        },
+        slice(ctx, this, start, end) => {
             let b = this.as_bytes();
             if this.is_ascii() {
                 let len = b.len() as i64;
@@ -132,8 +109,8 @@ vn_contract! {
             let ei = normalize_idx(end.unwrap_or(len as i64), len as i64).min(len).max(si);
             let (bs, be) = char_range_to_bytes(this, false, si, ei);
             ctx.str_sub(this, bs, be - bs)
-        }
-        fn at(ctx: &mut dyn NativeCtx, this: &VnStr, index: i64) -> Option<VmValue> {
+        },
+        at(ctx, this, index) => {
             let b = this.as_bytes();
             if this.is_ascii() {
                 let len = b.len() as i64;
@@ -151,8 +128,8 @@ vn_contract! {
             }
             let (bs, be) = char_range_to_bytes(this, false, idx as usize, idx as usize + 1);
             Some(ctx.str_sub(this, bs, be - bs))
-        }
-        fn substr(ctx: &mut dyn NativeCtx, this: &VnStr, start: i64, length: Option<i64>) -> VmValue {
+        },
+        substr(ctx, this, start, length) => {
             let b = this.as_bytes();
             if this.is_ascii() {
                 let len = b.len() as i64;
@@ -167,17 +144,15 @@ vn_contract! {
             let end = (st + count).min(len);
             let (bs, be) = char_range_to_bytes(this, false, st, end);
             ctx.str_sub(this, bs, be - bs)
-        }
-
-
-        fn replace(ctx: &mut dyn NativeCtx, this: &VnStr, from: VmValue, to: &str) -> String {
+        },
+        replace(ctx, this, from, to) => {
             if let Some(re) = regex_argument(ctx, from) {
                 return re.replacen(this.as_str(), 1, to).into_owned();
             }
             let from = ctx.str_repr_borrowed(from);
             this.replacen(from.as_ref(), to, 1)
-        }
-        fn replaceAll(ctx: &mut dyn NativeCtx, this: &VnStr, from: VmValue, to: &str) -> String {
+        },
+        replaceAll(ctx, this, from, to) => {
             if let Some(re) = regex_argument(ctx, from) {
                 return re.replace_all(this.as_str(), to).into_owned();
             }
@@ -186,12 +161,9 @@ vn_contract! {
                 return this.to_string();
             }
             this.replace(from.as_ref(), to)
-        }
-        fn chars(_ctx: &mut dyn NativeCtx, this: &VnStr) -> Vec<VmValue> {
-            this.as_str().chars().map(VmValue::from_char).collect()
-        }
-
-        fn split(ctx: &mut dyn NativeCtx, this: &VnStr, separator: Option<VmValue>) -> Vec<VmValue> {
+        },
+        chars(this) => this.as_str().chars().map(VmValue::from_char).collect(),
+        split(ctx, this, separator) => {
             if let Some(sep) = separator
                 && let Some(re) = regex_argument(ctx, sep)
             {
@@ -206,31 +178,21 @@ vn_contract! {
             let mut ranges = Vec::new();
             vn_types::str_util::split_ranges(this.as_str(), separator.as_deref(), &mut ranges);
             ranges.into_iter().map(|(off, len)| ctx.str_sub(this, off, len)).collect()
-        }
-        fn lines(ctx: &mut dyn NativeCtx, this: &VnStr) -> Vec<VmValue> {
+        },
+        lines(ctx, this) => {
             let s = this.as_str();
             let base = s.as_ptr() as usize;
             s.lines().map(|l| ctx.str_sub(this, l.as_ptr() as usize - base, l.len())).collect()
-        }
-        fn words(ctx: &mut dyn NativeCtx, this: &VnStr) -> Vec<VmValue> {
+        },
+        words(ctx, this) => {
             let s = this.as_str();
             let base = s.as_ptr() as usize;
             s.split_whitespace().map(|w| ctx.str_sub(this, w.as_ptr() as usize - base, w.len())).collect()
-        }
-
-
-        fn charCodeAt(_ctx: &mut dyn NativeCtx, this: &VnStr, pos: i64) -> i64 {
-            this.char_code_at(pos)
-        }
-        fn charCode(_ctx: &mut dyn NativeCtx, this: &VnStr) -> i64 {
-            this.chars().next().map(|c| c as i64).unwrap_or(-1)
-        }
-        fn codePointAt(_ctx: &mut dyn NativeCtx, this: &VnStr, pos: i64) -> i64 {
-            this.char_code_at(pos)
-        }
-
-
-        fn repeat(_ctx: &mut dyn NativeCtx, this: &VnStr, n: i64) -> Result<String, vn_types::NativeError> {
+        },
+        charCodeAt(this, pos) => this.char_code_at(pos),
+        charCode(this) => this.chars().next().map(|c| c as i64).unwrap_or(-1),
+        codePointAt(this, pos) => this.char_code_at(pos),
+        repeat(this, n) => {
             let count = usize::try_from(n).map_err(|_| {
                 vn_types::NativeError::rethrow(
                     vn_core::RuntimeErrorKind::RangeError,
@@ -245,47 +207,31 @@ vn_contract! {
                 )));
             }
             Ok(this.repeat(count))
-        }
-        fn padStart(_ctx: &mut dyn NativeCtx, this: &VnStr, target: i64, pad: Option<&str>) -> Result<String, vn_types::NativeError> {
+        },
+        padStart(this, target, pad) => {
             pad_target(target)?;
             Ok(pad_start(this, target, pad))
-        }
-        fn padEnd(_ctx: &mut dyn NativeCtx, this: &VnStr, target: i64, pad: Option<&str>) -> Result<String, vn_types::NativeError> {
+        },
+        padEnd(this, target, pad) => {
             pad_target(target)?;
             Ok(pad_end(this, target, pad))
-        }
-        fn concat(_ctx: &mut dyn NativeCtx, this: &VnStr, other: &str) -> String {
-            format!("{this}{other}")
-        }
-
-
-        fn isEmpty(_ctx: &mut dyn NativeCtx, this: &VnStr) -> bool { this.is_empty() }
-        fn isBlank(_ctx: &mut dyn NativeCtx, this: &VnStr) -> bool { this.trim().is_empty() }
-        fn isDigit(_ctx: &mut dyn NativeCtx, this: &VnStr) -> bool {
-            !this.is_empty() && this.chars().all(|c| c.is_ascii_digit())
-        }
-        fn isLetter(_ctx: &mut dyn NativeCtx, this: &VnStr) -> bool {
-            !this.is_empty() && this.chars().all(|c| c.is_alphabetic())
-        }
-        fn isWhitespace(_ctx: &mut dyn NativeCtx, this: &VnStr) -> bool {
-            !this.is_empty() && this.chars().all(|c| c.is_whitespace())
-        }
-
-
-        fn reverse(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String { this.chars().rev().collect() }
-        fn capitalize(_ctx: &mut dyn NativeCtx, this: &VnStr) -> String {
+        },
+        concat(this, other) => format!("{this}{other}"),
+        isEmpty(this) => this.is_empty(),
+        isBlank(this) => this.trim().is_empty(),
+        isDigit(this) => !this.is_empty() && this.chars().all(|c| c.is_ascii_digit()),
+        isLetter(this) => !this.is_empty() && this.chars().all(|c| c.is_alphabetic()),
+        isWhitespace(this) => !this.is_empty() && this.chars().all(|c| c.is_whitespace()),
+        reverse(this) => this.chars().rev().collect::<String>(),
+        capitalize(this) => {
             let mut chars = this.chars();
             match chars.next() {
                 None => String::new(),
                 Some(c) => c.to_uppercase().to_string() + chars.as_str(),
             }
-        }
-        fn toInt(_ctx: &mut dyn NativeCtx, this: &VnStr) -> i64 {
-            this.trim().parse::<i64>().unwrap_or(0)
-        }
-        fn toFloat(_ctx: &mut dyn NativeCtx, this: &VnStr) -> f64 {
-            this.trim().parse::<f64>().unwrap_or(0.0)
-        }
+        },
+        toInt(this) => this.trim().parse::<i64>().unwrap_or(0),
+        toFloat(this) => this.trim().parse::<f64>().unwrap_or(0.0),
     }
 }
 

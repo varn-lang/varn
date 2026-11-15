@@ -1,23 +1,17 @@
 use proc_macro2::TokenStream as TS2;
 use quote::{format_ident, quote};
-use syn::Ident;
 
 use super::mapping::{
     call_expr, default_value_token, is_fast_eligible, owned_ty, param_ty, receiver_mapped, ret_ty,
     signature_token,
 };
-use super::member::Cx;
+use super::member::{BodyIdents, Cx};
 use crate::contract_members::{Kind, Member};
 
-pub(super) fn fast_path(
-    cx: &Cx,
-    m: &Member,
-    method_ident: &Ident,
-    fast_wrap_ident: &Ident,
-) -> (TS2, TS2, TS2) {
+pub(super) fn fast_path(cx: &Cx, m: &Member, ids: &BodyIdents) -> (TS2, TS2, TS2) {
     let prefix = cx.prefix;
-    let trait_ident = cx.trait_ident;
-    let self_ty = cx.self_ty;
+    let method_ident = &ids.method;
+    let fast_wrap_ident = &ids.fast_wrap;
 
     let is_fast = is_fast_eligible(m);
     if is_fast {
@@ -49,7 +43,7 @@ pub(super) fn fast_path(
         let fast_ret = ret_ty(&m.ret);
         let is_fn = m.kind == Kind::Function;
 
-        let call = quote!(<__T>::#method_ident(&mut dummy_ctx, #(#fast_call_args),*));
+        let call = quote!(#method_ident(&mut dummy_ctx, #(#fast_call_args),*));
         let fast_body = if is_fn {
             quote! {
                 let mut dummy_ctx = ::vn_types::native::DummyCtx;
@@ -69,14 +63,14 @@ pub(super) fn fast_path(
 
         let wrapper = quote! {
             #[allow(non_snake_case)]
-            pub extern "C" fn #fast_wrap_ident<__T: #trait_ident>(
+            pub extern "C" fn #fast_wrap_ident(
                 #(#fast_sig_params),*
             ) -> #fast_ret {
                 #fast_body
             }
         };
 
-        let raw_ptr = quote!(#fast_wrap_ident::<#self_ty> as *const u8);
+        let raw_ptr = quote!(#fast_wrap_ident as *const u8);
         let sig = signature_token(m);
         (wrapper, raw_ptr, sig)
     } else {

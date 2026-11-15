@@ -1,9 +1,8 @@
 use bigdecimal::{BigDecimal, RoundingMode};
 use num_traits::{Signed, ToPrimitive, Zero};
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::{NativeCtx, NativeError, VmValue};
 
-pub struct Dec;
 
 fn get_decimal(ctx: &dyn NativeCtx, this: VmValue) -> Option<BigDecimal> {
     if ctx.is_int(this) {
@@ -36,27 +35,21 @@ fn pow_decimal(d: &BigDecimal, exp: i64) -> Result<BigDecimal, NativeError> {
     })
 }
 
-vn_contract! {
-    module: "globals",
-    class: "decimal",
-    contract: "src/modules/core/types/decimal/decimal.vn",
-    impl Dec {
-        fn parse(ctx: &mut dyn NativeCtx, s: &str) -> Result<VmValue, NativeError> {
+natives! {
+    class decimal {
+        parse(ctx, s) => {
             let d = s
                 .trim()
                 .parse::<BigDecimal>()
                 .map_err(|e| NativeError::std(vn_core::StdErrorClass::Parse, format!("decimal.parse({s:?}): {e}")))?;
             Ok(alloc_decimal(ctx, d))
-        }
-        fn tryParse(ctx: &mut dyn NativeCtx, s: &str) -> Option<VmValue> {
+        },
+        tryParse(ctx, s) => {
             let d = s.trim().parse::<BigDecimal>().ok()?;
             Some(alloc_decimal(ctx, d))
-        }
-
-        fn toString(ctx: &mut dyn NativeCtx, this: VmValue) -> String {
-            get_decimal(ctx, this).map(|d| d.to_plain_string()).unwrap_or_else(|| "0".to_string())
-        }
-        fn toFixed(ctx: &mut dyn NativeCtx, this: VmValue, digits: Option<i64>) -> Result<String, NativeError> {
+        },
+        toString(ctx, this) => get_decimal(ctx, this).map(|d| d.to_plain_string()).unwrap_or_else(|| "0".to_string()),
+        toFixed(ctx, this, digits) => {
             let places = vn_core::fixed_digits(digits).ok_or_else(|| {
                 NativeError::range_error(format!("toFixed: digits must be within 0..={}", vn_core::FIXED_MAX_DIGITS))
             })?;
@@ -64,26 +57,22 @@ vn_contract! {
                 Some(d) => d.with_scale_round(places as i64, RoundingMode::HalfEven).to_plain_string(),
                 None => "0".to_string(),
             })
-        }
-        fn abs(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
-            match get_decimal(ctx, this) { Some(d) => alloc_decimal(ctx, d.abs()), None => VmValue::null() }
-        }
-        fn sign(ctx: &mut dyn NativeCtx, this: VmValue) -> i64 {
+        },
+        abs(ctx, this) => match get_decimal(ctx, this) { Some(d) => alloc_decimal(ctx, d.abs()), None => VmValue::null() },
+        sign(ctx, this) => {
             match get_decimal(ctx, this) {
                 Some(d) if d.is_zero() => 0,
                 Some(d) if d.is_negative() => -1,
                 Some(_) => 1,
                 None => 0,
             }
-        }
-        fn negate(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
-            match get_decimal(ctx, this) { Some(d) => alloc_decimal(ctx, -d), None => VmValue::null() }
-        }
-        fn ceil(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue { rounded(ctx, this, RoundingMode::Ceiling) }
-        fn floor(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue { rounded(ctx, this, RoundingMode::Floor) }
-        fn round(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue { rounded(ctx, this, RoundingMode::HalfEven) }
-        fn trunc(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue { rounded(ctx, this, RoundingMode::Down) }
-        fn fract(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
+        },
+        negate(ctx, this) => match get_decimal(ctx, this) { Some(d) => alloc_decimal(ctx, -d), None => VmValue::null() },
+        ceil(ctx, this) => rounded(ctx, this, RoundingMode::Ceiling),
+        floor(ctx, this) => rounded(ctx, this, RoundingMode::Floor),
+        round(ctx, this) => rounded(ctx, this, RoundingMode::HalfEven),
+        trunc(ctx, this) => rounded(ctx, this, RoundingMode::Down),
+        fract(ctx, this) => {
             match get_decimal(ctx, this) {
                 Some(d) => {
                     let whole = d.with_scale_round(0, RoundingMode::Down);
@@ -91,32 +80,22 @@ vn_contract! {
                 }
                 None => VmValue::null(),
             }
-        }
-        fn scale(ctx: &mut dyn NativeCtx, this: VmValue) -> i64 {
-            get_decimal(ctx, this).map(|d| d.as_bigint_and_exponent().1).unwrap_or(0)
-        }
-        fn isZero(ctx: &mut dyn NativeCtx, this: VmValue) -> bool {
-            get_decimal(ctx, this).map(|d| d.is_zero()).unwrap_or(false)
-        }
-        fn isPositive(ctx: &mut dyn NativeCtx, this: VmValue) -> bool {
-            get_decimal(ctx, this).map(|d| d.is_positive()).unwrap_or(false)
-        }
-        fn isNegative(ctx: &mut dyn NativeCtx, this: VmValue) -> bool {
-            get_decimal(ctx, this).map(|d| d.is_negative()).unwrap_or(false)
-        }
-        fn pow(ctx: &mut dyn NativeCtx, this: VmValue, exp: i64) -> Result<VmValue, NativeError> {
+        },
+        scale(ctx, this) => get_decimal(ctx, this).map(|d| d.as_bigint_and_exponent().1).unwrap_or(0),
+        isZero(ctx, this) => get_decimal(ctx, this).map(|d| d.is_zero()).unwrap_or(false),
+        isPositive(ctx, this) => get_decimal(ctx, this).map(|d| d.is_positive()).unwrap_or(false),
+        isNegative(ctx, this) => get_decimal(ctx, this).map(|d| d.is_negative()).unwrap_or(false),
+        pow(ctx, this, exp) => {
             let d = get_decimal(ctx, this).ok_or_else(not_decimal)?;
             let r = pow_decimal(&d, exp)?;
             Ok(alloc_decimal(ctx, r))
-        }
-        fn toInt(ctx: &mut dyn NativeCtx, this: VmValue) -> Result<i64, NativeError> {
+        },
+        toInt(ctx, this) => {
             let d = get_decimal(ctx, this).ok_or_else(not_decimal)?;
             d.with_scale_round(0, RoundingMode::Down).to_i64().ok_or_else(|| {
                 NativeError::integer_overflow(format!("integer overflow: {d} does not fit int"))
             })
-        }
-        fn toFloat(ctx: &mut dyn NativeCtx, this: VmValue) -> f64 {
-            get_decimal(ctx, this).and_then(|d| d.to_f64()).unwrap_or(0.0)
-        }
+        },
+        toFloat(ctx, this) => get_decimal(ctx, this).and_then(|d| d.to_f64()).unwrap_or(0.0),
     }
 }

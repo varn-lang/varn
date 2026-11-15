@@ -4,10 +4,10 @@ use std::process::{Child, Command};
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::time::Duration;
 use vn_core::StdErrorClass;
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::NativeError;
 use vn_types::value::SendValue;
-use vn_types::{NativeCtx, VmValue, VnArray};
+use vn_types::{NativeCtx, VmValue};
 
 use crate::runtime::blocking;
 
@@ -79,7 +79,6 @@ fn wait_child(pid: i64) -> Result<i64, String> {
     }
 }
 
-pub struct ProcessRuntime;
 
 vn_macros::vn_record! {
     contract: "src/modules/runtime/process/process_runtime.vn",
@@ -105,77 +104,64 @@ fn output_record(ctx: &mut dyn NativeCtx, result: ExecResult) -> VmValue {
     .alloc(ctx)
 }
 
-vn_contract! {
-    module: "runtime:process",
-    contract: "src/modules/runtime/process/process_runtime.vn",
-    impl ProcessRuntime {
-        fn exec(ctx: &mut dyn NativeCtx, command: &str) -> Result<VmValue, NativeError> {
-            let result = run_shell(command).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-            Ok(output_record(ctx, result))
-        }
-
-        fn execAsync(ctx: &mut dyn NativeCtx, command: &str) -> Result<VmValue, NativeError> {
-            let command = command.to_owned();
-            Ok(blocking::task(ctx, move || {
-                (run_shell(&command).map(|result| SendValue::Int(store_result(result)))).map_err(|e| NativeError::std(StdErrorClass::Io, e))
-            }))
-        }
-
-        fn execResult(ctx: &mut dyn NativeCtx, id: i64) -> Result<VmValue, NativeError> {
-            let result = take_result(id).ok_or_else(|| format!("No exec result {id}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-            Ok(output_record(ctx, result))
-        }
-
-        fn spawnProcess(ctx: &mut dyn NativeCtx, command: &str, args: VnArray) -> Result<i64, NativeError> {
-            let len = args.len(ctx);
-            let mut string_args = Vec::with_capacity(len);
-            for i in 0..len {
-                let v = args.get(ctx, i).unwrap_or(VmValue::null());
-                if let Some(s) = ctx.str_owned(v) {
-                    string_args.push(s);
-                }
-            }
-            let child = Command::new(command)
-                .args(&string_args)
-                .spawn()
-                .map_err(|e| format!("Failed to spawn process '{command}': {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-
-            let mut pool = PROCESS_POOL.write();
-            let id = pool.len() as i64;
-            pool.push(Some(child));
-            Ok(id)
-        }
-
-        fn waitProcess(ctx: &mut dyn NativeCtx, pid: i64) -> Result<VmValue, NativeError> {
-            let exit_code = wait_child(pid).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-            Ok(ProcessStatus { exit_code, success: exit_code == 0 }.alloc(ctx))
-        }
-
-        fn waitProcessAsync(ctx: &mut dyn NativeCtx, pid: i64) -> Result<VmValue, NativeError> {
-            Ok(blocking::task(ctx, move || (wait_child(pid).map(SendValue::Int)).map_err(|e| NativeError::std(StdErrorClass::Io, e))))
-        }
-
-        fn currentExe(ctx: &mut dyn NativeCtx) -> Result<VmValue, NativeError> {
-            let path = std::env::current_exe()
-                .map_err(|e| format!("Failed to resolve current executable: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-            Ok(ctx.alloc_str_owned(path.to_string_lossy().into_owned()))
-        }
-
-        fn killProcess(_ctx: &mut dyn NativeCtx, pid: i64) -> Result<bool, NativeError> {
-            if pid < 0 {
-                return Err(NativeError::range_error("Invalid process handle".to_string()));
-            }
-
-            let mut pool = PROCESS_POOL.write();
-            let slot = pool.get_mut(pid as usize)
-                .ok_or_else(|| format!("Process handle {pid} not found")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-
-            if let Some(mut child) = slot.take() {
-                let _ = child.kill();
-                Ok(true)
-            } else {
-                Ok(false)
+natives! {
+    exec(ctx, command) => {
+        let result = run_shell(command).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        Ok(output_record(ctx, result))
+    },
+    execAsync(ctx, command) => {
+        let command = command.to_owned();
+        Ok(blocking::task(ctx, move || {
+            (run_shell(&command).map(|result| SendValue::Int(store_result(result)))).map_err(|e| NativeError::std(StdErrorClass::Io, e))
+        }))
+    },
+    execResult(ctx, id) => {
+        let result = take_result(id).ok_or_else(|| format!("No exec result {id}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        Ok(output_record(ctx, result))
+    },
+    spawnProcess(ctx, command, args) => {
+        let len = args.len(ctx);
+        let mut string_args = Vec::with_capacity(len);
+        for i in 0..len {
+            let v = args.get(ctx, i).unwrap_or(VmValue::null());
+            if let Some(s) = ctx.str_owned(v) {
+                string_args.push(s);
             }
         }
-    }
+        let child = Command::new(command)
+            .args(&string_args)
+            .spawn()
+            .map_err(|e| format!("Failed to spawn process '{command}': {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+
+        let mut pool = PROCESS_POOL.write();
+        let id = pool.len() as i64;
+        pool.push(Some(child));
+        Ok(id)
+    },
+    waitProcess(ctx, pid) => {
+        let exit_code = wait_child(pid).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        Ok(ProcessStatus { exit_code, success: exit_code == 0 }.alloc(ctx))
+    },
+    waitProcessAsync(ctx, pid) => blocking::task(ctx, move || (wait_child(pid).map(SendValue::Int)).map_err(|e| NativeError::std(StdErrorClass::Io, e))),
+    currentExe(ctx) => {
+        let path = std::env::current_exe()
+            .map_err(|e| format!("Failed to resolve current executable: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        Ok(ctx.alloc_str_owned(path.to_string_lossy().into_owned()))
+    },
+    killProcess(pid) => {
+        if pid < 0 {
+            return Err(NativeError::range_error("Invalid process handle".to_string()));
+        }
+
+        let mut pool = PROCESS_POOL.write();
+        let slot = pool.get_mut(pid as usize)
+            .ok_or_else(|| format!("Process handle {pid} not found")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+
+        if let Some(mut child) = slot.take() {
+            let _ = child.kill();
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    },
 }

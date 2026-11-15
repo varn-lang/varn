@@ -1,16 +1,10 @@
 use vn_core::StdErrorClass;
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::value::{endpoint_id, ChannelEndpoint, SendValue};
 use vn_types::{HostOpen, NativeCtx, NativeError, VmValue};
 
-pub struct TaskRuntime;
 
-pub struct IsolateHandleImpl;
 
-pub struct SenderImpl;
-pub struct ReceiverImpl;
-pub struct ChannelImpl;
-pub struct ChannelClosedImpl;
 
 fn reject_with_message(ctx: &mut dyn NativeCtx, message: &str) -> VmValue {
     let message_nv = ctx.alloc_str(message);
@@ -47,106 +41,81 @@ fn same_module(a: &str, b: &str) -> bool {
     module_key(a) == module_key(b)
 }
 
-vn_contract! {
-    module: "runtime:task",
-    contract: "src/modules/runtime/task/task_runtime.vn",
-    impl TaskRuntime {
-        fn spawn(ctx: &mut dyn NativeCtx, target: VmValue, args: &[VmValue]) -> Result<VmValue, NativeError> {
-            (ctx.spawn_vm(target, args)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
+natives! {
+    spawn(ctx, target, args) => (ctx.spawn_vm(target, args)).map_err(|e| NativeError::std(StdErrorClass::Std, e)),
+    sleep(ctx, ms) => ctx.suspend_timer(ms.max(0) as u64),
+    parallel(ctx, tasks) => (ctx.task_gather(tasks)).map_err(|e| NativeError::std(StdErrorClass::Std, e)),
+    cancelTask(ctx, handle_nv) => {
+        ctx.task_cancel(handle_nv).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+        crate::runtime::timer::note_cancel();
+        Ok(())
+    },
+    yieldTask(ctx) => ctx.task_yield(),
+    spawnIsolate(ctx, func, args) => {
+        let (resolved_path, export_name) = ctx
+            .get_function_location(func)
+            .ok_or_else(|| "spawnIsolate: first argument must be a function reference".to_string()).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+
+        if ctx
+            .entry_module()
+            .is_some_and(|entry| same_module(&entry, &resolved_path))
+        {
+            let err_msg = format!(
+                "spawnIsolate: '{export_name}' lives in the entry module '{resolved_path}'; the worker would load that module and run its top-level code again, so move the worker function to its own module"
+            );
+            return Ok(reject_with_message(ctx, &err_msg));
         }
 
-        fn sleep(ctx: &mut dyn NativeCtx, ms: i64) -> Result<VmValue, NativeError> {
-            Ok(ctx.suspend_timer(ms.max(0) as u64))
-        }
-
-        fn parallel(ctx: &mut dyn NativeCtx, tasks: VmValue) -> Result<VmValue, NativeError> {
-            (ctx.task_gather(tasks)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
-        }
-
-        fn cancelTask(ctx: &mut dyn NativeCtx, handle_nv: VmValue) -> Result<(), NativeError> {
-            ctx.task_cancel(handle_nv).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-            crate::runtime::timer::note_cancel();
-            Ok(())
-        }
-
-        fn yieldTask(ctx: &mut dyn NativeCtx) -> Result<VmValue, NativeError> {
-            Ok(ctx.task_yield())
-        }
-
-        fn spawnIsolate(ctx: &mut dyn NativeCtx, func: VmValue, args: VmValue) -> Result<VmValue, NativeError> {
-            let (resolved_path, export_name) = ctx
-                .get_function_location(func)
-                .ok_or_else(|| "spawnIsolate: first argument must be a function reference".to_string()).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-
-            if ctx
-                .entry_module()
-                .is_some_and(|entry| same_module(&entry, &resolved_path))
-            {
-                let err_msg = format!(
-                    "spawnIsolate: '{export_name}' lives in the entry module '{resolved_path}'; the worker would load that module and run its top-level code again, so move the worker function to its own module"
-                );
+        let module_val = match ctx.load_module(&resolved_path) {
+            Ok(m) => m,
+            Err(e) => {
+                let err_msg = format!("spawnIsolate: failed to load module '{resolved_path}': {e}");
                 return Ok(reject_with_message(ctx, &err_msg));
             }
+        };
 
-            let module_val = match ctx.load_module(&resolved_path) {
-                Ok(m) => m,
-                Err(e) => {
-                    let err_msg = format!("spawnIsolate: failed to load module '{resolved_path}': {e}");
-                    return Ok(reject_with_message(ctx, &err_msg));
-                }
+        let exported_fn = ctx.get_field(module_val, &export_name);
+        if exported_fn != Some(func) {
+            let err_msg = if export_name.starts_with('<') {
+                "spawnIsolate: first argument must be a function reference, not an anonymous closure".to_string()
+            } else {
+                format!("spawnIsolate: function '{export_name}' is not a top-level exported function of module '{resolved_path}'")
             };
-
-            let exported_fn = ctx.get_field(module_val, &export_name);
-            if exported_fn != Some(func) {
-                let err_msg = if export_name.starts_with('<') {
-                    "spawnIsolate: first argument must be a function reference, not an anonymous closure".to_string()
-                } else {
-                    format!("spawnIsolate: function '{export_name}' is not a top-level exported function of module '{resolved_path}'")
-                };
-                return Ok(reject_with_message(ctx, &err_msg));
-            }
-
-            if !ctx.is_array(args) {
-                return Err(NativeError::type_error("spawnIsolate: arguments must be an array".to_string()));
-            }
-            let mut worker_args = Vec::new();
-            let len = ctx.array_len(args);
-            for i in 0..len {
-                if let Some(item_nv) = ctx.array_get(args, i) {
-                    worker_args.push(ctx.to_sendable(item_nv).map_err(|e| NativeError::std(StdErrorClass::Std, e))?);
-                }
-            }
-
-            let done = ctx.spawn_isolate(&resolved_path, &export_name, worker_args).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-            let done = ctx.task_from_host(done, HostOpen::Plain);
-            (IsolateHandleRecord { done }.alloc(ctx)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
+            return Ok(reject_with_message(ctx, &err_msg));
         }
 
-        fn channel(ctx: &mut dyn NativeCtx, capacity: i64) -> Result<VmValue, NativeError> {
-            if capacity < 1 {
-                return Err(NativeError::range_error("channel: capacity must be >= 1".to_string()));
-            }
-            let id = crate::runtime::channel::create(capacity as usize);
-            let tx = ChannelEndpoint::Sender.alloc(ctx, id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-            let rx = ChannelEndpoint::Receiver.alloc(ctx, id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-            (ChannelRecord { tx, rx }.alloc(ctx)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
+        if !ctx.is_array(args) {
+            return Err(NativeError::type_error("spawnIsolate: arguments must be an array".to_string()));
         }
-    }
+        let mut worker_args = Vec::new();
+        let len = ctx.array_len(args);
+        for i in 0..len {
+            if let Some(item_nv) = ctx.array_get(args, i) {
+                worker_args.push(ctx.to_sendable(item_nv).map_err(|e| NativeError::std(StdErrorClass::Std, e))?);
+            }
+        }
 
-    class: "IsolateHandle",
-    impl IsolateHandleImpl {
-
-
-
-        fn join(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
+        let done = ctx.spawn_isolate(&resolved_path, &export_name, worker_args).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+        let done = ctx.task_from_host(done, HostOpen::Plain);
+        (IsolateHandleRecord { done }.alloc(ctx)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
+    },
+    channel(ctx, capacity) => {
+        if capacity < 1 {
+            return Err(NativeError::range_error("channel: capacity must be >= 1".to_string()));
+        }
+        let id = crate::runtime::channel::create(capacity as usize);
+        let tx = ChannelEndpoint::Sender.alloc(ctx, id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+        let rx = ChannelEndpoint::Receiver.alloc(ctx, id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+        (ChannelRecord { tx, rx }.alloc(ctx)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
+    },
+    class IsolateHandle {
+        join(ctx, this) => {
             ctx.get_field(this, IsolateHandleRecord::DONE)
                 .unwrap_or(VmValue::null())
-        }
+        },
     }
-
-    class: "Sender",
-    impl SenderImpl {
-        fn send(ctx: &mut dyn NativeCtx, this: VmValue, msg: VmValue) -> VmValue {
+    class Sender {
+        send(ctx, this, msg) => {
             let Some(id) = endpoint_id(ctx, this) else {
                 return reject_closed(ctx);
             };
@@ -164,24 +133,20 @@ vn_contract! {
                     ctx.task_from_host(promise, HostOpen::SendAck)
                 }
             }
-        }
-
-        fn close(ctx: &mut dyn NativeCtx, this: VmValue) {
+        },
+        close(ctx, this) => {
             if let Some(id) = endpoint_id(ctx, this) {
                 crate::runtime::channel::close(id);
             }
-        }
-
-        fn dispose(ctx: &mut dyn NativeCtx, this: VmValue) {
+        },
+        dispose(ctx, this) => {
             if let Some(id) = endpoint_id(ctx, this) {
                 crate::runtime::channel::close(id);
             }
-        }
+        },
     }
-
-    class: "Receiver",
-    impl ReceiverImpl {
-        fn next(ctx: &mut dyn NativeCtx, this: VmValue) -> Result<VmValue, NativeError> {
+    class Receiver {
+        next(ctx, this) => {
             let finished = |ctx: &mut dyn NativeCtx| Ok(ctx.task_resolved(VmValue::null()));
             let Some(id) = endpoint_id(ctx, this) else {
                 return finished(ctx);
@@ -196,9 +161,8 @@ vn_contract! {
                     Ok(ctx.task_from_host(promise, HostOpen::ReceiveNext))
                 }
             }
-        }
-
-        fn receive(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
+        },
+        receive(ctx, this) => {
             let Some(id) = endpoint_id(ctx, this) else {
                 return reject_closed(ctx);
             };
@@ -212,18 +176,15 @@ vn_contract! {
                     ctx.task_from_host(promise, HostOpen::Receive)
                 }
             }
-        }
-
-        fn dispose(ctx: &mut dyn NativeCtx, this: VmValue) {
+        },
+        dispose(ctx, this) => {
             if let Some(id) = endpoint_id(ctx, this) {
                 crate::runtime::channel::close(id);
             }
-        }
+        },
     }
-
-    class: "Channel",
-    impl ChannelImpl {}
-
-    class: "ChannelClosed",
-    impl ChannelClosedImpl {}
+    class Channel {
+    }
+    class ChannelClosed {
+    }
 }

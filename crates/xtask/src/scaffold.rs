@@ -1,21 +1,5 @@
 use std::path::{Path, PathBuf};
 
-fn pascal(name: &str) -> String {
-    let mut out = String::new();
-    let mut upper = true;
-    for c in name.chars() {
-        if c == '_' {
-            upper = true;
-        } else if upper {
-            out.extend(c.to_uppercase());
-            upper = false;
-        } else {
-            out.push(c);
-        }
-    }
-    out
-}
-
 fn valid_mod(name: &str) -> bool {
     if name.is_empty() || !name.as_bytes()[0].is_ascii_lowercase() {
         return false;
@@ -33,23 +17,25 @@ fn valid_class(name: &str) -> bool {
     chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
 }
 
-fn module_rs(mod_name: &str, classes: &[String]) -> String {
-    let struct_name = format!("{}Runtime", pascal(mod_name));
-    let mut out = format!(
-        "use vn_macros::vn_contract;\nuse vn_types::NativeCtx;\n\npub struct {struct_name};\n"
-    );
-    for class in classes {
-        out.push_str(&format!("pub struct {class}Impl;\n"));
-    }
-    out.push_str(&format!(
-        "\nvn_contract! {{\n    module: \"runtime:{mod_name}\",\n    contract: \"src/modules/runtime/{mod_name}/{mod_name}_runtime.vn\",\n    impl {struct_name} {{\n        fn ping(_ctx: &mut dyn NativeCtx) -> Result<String, String> {{\n            Ok(\"pong\".to_string())\n        }}\n    }}\n"
-    ));
+fn module_rs(classes: &[String]) -> String {
+    let mut out = "use vn_macros::natives;
+
+natives! {
+    ping() => \"pong\".to_string(),
+"
+    .to_string();
     for class in classes {
         out.push_str(&format!(
-            "\n    class: \"{class}\",\n    impl {class}Impl {{\n        fn constructor(\n            _ctx: &mut dyn NativeCtx,\n            this: vn_types::VmValue,\n        ) -> vn_types::VmValue {{\n            this\n        }}\n    }}\n"
+            "    class {class} {{
+        constructor(this) => this,
+    }}
+"
         ));
     }
-    out.push_str("}\n");
+    out.push_str(
+        "}
+",
+    );
     out
 }
 
@@ -133,8 +119,8 @@ pub fn run(args: &[String]) -> Result<(), String> {
         }
         i += 1;
     }
-    let mod_name =
-        mod_name.ok_or("usage: cargo run -p xtask -- std-scaffold <mod> [--class Name] [--dry-run]")?;
+    let mod_name = mod_name
+        .ok_or("usage: cargo run -p xtask -- std-scaffold <mod> [--class Name] [--dry-run]")?;
     if !valid_mod(&mod_name) {
         return Err(format!(
             "invalid module name '{mod_name}': lowercase alphanumeric/underscore"
@@ -152,7 +138,7 @@ pub fn run(args: &[String]) -> Result<(), String> {
     let vn_file = rs_dir.join(format!("{mod_name}_runtime.vn"));
     let std_file = root.join(format!("std/{mod_name}/mod.vn"));
 
-    let rs = module_rs(&mod_name, &classes);
+    let rs = module_rs(&classes);
     let contract = contract_vn(&mod_name, &classes);
     let std_mod = std_mod_vn(&mod_name, &classes);
     let (old_registry, new_registry) = apply_registry(&root, &mod_name)?;

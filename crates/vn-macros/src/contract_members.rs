@@ -1,4 +1,4 @@
-use crate::vn_contract::Mapped;
+use crate::natives::Mapped;
 
 #[derive(Clone, Copy, PartialEq)]
 pub(crate) enum Kind {

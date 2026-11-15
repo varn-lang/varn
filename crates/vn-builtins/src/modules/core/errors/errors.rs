@@ -1,5 +1,5 @@
 use vn_core::RuntimeErrorKind;
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::{NativeCtx, VmValue};
 
 fn init_error(
@@ -25,34 +25,19 @@ fn init_error(
     );
 }
 
-pub struct ErrorClass;
 
-pub struct TypeErrorClass;
 
-pub struct RangeErrorClass;
 
-pub struct IntegerOverflowClass;
 
-pub struct DivisionByZeroClass;
 
-pub struct MatchErrorClass;
 
-vn_contract! {
-    module: "globals",
-    contract: "src/modules/core/errors/errors.vn",
-    class: "Error",
-    impl ErrorClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+natives! {
+    class Error {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::Error.class_name());
             this
-        }
-
-        fn toString(ctx: &mut dyn NativeCtx, this: VmValue) -> String {
+        },
+        toString(ctx, this) => {
             let name = ctx
                 .get_field(this, vn_core::MemberKey::Name.as_str())
                 .and_then(|v| ctx.str_owned(v))
@@ -66,71 +51,36 @@ vn_contract! {
             } else {
                 format!("{name}: {message}")
             }
-        }
+        },
     }
-
-    class: "TypeError",
-    impl TypeErrorClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+    class TypeError {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::TypeError.class_name());
             this
-        }
+        },
     }
-
-    class: "RangeError",
-    impl RangeErrorClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+    class RangeError {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::RangeError.class_name());
             this
-        }
+        },
     }
-
-    class: "IntegerOverflow",
-    impl IntegerOverflowClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+    class IntegerOverflow {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::IntegerOverflow.class_name());
             this
-        }
+        },
     }
-
-    class: "DivisionByZero",
-    impl DivisionByZeroClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+    class DivisionByZero {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::DivisionByZero.class_name());
             this
-        }
+        },
     }
-
-    class: "MatchError",
-    impl MatchErrorClass {
-        fn constructor(
-            ctx: &mut dyn NativeCtx,
-            this: VmValue,
-            message: Option<&str>,
-            cause: Option<VmValue>,
-        ) -> VmValue {
+    class MatchError {
+        constructor(ctx, this, message, cause) => {
             init_error(ctx, this, message, cause, RuntimeErrorKind::MatchError.class_name());
             this
-        }
+        },
     }
 }

@@ -3,7 +3,7 @@ use vn_core::ast::{Decl, ExportDecl, TypeNode};
 use vn_core::AtomInterner;
 
 use crate::contract_members::{Kind, Member, ParamInfo};
-use crate::vn_contract::Mapped;
+use crate::natives::Mapped;
 
 pub(crate) enum LookupFailure {
     Unparsable(String),

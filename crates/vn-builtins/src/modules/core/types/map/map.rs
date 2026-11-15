@@ -1,19 +1,15 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::value::MapRef;
-use vn_types::{NativeCtx, NativeError, VmValue, VnArray};
+use vn_types::{NativeCtx, VmValue};
 
-pub struct Map;
 
 fn get_map(ctx: &dyn NativeCtx, this: VmValue) -> Option<MapRef> {
     ctx.as_map(this)
 }
 
-vn_contract! {
-    module: "globals",
-    class: "Map",
-    contract: "src/modules/core/types/map/map.vn",
-    impl Map {
-        fn constructor(ctx: &mut dyn NativeCtx, _this: VmValue, entries: Option<VnArray>) -> VmValue {
+natives! {
+    class Map {
+        constructor(ctx, _this, entries) => {
             let map = ctx.alloc_map(Vec::new());
             let (Some(entries), Some(target)) = (entries, ctx.as_map(map)) else {
                 return map;
@@ -33,17 +29,16 @@ vn_contract! {
                 ctx.collection_write_barrier(map, value);
             }
             map
-        }
-
-        fn get(ctx: &mut dyn NativeCtx, this: VmValue, key: VmValue) -> Result<Option<VmValue>, NativeError> {
+        },
+        get(ctx, this, key) => {
             let Some(m) = get_map(ctx, this) else {
                 return Ok(None);
             };
             let k = ctx.map_key(key)?;
             let found = m.read().get(&k).copied();
             Ok(found)
-        }
-        fn set(ctx: &mut dyn NativeCtx, this: VmValue, key: VmValue, value: VmValue) -> Result<(), NativeError> {
+        },
+        set(ctx, this, key, value) => {
             if let Some(m) = get_map(ctx, this) {
                 let k = ctx.map_key(key)?;
                 m.write().insert(k, value);
@@ -53,8 +48,8 @@ vn_contract! {
                 ctx.collection_write_barrier(this, value);
             }
             Ok(())
-        }
-        fn has(ctx: &mut dyn NativeCtx, this: VmValue, key: VmValue) -> Result<bool, NativeError> {
+        },
+        has(ctx, this, key) => {
             match get_map(ctx, this) {
                 Some(m) => {
                     let k = ctx.map_key(key)?;
@@ -62,8 +57,8 @@ vn_contract! {
                 }
                 None => Ok(false),
             }
-        }
-        fn delete(ctx: &mut dyn NativeCtx, this: VmValue, key: VmValue) -> Result<bool, NativeError> {
+        },
+        delete(ctx, this, key) => {
             match get_map(ctx, this) {
                 Some(m) => {
                     let k = ctx.map_key(key)?;
@@ -71,25 +66,25 @@ vn_contract! {
                 }
                 None => Ok(false),
             }
-        }
-        fn clear(ctx: &mut dyn NativeCtx, this: VmValue) {
+        },
+        clear(ctx, this) => {
             if let Some(m) = get_map(ctx, this) {
                 m.write().clear();
             }
-        }
-        fn keys(ctx: &mut dyn NativeCtx, this: VmValue) -> Vec<VmValue> {
+        },
+        keys(ctx, this) => {
             match get_map(ctx, this) {
                 Some(m) => m.read().keys().map(|k| k.0).collect(),
                 None => Vec::new(),
             }
-        }
-        fn values(ctx: &mut dyn NativeCtx, this: VmValue) -> Vec<VmValue> {
+        },
+        values(ctx, this) => {
             match get_map(ctx, this) {
                 Some(m) => m.read().values().copied().collect(),
                 None => Vec::new(),
             }
-        }
-        fn entries(ctx: &mut dyn NativeCtx, this: VmValue) -> Vec<VmValue> {
+        },
+        entries(ctx, this) => {
             match get_map(ctx, this) {
                 Some(m) => {
                     let pairs: Vec<(VmValue, VmValue)> =
@@ -101,8 +96,8 @@ vn_contract! {
                 }
                 None => Vec::new(),
             }
-        }
-        fn forEach(ctx: &mut dyn NativeCtx, this: VmValue, callback: VmValue) -> Result<(), NativeError> {
+        },
+        forEach(ctx, this, callback) => {
             if let Some(m) = get_map(ctx, this) {
                 let pairs: Vec<(VmValue, VmValue)> =
                     m.read().iter().map(|(k, v)| (k.0, *v)).collect();
@@ -111,9 +106,7 @@ vn_contract! {
                 }
             }
             Ok(())
-        }
-        fn size(ctx: &mut dyn NativeCtx, this: VmValue) -> i64 {
-            get_map(ctx, this).map(|m| m.read().len() as i64).unwrap_or(0)
-        }
+        },
+        size(ctx, this) => get_map(ctx, this).map(|m| m.read().len() as i64).unwrap_or(0),
     }
 }

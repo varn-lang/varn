@@ -1,19 +1,15 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::value::SetRef;
-use vn_types::{NativeCtx, NativeError, VmValue, VnArray};
+use vn_types::{NativeCtx, VmValue};
 
-pub struct Set;
 
 fn get_set(ctx: &dyn NativeCtx, this: VmValue) -> Option<SetRef> {
     ctx.as_set(this)
 }
 
-vn_contract! {
-    module: "globals",
-    class: "Set",
-    contract: "src/modules/core/types/set/set.vn",
-    impl Set {
-        fn constructor(ctx: &mut dyn NativeCtx, _this: VmValue, items: Option<VnArray>) -> VmValue {
+natives! {
+    class Set {
+        constructor(ctx, _this, items) => {
             let set = ctx.alloc_set(Vec::new());
             let (Some(items), Some(target)) = (items, ctx.as_set(set)) else {
                 return set;
@@ -29,9 +25,8 @@ vn_contract! {
                 ctx.collection_write_barrier(set, key.0);
             }
             set
-        }
-
-        fn add(ctx: &mut dyn NativeCtx, this: VmValue, value: VmValue) -> Result<(), NativeError> {
+        },
+        add(ctx, this, value) => {
             if let Some(s) = get_set(ctx, this) {
                 let k = ctx.map_key(value)?;
                 s.write().insert(k);
@@ -40,8 +35,8 @@ vn_contract! {
                 ctx.collection_write_barrier(this, k.0);
             }
             Ok(())
-        }
-        fn has(ctx: &mut dyn NativeCtx, this: VmValue, value: VmValue) -> Result<bool, NativeError> {
+        },
+        has(ctx, this, value) => {
             match get_set(ctx, this) {
                 Some(s) => {
                     let k = ctx.map_key(value)?;
@@ -49,8 +44,8 @@ vn_contract! {
                 }
                 None => Ok(false),
             }
-        }
-        fn delete(ctx: &mut dyn NativeCtx, this: VmValue, value: VmValue) -> Result<bool, NativeError> {
+        },
+        delete(ctx, this, value) => {
             match get_set(ctx, this) {
                 Some(s) => {
                     let k = ctx.map_key(value)?;
@@ -58,19 +53,19 @@ vn_contract! {
                 }
                 None => Ok(false),
             }
-        }
-        fn clear(ctx: &mut dyn NativeCtx, this: VmValue) {
+        },
+        clear(ctx, this) => {
             if let Some(s) = get_set(ctx, this) {
                 s.write().clear();
             }
-        }
-        fn values(ctx: &mut dyn NativeCtx, this: VmValue) -> Vec<VmValue> {
+        },
+        values(ctx, this) => {
             match get_set(ctx, this) {
                 Some(s) => s.read().iter().map(|k| k.0).collect(),
                 None => Vec::new(),
             }
-        }
-        fn forEach(ctx: &mut dyn NativeCtx, this: VmValue, callback: VmValue) -> Result<(), NativeError> {
+        },
+        forEach(ctx, this, callback) => {
             if let Some(s) = get_set(ctx, this) {
                 let items: Vec<VmValue> = s.read().iter().map(|k| k.0).collect();
                 for v in items {
@@ -78,9 +73,7 @@ vn_contract! {
                 }
             }
             Ok(())
-        }
-        fn size(ctx: &mut dyn NativeCtx, this: VmValue) -> i64 {
-            get_set(ctx, this).map(|s| s.read().len() as i64).unwrap_or(0)
-        }
+        },
+        size(ctx, this) => get_set(ctx, this).map(|s| s.read().len() as i64).unwrap_or(0),
     }
 }

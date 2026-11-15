@@ -2,10 +2,9 @@
 
 mod ordering;
 
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::{NativeCtx, NativeError, VmValue, VnArray};
 
-pub struct Array;
 
 fn vm_eq(ctx: &dyn NativeCtx, a: VmValue, b: VmValue) -> bool {
     ctx.values_equal(a, b)
@@ -40,16 +39,10 @@ fn flatten_one_level(ctx: &mut dyn NativeCtx, arr: VmValue, out: &mut Vec<VmValu
     }
 }
 
-vn_contract! {
-    module: "globals",
-    class: "Array",
-    contract: "src/modules/core/types/array/array.vn",
-    impl Array {
-        fn constructor(ctx: &mut dyn NativeCtx, _this: VmValue) -> VmValue {
-            ctx.alloc_array(Vec::new())
-        }
-
-        fn filled(_ctx: &mut dyn NativeCtx, length: i64, value: VmValue) -> Result<Vec<VmValue>, NativeError> {
+natives! {
+    class Array {
+        constructor(ctx, _this) => ctx.alloc_array(Vec::new()),
+        filled(length, value) => {
             let len = usize::try_from(length)
                 .ok()
                 .filter(|&n| n <= vn_core::MAX_ARRAY_LEN)
@@ -58,23 +51,15 @@ vn_contract! {
                     vn_core::MAX_ARRAY_LEN
                 )))?;
             Ok(vec![value; len])
-        }
-
-
-        fn length(ctx: &mut dyn NativeCtx, this: VnArray) -> i64 {
-            this.len(ctx) as i64
-        }
-
-
-        fn push(ctx: &mut dyn NativeCtx, this: VnArray, item: VmValue) -> Result<(), NativeError> {
+        },
+        length(ctx, this) => this.len(ctx) as i64,
+        push(ctx, this, item) => {
             room_for(ctx, &this, 1)?;
             this.push(ctx, item);
             Ok(())
-        }
-        fn pop(ctx: &mut dyn NativeCtx, this: VnArray) -> Option<VmValue> {
-            this.pop(ctx)
-        }
-        fn shift(ctx: &mut dyn NativeCtx, this: VnArray) -> Option<VmValue> {
+        },
+        pop(ctx, this) => this.pop(ctx),
+        shift(ctx, this) => {
             let len = this.len(ctx);
             if len == 0 {
                 return None;
@@ -86,8 +71,8 @@ vn_contract! {
             }
             this.pop(ctx);
             Some(first)
-        }
-        fn unshift(ctx: &mut dyn NativeCtx, this: VnArray, item: VmValue) -> Result<(), NativeError> {
+        },
+        unshift(ctx, this, item) => {
             room_for(ctx, &this, 1)?;
             let len = this.len(ctx);
             let mut items = Vec::with_capacity(len + 1);
@@ -100,10 +85,8 @@ vn_contract! {
                 this.set(ctx, i, v);
             }
             Ok(())
-        }
-
-
-        fn join(ctx: &mut dyn NativeCtx, this: VnArray, separator: Option<&str>) -> String {
+        },
+        join(ctx, this, separator) => {
             let sep = separator.unwrap_or(",");
             let len = this.len(ctx);
             if len == 0 {
@@ -127,8 +110,8 @@ vn_contract! {
                 }
             }
             out
-        }
-        fn toString(ctx: &mut dyn NativeCtx, this: VnArray) -> String {
+        },
+        toString(ctx, this) => {
             let len = this.len(ctx);
             let mut parts = Vec::with_capacity(len);
             for i in 0..len {
@@ -136,8 +119,8 @@ vn_contract! {
                 parts.push(ctx.str_repr(v));
             }
             parts.join(",")
-        }
-        fn slice(ctx: &mut dyn NativeCtx, this: VnArray, start: Option<i64>, end: Option<i64>) -> Vec<VmValue> {
+        },
+        slice(ctx, this, start, end) => {
             let len = this.len(ctx) as i64;
             let si = norm_idx(start.unwrap_or(0), len);
             let ei = norm_idx(end.unwrap_or(len), len).max(si);
@@ -148,8 +131,8 @@ vn_contract! {
                 }
             }
             items
-        }
-        fn at(ctx: &mut dyn NativeCtx, this: VnArray, index: i64) -> Option<VmValue> {
+        },
+        at(ctx, this, index) => {
             let len = this.len(ctx) as i64;
             let idx = if index < 0 { len + index } else { index };
             if idx >= 0 && (idx as usize) < this.len(ctx) {
@@ -157,8 +140,8 @@ vn_contract! {
             } else {
                 None
             }
-        }
-        fn entries(ctx: &mut dyn NativeCtx, this: VnArray) -> Vec<VmValue> {
+        },
+        entries(ctx, this) => {
             this.to_vec(ctx)
                 .into_iter()
                 .enumerate()
@@ -167,8 +150,8 @@ vn_contract! {
                     ctx.alloc_tuple(vec![index, item])
                 })
                 .collect()
-        }
-        fn includes(ctx: &mut dyn NativeCtx, this: VnArray, search: VmValue) -> bool {
+        },
+        includes(ctx, this, search) => {
             let len = this.len(ctx);
             for i in 0..len {
                 if let Some(v) = this.get(ctx, i)
@@ -177,8 +160,8 @@ vn_contract! {
                     }
             }
             false
-        }
-        fn indexOf(ctx: &mut dyn NativeCtx, this: VnArray, search: VmValue) -> Option<i64> {
+        },
+        indexOf(ctx, this, search) => {
             let len = this.len(ctx);
             for i in 0..len {
                 if let Some(v) = this.get(ctx, i)
@@ -187,8 +170,8 @@ vn_contract! {
                     }
             }
             None
-        }
-        fn lastIndexOf(ctx: &mut dyn NativeCtx, this: VnArray, search: VmValue) -> Option<i64> {
+        },
+        lastIndexOf(ctx, this, search) => {
             let len = this.len(ctx);
             for i in (0..len).rev() {
                 if let Some(v) = this.get(ctx, i)
@@ -197,10 +180,8 @@ vn_contract! {
                     }
             }
             None
-        }
-
-
-        fn concat(ctx: &mut dyn NativeCtx, this: VnArray, items: &[VmValue]) -> Result<Vec<VmValue>, NativeError> {
+        },
+        concat(ctx, this, items) => {
             let mut added = 0usize;
             for &other in items {
                 added = added.saturating_add(if ctx.is_array(other) { ctx.array_len(other) } else { 1 });
@@ -218,8 +199,8 @@ vn_contract! {
                 }
             }
             Ok(out)
-        }
-        fn fill(ctx: &mut dyn NativeCtx, this: VnArray, value: VmValue, start: Option<i64>, end: Option<i64>) -> VmValue {
+        },
+        fill(ctx, this, value, start, end) => {
             let len = this.len(ctx) as i64;
             let si = norm_idx(start.unwrap_or(0), len);
             let ei = norm_idx(end.unwrap_or(len), len);
@@ -227,23 +208,21 @@ vn_contract! {
                 this.set(ctx, i, value);
             }
             this.raw()
-        }
-        fn flat(ctx: &mut dyn NativeCtx, this: VnArray) -> Vec<VmValue> {
+        },
+        flat(ctx, this) => {
             let mut out = Vec::new();
             flatten_one_level(ctx, this.raw(), &mut out);
             out
-        }
-        fn reverse(ctx: &mut dyn NativeCtx, this: VnArray) -> VmValue {
+        },
+        reverse(ctx, this) => {
             let mut items = this.to_vec(ctx);
             items.reverse();
             for (i, v) in items.iter().enumerate() {
                 this.set(ctx, i, *v);
             }
             this.raw()
-        }
-
-
-        fn map(ctx: &mut dyn NativeCtx, this: VnArray, callback: VmValue) -> Result<Vec<VmValue>, NativeError> {
+        },
+        map(ctx, this, callback) => {
             let arr = this.raw();
             let len = this.len(ctx);
             let mut out = Vec::with_capacity(len);
@@ -252,8 +231,8 @@ vn_contract! {
                 out.push(ctx.call_vm(callback, &[v, VmValue::from_int(i as i64), arr])?);
             }
             Ok(out)
-        }
-        fn filter(ctx: &mut dyn NativeCtx, this: VnArray, predicate: VmValue) -> Result<Vec<VmValue>, NativeError> {
+        },
+        filter(ctx, this, predicate) => {
             let arr = this.raw();
             let len = this.len(ctx);
             let mut out = Vec::new();
@@ -264,8 +243,8 @@ vn_contract! {
                 }
             }
             Ok(out)
-        }
-        fn find(ctx: &mut dyn NativeCtx, this: VnArray, predicate: VmValue) -> Result<Option<VmValue>, NativeError> {
+        },
+        find(ctx, this, predicate) => {
             let arr = this.raw();
             let len = this.len(ctx);
             for i in 0..len {
@@ -275,8 +254,8 @@ vn_contract! {
                 }
             }
             Ok(None)
-        }
-        fn findIndex(ctx: &mut dyn NativeCtx, this: VnArray, predicate: VmValue) -> Result<Option<i64>, NativeError> {
+        },
+        findIndex(ctx, this, predicate) => {
             let arr = this.raw();
             let len = this.len(ctx);
             for i in 0..len {
@@ -286,8 +265,8 @@ vn_contract! {
                 }
             }
             Ok(None)
-        }
-        fn forEach(ctx: &mut dyn NativeCtx, this: VnArray, callback: VmValue) -> Result<(), NativeError> {
+        },
+        forEach(ctx, this, callback) => {
             let arr = this.raw();
             let len = this.len(ctx);
             for i in 0..len {
@@ -295,8 +274,8 @@ vn_contract! {
                 ctx.call_vm(callback, &[v, VmValue::from_int(i as i64), arr])?;
             }
             Ok(())
-        }
-        fn flatMap(ctx: &mut dyn NativeCtx, this: VnArray, callback: VmValue) -> Result<Vec<VmValue>, NativeError> {
+        },
+        flatMap(ctx, this, callback) => {
             let arr = this.raw();
             let len = this.len(ctx);
             let mut out = Vec::new();
@@ -313,8 +292,8 @@ vn_contract! {
                 }
             }
             Ok(out)
-        }
-        fn reduce(ctx: &mut dyn NativeCtx, this: VnArray, callback: VmValue, initial: Option<VmValue>) -> Result<VmValue, NativeError> {
+        },
+        reduce(ctx, this, callback, initial) => {
             let arr = this.raw();
             let len = this.len(ctx);
             let (mut acc, start) = match initial {
@@ -327,8 +306,8 @@ vn_contract! {
                 acc = ctx.call_vm(callback, &[acc, v, VmValue::from_int(i as i64), arr])?;
             }
             Ok(acc)
-        }
-        fn sort(ctx: &mut dyn NativeCtx, this: VnArray, compareFn: Option<VmValue>) -> Result<VmValue, NativeError> {
+        },
+        sort(ctx, this, compareFn) => {
             let mut items = this.to_vec(ctx);
             match compareFn.filter(|v| !v.is_null()) {
                 Some(cb) => {
@@ -345,8 +324,8 @@ vn_contract! {
                 this.set(ctx, i, *v);
             }
             Ok(this.raw())
-        }
-        fn splice(ctx: &mut dyn NativeCtx, this: VnArray, start: i64, deleteCount: Option<i64>, items: &[VmValue]) -> Vec<VmValue> {
+        },
+        splice(ctx, this, start, deleteCount, items) => {
             let len = this.len(ctx) as i64;
             let st = if start < 0 { (len + start).max(0) as usize } else { (start as usize).min(len as usize) };
             let del = deleteCount
@@ -369,8 +348,8 @@ vn_contract! {
                 this.pop(ctx);
             }
             removed
-        }
-        fn every(ctx: &mut dyn NativeCtx, this: VnArray, predicate: VmValue) -> Result<bool, NativeError> {
+        },
+        every(ctx, this, predicate) => {
             let arr = this.raw();
             let len = this.len(ctx);
             for i in 0..len {
@@ -380,8 +359,8 @@ vn_contract! {
                 }
             }
             Ok(true)
-        }
-        fn some(ctx: &mut dyn NativeCtx, this: VnArray, predicate: VmValue) -> Result<bool, NativeError> {
+        },
+        some(ctx, this, predicate) => {
             let arr = this.raw();
             let len = this.len(ctx);
             for i in 0..len {
@@ -391,8 +370,6 @@ vn_contract! {
                 }
             }
             Ok(false)
-        }
-
-
+        },
     }
 }

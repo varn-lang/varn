@@ -1,8 +1,7 @@
-use vn_macros::vn_contract;
+use vn_macros::natives;
 use vn_types::value::{RangeData, RangeElem};
 use vn_types::{NativeCtx, NativeError, VmValue};
 
-pub struct Range;
 
 fn get_range(ctx: &dyn NativeCtx, this: VmValue) -> Option<RangeData> {
     ctx.as_range(this)
@@ -37,49 +36,37 @@ fn raw_of(ctx: &dyn NativeCtx, r: &RangeData, val: VmValue) -> Option<i64> {
     }
 }
 
-vn_contract! {
-    module: "globals",
-    class: "Range",
-    contract: "src/modules/core/types/range/range.vn",
-    impl Range {
-
-        fn start(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
+natives! {
+    class Range {
+        start(ctx, this) => {
             match get_range(ctx, this) {
                 Some(r) => ctx.range_element(&r, r.start),
                 None => VmValue::null(),
             }
-        }
-        fn end(ctx: &mut dyn NativeCtx, this: VmValue) -> VmValue {
+        },
+        end(ctx, this) => {
             match get_range(ctx, this) {
                 Some(r) => ctx.range_element(&r, r.end),
                 None => VmValue::null(),
             }
-        }
-        fn inclusive(ctx: &mut dyn NativeCtx, this: VmValue) -> bool {
-            get_range(ctx, this).map(|r| r.inclusive).unwrap_or(false)
-        }
-        fn length(ctx: &mut dyn NativeCtx, this: VmValue) -> Result<i64, NativeError> {
-            get_range(ctx, this).map_or(Ok(0), |r| length_of(&r))
-        }
-        fn stride(ctx: &mut dyn NativeCtx, this: VmValue) -> i64 {
-            get_range(ctx, this).map(|r| r.step).unwrap_or(1)
-        }
-        fn toString(ctx: &mut dyn NativeCtx, this: VmValue) -> String {
-            get_range(ctx, this).map(|r| r.to_string()).unwrap_or_default()
-        }
-        fn contains(ctx: &mut dyn NativeCtx, this: VmValue, val: VmValue) -> bool {
+        },
+        inclusive(ctx, this) => get_range(ctx, this).map(|r| r.inclusive).unwrap_or(false),
+        length(ctx, this) => get_range(ctx, this).map_or(Ok(0), |r| length_of(&r)),
+        stride(ctx, this) => get_range(ctx, this).map(|r| r.step).unwrap_or(1),
+        toString(ctx, this) => get_range(ctx, this).map(|r| r.to_string()).unwrap_or_default(),
+        contains(ctx, this, val) => {
             match get_range(ctx, this) {
                 Some(r) => raw_of(ctx, &r, val).is_some_and(|raw| r.contains(raw)),
                 None => false,
             }
-        }
-        fn toArray(ctx: &mut dyn NativeCtx, this: VmValue) -> Result<Vec<VmValue>, NativeError> {
+        },
+        toArray(ctx, this) => {
             match get_range(ctx, this) {
                 Some(r) => elements(ctx, &r),
                 None => Ok(Vec::new()),
             }
-        }
-        fn step(ctx: &mut dyn NativeCtx, this: VmValue, n: i64) -> Result<VmValue, NativeError> {
+        },
+        step(ctx, this, n) => {
             if n <= 0 {
                 return Err(NativeError::range_error(format!("range step must be positive, got {n}")));
             }
@@ -88,30 +75,25 @@ vn_contract! {
                 NativeError::integer_overflow(format!("integer overflow: the step {} * {n} does not fit int", r.step))
             })?;
             Ok(ctx.alloc_range_data(r.with_step(step)))
-        }
-        fn forEach(ctx: &mut dyn NativeCtx, this: VmValue, callback: VmValue) -> Result<(), NativeError> {
+        },
+        forEach(ctx, this, callback) => {
             if let Some(r) = get_range(ctx, this) {
                 for item in elements(ctx, &r)? {
                     ctx.call_vm(callback, &[item])?;
                 }
             }
             Ok(())
-        }
-        fn map(ctx: &mut dyn NativeCtx, this: VmValue, callback: VmValue) -> Result<Vec<VmValue>, NativeError> {
+        },
+        map(ctx, this, callback) => {
             let Some(r) = get_range(ctx, this) else {
                 return Ok(Vec::new());
             };
             elements(ctx, &r)?
                 .into_iter()
                 .map(|item| ctx.call_vm(callback, &[item]))
-                .collect()
-        }
-
-        fn from(ctx: &mut dyn NativeCtx, start: i64, end: i64) -> VmValue {
-            ctx.alloc_range(start, end, false)
-        }
-        fn fromInclusive(ctx: &mut dyn NativeCtx, start: i64, end: i64) -> VmValue {
-            ctx.alloc_range(start, end, true)
-        }
+                .collect::<Result<Vec<_>, _>>()
+        },
+        from(ctx, start, end) => ctx.alloc_range(start, end, false),
+        fromInclusive(ctx, start, end) => ctx.alloc_range(start, end, true),
     }
 }

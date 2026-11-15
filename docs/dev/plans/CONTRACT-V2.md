@@ -57,15 +57,19 @@ natives! { "core:types/int", class int,
 
 ## 3. Items (un commit atómico cada uno, Ley 9)
 
-- **C1. `vn-contract`: un modelo del contrato.** Crate que parsea un `.vn` a
-  `ContractModel` con un lenguaje de tipos portable (`ContractTy`). Lo usan
-  `build.rs` y el macro. Gana: tres recorridos pasan a uno. Borra:
-  `ContractSurface` y `contract_parse.rs`.
+- **C1. `vn-contract`: un modelo del contrato — hecho (`44ab5442`).** Crate que
+  parsea un `.vn` a `ModuleContract` con `ContractTy`. Lo usan `build.rs` y el
+  macro. Borra: `ContractSurface` y el recorrido propio del macro.
+- **C3. Sintaxis declarativa `natives!` — hecho.** Parámetros sin tipo, el
+  contexto es el primer nombre cuando sobra uno, `this` es el primero de un
+  método de instancia, y el cuerpo devuelve el valor o un `Result`. El módulo
+  (`globals` o `runtime:<dir>`) y el contrato (el único `.vn` del directorio) se
+  derivan del archivo. Faltar un miembro del contrato o sobrar uno no compila.
+  Los 39 módulos migrados; `vn_contract!` borrado. Los tipos de parámetro siguen
+  siendo los de `Mapped`.
 - **C2. Marshalling por tipo del contrato.** `FromVm`/`IntoVm` cubren todo
   `ContractTy`; el macro deja de usar `Mapped`. Gana: firmas con `VmValue` crudo
-  (medidas antes y después). Borra: `Mapped`.
-- **C3. Sintaxis declarativa `natives!`.** Parámetros sin tipo, `cx`/`this`
-  opcionales, retorno normalizado. Migra los 40 módulos. Borra `vn_contract!`.
+  (hoy 168 líneas de módulos nombran `VmValue`). Borra: `Mapped`.
 - **C4. Un solo ABI con clase de registro.** El envoltorio rápido sale de la
   firma del contrato para cualquier firma de registros, con `SlotKind`. Borra:
   `ArgType`, el límite de 7 parámetros y la elegibilidad por lista.

@@ -4,15 +4,15 @@ mod contract_parse;
 mod contract_records;
 mod jit_helper_table;
 mod jit_slow;
-mod vn_contract;
+mod natives;
 mod vn_enum;
 mod vn_record;
 
 use proc_macro::TokenStream;
 
 #[proc_macro]
-pub fn vn_contract(input: TokenStream) -> TokenStream {
-    vn_contract::expand(input)
+pub fn natives(input: TokenStream) -> TokenStream {
+    natives::expand(input)
 }
 
 #[proc_macro_attribute]

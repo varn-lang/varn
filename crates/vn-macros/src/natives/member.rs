@@ -1,7 +1,8 @@
 use proc_macro2::TokenStream as TS2;
 use quote::{format_ident, quote};
-use syn::Ident;
+use syn::{Ident, Pat};
 
+use super::input::UserMember;
 use super::mapping::{
     call_expr, mapped_tag_path, owned_ty, param_ty, receiver_mapped, ret_ty, Mapped,
 };
@@ -10,8 +11,6 @@ use crate::contract_members::{Kind, Member};
 
 pub(super) struct Cx<'a> {
     pub(super) prefix: &'a str,
-    pub(super) trait_ident: &'a Ident,
-    pub(super) self_ty: &'a syn::Type,
     pub(super) module: &'a str,
     pub(super) ns: &'a str,
     pub(super) class_name: &'a str,
@@ -19,7 +18,7 @@ pub(super) struct Cx<'a> {
 
 #[derive(Default)]
 pub(super) struct Generated {
-    pub(super) trait_sigs: Vec<TS2>,
+    pub(super) bodies: Vec<TS2>,
     pub(super) wrappers: Vec<TS2>,
     pub(super) setup_calls: Vec<TS2>,
     pub(super) fn_entries: Vec<TS2>,
@@ -27,34 +26,60 @@ pub(super) struct Generated {
     pub(super) generated_entry_idents: Vec<Ident>,
 }
 
-pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
+pub(super) fn has_receiver(kind: Kind) -> bool {
+    matches!(kind, Kind::Method | Kind::Getter | Kind::Constructor)
+}
+
+pub(super) fn expected_params(m: &Member) -> usize {
+    usize::from(has_receiver(m.kind)) + m.params.len()
+}
+
+pub(super) fn generate_layout(m: &Member, out: &mut Generated) {
+    let sym = &m.symbol;
+    let tag = mapped_tag_path(&m.ret);
+    out.setup_calls.push(quote! {
+        cls.extend_layout(&[(::std::sync::Arc::from(#sym), #tag)]);
+    });
+}
+
+pub(super) struct BodyIdents {
+    pub(super) body: Ident,
+    pub(super) wrap: Ident,
+    pub(super) fast_wrap: Ident,
+    pub(super) method: Ident,
+}
+
+pub(super) fn idents(prefix: &str, sym: &str) -> BodyIdents {
+    let rust_sym = sym.trim_end_matches('$');
+    BodyIdents {
+        body: format_ident!("__vn_body_{}_{}", sanitize(prefix), sanitize(rust_sym)),
+        wrap: format_ident!("__vn_wrap_{}_{}", sanitize(prefix), sanitize(rust_sym)),
+        fast_wrap: format_ident!("__vn_fast_wrap_{}_{}", sanitize(prefix), sanitize(rust_sym)),
+        method: format_ident!("__vn_body_{}_{}", sanitize(prefix), sanitize(rust_sym)),
+    }
+}
+
+pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generated) {
     let prefix = cx.prefix;
-    let trait_ident = cx.trait_ident;
-    let self_ty = cx.self_ty;
     let module = cx.module;
     let ns = cx.ns;
     let class_name_str = cx.class_name;
     let sym = &m.symbol;
-    if m.kind == Kind::Property {
-        let tag = mapped_tag_path(&m.ret);
-        out.setup_calls.push(quote! {
-            cls.extend_layout(&[(::std::sync::Arc::from(#sym), #tag)]);
-        });
-        return;
-    }
-    let rust_sym = sym.trim_end_matches('$');
+    let ids = idents(prefix, sym);
+    let body_ident = &ids.body;
+    let wrap_ident = &ids.wrap;
 
-    let method_ident = if syn::parse_str::<Ident>(rust_sym).is_ok() {
-        format_ident!("{}", rust_sym)
+    let expected = expected_params(m);
+    let has_ctx = user.params.len() == expected + 1;
+    let mut names = user.params.iter();
+    let ctx_pat: Pat = if has_ctx {
+        names
+            .next()
+            .cloned()
+            .unwrap_or_else(|| syn::parse_quote!(_ctx))
     } else {
-        format_ident!("r#{}", rust_sym)
+        syn::parse_quote!(_ctx)
     };
-    let wrap_ident = format_ident!("__vn_wrap_{}_{}", sanitize(&prefix), sanitize(rust_sym));
-    let fast_wrap_ident = format_ident!(
-        "__vn_fast_wrap_{}_{}",
-        sanitize(&prefix),
-        sanitize(rust_sym)
-    );
 
     let mut sig_params: Vec<TS2> = Vec::new();
     let mut decode: Vec<TS2> = Vec::new();
@@ -65,10 +90,11 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
 
     match m.kind {
         Kind::Method | Kind::Getter => {
-            let recv = receiver_mapped(&prefix);
+            let recv = receiver_mapped(prefix);
             let pty = param_ty(&recv);
             let oty = owned_ty(&recv);
-            sig_params.push(quote!(this: #pty));
+            let pat = names.next();
+            sig_params.push(quote!(#pat: #pty));
             let b = format_ident!("__this");
             decode.push(quote! {
                 let #b = <#oty as ::vn_types::marshal::FromVm>::from_vm(
@@ -80,7 +106,8 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
             arg_base = 1;
         }
         Kind::Constructor => {
-            sig_params.push(quote!(this: ::vn_types::VmValue));
+            let pat = names.next();
+            sig_params.push(quote!(#pat: ::vn_types::VmValue));
             let b = format_ident!("__this");
             decode.push(quote! {
                 let #b = args.first().copied().unwrap_or(::vn_types::VmValue::null());
@@ -115,6 +142,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
 
     for (i, p) in m.params.iter().enumerate() {
         let pname = format_ident!("__p{}", i);
+        let pat = names.next();
         let arg_idx_expr = if arg_base_is_dynamic {
             quote!(arg_base + #i)
         } else {
@@ -122,7 +150,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
             quote!(#val)
         };
         if p.is_rest {
-            sig_params.push(quote!(#pname: &[::vn_types::VmValue]));
+            sig_params.push(quote!(#pat: &[::vn_types::VmValue]));
             decode.push(quote! {
                 let #pname: &[::vn_types::VmValue] =
                     if args.len() > #arg_idx_expr { &args[#arg_idx_expr..] } else { &[] };
@@ -131,7 +159,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
         } else {
             let pty = param_ty(&p.mapped);
             let oty = owned_ty(&p.mapped);
-            sig_params.push(quote!(#pname: #pty));
+            sig_params.push(quote!(#pat: #pty));
             decode.push(quote! {
                 let #pname = <#oty as ::vn_types::marshal::FromVm>::from_vm(
                     ctx,
@@ -145,8 +173,10 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
     let rty = ret_ty(&m.ret);
     let is_void = matches!(m.ret, Mapped::Void);
     let is_fn = m.kind == Kind::Function;
+    let fallible = is_fn || m.fallible;
 
-    let trait_ret = if is_fn || m.fallible {
+    let body = &user.body;
+    let body_ret = if fallible {
         let inner = if is_void { quote!(()) } else { rty.clone() };
         quote!(::core::result::Result<#inner, ::vn_types::NativeError>)
     } else if is_void {
@@ -154,20 +184,25 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
     } else {
         rty.clone()
     };
-
-    out.trait_sigs.push(quote! {
-        #[allow(non_snake_case)]
-        fn #method_ident(ctx: &mut dyn ::vn_types::NativeCtx, #(#sig_params),*) -> #trait_ret;
+    let body_value = if fallible {
+        quote!({ ::vn_types::marshal::into_native_ret(#body) })
+    } else {
+        quote!({ #body })
+    };
+    out.bodies.push(quote! {
+        #[allow(non_snake_case, unused_mut, unused_variables, clippy::all)]
+        fn #body_ident(#ctx_pat: &mut dyn ::vn_types::NativeCtx, #(#sig_params),*) -> #body_ret
+            #body_value
     });
 
-    let call = quote!(<__T>::#method_ident(ctx, #(#call_args),*));
+    let call = quote!(#body_ident(ctx, #(#call_args),*));
     let call = if m.throws.is_empty() {
         call
     } else {
         let declared = &m.throws;
         quote!(#call.map_err(|__e| ::vn_types::NativeError::within(__e, &[#(#declared),*], #sym)))
     };
-    let ret_encode = match (is_fn || m.fallible, is_void) {
+    let ret_encode = match (fallible, is_void) {
         (true, true) => quote! { #call?; Ok(::vn_types::VmValue::null()) },
         (true, false) => quote! {
             let __ret = #call?;
@@ -185,7 +220,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
 
     out.wrappers.push(quote! {
         #[allow(non_snake_case)]
-        pub fn #wrap_ident<__T: #trait_ident>(
+        pub fn #wrap_ident(
             ctx: &mut dyn ::vn_types::NativeCtx,
             args: &[::vn_types::VmValue],
         ) -> ::core::result::Result<::vn_types::VmValue, ::vn_types::NativeError> {
@@ -194,8 +229,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
         }
     });
 
-    let (fast_wrapper, raw_func_val, sig_val) =
-        super::fast::fast_path(cx, m, &method_ident, &fast_wrap_ident);
+    let (fast_wrapper, raw_func_val, sig_val) = super::fast::fast_path(cx, m, &ids);
 
     out.wrappers.push(fast_wrapper);
 
@@ -203,7 +237,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
     if m.kind == Kind::Function {
         let fn_entry_ident = format_ident!(
             "__VN_OP_{}_{}",
-            sanitize(&prefix).to_uppercase(),
+            sanitize(prefix).to_uppercase(),
             sanitize(sym).to_uppercase()
         );
         out.generated_entry_idents.push(fn_entry_ident.clone());
@@ -212,7 +246,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
                 module_id: #module,
                 namespace_path: #ns,
                 symbol_name: #sym,
-                func_ptr: #wrap_ident::<#self_ty> as *const u8,
+                func_ptr: #wrap_ident as *const u8,
                 raw_func_ptr: #raw_func_val,
                 signature: #sig_val,
                 entry_kind: ::vn_types::EntryKind::Function,
@@ -221,14 +255,14 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
             };
         });
     } else {
-        let native = quote!(ctx.alloc_fn(#wrap_ident::<#self_ty>, #sym));
+        let native = quote!(ctx.alloc_fn(#wrap_ident, #sym));
         let setup = match m.kind {
             Kind::Method => quote!(cls.add_method(#sym, #native);),
             Kind::Getter => quote!(cls.add_getter(#sym, #native);),
             Kind::StaticMethod => quote!(cls.add_static(#sym, #native);),
             Kind::StaticGetter => quote!(cls.add_static_getter(#sym, #native);),
             Kind::Constructor => {
-                quote!(cls.add_method(::vn_core::TokenKind::Constructor.as_str(), ctx.alloc_fn(#wrap_ident::<#self_ty>, ::vn_core::TokenKind::Constructor.as_str()));)
+                quote!(cls.add_method(::vn_core::TokenKind::Constructor.as_str(), ctx.alloc_fn(#wrap_ident, ::vn_core::TokenKind::Constructor.as_str()));)
             }
             Kind::Function | Kind::Property => unreachable!(),
         };
@@ -245,7 +279,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
         if let Some(mkind) = mkind {
             let mentry_ident = format_ident!(
                 "__VN_OPM_{}_{}",
-                sanitize(&prefix).to_uppercase(),
+                sanitize(prefix).to_uppercase(),
                 sanitize(sym).to_uppercase()
             );
             out.generated_entry_idents.push(mentry_ident.clone());
@@ -254,7 +288,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, out: &mut Generated) {
                     module_id: #module,
                     namespace_path: #class_name_str,
                     symbol_name: #sym,
-                    func_ptr: #wrap_ident::<#self_ty> as *const u8,
+                    func_ptr: #wrap_ident as *const u8,
                     raw_func_ptr: #raw_func_val,
                     signature: #sig_val,
                     entry_kind: ::vn_types::EntryKind::#mkind,
