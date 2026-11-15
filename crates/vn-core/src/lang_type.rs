@@ -24,7 +24,7 @@ impl LangPrimitive {
     pub const INT: Self = Self::Num(crate::NumKind::INT);
     pub const FLOAT: Self = Self::Num(crate::NumKind::FLOAT);
 
-    const COUNT: usize = 9 + NumKind::LANGUAGE.len();
+    const COUNT: usize = 9 + NumKind::ALL.len();
 
     pub const ALL: [Self; Self::COUNT] = {
         const TAIL: [LangPrimitive; 7] = [
@@ -39,13 +39,13 @@ impl LangPrimitive {
         let mut out = [Self::Null; Self::COUNT];
         out[1] = Self::Bool;
         let mut i = 0;
-        while i < NumKind::LANGUAGE.len() {
-            out[2 + i] = Self::Num(NumKind::LANGUAGE[i]);
+        while i < NumKind::ALL.len() {
+            out[2 + i] = Self::Num(NumKind::ALL[i]);
             i += 1;
         }
         let mut j = 0;
         while j < TAIL.len() {
-            out[2 + NumKind::LANGUAGE.len() + j] = TAIL[j];
+            out[2 + NumKind::ALL.len() + j] = TAIL[j];
             j += 1;
         }
         out

@@ -44,10 +44,14 @@ pub enum ValueConv {
     NarrowU16 = 28,
     NarrowU32 = 29,
     NarrowF32 = 30,
+    NarrowU64 = 31,
+    U64ToBigInt = 32,
+    U64ToBits = 33,
+    U64FromBits = 34,
 }
 
 impl ValueConv {
-    pub const ALL: [Self; 31] = [
+    pub const ALL: [Self; 35] = [
         Self::IntToFloat,
         Self::FloatToInt,
         Self::IntToBigInt,
@@ -79,6 +83,10 @@ impl ValueConv {
         Self::NarrowU16,
         Self::NarrowU32,
         Self::NarrowF32,
+        Self::NarrowU64,
+        Self::U64ToBigInt,
+        Self::U64ToBits,
+        Self::U64FromBits,
     ];
 
     pub const fn from_u8(raw: u8) -> Option<Self> {
@@ -98,8 +106,9 @@ impl ValueConv {
             NumKind::Int(IntKind::U8) => Some(Self::NarrowU8),
             NumKind::Int(IntKind::U16) => Some(Self::NarrowU16),
             NumKind::Int(IntKind::U32) => Some(Self::NarrowU32),
+            NumKind::Int(IntKind::U64) => Some(Self::NarrowU64),
             NumKind::Float(FloatKind::F32) => Some(Self::NarrowF32),
-            NumKind::Int(IntKind::I64 | IntKind::U64) | NumKind::Float(FloatKind::F64) => None,
+            NumKind::Int(IntKind::I64) | NumKind::Float(FloatKind::F64) => None,
         }
     }
 
@@ -112,6 +121,7 @@ impl ValueConv {
             Self::NarrowU8 => Some(NumKind::Int(IntKind::U8)),
             Self::NarrowU16 => Some(NumKind::Int(IntKind::U16)),
             Self::NarrowU32 => Some(NumKind::Int(IntKind::U32)),
+            Self::NarrowU64 => Some(NumKind::Int(IntKind::U64)),
             Self::NarrowF32 => Some(NumKind::Float(FloatKind::F32)),
             Self::IntToFloat
             | Self::FloatToInt
@@ -136,7 +146,10 @@ impl ValueConv {
             | Self::ExpectIntOrNull
             | Self::ExpectFloatOrNull
             | Self::ExpectRef
-            | Self::ExpectChar => None,
+            | Self::ExpectChar
+            | Self::U64ToBigInt
+            | Self::U64ToBits
+            | Self::U64FromBits => None,
         }
     }
 
@@ -185,6 +198,8 @@ impl ValueConv {
                 | Self::NarrowU8
                 | Self::NarrowU16
                 | Self::NarrowU32
+                | Self::NarrowU64
+                | Self::U64ToBits
         )
     }
 }

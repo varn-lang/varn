@@ -149,18 +149,6 @@ impl NumKind {
     pub const INT: Self = Self::Int(IntKind::I64);
     pub const FLOAT: Self = Self::Float(FloatKind::F64);
 
-    pub const LANGUAGE: [Self; 9] = [
-        Self::Int(IntKind::I64),
-        Self::Float(FloatKind::F64),
-        Self::Int(IntKind::I8),
-        Self::Int(IntKind::I16),
-        Self::Int(IntKind::I32),
-        Self::Int(IntKind::U8),
-        Self::Int(IntKind::U16),
-        Self::Int(IntKind::U32),
-        Self::Float(FloatKind::F32),
-    ];
-
     pub const ALL: [Self; 10] = [
         Self::Int(IntKind::I64),
         Self::Float(FloatKind::F64),

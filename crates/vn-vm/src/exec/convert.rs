@@ -129,6 +129,52 @@ fn not_a(expected: LangPrimitive, nullable: bool, v: VmValue, heap: &Heap) -> Ru
     ))
 }
 
+fn u64_value(n: u64, heap: &mut Heap) -> VmValue {
+    match i64::try_from(n) {
+        Ok(small) => VmValue::from_int(small),
+        Err(_) => heap.alloc_bigint(BigInt::from(n)),
+    }
+}
+
+fn u64_overflow(what: impl std::fmt::Display) -> RuntimeError {
+    RuntimeError::integer_overflow(format!("integer overflow: {what} does not fit u64"))
+}
+
+fn u64_of(n: Numeric) -> VmResult<u64> {
+    match n {
+        Numeric::Int(i) => u64::try_from(i).map_err(|_| u64_overflow(i)),
+        Numeric::Big(b) => b.to_u64().ok_or_else(|| u64_overflow(b)),
+        Numeric::Float(_) | Numeric::Dec(_) => Err(RuntimeError::new("convert: not an integer")),
+    }
+}
+
+fn narrow_u64(v: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
+    let n = numeric_of(v, heap)?;
+    Ok(u64_value(u64_of(n)?, heap))
+}
+
+fn u64_to_bigint(v: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
+    match numeric_of(v, heap)? {
+        Numeric::Big(_) => Ok(v),
+        n @ (Numeric::Int(_) | Numeric::Float(_) | Numeric::Dec(_)) => {
+            Ok(heap.alloc_bigint(BigInt::from(u64_of(n)?)))
+        }
+    }
+}
+
+fn u64_to_bits(v: VmValue, heap: &Heap) -> VmResult<VmValue> {
+    Ok(VmValue::from_int(u64_of(numeric_of(v, heap)?)? as i64))
+}
+
+fn u64_from_bits(v: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
+    match numeric_of(v, heap)? {
+        Numeric::Int(bits) => Ok(u64_value(bits as u64, heap)),
+        Numeric::Float(_) | Numeric::Big(_) | Numeric::Dec(_) => {
+            Err(RuntimeError::new("convert: not a bit pattern"))
+        }
+    }
+}
+
 fn narrow(conv: ValueConv, v: VmValue, heap: &Heap) -> VmResult<VmValue> {
     match conv.narrowed() {
         Some(vn_core::NumKind::Int(kind)) => {
@@ -168,6 +214,10 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
         | ValueConv::NarrowU16
         | ValueConv::NarrowU32
         | ValueConv::NarrowF32 => return narrow(conv, v, heap),
+        ValueConv::NarrowU64 => return narrow_u64(v, heap),
+        ValueConv::U64ToBigInt => return u64_to_bigint(v, heap),
+        ValueConv::U64ToBits => return u64_to_bits(v, heap),
+        ValueConv::U64FromBits => return u64_from_bits(v, heap),
         ValueConv::ExpectRef => {
             return if v.is_heap() || v.is_null() {
                 Ok(v)
@@ -254,6 +304,10 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
         | ValueConv::NarrowU16
         | ValueConv::NarrowU32
         | ValueConv::NarrowF32 => narrow(conv, v, heap),
+        ValueConv::NarrowU64 => narrow_u64(v, heap),
+        ValueConv::U64ToBigInt => u64_to_bigint(v, heap),
+        ValueConv::U64ToBits => u64_to_bits(v, heap),
+        ValueConv::U64FromBits => u64_from_bits(v, heap),
         ValueConv::FloatToInt
         | ValueConv::BigIntToInt
         | ValueConv::DecimalToInt

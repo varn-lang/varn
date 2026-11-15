@@ -22,6 +22,10 @@ impl<'m> Builder<'m> {
             r = self.coerce(r, ty);
         }
         let (lt, rt) = (self.value_ty(l), self.value_ty(r));
+        let unsigned_64 = BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64));
+        if lt == unsigned_64 || rt == unsigned_64 {
+            return Ok(self.lower_u64_binary(op, l, r, unsigned_64));
+        }
         let op_ty = if lt == rt
             && matches!(
                 lt,
@@ -52,6 +56,92 @@ impl<'m> Builder<'m> {
         } else {
             self.narrow_to(result, result_ty)
         })
+    }
+
+    fn u64_convert(&mut self, v: Value, conv: vn_core::ValueConv) -> Value {
+        let ty = crate::ssa::verify::convert_result_ty(conv);
+        self.emit(InstKind::Convert { operand: v, conv }, ty)
+    }
+
+    fn u64_binary(&mut self, op: TirBinOp, l: Value, r: Value, ty: BackendTy) -> Value {
+        self.emit(
+            InstKind::Binary {
+                op: super::ops::bin_op(op),
+                lhs: l,
+                rhs: r,
+                ty,
+            },
+            ty,
+        )
+    }
+
+    fn lower_u64_binary(&mut self, op: TirBinOp, l: Value, r: Value, ty: BackendTy) -> Value {
+        use vn_core::ValueConv as C;
+        let boxed = BackendTy::Dynamic(DynReason::Boxed);
+        match op {
+            TirBinOp::BitAnd
+            | TirBinOp::BitOr
+            | TirBinOp::BitXor
+            | TirBinOp::Shr
+            | TirBinOp::Ushr => {
+                let (lb, rb) = (
+                    self.u64_convert(l, C::U64ToBits),
+                    self.u64_convert(r, C::U64ToBits),
+                );
+                let op = if op == TirBinOp::Shr {
+                    TirBinOp::Ushr
+                } else {
+                    op
+                };
+                let bits = self.u64_binary(op, lb, rb, BackendTy::INT);
+                self.u64_convert(bits, C::U64FromBits)
+            }
+            TirBinOp::Shl => {
+                let (lb, rb) = (
+                    self.u64_convert(l, C::U64ToBigInt),
+                    self.u64_convert(r, C::U64ToBigInt),
+                );
+                let two = self.emit(InstKind::ConstBigInt(std::sync::Arc::from("2")), boxed);
+                let scale = self.u64_binary(TirBinOp::Pow, two, rb, boxed);
+                let product = self.u64_binary(TirBinOp::Mul, lb, scale, boxed);
+                self.narrow_to(product, ty)
+            }
+            TirBinOp::Eq
+            | TirBinOp::Ne
+            | TirBinOp::Lt
+            | TirBinOp::Le
+            | TirBinOp::Gt
+            | TirBinOp::Ge => {
+                let (lb, rb) = (
+                    self.u64_convert(l, C::U64ToBigInt),
+                    self.u64_convert(r, C::U64ToBigInt),
+                );
+                self.emit(
+                    InstKind::Binary {
+                        op: super::ops::bin_op(op),
+                        lhs: lb,
+                        rhs: rb,
+                        ty: boxed,
+                    },
+                    BackendTy::Bool,
+                )
+            }
+            TirBinOp::Add
+            | TirBinOp::Sub
+            | TirBinOp::Mul
+            | TirBinOp::Div
+            | TirBinOp::Mod
+            | TirBinOp::Pow
+            | TirBinOp::Instanceof
+            | TirBinOp::In => {
+                let (lb, rb) = (
+                    self.u64_convert(l, C::U64ToBigInt),
+                    self.u64_convert(r, C::U64ToBigInt),
+                );
+                let result = self.u64_binary(op, lb, rb, boxed);
+                self.narrow_to(result, ty)
+            }
+        }
     }
 
     pub(super) fn narrow_to(&mut self, v: Value, ty: BackendTy) -> Value {
@@ -101,6 +191,20 @@ impl<'m> Builder<'m> {
                 Ok(v)
             }
             TirUnOp::ToStr => Ok(self.emit(InstKind::ToString { operand: v }, BackendTy::Str)),
+            TirUnOp::BitNot
+                if ty == BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64)) =>
+            {
+                let bits = self.u64_convert(v, vn_core::ValueConv::U64ToBits);
+                let inverted = self.emit(
+                    InstKind::Unary {
+                        op: super::ops::un_op(op),
+                        operand: bits,
+                        ty: BackendTy::INT,
+                    },
+                    BackendTy::INT,
+                );
+                Ok(self.u64_convert(inverted, vn_core::ValueConv::U64FromBits))
+            }
             TirUnOp::BitNot if matches!(ty, BackendTy::Num(vn_core::NumKind::Int(k)) if !k.is_signed() && k != vn_core::IntKind::I64) =>
             {
                 let BackendTy::Num(vn_core::NumKind::Int(kind)) = ty else {
@@ -218,6 +322,22 @@ impl<'m> Builder<'m> {
                 BackendTy::Bool,
             ));
         }
+        let unsigned_64 = BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64));
+        if node_ty == unsigned_64 {
+            let whole = match super::ops::numeric_domain(self.value_ty(v).representation()) {
+                Some(D::Float) => self.u64_convert(v, vn_core::ValueConv::FloatToBigInt),
+                Some(D::Decimal) => self.u64_convert(v, vn_core::ValueConv::DecimalToBigInt),
+                Some(D::Int | D::BigInt) | None => v,
+            };
+            return Ok(self.narrow_to(whole, node_ty));
+        }
+        let v = if self.value_ty(v) == BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64))
+            && matches!(node_ty, BackendTy::Num(vn_core::NumKind::Int(k)) if k != vn_core::IntKind::U64)
+        {
+            self.u64_convert(v, vn_core::ValueConv::DynToInt)
+        } else {
+            v
+        };
         let from = match self.value_ty(v) {
             literal @ BackendTy::Literal(_) => super::ops::numeric_domain(literal.representation()),
             BackendTy::Num(vn_core::NumKind::Int(_)) => Some(D::Int),

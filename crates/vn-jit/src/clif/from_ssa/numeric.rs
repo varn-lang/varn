@@ -200,7 +200,11 @@ impl Expected {
             | ValueConv::NarrowU8
             | ValueConv::NarrowU16
             | ValueConv::NarrowU32
-            | ValueConv::NarrowF32 => return None,
+            | ValueConv::NarrowU64
+            | ValueConv::NarrowF32
+            | ValueConv::U64ToBigInt
+            | ValueConv::U64ToBits
+            | ValueConv::U64FromBits => return None,
         };
         Some(Expected { kind, nullable })
     }

@@ -236,7 +236,7 @@ impl Checker<'_> {
 fn numeric_types(
     keep: impl Fn(vn_core::NumKind) -> bool,
 ) -> impl Iterator<Item = vn_sem::types::Type> {
-    vn_core::NumKind::LANGUAGE
+    vn_core::NumKind::ALL
         .into_iter()
         .filter(move |kind| keep(*kind))
         .map(vn_sem::types::Type::num)

@@ -262,9 +262,11 @@ pub(crate) fn convert_result_ty(conv: vn_core::ValueConv) -> BackendTy {
         }
         ExpectInt => BackendTy::INT,
         ExpectFloat => BackendTy::FLOAT,
-        NarrowI8 | NarrowI16 | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowF32 => {
-            conv.narrowed().map_or(BackendTy::INT, BackendTy::Num)
-        }
+        NarrowI8 | NarrowI16 | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowU64
+        | NarrowF32 => conv.narrowed().map_or(BackendTy::INT, BackendTy::Num),
+        U64ToBigInt => BackendTy::Dynamic(DynReason::Boxed),
+        U64ToBits => BackendTy::INT,
+        U64FromBits => BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64)),
     }
 }
 
@@ -281,12 +283,12 @@ fn convert_operand_domain(conv: vn_core::ValueConv) -> Option<vn_core::NumericDo
     use vn_core::NumericDomain as D;
     use vn_core::ValueConv::*;
     match conv {
-        IntToFloat => Some(D::Int),
+        IntToFloat | U64ToBigInt | U64ToBits | U64FromBits => Some(D::Int),
         FloatToInt | FloatToBigInt | FloatToDecimal => Some(D::Float),
         IntToBigInt | IntToDecimal | BigIntToInt | DecimalToInt | DynToInt | DynToFloat
         | BigIntToFloat | DecimalToFloat | BigIntToDecimal | DecimalToBigInt | ExpectStr
         | ExpectBool | ExpectStrOrNull | ExpectBoolOrNull | ExpectInt | ExpectFloat
         | ExpectIntOrNull | ExpectFloatOrNull | ExpectRef | ExpectChar | NarrowI8 | NarrowI16
-        | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowF32 => None,
+        | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowU64 | NarrowF32 => None,
     }
 }

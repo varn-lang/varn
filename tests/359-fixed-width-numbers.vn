@@ -13,6 +13,22 @@ function addU8(a: u8, b: u8): u8 { return a + b }
 function subU8(a: u8, b: u8): u8 { return a - b }
 function mulI16(a: i16, b: i16): i16 { return a * b }
 function addF32(a: f32, b: f32): f32 { return a + b }
+function addU64(a: u64, b: u64): u64 { return a + b }
+function mulU64(a: u64, b: u64): u64 { return a * b }
+
+class Counter {
+    total: u64
+    constructor(total: u64) { this.total = total }
+    add(by: u64): void { this.total = this.total + by }
+}
+
+const TOP: u64 = 18446744073709551615n as u64;
+let checksum: u64 = 0;
+let turns: int = 0;
+while (turns < 300) {
+    checksum = (checksum + 7) ^ (turns as u64);
+    turns += 1
+}
 
 class Pixel {
     r: u8
@@ -114,5 +130,62 @@ await describe("359 fixed-width numbers", async () => {
         expect(p.r).toBe(255);
         expect(overflows(() => { p.brighten(1); return true })).toBe(true);
         expect(p.g + 1).toBe(8);
+    });
+    await it("u64 holds the whole unsigned range", () => {
+        const edge: u64 = 9223372036854775807;
+        expect(edge + 1).toBe(9223372036854775808n as u64);
+        expect(addU64(TOP - 1, 1)).toBe(TOP);
+        expect(TOP - TOP).toBe(0);
+        expect(mulU64(4294967296, 4294967295)).toBe(18446744069414584320n as u64);
+        expect(overflows(() => addU64(TOP, 1) == 0)).toBe(true);
+        expect(overflows(() => mulU64(4294967296, 4294967296) == 0)).toBe(true);
+        expect(overflows(() => (0 as u64) - 1 == 0)).toBe(true);
+        expect(TOP / 2).toBe(9223372036854775807);
+        expect(TOP % 10).toBe(5);
+    });
+
+    await it("u64 compares and prints as unsigned", () => {
+        const big: u64 = 9223372036854775808n as u64;
+        expect(big > 1).toBe(true);
+        expect(big > 9223372036854775807).toBe(true);
+        expect(TOP >= big).toBe(true);
+        expect(big == big).toBe(true);
+        expect(`${TOP}`).toBe("18446744073709551615");
+        expect(`${big}`).toBe("9223372036854775808");
+    });
+
+    await it("u64 bit operators work on the 64 bit pattern", () => {
+        expect(TOP & 255).toBe(255);
+        expect(TOP ^ TOP).toBe(0);
+        expect(TOP >> 60).toBe(15);
+        expect(~(0 as u64)).toBe(TOP);
+        expect(1 as u64 << 63).toBe(9223372036854775808n as u64);
+        expect(overflows(() => (3 as u64 << 63) == 0)).toBe(true);
+        expect((TOP | 0) == TOP).toBe(true);
+    });
+
+    await it("u64 converts explicitly and checks the range", () => {
+        expect(5 as u64).toBe(5);
+        expect(overflows(() => (-1 as u64) == 0)).toBe(true);
+        expect(TOP as float).toBe(18446744073709551615.0);
+        expect(overflows(() => (TOP as int) == 0)).toBe(true);
+        expect(100 as u64 as u8).toBe(100);
+        expect(overflows(() => (300 as u64 as u8) == 0)).toBe(true);
+        expect(3.9 as u64).toBe(3);
+        expect(overflows(() => (18446744073709551616n as u64) == 0)).toBe(true);
+    });
+
+    await it("u64 fields, parameters and hot loops keep the value", () => {
+        const c = new Counter(TOP - 10);
+        c.add(10);
+        expect(c.total).toBe(TOP);
+        expect(overflows(() => { c.add(1); return true })).toBe(true);
+        expect(checksum > 0).toBe(true);
+        const sums: u64[] = [];
+        for (let i = 0; i < 50; i += 1) {
+            sums.push(TOP - (i as u64));
+        }
+        expect(sums[49]).toBe(TOP - 49);
+        expect(`${sums[0]}`).toBe("18446744073709551615");
     });
 });

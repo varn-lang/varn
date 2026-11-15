@@ -63,10 +63,14 @@ consumidores consultan métodos en vez de enumerar anchos (Ley 16).
   (comprueba el rango y lanza `IntegerOverflow`; `NarrowF32` redondea a 32 bits).
   Los valores viven normalizados en una palabra i64 o f64, así que el intérprete
   y el JIT comparten la semántica (el JIT llama al helper de conversión).
-- **W3b. `u64`:** aritmética, comparación, división, desplazamiento y
-  conversiones sin signo sobre 64 bits; el literal por encima de `i64::MAX`
-  necesita un `IntLiteral` más ancho que `i64`. Entonces `u64` entra en
-  `NumKind::LANGUAGE`.
+- **W3b. `u64` — hecho.** Un `u64` es un `int` no negativo o un `bigint` por
+  encima de `i64::MAX`; la aritmética y la comparación pasan por `bigint`
+  (`U64ToBigInt`) y `NarrowU64` comprueba el rango y normaliza; `& | ^ >> ~` van
+  por el patrón de bits (`U64ToBits`, `U64FromBits`); `<<` multiplica por 2^n y
+  un desplazamiento que pierde bits es `IntegerOverflow`. El slot del registro
+  es `Dynamic` y el campo es `Boxed`. Limitaciones: un literal por encima de
+  `i64::MAX` se escribe `18446744073709551615n as u64` (el `IntLiteral` del AST
+  es `i64`), y `float as u64` pasa por `i64`.
 - **W4. Layout de campos** (`ScalarRepr::Num`).
 - **W5. `ArrayRepr` de ancho real** y `Elem::Num` en el JIT.
 - **W6. JIT.** Operaciones nativas de 8, 16 y 32 bits, `u64`, `f32`; eliminación

@@ -158,6 +158,7 @@ impl BackendTy {
         use vn_core::RuntimeKind as T;
         match self {
             BackendTy::Literal(_) => self.representation().exact_field_kind(),
+            BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64)) => None,
             BackendTy::Num(k) => Some(T::of_num(k)),
             BackendTy::Bool => Some(T::Bool),
             BackendTy::Str => Some(T::Str),
