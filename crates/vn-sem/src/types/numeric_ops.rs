@@ -46,6 +46,10 @@ pub fn numeric_binary_type(l: &Type, r: &Type, table: &CheckerTyTable) -> Option
     })
 }
 
+pub fn integer_binary_type(l: &Type, r: &Type, table: &CheckerTyTable) -> Option<Type> {
+    numeric_binary_type(l, r, table).filter(Type::is_integer)
+}
+
 pub fn adopt_literal_operands(
     arena: &AstArena,
     left: ExprId,

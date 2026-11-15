@@ -117,6 +117,20 @@ impl FloatKind {
         }
     }
 
+    pub const fn round(self, value: f64) -> f64 {
+        match self {
+            Self::F32 => value as f32 as f64,
+            Self::F64 => value,
+        }
+    }
+
+    pub const fn max_finite(self) -> f64 {
+        match self {
+            Self::F32 => f32::MAX as f64,
+            Self::F64 => f64::MAX,
+        }
+    }
+
     pub const fn mantissa_bits(self) -> u32 {
         match self {
             Self::F32 => 24,
@@ -134,6 +148,18 @@ impl std::fmt::Debug for NumKind {
 impl NumKind {
     pub const INT: Self = Self::Int(IntKind::I64);
     pub const FLOAT: Self = Self::Float(FloatKind::F64);
+
+    pub const LANGUAGE: [Self; 9] = [
+        Self::Int(IntKind::I64),
+        Self::Float(FloatKind::F64),
+        Self::Int(IntKind::I8),
+        Self::Int(IntKind::I16),
+        Self::Int(IntKind::I32),
+        Self::Int(IntKind::U8),
+        Self::Int(IntKind::U16),
+        Self::Int(IntKind::U32),
+        Self::Float(FloatKind::F32),
+    ];
 
     pub const ALL: [Self; 10] = [
         Self::Int(IntKind::I64),

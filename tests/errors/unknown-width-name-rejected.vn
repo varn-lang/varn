@@ -1,0 +1,2 @@
+// expect: error[VN3002]
+let b: i128 = 1

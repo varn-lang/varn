@@ -129,8 +129,45 @@ fn not_a(expected: LangPrimitive, nullable: bool, v: VmValue, heap: &Heap) -> Ru
     ))
 }
 
+fn narrow(conv: ValueConv, v: VmValue, heap: &Heap) -> VmResult<VmValue> {
+    match conv.narrowed() {
+        Some(vn_core::NumKind::Int(kind)) => {
+            if !heap.is_int(v) {
+                return Err(not_a(LangPrimitive::INT, false, v, heap));
+            }
+            let value = heap.as_int(v);
+            if kind.contains(i128::from(value)) {
+                Ok(v)
+            } else {
+                Err(RuntimeError::integer_overflow(format!(
+                    "integer overflow: {value} does not fit {}",
+                    kind.name()
+                )))
+            }
+        }
+        Some(vn_core::NumKind::Float(_)) => {
+            let value = if heap.is_int(v) {
+                heap.as_int(v) as f64
+            } else if v.is_f64() {
+                v.as_f64()
+            } else {
+                return Err(not_a(LangPrimitive::FLOAT, false, v, heap));
+            };
+            Ok(VmValue::from_f64(f64::from(value as f32)))
+        }
+        None => Err(RuntimeError::new("convert: not a narrowing conversion")),
+    }
+}
+
 pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
     match conv {
+        ValueConv::NarrowI8
+        | ValueConv::NarrowI16
+        | ValueConv::NarrowI32
+        | ValueConv::NarrowU8
+        | ValueConv::NarrowU16
+        | ValueConv::NarrowU32
+        | ValueConv::NarrowF32 => return narrow(conv, v, heap),
         ValueConv::ExpectRef => {
             return if v.is_heap() || v.is_null() {
                 Ok(v)
@@ -210,6 +247,13 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
         | ValueConv::ExpectFloatOrNull
         | ValueConv::ExpectRef
         | ValueConv::ExpectChar => Ok(v),
+        ValueConv::NarrowI8
+        | ValueConv::NarrowI16
+        | ValueConv::NarrowI32
+        | ValueConv::NarrowU8
+        | ValueConv::NarrowU16
+        | ValueConv::NarrowU32
+        | ValueConv::NarrowF32 => narrow(conv, v, heap),
         ValueConv::FloatToInt
         | ValueConv::BigIntToInt
         | ValueConv::DecimalToInt

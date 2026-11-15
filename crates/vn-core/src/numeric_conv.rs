@@ -36,10 +36,18 @@ pub enum ValueConv {
     ExpectFloatOrNull = 21,
     ExpectRef = 22,
     ExpectChar = 23,
+
+    NarrowI8 = 24,
+    NarrowI16 = 25,
+    NarrowI32 = 26,
+    NarrowU8 = 27,
+    NarrowU16 = 28,
+    NarrowU32 = 29,
+    NarrowF32 = 30,
 }
 
 impl ValueConv {
-    pub const ALL: [Self; 24] = [
+    pub const ALL: [Self; 31] = [
         Self::IntToFloat,
         Self::FloatToInt,
         Self::IntToBigInt,
@@ -64,6 +72,13 @@ impl ValueConv {
         Self::ExpectFloatOrNull,
         Self::ExpectRef,
         Self::ExpectChar,
+        Self::NarrowI8,
+        Self::NarrowI16,
+        Self::NarrowI32,
+        Self::NarrowU8,
+        Self::NarrowU16,
+        Self::NarrowU32,
+        Self::NarrowF32,
     ];
 
     pub const fn from_u8(raw: u8) -> Option<Self> {
@@ -71,6 +86,57 @@ impl ValueConv {
             Some(Self::ALL[raw as usize])
         } else {
             None
+        }
+    }
+
+    pub const fn narrow(kind: crate::NumKind) -> Option<Self> {
+        use crate::{FloatKind, IntKind, NumKind};
+        match kind {
+            NumKind::Int(IntKind::I8) => Some(Self::NarrowI8),
+            NumKind::Int(IntKind::I16) => Some(Self::NarrowI16),
+            NumKind::Int(IntKind::I32) => Some(Self::NarrowI32),
+            NumKind::Int(IntKind::U8) => Some(Self::NarrowU8),
+            NumKind::Int(IntKind::U16) => Some(Self::NarrowU16),
+            NumKind::Int(IntKind::U32) => Some(Self::NarrowU32),
+            NumKind::Float(FloatKind::F32) => Some(Self::NarrowF32),
+            NumKind::Int(IntKind::I64 | IntKind::U64) | NumKind::Float(FloatKind::F64) => None,
+        }
+    }
+
+    pub const fn narrowed(self) -> Option<crate::NumKind> {
+        use crate::{FloatKind, IntKind, NumKind};
+        match self {
+            Self::NarrowI8 => Some(NumKind::Int(IntKind::I8)),
+            Self::NarrowI16 => Some(NumKind::Int(IntKind::I16)),
+            Self::NarrowI32 => Some(NumKind::Int(IntKind::I32)),
+            Self::NarrowU8 => Some(NumKind::Int(IntKind::U8)),
+            Self::NarrowU16 => Some(NumKind::Int(IntKind::U16)),
+            Self::NarrowU32 => Some(NumKind::Int(IntKind::U32)),
+            Self::NarrowF32 => Some(NumKind::Float(FloatKind::F32)),
+            Self::IntToFloat
+            | Self::FloatToInt
+            | Self::IntToBigInt
+            | Self::BigIntToInt
+            | Self::IntToDecimal
+            | Self::DecimalToInt
+            | Self::DynToInt
+            | Self::DynToFloat
+            | Self::BigIntToFloat
+            | Self::FloatToBigInt
+            | Self::DecimalToFloat
+            | Self::FloatToDecimal
+            | Self::BigIntToDecimal
+            | Self::DecimalToBigInt
+            | Self::ExpectStr
+            | Self::ExpectBool
+            | Self::ExpectStrOrNull
+            | Self::ExpectBoolOrNull
+            | Self::ExpectInt
+            | Self::ExpectFloat
+            | Self::ExpectIntOrNull
+            | Self::ExpectFloatOrNull
+            | Self::ExpectRef
+            | Self::ExpectChar => None,
         }
     }
 
@@ -113,6 +179,12 @@ impl ValueConv {
                 | Self::ExpectChar
                 | Self::FloatToBigInt
                 | Self::FloatToDecimal
+                | Self::NarrowI8
+                | Self::NarrowI16
+                | Self::NarrowI32
+                | Self::NarrowU8
+                | Self::NarrowU16
+                | Self::NarrowU32
         )
     }
 }

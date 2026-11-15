@@ -38,7 +38,7 @@ impl<'m> Builder<'m> {
         } else {
             ty
         };
-        Ok(self.emit(
+        let result = self.emit(
             InstKind::Binary {
                 op: super::ops::bin_op(op),
                 lhs: l,
@@ -46,7 +46,23 @@ impl<'m> Builder<'m> {
                 ty: op_ty,
             },
             result_ty,
-        ))
+        );
+        Ok(if is_cmp {
+            result
+        } else {
+            self.narrow_to(result, result_ty)
+        })
+    }
+
+    pub(super) fn narrow_to(&mut self, v: Value, ty: BackendTy) -> Value {
+        let BackendTy::Num(kind) = ty else {
+            return v;
+        };
+        match vn_core::ValueConv::narrow(kind) {
+            Some(conv) => self.emit(InstKind::Convert { operand: v, conv }, ty),
+            None if self.value_ty(v) != ty => self.emit(InstKind::Cast { operand: v, ty }, ty),
+            None => v,
+        }
     }
 
     pub(super) fn lower_unary(
@@ -85,6 +101,22 @@ impl<'m> Builder<'m> {
                 Ok(v)
             }
             TirUnOp::ToStr => Ok(self.emit(InstKind::ToString { operand: v }, BackendTy::Str)),
+            TirUnOp::BitNot if matches!(ty, BackendTy::Num(vn_core::NumKind::Int(k)) if !k.is_signed() && k != vn_core::IntKind::I64) =>
+            {
+                let BackendTy::Num(vn_core::NumKind::Int(kind)) = ty else {
+                    return Ok(v);
+                };
+                let mask = self.emit(InstKind::ConstInt(kind.max() as i64), ty);
+                Ok(self.emit(
+                    InstKind::Binary {
+                        op: super::ops::bin_op(TirBinOp::BitXor),
+                        lhs: v,
+                        rhs: mask,
+                        ty,
+                    },
+                    ty,
+                ))
+            }
             TirUnOp::Neg | TirUnOp::Not | TirUnOp::BitNot | TirUnOp::Typeof => {
                 let result = self.emit(
                     InstKind::Unary {
@@ -94,7 +126,11 @@ impl<'m> Builder<'m> {
                     },
                     ty,
                 );
-                Ok(result)
+                Ok(if matches!(op, TirUnOp::Neg | TirUnOp::BitNot) {
+                    self.narrow_to(result, ty)
+                } else {
+                    result
+                })
             }
         }
     }
@@ -207,7 +243,7 @@ impl<'m> Builder<'m> {
         };
         let to = super::ops::numeric_domain(node_ty);
         let conv = match (from, to) {
-            (Some(f), Some(t)) if f == t => return Ok(v),
+            (Some(f), Some(t)) if f == t => return Ok(self.narrow_to(v, node_ty)),
             (Some(f), Some(t)) => vn_core::ValueConv::between(f, t),
             (None, Some(D::Int)) => Some(vn_core::ValueConv::DynToInt),
             (None, Some(D::Float)) => Some(vn_core::ValueConv::DynToFloat),
@@ -215,7 +251,8 @@ impl<'m> Builder<'m> {
         };
         if let Some(conv) = conv {
             let result_ty = crate::ssa::verify::convert_result_ty(conv);
-            return Ok(self.emit(InstKind::Convert { operand: v, conv }, result_ty));
+            let converted = self.emit(InstKind::Convert { operand: v, conv }, result_ty);
+            return Ok(self.narrow_to(converted, node_ty));
         }
         Ok(self.emit(InstKind::Cast { operand: v, ty }, ty))
     }

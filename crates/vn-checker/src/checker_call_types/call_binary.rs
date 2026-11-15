@@ -1,7 +1,7 @@
 use super::CallTypeCtx;
 use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::ExprId;
-use vn_sem::types::numeric_ops::numeric_binary_type;
+use vn_sem::types::numeric_ops::{integer_binary_type, numeric_binary_type};
 use vn_sem::types::Type;
 
 pub(super) fn infer_binary(
@@ -36,6 +36,6 @@ pub(super) fn infer_binary(
         | BinaryOp::BitXor
         | BinaryOp::Shl
         | BinaryOp::Shr
-        | BinaryOp::UShr => (l.is_int() && r.is_int()).then_some(Type::Int),
+        | BinaryOp::UShr => integer_binary_type(&l, &r, c.table),
     }
 }

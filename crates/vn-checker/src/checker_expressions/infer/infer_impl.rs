@@ -209,11 +209,8 @@ impl<'r> Checker<'r> {
                     vn_core::ast::operators::UnaryOp::Plus => self.infer_type(rec, operand, bind),
                     vn_core::ast::operators::UnaryOp::BitNot => {
                         let inner = self.infer_type(rec, operand, bind);
-                        if inner.is_int() {
-                            Type::primitive(
-                                vn_core::LangPrimitive::INT,
-                                &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                            )
+                        if inner.is_integer() {
+                            inner
                         } else {
                             Type::Error
                         }

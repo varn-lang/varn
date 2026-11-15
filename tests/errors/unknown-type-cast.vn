@@ -1,2 +1,2 @@
 // expect: error[VN3002]
-let a = 5 as i32
+let a = 5 as i128

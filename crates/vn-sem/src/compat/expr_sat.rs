@@ -1,5 +1,7 @@
 use super::scalar::{array_element_type, literal_expr_admitted, plain_literal_matches};
-use crate::types::numeric_literal::{const_int_value, int_literal_adopts};
+use crate::types::numeric_literal::{
+    const_float_value, const_int_value, float_literal_adopts, int_literal_adopts,
+};
 use crate::types::{CheckerTyTable, ObjectTypeMember, Type};
 
 pub fn expr_satisfies_target_type(
@@ -28,6 +30,11 @@ pub fn expr_satisfies_target_type(
     }
     if let Some(value) = const_int_value(arena, expr)
         && int_literal_adopts(target_ty, value, table)
+    {
+        return true;
+    }
+    if let Some(value) = const_float_value(arena, expr)
+        && float_literal_adopts(target_ty, value, table)
     {
         return true;
     }

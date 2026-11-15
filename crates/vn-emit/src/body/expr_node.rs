@@ -14,7 +14,9 @@ impl<'a> FnEmitter<'a> {
 
         let kind = match &self.ast_arena.expr(e).kind {
             ExprKind::IntLiteral { value, .. } => Some(match ty {
-                BackendTy::Num(vn_core::NumKind::Float(_)) => TirExprKind::FloatLit(*value as f64),
+                BackendTy::Num(vn_core::NumKind::Float(kind)) => {
+                    TirExprKind::FloatLit(kind.round(*value as f64))
+                }
                 BackendTy::Decimal => TirExprKind::DecimalLit(Arc::from(value.to_string())),
                 BackendTy::BigInt => TirExprKind::BigIntLit(Arc::from(value.to_string())),
                 BackendTy::Literal(_)
@@ -35,7 +37,28 @@ impl<'a> FnEmitter<'a> {
                 | BackendTy::Never
                 | BackendTy::Dynamic(_) => TirExprKind::IntLit(*value),
             }),
-            ExprKind::FloatLiteral { value, .. } => Some(TirExprKind::FloatLit(*value)),
+            ExprKind::FloatLiteral { value, .. } => Some(TirExprKind::FloatLit(match ty {
+                BackendTy::Num(vn_core::NumKind::Float(kind)) => kind.round(*value),
+                BackendTy::Literal(_)
+                | BackendTy::Num(vn_core::NumKind::Int(_))
+                | BackendTy::Bool
+                | BackendTy::Char
+                | BackendTy::Str
+                | BackendTy::Bytes
+                | BackendTy::Decimal
+                | BackendTy::BigInt
+                | BackendTy::Array(_)
+                | BackendTy::Map(..)
+                | BackendTy::Set(_)
+                | BackendTy::Tuple(_)
+                | BackendTy::Class(_)
+                | BackendTy::Enum(_)
+                | BackendTy::Fn(_)
+                | BackendTy::Nullable(_)
+                | BackendTy::Void
+                | BackendTy::Never
+                | BackendTy::Dynamic(_) => *value,
+            })),
             ExprKind::BoolLiteral { value } => Some(TirExprKind::BoolLit(*value)),
             ExprKind::StrLiteral { value } => Some(TirExprKind::StrLit(Arc::from(value.as_str()))),
             ExprKind::CharLiteral { value } => Some(TirExprKind::CharLit(*value)),

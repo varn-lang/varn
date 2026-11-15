@@ -38,6 +38,23 @@ impl CheckerTyId {
     pub const THIS: CheckerTyId = CheckerTyId(11);
     pub const ERROR: CheckerTyId = CheckerTyId(12);
 
+    pub const fn num_kind(self) -> Option<vn_core::NumKind> {
+        use vn_core::{FloatKind, IntKind, NumKind};
+        match self.0 {
+            0 => Some(NumKind::INT),
+            1 => Some(NumKind::FLOAT),
+            13 => Some(NumKind::Int(IntKind::I8)),
+            14 => Some(NumKind::Int(IntKind::I16)),
+            15 => Some(NumKind::Int(IntKind::I32)),
+            16 => Some(NumKind::Int(IntKind::U8)),
+            17 => Some(NumKind::Int(IntKind::U16)),
+            18 => Some(NumKind::Int(IntKind::U32)),
+            19 => Some(NumKind::Int(IntKind::U64)),
+            20 => Some(NumKind::Float(FloatKind::F32)),
+            _ => None,
+        }
+    }
+
     pub const fn num(kind: vn_core::NumKind) -> CheckerTyId {
         use vn_core::{FloatKind, IntKind, NumKind};
         match kind {

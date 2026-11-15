@@ -193,7 +193,14 @@ impl Expected {
             | ValueConv::DecimalToFloat
             | ValueConv::FloatToDecimal
             | ValueConv::BigIntToDecimal
-            | ValueConv::DecimalToBigInt => return None,
+            | ValueConv::DecimalToBigInt
+            | ValueConv::NarrowI8
+            | ValueConv::NarrowI16
+            | ValueConv::NarrowI32
+            | ValueConv::NarrowU8
+            | ValueConv::NarrowU16
+            | ValueConv::NarrowU32
+            | ValueConv::NarrowF32 => return None,
         };
         Some(Expected { kind, nullable })
     }

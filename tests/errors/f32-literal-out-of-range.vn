@@ -1,0 +1,2 @@
+// expect: error[VN3001]
+const tiny: f32 = 1e40

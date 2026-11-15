@@ -1,3 +1,0 @@
-// expect: error[VN3002]
-// `i8` no es un tipo (spec §11).
-let b: i8 = 1

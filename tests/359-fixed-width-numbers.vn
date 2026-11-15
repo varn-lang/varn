@@ -1,0 +1,118 @@
+import { describe, it, expect } from "std:test";
+
+function overflows(f: () => bool): bool {
+    try {
+        f()
+        return false
+    } catch (e) {
+        return e is IntegerOverflow
+    }
+}
+
+function addU8(a: u8, b: u8): u8 { return a + b }
+function subU8(a: u8, b: u8): u8 { return a - b }
+function mulI16(a: i16, b: i16): i16 { return a * b }
+function addF32(a: f32, b: f32): f32 { return a + b }
+
+class Pixel {
+    r: u8
+    g: u8
+    constructor(r: u8, g: u8) { this.r = r; this.g = g }
+    brighten(by: u8): void { this.r = this.r + by }
+}
+
+let hot: u8 = 0
+let rounds: int = 0
+while (rounds < 400) {
+    hot = hot + 1 as u8
+    if (hot == 200) { hot = 0 }
+    rounds += 1
+}
+
+await describe("359 fixed-width numbers", async () => {
+    await it("arithmetic stays inside the width", () => {
+        expect(addU8(200, 55)).toBe(255);
+        expect(subU8(255, 255)).toBe(0);
+        expect(mulI16(-128, 255)).toBe(-32640);
+        const lowest: i8 = -128;
+        expect(lowest + 127).toBe(-1);
+        const big: u32 = 4294967295;
+        expect(big - 1).toBe(4294967294);
+    });
+
+    await it("leaving the width is an IntegerOverflow", () => {
+        expect(overflows(() => addU8(200, 56) == 0)).toBe(true);
+        expect(overflows(() => subU8(0, 1) == 0)).toBe(true);
+        expect(overflows(() => mulI16(300, 300) == 0)).toBe(true);
+        const lowest: i8 = -128;
+        expect(overflows(() => -lowest == 0)).toBe(true);
+        expect(overflows(() => lowest / -1 == 0)).toBe(true);
+        const small: u8 = 1;
+        expect(overflows(() => small << 8 == 0)).toBe(true);
+        const top: u32 = 4294967295;
+        expect(overflows(() => top + 1 == 0)).toBe(true);
+    });
+
+    await it("the same operation behaves the same when hot", () => {
+        for (let i = 0; i < 300; i += 1) {
+            expect(addU8(1, 2)).toBe(3);
+        }
+        expect(overflows(() => addU8(255, 1) == 0)).toBe(true);
+        expect(hot).toBe(0);
+    });
+
+    await it("as converts explicitly and checks the range", () => {
+        expect(300 as u16).toBe(300);
+        expect(overflows(() => (300 as u8) == 0)).toBe(true);
+        expect(overflows(() => (-1 as u8) == 0)).toBe(true);
+        expect(overflows(() => (-1 as u32) == 0)).toBe(true);
+        const wide: i8 = -5;
+        expect(wide as int).toBe(-5);
+        expect(overflows(() => (wide as u8) == 0)).toBe(true);
+        expect(200 as u8 as int).toBe(200);
+        expect(3.9 as u8).toBe(3);
+        expect(overflows(() => (256.0 as u8) == 0)).toBe(true);
+        expect(7 as u8 as float).toBe(7.0);
+    });
+
+    await it("bitwise operators keep the width", () => {
+        const a: u8 = 0b1100_1100;
+        const b: u8 = 0b1010_1010;
+        expect(a & b).toBe(0b1000_1000);
+        expect(a | b).toBe(0b1110_1110);
+        expect(a ^ b).toBe(0b0110_0110);
+        expect(~a).toBe(0b0011_0011);
+        const s: i8 = -1;
+        expect(~s).toBe(0);
+        expect(a >> 2).toBe(0b0011_0011);
+    });
+
+    await it("comparisons are by value", () => {
+        const a: u8 = 10;
+        const b: u8 = 200;
+        expect(a < b).toBe(true);
+        expect(a == 10).toBe(true);
+        expect(b >= 200).toBe(true);
+        const c: i32 = -2000000000;
+        expect(c < 0).toBe(true);
+    });
+
+    await it("f32 rounds every result to 32 bits", () => {
+        const tenth: f32 = 0.1;
+        expect(tenth as float).toBe(0.10000000149011612);
+        const million: f32 = 16777216.0;
+        expect(addF32(million, 1.0) as float).toBe(16777216.0);
+        expect(0.1 as f32 as float == 0.1).toBe(false);
+        expect(addF32(0.5, 0.25) as float).toBe(0.75);
+        const half: f32 = 3;
+        expect((half / 2) as float).toBe(1.5);
+    });
+
+    await it("fields and parameters keep the width", () => {
+        const p = new Pixel(250, 7);
+        p.brighten(5);
+        expect(p.r).toBe(255);
+        expect(overflows(() => { p.brighten(1); return true })).toBe(true);
+        expect(p.g + 1).toBe(8);
+    });
+});

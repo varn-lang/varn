@@ -18,7 +18,7 @@ impl Checker<'_> {
     ) -> bool {
         if self.value_assignable_to(target, given, expr, bind) {
             if let Some(expr) = expr {
-                self.record_int_literal_adoption(rec, target, expr);
+                self.record_literal_adoption(rec, target, expr);
             }
             return true;
         }
@@ -31,18 +31,24 @@ impl Checker<'_> {
         }
     }
 
-    pub(crate) fn record_int_literal_adoption(
+    pub(crate) fn record_literal_adoption(
         &mut self,
         rec: &mut Recorder,
         target: &Type,
         expr: ExprId,
     ) {
-        use vn_sem::types::numeric_literal::{const_int_literal, int_literal_adoption};
-        let mut nodes = Vec::new();
-        let Some(value) = const_int_literal(self.ast_arena, expr, &mut nodes) else {
-            return;
+        use vn_sem::types::numeric_literal::{
+            const_float_literal, const_int_literal, float_literal_adoption, int_literal_adoption,
         };
-        let Some(adopted) = int_literal_adoption(target, value, &self.ty_table) else {
+        let mut nodes = Vec::new();
+        let adopted = if let Some(value) = const_int_literal(self.ast_arena, expr, &mut nodes) {
+            int_literal_adoption(target, value, &self.ty_table)
+        } else {
+            nodes.clear();
+            const_float_literal(self.ast_arena, expr, &mut nodes)
+                .and_then(|value| float_literal_adoption(target, value, &self.ty_table))
+        };
+        let Some(adopted) = adopted else {
             return;
         };
         for node in nodes {

@@ -1,4 +1,4 @@
-use crate::Atom;
+use crate::{Atom, NumKind};
 
 pub const TYPE_ALIASES_MODULE: &str = "core:types/aliases";
 
@@ -24,19 +24,32 @@ impl LangPrimitive {
     pub const INT: Self = Self::Num(crate::NumKind::INT);
     pub const FLOAT: Self = Self::Num(crate::NumKind::FLOAT);
 
-    pub const ALL: [Self; 11] = [
-        Self::Null,
-        Self::Bool,
-        Self::INT,
-        Self::FLOAT,
-        Self::BigInt,
-        Self::Decimal,
-        Self::Char,
-        Self::Str,
-        Self::Void,
-        Self::Never,
-        Self::Dynamic,
-    ];
+    const COUNT: usize = 9 + NumKind::LANGUAGE.len();
+
+    pub const ALL: [Self; Self::COUNT] = {
+        const TAIL: [LangPrimitive; 7] = [
+            LangPrimitive::BigInt,
+            LangPrimitive::Decimal,
+            LangPrimitive::Char,
+            LangPrimitive::Str,
+            LangPrimitive::Void,
+            LangPrimitive::Never,
+            LangPrimitive::Dynamic,
+        ];
+        let mut out = [Self::Null; Self::COUNT];
+        out[1] = Self::Bool;
+        let mut i = 0;
+        while i < NumKind::LANGUAGE.len() {
+            out[2 + i] = Self::Num(NumKind::LANGUAGE[i]);
+            i += 1;
+        }
+        let mut j = 0;
+        while j < TAIL.len() {
+            out[2 + NumKind::LANGUAGE.len() + j] = TAIL[j];
+            j += 1;
+        }
+        out
+    };
 
     pub const fn name(self) -> &'static str {
         match self {
@@ -58,8 +71,8 @@ impl LangPrimitive {
         Self::ALL.into_iter().find(|p| p.name() == name)
     }
 
-    const IDENTITY: [(Atom, Option<Atom>, Self); 11] = {
-        let mut out = [(Atom::of_const(""), None, Self::Null); 11];
+    const IDENTITY: [(Atom, Option<Atom>, Self); Self::COUNT] = {
+        let mut out = [(Atom::of_const(""), None, Self::Null); Self::COUNT];
         let mut i = 0;
         while i < Self::ALL.len() {
             let p = Self::ALL[i];

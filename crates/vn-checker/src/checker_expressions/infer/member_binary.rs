@@ -175,13 +175,8 @@ pub(super) fn infer_binary_type(
                 | BinaryOp::Shl
                 | BinaryOp::Shr
                 | BinaryOp::UShr => {
-                    if l.is_int() && r.is_int() {
-                        return Type::primitive(
-                            vn_core::LangPrimitive::INT,
-                            &mut *std::sync::Arc::make_mut(&mut checker.ty_table),
-                        );
-                    }
-                    unresolved
+                    vn_sem::types::numeric_ops::integer_binary_type(&l, &r, &checker.ty_table)
+                        .unwrap_or(unresolved)
                 }
                 BinaryOp::Eq
                 | BinaryOp::NotEq

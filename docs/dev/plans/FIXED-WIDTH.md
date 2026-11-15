@@ -53,9 +53,20 @@ consumidores consultan métodos en vez de enumerar anchos (Ley 16).
   Los sitios que distinguen entero de flotante por clase usan `Num(NumKind::Int(_))`
   y `Num(NumKind::Float(_))`: son la lista de trabajo de W3 (cada uno decide su ancho).
   Borra: `BackendTy::Int` y `BackendTy::Float`.
-- **W2. Lexer, parser y checker.** Tipos, literales, `as`, reglas de overflow.
-  El backend aún no soportado falla con un diagnóstico explícito.
-- **W3. SSA y VM.** Operaciones tipadas con ancho; registro normalizado.
+- **W2. Checker — hecho** junto con la parte de W3 que da semántica. `i8 i16 i32
+  u8 u16 u32 f32` son nombres de tipo (`NumKind::LANGUAGE`); los operadores
+  exigen el mismo `NumKind` en ambos lados; un literal adopta un ancho solo si
+  cabe; `-x` rechaza los sin signo; `as` es explícito entre cualquier par
+  numérico. `u64` queda fuera de `LANGUAGE` hasta W3b.
+- **W3. Semántica del backend — hecho para ≤32 bits y f32.** Un resultado
+  aritmético o una conversión a un ancho estrecho pasa por `ValueConv::Narrow*`
+  (comprueba el rango y lanza `IntegerOverflow`; `NarrowF32` redondea a 32 bits).
+  Los valores viven normalizados en una palabra i64 o f64, así que el intérprete
+  y el JIT comparten la semántica (el JIT llama al helper de conversión).
+- **W3b. `u64`:** aritmética, comparación, división, desplazamiento y
+  conversiones sin signo sobre 64 bits; el literal por encima de `i64::MAX`
+  necesita un `IntLiteral` más ancho que `i64`. Entonces `u64` entra en
+  `NumKind::LANGUAGE`.
 - **W4. Layout de campos** (`ScalarRepr::Num`).
 - **W5. `ArrayRepr` de ancho real** y `Elem::Num` en el JIT.
 - **W6. JIT.** Operaciones nativas de 8, 16 y 32 bits, `u64`, `f32`; eliminación

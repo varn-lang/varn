@@ -156,13 +156,32 @@ impl Checker<'_> {
             operand,
             what,
             bind,
-            vec![
-                vn_sem::types::Type::Int,
-                vn_sem::types::Type::Float,
-                vn_sem::types::Type::Decimal,
-                vn_sem::types::Type::BigInt,
-            ],
+            numeric_types(|_| true)
+                .chain([vn_sem::types::Type::Decimal, vn_sem::types::Type::BigInt])
+                .collect(),
             "a number",
+        );
+    }
+
+    pub(super) fn require_signed(
+        &mut self,
+        rec: &mut Recorder,
+        operand: ExprId,
+        what: &str,
+        bind: &BindResult,
+    ) {
+        self.require_one_of(
+            rec,
+            operand,
+            what,
+            bind,
+            numeric_types(|kind| match kind {
+                vn_core::NumKind::Int(width) => width.is_signed(),
+                vn_core::NumKind::Float(_) => true,
+            })
+            .chain([vn_sem::types::Type::Decimal, vn_sem::types::Type::BigInt])
+            .collect(),
+            "a signed number",
         );
     }
 
@@ -178,8 +197,8 @@ impl Checker<'_> {
             operand,
             what,
             bind,
-            vec![vn_sem::types::Type::Int],
-            "an int",
+            numeric_types(|kind| kind.is_int()).collect(),
+            "an integer",
         );
     }
 
@@ -212,4 +231,13 @@ impl Checker<'_> {
             .with_range(self.ast_arena.expr(operand).range),
         );
     }
+}
+
+fn numeric_types(
+    keep: impl Fn(vn_core::NumKind) -> bool,
+) -> impl Iterator<Item = vn_sem::types::Type> {
+    vn_core::NumKind::LANGUAGE
+        .into_iter()
+        .filter(move |kind| keep(*kind))
+        .map(vn_sem::types::Type::num)
 }

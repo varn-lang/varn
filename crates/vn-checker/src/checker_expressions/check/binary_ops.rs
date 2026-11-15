@@ -65,8 +65,8 @@ impl<'r> Checker<'r> {
                 &self.ty_table,
             );
             if both_numeric {
-                self.record_int_literal_adoption(rec, &r_base, left);
-                self.record_int_literal_adoption(rec, &l_base, right);
+                self.record_literal_adoption(rec, &r_base, left);
+                self.record_literal_adoption(rec, &l_base, right);
             }
             let same_numeric = both_numeric
                 && vn_sem::types::numeric_ops::numeric_operands_compatible(
@@ -84,7 +84,10 @@ impl<'r> Checker<'r> {
                 | BinaryOp::BitXor
                 | BinaryOp::Shl
                 | BinaryOp::Shr
-                | BinaryOp::UShr => l_base == Type::Int && r_base == Type::Int,
+                | BinaryOp::UShr => {
+                    vn_sem::types::numeric_ops::integer_binary_type(&l_eff, &r_eff, &self.ty_table)
+                        .is_some()
+                }
                 BinaryOp::Lt | BinaryOp::Gt | BinaryOp::LtEq | BinaryOp::GtEq => {
                     same_numeric
                         || (l_base == Type::Str && r_base == Type::Str)

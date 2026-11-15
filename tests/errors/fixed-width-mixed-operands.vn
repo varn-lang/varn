@@ -1,0 +1,4 @@
+// expect: error[VN3010]
+const a: u8 = 5
+const b: int = 7
+const c = a + b

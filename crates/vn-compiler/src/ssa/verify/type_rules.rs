@@ -66,9 +66,9 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         InstKind::ConstInt(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
-                if dty != BackendTy::INT {
+                if !matches!(dty, BackendTy::Num(vn_core::NumKind::Int(_))) {
                     return Err(format!(
-                        "ConstInt defines v{}: {dty:?}, expected Int",
+                        "ConstInt defines v{}: {dty:?}, expected an integer type",
                         dest.0
                     ));
                 }
@@ -77,9 +77,9 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         InstKind::ConstFloat(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
-                if dty != BackendTy::FLOAT {
+                if !matches!(dty, BackendTy::Num(vn_core::NumKind::Float(_))) {
                     return Err(format!(
-                        "ConstFloat defines v{}: {dty:?}, expected Float",
+                        "ConstFloat defines v{}: {dty:?}, expected a float type",
                         dest.0
                     ));
                 }
@@ -152,11 +152,11 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
             let oty = func.value_ty(*operand);
-            if let Some(want) = convert_operand_ty(*conv)
-                && oty != want
+            if let Some(want) = convert_operand_domain(*conv)
+                && !domain_holds(want, oty)
             {
                 return Err(format!(
-                    "Convert {conv:?} reads v{}: {oty:?}, expected {want:?}",
+                    "Convert {conv:?} reads v{}: {oty:?}, expected a {want:?} number",
                     operand.0
                 ));
             }
@@ -262,17 +262,31 @@ pub(crate) fn convert_result_ty(conv: vn_core::ValueConv) -> BackendTy {
         }
         ExpectInt => BackendTy::INT,
         ExpectFloat => BackendTy::FLOAT,
+        NarrowI8 | NarrowI16 | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowF32 => {
+            conv.narrowed().map_or(BackendTy::INT, BackendTy::Num)
+        }
     }
 }
 
-fn convert_operand_ty(conv: vn_core::ValueConv) -> Option<BackendTy> {
+fn domain_holds(domain: vn_core::NumericDomain, ty: BackendTy) -> bool {
+    use vn_core::NumericDomain as D;
+    match domain {
+        D::Int => matches!(ty, BackendTy::Num(vn_core::NumKind::Int(_))),
+        D::Float => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
+        D::BigInt | D::Decimal => false,
+    }
+}
+
+fn convert_operand_domain(conv: vn_core::ValueConv) -> Option<vn_core::NumericDomain> {
+    use vn_core::NumericDomain as D;
     use vn_core::ValueConv::*;
     match conv {
-        IntToFloat => Some(BackendTy::INT),
-        FloatToInt | FloatToBigInt | FloatToDecimal => Some(BackendTy::FLOAT),
+        IntToFloat => Some(D::Int),
+        FloatToInt | FloatToBigInt | FloatToDecimal => Some(D::Float),
         IntToBigInt | IntToDecimal | BigIntToInt | DecimalToInt | DynToInt | DynToFloat
         | BigIntToFloat | DecimalToFloat | BigIntToDecimal | DecimalToBigInt | ExpectStr
         | ExpectBool | ExpectStrOrNull | ExpectBoolOrNull | ExpectInt | ExpectFloat
-        | ExpectIntOrNull | ExpectFloatOrNull | ExpectRef | ExpectChar => None,
+        | ExpectIntOrNull | ExpectFloatOrNull | ExpectRef | ExpectChar | NarrowI8 | NarrowI16
+        | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowF32 => None,
     }
 }

@@ -273,10 +273,14 @@ impl Type {
     pub fn is_float(&self) -> bool {
         self.0 == CheckerTyId::FLOAT
     }
+    pub fn num_kind(&self) -> Option<vn_core::NumKind> {
+        self.0.num_kind()
+    }
+    pub fn is_integer(&self) -> bool {
+        matches!(self.num_kind(), Some(vn_core::NumKind::Int(_)))
+    }
     pub fn is_numeric(&self) -> bool {
-        self.is_int()
-            || self.is_float()
-            || matches!(self.0, CheckerTyId::DECIMAL | CheckerTyId::BIGINT)
+        self.num_kind().is_some() || matches!(self.0, CheckerTyId::DECIMAL | CheckerTyId::BIGINT)
     }
     pub fn is_str(&self) -> bool {
         self.0 == CheckerTyId::STR
