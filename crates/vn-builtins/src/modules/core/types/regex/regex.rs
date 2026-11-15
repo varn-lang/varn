@@ -234,7 +234,7 @@ natives! {
         replaceAll(ctx, this, text, replacement) => of_instance(ctx, this).replace_all(text, replacement).into_owned(),
         split(ctx, this, text) => {
             let re = of_instance(ctx, this);
-            re.split(text).map(|p| ctx.alloc_str(p)).collect()
+            re.split(text).map(|p| ctx.alloc_str(p)).collect::<Vec<_>>()
         },
     }
 }

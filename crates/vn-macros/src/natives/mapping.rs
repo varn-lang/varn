@@ -14,6 +14,7 @@ pub(crate) enum Mapped {
 
     StrRecv,
     Array,
+    List(Box<Mapped>),
     Dynamic,
     Void,
     Opt(Box<Mapped>),
@@ -30,7 +31,17 @@ impl Mapped {
             T::Str => Self::Str,
             T::Void => Self::Void,
             T::Opt(inner) => Self::Opt(Box::new(Self::of(inner))),
-            T::Array(_) => Self::Array,
+            T::Array(inner) => match Self::of(inner) {
+                element @ (Self::Int | Self::Float | Self::Bool | Self::Char | Self::Str) => {
+                    Self::List(Box::new(element))
+                }
+                Self::StrRecv
+                | Self::Array
+                | Self::List(_)
+                | Self::Dynamic
+                | Self::Void
+                | Self::Opt(_) => Self::Array,
+            },
             T::Null
             | T::Never
             | T::BigInt
@@ -67,7 +78,7 @@ fn mapped_kind(m: &Mapped) -> Option<TS2> {
         Mapped::Char => Some(quote! { Char }),
         Mapped::Str | Mapped::StrRecv => Some(quote! { Str }),
         Mapped::Array => Some(quote! { Array }),
-        Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => None,
+        Mapped::List(_) | Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => None,
     }
 }
 
@@ -81,6 +92,7 @@ pub(super) fn mapped_tag_path(m: &Mapped) -> TS2 {
         | Mapped::Str
         | Mapped::StrRecv
         | Mapped::Array
+        | Mapped::List(_)
         | Mapped::Dynamic
         | Mapped::Void => (m, false),
     };
@@ -116,6 +128,10 @@ pub(super) fn param_ty(m: &Mapped) -> TS2 {
 
         Mapped::StrRecv => quote!(&::vn_types::VnStr),
         Mapped::Array => quote!(::vn_types::VnArray),
+        Mapped::List(element) => {
+            let element = element_ty(element);
+            quote!(::std::vec::Vec<#element>)
+        }
         Mapped::Dynamic => quote!(::vn_types::VmValue),
         Mapped::Void => quote!(()),
         Mapped::Opt(inner) => {
@@ -137,6 +153,7 @@ pub(super) fn owned_ty(m: &Mapped) -> TS2 {
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Array
+        | Mapped::List(_)
         | Mapped::Dynamic
         | Mapped::Void => param_ty(m),
     }
@@ -146,6 +163,7 @@ pub(super) fn ret_ty(m: &Mapped) -> TS2 {
     match m {
         Mapped::Str => quote!(impl ::vn_types::marshal::IntoVm + use<>),
         Mapped::Array => quote!(::std::vec::Vec<::vn_types::VmValue>),
+        Mapped::List(_) => quote!(impl ::vn_types::marshal::IntoVm + use<>),
         Mapped::Opt(inner) => {
             let i = ret_ty(inner);
             quote!(::core::option::Option<#i>)
@@ -173,6 +191,7 @@ pub(super) fn call_expr(binding: &Ident, m: &Mapped) -> TS2 {
         | Mapped::Bool
         | Mapped::Char
         | Mapped::Array
+        | Mapped::List(_)
         | Mapped::Dynamic
         | Mapped::Void
         | Mapped::Opt(_) => quote!(#binding),
@@ -186,7 +205,7 @@ pub(super) fn map_to_arg_type_token(m: &Mapped) -> TS2 {
         Mapped::Bool => quote!(::vn_types::ArgType::Bool),
         Mapped::Char => quote!(::vn_types::ArgType::Char),
         Mapped::Str | Mapped::StrRecv => quote!(::vn_types::ArgType::Str),
-        Mapped::Array => quote!(::vn_types::ArgType::Generic),
+        Mapped::Array | Mapped::List(_) => quote!(::vn_types::ArgType::Generic),
         Mapped::Dynamic => quote!(::vn_types::ArgType::Generic),
         Mapped::Void => quote!(::vn_types::ArgType::Void),
         Mapped::Opt(_) => quote!(::vn_types::ArgType::Generic),
@@ -252,7 +271,23 @@ pub(super) fn default_value_token(m: &Mapped) -> TS2 {
         | Mapped::Str
         | Mapped::StrRecv
         | Mapped::Array
+        | Mapped::List(_)
         | Mapped::Void
         | Mapped::Opt(_) => quote!(Default::default()),
+    }
+}
+
+fn element_ty(m: &Mapped) -> TS2 {
+    match m {
+        Mapped::Str | Mapped::StrRecv => quote!(::vn_types::VnStr),
+        Mapped::Int
+        | Mapped::Float
+        | Mapped::Bool
+        | Mapped::Char
+        | Mapped::Array
+        | Mapped::List(_)
+        | Mapped::Dynamic
+        | Mapped::Void
+        | Mapped::Opt(_) => param_ty(m),
     }
 }

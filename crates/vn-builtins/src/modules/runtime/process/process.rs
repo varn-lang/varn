@@ -120,14 +120,7 @@ natives! {
         Ok(output_record(ctx, result))
     },
     spawnProcess(ctx, command, args) => {
-        let len = args.len(ctx);
-        let mut string_args = Vec::with_capacity(len);
-        for i in 0..len {
-            let v = args.get(ctx, i).unwrap_or(VmValue::null());
-            if let Some(s) = ctx.str_owned(v) {
-                string_args.push(s);
-            }
-        }
+        let string_args: Vec<String> = args.iter().map(|s| s.to_string()).collect();
         let child = Command::new(command)
             .args(&string_args)
             .spawn()

@@ -12,12 +12,7 @@ vn_macros::vn_record! {
 
 natives! {
     fontCount() => vn_text::fonts().len() as i64,
-    fonts(ctx) => {
-        Ok(vn_text::fonts()
-            .into_iter()
-            .map(|s| ctx.alloc_str_owned(s))
-            .collect())
-    },
+    fonts() => vn_text::fonts(),
     shape(ctx, text, size) => {
         let run = vn_text::shape_run(text, size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))?;
         let chars: Vec<VmValue> = run
@@ -49,10 +44,7 @@ natives! {
     },
     ascent(size) => vn_text::font_ascent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
     descent(size) => vn_text::font_descent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
-    wrap(ctx, text, size, max) => {
-        Ok(vn_text::wrap_lines(text, size as f32, max as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))?
-            .into_iter()
-            .map(|s| ctx.alloc_str_owned(s))
-            .collect())
+    wrap(text, size, max) => {
+        vn_text::wrap_lines(text, size as f32, max as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))
     },
 }

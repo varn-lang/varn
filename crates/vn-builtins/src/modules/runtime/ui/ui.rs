@@ -146,7 +146,7 @@ natives! {
                 w.w = rw as i64;
                 w.h = rh as i64;
             }
-            Ok(vec![VmValue::from_int(w.w), VmValue::from_int(w.h)])
+            Ok(vec![w.w, w.h])
         })).map_err(|e| NativeError::std(StdErrorClass::Std, e))
     },
     inject(ctx, id, kind, a, b, c) => {
@@ -343,7 +343,7 @@ natives! {
         Ok(hits
             .into_iter()
             .flat_map(|a| [VmValue::from_f64(f64::from(a.id)), VmValue::from_f64(f64::from(a.value))])
-            .collect())
+            .collect::<Vec<_>>())
     },
     real(id) => (with_win(id, |w| Ok(w.real.is_some()))).map_err(|e| NativeError::std(StdErrorClass::Std, e)),
     keyCode(name) => {

@@ -116,6 +116,7 @@ pub(crate) fn expand(input: TokenStream) -> TokenStream {
             | Mapped::Str
             | Mapped::StrRecv
             | Mapped::Array
+            | Mapped::List(_)
             | Mapped::Dynamic
             | Mapped::Void
             | Mapped::Opt(_) => (quote!(::vn_types::VmValue), quote!(self.#ident)),

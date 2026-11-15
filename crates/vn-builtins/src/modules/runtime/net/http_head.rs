@@ -1,5 +1,5 @@
 use std::io::Write;
-use vn_types::{NativeCtx, NativeError, VmValue, VnArray};
+use vn_types::{NativeCtx, NativeError, VmValue, VnStr};
 
 const FRAMING_HEADERS: [&str; 2] = ["content-length", "transfer-encoding"];
 const TOKEN_PUNCTUATION: &[u8] = b"!#$%&'*+-.^_`|~";
@@ -29,7 +29,7 @@ pub(super) fn encode_head(
     status: i64,
     status_text: &str,
     headers: VmValue,
-    cookies: VnArray,
+    cookies: Vec<VnStr>,
     framing: Framing,
 ) -> Result<Vec<u8>, NativeError> {
     if !(100..=999).contains(&status) {
@@ -96,12 +96,9 @@ pub(super) fn encode_head(
             let _ = write!(&mut out, "Transfer-Encoding: chunked\r\n");
         }
     }
-    for index in 0..cookies.len(ctx) {
-        let Some(cookie) = cookies.get(ctx, index).and_then(|v| ctx.str_owned(v)) else {
-            continue;
-        };
-        if !is_clean(&cookie) {
-            return Err(rejected("cookie", &cookie));
+    for cookie in cookies.iter().map(|c| c.as_str()) {
+        if !is_clean(cookie) {
+            return Err(rejected("cookie", cookie));
         }
         let _ = write!(&mut out, "Set-Cookie: {cookie}\r\n");
     }

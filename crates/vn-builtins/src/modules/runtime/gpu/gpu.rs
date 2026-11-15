@@ -1,39 +1,7 @@
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
-use vn_types::marshal::VnArray;
-use vn_types::{NativeCtx, VmValue};
 
-
-fn read_host(ctx: &dyn NativeCtx, arr: VnArray) -> Result<Vec<f32>, String> {
-    let len = arr.len(ctx);
-    let mut out = Vec::with_capacity(len);
-    for i in 0..len {
-        let v = arr
-            .get(ctx, i)
-            .ok_or_else(|| "gpu.upload: index out of bounds".to_string())?;
-        if !(v.is_f64() || v.is_int()) {
-            return Err(format!("gpu.upload: expected float[], got {v:?}"));
-        }
-        out.push(v.to_f64() as f32);
-    }
-    Ok(out)
-}
-
-fn read_dims(ctx: &dyn NativeCtx, arr: VnArray) -> Result<Vec<usize>, String> {
-    let len = arr.len(ctx);
-    let mut out = Vec::with_capacity(len);
-    for i in 0..len {
-        let v = arr
-            .get(ctx, i)
-            .ok_or_else(|| "gpu.reshape: index out of bounds".to_string())?;
-        if !v.is_int() || v.as_int() < 0 {
-            return Err(format!("gpu.reshape: expected int[] >= 0, got {v:?}"));
-        }
-        out.push(v.as_int() as usize);
-    }
-    Ok(out)
-}
 
 fn elementwise(op: vn_gpu::Op, a: i64, b: i64) -> Result<i64, String> {
     let pool = vn_gpu::pool();
@@ -67,25 +35,24 @@ natives! {
     },
     destroy(id) => (vn_gpu::pool().lock().destroy(id)).map_err(|e| NativeError::std(StdErrorClass::Std, e)),
     len(id) => vn_gpu::pool().lock().len(id).map_err(|e| NativeError::std(StdErrorClass::Std, e))? as i64,
-    dims(ctx, id) => {
-        let _ = ctx;
+    dims(id) => {
         Ok(vn_gpu::pool().lock().dims(id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?
             .into_iter()
-            .map(|d| VmValue::from_int(d as i64))
-            .collect())
+            .map(|d| d as i64)
+            .collect::<Vec<i64>>())
     },
-    reshape(ctx, id, dims) => {
-        let dims = read_dims(ctx, dims).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
+    reshape(id, dims) => {
+        let dims = dims
+            .iter()
+            .map(|d| usize::try_from(*d))
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|_| NativeError::std(StdErrorClass::Std, "gpu.reshape: every dimension must be >= 0".to_string()))?;
         (vn_gpu::pool().lock().reshape(id, dims)).map_err(|e| NativeError::std(StdErrorClass::Std, e))
     },
-    upload(ctx, data) => {
-        let vals = read_host(ctx, data).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-        Ok(vn_gpu::pool().lock().upload(vals))
-    },
-    download(ctx, id) => {
-        let _ = ctx;
+    upload(data) => vn_gpu::pool().lock().upload(data.iter().map(|x| *x as f32).collect()),
+    download(id) => {
         let vals = vn_gpu::pool().lock().data(id).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-        Ok(vals.into_iter().map(|x| VmValue::from_f64(x as f64)).collect())
+        Ok(vals.into_iter().map(f64::from).collect::<Vec<f64>>())
     },
     add(a, b) => (elementwise(vn_gpu::Op::Add, a, b)).map_err(|e| NativeError::std(StdErrorClass::Std, e)),
     mul(a, b) => (elementwise(vn_gpu::Op::Mul, a, b)).map_err(|e| NativeError::std(StdErrorClass::Std, e)),

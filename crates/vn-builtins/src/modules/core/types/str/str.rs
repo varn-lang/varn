@@ -27,20 +27,14 @@ natives! {
             }
             res
         },
-        join(ctx, arr, sep) => {
+        join(arr, sep) => {
             let sep = sep.unwrap_or("");
-            let len = arr.len(ctx);
-            if len == 0 {
-                return String::new();
-            }
-            let mut out = String::with_capacity(len.saturating_mul(sep.len() + 12));
-            for i in 0..len {
-                if i > 0 && !sep.is_empty() {
+            let mut out = String::with_capacity(arr.len().saturating_mul(sep.len() + 12));
+            for (i, part) in arr.iter().enumerate() {
+                if i > 0 {
                     out.push_str(sep);
                 }
-                if let Some(v) = arr.get(ctx, i) {
-                    out.push_str(&ctx.str_repr_borrowed(v));
-                }
+                out.push_str(part.as_str());
             }
             out
         },
@@ -162,7 +156,7 @@ natives! {
             }
             this.replace(from.as_ref(), to)
         },
-        chars(this) => this.as_str().chars().map(VmValue::from_char).collect(),
+        chars(this) => this.as_str().chars().map(VmValue::from_char).collect::<Vec<_>>(),
         split(ctx, this, separator) => {
             if let Some(sep) = separator
                 && let Some(re) = regex_argument(ctx, sep)
@@ -172,7 +166,7 @@ natives! {
                     .split(this.as_str())
                     .map(|p| (p.as_ptr() as usize - base, p.len()))
                     .collect();
-                return parts.into_iter().map(|(off, len)| ctx.str_sub(this, off, len)).collect();
+                return parts.into_iter().map(|(off, len)| ctx.str_sub(this, off, len)).collect::<Vec<_>>();
             }
             let separator = separator.map(|s| ctx.str_repr_borrowed(s).into_owned());
             let mut ranges = Vec::new();
@@ -182,12 +176,12 @@ natives! {
         lines(ctx, this) => {
             let s = this.as_str();
             let base = s.as_ptr() as usize;
-            s.lines().map(|l| ctx.str_sub(this, l.as_ptr() as usize - base, l.len())).collect()
+            s.lines().map(|l| ctx.str_sub(this, l.as_ptr() as usize - base, l.len())).collect::<Vec<_>>()
         },
         words(ctx, this) => {
             let s = this.as_str();
             let base = s.as_ptr() as usize;
-            s.split_whitespace().map(|w| ctx.str_sub(this, w.as_ptr() as usize - base, w.len())).collect()
+            s.split_whitespace().map(|w| ctx.str_sub(this, w.as_ptr() as usize - base, w.len())).collect::<Vec<_>>()
         },
         charCodeAt(this, pos) => this.char_code_at(pos),
         charCode(this) => this.chars().next().map(|c| c as i64).unwrap_or(-1),

@@ -32,13 +32,12 @@ impl Slot {
     }
 }
 
-fn read_kinds(ctx: &mut dyn NativeCtx, types: &VnArray) -> Result<Vec<Kind>, NativeError> {
-    (0..types.len(ctx))
-        .map(|i| {
-            types
-                .get(ctx, i)
-                .filter(|v| v.is_int())
-                .and_then(|v| Kind::of_raw(v.as_int()))
+fn read_kinds(types: &[i64]) -> Result<Vec<Kind>, NativeError> {
+    types
+        .iter()
+        .enumerate()
+        .map(|(i, raw)| {
+            Kind::of_raw(*raw)
                 .ok_or_else(|| NativeError::type_error(format!("ffi.call: parameter {i} has an unknown type")))
         })
         .collect()
@@ -258,14 +257,14 @@ pub fn call(
     ctx: &mut dyn NativeCtx,
     fn_ptr: i64,
     ret_raw: i64,
-    types: VnArray,
+    types: Vec<i64>,
     args: VnArray,
 ) -> Result<VmValue, NativeError> {
     if fn_ptr == 0 {
         return Err(NativeError::range_error("ffi.call: null function pointer"));
     }
     let ret = Kind::of_raw(ret_raw).ok_or_else(|| NativeError::type_error("ffi.call: unknown return type"))?;
-    let kinds = read_kinds(ctx, &types)?;
+    let kinds = read_kinds(&types)?;
     let argc = args.len(ctx);
     if kinds.len() != argc {
         return Err(NativeError::type_error(format!(

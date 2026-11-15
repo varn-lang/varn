@@ -260,10 +260,23 @@ impl<T: IntoVm> IntoVm for Option<T> {
     }
 }
 
-impl IntoVm for Vec<VmValue> {
-    #[inline]
+impl<T: IntoVm> IntoVm for Vec<T> {
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
-        ctx.alloc_array(self)
+        let items = self.into_iter().map(|item| item.into_vm(ctx)).collect();
+        ctx.alloc_array(items)
+    }
+}
+
+impl<T: FromVm> FromVm for Vec<T> {
+    fn from_vm(ctx: &dyn NativeCtx, v: VmValue) -> Result<Self, NativeError> {
+        if !ctx.is_array(v) {
+            return Err(NativeError::type_error(format!(
+                "expected array, got {v:?}"
+            )));
+        }
+        (0..ctx.array_len(v))
+            .map(|i| T::from_vm(ctx, ctx.array_get(v, i).unwrap_or_else(VmValue::null)))
+            .collect()
     }
 }
 

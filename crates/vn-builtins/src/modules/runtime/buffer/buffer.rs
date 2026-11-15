@@ -11,14 +11,12 @@ natives! {
         Ok(ctx.alloc_buffer(size as usize))
     },
     fromBytes(ctx, bytes) => {
-        let len = bytes.len(ctx);
-        let mut raw = Vec::with_capacity(len);
-        for i in 0..len {
-            if let Some(v) = bytes.get(ctx, i) {
-                raw.push(ctx.as_int(v) as u8);
-            }
-        }
-        Ok(ctx.alloc_buffer_from_bytes(&raw))
+        let raw = bytes
+            .iter()
+            .map(|b| u8::try_from(*b))
+            .collect::<Result<Vec<u8>, _>>()
+            .map_err(|_| NativeError::range_error("buffer.fromBytes: every element must be a byte (0..=255)"))?;
+        ctx.alloc_buffer_from_bytes(&raw)
     },
     fromString(ctx, s) => ctx.alloc_buffer_from_bytes(s.as_bytes()),
     len(ctx, buf) => {

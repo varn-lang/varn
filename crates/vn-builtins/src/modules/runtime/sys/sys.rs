@@ -23,7 +23,7 @@ natives! {
             .map(|p| p.to_string_lossy().into_owned())
             .map_err(|e| format!("sys.cwd: cannot read the current directory: {e}"))).map_err(|e| NativeError::std(StdErrorClass::Io, e))
     },
-    args(ctx) => std::env::args().map(|s| ctx.alloc_str_owned(s)).collect::<Vec<_>>(),
+    args() => std::env::args().collect::<Vec<String>>(),
     exit(code) => terminate(code.unwrap_or(0) as i32),
     env(ctx, key) => {
         if !ctx.check_env(key) {

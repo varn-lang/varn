@@ -1,6 +1,6 @@
 use vn_macros::natives;
 use vn_types::NativeError;
-use vn_types::{NativeCtx, VnArray};
+use vn_types::VnStr;
 
 
 fn main_sep() -> char {
@@ -247,16 +247,8 @@ fn coded(code: &str, msg: impl std::fmt::Display) -> String {
     format!("{code}|{msg}")
 }
 
-fn str_array(ctx: &mut dyn NativeCtx, arr: VnArray) -> Result<Vec<String>, String> {
-    let len = arr.len(ctx);
-    let mut out = Vec::with_capacity(len);
-    for i in 0..len {
-        match arr.get(ctx, i).and_then(|v| ctx.str_owned(v)) {
-            Some(s) => out.push(s),
-            None => return Err(coded("E_PATH_BAD_ARG", "expected str[]")),
-        }
-    }
-    Ok(out)
+fn owned(segments: &[VnStr]) -> Vec<String> {
+    segments.iter().map(|s| s.to_string()).collect()
 }
 
 natives! {
@@ -273,12 +265,9 @@ natives! {
     basename(p, ext) => basename_inner(p, ext),
     extname(p) => extname_inner(p),
     isAbsolute(p) => is_absolute_inner(p),
-    join(ctx, segments) => {
-        let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
-        Ok(join_inner(&segs, main_sep()))
-    },
-    resolve(ctx, segments) => {
-        let segs = str_array(ctx, segments).map_err(NativeError::range_error)?;
+    join(segments) => join_inner(&owned(&segments), main_sep()),
+    resolve(segments) => {
+        let segs = owned(&segments);
         let cwd = std::env::current_dir()
             .map_err(|e| coded("E_PATH_IO", e)).map_err(NativeError::range_error)?
             .to_string_lossy()

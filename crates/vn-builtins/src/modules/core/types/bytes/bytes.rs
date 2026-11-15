@@ -90,17 +90,12 @@ natives! {
         },
         fromString(ctx, s) => ctx.alloc_buffer_from_bytes(s.as_bytes()),
         fromBytes(ctx, bytes) => {
-            let len = bytes.len(ctx);
-            let mut raw = Vec::with_capacity(len);
-            for i in 0..len {
-                let item = bytes
-                    .get(ctx, i)
-                    .filter(|v| ctx.is_int(*v))
-                    .ok_or_else(|| NativeError::type_error(format!("fromBytes: element {i} is not an int")))?;
-                let value = ctx.as_int(item);
-                raw.push(byte_value(value, &format!("fromBytes: element {i}"))?);
-            }
-            Ok(ctx.alloc_buffer_from_bytes(&raw))
+            let raw = bytes
+                .iter()
+                .enumerate()
+                .map(|(i, value)| byte_value(*value, &format!("fromBytes: element {i}")))
+                .collect::<Result<Vec<u8>, _>>()?;
+            ctx.alloc_buffer_from_bytes(&raw)
         },
     }
 }

@@ -5,7 +5,6 @@ use sha2::{Digest, Sha256, Sha512};
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
-use vn_types::{VmValue};
 
 fn random_size(what: &str, size: i64) -> Result<usize, NativeError> {
     usize::try_from(size)
@@ -31,7 +30,7 @@ natives! {
         let size = random_size("crypto.randomBytes", size)?;
         let mut bytes = vec![0u8; size];
         rand::thread_rng().fill_bytes(&mut bytes);
-        Ok(bytes.iter().map(|b| VmValue::from_int(*b as i64)).collect())
+        Ok(bytes.iter().map(|b| i64::from(*b)).collect::<Vec<i64>>())
     },
     randomHex(size) => {
         let size = random_size("crypto.randomHex", size)?;

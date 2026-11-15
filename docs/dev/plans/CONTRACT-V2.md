@@ -67,9 +67,12 @@ natives! { "core:types/int", class int,
   derivan del archivo. Faltar un miembro del contrato o sobrar uno no compila.
   Los 39 módulos migrados; `vn_contract!` borrado. Los tipos de parámetro siguen
   siendo los de `Mapped`.
-- **C2. Marshalling por tipo del contrato.** `FromVm`/`IntoVm` cubren todo
-  `ContractTy`; el macro deja de usar `Mapped`. Gana: firmas con `VmValue` crudo
-  (hoy 168 líneas de módulos nombran `VmValue`). Borra: `Mapped`.
+- **C2. Marshalling por tipo del contrato — hecho para listas.** `T[]` de
+  escalares llega como `Vec<T>` validado (`Vec<VnStr>` para `str[]`, sin copiar)
+  y se devuelve como `impl IntoVm`, de modo que `split`, `lines` y `words`
+  siguen devolviendo subcadenas con `str_sub`. Quedan por tipar `Bytes` (40
+  posiciones), `TaskHandle<T>` (35), clases, uniones y funciones (~170 en
+  total); `Mapped` sigue hasta entonces.
 - **C4. Un solo ABI con clase de registro.** El envoltorio rápido sale de la
   firma del contrato para cualquier firma de registros, con `SlotKind`. Borra:
   `ArgType`, el límite de 7 parámetros y la elegibilidad por lista.
