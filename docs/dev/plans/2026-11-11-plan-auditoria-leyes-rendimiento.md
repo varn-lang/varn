@@ -551,17 +551,17 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   tipo; se borra con L5. El de `class_link.rs` se sustituye por nombres.
 - Los comentarios de `Cargo.toml` no son código Rust; fuera de alcance salvo
   que el dueño diga lo contrario.
-- **Estado 2026-11-16 (opción A en curso; 36 migrados/borrados, resto
-  triado):** migrados a `.vn`/error_corpus o borrados por redundantes:
-  vn-resolver 3, vn-pipeline 3, vn-parser 4 (+2 fixtures de error,
-  +limpieza de dev-dep), vn-types 5 (fichero muerto, ni compilaba),
-  vn-checker 5 (quedan 2 pins de determinismo), vn-tir 16 estructurales
-  (quedan 56 de `verify_*`). Patrón: lo migrable a `.vn`/humo se migra;
-  lo estructural sin expresión `.vn` se borra solo si su fallo sería
-  ruidoso (suite roja o error de compilación); lo que fallaría en silencio
-  (determinismo de internado, protocolo LSP, harnesses de CLI, rechazo de
-  TIR inválido) se conserva con justificación escrita. Pendiente de decisión:
-  vn-lsp 32, vn-tir verify 56, vn-cli 9 (harness), checker 2 pins.
+- **Estado 2026-11-16 (opción A ejecutada íntegra por decisión del dueño):
+  borrados 135 tests en total (vn-resolver 3, vn-pipeline 3, vn-parser 4,
+  vn-types 5, vn-checker 5+2, vn-tir 16+56, vn-cli 9, vn-lsp 32), con dos
+  fixtures de error nuevas (int-literal below/above-min) para la cobertura
+  migrada del parser. Donde era posible se migró a `.vn`/error_corpus
+  (parser, resolvers de módulos); el resto se borra por decisión explícita
+  del dueño aun sin equivalente `.vn` (LSP, TIR adversarial, harnesses de CLI
+  incluidos error_corpus y debug_golden, pins de determinismo). CI y
+  scripts actualizados (sin pasos error_corpus/debug_golden; fixtures
+  huérfanos en tests/errors/ y goldens pendientes de un runner futuro).
+  Commit f9b3ead4 (resolver), 678ee528+9b65c3a1 (parser/types/tir).
 
 ### L4. Ley 5: pánicos en fases de compilación
 

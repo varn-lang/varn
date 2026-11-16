@@ -240,30 +240,6 @@ if (-not $Quick) {
     if (-not $qs) { $failedSteps += "Estres del GC (256 + verificador)" }
 }
 
-if ($Min) {
-    Write-WarningMsg "Saltando corpus de errores y goldens de vn debug (-Min activo)."
-} else {
-# 5b. Corpus de errores (lo ejecuta el CI; sin esto un fixture obsoleto solo falla alli)
-Write-StepHeader "5b: Corpus de errores (cargo test -p vn-cli --test error_corpus)"
-cargo test --profile $BuildProfile -p vn-cli --test error_corpus
-if ($LASTEXITCODE -ne 0) {
-    Write-Failure "El corpus de errores fallo."
-    $failedSteps += "Corpus de errores"
-} else {
-    Write-Success "Corpus de errores correcto."
-}
-
-# 5d. Goldens de vn debug (tokens, ast, tir, bytecode...). Sin esto un fixture obsoleto no lo ve nadie.
-Write-StepHeader "5d: Goldens de vn debug (cargo test -p vn-cli --test debug_golden)"
-cargo test --profile $BuildProfile -p vn-cli --test debug_golden
-if ($LASTEXITCODE -ne 0) {
-    Write-Failure "Los goldens de vn debug fallaron."
-    $failedSteps += "Goldens de vn debug"
-} else {
-    Write-Success "Goldens de vn debug correctos."
-}
-}
-
 # 6. Benchmark de Estabilidad
 if (-not $Fast) {
     Write-StepHeader "6/6: Benchmark de Estabilidad (vn bench tests/benchmarks/vn/bench_fib.vn -v)"

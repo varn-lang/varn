@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "Scanning Rust source files for line count limits..."
           FAIL=0
-          LEGACY_EXEMPTIONS="crates/vn-checker/src/emit/body.rs crates/vn-compiler/src/from_tir/build.rs crates/vn-checker/src/emit/mod.rs crates/xtask/src/main.rs crates/vn-tir/tests/verify_coherence.rs crates/vn-jit/src/clif/alloc/calls.rs"
+          LEGACY_EXEMPTIONS="crates/vn-checker/src/emit/body.rs crates/vn-compiler/src/from_tir/build.rs crates/vn-checker/src/emit/mod.rs crates/xtask/src/main.rs crates/vn-jit/src/clif/alloc/calls.rs"
           while IFS= read -r file; do
             LINES=$(wc -l < "$file")
             if [ "$LINES" -gt 1000 ]; then
@@ -128,12 +128,6 @@ jobs:
 
       - name: Stability Benchmark
         run: ${{ matrix.bin_path }} bench ./tests/benchmarks/vn/bench_fib.vn -v
-
-      - name: Error Corpus (negative suite)
-        run: cargo test --profile quick -p vn-cli --test error_corpus
-
-      - name: Debug goldens (tokens, ast, tir, bytecode)
-        run: cargo test --profile quick -p vn-cli --test debug_golden
 
   # Runs only on direct push to main (not on PRs).
   # Builds dist binaries for all 3 targets and publishes a GitHub Release.
