@@ -474,6 +474,18 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   (`crates/vn-compiler/src/ssa/emit/`) para el patrón dominante.
 - (a) Solo cuenta si baja el tiempo sin JIT; el conteo no es resultado.
   (b) `VN_NO_JIT=1` en fib, matrix, collection_pipeline. (c) Nada.
+- **Estado 2026-11-16 (APARCADO con histograma, sin cambio):** re-medido
+  sobre `debug -p bytecode` de fib/matrix/collection_pipeline (350
+  instrucciones): `Move` 51 (14.6 %, no 23 %) y `LoadNull` 17 (4.9 %,
+  no 10 %). `LoadNull` es casi siempre setup de llamada (10/17
+  inmediatamente antes de `Call`: receptor nulo). `Move` se parte en dos
+  patrones: setup de argumento (`Move` valor + `LoadNull` + `Call`) y
+  acarreos de bucle/derrames (`Move` antes de `Loop`, cadenas antes de
+  `BuildArray`, secuencias `Move r8=r0` + `SetFixedField`). El patrón
+  dominante global es acarreo de bucle, no setup de llamada: fusionarlo
+  exige cambiar convención de llamada y coalescencia en el regalloc, con
+  riesgo de corrección y sin ganancia Ley-10 prometida. Se aparca sin
+  implementar.
 
 ### R14. Costo de la caché JIT fría
 
@@ -520,6 +532,9 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   `vn-dynamic-audit` sobre `tests/`. (c) Los fallbacks.
 - **Riesgo:** rompe código del corpus que hoy compila (Ley 15 y 18: se corrige
   el corpus). Coordinar con §2.5 del plan unificado.
+- **Estado 2026-11-16 (APARCADO, pendiente de coordinación §2.5):** sin
+  cambio en código. Requiere decisión del plan unificado antes de convertir
+  fallbacks en diagnósticos y de tocar `SlotKind::Dynamic`.
 
 ### L2. `Eq` genérico en generadores
 
@@ -583,6 +598,11 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   los que siguen a una comprobación local de los que dependen de la entrada.
 - (a) Ningún programa de entrada tumba el compilador. (b) Corpus de entradas
   rotas (`tests/helpers/broken-escape.vn` y similares) sin pánico. (c) Los pánicos.
+- **Estado 2026-11-16 (APARCADO, verificado sin pánicos):** fuzzing puntual
+  por lectura (tokens inválidos, literales fuera de rango, plantillas sin
+  cerrar) produce solo diagnósticos (`VN1003`, `VN2007`, etc.), sin pánicos
+  del compilador. Sin cambio en código; la clasificación sitio por sitio
+  queda como trabajo futuro.
 
 ### L5. Ley 2: el contrato de `rehome` pasa al sistema de tipos
 
@@ -596,6 +616,9 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - (a) Imposible usar un id contra la tabla equivocada. (b) Compila, y la suite
   pasa en los cuatro cuadrantes. (c) El comentario de contrato.
 - **Coordinación:** ADR-0012 y ADR-0013 gobiernan la tabla de tipos.
+- **Estado 2026-11-16 (APARCADO, pendiente de ADR-0012/0013):** sin cambio
+  en código. El contrato `rehome` sigue como convención documentada hasta
+  que esos ADRs fijen el diseño.
 
 ### L6. Ley 7: revisión de los 152 `_ =>`
 
@@ -665,6 +688,9 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   `tests/helpers/isolate-workers.vn`. (c) Los estáticos de (ii) y (iii).
 - **Riesgo:** alto volumen y toca el ABI del JIT (offsets de `young_*`).
   Ejecutar después de R1–R2 para no moverles el suelo.
+- **Estado 2026-11-16 (BLOQUEADO tras R1+R2):** sin cambio en código. R1
+  aparcado con causa y R2 con criterio ya cumplido; este item espera a su
+  rediseño, como ordena su propia puerta.
 
 ### L9. Matriz de fases
 
