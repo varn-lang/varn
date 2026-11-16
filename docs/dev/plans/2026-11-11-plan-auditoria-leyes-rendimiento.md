@@ -415,16 +415,13 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - **Límite:** Ley 10 no admite `unsafe` por ganancia de compilación; aquí es
   runtime y el verificador de carga es lo que justifica el acceso sin límites.
 - **Estado 2026-11-16:** paso 2 HECHO (`95c25367`: flag `debugging` por frame;
-  fib −5.9 %, matrix −12.0 % más allá de ci95). Paso 6 confirmado (doble
-  `match`: el bucle delega por grupo y `exec_math_cmp_op` & co. vuelven a
-  matchear; sin propuesta de fusión: fuera del alcance de este item). Paso 3
-  DESCARTADO: `compiler_fence` no emite instrucciones (solo constriñe a LLVM);
-  retirarlo sin corregir la reentrancia (nativas que re-entran al intérprete
-  sobre el mismo `ctx`) reintroduce el bug de `54129d29`. Paso 4 REVERTIDO
-  sin efecto: `record_hotspot_global` ya es `#[inline(always)]` con camino
-  rápido `None` (una rama predecible con y sin flag; medido +2~3 % dentro del
-  ruido, con la base a la deriva térmica entre sesiones). Queda el paso 1
-  (verificador al cargar el chunk).
+  fib −5.9 %, matrix −12.0 % más allá de ci95). Paso 1 HECHO (`f26a12ed`:
+  `verify_chunk` al terminar el compilador + lecturas sin chequear en el
+  bucle; fib −9.5 %, matrix −20.8 % acumulados sobre la base pre-R12).
+  fib sin JIT: 2150 → 1946 ms; queda lejos del objetivo de 1500 ms.
+  Paso 6 confirmado (doble `match`: el bucle delega por grupo y
+  `exec_math_cmp_op` & co. vuelven a matchear; sin propuesta de fusión:
+  fuera del alcance de este item, pero es la palanca que queda).
 
 ### R13. Menos `Move` y `LoadNull` emitidos
 
