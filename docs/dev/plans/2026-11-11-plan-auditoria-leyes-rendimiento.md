@@ -420,12 +420,15 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - **Cambio:** separador de un byte con `memchr`; partes de 8 bytes o menos
   como SSO sin celda.
 - (a), (b) sobre `str_ops` y `http_routing`. (c) La validación redundante.
-- **Estado 2026-11-16 (APARCADO sin cambio: 2 de 3 hechos post-auditoría):**
+- **Estado 2026-11-16 (APARCADO sin cambio: 2 de 3 hechos post-auditoría,
+  el 3.º medido y revertido):**
   `part_of`/`str_views_of` ya devuelven SSO sin celda (≤8 B) e Inline
   (≤37 B); `split` usa el camino validado solo para bytes no confiables
   (`heap_str_alloc`), el camino `split` ya trocea sin revalidar; el `split`
-  de un byte de std ya acelera con memchr. Queda el doble scan del
-  `reserve` previo en `split_ranges` (~1 % estimado, bajo el ruido).
+  de un byte de std ya acelera con memchr. Se probó quitar el `reserve`
+  con conteo previo (single-pass `memchr_iter`): **+17.3 % Regression** en
+  `execute` — el conteo SIMD previo evita un regrowth con copias que cuesta
+  mucho más de lo que ahorra. Revertido; el diseño actual queda validado.
 
 ### R12. Costo fijo por opcode del intérprete
 
@@ -524,6 +527,11 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   contra Bun en `compare.ps1`, dato no verificado por checksum.
 - **Primer paso:** skill `vn-type-loss-audit` sobre un `Eq` de `pingpong`.
 - (a), (b) Añadir `generator` a `xtask compare` y medir. (c) Según la causa.
+- **Estado 2026-11-16 (HECHO):** el único `==` actual (`mapfilter`,
+  valor de `rg.next()`) ya baja a `ModInt` + `EqImm`; los 11 de la auditoría
+  son de una versión anterior del bench. `generator` registrado en `xtask
+  compare` con `ts/bench_generator.ts` (checksums idénticos en bun y node):
+  vn 42.8 ms, bun 18.9 ms (2.27x, generadores en intérprete), node 52.0 ms.
 
 ### L3. Ley 11: tests de Rust y comentarios
 
@@ -636,6 +644,11 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   fila de `vn-checker`.
 - (a), (b) `tgrep 'vn_core::ast' crates/vn-vm crates/vn-jit
   crates/vn-compiler` sin resultados. (c) La dependencia.
+- **Estado 2026-11-16 (HECHO):** `MAIN_SLOT` vive en
+  `vn_core::well_known` (tabla canónica, Ley 16);
+  `MetaProperty::slot()` delega en ella y `vn-vm` usa la constante
+  (`tgrep` sin resultados en los tres crates). Matriz de `AGENTS.md`
+  corregida (fila `vn-checker` sin TIR + fila `vn-emit` como productor).
 
 ---
 

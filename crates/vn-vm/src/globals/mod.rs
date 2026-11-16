@@ -61,7 +61,7 @@ impl GlobalStore {
             self.values.push(VmValue::null());
             self.idx_to_name.push(empty.clone());
         }
-        let main_slot = vn_core::ast::MetaProperty::Main.slot();
+        let main_slot = vn_core::well_known::MAIN_SLOT;
         if main_slot < count {
             self.values[(base + main_slot) as usize] = VmValue::from_bool(is_main);
         }

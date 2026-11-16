@@ -275,7 +275,7 @@ impl MetaProperty {
 
     pub const fn slot(self) -> u32 {
         match self {
-            Self::Main => 0,
+            Self::Main => crate::well_known::MAIN_SLOT,
         }
     }
 

@@ -4,3 +4,5 @@ pub const ASYNC_DISPOSABLE: &str = "AsyncDisposable";
 pub const RUNTIME_RANGE: &str = "__range__";
 
 pub const RECORD: &str = "Record";
+
+pub const MAIN_SLOT: u32 = 0;
