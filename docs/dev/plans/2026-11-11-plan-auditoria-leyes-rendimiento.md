@@ -397,6 +397,12 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - **Cambio:** separador de un byte con `memchr`; partes de 8 bytes o menos
   como SSO sin celda.
 - (a), (b) sobre `str_ops` y `http_routing`. (c) La validación redundante.
+- **Estado 2026-11-16 (APARCADO sin cambio: 2 de 3 hechos post-auditoría):**
+  `part_of`/`str_views_of` ya devuelven SSO sin celda (≤8 B) e Inline
+  (≤37 B); `split` usa el camino validado solo para bytes no confiables
+  (`heap_str_alloc`), el camino `split` ya trocea sin revalidar; el `split`
+  de un byte de std ya acelera con memchr. Queda el doble scan del
+  `reserve` previo en `split_ranges` (~1 % estimado, bajo el ruido).
 
 ### R12. Costo fijo por opcode del intérprete
 
