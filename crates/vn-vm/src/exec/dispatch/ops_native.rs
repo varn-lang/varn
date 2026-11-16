@@ -16,7 +16,7 @@ impl ExecCtx {
         let base = self.frames[frame_idx].base;
         match op {
             OpCode::Intrinsic => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let wire_byte = (w1 >> 8) as u8;
 
@@ -38,7 +38,7 @@ impl ExecCtx {
             }
 
             OpCode::IntrinsicDirect => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let src = (w1 >> 8) as usize;
                 let wire_byte = (w1 & 0xFF) as u8;
@@ -48,8 +48,8 @@ impl ExecCtx {
             }
 
             OpCode::CallNativeOp => {
-                let cidx = code[*ip] as usize;
-                let total = code[*ip + 1] as usize;
+                let cidx = unsafe { *code.get_unchecked(*ip) } as usize;
+                let total = unsafe { *code.get_unchecked(*ip + 1) } as usize;
                 *ip += 2;
 
                 let op_id = match closure.proto.chunk.constants.get(cidx) {

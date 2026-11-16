@@ -13,7 +13,7 @@ impl ExecCtx {
         base: usize,
         first_reg: usize,
     ) -> VmResult<()> {
-        let w1 = code[*ip];
+        let w1 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
         let a = self.stack.box_reg(base, hi(w1));
         let b = self.stack.box_reg(base, lo(w1));
@@ -187,7 +187,7 @@ impl ExecCtx {
         base: usize,
         first_reg: usize,
     ) -> VmResult<()> {
-        let src = hi(code[*ip]);
+        let src = hi(unsafe { *code.get_unchecked(*ip) });
         *ip += 1;
         let v = self.stack.box_reg(base, src);
         let r = match op {

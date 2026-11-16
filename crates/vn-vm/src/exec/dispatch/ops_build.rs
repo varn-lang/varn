@@ -22,9 +22,9 @@ impl ExecCtx {
         match op {
             OpCode::BuildArray | OpCode::BuildTuple => {
                 let is_tuple = op == OpCode::BuildTuple;
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, start_reg) = (hi(w1), lo(w1));
                 let count = hi(w2);
@@ -42,9 +42,9 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BuildMap => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, start_reg) = (hi(w1), lo(w1));
                 let count = hi(w2);
@@ -65,14 +65,14 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BuildObject => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, count) = (hi(w1), lo(w1));
                 let obj_nv = self.heap.alloc_object();
                 for _ in 0..count {
-                    let k_idx = code[*ip] as usize;
+                    let k_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                     *ip += 1;
-                    let w = code[*ip];
+                    let w = unsafe { *code.get_unchecked(*ip) };
                     *ip += 1;
                     let val_reg = hi(w);
                     let key_nv = closure.constants[k_idx];
@@ -93,9 +93,9 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BuildObjectWithShape => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let shape_idx = code[*ip] as usize;
+                let shape_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (dest, start_reg) = (hi(w1), lo(w1));
                 let shape = closure
@@ -112,15 +112,15 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ObjectRest => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, src) = (hi(w1), lo(w1));
                 let skip_count = hi(w2);
                 let mut skip_keys = Vec::with_capacity(skip_count);
                 for _ in 0..skip_count {
-                    let k_idx = code[*ip] as usize;
+                    let k_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                     *ip += 1;
                     let key_nv = closure.constants[k_idx];
                     skip_keys.push(self.heap.str_val(key_nv).unwrap_or_else(|| {
@@ -136,7 +136,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ObjectKeys => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let obj = self.stack.box_reg(base, src);
                 let r = self.exec_object_keys(obj)?;
@@ -144,7 +144,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ObjectMerge => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let dest_nv = self.stack.box_reg(base, first_reg);
                 let src_nv = self.stack.box_reg(base, src);
@@ -156,7 +156,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::WrapSpread => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let spread = self.heap.alloc_spread(v);
@@ -164,7 +164,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArrayLength => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let arr = self.stack.box_reg(base, src);
                 let r = self.exec_array_length(arr)?;
@@ -172,7 +172,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BytesLength => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let r = self.exec_bytes_length(v)?;
@@ -180,7 +180,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArrayPush => {
-                let val_reg = hi(code[*ip]);
+                let val_reg = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let arr = self.stack.box_reg(base, first_reg);
                 let val = self.stack.box_reg(base, val_reg);
@@ -188,7 +188,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArrayPop => {
-                let arr_reg = hi(code[*ip]);
+                let arr_reg = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let arr = self.stack.box_reg(base, arr_reg);
                 let r = self.exec_array_pop(arr)?;
@@ -196,7 +196,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArrayExtend => {
-                let src_reg = hi(code[*ip]);
+                let src_reg = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let arr = self.stack.box_reg(base, first_reg);
                 let src = self.stack.box_reg(base, src_reg);
@@ -204,7 +204,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::In => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (src1, src2) = (hi(w1), lo(w1));
                 let a = self.stack.box_reg(base, src1);
@@ -215,7 +215,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::Instanceof => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (src1, src2) = (hi(w1), lo(w1));
                 let a = self.stack.box_reg(base, src1);
@@ -226,7 +226,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::Typeof => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let s = self.exec_typeof(v);
@@ -235,7 +235,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::IsNull => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let res = VmValue::from_bool(v.is_null());
@@ -243,7 +243,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::IsArray => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let is_arr = if v.is_heap() {

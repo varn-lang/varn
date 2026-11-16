@@ -69,7 +69,7 @@ pub(crate) extern "C" fn jit_make_enum_variant(ctx: *mut ExecCtx, ip_before: usi
         let ctx_ref = &mut *ctx;
         let frame_idx = ctx_ref.frames.len() - 1;
         let proto = std::rc::Rc::clone(&ctx_ref.frames[frame_idx].closure().proto);
-        let def_idx = proto.chunk.code[ip_before + 1] as usize;
+        let def_idx = *proto.chunk.code.get_unchecked(ip_before + 1) as usize;
         ctx_ref.jit_native_result = ctx_ref
             .make_enum_variant(&proto.chunk.constants, def_idx)
             .expect("MakeEnumVariant constant is a variant");

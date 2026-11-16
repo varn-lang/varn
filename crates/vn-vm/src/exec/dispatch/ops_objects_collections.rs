@@ -25,10 +25,10 @@ impl ExecCtx {
     ) -> VmResult<Option<ObjectFlow>> {
         match op {
             OpCode::MakeClosure => {
-                let w1 = code[*ip];
-                let proto_idx = code[*ip + 1] as usize;
+                let w1 = unsafe { *code.get_unchecked(*ip) };
+                let proto_idx = unsafe { *code.get_unchecked(*ip + 1) } as usize;
                 let (dest, uv_count) = (hi(w1), lo(w1));
-                let descs = &code[*ip + 2..*ip + 2 + uv_count];
+                let descs = unsafe { code.get_unchecked(*ip + 2..*ip + 2 + uv_count) };
                 *ip += 2 + uv_count;
                 let upvalues = descs.iter().map(|&w| UpvalueSrc::from_bytecode(w));
                 let val = self.make_closure(closure, proto_idx, base, upvalues)?;
@@ -36,11 +36,11 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::GetProperty => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj_reg = hi(w1);
                 let cs_idx = lo(w1);
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 self.frames[frame_idx].ip = *ip;
                 let obj = self.stack.box_reg(base, obj_reg);
@@ -55,9 +55,9 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::GetPropertyMaybe => {
-                let obj_reg = hi(code[*ip]);
+                let obj_reg = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let obj = self.stack.box_reg(base, obj_reg);
                 let name_nv = closure.constants[name_idx];
@@ -72,11 +72,11 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::SetProperty => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let val_reg = hi(w1);
                 let cs_idx = lo(w1);
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let obj_reg = first_reg;
                 self.frames[frame_idx].ip = *ip;
@@ -92,12 +92,12 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::GetFixedField => {
-                let obj_reg = hi(code[*ip]);
-                let tag = (code[*ip] & 0xFF) as u8;
+                let obj_reg = hi(unsafe { *code.get_unchecked(*ip) });
+                let tag = (unsafe { *code.get_unchecked(*ip) } & 0xFF) as u8;
                 *ip += 1;
-                let slot = code[*ip] as usize;
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
-                let offset = code[*ip];
+                let offset = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj = self.stack.box_reg(base, obj_reg);
                 let r = self.exec_get_fixed_field(obj, slot, offset, tag)?;
@@ -105,12 +105,12 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::SetFixedField => {
-                let val_reg = hi(code[*ip]);
-                let tag = (code[*ip] & 0xFF) as u8;
+                let val_reg = hi(unsafe { *code.get_unchecked(*ip) });
+                let tag = (unsafe { *code.get_unchecked(*ip) } & 0xFF) as u8;
                 *ip += 1;
-                let slot = code[*ip] as usize;
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
-                let offset = code[*ip];
+                let offset = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj = self.stack.box_reg(base, first_reg);
                 let val = self.stack.box_reg(base, val_reg);
@@ -118,7 +118,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::GetSuper => {
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
 
                 let this_val = self.stack.box_reg(base, 0);
@@ -130,7 +130,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::AssertNotNull => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let src = hi(w1);
                 let v = self.stack.box_reg(base, src);
@@ -138,16 +138,18 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::AllocInstance => {
-                let class = self.stack.box_reg(base, hi(code[*ip]));
+                let class = self
+                    .stack
+                    .box_reg(base, hi(unsafe { *code.get_unchecked(*ip) }));
                 *ip += 1;
                 let instance = crate::exec::class::op_alloc_instance(class, &mut self.heap)?;
                 self.stack.unbox_into_reg(base, first_reg, instance)?;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::DeclareLayout => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let layout_idx = code[*ip] as usize;
+                let layout_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let class = self.stack.box_reg(base, hi(w1));
                 let layout = crate::exec::class::pool_layout(&closure.proto, layout_idx)?;
@@ -155,7 +157,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::GetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj_reg = hi(w1);
                 let idx_reg = lo(w1);
@@ -166,7 +168,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArrayGetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj_reg = hi(w1);
                 let idx_reg = lo(w1);
@@ -177,7 +179,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BytesGetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj_reg = hi(w1);
                 let idx_reg = lo(w1);
@@ -188,7 +190,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::MapGetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let obj_reg = hi(w1);
                 let idx_reg = lo(w1);
@@ -199,7 +201,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::SetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let idx_reg = hi(w1);
                 let val_reg = lo(w1);
@@ -210,7 +212,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::ArraySetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let idx_reg = hi(w1);
                 let val_reg = lo(w1);
@@ -221,7 +223,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BytesSetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let idx_reg = hi(w1);
                 let val_reg = lo(w1);
@@ -232,7 +234,7 @@ impl ExecCtx {
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::MapSetIndex => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let idx_reg = hi(w1);
                 let val_reg = lo(w1);

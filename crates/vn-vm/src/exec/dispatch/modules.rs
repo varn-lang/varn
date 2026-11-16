@@ -12,7 +12,7 @@ impl ExecCtx {
         frame_idx: usize,
         dest_reg: usize,
     ) -> VmResult<()> {
-        let spec_idx = code[*ip] as usize;
+        let spec_idx = unsafe { *code.get_unchecked(*ip) } as usize;
         *ip += 1;
         let spec_nv = closure.constants[spec_idx];
         let spec = self
@@ -41,10 +41,10 @@ impl ExecCtx {
         frame_idx: usize,
         dest_reg: usize,
     ) -> VmResult<()> {
-        let w = code[*ip];
+        let w = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
         let src_reg = (w >> 8) as usize;
-        let slot_idx = code[*ip] as usize;
+        let slot_idx = unsafe { *code.get_unchecked(*ip) } as usize;
         *ip += 1;
 
         let base = self.frames[frame_idx].base;
@@ -84,7 +84,7 @@ impl ExecCtx {
         frame_idx: usize,
         val_reg: usize,
     ) -> VmResult<()> {
-        let slot_idx = code[*ip] as usize;
+        let slot_idx = unsafe { *code.get_unchecked(*ip) } as usize;
         *ip += 1;
 
         let base = self.frames[frame_idx].base;

@@ -17,9 +17,9 @@ impl ExecCtx {
     ) -> VmResult<()> {
         match op {
             OpCode::MakeClass => {
-                let super_reg = (code[*ip] >> 8) as usize;
+                let super_reg = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let dest = first_reg;
                 let name_nv = closure.constants[name_idx];
@@ -35,7 +35,7 @@ impl ExecCtx {
                 }
             }
             OpCode::Inherit => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (class_reg, super_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -43,9 +43,9 @@ impl ExecCtx {
                 crate::exec::class::op_inherit(class_nv, super_nv, &mut self.heap)?;
             }
             OpCode::Method => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -58,9 +58,9 @@ impl ExecCtx {
                 crate::exec::class::op_method(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::DefineStatic => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -73,9 +73,9 @@ impl ExecCtx {
                 crate::exec::class::op_define_static(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::DefineGetter => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -88,9 +88,9 @@ impl ExecCtx {
                 crate::exec::class::op_define_getter(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::DefineSetter => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -103,9 +103,9 @@ impl ExecCtx {
                 crate::exec::class::op_define_setter(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::DefineStaticGetter => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -118,9 +118,9 @@ impl ExecCtx {
                 crate::exec::class::op_define_static_getter(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::DefineStaticSetter => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let key_idx = code[*ip] as usize;
+                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let class_nv = self.stack.box_reg(base, class_reg);
@@ -133,9 +133,9 @@ impl ExecCtx {
                 crate::exec::class::op_define_static_setter(class_nv, &key, fn_nv, &mut self.heap)?;
             }
             OpCode::BindMethod => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let (dest, obj_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
                 let obj_nv = self.stack.box_reg(base, obj_reg);
@@ -326,9 +326,9 @@ impl ExecCtx {
         frame_idx: usize,
         closure: &VmClosure,
     ) -> VmResult<()> {
-        let w1 = code[*ip];
+        let w1 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
-        let def_idx = code[*ip] as usize;
+        let def_idx = unsafe { *code.get_unchecked(*ip) } as usize;
         *ip += 1;
         let dest = (w1 >> 8) as usize;
         let iv = self.make_enum_variant(&closure.proto.chunk.constants, def_idx)?;

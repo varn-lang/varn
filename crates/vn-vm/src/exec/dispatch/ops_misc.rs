@@ -15,11 +15,11 @@ impl ExecCtx {
     ) -> VmResult<()> {
         match op {
             OpCode::Try => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let err_reg = hi(w1) as u8;
-                let offset_hi = code[*ip] as u32;
-                let offset_lo = code[*ip + 1] as u32;
+                let offset_hi = unsafe { *code.get_unchecked(*ip) } as u32;
+                let offset_lo = unsafe { *code.get_unchecked(*ip + 1) } as u32;
                 let catch_offset = ((offset_hi << 16) | offset_lo) as usize;
                 *ip += 2;
                 let catch_ip = *ip + catch_offset;
@@ -34,14 +34,14 @@ impl ExecCtx {
                 crate::exec::exceptions::pop_try(&mut self.try_handlers);
             }
             OpCode::GetEnumTag => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let tag = (self.exec_get_enum_tag(v))?;
                 (self.stack.unbox_into_reg(base, first_reg, tag))?;
             }
             OpCode::Spawn => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, src) = (first_reg, hi(w1));
 
@@ -50,7 +50,7 @@ impl ExecCtx {
                 (self.stack.unbox_into_reg(base, dest, spawned))?;
             }
             OpCode::LoadStaticFn => {
-                let proto_idx = code[*ip] as usize;
+                let proto_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let val = (self.make_closure(closure, proto_idx, base, std::iter::empty()))?;
                 (self.stack.unbox_into_reg(base, first_reg, val))?;

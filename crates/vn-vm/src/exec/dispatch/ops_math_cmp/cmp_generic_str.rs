@@ -14,7 +14,7 @@ impl ExecCtx {
         base: usize,
         first_reg: usize,
     ) -> VmResult<()> {
-        let w1 = code[*ip];
+        let w1 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
         let a = self.stack.box_reg(base, hi(w1));
         let b = self.stack.box_reg(base, lo(w1));
@@ -190,14 +190,14 @@ impl ExecCtx {
     ) -> VmResult<()> {
         match op {
             OpCode::ToString => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let r = crate::exec::strings::to_string(v, &mut self.heap);
                 self.stack.unbox_into_reg(base, first_reg, r)?;
             }
             OpCode::StrConcat => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let a = self.stack.box_reg(base, hi(w1));
                 let b = self.stack.box_reg(base, lo(w1));
@@ -205,11 +205,11 @@ impl ExecCtx {
                 self.stack.unbox_into_reg(base, first_reg, r)?;
             }
             OpCode::BuildStr => {
-                let count = hi(code[*ip]);
+                let count = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let mut parts = Vec::with_capacity(count);
                 for i in 0..count {
-                    let reg_idx = hi(code[*ip + i]);
+                    let reg_idx = hi(unsafe { *code.get_unchecked(*ip + i) });
                     parts.push(self.stack.box_reg(base, reg_idx));
                 }
                 *ip += count;
@@ -217,14 +217,14 @@ impl ExecCtx {
                 self.stack.unbox_into_reg(base, first_reg, r)?;
             }
             OpCode::StrLength => {
-                let src = hi(code[*ip]);
+                let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
                 let r = self.exec_str_length(v)?;
                 self.stack.unbox_into_reg(base, first_reg, r)?;
             }
             OpCode::StrSlice => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let s = self.stack.box_reg(base, hi(w1));
                 let idx = self.stack.box_reg(base, lo(w1));

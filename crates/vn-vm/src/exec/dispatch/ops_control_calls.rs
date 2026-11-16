@@ -71,13 +71,17 @@ impl ExecCtx {
     ) -> VmResult<Option<ControlCallFlow>> {
         match op {
             OpCode::Jump => {
-                let offset = ((code[*ip] as u32) << 16 | code[*ip + 1] as u32) as usize;
+                let offset = ((unsafe { *code.get_unchecked(*ip) } as u32) << 16
+                    | unsafe { *code.get_unchecked(*ip + 1) } as u32)
+                    as usize;
                 *ip += 2;
                 *ip += offset;
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::Loop => {
-                let offset = ((code[*ip] as u32) << 16 | code[*ip + 1] as u32) as usize;
+                let offset = ((unsafe { *code.get_unchecked(*ip) } as u32) << 16
+                    | unsafe { *code.get_unchecked(*ip + 1) } as u32)
+                    as usize;
                 *ip += 2;
                 *ip -= offset;
                 self.frames[frame_idx].ip = *ip;
@@ -89,7 +93,9 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::JumpIfFalse => {
-                let offset = ((code[*ip] as u32) << 16 | code[*ip + 1] as u32) as usize;
+                let offset = ((unsafe { *code.get_unchecked(*ip) } as u32) << 16
+                    | unsafe { *code.get_unchecked(*ip + 1) } as u32)
+                    as usize;
                 *ip += 2;
                 let cond = self.stack.box_reg(base, first_reg);
                 if !cond.is_truthy() {
@@ -98,7 +104,9 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::JumpIfTrue => {
-                let offset = ((code[*ip] as u32) << 16 | code[*ip + 1] as u32) as usize;
+                let offset = ((unsafe { *code.get_unchecked(*ip) } as u32) << 16
+                    | unsafe { *code.get_unchecked(*ip + 1) } as u32)
+                    as usize;
                 *ip += 2;
                 let cond = self.stack.box_reg(base, first_reg);
                 if cond.is_truthy() {
@@ -107,7 +115,7 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::Return => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 let src = lo(w1);
                 let res = self.reg_return(base, src)?;
                 if self.frames.len() == depth {
@@ -117,9 +125,9 @@ impl ExecCtx {
                 }
             }
             OpCode::Call => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, callee_reg) = (hi(w1), lo(w1));
                 let (arg_count, arg_start) = (hi(w2), lo(w2));
@@ -135,9 +143,9 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::CallSelf => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, _) = (hi(w1), lo(w1));
                 let (arg_count, arg_start) = (hi(w2), lo(w2));
@@ -152,11 +160,11 @@ impl ExecCtx {
             }
             OpCode::CallMethod => {
                 let cs = first_reg;
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
-                let w3 = code[*ip];
+                let w3 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, obj_reg) = (hi(w1), lo(w1));
                 let (arg_count, arg_start) = (hi(w3), lo(w3));
@@ -173,11 +181,11 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::InvokeVirtual => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
-                let w3 = code[*ip];
+                let w3 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, this_reg) = (hi(w1), lo(w1));
                 let (arg_count, arg_start) = (hi(w3), lo(w3));
@@ -195,9 +203,9 @@ impl ExecCtx {
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
             OpCode::CallSpread => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
-                let w2 = code[*ip];
+                let w2 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, callee_reg) = (hi(w1), lo(w1));
                 let (arg_count, arg_start) = (hi(w2), lo(w2));

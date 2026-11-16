@@ -31,7 +31,7 @@ impl ExecCtx {
                     .unbox_into_reg(base, first_reg, crate::value::VmValue::bool_false())?;
             }
             OpCode::LoadInt => {
-                let val = code[*ip] as i16;
+                let val = unsafe { *code.get_unchecked(*ip) } as i16;
                 *ip += 1;
                 self.stack.unbox_into_reg(
                     base,
@@ -52,19 +52,20 @@ impl ExecCtx {
                     .unbox_into_reg(base, first_reg, crate::value::VmValue::from_int(-1))?;
             }
             OpCode::LoadConst => {
-                let cidx = code[*ip] as usize;
+                let cidx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let nv = closure.constants[cidx];
                 self.stack.unbox_into_reg(base, first_reg, nv)?;
             }
             OpCode::Move => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
 
                 self.stack.mov(base, first_reg, hi(w1))?;
             }
             OpCode::LoadGlobalIdx => {
-                let gidx = closure.module_base as usize + code[*ip] as usize;
+                let gidx =
+                    closure.module_base as usize + unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 debug_assert!(
                     gidx < self.globals_ref().values.len(),
@@ -76,7 +77,7 @@ impl ExecCtx {
                 self.record_hotspot_global(gidx);
             }
             OpCode::LoadNativeGlobalIdx => {
-                let gidx = code[*ip] as usize;
+                let gidx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 debug_assert!(
                     gidx < self.globals_ref().values.len(),
@@ -88,8 +89,9 @@ impl ExecCtx {
                 self.record_hotspot_global(gidx);
             }
             OpCode::StoreGlobalIdx | OpCode::DefineGlobalIdx => {
-                let src = (code[*ip] >> 8) as usize;
-                let gidx = closure.module_base as usize + code[*ip + 1] as usize;
+                let src = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
+                let gidx =
+                    closure.module_base as usize + unsafe { *code.get_unchecked(*ip + 1) } as usize;
                 *ip += 2;
                 debug_assert!(
                     gidx < self.globals_ref().values.len(),
@@ -104,14 +106,14 @@ impl ExecCtx {
                 self.exec_variable_op(op, code, ip, base, frame_idx, closure, first_reg)?;
             }
             OpCode::LoadUpvalue => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (dest, uv) = (hi(w1), lo(w1));
                 let nv = closure.upvalues[uv].read(&self.stack);
                 self.stack.unbox_into_reg(base, dest, nv)?;
             }
             OpCode::StoreUpvalue => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (uv, src) = (hi(w1), lo(w1));
                 let val = self.stack.box_reg(base, src);
@@ -120,7 +122,7 @@ impl ExecCtx {
                 self.heap.write_upvalue_barrier(owner, val);
             }
             OpCode::CloseUpvalue => {
-                let w1 = code[*ip];
+                let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let lowest = hi(w1);
                 self.close_upvalues_from_reg(base, lowest);

@@ -244,9 +244,9 @@ pub(crate) extern "C" fn jit_make_closure(
         let ctx_ref = &mut *ctx;
         let closure_ref = &*closure;
         let code = &closure_ref.proto.chunk.code;
-        let uv_count = (code[ip_offset + 1] & 0xFF) as usize;
-        let proto_idx = code[ip_offset + 2] as usize;
-        let descs = &code[ip_offset + 3..ip_offset + 3 + uv_count];
+        let uv_count = (*code.get_unchecked(ip_offset + 1) & 0xFF) as usize;
+        let proto_idx = *code.get_unchecked(ip_offset + 2) as usize;
+        let descs = code.get_unchecked(ip_offset + 3..ip_offset + 3 + uv_count);
         let upvalues = descs.iter().map(|&w| UpvalueSrc::from_bytecode(w));
         match ctx_ref.make_closure(closure_ref, proto_idx, base, upvalues) {
             Ok(val) => ctx_ref.jit_native_result = val,

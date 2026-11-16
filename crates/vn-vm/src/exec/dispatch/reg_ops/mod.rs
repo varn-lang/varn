@@ -26,7 +26,7 @@ impl ExecCtx {
     ) -> VmResult<()> {
         match op {
             OpCode::LoadGlobal => {
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let name_nv = closure.constants[name_idx];
                 let name = self
@@ -40,9 +40,9 @@ impl ExecCtx {
                 self.stack.unbox_into_reg(base, first_reg, val)?;
             }
             OpCode::StoreGlobal => {
-                let src = (code[*ip] >> 8) as usize;
+                let src = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let name_nv = closure.constants[name_idx];
                 let name = self
@@ -53,9 +53,9 @@ impl ExecCtx {
                 self.globals_mut().set_by_name(&name, val);
             }
             OpCode::DefineGlobal => {
-                let src = (code[*ip] >> 8) as usize;
+                let src = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
                 *ip += 1;
-                let name_idx = code[*ip] as usize;
+                let name_idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let name_nv = closure.constants[name_idx];
                 let name = self
@@ -66,7 +66,7 @@ impl ExecCtx {
                 self.globals_mut().define(&name, val);
             }
             OpCode::LoadGlobalIdx => {
-                let idx = code[*ip] as usize;
+                let idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let val = self
                     .globals_ref()
@@ -76,17 +76,17 @@ impl ExecCtx {
                 self.record_hotspot_global(idx);
             }
             OpCode::StoreGlobalIdx => {
-                let src = (code[*ip] >> 8) as usize;
+                let src = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
                 *ip += 1;
-                let idx = code[*ip] as usize;
+                let idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let val = self.stack.box_reg(base, src);
                 self.globals_mut().set_by_index(idx, val);
             }
             OpCode::DefineGlobalIdx => {
-                let src = (code[*ip] >> 8) as usize;
+                let src = (unsafe { *code.get_unchecked(*ip) } >> 8) as usize;
                 *ip += 1;
-                let idx = code[*ip] as usize;
+                let idx = unsafe { *code.get_unchecked(*ip) } as usize;
                 *ip += 1;
                 let val = self.stack.box_reg(base, src);
                 self.globals_mut().set_by_index(idx, val);

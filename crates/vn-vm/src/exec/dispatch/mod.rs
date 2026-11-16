@@ -64,7 +64,6 @@ impl ExecCtx {
 
             let base = unsafe { (*ctx).frames[frame_idx].base };
             let mut ip = unsafe { (*ctx).frames[frame_idx].ip };
-            let code_len = closure.proto.chunk.code.len();
             let debugging = unsafe {
                 (*ctx).debug_breaks.is_some()
                     || (*ctx).debug_step.is_some()
@@ -88,33 +87,23 @@ impl ExecCtx {
                 };
             }
 
+            // Every chunk that reaches the interpreter passed
+            // `vn_types::bytecode::verify_chunk` when the compiler finished it:
+            // all words decode, jumps land on instruction boundaries, and
+            // register and constant operands are in range. `ip` only advances
+            // by decoded lengths or verified jumps, so every read below is in
+            // bounds and every opcode word is valid.
             loop {
-                if ip >= code_len {
-                    unsafe { (*ctx).frames.last_mut().unwrap().ip = ip };
-                    let res = tryv!(unsafe { (*ctx).reg_return(base, 0) });
-                    if unsafe { (*ctx).frames.len() } == depth {
-                        return Ok(res);
-                    }
-                    continue 'frame_loop;
-                }
-
                 if debugging && crate::debug::check_break(ctx, closure_ptr, frame_idx, ip) {
                     return Ok(VmValue::null());
                 }
 
                 let code = &closure.proto.chunk.code;
-                let raw_op = code[ip];
+                let raw_op = unsafe { *code.get_unchecked(ip) };
                 ip += 1;
                 let first_reg = (raw_op >> 8) as usize;
 
-                let op = match OpCode::from_u8(raw_op as u8) {
-                    Some(o) => o,
-                    None => {
-                        return Err(crate::error::RuntimeError::new(format!(
-                            "unknown opcode: {raw_op}"
-                        )))
-                    }
-                };
+                let op = unsafe { OpCode::from_u8_unchecked(raw_op as u8) };
 
                 std::sync::atomic::compiler_fence(std::sync::atomic::Ordering::SeqCst);
 
@@ -132,7 +121,8 @@ impl ExecCtx {
 
                 match op {
                     OpCode::LoadGlobalIdx => {
-                        let gidx = closure.module_base as usize + code[ip] as usize;
+                        let gidx = closure.module_base as usize
+                            + unsafe { *code.get_unchecked(ip) } as usize;
                         ip += 1;
 
                         let nv = unsafe { (*ctx).globals_ref().get_by_index_unchecked(gidx) };
@@ -140,7 +130,7 @@ impl ExecCtx {
                         unsafe { (*ctx).record_hotspot_global(gidx) };
                     }
                     OpCode::LoadNativeGlobalIdx => {
-                        let gidx = code[ip] as usize;
+                        let gidx = unsafe { *code.get_unchecked(ip) } as usize;
                         ip += 1;
 
                         let nv = unsafe { (*ctx).globals_ref().get_by_index_unchecked(gidx) };
@@ -148,7 +138,7 @@ impl ExecCtx {
                         unsafe { (*ctx).record_hotspot_global(gidx) };
                     }
                     OpCode::LoadConst => {
-                        let cidx = code[ip] as usize;
+                        let cidx = unsafe { *code.get_unchecked(ip) } as usize;
                         ip += 1;
 
                         debug_assert!(
@@ -169,14 +159,15 @@ impl ExecCtx {
                         });
                     }
                     OpCode::DefineGlobalIdx | OpCode::StoreGlobalIdx => {
-                        let src = hi(code[ip]);
-                        let gidx = closure.module_base as usize + code[ip + 1] as usize;
+                        let src = hi(unsafe { *code.get_unchecked(ip) });
+                        let gidx = closure.module_base as usize
+                            + unsafe { *code.get_unchecked(ip + 1) } as usize;
                         ip += 2;
                         let val = reg_box!(src);
                         unsafe { (*ctx).globals_mut().set_by_index_unchecked(gidx, val) };
                     }
                     OpCode::LoadInt => {
-                        let val = code[ip] as i16;
+                        let val = unsafe { *code.get_unchecked(ip) } as i16;
                         ip += 1;
                         tryv!(unsafe {
                             (*ctx).stack.unbox_into_reg(
@@ -187,12 +178,12 @@ impl ExecCtx {
                         });
                     }
                     OpCode::Move => {
-                        let w1 = code[ip];
+                        let w1 = unsafe { *code.get_unchecked(ip) };
                         ip += 1;
                         tryv!(unsafe { (*ctx).stack.mov(base, first_reg, hi(w1)) });
                     }
                     OpCode::Convert => {
-                        let w1 = code[ip];
+                        let w1 = unsafe { *code.get_unchecked(ip) };
                         ip += 1;
                         let v = unsafe { (*ctx).stack.box_reg(base, hi(w1)) };
                         let r = match vn_core::ValueConv::from_u8(lo(w1) as u8) {
@@ -276,7 +267,7 @@ impl ExecCtx {
                     }
 
                     OpCode::Throw => {
-                        let w1 = code[ip];
+                        let w1 = unsafe { *code.get_unchecked(ip) };
                         let src = hi(w1);
                         let val = reg_box!(src);
                         unsafe { (*ctx).frames[frame_idx].ip = ip };
@@ -287,7 +278,7 @@ impl ExecCtx {
                     }
 
                     OpCode::Yield => {
-                        let w1 = code[ip];
+                        let w1 = unsafe { *code.get_unchecked(ip) };
                         ip += 1;
                         let dest = hi(w1) as u8;
                         let src = lo(w1);
@@ -302,7 +293,7 @@ impl ExecCtx {
                         return Ok(VmValue::null());
                     }
                     OpCode::Await => {
-                        let src = hi(code[ip]);
+                        let src = hi(unsafe { *code.get_unchecked(ip) });
                         ip += 1;
                         let fut = reg_box!(src);
                         unsafe { (*ctx).frames[frame_idx].ip = ip };

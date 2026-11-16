@@ -232,4 +232,17 @@ impl OpCode {
     pub fn from_u16(v: u16) -> Option<Self> {
         Self::from_u8(v as u8)
     }
+
+    /// Opcode without validation, for the interpreter hot loop.
+    ///
+    /// # Safety
+    ///
+    /// `v` must be a valid opcode discriminant of a chunk that passed
+    /// `vn_types::bytecode::verify_chunk`. Every validated instruction decodes
+    /// to a known opcode, so the loop only ever reads valid discriminants.
+    #[inline(always)]
+    pub unsafe fn from_u8_unchecked(v: u8) -> Self {
+        debug_assert!(Self::from_u8(v).is_some());
+        unsafe { std::mem::transmute::<u8, OpCode>(v) }
+    }
 }

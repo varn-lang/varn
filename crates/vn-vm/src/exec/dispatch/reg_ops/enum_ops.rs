@@ -260,13 +260,13 @@ impl ExecCtx {
         frame_idx: usize,
         closure: &VmClosure,
     ) -> VmResult<()> {
-        let w1 = code[*ip];
+        let w1 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
-        let method_idx = code[*ip] as usize;
+        let method_idx = unsafe { *code.get_unchecked(*ip) } as usize;
         *ip += 1;
-        let w3 = code[*ip];
+        let w3 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
-        let w4 = code[*ip];
+        let w4 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
         let dest = (w1 >> 8) as usize;
         let arg_count = (w3 >> 8) as usize;

@@ -167,5 +167,41 @@ pub fn compile_module(
         .collect();
 
     let opt_time = crate::regalloc::run_post_passes(&mut proto, measure);
+    if let Err(why) = verify_module_protos(&proto) {
+        return (Err(why), Duration::ZERO);
+    }
     (Ok(proto), opt_time)
+}
+
+fn verify_module_protos(top: &FunctionProto) -> std::result::Result<(), OptError> {
+    use std::rc::Rc;
+    use vn_types::bytecode::verify_chunk;
+    // Identity is by address: every pointer below derives from a live borrow
+    // (`top` for the module proto, the constants' `Rc` for nested ones), so
+    // dereferencing them while `top` is borrowed is sound.
+    let mut seen = std::collections::HashSet::new();
+    let mut stack = vec![top as *const FunctionProto];
+    while let Some(ptr) = stack.pop() {
+        if !seen.insert(ptr as usize) {
+            continue;
+        }
+        let proto = unsafe { &*ptr };
+        verify_chunk(
+            &proto.chunk.code,
+            &proto.chunk.constants,
+            proto.register_count as u32,
+        )
+        .map_err(|err| {
+            OptError::Internal(format!(
+                "from_tir: chunk verify failed for {}: {err}",
+                proto.name.as_deref().unwrap_or("<anonymous>"),
+            ))
+        })?;
+        for entry in &proto.chunk.constants {
+            if let vn_types::chunk::PoolEntry::Function(rc) = entry {
+                stack.push(Rc::as_ptr(rc));
+            }
+        }
+    }
+    Ok(())
 }

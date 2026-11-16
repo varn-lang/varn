@@ -31,7 +31,7 @@ impl ExecCtx {
         base: usize,
         first_reg: usize,
     ) -> VmResult<()> {
-        let w1 = code[*ip];
+        let w1 = unsafe { *code.get_unchecked(*ip) };
         *ip += 1;
         let src = hi(w1);
         let imm = lo(w1) as i8 as i64;

@@ -5,10 +5,12 @@ mod opcode_nullary;
 mod opcode_prefix;
 mod operand;
 mod remap;
+mod verify;
 
 pub use layout::layout;
 pub use operand::{Access, At, Byte, ConstKind, Half, ImmKind, Layout, Operand, RunKind};
 pub use remap::remap_registers;
+pub use verify::{verify_chunk, VerifyError};
 
 use crate::chunk::PoolEntry;
 
