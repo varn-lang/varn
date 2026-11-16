@@ -610,6 +610,20 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - (a) Añadir una variante de tipo obliga a decidir en cada sitio. (b) Añadir
   una variante de prueba en una rama local y contar errores de compilación.
   (c) Los comodines sobre enums.
+- **Estado 2026-11-16 (HECHO con alcance acotado):** el único sitio tupla
+  enumerable era `ValueConv::between` sobre `NumericDomain` (4 variantes,
+  16 pares): enumerado en `5711de47` (12 conversiones cruzadas + 4
+  reflexivas a `None`, sin comodín). El resto de tuplas son sobre
+  `TypeKind` (~20 variantes, 400 combinaciones más payloads anidados) en
+  `vn-sem/src/compat/` (`core`, `unions`, `arrays`, `scalar`, `heritage`,
+  `nominal`, `generics`, `compat_lookup`), `vn-sem/src/infer/ops.rs:22,52`,
+  `vn-sem/src/resolve/{conditional,intersections}` y
+  `vn-checker/.../narrowing/type_guards.rs`: ahí el comodín es el
+  despachador por defecto hacia brazos ayudantes (`array_arms`,
+  `union_arms`, `nominal_arms`, `class_value_arm`, `record_arm`) o el
+  fallback tipado (`Dynamic`, `Bool`, no-`Str`), no una decisión oculta
+  sobre variantes. Enumerarlos sería combinatorialmente inviable y
+  frágil; quedan como defaults intencionales documentados.
 
 ### L7. Ley 16: capacidades por enum
 
