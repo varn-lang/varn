@@ -19,6 +19,8 @@ impl ICKind {
     pub const STR_LENGTH: u8 = 9;
 
     pub const INSTANCE_FIELD: u8 = 10;
+
+    pub const DIRECT_CALL: u8 = 11;
 }
 
 #[derive(Clone, Default, Debug, serde::Serialize, serde::Deserialize)]
@@ -55,6 +57,47 @@ pub struct PolyICSlot {
 
 pub const POLY_IC_SLOT_SIZE: usize = 200;
 
+/// Monomorphic inline cache for direct calls (`CallDirect`).
+///
+/// Layout is a plain 40-byte record so the JIT can read and update it
+/// with fixed offsets. A slot belongs to exactly one static call site;
+/// `tag`/`payload` hold the callee `VmValue` the entry was resolved for.
+/// Hit condition (checked inline): stored words equal the live callee
+/// words and `epoch` equals the current JIT epoch. On miss the slow
+/// helper re-resolves and fills the slot; slots start zeroed, which can
+/// never hit (no closure is null and epoch 0 means no JIT code).
+#[derive(Clone, Copy, Debug, Default)]
+#[repr(C)]
+pub struct DirectCallSlot {
+    pub tag: u64,
+    pub payload: u64,
+    pub entry: usize,
+    pub epoch: u64,
+    pub sig: u64,
+    pub closure: usize,
+}
+
+pub const DIRECT_CALL_SLOT_SIZE: usize = std::mem::size_of::<DirectCallSlot>();
+
+impl DirectCallSlot {
+    pub const fn new() -> Self {
+        const _: () = assert!(std::mem::size_of::<DirectCallSlot>() == 48);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, tag) == 0);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, payload) == 8);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, entry) == 16);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, epoch) == 24);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, sig) == 32);
+        const _: () = assert!(std::mem::offset_of!(DirectCallSlot, closure) == 40);
+        Self {
+            tag: 0,
+            payload: 0,
+            entry: 0,
+            epoch: 0,
+            sig: 0,
+            closure: 0,
+        }
+    }
+}
 impl Default for PolyICSlot {
     fn default() -> Self {
         Self::new()

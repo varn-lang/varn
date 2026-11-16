@@ -36,6 +36,7 @@ pub enum SsaOp {
         slot: Option<u32>,
         callee: u32,
         args: Vec<u32>,
+        site: u16,
     },
 
     AllocInstance {

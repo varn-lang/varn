@@ -63,6 +63,43 @@ impl IcSlots {
     }
 }
 
+pub(crate) struct DirectSlots {
+    slots: Vec<Vec<Option<u8>>>,
+    count: u16,
+}
+
+impl DirectSlots {
+    pub(crate) fn number(ssa: &SsaFunc, order: &[usize]) -> Result<Self, OptError> {
+        let mut slots: Vec<Vec<Option<u8>>> = ssa
+            .blocks
+            .iter()
+            .map(|b| vec![None; b.insts.len()])
+            .collect();
+        let mut count: u16 = 0;
+        for &b in order {
+            for (i, inst) in ssa.blocks[b].insts.iter().enumerate() {
+                if !matches!(&inst.kind, InstKind::CallDirect { .. }) {
+                    continue;
+                }
+                if count + 1 > Chunk::MAX_IC_SLOTS {
+                    continue;
+                }
+                slots[b][i] = Some(count as u8);
+                count += 1;
+            }
+        }
+        Ok(Self { slots, count })
+    }
+
+    pub(crate) fn of(&self, block: usize, inst: usize) -> Option<u8> {
+        self.slots.get(block)?.get(inst).copied().flatten()
+    }
+
+    pub(crate) fn count(&self) -> u16 {
+        self.count
+    }
+}
+
 fn sites(kind: &InstKind, has_dest: bool) -> u16 {
     match kind {
         InstKind::SetProperty { .. } | InstKind::Dispose { .. } => 1,

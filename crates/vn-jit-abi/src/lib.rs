@@ -1,6 +1,8 @@
 use vn_types::{NativeOpTarget, VmValue};
 
-pub const JIT_HELPERS_VERSION: u32 = 17;
+pub const JIT_HELPERS_VERSION: u32 = 19;
+
+pub const NATIVE_FRAMELESS: u64 = 1 << 63;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -198,6 +200,7 @@ pub struct JitHelpers {
     pub jit_array_get_fast: usize,
     pub jit_array_set_fast: usize,
     pub jit_call_leave: usize,
+    pub jit_call_direct_cached: usize,
     pub jit_call_method_cached_window: usize,
     pub jit_call_method_window: usize,
     pub jit_call_native_window: usize,
@@ -283,6 +286,10 @@ pub struct JitHelpers {
     pub closure_module_base_offset: usize,
     pub closure_ic_entries_offset: usize,
     pub poly_ic_slot_size: usize,
+
+    pub closure_direct_entries_offset: usize,
+
+    pub direct_ic_stride: usize,
     pub frame_layout: JitFrameLayout,
     pub call_layout: JitCallLayout,
     pub str_layout: JitStrLayout,

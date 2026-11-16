@@ -2,7 +2,7 @@ use crate::frame_store::{FrameStore, SlotAddr};
 use crate::value::VmValue;
 use std::cell::RefCell;
 use std::rc::Rc;
-use vn_types::chunk::PolyICSlot;
+use vn_types::chunk::{DirectCallSlot, PolyICSlot};
 use vn_types::FunctionProto;
 
 #[derive(Debug, Clone)]
@@ -84,6 +84,8 @@ pub struct VmClosure {
 
     pub ic_entries: *const PolyICSlot,
 
+    pub direct_entries: *const DirectCallSlot,
+
     pub module_base: u32,
 }
 
@@ -94,9 +96,12 @@ impl VmClosure {
         settings: crate::settings::ExecSettings,
     ) -> Self {
         proto.ensure_ic();
+        proto.ensure_direct();
         let ic_cache = Rc::clone(&proto.ic_cache);
         let feedback = Rc::clone(&proto.feedback);
         let ic_entries = unsafe { (*ic_cache.as_ptr()).as_ptr() };
+        let direct_cache = Rc::clone(&proto.direct_cache);
+        let direct_entries = unsafe { (*direct_cache.as_ptr()).as_ptr() };
         let closure = Self {
             proto,
             upvalues: Vec::new(),
@@ -104,6 +109,7 @@ impl VmClosure {
             ic_cache,
             feedback,
             ic_entries,
+            direct_entries,
             module_base: 0,
         };
 
@@ -118,9 +124,12 @@ impl VmClosure {
         settings: crate::settings::ExecSettings,
     ) -> Self {
         proto.ensure_ic();
+        proto.ensure_direct();
         let ic_cache = Rc::clone(&proto.ic_cache);
         let feedback = Rc::clone(&proto.feedback);
         let ic_entries = unsafe { (*ic_cache.as_ptr()).as_ptr() };
+        let direct_cache = Rc::clone(&proto.direct_cache);
+        let direct_entries = unsafe { (*direct_cache.as_ptr()).as_ptr() };
         let closure = Self {
             proto,
             upvalues,
@@ -128,6 +137,7 @@ impl VmClosure {
             ic_cache,
             feedback,
             ic_entries,
+            direct_entries,
             module_base: 0,
         };
 

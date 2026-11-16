@@ -14,12 +14,19 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             callee,
             args,
             ..
-        } => Some(SsaOp::CallDirect {
-            target: target.as_ref().into(),
-            slot: *slot,
-            callee: callee.0,
-            args: args.iter().map(|v| v.0).collect(),
-        }),
+        } => match site.direct_slot {
+            Some(direct) => Some(SsaOp::CallDirect {
+                target: target.as_ref().into(),
+                slot: *slot,
+                callee: callee.0,
+                args: args.iter().map(|v| v.0).collect(),
+                site: u16::from(direct),
+            }),
+            None => Some(SsaOp::Call {
+                callee: callee.0,
+                args: args.iter().map(|v| v.0).collect(),
+            }),
+        },
         InstKind::SelfCall { args } => Some(SsaOp::SelfCall {
             args: args.iter().map(|v| v.0).collect(),
         }),

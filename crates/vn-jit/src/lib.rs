@@ -134,7 +134,7 @@ use std::rc::Rc;
 pub use vn_jit_abi::{
     JitArrayLayout, JitBufferLayout, JitCallLayout, JitFrameLayout, JitGetIndexArgs, JitHelpers,
     JitInstanceAlloc, JitInvokeVirtualArgs, JitObjectLayout, JitSetIndexArgs, JitSetPropertyArgs,
-    JitStrLayout, JIT_HELPERS_VERSION,
+    JitStrLayout, JIT_HELPERS_VERSION, NATIVE_FRAMELESS,
 };
 use vn_types::FunctionProto;
 use vn_types::VmValue;

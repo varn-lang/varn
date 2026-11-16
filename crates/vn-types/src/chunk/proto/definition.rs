@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use super::super::inline_cache::{FeedbackVector, PolyICSlot};
+use super::super::inline_cache::{DirectCallSlot, FeedbackVector, PolyICSlot};
 use super::super::literal::opt_rc_str_serde;
 use super::super::Chunk;
 
@@ -32,6 +32,8 @@ pub struct FunctionProto {
     pub has_this: bool,
     pub upvalue_count: usize,
     pub cache_count: usize,
+
+    pub direct_count: usize,
     pub chunk: Chunk,
 
     #[serde(default)]
@@ -96,6 +98,9 @@ pub struct FunctionProto {
     #[serde(skip, default = "proto_feedback_default")]
     pub feedback: Rc<RefCell<FeedbackVector>>,
 
+    #[serde(skip, default = "proto_direct_cache_default")]
+    pub direct_cache: Rc<RefCell<Vec<DirectCallSlot>>>,
+
     #[serde(skip)]
     #[serde(default)]
     pub frame_layout: std::cell::OnceCell<Rc<crate::register_meta::FrameLayout>>,
@@ -149,4 +154,8 @@ fn proto_ic_default() -> Rc<RefCell<Vec<PolyICSlot>>> {
 
 fn proto_feedback_default() -> Rc<RefCell<FeedbackVector>> {
     Rc::new(RefCell::new(FeedbackVector::default()))
+}
+
+fn proto_direct_cache_default() -> Rc<RefCell<Vec<DirectCallSlot>>> {
+    Rc::new(RefCell::new(Vec::new()))
 }

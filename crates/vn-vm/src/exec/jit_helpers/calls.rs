@@ -1,6 +1,90 @@
 use super::calls_static::{hand_off, settle, Handoff};
 use crate::exec::ctx::ExecCtx;
 use crate::value::VmValue;
+use vn_jit::NATIVE_FRAMELESS;
+
+#[vn_macros::jit_slow(field = "jit_call_direct_cached")]
+pub(crate) extern "C" fn jit_call_direct_cached(
+    ctx: *mut ExecCtx,
+    callee_tag: u64,
+    callee_payload: u64,
+    site: *mut vn_types::chunk::DirectCallSlot,
+    window: *const VmValue,
+    total: usize,
+    out: *mut usize,
+    shape_id: u64,
+) -> usize {
+    use crate::exec::host::isolates::Invoked;
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let callee = VmValue::from_raw_parts(callee_tag, callee_payload);
+        if !site.is_null() {
+            fill_direct_site(ctx_ref, callee, site, shape_id);
+        }
+        let window = std::slice::from_raw_parts(window, total);
+        let handoff = match ctx_ref.invoke_pushing(callee, window) {
+            Ok(Invoked::Value(v)) => Handoff::Ran(Ok(v)),
+            Ok(Invoked::Pushed(depth)) => hand_off(ctx_ref, depth, out),
+            Err(e) => Handoff::Ran(Err(e)),
+        };
+        settle(ctx_ref, handoff)
+    }
+}
+
+fn fill_direct_site(
+    ctx: &mut ExecCtx,
+    callee: VmValue,
+    site: *mut vn_types::chunk::DirectCallSlot,
+    shape_id: u64,
+) {
+    unsafe {
+        let slot = &mut *site;
+        let fill = (|| {
+            if !callee.is_heap() {
+                return None;
+            }
+            let heap_idx = callee.as_heap();
+            let crate::heap::HeapObj::VmClosure(nc) = ctx.heap.get(heap_idx)? else {
+                return None;
+            };
+            if nc.proto.is_generator || nc.proto.is_async {
+                return None;
+            }
+            let entry = nc.proto.jit_native.get();
+            if entry == 0 {
+                return None;
+            }
+            if nc.proto.jit_epoch.get() != crate::clif_link::current_epoch() {
+                return None;
+            }
+            let sig = nc.proto.jit_native_sig.get();
+            if sig & !NATIVE_FRAMELESS != shape_id {
+                return None;
+            }
+            let closure = std::rc::Rc::as_ptr(nc) as usize;
+            Some((entry, sig, closure))
+        })();
+        match fill {
+            Some((entry, sig, closure)) => {
+                let epoch = crate::clif_link::current_epoch();
+                slot.tag = callee.raw_tag();
+                slot.payload = callee.raw_payload();
+                slot.entry = entry;
+                slot.epoch = epoch;
+                slot.sig = sig;
+                slot.closure = closure;
+            }
+            None => {
+                slot.tag = u64::MAX;
+                slot.payload = u64::MAX;
+                slot.entry = 0;
+                slot.epoch = 0;
+                slot.sig = 0;
+                slot.closure = 0;
+            }
+        }
+    }
+}
 #[vn_macros::jit_slow(field = "jit_call_method_cached_window")]
 pub(crate) extern "C" fn jit_call_method_cached_window(
     ctx: *mut ExecCtx,

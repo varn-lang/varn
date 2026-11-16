@@ -20,6 +20,8 @@ pub(crate) struct Emitted<'a> {
 
     pub ic: &'a crate::ssa::ic::IcSlots,
 
+    pub direct: &'a crate::ssa::ic::DirectSlots,
+
     pub closure_consts: &'a [Vec<Option<u16>>],
 
     pub block_offset: &'a [usize],
@@ -89,6 +91,7 @@ pub(crate) fn project(
                 .unwrap_or(usize::MAX);
             let site = Site {
                 ic_slot: emitted.ic.of(b, i),
+                direct_slot: emitted.direct.of(b, i),
                 closure_const: emitted
                     .closure_consts
                     .get(b)
@@ -334,6 +337,8 @@ pub(crate) fn project(
 
 struct Site<'a> {
     ic_slot: Option<u8>,
+
+    direct_slot: Option<u8>,
 
     closure_const: Option<u16>,
 

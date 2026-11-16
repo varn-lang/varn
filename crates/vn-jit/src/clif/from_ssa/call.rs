@@ -11,5 +11,6 @@ pub(super) use direct::{entry_out_slot, run_entered, run_entered_or};
 pub(super) use invoke::{boxed_window, emit_invoke};
 pub(super) use method::{emit_is_str, emit_method_call};
 pub(super) use native::emit_call_native_op;
+pub(super) use native_entry::{emit_direct, DirectCall};
 pub(crate) use scratch::ScratchWin;
 pub(super) use scratch::{scratch_addr, scratch_max};

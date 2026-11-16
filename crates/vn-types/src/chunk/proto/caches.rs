@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::sync::Arc;
 
-use super::super::inline_cache::{FeedbackVector, PolyICSlot};
+use super::super::inline_cache::{DirectCallSlot, FeedbackVector, PolyICSlot};
 use super::super::pool::PoolEntry;
 use super::definition::FunctionProto;
 
@@ -69,6 +69,17 @@ impl FunctionProto {
         let mut fb = self.feedback.borrow_mut();
         if fb.sites.is_empty() {
             *fb = FeedbackVector::new(n);
+        }
+    }
+
+    pub fn ensure_direct(&self) {
+        let n = self.direct_count;
+        if n == 0 {
+            return;
+        }
+        let mut dc = self.direct_cache.borrow_mut();
+        if dc.is_empty() {
+            dc.resize_with(n, DirectCallSlot::new);
         }
     }
 

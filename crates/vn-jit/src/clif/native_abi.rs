@@ -3,6 +3,8 @@ use cranelift_codegen::isa::CallConv;
 use vn_types::register_meta::SlotKind;
 use vn_types::FunctionProto;
 
+pub(crate) use crate::NATIVE_FRAMELESS;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum NativeClass {
     Word,
@@ -84,8 +86,6 @@ impl NativeShape {
         sig
     }
 }
-
-pub const NATIVE_FRAMELESS: u64 = 1 << 63;
 
 const MAX_ID_PARAMS: usize = 18;
 

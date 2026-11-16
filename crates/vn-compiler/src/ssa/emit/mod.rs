@@ -61,6 +61,7 @@ pub(crate) fn emit_function_meta(
 
     let order = emission_order(&ssa);
     let ic = super::ic::IcSlots::number(&ssa, &order)?;
+    let direct = super::ic::DirectSlots::number(&ssa, &order)?;
 
     let mut closure_consts: Vec<Vec<Option<u16>>> = ssa
         .blocks
@@ -180,6 +181,7 @@ pub(crate) fn emit_function_meta(
         register_count,
         nparams,
         ic: &ic,
+        direct: &direct,
         closure_consts: &closure_consts,
         block_offset: &block_offset,
         inst_off: &inst_off,
@@ -210,6 +212,7 @@ pub(crate) fn emit_function_meta(
         has_this: f.has_this,
         upvalue_count: f.upvalue_count as usize,
         cache_count: ic.count() as usize,
+        direct_count: direct.count() as usize,
         chunk,
         required_caps: Vec::new(),
         state_size: 0,
@@ -230,6 +233,11 @@ pub(crate) fn emit_function_meta(
         backedge_memo: Cell::new(0),
         ic_cache: Rc::new(RefCell::new(
             (0..ic.count()).map(|_| PolyICSlot::new()).collect(),
+        )),
+        direct_cache: Rc::new(RefCell::new(
+            (0..direct.count())
+                .map(|_| vn_types::chunk::DirectCallSlot::new())
+                .collect(),
         )),
         feedback: Rc::new(RefCell::new(FeedbackVector::new(ic.count() as usize))),
         frame_layout: Default::default(),
