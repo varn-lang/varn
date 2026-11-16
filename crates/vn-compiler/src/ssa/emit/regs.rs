@@ -136,6 +136,7 @@ pub(super) fn assign_registers(ssa: &SsaFunc, nparams: usize) -> Result<Assignme
 fn window_size(kind: &InstKind) -> u32 {
     match kind {
         InstKind::Call { args, .. } => args.len() as u32 + 1,
+        InstKind::CallDirect { args, .. } => args.len() as u32 + 1,
         InstKind::SelfCall { args } => args.len() as u32 + 1,
         InstKind::MethodCall { args, .. } => args.len() as u32,
 
@@ -238,7 +239,10 @@ fn coalesce_window_args(ssa: &SsaFunc, reg: &mut [u8], call_base: u8) {
     }
     for block in &ssa.blocks {
         for (at, inst) in block.insts.iter().enumerate() {
-            let (InstKind::Call { args, .. } | InstKind::SelfCall { args }) = &inst.kind else {
+            let (InstKind::Call { args, .. }
+            | InstKind::CallDirect { args, .. }
+            | InstKind::SelfCall { args }) = &inst.kind
+            else {
                 continue;
             };
             for (i, arg) in args.iter().enumerate() {

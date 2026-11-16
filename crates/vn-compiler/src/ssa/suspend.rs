@@ -34,6 +34,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::StoreGlobalIdx { .. }
                 | InstKind::StoreUpvalue { .. }
                 | InstKind::Call { .. }
+                | InstKind::CallDirect { .. }
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
@@ -140,6 +141,7 @@ pub fn suspend_live_regs(
                 | InstKind::StoreGlobalIdx { .. }
                 | InstKind::StoreUpvalue { .. }
                 | InstKind::Call { .. }
+                | InstKind::CallDirect { .. }
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
@@ -294,6 +296,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::StoreGlobalIdx { .. }
                 | InstKind::StoreUpvalue { .. }
                 | InstKind::Call { .. }
+                | InstKind::CallDirect { .. }
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }

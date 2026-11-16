@@ -82,6 +82,7 @@ pub(super) fn try_project(
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

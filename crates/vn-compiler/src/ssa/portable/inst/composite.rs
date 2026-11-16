@@ -83,6 +83,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
@@ -229,6 +230,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

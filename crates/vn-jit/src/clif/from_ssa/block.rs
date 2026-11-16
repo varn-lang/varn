@@ -136,6 +136,11 @@ pub(super) fn lower_block(
         {
             continue;
         }
+        if let (vn_types::ssa::SsaOp::CallDirect { .. }, Some(d)) = (&inst.op, inst.dest)
+            && ctx.fused_awaits.contains_key(&d)
+        {
+            continue;
+        }
         if let Some(d) = inst.dest {
             ctx.views.forget(b, d);
         }
@@ -188,6 +193,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::Unary { .. }
             | vn_types::ssa::SsaOp::SelfCall { .. }
             | vn_types::ssa::SsaOp::Call { .. }
+            | vn_types::ssa::SsaOp::CallDirect { .. }
             | vn_types::ssa::SsaOp::AllocInstance { .. }
             | vn_types::ssa::SsaOp::ArrayGetIndex { .. }
             | vn_types::ssa::SsaOp::BytesGetIndex { .. }

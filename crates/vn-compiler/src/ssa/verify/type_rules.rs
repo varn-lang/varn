@@ -184,6 +184,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

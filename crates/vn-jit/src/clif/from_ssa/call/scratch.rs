@@ -33,6 +33,7 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
         for inst in &blk.insts {
             let need = match &inst.op {
                 SsaOp::Call { args, .. }
+                | SsaOp::CallDirect { args, .. }
                 | SsaOp::SelfCall { args }
                 | SsaOp::SuperCall { args }
                 | SsaOp::MethodCall { args, .. } => args.len() + 1,

@@ -34,6 +34,23 @@ pub fn inst_kind(kind: &InstKind) -> String {
             format!("storeupvalue #{index} = {}", val(*value))
         }
         InstKind::Call { callee, args, .. } => format!("call {}{}", val(*callee), args_list(args)),
+        InstKind::CallDirect {
+            target,
+            slot,
+            callee,
+            args,
+            ..
+        } => {
+            let via = match slot {
+                Some(s) => format!("@{s}"),
+                None => String::new(),
+            };
+            format!(
+                "calldirect {target}{via} {} {}",
+                val(*callee),
+                args_list(args)
+            )
+        }
         InstKind::AllocInstance { class, .. } => format!("alloc {}", val(*class)),
         InstKind::SelfCall { args } => format!("callself{}", args_list(args)),
         InstKind::GetProperty { object, name } => format!("getprop {}.{name}", val(*object)),

@@ -50,6 +50,29 @@ impl<'m> Builder<'m> {
             if let Some(v) = self.try_inline_direct_call(*f, args, ty)? {
                 return Ok(v);
             }
+            if !args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_)))
+                && let Some(tf) = self.tir.function(*f)
+            {
+                let bare = tf.name.clone();
+                let slot = self.gslot(&bare);
+                let target = self.gname(&bare);
+                let cv = self.emit(
+                    self.global_load(&bare),
+                    BackendTy::Dynamic(DynReason::Runtime),
+                );
+                let mut argv = self.lower_args(args)?;
+                let shape = self.declared_call_shape(callee.ty, &mut argv);
+                return Ok(self.emit(
+                    InstKind::CallDirect {
+                        target,
+                        slot,
+                        callee: cv,
+                        args: argv,
+                        shape,
+                    },
+                    ty,
+                ));
+            }
         }
         let cv = match res {
             Resolution::DirectFn(f) => {

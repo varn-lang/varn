@@ -152,6 +152,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

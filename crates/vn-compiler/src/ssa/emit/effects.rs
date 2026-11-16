@@ -269,6 +269,7 @@ pub(super) fn emit_effect(
         | InstKind::LoadNativeGlobalIdx(_)
         | InstKind::LoadUpvalue(_)
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

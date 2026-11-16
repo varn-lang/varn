@@ -177,6 +177,7 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

@@ -87,6 +87,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::StoreGlobalIdx { .. }
                 | InstKind::StoreUpvalue { .. }
                 | InstKind::Call { .. }
+                | InstKind::CallDirect { .. }
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }

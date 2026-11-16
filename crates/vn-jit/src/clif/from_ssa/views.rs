@@ -52,6 +52,7 @@ impl Views {
                 | SsaOp::Unary { .. }
                 | SsaOp::SelfCall { .. }
                 | SsaOp::Call { .. }
+                | SsaOp::CallDirect { .. }
                 | SsaOp::AllocInstance { .. }
                 | SsaOp::LoadGlobalIdx(_)
                 | SsaOp::ArrayGetIndex { .. }
@@ -142,6 +143,7 @@ impl Views {
                 | SsaOp::Unary { .. }
                 | SsaOp::SelfCall { .. }
                 | SsaOp::Call { .. }
+                | SsaOp::CallDirect { .. }
                 | SsaOp::AllocInstance { .. }
                 | SsaOp::LoadGlobalIdx(_)
                 | SsaOp::ConstChar(_)

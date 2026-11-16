@@ -57,7 +57,11 @@ impl<'m> Builder<'m> {
         }
     }
 
-    fn declared_call_shape(&mut self, callee_ty: BackendTy, args: &mut Vec<Value>) -> Option<u32> {
+    pub(super) fn declared_call_shape(
+        &mut self,
+        callee_ty: BackendTy,
+        args: &mut Vec<Value>,
+    ) -> Option<u32> {
         let BackendTy::Fn(sig) = callee_ty else {
             return None;
         };

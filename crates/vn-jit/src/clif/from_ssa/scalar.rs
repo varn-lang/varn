@@ -161,6 +161,9 @@ pub(super) fn emit_inst(
         SsaOp::Call { callee, args } => {
             return Ok(Some(call::emit_call(b, ctx, values, *callee, args, dest)?))
         }
+        SsaOp::CallDirect { callee, args, .. } => {
+            return Ok(Some(call::emit_call(b, ctx, values, *callee, args, dest)?))
+        }
         SsaOp::AllocInstance {
             class,
             payload_size,

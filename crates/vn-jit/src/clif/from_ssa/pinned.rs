@@ -88,6 +88,7 @@ pub(super) fn compute(
                         | SsaOp::Unary { .. }
                         | SsaOp::SelfCall { .. }
                         | SsaOp::Call { .. }
+                        | SsaOp::CallDirect { .. }
                         | SsaOp::AllocInstance { .. }
                         | SsaOp::LoadGlobalIdx(_)
                         | SsaOp::ArrayGetIndex { .. }

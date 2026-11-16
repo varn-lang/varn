@@ -60,6 +60,7 @@ pub(super) fn plan_hoists(
                     | vn_types::ssa::SsaOp::Unary { .. }
                     | vn_types::ssa::SsaOp::SelfCall { .. }
                     | vn_types::ssa::SsaOp::Call { .. }
+                    | vn_types::ssa::SsaOp::CallDirect { .. }
                     | vn_types::ssa::SsaOp::AllocInstance { .. }
                     | vn_types::ssa::SsaOp::ArrayGetIndex { .. }
                     | vn_types::ssa::SsaOp::BytesGetIndex { .. }

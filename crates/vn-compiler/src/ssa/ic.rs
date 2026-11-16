@@ -90,6 +90,7 @@ fn sites(kind: &InstKind, has_dest: bool) -> u16 {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetFixedField { .. }

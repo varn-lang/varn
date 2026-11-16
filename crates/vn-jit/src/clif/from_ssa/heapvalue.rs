@@ -68,6 +68,7 @@ pub(super) fn emit(
         | SsaOp::Unary { .. }
         | SsaOp::SelfCall { .. }
         | SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
         | SsaOp::AllocInstance { .. }
         | SsaOp::LoadGlobalIdx(_)
         | SsaOp::ArrayGetIndex { .. }
@@ -330,6 +331,7 @@ pub(super) fn emit(
         | SsaOp::Unary { .. }
         | SsaOp::SelfCall { .. }
         | SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
         | SsaOp::AllocInstance { .. }
         | SsaOp::ArrayGetIndex { .. }
         | SsaOp::BytesGetIndex { .. }

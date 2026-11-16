@@ -5,6 +5,7 @@ use vn_types::ssa::{SsaOp, SsaProto};
 pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
     match op {
         SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::MethodCall { .. }
         | SsaOp::SuperCall { .. }
@@ -95,6 +96,7 @@ pub(super) fn needs_frame(ssa: &SsaProto, op: &SsaOp) -> bool {
     matches!(
         op,
         SsaOp::Call { .. }
+            | SsaOp::CallDirect { .. }
             | SsaOp::AllocInstance { .. }
             | SsaOp::CallNativeOp { .. }
             | SsaOp::MethodCall { .. }

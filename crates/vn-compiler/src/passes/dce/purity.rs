@@ -106,6 +106,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | ObjectRest { .. } => false,
 
         Call { .. }
+        | CallDirect { .. }
         | SelfCall { .. }
         | MethodCall { .. }
         | SuperCall { .. }

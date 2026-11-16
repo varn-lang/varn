@@ -163,6 +163,10 @@ macro_rules! inst_uses {
                 $use!($f, callee);
                 $iter!(args).for_each(|v| $use!($f, v));
             }
+            CallDirect { callee, args, .. } => {
+                $use!($f, callee);
+                $iter!(args).for_each(|v| $use!($f, v));
+            }
             AllocInstance { class, .. } => $use!($f, class),
             MethodCall { recv, args, .. } | ExtensionCall { recv, args, .. } => {
                 $use!($f, recv);

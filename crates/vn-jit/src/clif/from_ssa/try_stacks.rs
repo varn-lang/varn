@@ -21,6 +21,7 @@ pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Ve
             | vn_types::ssa::SsaOp::Unary { .. }
             | vn_types::ssa::SsaOp::SelfCall { .. }
             | vn_types::ssa::SsaOp::Call { .. }
+            | vn_types::ssa::SsaOp::CallDirect { .. }
             | vn_types::ssa::SsaOp::AllocInstance { .. }
             | vn_types::ssa::SsaOp::LoadGlobalIdx(_)
             | vn_types::ssa::SsaOp::ArrayGetIndex { .. }
@@ -127,6 +128,7 @@ pub(super) fn stack_before_try(
             | vn_types::ssa::SsaOp::Unary { .. }
             | vn_types::ssa::SsaOp::SelfCall { .. }
             | vn_types::ssa::SsaOp::Call { .. }
+            | vn_types::ssa::SsaOp::CallDirect { .. }
             | vn_types::ssa::SsaOp::AllocInstance { .. }
             | vn_types::ssa::SsaOp::LoadGlobalIdx(_)
             | vn_types::ssa::SsaOp::ArrayGetIndex { .. }

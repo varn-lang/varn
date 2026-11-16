@@ -111,6 +111,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::StoreGlobalIdx { .. }
                 | InstKind::StoreUpvalue { .. }
                 | InstKind::Call { .. }
+                | InstKind::CallDirect { .. }
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
@@ -195,6 +196,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }

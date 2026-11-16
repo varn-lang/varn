@@ -120,6 +120,7 @@ pub(crate) fn project(
                     | InstKind::StoreGlobalIdx { .. }
                     | InstKind::StoreUpvalue { .. }
                     | InstKind::Call { .. }
+                    | InstKind::CallDirect { .. }
                     | InstKind::AllocInstance { .. }
                     | InstKind::SelfCall { .. }
                     | InstKind::GetProperty { .. }
@@ -215,6 +216,7 @@ pub(crate) fn project(
                     | InstKind::StoreGlobalIdx { .. }
                     | InstKind::StoreUpvalue { .. }
                     | InstKind::Call { .. }
+                    | InstKind::CallDirect { .. }
                     | InstKind::AllocInstance { .. }
                     | InstKind::SelfCall { .. }
                     | InstKind::GetProperty { .. }
@@ -284,6 +286,9 @@ pub(crate) fn project(
             let projected = project_inst(inst, &value_tys, site, &mut captured)
                 .ok_or_else(|| why_not::why_not(&inst.kind, &value_tys))?;
             if let InstKind::Call {
+                shape: Some(shape), ..
+            }
+            | InstKind::CallDirect {
                 shape: Some(shape), ..
             } = &inst.kind
             {

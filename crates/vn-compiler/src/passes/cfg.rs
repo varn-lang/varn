@@ -215,6 +215,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::StoreGlobalIdx { .. }
                         | InstKind::StoreUpvalue { .. }
                         | InstKind::Call { .. }
+                        | InstKind::CallDirect { .. }
                         | InstKind::AllocInstance { .. }
                         | InstKind::SelfCall { .. }
                         | InstKind::GetProperty { .. }

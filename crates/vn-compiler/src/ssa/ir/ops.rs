@@ -56,6 +56,14 @@ pub enum InstKind {
         shape: Option<u32>,
     },
 
+    CallDirect {
+        target: Arc<str>,
+        slot: Option<u32>,
+        callee: Value,
+        args: Vec<Value>,
+        shape: Option<u32>,
+    },
+
     AllocInstance {
         class: Value,
         payload_size: u32,

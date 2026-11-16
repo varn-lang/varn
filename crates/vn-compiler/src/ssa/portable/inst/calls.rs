@@ -8,6 +8,18 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             callee: callee.0,
             args: args.iter().map(|v| v.0).collect(),
         }),
+        InstKind::CallDirect {
+            target,
+            slot,
+            callee,
+            args,
+            ..
+        } => Some(SsaOp::CallDirect {
+            target: target.as_ref().into(),
+            slot: *slot,
+            callee: callee.0,
+            args: args.iter().map(|v| v.0).collect(),
+        }),
         InstKind::SelfCall { args } => Some(SsaOp::SelfCall {
             args: args.iter().map(|v| v.0).collect(),
         }),

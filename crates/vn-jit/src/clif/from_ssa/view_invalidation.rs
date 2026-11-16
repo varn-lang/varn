@@ -74,6 +74,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         SsaOp::ConstStr(_)
         | SsaOp::SelfCall { .. }
         | SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
         | SsaOp::AllocInstance { .. }
         | SsaOp::LoadGlobalIdx(_)
         | SsaOp::ConstChar(_)

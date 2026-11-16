@@ -30,6 +30,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::StoreGlobalIdx { .. }
         | other @ InstKind::StoreUpvalue { .. }
         | other @ InstKind::Call { .. }
+        | other @ InstKind::CallDirect { .. }
         | other @ InstKind::AllocInstance { .. }
         | other @ InstKind::SelfCall { .. }
         | other @ InstKind::GetProperty { .. }

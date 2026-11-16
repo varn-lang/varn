@@ -218,6 +218,7 @@ pub(super) fn version_plans(
                     | SsaOp::Unary { .. }
                     | SsaOp::SelfCall { .. }
                     | SsaOp::Call { .. }
+                    | SsaOp::CallDirect { .. }
                     | SsaOp::AllocInstance { .. }
                     | SsaOp::LoadGlobalIdx(_)
                     | SsaOp::ConstChar(_)

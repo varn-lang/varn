@@ -31,6 +31,13 @@ pub enum SsaOp {
         args: Vec<u32>,
     },
 
+    CallDirect {
+        target: Box<str>,
+        slot: Option<u32>,
+        callee: u32,
+        args: Vec<u32>,
+    },
+
     AllocInstance {
         class: u32,
         payload_size: u32,

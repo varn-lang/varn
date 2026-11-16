@@ -42,6 +42,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
         | InstKind::LoadUpvalue(_)
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }
+        | InstKind::CallDirect { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
