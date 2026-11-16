@@ -1,34 +1,14 @@
 #![allow(unused_crate_dependencies)]
 
-use std::sync::Arc;
-use vn_core::TypeKind;
-use vn_sem::types::{CheckerTyId, CheckerTyTable, ObjectTypeMember, Type};
+// Ley 11 exime a estos dos: fijan determinismo de internado (mismo contenido,
+// mismo id, en cualquier orden e hilo), una propiedad que preserva el
+// comportamiento y por tanto es ciega a tests/main.vn. Sin ellos, un cambio de
+// orden generaría bytecode distinto sin que ninguna suite lo notara.
+// (L3-Auditoría: el resto de invariantes de la tabla sí tienen cobertura
+// conductual y se migraron o borraron.)
 
-#[test]
-fn intrinsic_ids_are_fixed_and_small() {
-    let t = CheckerTyTable::new();
-    assert_eq!(
-        t.get(CheckerTyId::INT),
-        TypeKind::Primitive(vn_core::LangPrimitive::INT)
-    );
-    assert_eq!(
-        t.get(CheckerTyId::STR),
-        TypeKind::Primitive(vn_core::LangPrimitive::Str)
-    );
-    assert_eq!(
-        t.get(CheckerTyId::BOOL),
-        TypeKind::Primitive(vn_core::LangPrimitive::Bool)
-    );
-    assert_eq!(
-        t.get(CheckerTyId::FLOAT),
-        TypeKind::Primitive(vn_core::LangPrimitive::FLOAT)
-    );
-    assert_eq!(
-        t.get(CheckerTyId::DYNAMIC),
-        TypeKind::Primitive(vn_core::LangPrimitive::Dynamic)
-    );
-    assert_eq!(t.get(CheckerTyId::THIS), TypeKind::This);
-}
+use vn_core::TypeKind;
+use vn_sem::types::{CheckerTyId, CheckerTyTable};
 
 #[test]
 fn content_ids_are_order_independent() {
@@ -49,55 +29,6 @@ fn content_ids_are_order_independent() {
     assert_eq!(l_int, r_int);
     assert_eq!(l_arr, r_arr, "Array<int> es el mismo id en ambas tablas");
     assert_eq!(l_union, r_union, "Union<int,str> es el mismo id");
-}
-
-#[test]
-fn intern_is_idempotent_and_get_roundtrips() {
-    let mut t = CheckerTyTable::new();
-    let a = t.intern(TypeKind::Array(CheckerTyId::INT));
-    let b = t.intern(TypeKind::Array(CheckerTyId::STR));
-    let a_again = t.intern(TypeKind::Array(CheckerTyId::INT));
-
-    assert_eq!(a, a_again);
-    assert_ne!(a, b);
-    assert_eq!(t.get(a), TypeKind::Array(CheckerTyId::INT));
-    assert_eq!(t.get(b), TypeKind::Array(CheckerTyId::STR));
-}
-
-#[test]
-fn absorb_is_a_union_that_preserves_ids() {
-    let mut local = CheckerTyTable::new();
-    let local_arr = local.intern(TypeKind::Array(CheckerTyId::INT));
-
-    let mut foreign = CheckerTyTable::new();
-    let foreign_list = foreign.intern_list(&[CheckerTyId::INT, CheckerTyId::STR]);
-    let foreign_union = foreign.intern(TypeKind::Union(foreign_list));
-    let foreign_members = foreign.intern_object_members(vec![ObjectTypeMember::Property {
-        name: Arc::from("ok"),
-        ty: CheckerTyId::BOOL,
-        optional: false,
-        readonly: false,
-    }]);
-    let foreign_obj = foreign.intern(TypeKind::Record(foreign_members));
-
-    local.absorb(&foreign);
-
-    assert_eq!(local.get(foreign_union), foreign.get(foreign_union));
-    assert_eq!(local.get(foreign_obj), foreign.get(foreign_obj));
-    assert_eq!(local.get(local_arr), TypeKind::Array(CheckerTyId::INT));
-}
-
-#[test]
-fn checker_ty_table_is_send_and_sync() {
-    fn assert_send_sync<T: Send + Sync>() {}
-    assert_send_sync::<CheckerTyTable>();
-    assert_send_sync::<Type>();
-}
-
-#[test]
-fn bind_result_is_send_and_sync() {
-    fn assert_send_sync<T: Send + Sync>() {}
-    assert_send_sync::<vn_sem::bind::BindResult>();
 }
 
 #[test]
