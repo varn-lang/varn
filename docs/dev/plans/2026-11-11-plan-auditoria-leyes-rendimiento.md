@@ -195,6 +195,19 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   `new_retained`. (c) `UNKNOWN_CELL_BYTES`, `limit_cells` y el cálculo por promedio.
 - **Coordinación:** el heap viejo acaba de cambiar (`54cb85fb`) y ADR-0027
   gobierna el GC; revisar que el cambio no contradiga ese diseño.
+- **Estado 2026-11-15 (APARCADO con causa, sin cambio en código):**
+  re-medido en release, `http_routing` entra a la menor con 699050 celdas
+  (exacto `16MiB/24`: la media real nunca se observa porque `recompute`
+  lee `young.len()` con `born` ya vacío) pero solo hace 1 menor de ~17.7 ms
+  en ~200 ms (~8.8 % en GC, ya bajo el objetivo del 12 %). El bench
+  pre-construye 100k requests vivas, así que el conjunto joven es ~73 % vivo:
+  forzar el presupuesto (límite desde la media real, ~161k celdas) tenure
+  512k supervivientes al segundo minor y dispara un major que libera 0;
+  `vn bench --baseline` marca **+22.1 % Regression** en `execute (warm)`.
+  El vivero grande es lo que este bench quiere; el rediseño por presupuesto
+  único queda bajo ADR-0027 S1 (ritmo en bytes + política de tenure
+  conjunta), no como retoque aislado del límite. La vía real para este bench
+  es R3 (el garbage del `dispatch` sí muere joven).
 
 ### R2. Asignación joven por puntero
 
