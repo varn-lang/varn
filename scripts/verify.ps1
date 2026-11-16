@@ -7,10 +7,14 @@
     1. Formateo de código (cargo fmt)
     2. Linter (cargo clippy)
     3. Auditoría de gobernanza de tamaño de archivos
-    4. Compilación del binario de producción (cargo build --release --bin vn)
+    4. Compilación del binario de producción (cargo build --release --bin vn,
+       con sccache automático si está instalado)
     5. Suite tests/main.vn: el camino de producción (@embedded + JIT) con -Fast,
-       la matriz completa de 5 cuadrantes sin banderas, y el cuadrante de estrés
-       del GC (VN_GC_STRESS=256 + verificador de invariantes)
+       la matriz completa sin banderas (Q1-Q4 + estrés del GC en paralelo con
+       Start-Job, cada uno con su propio VN_HOME/VN_CACHE_DIR y directorio de
+       trabajo para evitar contención en caché y en los archivos temp_*.txt
+       de la suite), más el cuadrante 5 que verifica la caché JIT tibia de Q1
+       byte a byte (VN_JIT_CACHE=verify)
     6. Benchmark de estabilidad (opcional con -Fast)
 
 .PARAMETER Fast
@@ -24,6 +28,9 @@
 
 .PARAMETER CleanCache
     Limpia la caché de Varn (`vn cache clean`) antes de cada cuadrante.
+    En la matriz en paralelo las cachés ya son directorios frescos por
+    trabajo; el cuadrante 5 nunca se limpia porque debe reutilizar la
+    caché tibia de Q1.
 
 .PARAMETER Quick
     Ciclo de iteración: compila con el perfil `quick` (sin LTO, codegen-units=16),
@@ -35,6 +42,14 @@
     corpus de errores ni goldens (que recompilan los tests de vn-cli), y solo el
     cuadrante 1 (tests/main.vn con dev-checkout + JIT). Implica -Quick.
     Es lo mas barato que sigue ejecutando la suite de integracion.
+
+.PARAMETER Jobs
+    Máximo de cuadrantes en paralelo en la matriz completa. 0 = automático
+    (número de cuadrantes, acotado por $env:NUMBER_OF_PROCESSORS).
+
+.PARAMETER NoParallel
+    Fuerza la matriz completa en serie (comportamiento anterior). Útil para
+    depurar un cuadrante o en máquinas con poca RAM.
 
 .EXAMPLE
     .\scripts\verify.ps1
@@ -48,7 +63,9 @@ param (
     [switch]$SkipLint,
     [switch]$CleanCache,
     [switch]$Quick,
-    [switch]$Min
+    [switch]$Min,
+    [int]$Jobs = 0,
+    [switch]$NoParallel
 )
 
 if ($Min) {
@@ -64,6 +81,15 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $ScriptDir
 Set-Location $RootDir
+
+# sccache reutiliza objetos entre ramas y perfiles: en la segunda compilación
+# del mismo árbol casi todo es cache hit. Solo se activa si está instalado
+# (cargo install sccache); si no, el build sigue igual que antes.
+if (-not $env:RUSTC_WRAPPER) {
+    if (Get-Command sccache -ErrorAction SilentlyContinue) {
+        $env:RUSTC_WRAPPER = "sccache"
+    }
+}
 
 function Write-StepHeader($title) {
     Write-Host ""
@@ -148,6 +174,11 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 Write-Success "Binario 'vn' compilado exitosamente (perfil $BuildProfile)."
+if ($env:RUSTC_WRAPPER -eq "sccache") {
+    Write-Success "Compilacion acelerada con sccache."
+} else {
+    Write-Host " (nota) sccache no detectado: 'cargo install sccache' acelera 3-10x las recompilaciones." -ForegroundColor DarkGray
+}
 
 $vnBin = Join-Path $RootDir "target\$BuildProfile\vn.exe"
 if (-not (Test-Path $vnBin)) {
@@ -198,6 +229,102 @@ function Run-Quadrant($name, $envVars, $argsList) {
     }
 }
 
+$VnTestFile = Join-Path $RootDir "tests\main.vn"
+
+function Get-MaxParallelism($count) {
+    if ($NoParallel) { return 1 }
+    if ($Jobs -gt 0) { return [Math]::Max(1, [Math]::Min($Jobs, $count)) }
+    $cpu = 4
+    try { $cpu = [Math]::Max(1, [int]$env:NUMBER_OF_PROCESSORS) } catch { $cpu = 4 }
+    return [Math]::Min($cpu, $count)
+}
+
+# Ejecuta los cuadrantes en paralelo con Start-Job. Cada trabajo recibe su
+# propio VN_HOME/VN_CACHE_DIR y su propio directorio de trabajo: sin eso los
+# trabajos contendrían en la caché en disco y en los temp_*.txt que la suite
+# escribe en el CWD. Devuelve @{ Failed = @(...); ScratchUsed = $bool }.
+# Con -NoParallel o -Jobs 1 cae al camino en serie anterior.
+function Run-QuadrantsParallel($specs, $scratchRoot) {
+    $failedNames = @()
+    $maxPar = Get-MaxParallelism $specs.Count
+    if ($maxPar -le 1) {
+        foreach ($s in $specs) {
+            $ok = Run-Quadrant $s.Name $s.Env $s.Args
+            if (-not $ok) { $failedNames += $s.Name }
+        }
+        return [PSCustomObject]@{ Failed = $failedNames; ScratchUsed = $false }
+    }
+    New-Item -ItemType Directory -Force -Path $scratchRoot | Out-Null
+
+    $worker = {
+        param($vnBin, $testFile, $envList, $workDir, $homeDir, $cacheDir)
+        $envVars = @{}
+        foreach ($kv in $envList) {
+            $eq = $kv.IndexOf("=")
+            if ($eq -gt 0) { $envVars[$kv.Substring(0, $eq)] = $kv.Substring($eq + 1) }
+        }
+        foreach ($k in @("VN_STD", "VN_STD_BUNDLE", "VN_NO_JIT", "VN_JIT_CACHE", "VN_GC_STRESS", "VN_GC_VERIFY", "VN_HOME", "VN_CACHE_DIR")) {
+            if (-not $envVars.ContainsKey($k)) {
+                [System.Environment]::SetEnvironmentVariable($k, $null, "Process")
+            }
+        }
+        foreach ($k in $envVars.Keys) {
+            [System.Environment]::SetEnvironmentVariable($k, $envVars[$k], "Process")
+        }
+        [System.Environment]::SetEnvironmentVariable("VN_HOME", $homeDir, "Process")
+        [System.Environment]::SetEnvironmentVariable("VN_CACHE_DIR", $cacheDir, "Process")
+        New-Item -ItemType Directory -Force -Path $workDir | Out-Null
+        New-Item -ItemType Directory -Force -Path $cacheDir | Out-Null
+        Set-Location $workDir
+        $out = & $vnBin run $testFile 2>&1 | Out-String
+        [PSCustomObject]@{ ExitCode = $LASTEXITCODE; Output = $out }
+    }
+
+    Write-Host "Lanzando $($specs.Count) cuadrantes en paralelo (max $maxPar a la vez, scratch: $scratchRoot)..." -ForegroundColor Yellow
+    $next = 0
+    $tag = 0
+    while ($next -lt $specs.Count) {
+        $batch = @()
+        $n = [Math]::Min($maxPar, ($specs.Count - $next))
+        for ($i = 0; $i -lt $n; $i++) {
+            $s = $specs[$next]; $next++; $tag++
+            $envList = @($s.Env.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" })
+            $workDir = Join-Path $scratchRoot "q$tag-work"
+            $homeDir = Join-Path $scratchRoot "q$tag-home"
+            $cacheDir = Join-Path $homeDir "cache"
+            $job = Start-Job -ScriptBlock $worker -ArgumentList @($vnBin, $VnTestFile, $envList, $workDir, $homeDir, $cacheDir) -Name "verify-q$tag"
+            $batch += [PSCustomObject]@{ Job = $job; Spec = $s; Tag = $tag }
+            Write-Host "  [job $($job.Id)] $($s.Name)" -ForegroundColor DarkCyan
+        }
+        Wait-Job -Job ($batch | ForEach-Object { $_.Job }) -Timeout 1200 | Out-Null
+        foreach ($b in $batch) {
+            $logPath = Join-Path $scratchRoot "q$($b.Tag).log"
+            if ($b.Job.State -eq "Running") {
+                Stop-Job -Job $b.Job | Out-Null
+                Write-Failure "Cuadrante agotado por tiempo (20 min): $($b.Spec.Name)"
+                $failedNames += $b.Spec.Name
+            } else {
+                $r = Receive-Job -Job $b.Job -ErrorAction SilentlyContinue
+                if ($r -is [array]) { $r = $r[-1] }
+                $text = if ($r -and $r.Output) { [string]$r.Output } else { "" }
+                $reason = $b.Job.ChildJobs[0].JobStateInfo.Reason
+                if ($reason) { $text += "`n[Job $($b.Job.State)]: $reason" }
+                $text | Out-File -FilePath $logPath -Encoding utf8
+                $code = if ($r -and $null -ne $r.ExitCode) { [int]$r.ExitCode } else { 1 }
+                if ($code -ne 0) {
+                    Write-Failure "Cuadrante fallido: $($b.Spec.Name) (Exit Code: $code) -- log: $logPath"
+                    Write-Host $text
+                    $failedNames += $b.Spec.Name
+                } else {
+                    Write-Success "Cuadrante superado: $($b.Spec.Name) (log: $logPath)"
+                }
+            }
+            Remove-Job -Job $b.Job -Force
+        }
+    }
+    return [PSCustomObject]@{ Failed = $failedNames; ScratchUsed = $true }
+}
+
 # 5. Suite de integracion
 if ($Fast -and -not $Quick) {
     Write-StepHeader "5/6: Camino de produccion (tests/main.vn con @embedded + JIT)"
@@ -207,37 +334,44 @@ if ($Fast -and -not $Quick) {
 } else {
 Write-StepHeader "5/6: Matriz Obligatoria de 4 Cuadrantes (tests/main.vn)"
 
-# Q1: dev-checkout + JIT
-$q1 = Run-Quadrant "1/4: [dev-checkout] + [JIT Habilitado]" @{} @("run", "tests/main.vn")
-if (-not $q1) { $failedSteps += "Cuadrante 1 (dev-checkout + JIT)" }
+# Q1-Q4 + estres del GC: independientes entre si, corren en paralelo con
+# cachés y CWD aislados. Q5 (verificacion de la caché JIT) corre después,
+# reutilizando la caché tibia de Q1 para que el modo verify compare hits
+# reales en vez de una caché fría.
+$matrixSpecs = @(
+    @{ Name = "1/4: [dev-checkout] + [JIT Habilitado]"; Env = @{}; Args = @("run", $VnTestFile) },
+    @{ Name = "2/4: [dev-checkout] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_NO_JIT" = "1" }; Args = @("run", $VnTestFile) },
+    @{ Name = "3/4: [@embedded std] + [JIT Habilitado]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle }; Args = @("run", $VnTestFile) },
+    @{ Name = "4/4: [@embedded std] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle; "VN_NO_JIT" = "1" }; Args = @("run", $VnTestFile) },
+    @{ Name = "GC: [estres GC 256] + [verificador de invariantes]"; Env = @{ "VN_GC_STRESS" = "256"; "VN_GC_VERIFY" = "1" }; Args = @("run", $VnTestFile) }
+)
 
 if ($Quick) {
+    $q1 = Run-Quadrant "1/4: [dev-checkout] + [JIT Habilitado]" @{} @("run", "tests/main.vn")
+    if (-not $q1) { $failedSteps += "Cuadrante 1 (dev-checkout + JIT)" }
     Write-WarningMsg "Saltando cuadrantes 2-4 (-Quick activo): correr la matriz completa antes de commitear."
 } else {
+    $scratchRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("vn-verify-" + (Get-Date -Format "yyyyMMdd-HHmmss") + "-$PID")
+    $matrixResult = Run-QuadrantsParallel $matrixSpecs $scratchRoot
+    foreach ($f in $matrixResult.Failed) { $failedSteps += $f }
 
-# Q2: dev-checkout + No-JIT (Interprete Pure)
-$q2 = Run-Quadrant "2/4: [dev-checkout] + [Interprete Pure (VN_NO_JIT=1)]" @{ "VN_NO_JIT" = "1" } @("run", "tests/main.vn")
-if (-not $q2) { $failedSteps += "Cuadrante 2 (dev-checkout + No-JIT)" }
+    $q5Env = @{ "VN_JIT_CACHE" = "verify" }
+    if ($matrixResult.ScratchUsed) {
+        $q5Env["VN_CACHE_DIR"] = Join-Path $scratchRoot "q1-home\cache"
+    }
+    # Q5 debe correr sobre la caché tibia de Q1: nunca limpiarla aquí.
+    $cc = $CleanCache
+    $CleanCache = $false
+    $q5 = Run-Quadrant "5: [cache JIT] + [VN_JIT_CACHE=verify]" $q5Env @("run", "tests/main.vn")
+    $CleanCache = $cc
+    if (-not $q5) { $failedSteps += "Cuadrante 5 (cache JIT verify)" }
 
-# Q3: @embedded + JIT
-$q3 = Run-Quadrant "3/4: [@embedded std] + [JIT Habilitado]" @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle } @("run", "tests/main.vn")
-if (-not $q3) { $failedSteps += "Cuadrante 3 (@embedded + JIT)" }
-
-# Q4: @embedded + No-JIT (Interprete Pure)
-$q4 = Run-Quadrant "4/4: [@embedded std] + [Interprete Pure (VN_NO_JIT=1)]" @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle; "VN_NO_JIT" = "1" } @("run", "tests/main.vn")
-if (-not $q4) { $failedSteps += "Cuadrante 4 (@embedded + No-JIT)" }
-
-# Q5: cache JIT tibia (de Q1/Q3) recompilada y comparada byte a byte
-$q5 = Run-Quadrant "5: [cache JIT] + [VN_JIT_CACHE=verify]" @{ "VN_JIT_CACHE" = "verify" } @("run", "tests/main.vn")
-if (-not $q5) { $failedSteps += "Cuadrante 5 (cache JIT verify)" }
+    if ($failedSteps.Count -eq 0) {
+        Remove-Item -Recurse -Force -Path $scratchRoot -ErrorAction SilentlyContinue
+    } else {
+        Write-WarningMsg "Scratch de verificacion conservado en: $scratchRoot"
+    }
 }
-}
-
-# 5c. Estres del GC con verificador: la red de seguridad de todo cambio en el heap
-if (-not $Quick) {
-    Write-StepHeader "5c: Estres del GC (VN_GC_STRESS=256 + VN_GC_VERIFY=1)"
-    $qs = Run-Quadrant "[estres GC 256] + [verificador de invariantes]" @{ "VN_GC_STRESS" = "256"; "VN_GC_VERIFY" = "1" } @("run", "tests/main.vn")
-    if (-not $qs) { $failedSteps += "Estres del GC (256 + verificador)" }
 }
 
 # 6. Benchmark de Estabilidad
