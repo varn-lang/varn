@@ -9,8 +9,5 @@ profiling = []
 [dependencies]
 vn-core = { path = "../vn-core" }
 
-[dev-dependencies]
-vn-lexer = { path = "../vn-lexer" }
-
 [lints]
 workspace = true

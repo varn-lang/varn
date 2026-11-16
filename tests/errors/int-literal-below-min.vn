@@ -1,0 +1,7 @@
+// expect: error[VN2007]
+//
+// The parser folds the unary minus into the literal, so `-9223372036854775808`
+// (i64::MIN) is writable, but one more is not: the magnitude alone overflows
+// i64 and is reported where it is written.
+let x: int = -9223372036854775809
+print(x)

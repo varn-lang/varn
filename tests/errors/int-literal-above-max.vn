@@ -1,0 +1,6 @@
+// expect: error[VN2007]
+//
+// The unsigned magnitude `9223372036854775808` is one past i64::MAX, so it is
+// rejected as a literal even before any negation could apply.
+let x: int = 9223372036854775808
+print(x)

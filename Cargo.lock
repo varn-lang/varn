@@ -3980,7 +3980,6 @@ name = "vn-parser"
 version = "0.1.0"
 dependencies = [
  "vn-core",
- "vn-lexer",
 ]
 
 [[package]]

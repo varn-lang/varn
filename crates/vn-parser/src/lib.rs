@@ -6,9 +6,6 @@ mod stream;
 mod types;
 use std::sync::Arc;
 
-#[cfg(test)]
-use vn_lexer as _;
-
 pub use error::{PResult, ParseError};
 pub use parser::Parser;
 pub use profile::ParseProfile;
