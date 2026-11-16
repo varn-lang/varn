@@ -30,13 +30,7 @@ pub(crate) fn emit_call_native_op(
     {
         let (recv_tag, recv_payload) = b.ins().isplit(receiver);
         let (pos_tag, pos_payload) = heap::boxed_parts(b, ctx, values, args[0])?;
-        let code = crate::clif::from_ssa::exceptions::call_checked_value(
-            b,
-            ctx,
-            ctx.helpers.str_char_code_at,
-            &[frame.exec_ctx, recv_tag, recv_payload, pos_tag, pos_payload],
-        )?;
-        return Ok(box_int(b, code));
+        return emit_char_code_at(b, ctx, recv_tag, recv_payload, pos_tag, pos_payload);
     }
     if args.len() == 1 && op_id == vn_core::runtime_ops::op_id(vn_core::runtime_ops::STR_INDEX) {
         let (recv_tag, recv_payload) = b.ins().isplit(receiver);
@@ -205,6 +199,156 @@ pub(crate) fn emit_call_native_op(
         frame.exec_ctx,
         ctx.helpers.jit_native_result_offset as i32,
     ))
+}
+
+fn emit_char_code_at(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    recv_tag: Value,
+    recv_payload: Value,
+    pos_tag: Value,
+    pos_payload: Value,
+) -> Result<Value, String> {
+    use cranelift_codegen::ir::{condcodes::IntCC, MemFlagsData};
+    let m = MemFlagsData::trusted();
+    let frame = ctx
+        .frame
+        .as_ref()
+        .ok_or("from_ssa: charCodeAt without a frame")?;
+    let zero = b.ins().iconst(types::I64, 0);
+    let minus_one = b.ins().iconst(types::I64, -1);
+
+    let merge = b.create_block();
+    b.append_block_param(merge, types::I64);
+    let slow = b.create_block();
+    b.set_cold_block(slow);
+
+    let answer = |b: &mut FunctionBuilder, v: Value| {
+        b.ins().jump(merge, &[v.into()]);
+    };
+
+    let kind_of = |b: &mut FunctionBuilder, tag: Value| {
+        b.ins()
+            .band_imm_u(tag, vn_types::vm_value::KIND_MASK as i64)
+    };
+    let pos_kind = kind_of(b, pos_tag);
+    let pos_is_int =
+        b.ins()
+            .icmp_imm_u(IntCC::Equal, pos_kind, vn_types::vm_value::KIND_INT as i64);
+    let int_path = b.create_block();
+    b.ins().brif(pos_is_int, int_path, &[], slow, &[]);
+
+    b.switch_to_block(int_path);
+    let negative = b.ins().icmp(IntCC::SignedLessThan, pos_payload, zero);
+    let nonneg = b.create_block();
+    b.ins()
+        .brif(negative, merge, &[minus_one.into()], nonneg, &[]);
+    let _ = nonneg;
+
+    b.switch_to_block(nonneg);
+    let recv_kind = kind_of(b, recv_tag);
+    let is_sso = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, recv_kind, vn_types::vm_value::KIND_SSO as i64);
+    let sso_path = b.create_block();
+    let heap_path = b.create_block();
+    b.ins().brif(is_sso, sso_path, &[], heap_path, &[]);
+
+    b.switch_to_block(sso_path);
+    let shifted = b.ins().ushr_imm_u(recv_tag, 8);
+    let sso_len = b.ins().band_imm_u(shifted, 0xFF);
+    let past_end = b
+        .ins()
+        .icmp(IntCC::UnsignedGreaterThanOrEqual, pos_payload, sso_len);
+    let sso_in_range = b.create_block();
+    b.ins()
+        .brif(past_end, merge, &[minus_one.into()], sso_in_range, &[]);
+
+    b.switch_to_block(sso_in_range);
+    let high = b
+        .ins()
+        .band_imm_u(recv_payload, vn_types::vm_value::SSO_HIGH_BITS as i64);
+    let non_ascii = b.ins().icmp_imm_u(IntCC::NotEqual, high, 0);
+    let sso_ascii = b.create_block();
+    b.ins().brif(non_ascii, slow, &[], sso_ascii, &[]);
+
+    b.switch_to_block(sso_ascii);
+    let three = b.ins().iconst(types::I64, 3);
+    let bit = b.ins().ishl(pos_payload, three);
+    let moved = b.ins().ushr(recv_payload, bit);
+    let byte = b.ins().band_imm_u(moved, 0xFF);
+    answer(b, byte);
+
+    b.switch_to_block(heap_path);
+    let lay = &ctx.helpers.array_layout;
+    let str_layout = &ctx.helpers.str_layout;
+    let cell_kind = b
+        .ins()
+        .uload8(types::I64, m, recv_payload, lay.kind_off as i32);
+    let is_str = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, cell_kind, lay.str_tag as i64);
+    let str_cell = b.create_block();
+    b.ins().brif(is_str, str_cell, &[], slow, &[]);
+
+    b.switch_to_block(str_cell);
+    let cell_base = b.ins().iadd_imm_u(recv_payload, lay.payload_off as i64);
+    let disc = b.ins().uload8(types::I64, m, cell_base, 0);
+    let is_shared = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, disc, str_layout.shared_disc as i64);
+    let shared_cell = b.create_block();
+    b.ins().brif(is_shared, shared_cell, &[], slow, &[]);
+
+    b.switch_to_block(shared_cell);
+    let ascii = b
+        .ins()
+        .uload8(types::I64, m, cell_base, str_layout.shared_ascii_off as i32);
+    let is_ascii = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, ascii, str_layout.ascii_yes as i64);
+    let ascii_cell = b.create_block();
+    b.ins().brif(is_ascii, ascii_cell, &[], slow, &[]);
+
+    b.switch_to_block(ascii_cell);
+    let arc_ptr = b
+        .ins()
+        .load(types::I64, m, cell_base, str_layout.shared_arc_off as i32);
+    let arc_len = b.ins().load(
+        types::I64,
+        m,
+        cell_base,
+        (str_layout.shared_arc_off + 8) as i32,
+    );
+    let past_heap_end = b
+        .ins()
+        .icmp(IntCC::UnsignedGreaterThanOrEqual, pos_payload, arc_len);
+    let heap_in_range = b.create_block();
+    b.ins().brif(
+        past_heap_end,
+        merge,
+        &[minus_one.into()],
+        heap_in_range,
+        &[],
+    );
+
+    b.switch_to_block(heap_in_range);
+    let data = b.ins().iadd_imm_u(arc_ptr, str_layout.arc_data_off as i64);
+    let at = b.ins().iadd(data, pos_payload);
+    let heap_byte = b.ins().uload8(types::I64, m, at, 0);
+    answer(b, heap_byte);
+
+    b.switch_to_block(slow);
+    let code = crate::clif::from_ssa::exceptions::call_checked_value(
+        b,
+        ctx,
+        ctx.helpers.str_char_code_at,
+        &[frame.exec_ctx, recv_tag, recv_payload, pos_tag, pos_payload],
+    )?;
+    b.ins().jump(merge, &[code.into()]);
+
+    b.switch_to_block(merge);
+    Ok(box_int(b, b.block_params(merge)[0]))
 }
 
 fn emit_generator_next(

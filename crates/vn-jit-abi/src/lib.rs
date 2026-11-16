@@ -1,6 +1,6 @@
 use vn_types::{NativeOpTarget, VmValue};
 
-pub const JIT_HELPERS_VERSION: u32 = 16;
+pub const JIT_HELPERS_VERSION: u32 = 17;
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
@@ -140,6 +140,16 @@ pub struct JitFrameLayout {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
+pub struct JitStrLayout {
+    pub shared_disc: usize,
+    pub shared_arc_off: usize,
+    pub shared_ascii_off: usize,
+    pub arc_data_off: usize,
+    pub ascii_yes: usize,
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(C)]
 pub struct JitHelpers {
     pub add: usize,
     pub alloc_instance: usize,
@@ -275,6 +285,7 @@ pub struct JitHelpers {
     pub poly_ic_slot_size: usize,
     pub frame_layout: JitFrameLayout,
     pub call_layout: JitCallLayout,
+    pub str_layout: JitStrLayout,
     pub call_targets: &'static [usize],
 }
 

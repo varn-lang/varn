@@ -254,6 +254,16 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   `http_routing`, `json_api_payloads`, `collection_pipeline`. (c) La reserva
   externa incondicional.
 - **Decisión cerrada que no se toca:** "Map SmallVec" (§4 del plan unificado).
+- **Estado 2026-11-16 (BLOQUEADO tras R1, con inventario):** `VN_ALLOC_PROFILE`
+  solo instrumenta un helper y no sirve para el conteo por sitio; del código:
+  los arreglos ya eligen repr unboxed (`from_items`) pero siempre reservan un
+  `Vec` externo, y `OrderedTable` ya escanea lineal ≤8 sin índice pero su
+  `entries: Vec` reserva en el primer `push`. La mayoría de los 5 mapas/req
+  están vacíos (cap 0, sin reserva); el costo está en los llenos pequeños
+  (headers, params, segs). Diseño anotado: variante inline en `ArrayRepr`
+  + entradas inline en `OrderedTable` (la puerta de R1 aparcada decide si el
+  respaldo va a la celda; la vía vivero es de R2). No se ejecuta sin
+  rediseño del vivero, como ordena la puerta de este item.
 
 ### R5. JSON tipado en una sola pasada
 
@@ -392,6 +402,13 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   `str_ops`. (c) Nada; el helper sigue siendo el camino lento.
 - **Coordinación:** zona de strings, solapa con "str inline" y SSO-8 de §2.4.
   La decisión cerrada "startsWith-SSO-inline" no se reabre.
+- **Estado 2026-11-16 (HECHO):** fast path en `emit_call_native_op` para SSO
+  ascii (longitud del tag, chequeo de bit alto, extracción por desplazamiento)
+  y `HeapStr::Shared` ascii (discriminante + flag + `Arc` probados con
+  tripwires en `jit_str_layout`; ABI 16→17 con invalidación de caché).
+  `char_code` pasa de 18.4 % a ~11 % (ya no domina: `split` 21 %,
+  `prefix_suffix` 19 %); `str_ops` −4.3 % `Improvement` en corrida limpia
+  (una primera corrida con un outlier dio −7.4 % `Same`).
 
 ### R11. `split` sin vistas intermedias
 

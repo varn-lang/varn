@@ -35,6 +35,7 @@ macro_rules! fill_tail {
             poly_ic_slot_size: vn_types::chunk::POLY_IC_SLOT_SIZE,
             frame_layout: super::frame_layout::probe(),
             call_layout: super::call_layout::probe(),
+            str_layout: crate::heap::Heap::jit_str_layout(),
             call_targets: Box::leak(Box::new([ $( $path as *const () as usize, )* ])),
         }
     }};
@@ -43,7 +44,7 @@ macro_rules! fill_tail {
 pub fn build_jit_helpers(settings: &crate::settings::ExecSettings) -> vn_jit::JitHelpers {
     assert_eq!(
         vn_jit::JIT_HELPERS_VERSION,
-        16,
+        17,
         "JitHelpers ABI version mismatch: review offset_of layout after vn-jit-abi change"
     );
     static HELPERS: std::sync::OnceLock<vn_jit::JitHelpers> = std::sync::OnceLock::new();
