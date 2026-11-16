@@ -389,6 +389,16 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   item "tax llamada alloc-free" de §2.4, reservado: **coordinar**.
 - (a) `in compiled code` por encima de 40 % en `http_routing`. (b) Perfil y
   `--baseline`. (c) Los helpers que queden sin llamadores.
+- **Estado 2026-11-16 (portador HECHO, vía rápida pendiente):** `84b7b74f`
+  añade `InstKind::CallDirect` + `SsaOp::CallDirect` (`target` cualificado,
+  `slot`, `callee` precargado, `shape`): `from_tir` lo emite para `DirectFn`
+  cuando el inline declina y no hay spread; bytecode y JIT lo bajan
+  exactamente como `Call` (mismos opcodes y guardas, mismo orden
+  carga-antes-args: la sonda de redefinición durante args da 101 antes y
+  después). 50 sitios `match` deciden explícito (Ley 7). Suite 6140/0 en
+  JIT y `VN_NO_JIT=1`. La vía rápida (resolver entrada por `target`/`slot`
+  una vez, sin cargas ni guardas por llamada) se construye encima en el
+  siguiente corte.
 
 ### R10. `charCodeAt` en línea
 
