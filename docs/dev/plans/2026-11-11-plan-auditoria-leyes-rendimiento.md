@@ -447,6 +447,14 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   más que su ci95. OSR ya cubre el bucle largo en la primera llamada.
 - (a) Suite en frío por debajo de 60 s sin regresión en caliente. (b) Las dos
   mediciones anteriores. (c) Nada.
+- **Estado 2026-11-16 (CERRADO sin cambio, objetivo ya cumplido):**
+  re-medido en release: suite 37.8 s en caliente, 56.7 s en frío tras
+  `cache clean` (< 60 s ✓), 43.9 s con `VN_JIT_CACHE=off`. Descompuesto:
+  compilar ≈ 6 s (la hipótesis de 72 s de Cranelift no se confirma),
+  escribir la caché ≈ 13 s (157 MB). Barrer el tier ahorraría una fracción
+  de 6 s a cambio de riesgo en caliente: no compensa (Ley 10). El costo frío
+  dominante es la escritura de la caché, fuera del alcance de este item
+  (posible política de escritura selectiva como trabajo futuro).
 
 ---
 
