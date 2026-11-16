@@ -37,6 +37,7 @@ pub(super) const ALL_BENCHMARKS: &[BenchDef] = &[
     BenchDef::new("class_fields", false),
     BenchDef::new("new_retained", false),
     BenchDef::new("json_api_payloads", false),
+    BenchDef::new("generator", true),
 ];
 
 pub(super) fn select_benchmarks(
