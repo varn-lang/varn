@@ -340,6 +340,16 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   misma profundidad en los cuatro cuadrantes. (c) Las cargas y escrituras de
   `frameless_depth_off` en el camino caliente.
 - **Riesgo:** cambia el ABI del JIT; sube la versión de ABI e invalida la caché.
+- **Estado 2026-11-16 (REABIERTO con autorización, sin cambio: objetivos
+  cumplidos o premisas evaporadas):** el ítem 2 ya existe post-auditoría
+  (`guard_self_call` + `call` directo + `redundant_self_guards` en
+  `scalar.rs:120-141`); la firma de fib ya es de 3 params vivos (no 5 con
+  ceros: R8 sin objeto). fib mide 31 ms (< 45 ms). Quedan el ítem 1
+  (contador en registro para llamadas cruzadas, ~1-2 % estimado, exige
+  cambio de ABI) y el ítem 3 (quitar `guard_headroom`: inseguro en general
+  — 10000 frames × KB superan la reserva de 8 MB — y la prueba por función
+  es desproporcionada). El ítem 1 compone con R9 (pasar depth como arg en
+  llamadas directas) y se secuencia tras él.
 
 ### R8. Argumentos muertos en la convención de llamada
 
