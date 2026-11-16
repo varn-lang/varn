@@ -396,7 +396,11 @@ dentro del `try`; GC dentro del `try` con vivo heap.
   >1,2× con causa. **C2-bounds/C1-hoist**: aparcados con
   medición. **`matrix_local`**: duplicado de `matrix`, dedupe
   con dueño de benches.
-- No tocar: fib/dto/json_pure/gc_alloc (ganan o empatan);
+- No tocar (re-medido 2026-11-16, release, `xtask compare`, mediana
+  estable; la tabla de la auditoría 2026-11-11 §1.2 queda sustituida por
+  esto): fib gana ~1.1x vs Bun, dto gana ~1.8x vs Bun; json_pure pierde
+  ~1.16x vs Bun (era 1.69x el 11-11); gc_alloc pendiente de re-medir
+  (ganaba 1.43x el 11-11);
   task_soak/spawn 100% intérprete hasta B1–B3.
 
 ### 2.5 Tipos: restante con causa
