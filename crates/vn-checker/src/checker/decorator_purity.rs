@@ -1,4 +1,5 @@
 use super::Checker;
+use crate::checker_expressions::members::MemberAuth;
 use vn_core::ast::decorators::{match_builtin, BuiltinDecorator};
 use vn_core::ast::Decorator;
 use vn_core::diagnostics::{Diagnostic, ErrorCode};
@@ -170,5 +171,56 @@ impl<'r> Checker<'r> {
             )
             .with_range(range),
         );
+    }
+
+    pub(crate) fn check_member_capabilities(
+        &mut self,
+        auth: &MemberAuth,
+        name: &str,
+        range: vn_core::SourceRange,
+    ) {
+        let Some(granted) = self.enclosing_caps.as_ref() else {
+            return;
+        };
+        if auth.capabilities.is_empty() {
+            return;
+        }
+        let missing: Vec<&String> = auth
+            .capabilities
+            .iter()
+            .filter(|c| !granted.contains(c))
+            .collect();
+        if missing.is_empty() {
+            return;
+        }
+        self.emit(
+            Diagnostic::error(
+                ErrorCode::CapabilityViolation,
+                format!(
+                    "calling '{}' requires capability '{}' (declare it with `@capability` to propagate)",
+                    name, missing[0],
+                ),
+            )
+            .with_range(range),
+        );
+    }
+
+    pub(crate) fn check_member_callee(
+        &mut self,
+        auth: &MemberAuth,
+        name: &str,
+        range: vn_core::SourceRange,
+    ) {
+        self.check_member_capabilities(auth, name, range);
+        if self.pure_scope.is_none() || auth.pure {
+            return;
+        }
+        if !matches!(
+            auth.kind,
+            Some(vn_sem::symbol::SymbolKind::Function | vn_sem::symbol::SymbolKind::Method)
+        ) {
+            return;
+        }
+        self.forbid_pure(&format!("call '{name}' which is not marked `@pure`"), range);
     }
 }

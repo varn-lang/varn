@@ -98,8 +98,8 @@ impl<'r> Checker<'r> {
 
         let check_ty = obj_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
 
-        if let Some((ty, maybe_sid)) = self.find_member_info(&check_ty, prop_name, bind) {
-            if let Some(sid) = maybe_sid {
+        if let Some((ty, auth)) = self.find_member_info(&check_ty, prop_name, bind) {
+            if let Some(sid) = auth.sid {
                 if sid < bind.arena.len()
                     && bind.interner.get(prop_name) == Some(bind.arena.get(sid).name)
                 {

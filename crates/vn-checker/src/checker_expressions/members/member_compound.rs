@@ -13,7 +13,7 @@ impl<'r> Checker<'r> {
         origin_atom: Option<vn_core::Atom>,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let args: Vec<Type> = self
             .ty_table
             .get_list(args_list)
@@ -34,7 +34,7 @@ impl<'r> Checker<'r> {
         args: Vec<Type>,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let TypeKind::Named(name_atom, origin_atom) = self.ty_table.get(base.0) else {
             return self.find_member_info_uncached(base, key, bind);
         };
@@ -67,7 +67,7 @@ impl<'r> Checker<'r> {
         &mut self,
         mid: vn_sem::types::ObjectMembersId,
         key: &str,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let members = self.ty_table.get_object_members(mid).to_vec();
         members.iter().find(|m| m.name() == key).map(|m| {
             let ty = match m {
@@ -116,7 +116,7 @@ impl<'r> Checker<'r> {
                 ),
                 ObjectTypeMember::Callable { .. } => Type::Dynamic,
             };
-            (ty, None)
+            (ty, super::member_auth::MemberAuth::none())
         })
     }
 
@@ -125,15 +125,15 @@ impl<'r> Checker<'r> {
         list: vn_sem::types::TyListId,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let ids = self.ty_table.get_list(list).to_vec();
-        let infos: Vec<(Type, Option<usize>)> = ids
+        let infos: Vec<(Type, super::member_auth::MemberAuth)> = ids
             .iter()
             .filter_map(|id| self.find_member_info_uncached(&Type::resolved(*id), key, bind))
             .collect();
         if infos.len() == ids.len() {
-            let first_sid = infos[0].1;
-            let all_same_sid = infos.iter().all(|i| i.1 == first_sid);
+            let first = infos[0].1.clone();
+            let all_same = infos.iter().all(|i| i.1 == first);
             let types: Vec<Type> = infos.into_iter().map(|i| i.0).collect();
 
             let collapsed = if types.windows(2).all(|w| w[0] == w[1]) {
@@ -141,7 +141,14 @@ impl<'r> Checker<'r> {
             } else {
                 Type::union(types, &mut *std::sync::Arc::make_mut(&mut self.ty_table))
             };
-            Some((collapsed, if all_same_sid { first_sid } else { None }))
+            Some((
+                collapsed,
+                if all_same {
+                    first
+                } else {
+                    super::member_auth::MemberAuth::none()
+                },
+            ))
         } else {
             None
         }
@@ -152,7 +159,7 @@ impl<'r> Checker<'r> {
         inner: vn_sem::types::CheckerTyId,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let table = std::sync::Arc::make_mut(&mut self.ty_table);
         let array_class = Type::builtin(vn_core::BuiltinType::Array, vec![], table);
         self.member_instantiated(&array_class, vec![Type::resolved(inner)], key, bind)
@@ -163,17 +170,17 @@ impl<'r> Checker<'r> {
         kind: &vn_sem::types::InternedTypeKind,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         match kind {
             TypeKind::Primitive(vn_core::LangPrimitive::Str) => {
                 if key == vn_core::MemberKey::Length.as_str() {
-                    Some((Type::Int, None))
+                    Some((Type::Int, super::member_auth::MemberAuth::none()))
                 } else {
                     intrinsic_member_info(bind, vn_core::LangPrimitive::Str.name(), key)
                 }
             }
             TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.as_str() => {
-                Some((Type::Int, None))
+                Some((Type::Int, super::member_auth::MemberAuth::none()))
             }
             kind @ (TypeKind::Primitive(_) | TypeKind::Literal(_)) => {
                 let name = kind.lang_name().unwrap_or_default();

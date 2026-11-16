@@ -1,4 +1,5 @@
 mod member_atom;
+pub(crate) mod member_auth;
 mod member_compound;
 mod member_enum;
 mod member_exists;
@@ -11,5 +12,6 @@ pub(crate) mod member_type;
 pub(crate) mod member_util;
 mod owner;
 pub(super) use crate::checker::Checker;
+pub(crate) use member_auth::MemberAuth;
 pub(crate) use member_enum::is_enum_type;
 pub use member_list::get_members_of_type;

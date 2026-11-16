@@ -10,14 +10,14 @@ impl<'r> Checker<'r> {
         payload_ty: vn_sem::types::CheckerTyId,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         if key == vn_core::MemberKey::Name.as_str()
             || key == vn_core::MemberKey::VariantName.as_str()
         {
-            return Some((Type::Str, None));
+            return Some((Type::Str, super::member_auth::MemberAuth::none()));
         }
         if key == vn_core::MemberKey::Tag.as_str() || key == vn_core::MemberKey::RawValue.as_str() {
-            return Some((Type::Int, None));
+            return Some((Type::Int, super::member_auth::MemberAuth::none()));
         }
         if let Some(res) = self.find_member_info_uncached(&Type::resolved(payload_ty), key, bind) {
             return Some(res);
@@ -37,7 +37,7 @@ impl<'r> Checker<'r> {
         origin_atom: Option<vn_core::Atom>,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let name: Arc<str> = self.resolve_bind_atom(bind, name_atom);
         let origin: Option<Arc<str>> = origin_atom.map(|o| self.resolve_bind_atom(bind, o));
         if name.as_ref() == "*" {
@@ -58,7 +58,7 @@ impl<'r> Checker<'r> {
                         let origin_atom = table.intern_name(&origin_str);
                         sym_ty = sym_ty.with_origin(origin_atom, table);
                     }
-                    return Some((sym_ty, None));
+                    return Some((sym_ty, super::member_auth::MemberAuth::of_symbol(sym, None)));
                 }
             }
             return None;
@@ -78,12 +78,12 @@ impl<'r> Checker<'r> {
             if key == vn_core::MemberKey::RawValue.as_str()
                 || key == vn_core::MemberKey::Tag.as_str()
             {
-                return Some((Type::Int, None));
+                return Some((Type::Int, super::member_auth::MemberAuth::none()));
             }
             if key == vn_core::MemberKey::Name.as_str()
                 || key == vn_core::MemberKey::VariantName.as_str()
             {
-                return Some((Type::Str, None));
+                return Some((Type::Str, super::member_auth::MemberAuth::none()));
             }
 
             let mut variants = Vec::new();
@@ -116,7 +116,7 @@ impl<'r> Checker<'r> {
                         found_tys,
                         &mut *std::sync::Arc::make_mut(&mut self.ty_table),
                     ),
-                    None,
+                    super::member_auth::MemberAuth::none(),
                 ));
             }
         }
@@ -128,7 +128,7 @@ impl<'r> Checker<'r> {
             } else {
                 m.ty
             };
-            return Some((ty, m.symbol_id));
+            return Some((ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
         }
         if let Some(members) = bind.type_members.interfaces.get(&name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
@@ -138,40 +138,40 @@ impl<'r> Checker<'r> {
             } else {
                 m.ty
             };
-            return Some((ty, m.symbol_id));
+            return Some((ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
         }
         if let Some(members) = bind.type_members.namespaces.get(&name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
-            return Some((m.ty, m.symbol_id));
+            return Some((m.ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
         }
         if let Some(members) = bind.get_enum_members_local(name.as_ref())
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
-            return Some((m.ty, m.symbol_id));
+            return Some((m.ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
         }
 
         if let Some(ty) = bind
             .get_class_methods_for(name.as_ref())
             .and_then(|m| m.get(key))
         {
-            return Some((*ty, None));
+            return Some((*ty, super::member_auth::MemberAuth::none()));
         }
         if let Some(b) = &bind.core {
             if let Some(members) = b.class_members.get(name.as_ref())
                 && let Some(m) = members.members.iter().find(|m| m.name.as_ref() == key)
             {
-                return Some((m.ty, m.symbol_id));
+                return Some((m.ty, super::member_auth::MemberAuth::none()));
             }
             if let Some(members) = b.flattened_members.get(name.as_ref())
                 && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
             {
-                return Some((m.ty, m.symbol_id));
+                return Some((m.ty, super::member_auth::MemberAuth::none()));
             }
             if let Some(methods) = b.class_methods.get(name.as_ref())
                 && let Some(ty) = methods.get(key)
             {
-                return Some((*ty, None));
+                return Some((*ty, super::member_auth::MemberAuth::none()));
             }
         }
         if let Some(parent) = bind.class_parents.get(&name) {
@@ -204,43 +204,61 @@ impl<'r> Checker<'r> {
         ext_bind: &BindResult,
         name: &Arc<str>,
         key: &str,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         if let Some(members) = ext_bind.type_members.classes.get(name)
             && let Some(m) = members.members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), m.symbol_id));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+            ));
         }
         if let Some(entry) = ext_bind.get_class_entry(name)
             && let Some(m) = entry.members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), m.symbol_id));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+            ));
         }
         if let Some(members) = ext_bind.type_members.interfaces.get(name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), m.symbol_id));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+            ));
         }
         if let Some(members) = ext_bind.type_members.namespaces.get(name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), m.symbol_id));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+            ));
         }
         if let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), m.symbol_id));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+            ));
         }
         if let Some(ty) = ext_bind
             .get_class_methods_for(name.as_ref())
             .and_then(|m| m.get(key))
         {
             let ty = *ty;
-            return Some((self.reintern_foreign_ty(ext_bind, ty), None));
+            return Some((
+                self.reintern_foreign_ty(ext_bind, ty),
+                super::member_auth::MemberAuth::none(),
+            ));
         }
         None
     }

@@ -26,6 +26,7 @@ export function Grid(children: Widget[], columns: int, gap: float = 8.0): Widget
     return Column(lines, gap: gap);
 }
 
+@capability("ui")
 export function Table(headers: str[], rows: str[][], gap: float = 8.0): Widget {
     const head: Widget[] = [];
     for (let title of headers) {

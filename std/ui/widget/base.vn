@@ -34,10 +34,12 @@ export class PaintContext {
         this.overlays.push(new Overlay(paint, modal));
     }
 
+    @capability("ui")
     clip(x: float, y: float, w: float, h: float): void {
         this.win.clip(x, y, w, h);
     }
 
+    @capability("ui")
     unclip(): void {
         this.win.unclip();
     }

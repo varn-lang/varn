@@ -42,7 +42,8 @@ use vn_sem::types::{ObjectTypeMember, Type};
 
 pub(crate) use crate::checker_enrichment::enrich_call_returns;
 
-pub(crate) type MemberTypeCacheEntry = Option<(Type, Option<usize>)>;
+pub(crate) type MemberTypeCacheEntry =
+    Option<(Type, crate::checker_expressions::members::MemberAuth)>;
 
 pub struct Checker<'r> {
     pub(crate) resolver: &'r dyn vn_sem::resolver::ImportResolver,

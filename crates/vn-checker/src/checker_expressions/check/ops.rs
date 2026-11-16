@@ -195,6 +195,12 @@ impl<'r> Checker<'r> {
         }
         self.check_expr(rec, callee, bind);
         let instance = self.infer_type(rec, expr, bind);
+        if let Some((_, auth)) =
+            self.find_member_info(&instance, vn_core::TokenKind::Constructor.as_str(), bind)
+        {
+            let name = cls_name.unwrap_or(vn_core::TokenKind::Constructor.as_str());
+            self.check_member_capabilities(&auth, name, range);
+        }
         let expected = self
             .expected_for(expr)
             .map(|ty| ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table)));

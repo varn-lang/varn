@@ -26,6 +26,7 @@ export function Segmented(options: str[], selected: int | Signal<int>, onSelect:
     return Row(cells, gap: 4.0);
 }
 
+@capability("ui")
 export function Tabs(labels: str[], pages: Widget[], selected: int | Signal<int>, onSelect: ((next: int) => void)? = null): Widget {
     const at = current<int>(selected);
     const page = at >= 0 && at < pages.length ? pages[at] : Box();

@@ -10,14 +10,14 @@ impl<'r> Checker<'r> {
         ty: &Type,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let ty_key = (*ty, Arc::from(key));
         if let Some(res) = self.member_type_cache.get(&ty_key) {
-            return *res;
+            return res.clone();
         }
 
         let res = self.find_member_info_uncached(ty, key, bind);
-        self.member_type_cache.insert(ty_key, res);
+        self.member_type_cache.insert(ty_key, res.clone());
         res
     }
 
@@ -26,7 +26,7 @@ impl<'r> Checker<'r> {
         ty: &Type,
         key: &str,
         bind: &BindResult,
-    ) -> Option<(Type, Option<usize>)> {
+    ) -> Option<(Type, super::member_auth::MemberAuth)> {
         let resolved = self.member_input(*ty, bind);
         let ty = &resolved;
         let ty_kind = self.ty_table.get(ty.0);
@@ -49,7 +49,7 @@ impl<'r> Checker<'r> {
                 self.member_scalar(&kind, key, bind)
             }
             TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.as_str() => {
-                Some((Type::Int, None))
+                Some((Type::Int, super::member_auth::MemberAuth::none()))
             }
             TypeKind::This
             | TypeKind::Intersection(_)
@@ -84,14 +84,20 @@ impl<'r> Checker<'r> {
                     &mangled,
                     &mut *std::sync::Arc::make_mut(&mut self.ty_table),
                 ) {
-                    return Some((sym_ty, None));
+                    return Some((
+                        sym_ty,
+                        super::member_util::extension_method_auth(bind, &mangled),
+                    ));
                 }
             }
             if let Some(mangled) = bind.extensions.getters.get(&tn).and_then(|m| m.get(key))
                 && let Some(sym_ty) =
                     super::member_util::extension_getter_type(bind, mangled, &self.ty_table)
             {
-                return Some((sym_ty, None));
+                return Some((
+                    sym_ty,
+                    super::member_util::extension_method_auth(bind, mangled),
+                ));
             }
         }
         res

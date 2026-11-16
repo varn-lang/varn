@@ -76,13 +76,10 @@ impl<'r> Checker<'r> {
                 if let ExprKind::Identifier { name: prop } = &arena.expr(*property).kind {
                     let prop_name = bind.interner.resolve(*prop);
                     let obj_ty = self.infer_type(rec, *object, bind);
-                    self.find_member_info(&obj_ty, prop_name, bind)
-                        .and_then(|(_, sid)| {
-                            sid.filter(|s| {
-                                *s < bind.arena.len()
-                                    && bind.interner.get(prop_name) == Some(bind.arena.get(*s).name)
-                            })
-                        })
+                    if let Some((_, auth)) = self.find_member_info(&obj_ty, prop_name, bind) {
+                        self.check_member_callee(&auth, &prop_name.to_string(), *range);
+                    }
+                    None
                 } else {
                     None
                 }

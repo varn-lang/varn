@@ -1,3 +1,4 @@
+use super::member_auth::MemberAuth;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::TypeKind;
@@ -79,6 +80,15 @@ fn resolve_extension_symbol_type(bind: &BindResult, mangled: &Arc<str>) -> Optio
     bind.arena.get(sid).ty
 }
 
+pub(super) fn extension_method_auth(bind: &BindResult, mangled: &Arc<str>) -> MemberAuth {
+    let scope = bind.scopes.get(bind.global_scope);
+    let sid = bind
+        .interner
+        .get(mangled.as_ref())
+        .and_then(|atom| scope.resolve(atom, &bind.scopes));
+    MemberAuth::of(bind, sid)
+}
+
 pub(super) fn extension_method_type(
     bind: &BindResult,
     mangled: &Arc<str>,
@@ -144,7 +154,7 @@ pub(super) fn intrinsic_member_info(
     bind: &BindResult,
     type_name: &str,
     key: &str,
-) -> Option<(Type, Option<usize>)> {
+) -> Option<(Type, super::member_auth::MemberAuth)> {
     bind.core
         .as_ref()
         .and_then(|b| b.class_members.get(type_name))
@@ -153,6 +163,6 @@ pub(super) fn intrinsic_member_info(
                 .members
                 .iter()
                 .find(|m| m.name.as_ref() == key)
-                .map(|m| (m.ty, m.symbol_id))
+                .map(|m| (m.ty, super::member_auth::MemberAuth::none()))
         })
 }

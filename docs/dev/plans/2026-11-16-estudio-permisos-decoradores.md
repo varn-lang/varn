@@ -17,7 +17,25 @@ El código es el manifiesto: capabilities como valores + efectos, sin `varn.json
 - `@capability(C)` = "ejecutar este cuerpo necesita C". Checker infiere y verifica `inferido ⊆ declarado`; la VM inyecta tokens por sesión; CLI liga objetos (`--dir ./d:ro`), default cero.
 - Handles por sesión (adiós `static` globales), resolución anclada (adiós TOCTOU/traversal).
 
-## 3. Primer paso: unificar la semántica de decoradores
+## 4. Reparación de huecos estáticos (2026-11-16, segundo corte)
+
+- `new`: `check_new` resuelve el constructor vía `find_member_info`
+  (instancia, `"constructor"`) y exige sus caps (puro ya estaba
+  prohibido). Sin cambio de conducta donde no hay caps.
+- Métodos: `find_member_info` devuelve `MemberAuth` (datos portátiles:
+  caps/puro/kind/deprecated + `sid` local para hover) en vez de un
+  `sid` de arena ajena. Los productores resuelven en su propio `bind`
+  (local, `owner`, `ext_bind`, extensiones); core/intrínsecos/estructurales
+  devuelven vacío. `entry.rs` aplica el gate con datos (vale
+  transfronterizo); hover/deprecated conservan conducta.
+- Top-level: raíz de confianza ambiental por diseño (como `main` en un
+  sistema de efectos: el entry maneja, las funciones declaran). Sin
+  cambio de código; documentado aquí.
+- Fuera de alcance (runtime los cubre o requieren inferencia de flujo):
+  alias/HOF (`const g = needCap`), `super`/dinámicos/computadas,
+  propagación estática a través de métodos nativos (el gate
+  `NativeOpEntry` los deniega igual), `check_new` no verifica pureza
+  del ctor (todo `new` ya es impuro por construcción).
 
 Fragmentación actual: `@permission` (contratos, 1 dominio, sin validar) vs `@capability` (usuario, N dominios free-form como `"fs"`/`"net"` que ni parsean contra `Capability`), `ContractDecorator` vs `BuiltinDecoratorKind`, 5 copias del extractor de head, shadowing que neutraliza en silencio (test `116` loconsagra), `user_decorators` regado por binder/checker/emit, `check_native_fn_capability` que deja pasar lo desconocido (`dispatch/mod.rs:95-97`).
 
