@@ -94,4 +94,4 @@ for (let i = 0; i < parsed.length; i++) {
 
 const serializedExport = stringifyCSV(completedSales);
 
-console.log(`CSV Pipeline: Completed Sales = ${completedSales.length}, Total Revenue = $${totalRevenue}, Export bytes = ${serializedExport.length}`);
+console.log(`CSV Pipeline: Completed Sales = ${completedSales.length}, Total Revenue = $${Math.trunc(totalRevenue)}, Export bytes = ${serializedExport.length}`);
