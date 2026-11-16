@@ -281,6 +281,21 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   heredados y recursivos" y que "decode se difiere solo desde retornos
   síncronos directos". El decodificador nuevo debe pasar esos mismos casos del
   corpus antes de borrar el viejo.
+- **Estado 2026-11-16 (HECHO post-auditoría, verificado sin cambio):**
+  los pasos 2 y 3 ya existen y están conectados: `json_parse_typed`
+  (`ctx_json/typed.rs`) dirige por `TypeDesc` en una pasada con `Shape` en
+  caché (`typed_shapes`), y el compilador fusiona `parse$ as T` en una sola
+  `CallNativeOp parse-typed(texto, descriptor)` (`@decodes("parse-typed")` en
+  `json_runtime.vn` → `NativeDecode` → `native_decode_text` en
+  `checked_values.rs:152`). Comprobado en bytecode: `Json.parse<Item[]>`
+  emite una sola llamada con el descriptor como constante. Solo `Csv` y los
+  casts conservan `decode`/`conform` (`Csv.parse` no tiene `@decodes`),
+  así que no hay código muerto que borrar. Objetivos cumplidos en release:
+  `json_pure` 238.9 ms (< 300), `json_api_payloads` 15.2 ms (< 16).
+  El paso 1 (índice en vez de texto) no se hace: el mapa `DESCRIPTORS` solo
+  cuesta un lookup por llamada a `parse` (20 en el bench), ganancia
+  inmedible (Ley 10); el descriptor como texto es dato serializado, no
+  identidad del lenguaje (Ley 16 no aplica).
 
 ### R6. `ryu` y memcpy en `stringify`
 
@@ -293,6 +308,14 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   un defecto de tipo (Ley 6) y se corrige en el emisor; si el memcpy es
   crecimiento del búfer de salida, reservar con el tamaño de la corrida anterior.
 - (a), (b) sobre `json_pure`. (c) Depende del hallazgo.
+- **Estado 2026-11-16 (APARCADO sin cambio, premisas caducadas):**
+  `write_short_decimal` (`stringify.rs:39`) ya resuelve los floats del bench
+  (máx. 2 decimales) sin `ryu`, que no aparece en el perfil fresco; memcpy
+  0.9 % (era 14.4 %); `write_json_vm` no cruza `int`/`float`
+  (verificado en `stringify.rs:105-113`). Medido en release con el binario
+  restaurado: 20 parses ≈ 205 ms, 20 stringifies ≈ 125 ms; el hueco total
+  1.12x contra Bun no tiene defecto identificado en `stringify`. Reabrir
+  solo si un perfil fresco muestra otra cosa.
 
 ### R7. Una sola guarda por llamada sin frame
 
