@@ -219,6 +219,12 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
 - (a) `take_cell` + `alloc` + `note_new_cell` por debajo de 3 % combinado en
   `http_routing`. (b) Perfil antes y después. (c) El camino de lista libre para
   celdas jóvenes.
+- **Medición 2026-11-16 (criterio YA cumplido, sin cambio; autorizado
+  implementar pero no hay nada que ejecutar):** en el perfil fresco de
+  `http_routing`, `take_cell` no aparece entre los primeros 45 símbolos
+  (< 0.2 %) y `HeapInner::alloc` es 2.6 %: combinado ≈ 2.6 % < 3 %.
+  El allocator ya combina freelist por clase con bump en el bloque activo;
+  la premisa del 4.0–4.5 % no se reproduce tras el trabajo TO-NATIVE.
 
 ### R3. Los objetos efímeros no llegan al heap
 
