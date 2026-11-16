@@ -2,6 +2,7 @@ use rusqlite::Connection;
 use std::time::Duration;
 use vn_macros::natives;
 use vn_types::value::SendValue;
+use vn_core::sandbox::Capability;
 use vn_types::{NativeCtx, NativeError};
 
 use crate::runtime::blocking;
@@ -34,10 +35,10 @@ fn allow_path(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
         return Ok(());
     }
     if !ctx.check_fs_read(path) {
-        return Err(NativeError::capability("fs.read", path));
+        return Err(NativeError::capability(Capability::FsRead.as_str(), path));
     }
     if !ctx.check_fs_write(path) {
-        return Err(NativeError::capability("fs.write", path));
+        return Err(NativeError::capability(Capability::FsWrite.as_str(), path));
     }
     Ok(())
 }

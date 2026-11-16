@@ -620,6 +620,14 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   el análisis del texto ocurre una vez en la frontera (CLI, manifiesto).
 - (a) Una sola tabla. (b) `scripts\cli-smoke.ps1`. (c) Los alias (Ley 8 y 10:
   no hay compatibilidad que conservar) y la comparación por cadena.
+- **Estado 2026-11-16 (HECHO):** `Capability` vive en `vn_core::sandbox`
+  con una sola forma textual (`as_str`); `parse` en la frontera del
+  contrato. `has_capability` decide por enum (el `match` por cadenas y los
+  alias `fs:`, `net.connect`, `net.listen` borrados; ningún productor los
+  usaba). `ffi.rs` chequea `SysFfi` por enum; los labels de error usan
+  `as_str` (`net.listen` pasa a `net.server`). `dispatch` falla cerrado
+  ante descriptor desconocido. Sin hardcode de layouts: offsets probados
+  con tripwires donde hizo falta (aquí no hizo falta: todo por valor/enum).
 - Fuera de alcance: `"true"`/`"false"`/`"null"` en `ctx_csv/parse.rs` y los
   nombres de algoritmo en `crypto.rs` son datos, no identidad del lenguaje.
   Decidir con el dueño si `crypto` debe pasar a enum.

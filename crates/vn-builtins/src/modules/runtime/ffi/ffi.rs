@@ -1,3 +1,4 @@
+use vn_core::sandbox::Capability;
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
@@ -17,10 +18,10 @@ struct LoadedLib {
 
 
 fn permit(ctx: &mut dyn NativeCtx) -> Result<(), NativeError> {
-    if ctx.has_capability("sys.ffi") {
+    if ctx.has_capability(Capability::SysFfi) {
         Ok(())
     } else {
-        Err(NativeError::capability("sys.ffi", "runtime:ffi"))
+        Err(NativeError::capability(Capability::SysFfi.as_str(), "runtime:ffi"))
     }
 }
 

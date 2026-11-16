@@ -95,14 +95,17 @@ pub fn check_native_fn_capability(
     let Some(entry) = registry().by_fn.get(&(f as usize)) else {
         return Ok(());
     };
-    match entry.capability() {
-        Some(capability) if !ctx.has_capability(capability) => {
-            Err(vn_types::NativeError::capability(
-                capability,
-                format!("{}:{}", entry.module_id(), entry.symbol_name()),
-            ))
-        }
-        Some(_) | None => Ok(()),
+    let Some(name) = entry.capability() else {
+        return Ok(());
+    };
+    let granted = vn_core::sandbox::Capability::parse(name).is_some_and(|c| ctx.has_capability(c));
+    if granted {
+        Ok(())
+    } else {
+        Err(vn_types::NativeError::capability(
+            name,
+            format!("{}:{}", entry.module_id(), entry.symbol_name()),
+        ))
     }
 }
 

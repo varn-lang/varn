@@ -1,6 +1,7 @@
 use std::fs;
 use vn_macros::natives;
 use vn_types::value::SendValue;
+use vn_core::sandbox::Capability;
 use vn_core::{ErrorField, StdErrorClass};
 use vn_types::{NativeCtx, NativeError, VmValue};
 
@@ -25,7 +26,7 @@ fn allow_read(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
     if ctx.check_fs_read(path) {
         Ok(())
     } else {
-        Err(capability_denied("fs.read", path))
+        Err(capability_denied(Capability::FsRead.as_str(), path))
     }
 }
 
@@ -33,13 +34,13 @@ fn allow_write(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
     if ctx.check_fs_write(path) {
         Ok(())
     } else {
-        Err(capability_denied("fs.write", path))
+        Err(capability_denied(Capability::FsWrite.as_str(), path))
     }
 }
 
 fn allow_copy(ctx: &mut dyn NativeCtx, from: &str, to: &str) -> Result<(), NativeError> {
     if !ctx.check_fs_read(from) {
-        return Err(capability_denied("fs.read", from));
+        return Err(capability_denied(Capability::FsRead.as_str(), from));
     }
     allow_write(ctx, to)
 }
@@ -82,11 +83,11 @@ natives! {
         let mode = FileMode::from_value(ctx, mode)
             .ok_or_else(|| type_error("expected a FileMode"))?;
         let (allowed, capability) = match mode {
-            FileMode::Read => (ctx.check_fs_read(path), "fs.read"),
-            FileMode::Write | FileMode::Append => (ctx.check_fs_write(path), "fs.write"),
+            FileMode::Read => (ctx.check_fs_read(path), Capability::FsRead),
+            FileMode::Write | FileMode::Append => (ctx.check_fs_write(path), Capability::FsWrite),
         };
         if !allowed {
-            return Err(capability_denied(capability, path));
+            return Err(capability_denied(capability.as_str(), path));
         }
 
         let file = match mode {
@@ -154,7 +155,7 @@ natives! {
     },
     stat(ctx, path) => {
         if !ctx.check_fs_read(path) {
-            return Err(capability_denied("fs.read", path));
+            return Err(capability_denied(Capability::FsRead.as_str(), path));
         }
         let meta = fs::metadata(path).map_err(|e| fs_error(e, path))?;
         let mtime = meta
@@ -172,13 +173,13 @@ natives! {
     },
     mkdir(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied("fs.write", path));
+            return Err(capability_denied(Capability::FsWrite.as_str(), path));
         }
         fs::create_dir(path).map_err(|e| fs_error(e, path))
     },
     mkdirAll(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied("fs.write", path));
+            return Err(capability_denied(Capability::FsWrite.as_str(), path));
         }
         fs::create_dir_all(path).map_err(|e| fs_error(e, path))
     },
@@ -193,7 +194,7 @@ natives! {
     },
     remove(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied("fs.write", path));
+            return Err(capability_denied(Capability::FsWrite.as_str(), path));
         }
         let p = std::path::Path::new(path);
         if p.is_dir() {
@@ -213,7 +214,7 @@ natives! {
     },
     rename(ctx, from, to) => {
         if !ctx.check_fs_read(from) || !ctx.check_fs_write(to) {
-            return Err(capability_denied("fs.write", to));
+            return Err(capability_denied(Capability::FsWrite.as_str(), to));
         }
         fs::rename(from, to).map_err(|e| fs_error(e, from))
     },

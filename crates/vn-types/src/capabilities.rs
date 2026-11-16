@@ -60,17 +60,17 @@ impl CapabilitySet {
         (self.mask & flag) == flag
     }
 
-    pub fn has_capability(&self, cap: &str) -> bool {
+    pub fn has_capability(&self, cap: vn_core::sandbox::Capability) -> bool {
+        use vn_core::sandbox::Capability as Cap;
         match cap {
-            "fs.read" | "fs:read" => self.has_mask(CAP_FS_READ),
-            "fs.write" | "fs:write" => self.has_mask(CAP_FS_WRITE),
-            "net.client" | "net:client" | "net.connect" => self.has_mask(CAP_NET_CLIENT),
-            "net.server" | "net:server" | "net.listen" => self.has_mask(CAP_NET_SERVER),
-            "sys.env" | "sys:env" => self.has_mask(CAP_SYS_ENV),
-            "sys.exec" | "sys:exec" => self.has_mask(CAP_SYS_EXEC),
-            "sys.ffi" | "sys:ffi" => self.has_mask(CAP_SYS_FFI),
-            "ui" => self.has_mask(CAP_UI),
-            _ => false,
+            Cap::FsRead => self.has_mask(CAP_FS_READ),
+            Cap::FsWrite => self.has_mask(CAP_FS_WRITE),
+            Cap::NetClient => self.has_mask(CAP_NET_CLIENT),
+            Cap::NetServer => self.has_mask(CAP_NET_SERVER),
+            Cap::SysEnv => self.has_mask(CAP_SYS_ENV),
+            Cap::SysExec => self.has_mask(CAP_SYS_EXEC),
+            Cap::SysFfi => self.has_mask(CAP_SYS_FFI),
+            Cap::Ui => self.has_mask(CAP_UI),
         }
     }
 

@@ -4,6 +4,7 @@ pub mod http_parser;
 
 use driver::driver;
 use urlencoding::{decode, encode};
+use vn_core::sandbox::Capability;
 use vn_core::{ErrorField, StdErrorClass};
 use vn_macros::natives;
 use vn_types::NativeError;
@@ -33,7 +34,7 @@ natives! {
     },
     tcpListen(ctx, port, host) => {
         if !ctx.check_net_listen(port) {
-            return Err(NativeError::capability("net.server", port.to_string()));
+            return Err(NativeError::capability(Capability::NetServer.as_str(), port.to_string()));
         }
         driver()
             .listen(port, host)
@@ -45,21 +46,21 @@ natives! {
     },
     tcpConnect(ctx, host, port) => {
         if !ctx.check_net_connect(host) {
-            return Err(NativeError::capability("net.client", host));
+            return Err(NativeError::capability(Capability::NetClient.as_str(), host));
         }
         let task = driver().connect(host, port);
         Ok(ctx.task_from_host(task, HostOpen::Plain))
     },
     tcpConnectTls(ctx, host, port, ca, identity) => {
         if !ctx.check_net_connect(host) {
-            return Err(NativeError::capability("net.client", host));
+            return Err(NativeError::capability(Capability::NetClient.as_str(), host));
         }
         let task = driver().connect_tls(host, port, ca, identity);
         Ok(ctx.task_from_host(task, HostOpen::Plain))
     },
     tcpListenTls(ctx, port, host, cert, key, client_ca) => {
         if !ctx.check_net_listen(port) {
-            return Err(NativeError::capability("net.server", port.to_string()));
+            return Err(NativeError::capability(Capability::NetServer.as_str(), port.to_string()));
         }
         driver()
             .listen_tls(port, host, cert, key, client_ca)
@@ -118,7 +119,7 @@ natives! {
     },
     udpBind(ctx, host, port) => {
         if !ctx.check_net_listen(port) {
-            return Err(NativeError::capability("net.listen", port.to_string()));
+            return Err(NativeError::capability(Capability::NetServer.as_str(), port.to_string()));
         }
         driver().udp_bind(host, port).map_err(|e| NativeError::std(StdErrorClass::Net, e.to_string()).with_str(ErrorField::Host, host).with_int(ErrorField::Port, port))
     },

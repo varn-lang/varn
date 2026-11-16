@@ -1,6 +1,7 @@
 #![allow(clippy::disallowed_methods)]
 use std::sync::OnceLock;
 use std::time::Instant;
+use vn_core::sandbox::Capability;
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
@@ -27,7 +28,7 @@ natives! {
     exit(code) => terminate(code.unwrap_or(0) as i32),
     env(ctx, key) => {
         if !ctx.check_env(key) {
-            return Err(NativeError::capability("sys.env", key));
+            return Err(NativeError::capability(Capability::SysEnv.as_str(), key));
         }
         match std::env::var(key) {
             Ok(value) => Ok(Some(value)),
@@ -39,7 +40,7 @@ natives! {
     },
     setEnv(ctx, key, val) => {
         if !ctx.check_env(key) {
-            return Err(NativeError::capability("sys.env", key));
+            return Err(NativeError::capability(Capability::SysEnv.as_str(), key));
         }
         unsafe { std::env::set_var(key, val) };
         Ok(())

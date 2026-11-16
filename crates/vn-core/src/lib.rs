@@ -29,6 +29,7 @@ pub mod paths;
 pub mod regex_pattern;
 pub mod runtime_kind;
 pub mod runtime_ops;
+pub mod sandbox;
 pub mod source;
 pub mod std_errors;
 pub mod term;

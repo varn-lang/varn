@@ -209,7 +209,7 @@ pub trait NativeCtx: crate::Buffers {
         false
     }
 
-    fn has_capability(&self, cap: &str) -> bool {
+    fn has_capability(&self, cap: vn_core::sandbox::Capability) -> bool {
         self.capabilities().has_capability(cap)
     }
 

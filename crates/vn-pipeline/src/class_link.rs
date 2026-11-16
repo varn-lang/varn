@@ -20,30 +20,32 @@ fn is_unboxed_kind(field: vn_core::FieldKind) -> bool {
     }
 }
 
-/// Los slots deben coincidir exacto. Los tipos solo importan por
-/// representación: unboxed (Int/Float/Bool/Char) exige igualdad porque los
-/// primitivos bajan idéntico en todo contexto; en boxed basta que la copia
-/// sea igual o genérica (degrada a ByName, sano).
 fn fields_cover(
-    copy: &[vn_tir::FieldInfo],
-    copy_types: &vn_tir::TyTable,
-    def: &[vn_tir::FieldInfo],
-    def_types: &vn_tir::TyTable,
+    candidate_fields: &[vn_tir::FieldInfo],
+    candidate_types: &vn_tir::TyTable,
+    expected_fields: &[vn_tir::FieldInfo],
+    expected_types: &vn_tir::TyTable,
 ) -> bool {
-    if copy.len() != def.len() {
+    if candidate_fields.len() != expected_fields.len() {
         return false;
     }
-    copy.iter().zip(def.iter()).all(|(c, d)| {
-        if c.name != d.name || c.slot != d.slot {
-            return false;
-        }
-        match (c.ty.field_kind(copy_types), d.ty.field_kind(def_types)) {
-            (Some(a), Some(b)) => a == b,
-            (None, Some(b)) => !is_unboxed_kind(b),
-            (None, None) => true,
-            (Some(_), None) => false,
-        }
-    })
+    candidate_fields
+        .iter()
+        .zip(expected_fields.iter())
+        .all(|(have, want)| {
+            if have.name != want.name || have.slot != want.slot {
+                return false;
+            }
+            match (
+                have.ty.field_kind(candidate_types),
+                want.ty.field_kind(expected_types),
+            ) {
+                (Some(have_kind), Some(want_kind)) => have_kind == want_kind,
+                (None, Some(want_kind)) => !is_unboxed_kind(want_kind),
+                (None, None) => true,
+                (Some(_), None) => false,
+            }
+        })
 }
 
 pub fn verify_foreign_layouts(tables: &HashMap<String, ModuleClasses>) -> Result<(), String> {
