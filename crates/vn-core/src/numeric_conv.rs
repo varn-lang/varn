@@ -168,7 +168,7 @@ impl ValueConv {
             (Float, Decimal) => Self::FloatToDecimal,
             (BigInt, Decimal) => Self::BigIntToDecimal,
             (Decimal, BigInt) => Self::DecimalToBigInt,
-            _ => return None,
+            (Int, Int) | (Float, Float) | (BigInt, BigInt) | (Decimal, Decimal) => return None,
         })
     }
 
