@@ -389,16 +389,24 @@ R7–R9 llamadas; R10–R11 strings; R12–R14 intérprete y arranque.
   item "tax llamada alloc-free" de §2.4, reservado: **coordinar**.
 - (a) `in compiled code` por encima de 40 % en `http_routing`. (b) Perfil y
   `--baseline`. (c) Los helpers que queden sin llamadores.
-- **Estado 2026-11-16 (portador HECHO, vía rápida pendiente):** `84b7b74f`
-  añade `InstKind::CallDirect` + `SsaOp::CallDirect` (`target` cualificado,
-  `slot`, `callee` precargado, `shape`): `from_tir` lo emite para `DirectFn`
-  cuando el inline declina y no hay spread; bytecode y JIT lo bajan
-  exactamente como `Call` (mismos opcodes y guardas, mismo orden
-  carga-antes-args: la sonda de redefinición durante args da 101 antes y
-  después). 50 sitios `match` deciden explícito (Ley 7). Suite 6140/0 en
-  JIT y `VN_NO_JIT=1`. La vía rápida (resolver entrada por `target`/`slot`
-  una vez, sin cargas ni guardas por llamada) se construye encima en el
-  siguiente corte.
+- **Estado 2026-11-16 (portador HECHO `84b7b74f`, vía rápida HECHA
+  `b17b7841`):** el portador añade `InstKind::CallDirect` +
+  `SsaOp::CallDirect`; la vía rápida añade IC monomórfico por sitio
+  (`DirectCallSlot` de 48 B en tabla paralela por proto): hit por puntero
+  de closure + época + entrada, sin paseo de celda/proto/firma (mismo
+  `headroom→push/frameless→call→pop→publish→check` genérico con entry,
+  firma y closure cacheados); miss por helper `jit_call_direct_cached`
+  (rellena solo si el genérico aceptaría; reasignación y cambio de época
+  fallan por construcción). ABI 17→19.
+- (a) `bench_direct` (200k llamadas a callee no inlizable, basal del
+  carrier): `execute (warm)` −18.0 % `Improvement`, `e2e` −18.9 %
+  `Improvement`, ambos más allá de ci95. Sin regresiones:
+  `http_routing` execute `Same` (−0.8 %), `fib` execute `Same` (+4.6 %),
+  `matrix` execute `Same` (−2.6 %). (b) `vn bench --baseline` en release
+  15+3 (10+2 fib/matrix); suite 6140/0 en JIT y `VN_NO_JIT=1` (quick y
+  release); sonda de orden idéntica antes/después (101); invalidación
+  verificada en ambos modos. (c) Nada; el camino genérico queda intacto
+  (sin `id` o sin sitio, genérico).
 
 ### R10. `charCodeAt` en línea
 
