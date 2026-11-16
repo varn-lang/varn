@@ -65,6 +65,11 @@ impl ExecCtx {
             let base = unsafe { (*ctx).frames[frame_idx].base };
             let mut ip = unsafe { (*ctx).frames[frame_idx].ip };
             let code_len = closure.proto.chunk.code.len();
+            let debugging = unsafe {
+                (*ctx).debug_breaks.is_some()
+                    || (*ctx).debug_step.is_some()
+                    || (*ctx).debug_skip.is_some()
+            };
 
             macro_rules! tryv {
                 ($e:expr) => {
@@ -93,7 +98,7 @@ impl ExecCtx {
                     continue 'frame_loop;
                 }
 
-                if crate::debug::check_break(ctx, closure_ptr, frame_idx, ip) {
+                if debugging && crate::debug::check_break(ctx, closure_ptr, frame_idx, ip) {
                     return Ok(VmValue::null());
                 }
 
