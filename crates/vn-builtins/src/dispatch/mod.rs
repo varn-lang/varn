@@ -98,15 +98,21 @@ pub fn check_native_fn_capability(
     let Some(name) = entry.capability() else {
         return Ok(());
     };
-    let granted = vn_core::sandbox::Capability::parse(name).is_some_and(|c| ctx.has_capability(c));
-    if granted {
-        Ok(())
-    } else {
-        Err(vn_types::NativeError::capability(
-            name,
-            format!("{}:{}", entry.module_id(), entry.symbol_name()),
-        ))
+    for domain in vn_core::sandbox::Capability::split_joined(name) {
+        let Some(cap) = vn_core::sandbox::Capability::parse(domain) else {
+            return Err(vn_types::NativeError::capability(
+                domain,
+                format!("{}:{}", entry.module_id(), entry.symbol_name()),
+            ));
+        };
+        if !ctx.has_capability(cap) {
+            return Err(vn_types::NativeError::capability(
+                cap.as_str(),
+                format!("{}:{}", entry.module_id(), entry.symbol_name()),
+            ));
+        }
     }
+    Ok(())
 }
 
 pub fn all_native_module_ids() -> impl Iterator<Item = &'static str> {

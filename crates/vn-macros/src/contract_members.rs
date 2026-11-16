@@ -27,5 +27,5 @@ pub(crate) struct Member {
 
     pub(crate) throws: Vec<String>,
 
-    pub(crate) capability: Option<String>,
+    pub(crate) capability: Vec<String>,
 }

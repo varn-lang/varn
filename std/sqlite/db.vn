@@ -30,6 +30,7 @@ export class Database {
     private _id: int = -1;
     private _isOpen: bool = false;
 
+    @capability("fs.read", "fs.write")
     constructor(path: str = ":memory:") {
         this._id = open$(path);
         this._isOpen = true;

@@ -37,4 +37,27 @@ impl Capability {
             _ => return None,
         })
     }
+
+    pub fn canonicalize_all(domains: Vec<String>) -> Result<Vec<String>, String> {
+        let mut out = Vec::with_capacity(domains.len());
+        for d in domains {
+            let Some(cap) = Self::parse(&d) else {
+                return Err(format!("unknown capability `{d}`"));
+            };
+            let name = cap.as_str().to_string();
+            if !out.contains(&name) {
+                out.push(name);
+            }
+        }
+        out.sort();
+        Ok(out)
+    }
+
+    pub fn split_joined(joined: &str) -> Vec<&str> {
+        joined
+            .split(',')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .collect()
+    }
 }

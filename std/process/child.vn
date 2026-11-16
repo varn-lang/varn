@@ -41,15 +41,18 @@ export namespace Process {
         return currentExe$();
     }
 
+    @capability("sys.exec")
     export function exec(command: str): ProcessResult {
         return exec$(command);
     }
 
+    @capability("sys.exec")
     export async function execAsync(command: str): Task<ProcessResult> {
         let id = await execAsync$(command);
         return execResult$(id);
     }
 
+    @capability("sys.exec")
     export function spawn(command: str, args: str[] = []): ChildProcess {
         let pid = spawnProcess$(command, args);
         return new ChildProcess(pid);

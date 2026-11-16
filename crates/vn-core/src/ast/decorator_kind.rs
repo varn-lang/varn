@@ -7,15 +7,19 @@ pub enum BuiltinDecoratorKind {
     Inline,
     Capability,
     Test,
+    Throws,
+    Decodes,
 }
 
 impl BuiltinDecoratorKind {
-    const ALL: [Self; 5] = [
+    const ALL: [Self; 7] = [
         Self::Deprecated,
         Self::Pure,
         Self::Inline,
         Self::Capability,
         Self::Test,
+        Self::Throws,
+        Self::Decodes,
     ];
 
     pub const fn name(self) -> &'static str {
@@ -25,11 +29,45 @@ impl BuiltinDecoratorKind {
             Self::Inline => "inline",
             Self::Capability => "capability",
             Self::Test => "test",
+            Self::Throws => "throws",
+            Self::Decodes => "decodes",
         }
     }
 
     pub fn of(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|k| k.name() == name)
+    }
+
+    pub const fn supports(self, target: DecoratorTarget) -> bool {
+        match self {
+            Self::Deprecated => true,
+            Self::Pure => matches!(
+                target,
+                DecoratorTarget::Function
+                    | DecoratorTarget::Method
+                    | DecoratorTarget::Getter
+                    | DecoratorTarget::Setter
+            ),
+            Self::Capability => matches!(
+                target,
+                DecoratorTarget::Function
+                    | DecoratorTarget::Method
+                    | DecoratorTarget::Getter
+                    | DecoratorTarget::Setter
+                    | DecoratorTarget::Constructor
+            ),
+            Self::Throws => matches!(
+                target,
+                DecoratorTarget::Function
+                    | DecoratorTarget::Method
+                    | DecoratorTarget::Getter
+                    | DecoratorTarget::Setter
+                    | DecoratorTarget::Constructor
+            ),
+            Self::Inline | Self::Test | Self::Decodes => {
+                matches!(target, DecoratorTarget::Function)
+            }
+        }
     }
 }
 
@@ -41,30 +79,9 @@ impl BuiltinDecorator {
             Self::Inline => BuiltinDecoratorKind::Inline,
             Self::Capability { .. } => BuiltinDecoratorKind::Capability,
             Self::Test => BuiltinDecoratorKind::Test,
+            Self::Throws { .. } => BuiltinDecoratorKind::Throws,
+            Self::Decodes { .. } => BuiltinDecoratorKind::Decodes,
         }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ContractDecorator {
-    Throws,
-    Permission,
-    Decodes,
-}
-
-impl ContractDecorator {
-    const ALL: [Self; 3] = [Self::Throws, Self::Permission, Self::Decodes];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Throws => "throws",
-            Self::Permission => "permission",
-            Self::Decodes => "decodes",
-        }
-    }
-
-    pub fn of(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|k| k.name() == name)
     }
 }
 

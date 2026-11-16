@@ -20,74 +20,92 @@ export class Pointer {
         return new Pointer(this.address + bytes);
     }
 
+    @capability("sys.ffi")
     readI8(offset: int = 0): int {
         return readInt$(this.address, offset, 1);
     }
 
+    @capability("sys.ffi")
     readI16(offset: int = 0): int {
         return readInt$(this.address, offset, 2);
     }
 
+    @capability("sys.ffi")
     readI32(offset: int = 0): int {
         return readInt$(this.address, offset, 4);
     }
 
+    @capability("sys.ffi")
     readI64(offset: int = 0): int {
         return readInt$(this.address, offset, 8);
     }
 
+    @capability("sys.ffi")
     readInt(offset: int = 0, size: int = 8): int {
         return readInt$(this.address, offset, size);
     }
 
+    @capability("sys.ffi")
     writeI8(val: int, offset: int = 0): void {
         writeInt$(this.address, offset, val, 1);
     }
 
+    @capability("sys.ffi")
     writeI16(val: int, offset: int = 0): void {
         writeInt$(this.address, offset, val, 2);
     }
 
+    @capability("sys.ffi")
     writeI32(val: int, offset: int = 0): void {
         writeInt$(this.address, offset, val, 4);
     }
 
+    @capability("sys.ffi")
     writeI64(val: int, offset: int = 0): void {
         writeInt$(this.address, offset, val, 8);
     }
 
+    @capability("sys.ffi")
     writeInt(val: int, offset: int = 0, size: int = 8): void {
         writeInt$(this.address, offset, val, size);
     }
 
+    @capability("sys.ffi")
     readF32(offset: int = 0): float {
         return readFloat$(this.address, offset, false);
     }
 
+    @capability("sys.ffi")
     readF64(offset: int = 0): float {
         return readFloat$(this.address, offset, true);
     }
 
+    @capability("sys.ffi")
     readFloat(offset: int = 0, isDouble: bool = true): float {
         return readFloat$(this.address, offset, isDouble);
     }
 
+    @capability("sys.ffi")
     writeF32(val: float, offset: int = 0): void {
         writeFloat$(this.address, offset, val, false);
     }
 
+    @capability("sys.ffi")
     writeF64(val: float, offset: int = 0): void {
         writeFloat$(this.address, offset, val, true);
     }
 
+    @capability("sys.ffi")
     writeFloat(val: float, offset: int = 0, isDouble: bool = true): void {
         writeFloat$(this.address, offset, val, isDouble);
     }
 
+    @capability("sys.ffi")
     readCString(offset: int = 0): str {
         return readCString$(this.address, offset);
     }
 
+    @capability("sys.ffi")
     free(): void {
         free$(this.address);
     }

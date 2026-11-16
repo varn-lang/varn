@@ -15,6 +15,7 @@ export const MOUSE_LEFT: int = 0;
 export const MOUSE_RIGHT: int = 1;
 export const MOUSE_MIDDLE: int = 2;
 
+@capability("ui")
 export function keyCode(name: str): int {
     return keyCode$(name);
 }

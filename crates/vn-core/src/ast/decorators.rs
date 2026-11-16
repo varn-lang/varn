@@ -10,64 +10,72 @@ pub enum BuiltinDecorator {
     Inline,
     Capability { domains: Vec<String> },
     Test,
+    Throws { classes: Vec<String> },
+    Decodes { op: String },
 }
 
 pub struct BuiltinMatch {
     pub range: SourceRange,
-    pub result: Option<Result<BuiltinDecorator, &'static str>>,
+    pub result: Option<Result<BuiltinDecorator, String>>,
 }
 
-fn written_head(arena: &AstArena, d: &Decorator) -> Option<Atom> {
-    let head = match &arena.expr(d.expression).kind {
-        ExprKind::Identifier { name } => *name,
-        ExprKind::Call { callee, .. } => match &arena.expr(*callee).kind {
-            ExprKind::Identifier { name } => *name,
-            ExprKind::IntLiteral { .. }
-            | ExprKind::FloatLiteral { .. }
-            | ExprKind::BigIntLiteral { .. }
-            | ExprKind::DecimalLiteral { .. }
-            | ExprKind::StrLiteral { .. }
-            | ExprKind::CharLiteral { .. }
-            | ExprKind::BoolLiteral { .. }
-            | ExprKind::NullLiteral
-            | ExprKind::Template { .. }
-            | ExprKind::TaggedTemplate { .. }
-            | ExprKind::Missing
-            | ExprKind::This
-            | ExprKind::Super
-            | ExprKind::ImportMeta(_)
-            | ExprKind::Array { .. }
-            | ExprKind::Object { .. }
-            | ExprKind::Tuple { .. }
-            | ExprKind::Unary { .. }
-            | ExprKind::Update { .. }
-            | ExprKind::Binary { .. }
-            | ExprKind::Logical { .. }
-            | ExprKind::Assign { .. }
-            | ExprKind::Conditional { .. }
-            | ExprKind::Member { .. }
-            | ExprKind::Call { .. }
-            | ExprKind::New { .. }
-            | ExprKind::Function { .. }
-            | ExprKind::Arrow { .. }
-            | ExprKind::Sequence { .. }
-            | ExprKind::Paren { .. }
-            | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
-            | ExprKind::Yield { .. }
-            | ExprKind::Spread { .. }
-            | ExprKind::Pipeline { .. }
-            | ExprKind::Range { .. }
-            | ExprKind::NonNull { .. }
-            | ExprKind::Try { .. }
-            | ExprKind::As { .. }
-            | ExprKind::Satisfies { .. }
-            | ExprKind::ClassExpr { .. }
-            | ExprKind::Match { .. }
-            | ExprKind::Is { .. }
-            | ExprKind::With { .. }
-            | ExprKind::MetaAccess { .. } => return None,
-        },
+fn head_atom(arena: &AstArena, id: ExprId) -> Option<Atom> {
+    match &arena.expr(id).kind {
+        ExprKind::Identifier { name } => Some(*name),
+        ExprKind::Call { .. }
+        | ExprKind::IntLiteral { .. }
+        | ExprKind::FloatLiteral { .. }
+        | ExprKind::BigIntLiteral { .. }
+        | ExprKind::DecimalLiteral { .. }
+        | ExprKind::StrLiteral { .. }
+        | ExprKind::CharLiteral { .. }
+        | ExprKind::BoolLiteral { .. }
+        | ExprKind::NullLiteral
+        | ExprKind::Template { .. }
+        | ExprKind::TaggedTemplate { .. }
+        | ExprKind::Missing
+        | ExprKind::This
+        | ExprKind::Super
+        | ExprKind::ImportMeta(_)
+        | ExprKind::Array { .. }
+        | ExprKind::Object { .. }
+        | ExprKind::Tuple { .. }
+        | ExprKind::Unary { .. }
+        | ExprKind::Update { .. }
+        | ExprKind::Binary { .. }
+        | ExprKind::Logical { .. }
+        | ExprKind::Assign { .. }
+        | ExprKind::Conditional { .. }
+        | ExprKind::Member { .. }
+        | ExprKind::New { .. }
+        | ExprKind::Function { .. }
+        | ExprKind::Arrow { .. }
+        | ExprKind::Sequence { .. }
+        | ExprKind::Paren { .. }
+        | ExprKind::Await { .. }
+        | ExprKind::Spawn { .. }
+        | ExprKind::Yield { .. }
+        | ExprKind::Spread { .. }
+        | ExprKind::Pipeline { .. }
+        | ExprKind::Range { .. }
+        | ExprKind::NonNull { .. }
+        | ExprKind::Try { .. }
+        | ExprKind::As { .. }
+        | ExprKind::Satisfies { .. }
+        | ExprKind::ClassExpr { .. }
+        | ExprKind::Match { .. }
+        | ExprKind::Is { .. }
+        | ExprKind::With { .. }
+        | ExprKind::MetaAccess { .. } => None,
+    }
+}
+
+pub fn decorator_parts(arena: &AstArena, id: ExprId) -> Option<(Atom, Option<&[Arg]>)> {
+    match &arena.expr(id).kind {
+        ExprKind::Identifier { name } => Some((*name, None)),
+        ExprKind::Call { callee, args, .. } => {
+            Some((head_atom(arena, *callee)?, Some(args.as_slice())))
+        }
         ExprKind::IntLiteral { .. }
         | ExprKind::FloatLiteral { .. }
         | ExprKind::BigIntLiteral { .. }
@@ -111,49 +119,32 @@ fn written_head(arena: &AstArena, d: &Decorator) -> Option<Atom> {
         | ExprKind::Match { .. }
         | ExprKind::Is { .. }
         | ExprKind::With { .. }
-        | ExprKind::MetaAccess { .. } => return None,
-    };
-    Some(head)
+        | ExprKind::MetaAccess { .. } => None,
+    }
 }
 
 pub fn decorator_head(arena: &AstArena, interner: &AtomInterner, d: &Decorator) -> Option<Atom> {
-    let head = written_head(arena, d)?;
+    let (head, _) = decorator_parts(arena, d.expression)?;
     let name = interner.resolve(head);
-    (super::decorator_kind::BuiltinDecoratorKind::of(name).is_some()
-        || super::decorator_kind::ContractDecorator::of(name).is_some())
-    .then_some(head)
-}
-
-pub fn is_contract_decorator(arena: &AstArena, interner: &AtomInterner, d: &Decorator) -> bool {
-    written_head(arena, d)
-        .and_then(|head| super::decorator_kind::ContractDecorator::of(interner.resolve(head)))
+    super::decorator_kind::BuiltinDecoratorKind::of(name)
         .is_some()
+        .then_some(head)
 }
 
 pub fn is_builtin(arena: &AstArena, interner: &AtomInterner, d: &Decorator) -> bool {
-    is_contract_decorator(arena, interner, d)
-        || match_builtin(arena, interner, std::slice::from_ref(d))
-            .into_iter()
-            .any(|m| m.result.is_some())
+    match_builtin(arena, interner, std::slice::from_ref(d))
+        .into_iter()
+        .any(|m| m.result.is_some())
 }
 
-pub fn is_active_builtin(
+pub fn wraps_at_runtime(
     arena: &AstArena,
     interner: &AtomInterner,
-    is_shadowed: impl Fn(u32) -> bool,
-    d: &Decorator,
+    decorators: &[Decorator],
 ) -> bool {
-    is_builtin(arena, interner, d) && !is_shadowed(d.range.start.offset)
-}
-
-pub fn single_string_arg(arena: &AstArena, d: &Decorator) -> Option<String> {
-    let ExprKind::Call { args, .. } = &arena.expr(d.expression).kind else {
-        return None;
-    };
-    match args.as_slice() {
-        [Arg::Positional(arg)] => str_arg(arena, *arg),
-        _ => None,
-    }
+    match_builtin(arena, interner, decorators)
+        .into_iter()
+        .any(|m| m.result.is_none())
 }
 
 fn str_arg(arena: &AstArena, id: ExprId) -> Option<String> {
@@ -225,113 +216,14 @@ pub fn match_builtin(
 ) -> Vec<BuiltinMatch> {
     let mut out = Vec::new();
     for d in decorators {
-        let (head, args) = match &arena.expr(d.expression).kind {
-            ExprKind::Identifier { name } => (interner.resolve(*name), None),
-            ExprKind::Call { callee, args, .. } => match &arena.expr(*callee).kind {
-                ExprKind::Identifier { name } => (interner.resolve(*name), Some(args.as_slice())),
-                ExprKind::IntLiteral { .. }
-                | ExprKind::FloatLiteral { .. }
-                | ExprKind::BigIntLiteral { .. }
-                | ExprKind::DecimalLiteral { .. }
-                | ExprKind::StrLiteral { .. }
-                | ExprKind::CharLiteral { .. }
-                | ExprKind::BoolLiteral { .. }
-                | ExprKind::NullLiteral
-                | ExprKind::Template { .. }
-                | ExprKind::TaggedTemplate { .. }
-                | ExprKind::Missing
-                | ExprKind::This
-                | ExprKind::Super
-                | ExprKind::ImportMeta(_)
-                | ExprKind::Array { .. }
-                | ExprKind::Object { .. }
-                | ExprKind::Tuple { .. }
-                | ExprKind::Unary { .. }
-                | ExprKind::Update { .. }
-                | ExprKind::Binary { .. }
-                | ExprKind::Logical { .. }
-                | ExprKind::Assign { .. }
-                | ExprKind::Conditional { .. }
-                | ExprKind::Member { .. }
-                | ExprKind::Call { .. }
-                | ExprKind::New { .. }
-                | ExprKind::Function { .. }
-                | ExprKind::Arrow { .. }
-                | ExprKind::Sequence { .. }
-                | ExprKind::Paren { .. }
-                | ExprKind::Await { .. }
-                | ExprKind::Spawn { .. }
-                | ExprKind::Yield { .. }
-                | ExprKind::Spread { .. }
-                | ExprKind::Pipeline { .. }
-                | ExprKind::Range { .. }
-                | ExprKind::NonNull { .. }
-                | ExprKind::Try { .. }
-                | ExprKind::As { .. }
-                | ExprKind::Satisfies { .. }
-                | ExprKind::ClassExpr { .. }
-                | ExprKind::Match { .. }
-                | ExprKind::Is { .. }
-                | ExprKind::With { .. }
-                | ExprKind::MetaAccess { .. } => {
-                    out.push(BuiltinMatch {
-                        range: d.range,
-                        result: None,
-                    });
-                    continue;
-                }
-            },
-            ExprKind::IntLiteral { .. }
-            | ExprKind::FloatLiteral { .. }
-            | ExprKind::BigIntLiteral { .. }
-            | ExprKind::DecimalLiteral { .. }
-            | ExprKind::StrLiteral { .. }
-            | ExprKind::CharLiteral { .. }
-            | ExprKind::BoolLiteral { .. }
-            | ExprKind::NullLiteral
-            | ExprKind::Template { .. }
-            | ExprKind::TaggedTemplate { .. }
-            | ExprKind::Missing
-            | ExprKind::This
-            | ExprKind::Super
-            | ExprKind::ImportMeta(_)
-            | ExprKind::Array { .. }
-            | ExprKind::Object { .. }
-            | ExprKind::Tuple { .. }
-            | ExprKind::Unary { .. }
-            | ExprKind::Update { .. }
-            | ExprKind::Binary { .. }
-            | ExprKind::Logical { .. }
-            | ExprKind::Assign { .. }
-            | ExprKind::Conditional { .. }
-            | ExprKind::Member { .. }
-            | ExprKind::New { .. }
-            | ExprKind::Function { .. }
-            | ExprKind::Arrow { .. }
-            | ExprKind::Sequence { .. }
-            | ExprKind::Paren { .. }
-            | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
-            | ExprKind::Yield { .. }
-            | ExprKind::Spread { .. }
-            | ExprKind::Pipeline { .. }
-            | ExprKind::Range { .. }
-            | ExprKind::NonNull { .. }
-            | ExprKind::Try { .. }
-            | ExprKind::As { .. }
-            | ExprKind::Satisfies { .. }
-            | ExprKind::ClassExpr { .. }
-            | ExprKind::Match { .. }
-            | ExprKind::Is { .. }
-            | ExprKind::With { .. }
-            | ExprKind::MetaAccess { .. } => {
-                out.push(BuiltinMatch {
-                    range: d.range,
-                    result: None,
-                });
-                continue;
-            }
+        let Some((head, args)) = decorator_parts(arena, d.expression) else {
+            out.push(BuiltinMatch {
+                range: d.range,
+                result: None,
+            });
+            continue;
         };
+        let head = interner.resolve(head);
         let Some(kind) = super::decorator_kind::BuiltinDecoratorKind::of(head) else {
             out.push(BuiltinMatch {
                 range: d.range,
@@ -346,32 +238,82 @@ pub fn match_builtin(
                 Some([single]) => match single {
                     Arg::Positional(e) => match str_arg(arena, *e) {
                         Some(msg) => Ok(BuiltinDecorator::Deprecated { message: Some(msg) }),
-                        None => Err("`@deprecated` takes an optional string message"),
+                        None => Err("`@deprecated` takes an optional string message".to_string()),
                     },
                     Arg::Spread(_) | Arg::Named { .. } => {
-                        Err("`@deprecated` takes an optional string message")
+                        Err("`@deprecated` takes an optional string message".to_string())
                     }
                 },
-                Some(_) => Err("`@deprecated` takes an optional string message"),
+                Some(_) => Err("`@deprecated` takes an optional string message".to_string()),
             },
             K::Pure => match args {
                 None | Some([]) => Ok(BuiltinDecorator::Pure),
-                Some(_) => Err("`@pure` takes no arguments"),
+                Some(_) => Err("`@pure` takes no arguments".to_string()),
             },
             K::Inline => match args {
                 None | Some([]) => Ok(BuiltinDecorator::Inline),
-                Some(_) => Err("`@inline` takes no arguments"),
+                Some(_) => Err("`@inline` takes no arguments".to_string()),
             },
             K::Capability => match args {
                 Some(a) if !a.is_empty() => match positional_strs(arena, a) {
-                    Some(domains) => Ok(BuiltinDecorator::Capability { domains }),
-                    None => Err("`@capability` takes one or more string domains"),
+                    Some(domains) => match crate::sandbox::Capability::canonicalize_all(domains) {
+                        Ok(domains) => Ok(BuiltinDecorator::Capability { domains }),
+                        Err(bad) => Err(bad),
+                    },
+                    None => Err("`@capability` takes one or more string domains".to_string()),
                 },
-                Some(_) | None => Err("`@capability` takes one or more string domains"),
+                Some(_) | None => Err("`@capability` takes one or more string domains".to_string()),
+            },
+            K::Throws => match args {
+                Some(a) if !a.is_empty() => {
+                    let mut out: Vec<String> = Vec::new();
+                    let mut malformed = false;
+                    let mut unknown: Option<String> = None;
+                    for arg in a {
+                        let Arg::Positional(e) = arg else {
+                            malformed = true;
+                            break;
+                        };
+                        let Some(name) = head_atom(arena, *e) else {
+                            malformed = true;
+                            break;
+                        };
+                        let name = interner.resolve(name).to_string();
+                        if crate::ErrorClass::of_name(&name).is_none() {
+                            unknown = Some(name);
+                            break;
+                        }
+                        if !out.contains(&name) {
+                            out.push(name);
+                        }
+                    }
+                    if let Some(name) = unknown {
+                        Err(format!(
+                            "`@throws({name})`: `{name}` is not an error class of the canonical tables"
+                        ))
+                    } else if malformed || out.is_empty() {
+                        Err("`@throws` takes error class names".to_string())
+                    } else {
+                        Ok(BuiltinDecorator::Throws { classes: out })
+                    }
+                }
+                Some(_) | None => Err("`@throws` takes error class names".to_string()),
+            },
+            K::Decodes => match args {
+                Some([single]) => match single {
+                    Arg::Positional(e) => match str_arg(arena, *e) {
+                        Some(op) => Ok(BuiltinDecorator::Decodes { op }),
+                        None => Err("`@decodes` takes exactly one string op".to_string()),
+                    },
+                    Arg::Spread(_) | Arg::Named { .. } => {
+                        Err("`@decodes` takes exactly one string op".to_string())
+                    }
+                },
+                Some(_) | None => Err("`@decodes` takes exactly one string op".to_string()),
             },
             K::Test => match args {
                 None | Some([]) => Ok(BuiltinDecorator::Test),
-                Some(_) => Err("`@test` takes no arguments"),
+                Some(_) => Err("`@test` takes no arguments".to_string()),
             },
         };
         out.push(BuiltinMatch {

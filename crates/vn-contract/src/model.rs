@@ -28,7 +28,7 @@ pub struct Member {
     pub params: Vec<Param>,
     pub ret: ContractTy,
     pub throws: Vec<String>,
-    pub capability: Option<String>,
+    pub capability: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

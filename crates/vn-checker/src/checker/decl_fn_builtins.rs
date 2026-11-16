@@ -9,111 +9,13 @@ impl<'r> Checker<'r> {
         want: vn_core::ast::decorator_kind::BuiltinDecoratorKind,
     ) -> bool {
         decorators.iter().any(|d| {
-            if bind.user_decorators.contains(&d.range.start.offset) {
+            let Some((head, _)) =
+                vn_core::ast::decorators::decorator_parts(self.ast_arena, d.expression)
+            else {
                 return false;
-            }
-            let expr = &self.ast_arena.expr(d.expression);
-            let head = match &expr.kind {
-                vn_core::ast::ExprKind::Identifier { name } => Some(*name),
-                vn_core::ast::ExprKind::Call { callee, .. } => {
-                    match &self.ast_arena.expr(*callee).kind {
-                        vn_core::ast::ExprKind::Identifier { name } => Some(*name),
-                        vn_core::ast::ExprKind::IntLiteral { .. }
-                        | vn_core::ast::ExprKind::FloatLiteral { .. }
-                        | vn_core::ast::ExprKind::BigIntLiteral { .. }
-                        | vn_core::ast::ExprKind::DecimalLiteral { .. }
-                        | vn_core::ast::ExprKind::StrLiteral { .. }
-                        | vn_core::ast::ExprKind::CharLiteral { .. }
-                        | vn_core::ast::ExprKind::BoolLiteral { .. }
-                        | vn_core::ast::ExprKind::NullLiteral
-                        | vn_core::ast::ExprKind::Template { .. }
-                        | vn_core::ast::ExprKind::TaggedTemplate { .. }
-                        | vn_core::ast::ExprKind::Missing
-                        | vn_core::ast::ExprKind::This
-                        | vn_core::ast::ExprKind::ImportMeta(_)
-                        | vn_core::ast::ExprKind::Super
-                        | vn_core::ast::ExprKind::Array { .. }
-                        | vn_core::ast::ExprKind::Object { .. }
-                        | vn_core::ast::ExprKind::Tuple { .. }
-                        | vn_core::ast::ExprKind::Unary { .. }
-                        | vn_core::ast::ExprKind::Update { .. }
-                        | vn_core::ast::ExprKind::Binary { .. }
-                        | vn_core::ast::ExprKind::Logical { .. }
-                        | vn_core::ast::ExprKind::Assign { .. }
-                        | vn_core::ast::ExprKind::Conditional { .. }
-                        | vn_core::ast::ExprKind::Member { .. }
-                        | vn_core::ast::ExprKind::Call { .. }
-                        | vn_core::ast::ExprKind::New { .. }
-                        | vn_core::ast::ExprKind::Function { .. }
-                        | vn_core::ast::ExprKind::Arrow { .. }
-                        | vn_core::ast::ExprKind::Sequence { .. }
-                        | vn_core::ast::ExprKind::Paren { .. }
-                        | vn_core::ast::ExprKind::Await { .. }
-                        | vn_core::ast::ExprKind::Spawn { .. }
-                        | vn_core::ast::ExprKind::Yield { .. }
-                        | vn_core::ast::ExprKind::Spread { .. }
-                        | vn_core::ast::ExprKind::Pipeline { .. }
-                        | vn_core::ast::ExprKind::Range { .. }
-                        | vn_core::ast::ExprKind::NonNull { .. }
-                        | vn_core::ast::ExprKind::Try { .. }
-                        | vn_core::ast::ExprKind::As { .. }
-                        | vn_core::ast::ExprKind::Satisfies { .. }
-                        | vn_core::ast::ExprKind::ClassExpr { .. }
-                        | vn_core::ast::ExprKind::Match { .. }
-                        | vn_core::ast::ExprKind::Is { .. }
-                        | vn_core::ast::ExprKind::With { .. }
-                        | vn_core::ast::ExprKind::MetaAccess { .. } => None,
-                    }
-                }
-                vn_core::ast::ExprKind::IntLiteral { .. }
-                | vn_core::ast::ExprKind::FloatLiteral { .. }
-                | vn_core::ast::ExprKind::BigIntLiteral { .. }
-                | vn_core::ast::ExprKind::DecimalLiteral { .. }
-                | vn_core::ast::ExprKind::StrLiteral { .. }
-                | vn_core::ast::ExprKind::CharLiteral { .. }
-                | vn_core::ast::ExprKind::BoolLiteral { .. }
-                | vn_core::ast::ExprKind::NullLiteral
-                | vn_core::ast::ExprKind::Template { .. }
-                | vn_core::ast::ExprKind::TaggedTemplate { .. }
-                | vn_core::ast::ExprKind::Missing
-                | vn_core::ast::ExprKind::This
-                | vn_core::ast::ExprKind::ImportMeta(_)
-                | vn_core::ast::ExprKind::Super
-                | vn_core::ast::ExprKind::Array { .. }
-                | vn_core::ast::ExprKind::Object { .. }
-                | vn_core::ast::ExprKind::Tuple { .. }
-                | vn_core::ast::ExprKind::Unary { .. }
-                | vn_core::ast::ExprKind::Update { .. }
-                | vn_core::ast::ExprKind::Binary { .. }
-                | vn_core::ast::ExprKind::Logical { .. }
-                | vn_core::ast::ExprKind::Assign { .. }
-                | vn_core::ast::ExprKind::Conditional { .. }
-                | vn_core::ast::ExprKind::Member { .. }
-                | vn_core::ast::ExprKind::New { .. }
-                | vn_core::ast::ExprKind::Function { .. }
-                | vn_core::ast::ExprKind::Arrow { .. }
-                | vn_core::ast::ExprKind::Sequence { .. }
-                | vn_core::ast::ExprKind::Paren { .. }
-                | vn_core::ast::ExprKind::Await { .. }
-                | vn_core::ast::ExprKind::Spawn { .. }
-                | vn_core::ast::ExprKind::Yield { .. }
-                | vn_core::ast::ExprKind::Spread { .. }
-                | vn_core::ast::ExprKind::Pipeline { .. }
-                | vn_core::ast::ExprKind::Range { .. }
-                | vn_core::ast::ExprKind::NonNull { .. }
-                | vn_core::ast::ExprKind::Try { .. }
-                | vn_core::ast::ExprKind::As { .. }
-                | vn_core::ast::ExprKind::Satisfies { .. }
-                | vn_core::ast::ExprKind::ClassExpr { .. }
-                | vn_core::ast::ExprKind::Match { .. }
-                | vn_core::ast::ExprKind::Is { .. }
-                | vn_core::ast::ExprKind::With { .. }
-                | vn_core::ast::ExprKind::MetaAccess { .. } => None,
             };
-            head.is_some_and(|h| {
-                vn_core::ast::decorator_kind::BuiltinDecoratorKind::of(bind.interner.resolve(h))
-                    == Some(want)
-            })
+            vn_core::ast::decorator_kind::BuiltinDecoratorKind::of(bind.interner.resolve(head))
+                == Some(want)
         })
     }
 

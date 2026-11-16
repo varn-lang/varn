@@ -327,13 +327,11 @@ pub(super) fn emit_function(
             &f.decorators,
         )
         .into_iter()
-        .zip(f.decorators.iter())
-        .any(|(m, d)| {
-            !bind.user_decorators.contains(&d.range.start.offset)
-                && matches!(
-                    m.result,
-                    Some(Ok(vn_core::ast::decorators::BuiltinDecorator::Inline))
-                )
+        .any(|m| {
+            matches!(
+                m.result,
+                Some(Ok(vn_core::ast::decorators::BuiltinDecorator::Inline))
+            )
         }),
     }
 }

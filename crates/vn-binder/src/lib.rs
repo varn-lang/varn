@@ -65,13 +65,9 @@ pub struct Binder<'r> {
 
     pub(crate) type_decls: FxHashMap<Arc<str>, (vn_sem::scope::ScopeId, vn_core::SourceRange)>,
 
-    pub(crate) pending_decorator_roles: Vec<(
-        vn_sem::symbol::SymbolId,
-        Vec<vn_core::ast::Decorator>,
-        vn_sem::scope::ScopeId,
-    )>,
+    pub(crate) pending_decorator_roles:
+        Vec<(vn_sem::symbol::SymbolId, Vec<vn_core::ast::Decorator>)>,
 
-    pub(crate) user_decorators: rustc_hash::FxHashSet<u32>,
     pub(crate) namespace_imports: Vec<vn_sem::bind::NamespaceImport>,
     pub(crate) imported_forwards: rustc_hash::FxHashMap<Arc<str>, Arc<vn_sem::symbol::Forward>>,
     pub(crate) namespace_path: Vec<Arc<str>>,

@@ -81,7 +81,7 @@ pub fn emit_module(
         scoped: scoped_fns,
         scoped_direct,
         decorated: decorated_fns,
-    } = free_functions::collect_free_functions(program, ast_arena, interner, &bind.user_decorators);
+    } = free_functions::collect_free_functions(program, ast_arena, interner);
 
     let (mut namespace_scope, namespace_exports) =
         namespace_scope::declared_scope(program, ast_arena, interner);
@@ -114,7 +114,6 @@ pub fn emit_module(
         annotation_types: &bind.annotation_types,
         type_names: &bind.declared_type_names,
         nested_types: &nested,
-        shadowed: &bind.user_decorators,
         declared_types: &declared_types,
     };
 
@@ -146,7 +145,6 @@ pub fn emit_module(
         &scoped_fns,
         &global_slots,
         interner,
-        &bind.user_decorators,
         &mut types,
         &mut signatures,
         expr_table,

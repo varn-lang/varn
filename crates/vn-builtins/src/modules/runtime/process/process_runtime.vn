@@ -12,13 +12,13 @@ export interface ProcessStatus {
     success: bool;
 }
 
-@permission("sys.exec")
+@capability("sys.exec")
 export declare function exec$(command: str): ProcessOutput;
-@permission("sys.exec")
+@capability("sys.exec")
 export declare function execAsync$(command: str): TaskHandle<int>;
 export declare function execResult$(id: int): ProcessOutput;
 export declare function currentExe$(): str;
-@permission("sys.exec")
+@capability("sys.exec")
 export declare function spawnProcess$(command: str, args: str[]): int;
 export declare function waitProcess$(pid: int): ProcessStatus;
 export declare function waitProcessAsync$(pid: int): TaskHandle<int>;

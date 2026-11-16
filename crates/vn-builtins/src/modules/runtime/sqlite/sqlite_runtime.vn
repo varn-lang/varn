@@ -4,6 +4,7 @@ export type SqlValue = str | int | float | Bytes | null;
 export type SqlParam = SqlValue | bool;
 export type SqlRow = Map<str, SqlValue>;
 
+@capability("fs.read", "fs.write")
 export declare function open$(path: str): int;
 export declare function close$(dbId: int): void;
 export declare function script$(dbId: int, sql: str): void;

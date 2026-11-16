@@ -94,6 +94,7 @@ export namespace Color {
         return result;
     }
 
+    @capability("sys.env")
     export function isInteractive(): bool {
         let noColor = env$("NO_COLOR");
         if (noColor != null && noColor.length > 0) {

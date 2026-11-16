@@ -157,8 +157,8 @@ fn class_members(
                 },
                 params: params(ps, interner),
                 ret: ty(return_type.as_ref(), interner, ContractTy::Void),
-                throws: throws(decorators, arena, interner)?,
-                capability: capability(decorators, arena, interner)?,
+                throws: throws(Kind::Method, decorators, arena, interner)?,
+                capability: capability(Kind::Method, decorators, arena, interner)?,
             },
             ClassMember::Getter {
                 key,
@@ -175,8 +175,8 @@ fn class_members(
                 },
                 params: Vec::new(),
                 ret: ty(return_type.as_ref(), interner, ContractTy::Dynamic),
-                throws: throws(decorators, arena, interner)?,
-                capability: capability(decorators, arena, interner)?,
+                throws: throws(Kind::Getter, decorators, arena, interner)?,
+                capability: capability(Kind::Getter, decorators, arena, interner)?,
             },
             ClassMember::Property {
                 key,
@@ -196,8 +196,8 @@ fn class_members(
                 },
                 params: Vec::new(),
                 ret: ty(type_ann.as_ref(), interner, ContractTy::Dynamic),
-                throws: throws(decorators, arena, interner)?,
-                capability: capability(decorators, arena, interner)?,
+                throws: throws(Kind::Property, decorators, arena, interner)?,
+                capability: capability(Kind::Property, decorators, arena, interner)?,
             },
             ClassMember::Constructor {
                 params: ps,
@@ -208,8 +208,8 @@ fn class_members(
                 kind: Kind::Constructor,
                 params: params(ps, interner),
                 ret: ContractTy::Dynamic,
-                throws: throws(decorators, arena, interner)?,
-                capability: capability(decorators, arena, interner)?,
+                throws: throws(Kind::Constructor, decorators, arena, interner)?,
+                capability: capability(Kind::Constructor, decorators, arena, interner)?,
             },
             ClassMember::Destructor { .. }
             | ClassMember::Property { .. }
@@ -231,7 +231,7 @@ fn function_member(
         kind: Kind::Function,
         params: params(&f.params, interner),
         ret: ty(f.return_type.as_ref(), interner, ContractTy::Void),
-        throws: throws(&f.decorators, arena, interner)?,
-        capability: capability(&f.decorators, arena, interner)?,
+        throws: throws(Kind::Function, &f.decorators, arena, interner)?,
+        capability: capability(Kind::Function, &f.decorators, arena, interner)?,
     })
 }

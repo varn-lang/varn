@@ -9,7 +9,7 @@ Código manda. Fuentes: `crates/vn-macros/src/vn_contract/`, `crates/vn-macros/s
 3. **`build.rs` de `vn-builtins`**: recorre `src/modules/{core,runtime}`, parsea cada contrato con `vn-parser` y genera `MODULE_REGISTRY` (`registry.generated.rs`): id `core:<mod>`/`runtime:<mod>`, fuente embebida, exports y si el contrato trae código además de declaraciones.
 4. **Registro estático único**: `native_modules!` (`modules/mod.rs`) enumera los módulos y concatena sus `NATIVE_ENTRIES` en `NATIVE_MODULES`. Sin secciones del linker ni marcadores.
 5. **`vn-macros`** también define `#[jit_slow]` y `jit_helper_table!` (helpers JIT; no registran módulos).
-6. **Decoradores de contrato** (`ContractDecorator`, `vn-core/src/ast/decorator_kind.rs`): `@throws(Clase…)`, `@permission("dominio")` y `@decodes("<op>")`. `@decodes` declara la variante tipada de un nativo (`runtime:json`: `parse$` → `parse-typed`); el binder la guarda en el símbolo (`Symbol.decode_op`) y el forwarder de la función que la envuelve la propaga a `vn-emit`.
+6. **Decoradores builtin** (`BuiltinDecoratorKind`, `vn-core/src/ast/decorator_kind.rs`, registro único): `@throws(Clase…)`, `@capability("dominio", …)` y `@decodes("<op>")`. `@decodes` declara la variante tipada de un nativo (`runtime:json`: `parse$` → `parse-typed`); el binder la guarda en el símbolo (`Symbol.decode_op`) y el forwarder de la función que la envuelve la propaga a `vn-emit`. En posición de decorador el builtin siempre gana (sin shadowing); la colocación se valida con `supports()`.
 
 ## Módulos nativos (`modules/mod.rs`)
 
@@ -25,6 +25,6 @@ Ids de op **densos**: `registry()` asigna índices en orden de registro, empezan
 
 ## Capabilities
 
-Declaradas en el contrato con `@permission("<dominio>")` sobre la función; el macro las guarda en el `NativeOpEntry` (argumento distinto de un string → error de compilación). Dominios en uso: `sys.ffi` (12), `ui` (13), `sys.env` (2), `sys.exec` (2).
+Declaradas en el contrato con `@capability("<dominio>", …)` sobre la función (dominios canónicos de `vn-core/src/sandbox.rs`, validados en el parse; conjunto unido con `", "`); el macro las guarda en el `NativeOpEntry`. Dominios en uso: `sys.ffi` (12), `ui` (20), `sys.env` (2), `sys.exec` (3), `fs.read, fs.write` (sqlite `open`).
 
-Chequeo en `check_native_fn_capability` (`dispatch/mod.rs`), llamado por la VM antes de invocar el nativo (`vn-vm/src/exec/ctx_gc.rs`): sin la capability → `E_HOST_PERMISSION_DENIED:id=<mod>:<símbolo>:capability=<dominio>`. Nativos sin `@permission` no se filtran individualmente; el resto del gate es la máscara del CLI (ver `HOST_BOUNDARY_SPEC.md`).
+Chequeo en `check_native_fn_capability` (`dispatch/mod.rs`), llamado por la VM antes de invocar el nativo (`vn-vm/src/exec/ctx_gc.rs`): exige TODOS los dominios y deniega lo desconocido (fail-closed) → `E_HOST_PERMISSION_DENIED:id=<mod>:<símbolo>:capability=<dominio>`. Nativos sin `@capability` no se filtran individualmente; el resto del gate es la máscara del CLI (ver `HOST_BOUNDARY_SPEC.md`).

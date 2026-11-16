@@ -52,7 +52,6 @@ pub(super) fn emit_namespace_object(
     scoped_fns: &FxHashMap<Arc<str>, (u32, u32)>,
     global_slots: &FxHashMap<Arc<str>, u32>,
     interner: &AtomInterner,
-    shadowed: &rustc_hash::FxHashSet<u32>,
     top: &mut FnEmitter,
     top_body: &mut Vec<TirStmt>,
 ) {
@@ -87,7 +86,6 @@ pub(super) fn emit_namespace_object(
                 scoped_fns,
                 global_slots,
                 interner,
-                shadowed,
                 top,
                 top_body,
             );
@@ -160,14 +158,7 @@ pub(super) fn emit_namespace_object(
             .decorators
             .iter()
             .rev()
-            .filter(|d| {
-                !vn_core::ast::decorators::is_active_builtin(
-                    top.ast_arena,
-                    interner,
-                    |off| shadowed.contains(&off),
-                    d,
-                )
-            })
+            .filter(|d| !vn_core::ast::decorators::is_builtin(top.ast_arena, interner, d))
             .collect();
         if wrappers.is_empty() {
             continue;

@@ -9,6 +9,7 @@ import {
 function flex(w: Widget): FlexNode { return w as FlexNode }
 function text(w: Widget): TextNode { return w as TextNode }
 
+@capability("ui")
 function drawFrame(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, w: float, h: float): void {
     fr.update(win);
     win.clear(0xFF000000);
@@ -16,6 +17,7 @@ function drawFrame(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, w: fl
     present(win, fr);
 }
 
+@capability("ui")
 function tap(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, x: int, y: int, w: float, h: float): void {
     drawFrame(win, fr, focus, tree, w, h);
     win.inject(UiInjectKind.MouseDown, x, y, MOUSE_LEFT);

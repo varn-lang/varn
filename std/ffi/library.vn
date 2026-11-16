@@ -47,10 +47,12 @@ export class FfiFunction {
         this.paramTypes = paramTypes;
     }
 
+    @capability("sys.ffi")
     invoke(args: FfiValue[] = []): FfiScalar {
         return call$(this.fnPtr, this.returnType.rawValue, rawTypes(this.paramTypes), marshal(args));
     }
 
+    @capability("sys.ffi")
     call(...args: FfiValue[]): FfiScalar {
         return this.invoke(args);
     }
@@ -63,32 +65,38 @@ export class DynamicLibrary {
         this._handle = handle;
     }
 
+    @capability("sys.ffi")
     symbol(name: str): Pointer {
         let ptr = dlsym$(this._handle, name);
         return new Pointer(ptr);
     }
 
+    @capability("sys.ffi")
     bind(name: str, returnType: FfiType, paramTypes: FfiType[] = []): FfiFunction {
         let ptr = dlsym$(this._handle, name);
         return new FfiFunction(ptr, returnType, paramTypes);
     }
 
+    @capability("sys.ffi")
     close(): bool {
         return dlclose$(this._handle);
     }
 }
 
 export class Ffi {
+    @capability("sys.ffi")
     static open(path: str): DynamicLibrary {
         let handle = dlopen$(path);
         return new DynamicLibrary(handle);
     }
 
+    @capability("sys.ffi")
     static alloc(size: int): Pointer {
         let ptr = alloc$(size);
         return new Pointer(ptr);
     }
 
+    @capability("sys.ffi")
     static free(ptr: Pointer | int): void {
         if (ptr is Pointer) {
             (ptr as Pointer).free();
@@ -101,11 +109,13 @@ export class Ffi {
         return kindName$(type.rawValue);
     }
 
+    @capability("sys.ffi")
     static cStr(s: str): Pointer {
         let ptr = allocCString$(s);
         return new Pointer(ptr);
     }
 
+    @capability("sys.ffi")
     static readCString(ptr: Pointer | int, offset: int = 0): str {
         if (ptr is Pointer) {
             return (ptr as Pointer).readCString(offset);
@@ -113,15 +123,18 @@ export class Ffi {
         return readCString$(ptr as int, offset);
     }
 
+    @capability("sys.ffi")
     static call(fnPtr: Pointer | int, returnType: FfiType, paramTypes: FfiType[], args: FfiValue[] = []): FfiScalar {
         let addr = fnPtr is Pointer ? fnPtr.address : fnPtr;
         return call$(addr, returnType.rawValue, rawTypes(paramTypes), marshal(args));
     }
 
+    @capability("sys.ffi")
     static callInt(fnPtr: Pointer | int, a1: int, a2: int): int {
         return Ffi.call(fnPtr, FfiType.Int, [FfiType.Int, FfiType.Int], [a1, a2]) as int;
     }
 
+    @capability("sys.ffi")
     static callFloat(fnPtr: Pointer | int, a1: float, a2: float): float {
         return Ffi.call(fnPtr, FfiType.Float, [FfiType.Float, FfiType.Float], [a1, a2]) as float;
     }

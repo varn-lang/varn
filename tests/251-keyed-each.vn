@@ -1,6 +1,7 @@
 import { describe, it, expect } from "std:test";
 import { UiWindow, UiFrame, Focus, Widget, Each, Field, TextEdit, render, present, signal, UiInjectKind, MOUSE_LEFT } from "std:ui";
 
+@capability("ui")
 function drawFrame(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     fr.update(win);
     win.clear(0xFF000000);

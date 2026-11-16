@@ -22,21 +22,6 @@ impl<'r> Checker<'r> {
         let check_return = target.returns_value();
         let builtins = match_builtin(self.ast_arena, &bind.interner, decorators);
         for (d, b) in decorators.iter().zip(builtins.iter()) {
-            if bind.user_decorators.contains(&d.range.start.offset) {
-                self.check_user_decorator(
-                    rec,
-                    d,
-                    expected_arity,
-                    check_return,
-                    target_kind,
-                    target_name,
-                    bind,
-                );
-                continue;
-            }
-            if vn_core::ast::decorators::is_contract_decorator(self.ast_arena, &bind.interner, d) {
-                continue;
-            }
             if let Some(kind) = Self::builtin_kind(b) {
                 self.check_builtin_placement(&kind, &target, target_name, d.range);
                 continue;
@@ -178,32 +163,20 @@ impl<'r> Checker<'r> {
         target_name: &str,
         range: vn_core::SourceRange,
     ) {
-        let target_kind = target.name();
-        let ok = match kind {
-            BuiltinDecoratorKind::Deprecated => true,
-            BuiltinDecoratorKind::Pure | BuiltinDecoratorKind::Capability => matches!(
-                target,
-                DecoratorTarget::Function
-                    | DecoratorTarget::Method
-                    | DecoratorTarget::Getter
-                    | DecoratorTarget::Setter
-            ),
-            BuiltinDecoratorKind::Inline | BuiltinDecoratorKind::Test => {
-                matches!(target, DecoratorTarget::Function)
-            }
-        };
-        if !ok {
-            self.emit(
-                Diagnostic::error(
-                    ErrorCode::InvalidDecoratorTarget,
-                    format!(
-                        "`@{}` is only supported on functions, not on {target_kind} '{target_name}'",
-                        kind.name(),
-                    ),
-                )
-                .with_range(range),
-            );
+        if kind.supports(*target) {
+            return;
         }
+        let target_kind = target.name();
+        self.emit(
+            Diagnostic::error(
+                ErrorCode::InvalidDecoratorTarget,
+                format!(
+                    "`@{}` is only supported on functions, not on {target_kind} '{target_name}'",
+                    kind.name(),
+                ),
+            )
+            .with_range(range),
+        );
     }
 
     fn is_void_ty(table: &vn_sem::types::CheckerTyTable, id: vn_sem::types::CheckerTyId) -> bool {

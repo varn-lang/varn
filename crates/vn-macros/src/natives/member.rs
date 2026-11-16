@@ -233,7 +233,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
 
     out.wrappers.push(fast_wrapper);
 
-    let capability = m.capability.clone().unwrap_or_default();
+    let capability = m.capability.join(", ");
     if m.kind == Kind::Function {
         let fn_entry_ident = format_ident!(
             "__VN_OP_{}_{}",

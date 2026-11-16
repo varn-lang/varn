@@ -1,85 +1,31 @@
 use super::Binder;
-use vn_core::ast::decorator_kind::ContractDecorator;
-use vn_core::ast::decorators::{
-    decorator_head, match_builtin, single_string_arg, BuiltinDecorator,
-};
+use vn_core::ast::decorators::{decorator_head, match_builtin, BuiltinDecorator};
 use vn_core::ast::types::Decorator;
-use vn_core::ast::{Arg, ExprKind};
-use vn_core::{Atom, AtomInterner};
 use vn_sem::symbol::SymbolId;
-
-fn head_is_throws(binder: &Binder, head: Atom) -> bool {
-    ContractDecorator::of(binder.interner.resolve(head)) == Some(ContractDecorator::Throws)
-}
-
-fn head_is_decodes(binder: &Binder, head: Atom) -> bool {
-    ContractDecorator::of(binder.interner.resolve(head)) == Some(ContractDecorator::Decodes)
-}
-
-fn throws_classes(
-    arena: &vn_core::ast::AstArena,
-    interner: &AtomInterner,
-    d: &Decorator,
-) -> Vec<String> {
-    let ExprKind::Call { args, .. } = &arena.expr(d.expression).kind else {
-        return Vec::new();
-    };
-    args.iter()
-        .filter_map(|arg| {
-            if let Arg::Positional(e) = arg
-                && let ExprKind::Identifier { name } = &arena.expr(*e).kind
-            {
-                Some(interner.resolve(*name).to_string())
-            } else {
-                None
-            }
-        })
-        .collect()
-}
 
 pub(super) fn record_decorators(binder: &mut Binder, sym: SymbolId, decorators: &[Decorator]) {
     if decorators.is_empty() {
         return;
     }
-    let scope = binder.current;
     binder
         .pending_decorator_roles
-        .push((sym, decorators.to_vec(), scope));
+        .push((sym, decorators.to_vec()));
 }
 
 impl Binder<'_> {
     pub(super) fn resolve_decorator_roles(&mut self) {
         let pending = std::mem::take(&mut self.pending_decorator_roles);
-        for (symid, decorators, scope) in pending {
+        for (symid, decorators) in pending {
             for d in &decorators {
-                let Some(head) = decorator_head(self.ast_arena, &self.interner, d) else {
+                if decorator_head(self.ast_arena, &self.interner, d).is_none() {
                     continue;
                 };
-                if self.scopes.get(scope).resolve(head, &self.scopes).is_some() {
-                    self.user_decorators.insert(d.range.start.offset);
-                    continue;
-                }
-                if head_is_throws(self, head) {
-                    let classes = throws_classes(self.ast_arena, &self.interner, d);
-                    let sym = self.arena.get_mut(symid);
-                    for c in classes {
-                        if !sym.throws.contains(&c) {
-                            sym.throws.push(c);
-                        }
-                    }
-                    continue;
-                }
-                if head_is_decodes(self, head) {
-                    let op = single_string_arg(self.ast_arena, d);
-                    self.arena.get_mut(symid).decode_op = op.map(Into::into);
-                    continue;
-                }
                 let mut matched =
                     match_builtin(self.ast_arena, &self.interner, std::slice::from_ref(d));
                 let Some(m) = matched.pop() else {
                     continue;
                 };
-                let Ok(kind) = m.result.unwrap_or(Err("")) else {
+                let Ok(kind) = m.result.unwrap_or(Err(String::new())) else {
                     continue;
                 };
                 let sym = self.arena.get_mut(symid);
@@ -95,8 +41,19 @@ impl Binder<'_> {
                                 sym.capabilities.push(d);
                             }
                         }
+                        sym.capabilities.sort();
                     }
                     BuiltinDecorator::Test => sym.is_test = true,
+                    BuiltinDecorator::Throws { classes } => {
+                        for c in classes {
+                            if !sym.throws.contains(&c) {
+                                sym.throws.push(c);
+                            }
+                        }
+                    }
+                    BuiltinDecorator::Decodes { op } => {
+                        sym.decode_op = Some(op.into());
+                    }
                 }
             }
         }

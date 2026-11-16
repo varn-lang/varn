@@ -41,40 +41,40 @@ export interface UiEvent {
     h: int;
 }
 
-@permission("ui")
+@capability("ui")
 export declare function open$(title: str, w: int, h: int, headless: bool): int;
-@permission("ui")
+@capability("ui")
 export declare function close$(id: int): void;
 export declare function setDark$(id: int, dark: bool): void;
-@permission("ui")
+@capability("ui")
 export declare function shouldClose$(id: int): bool;
-@permission("ui")
+@capability("ui")
 export declare function size$(id: int): int[];
-@permission("ui")
+@capability("ui")
 export declare function inject$(id: int, kind: UiInjectKind, a: int, b: int, c: int): void;
-@permission("ui")
+@capability("ui")
 export declare function poll$(id: int): UiEvent[];
-@permission("ui")
+@capability("ui")
 export declare function rect$(id: int, x: float, y: float, w: float, h: float, color: int, radius: float): void;
-@permission("ui")
+@capability("ui")
 export declare function text$(id: int, x: float, y: float, s: str, size: float, color: int): void;
-@permission("ui")
+@capability("ui")
 export declare function clip$(id: int, x: float, y: float, w: float, h: float): void;
-@permission("ui")
+@capability("ui")
 export declare function unclip$(id: int): void;
-@permission("ui")
+@capability("ui")
 export declare function clear$(id: int, color: int): void;
-@permission("ui")
+@capability("ui")
 export declare function present$(id: int): int;
-@permission("ui")
+@capability("ui")
 export declare function control$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, value: float, low: float, high: float): void;
-@permission("ui")
+@capability("ui")
 export declare function activated$(id: int): float[];
-@permission("ui")
+@capability("ui")
 export declare function drawn$(id: int): DrawnItem[];
-@permission("ui")
+@capability("ui")
 export declare function real$(id: int): bool;
-@permission("ui")
+@capability("ui")
 export declare function keyCode$(name: str): int;
 
 export interface DrawnItem {
@@ -92,9 +92,9 @@ export interface TypedText {
     text: str;
 }
 
-@permission("ui")
+@capability("ui")
 export declare function field$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float): void;
-@permission("ui")
+@capability("ui")
 export declare function typed$(window: int): TypedText[];
-@permission("ui")
+@capability("ui")
 export declare function textWidth$(window: int, text: str, size: float): float;

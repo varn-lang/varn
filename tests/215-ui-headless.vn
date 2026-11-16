@@ -13,6 +13,7 @@ import {
 import { pad, row, col, textX, textY, ellipsize } from "std:ui/layout";
 import { measure, ascent, descent } from "std:ui/text";
 
+@capability("ui")
 function drawField(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     fr.update(win);
     win.clear(0xFF000000);
@@ -20,6 +21,7 @@ function drawField(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void
     present(win, fr);
 }
 
+@capability("ui")
 function clickAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, x: int, y: int): void {
     drawField(win, fr, focus, tree);
     win.inject(UiInjectKind.MouseDown, x, y, MOUSE_LEFT);
@@ -29,6 +31,7 @@ function clickAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, x: int,
     drawField(win, fr, focus, tree);
 }
 
+@capability("ui")
 function typeKey(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, code: int): void {
     win.inject(UiInjectKind.Key, code, 1, 0);
     drawField(win, fr, focus, tree);

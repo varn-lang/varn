@@ -3,7 +3,6 @@ use crate::scope::{ScopeArena, ScopeId};
 use crate::symbol::{Symbol, SymbolArena, SymbolId};
 use crate::types::{ClassMemberInfo, ClassMemberKind, Type};
 use rustc_hash::FxHashMap;
-use rustc_hash::FxHashSet;
 use std::sync::Arc;
 use vn_core::ast::{ExprId, StmtId, TypeNode};
 use vn_core::Atom;
@@ -156,8 +155,6 @@ pub struct BindResult {
     pub core: Option<Arc<CoreMembers>>,
     #[serde(skip)]
     pub pending_enrich: Vec<PendingEnrich>,
-    #[serde(skip, default)]
-    pub user_decorators: FxHashSet<u32>,
     #[serde(skip, default)]
     pub namespace_imports: Vec<NamespaceImport>,
     #[serde(skip, default)]

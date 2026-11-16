@@ -21,12 +21,12 @@ function pureCompose(n: int): int {
     return pureMul(n, n + 1);
 }
 
-@capability("fs")
+@capability("fs.read")
 function readPath(p: str): str {
     return p;
 }
 
-@capability("fs")
+@capability("fs.read")
 function readTwice(p: str): str {
     return readPath(p) + readPath(p);
 }
@@ -62,7 +62,7 @@ class WithOld {
         return n + 1;
     }
 
-    @capability("net")
+    @capability("net.client")
     fetchIt(u: str): str {
         return u;
     }
@@ -161,10 +161,9 @@ await describe("116 decorator builtins", async () => {
         await builtinAsync();
     });
 
-    await it("user values shadow builtin names", () => {
+    await it("builtin names win in decorator position", () => {
         expect(shadowScope()).toBe(11);
-        expect(shadowLog.length).toBe(1);
-        expect(shadowLog[0]).toBe("wrapped");
+        expect(shadowLog.length).toBe(0);
     });
 
     await it("typed decorator contexts", () => {

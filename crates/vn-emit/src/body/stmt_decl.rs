@@ -43,12 +43,7 @@ impl<'a> FnEmitter<'a> {
                 init: Some(closure),
             }];
             for d in f.decorators.iter().rev().filter(|d| {
-                !vn_core::ast::decorators::is_active_builtin(
-                    self.ast_arena,
-                    self.m.interner,
-                    |off| self.m.shadowed.contains(&off),
-                    d,
-                )
+                !vn_core::ast::decorators::is_builtin(self.ast_arena, self.m.interner, d)
             }) {
                 let prev = TirExpr {
                     kind: TirExprKind::Var,
@@ -99,12 +94,7 @@ impl<'a> FnEmitter<'a> {
                     );
                     let mut value = closure;
                     for d in f.decorators.iter().rev().filter(|d| {
-                        !vn_core::ast::decorators::is_active_builtin(
-                            self.ast_arena,
-                            self.m.interner,
-                            |off| self.m.shadowed.contains(&off),
-                            d,
-                        )
+                        !vn_core::ast::decorators::is_builtin(self.ast_arena, self.m.interner, d)
                     }) {
                         let deco = self.lower_expr(d.expression);
                         value = super::super::decorators::apply_one_decorator(self, value, deco);

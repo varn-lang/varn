@@ -26,7 +26,6 @@ pub(super) fn collect_free_functions<'a>(
     program: &Program,
     ast_arena: &'a AstArena,
     interner: &'a AtomInterner,
-    shadowed: &FxHashSet<u32>,
 ) -> FreeFunctions<'a> {
     use super::decl_classify::{free_function, namespace_decl};
     use vn_core::ast::NamespaceDecl;
@@ -119,14 +118,9 @@ pub(super) fn collect_free_functions<'a>(
         }
     }
     let wrapped = |f: &FunctionDecl| {
-        f.decorators.iter().any(|d| {
-            !vn_core::ast::decorators::is_active_builtin(
-                ast_arena,
-                interner,
-                |off| shadowed.contains(&off),
-                d,
-            )
-        })
+        f.decorators
+            .iter()
+            .any(|d| !vn_core::ast::decorators::is_builtin(ast_arena, interner, d))
     };
     let scoped_direct: FxHashMap<Arc<str>, (u32, u32)> = free_fns
         .iter()
@@ -140,14 +134,9 @@ pub(super) fn collect_free_functions<'a>(
         .iter()
         .filter(|(f, ns)| {
             ns.is_none()
-                && f.decorators.iter().any(|d| {
-                    !vn_core::ast::decorators::is_active_builtin(
-                        ast_arena,
-                        interner,
-                        |off| shadowed.contains(&off),
-                        d,
-                    )
-                })
+                && f.decorators
+                    .iter()
+                    .any(|d| !vn_core::ast::decorators::is_builtin(ast_arena, interner, d))
         })
         .map(|(f, _)| f.id)
         .collect();

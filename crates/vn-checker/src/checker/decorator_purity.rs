@@ -11,11 +11,7 @@ pub(super) fn is_pure_fn(
 ) -> bool {
     match_builtin(arena, &bind.interner, decorators)
         .into_iter()
-        .zip(decorators.iter())
-        .any(|(m, d)| {
-            !bind.user_decorators.contains(&d.range.start.offset)
-                && matches!(m.result, Some(Ok(BuiltinDecorator::Pure)))
-        })
+        .any(|m| matches!(m.result, Some(Ok(BuiltinDecorator::Pure))))
 }
 
 pub(super) fn caps_of(
@@ -24,13 +20,10 @@ pub(super) fn caps_of(
     bind: &BindResult,
 ) -> Vec<String> {
     let mut out = Vec::new();
-    for (m, d) in match_builtin(arena, &bind.interner, decorators)
+    for (m, _d) in match_builtin(arena, &bind.interner, decorators)
         .into_iter()
         .zip(decorators.iter())
     {
-        if bind.user_decorators.contains(&d.range.start.offset) {
-            continue;
-        }
         if let Some(Ok(BuiltinDecorator::Capability { domains })) = m.result {
             for d in domains {
                 if !out.contains(&d) {

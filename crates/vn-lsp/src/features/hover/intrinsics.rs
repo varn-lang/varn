@@ -220,7 +220,15 @@ pub fn decorator_hover(name: &str) -> Option<Hover> {
         )),
         K::Capability => Some(make_doc_hover(
             "@capability(domain: str, ...)",
-            "Declara la capacidad de host que la función requiere. Quien la llame debe declararla también para propagar; el toplevel tiene autoridad ambiental.",
+            "Declara la capacidad de host que la función requiere (dominios canónicos: `fs.read`, `fs.write`, `net.client`, `net.server`, `sys.env`, `sys.exec`, `sys.ffi`, `ui`). Quien la llame debe declararla también para propagar; dominios desconocidos son error de compilación.",
+        )),
+        K::Throws => Some(make_doc_hover(
+            "@throws(Clase, ...)",
+            "Declara las clases de error que la función puede lanzar. Solo nombres del catálogo canónico.",
+        )),
+        K::Decodes => Some(make_doc_hover(
+            "@decodes(op: str)",
+            "Declara la variante tipada de un nativo en su contrato.",
         )),
     }
 }

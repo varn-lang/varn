@@ -155,13 +155,11 @@ impl<'r> Checker<'r> {
                 &f.decorators,
             )
             .into_iter()
-            .zip(f.decorators.iter())
-            .any(|(m, d)| {
-                !bind.user_decorators.contains(&d.range.start.offset)
-                    && matches!(
-                        m.result,
-                        Some(Ok(vn_core::ast::decorators::BuiltinDecorator::Test))
-                    )
+            .any(|m| {
+                matches!(
+                    m.result,
+                    Some(Ok(vn_core::ast::decorators::BuiltinDecorator::Test))
+                )
             });
             if has_test
                 && f.params

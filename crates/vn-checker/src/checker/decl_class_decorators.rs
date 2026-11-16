@@ -68,6 +68,10 @@ impl<'r> Checker<'r> {
                         self.ast_arena,
                         params,
                         *body,
+                    ) && vn_core::ast::decorators::wraps_at_runtime(
+                        self.ast_arena,
+                        &bind.interner,
+                        decorators,
                     ) {
                         self.emit(
                             Diagnostic::error(
@@ -96,6 +100,10 @@ impl<'r> Checker<'r> {
                         self.ast_arena,
                         params,
                         *body,
+                    ) && vn_core::ast::decorators::wraps_at_runtime(
+                        self.ast_arena,
+                        &bind.interner,
+                        decorators,
                     ) {
                         self.emit(
                             Diagnostic::error(
@@ -121,7 +129,13 @@ impl<'r> Checker<'r> {
                         key_str,
                         bind,
                     );
-                    if super::decorator_receiver::method_uses_receiver(self.ast_arena, &[], *body) {
+                    if super::decorator_receiver::method_uses_receiver(self.ast_arena, &[], *body)
+                        && vn_core::ast::decorators::wraps_at_runtime(
+                            self.ast_arena,
+                            &bind.interner,
+                            decorators,
+                        )
+                    {
                         self.emit(
                             Diagnostic::error(
                                 ErrorCode::InvalidDecoratorTarget,
@@ -151,6 +165,10 @@ impl<'r> Checker<'r> {
                         self.ast_arena,
                         std::slice::from_ref(param),
                         *body,
+                    ) && vn_core::ast::decorators::wraps_at_runtime(
+                        self.ast_arena,
+                        &bind.interner,
+                        decorators,
                     ) {
                         self.emit(
                             Diagnostic::error(

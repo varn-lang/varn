@@ -47,7 +47,6 @@ pub(super) fn emit_fn_decorator_app(
     f: &FunctionDecl,
     global_slots: &FxHashMap<Arc<str>, u32>,
     interner: &AtomInterner,
-    shadowed: &rustc_hash::FxHashSet<u32>,
     top: &mut FnEmitter,
     top_body: &mut Vec<TirStmt>,
 ) {
@@ -67,14 +66,12 @@ pub(super) fn emit_fn_decorator_app(
     };
     let mut cur = global_ref();
     let mut applied = false;
-    for d in f.decorators.iter().rev().filter(|d| {
-        !vn_core::ast::decorators::is_active_builtin(
-            top.ast_arena,
-            interner,
-            |off| shadowed.contains(&off),
-            d,
-        )
-    }) {
+    for d in f
+        .decorators
+        .iter()
+        .rev()
+        .filter(|d| !vn_core::ast::decorators::is_builtin(top.ast_arena, interner, d))
+    {
         applied = true;
         let deco = top.lower_expression(d.expression);
         cur = apply_one_decorator(top, cur, deco);
@@ -106,14 +103,7 @@ pub(super) fn lower_decorator_exprs(
 ) -> Vec<TirExpr> {
     decorators
         .iter()
-        .filter(|d| {
-            !vn_core::ast::decorators::is_active_builtin(
-                ast_arena,
-                ctx.interner,
-                |off| ctx.shadowed.contains(&off),
-                d,
-            )
-        })
+        .filter(|d| !vn_core::ast::decorators::is_builtin(ast_arena, ctx.interner, d))
         .map(|d| {
             let (pre, x) = lower_outer(
                 d.expression,
