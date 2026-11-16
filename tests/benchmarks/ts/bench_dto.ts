@@ -57,5 +57,5 @@ for (let i = 0; i < count; i++) {
 const end = performance.now();
 
 console.log("Count:", activeAdults.length);
-console.log("Total Score:", totalScore);
+console.log("Total Score:", Math.trunc(totalScore));
 console.log("Elapsed time (ms):", (end - start).toFixed(4));
