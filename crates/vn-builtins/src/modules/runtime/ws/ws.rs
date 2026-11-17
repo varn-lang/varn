@@ -51,7 +51,14 @@ vn_macros::vn_enum! {
     pub enum WsOpcode;
 }
 
+vn_macros::vn_record! {
+    contract: "src/modules/runtime/ws/ws_runtime.vn",
+    class: "WsFrame",
+    pub struct WsFrameRec;
+}
+
 natives! {
+    class WsFrame {}
     wsKey() => {
         let mut key = [0u8; 16];
         rand::thread_rng().fill_bytes(&mut key);
@@ -225,11 +232,15 @@ natives! {
             .ok_or_else(|| format!("bad opcode {opcode}")).map_err(|e| NativeError::std(StdErrorClass::Protocol, e))?
             .to_value(ctx).map_err(|e| NativeError::std(StdErrorClass::Protocol, e))?;
         let payload = ctx.alloc_buffer_from_bytes(&payload);
-        Ok(Some(ctx.alloc_tuple(vec![
-            opcode,
-            VmValue::from_bool(fin),
-            payload,
-            VmValue::from_int((pos + len) as i64),
-        ])))
+        Ok(Some(
+            WsFrameRec {
+                opcode,
+                fin,
+                payload,
+                consumed: (pos + len) as i64,
+            }
+            .alloc(ctx)
+            .map_err(NativeError::failure)?,
+        ))
     },
 }

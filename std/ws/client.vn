@@ -4,7 +4,8 @@ import {
     wsFrameBytes$,
     wsParseFrame$,
     wsDecodeText$,
-    WsOpcode
+    WsOpcode,
+    WsFrame
 } from "runtime:ws";
 
 import {
@@ -265,7 +266,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
 
     async read(size?: int): Task<Bytes?> {
         while (true) {
-            let frame: (WsOpcode, bool, Bytes, int)? = null;
+            let frame: WsFrame? = null;
             try {
                 frame = wsParseFrame$(this._recvBuf, this._server, this._maxMessage);
             } catch (e) {
@@ -289,8 +290,11 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                 this._recvBuf = bytesConcat(this._recvBuf, chunk as Bytes);
                 continue;
             }
-            const (opcode, fin, payload, consumed) = frame as (WsOpcode, bool, Bytes, int);
-            this._recvBuf = this._recvBuf.slice(consumed);
+            const parsed = frame as WsFrame;
+            this._recvBuf = this._recvBuf.slice(parsed.consumed);
+            let opcode = parsed.opcode;
+            let payload = parsed.payload;
+            let fin = parsed.fin;
             if (opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
                 try {
                     await this._pumpControl(opcode, payload);
