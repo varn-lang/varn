@@ -60,8 +60,8 @@ export function now(): int {
 }
 
 export function toISOString(ms: int): str {
-    let parts = msToParts$(ms);
-    return isoYear(parts.year) + "-" + pad2(parts.month) + "-" + pad2(parts.day) + "T" + pad2(parts.hour) + ":" + pad2(parts.minute) + ":" + pad2(parts.second) + "." + pad3(parts.millisecond) + "Z";
+    const [year, month, day, hour, minute, second, millisecond] = msToParts$(ms);
+    return isoYear(year) + "-" + pad2(month) + "-" + pad2(day) + "T" + pad2(hour) + ":" + pad2(minute) + ":" + pad2(second) + "." + pad3(millisecond) + "Z";
 }
 
 export function fromISO(iso: str): int {
@@ -69,16 +69,16 @@ export function fromISO(iso: str): int {
 }
 
 export function toParts(ms: int): TimeParts {
-    let parts = msToParts$(ms);
+    const [year, month, day, hour, minute, second, millisecond, weekday] = msToParts$(ms);
     return new TimeParts(
-        year: parts.year,
-        month: parts.month,
-        day: parts.day,
-        hour: parts.hour,
-        minute: parts.minute,
-        second: parts.second,
-        millisecond: parts.millisecond,
-        weekday: parts.weekday
+        year: year,
+        month: month,
+        day: day,
+        hour: hour,
+        minute: minute,
+        second: second,
+        millisecond: millisecond,
+        weekday: weekday
     );
 }
 

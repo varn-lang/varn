@@ -10,19 +10,9 @@ export interface RuntimeTimeParts {
     millisecond: int;
 }
 
-export interface RuntimeCalendarParts {
-    year: int;
-    month: int;
-    day: int;
-    hour: int;
-    minute: int;
-    second: int;
-    millisecond: int;
-    weekday: int;
-}
-
 export declare function nowMs$(): int;
 export declare function parseIsoDuration$(s: str): int;
-export declare function msToParts$(ms: int): RuntimeCalendarParts;
+// Positional wire: [year, month, day, hour, minute, second, millisecond, weekday].
+export declare function msToParts$(ms: int): int[];
 export declare function partsToMs$(parts: RuntimeTimeParts): int;
 export declare function parseIsoInstant$(s: str): int;

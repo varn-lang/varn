@@ -25,8 +25,8 @@ export class DateTime {
     }
 
     toISOString(): str {
-        let p = msToParts$(this.timestamp);
-        return pad4(p.year) + "-" + pad2(p.month) + "-" + pad2(p.day) + "T" + pad2(p.hour) + ":" + pad2(p.minute) + ":" + pad2(p.second) + "." + pad3(p.millisecond) + "Z";
+        const [year, month, day, hour, minute, second, millisecond] = msToParts$(this.timestamp);
+        return pad4(year) + "-" + pad2(month) + "-" + pad2(day) + "T" + pad2(hour) + ":" + pad2(minute) + ":" + pad2(second) + "." + pad3(millisecond) + "Z";
     }
 
     addMs(ms: int): DateTime {

@@ -86,11 +86,6 @@ fn extended_year(text: &str) -> Option<(i64, &str)> {
     Some((if negative { -magnitude } else { magnitude }, &text[7..]))
 }
 
-fn set_int(ctx: &mut dyn NativeCtx, obj: VmValue, key: &str, val: i64) {
-    let nv = VmValue::from_int(val);
-    ctx.set_field(obj, key, nv);
-}
-
 natives! {
     nowMs() => {
         (std::time::SystemTime::now()
@@ -100,22 +95,25 @@ natives! {
     },
     parseIsoDuration(s) => (parse_iso_duration(s)).map_err(|e| NativeError::std(StdErrorClass::Parse, e)),
     parseIsoInstant(s) => (parse_iso_instant(s)).map_err(|e| NativeError::std(StdErrorClass::Parse, e)),
-    msToParts(ctx, ms) => {
+    msToParts(ms) => {
         use chrono::{Datelike, TimeZone, Timelike, Utc};
         let dt = Utc
             .timestamp_millis_opt(ms)
             .single()
             .ok_or_else(|| NativeError::range_error(format!("{ms} is not a timestamp this calendar can represent")))?;
-        let obj = ctx.alloc_object();
-        set_int(ctx, obj, "year", dt.year() as i64);
-        set_int(ctx, obj, "month", dt.month() as i64);
-        set_int(ctx, obj, "day", dt.day() as i64);
-        set_int(ctx, obj, "hour", dt.hour() as i64);
-        set_int(ctx, obj, "minute", dt.minute() as i64);
-        set_int(ctx, obj, "second", dt.second() as i64);
-        set_int(ctx, obj, "millisecond", ms.rem_euclid(1000));
-        set_int(ctx, obj, "weekday", dt.weekday().num_days_from_sunday() as i64);
-        Ok(obj)
+        Ok([
+            dt.year() as i64,
+            dt.month() as i64,
+            dt.day() as i64,
+            dt.hour() as i64,
+            dt.minute() as i64,
+            dt.second() as i64,
+            ms.rem_euclid(1000),
+            dt.weekday().num_days_from_sunday() as i64,
+        ]
+        .into_iter()
+        .map(VmValue::from_int)
+        .collect::<Vec<_>>())
     },
     partsToMs(ctx, parts) => {
         let get_int = |ctx: &mut dyn NativeCtx, key: &str| -> i64 {

@@ -94,14 +94,14 @@ export function nowInstant(): Instant {
 }
 
 export function nowPlainDateTimeISO(): PlainDateTime {
-    let parts = msToParts$(nowMs$());
+    const [year, month, day, hour, minute, second, millisecond] = msToParts$(nowMs$());
     return new PlainDateTime(
-        parts.year,
-        parts.month,
-        parts.day,
-        parts.hour,
-        parts.minute,
-        parts.second,
-        parts.millisecond
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second,
+        millisecond
     );
 }
