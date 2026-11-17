@@ -70,6 +70,7 @@ export class BoxNode extends Widget {
         return new Constraints(minW, maxW < minW ? minW : maxW, minH, maxH < minH ? minH : maxH, c.windowClass);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
@@ -270,6 +271,7 @@ export class DividerNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(c.maxW, 1.0)), []);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;

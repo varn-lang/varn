@@ -23,6 +23,7 @@ export class SliderNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(c.maxW, this.h)), []);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;

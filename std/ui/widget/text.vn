@@ -32,6 +32,7 @@ export class TextNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(width, ascent(this.size) + descent(this.size))), []);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;

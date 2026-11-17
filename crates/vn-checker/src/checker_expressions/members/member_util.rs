@@ -163,6 +163,6 @@ pub(super) fn intrinsic_member_info(
                 .members
                 .iter()
                 .find(|m| m.name.as_ref() == key)
-                .map(|m| (m.ty, super::member_auth::MemberAuth::none()))
+                .map(|m| (m.ty, super::member_auth::MemberAuth::of_info(m)))
         })
 }

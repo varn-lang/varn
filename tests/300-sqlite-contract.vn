@@ -2,6 +2,7 @@ import { describe, it, expect } from "std:test";
 import { Database } from "std:sqlite";
 import { ClosedError, SqlError, SqlConstraintError } from "std:error";
 
+@capability("fs.read", "fs.write")
 function seeded(): Database {
     const db = new Database(":memory:");
     db.script("CREATE TABLE owner (id INTEGER PRIMARY KEY); CREATE TABLE pet (id INTEGER PRIMARY KEY, name TEXT UNIQUE, owner_id INTEGER REFERENCES owner(id), photo BLOB, weight REAL)");

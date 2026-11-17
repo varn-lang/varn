@@ -7,6 +7,7 @@ import { describe, it, expect } from "std:test";
 
 
 
+@capability("sys.env")
 function testCli(): void {
     // 1. Color & ANSI stripping
     let styled = Color.red("critical error");
@@ -152,6 +153,7 @@ await describe("110 stdlib consolidation", async () => {
         await wg.wait();
         expect(syncState.wgProgress).toBe(11);
         }
+        @capability("sys.env")
         async function main(): Task<void> {
         await testEncoding();
         testCli();

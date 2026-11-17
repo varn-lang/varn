@@ -155,16 +155,17 @@ fn project_for_importers(bind: &BindResult) -> BindResult {
     projected.arena = arena;
     projected.scopes = scopes;
     projected.global_scope = global_scope;
-    strip_symbol_ids(&mut projected.type_members);
+    freeze_member_effects(bind, &mut projected.type_members);
     projected
 }
 
-fn strip_symbol_ids(tm: &mut TypeMembers) {
-    fn strip(m: &mut ClassMemberInfo) {
+fn freeze_member_effects(bind: &BindResult, tm: &mut TypeMembers) {
+    fn freeze(arena: &crate::symbol::SymbolArena, m: &mut ClassMemberInfo) {
+        m.backfill_effects(arena);
         m.symbol_id = None;
-        m.members.iter_mut().for_each(strip);
+        m.members.iter_mut().for_each(|m| freeze(arena, m));
     }
-    tm.classes.values_mut().for_each(strip);
+    tm.classes.values_mut().for_each(|m| freeze(&bind.arena, m));
     for list in tm
         .interfaces
         .values_mut()
@@ -173,6 +174,6 @@ fn strip_symbol_ids(tm: &mut TypeMembers) {
         .chain(tm.namespaces.values_mut())
         .chain(tm.flattened.values_mut())
     {
-        list.iter_mut().for_each(strip);
+        list.iter_mut().for_each(|m| freeze(&bind.arena, m));
     }
 }

@@ -128,7 +128,7 @@ impl<'r> Checker<'r> {
             } else {
                 m.ty
             };
-            return Some((ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
+            return Some((ty, super::member_auth::MemberAuth::of_member(bind, m)));
         }
         if let Some(members) = bind.type_members.interfaces.get(&name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
@@ -138,17 +138,17 @@ impl<'r> Checker<'r> {
             } else {
                 m.ty
             };
-            return Some((ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
+            return Some((ty, super::member_auth::MemberAuth::of_member(bind, m)));
         }
         if let Some(members) = bind.type_members.namespaces.get(&name)
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
-            return Some((m.ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
+            return Some((m.ty, super::member_auth::MemberAuth::of_member(bind, m)));
         }
         if let Some(members) = bind.get_enum_members_local(name.as_ref())
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
-            return Some((m.ty, super::member_auth::MemberAuth::of(bind, m.symbol_id)));
+            return Some((m.ty, super::member_auth::MemberAuth::of_member(bind, m)));
         }
 
         if let Some(ty) = bind
@@ -161,12 +161,12 @@ impl<'r> Checker<'r> {
             if let Some(members) = b.class_members.get(name.as_ref())
                 && let Some(m) = members.members.iter().find(|m| m.name.as_ref() == key)
             {
-                return Some((m.ty, super::member_auth::MemberAuth::none()));
+                return Some((m.ty, super::member_auth::MemberAuth::of_info(m)));
             }
             if let Some(members) = b.flattened_members.get(name.as_ref())
                 && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
             {
-                return Some((m.ty, super::member_auth::MemberAuth::none()));
+                return Some((m.ty, super::member_auth::MemberAuth::of_info(m)));
             }
             if let Some(methods) = b.class_methods.get(name.as_ref())
                 && let Some(ty) = methods.get(key)
@@ -211,7 +211,7 @@ impl<'r> Checker<'r> {
             let ty = m.ty;
             return Some((
                 self.reintern_foreign_ty(ext_bind, ty),
-                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+                super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
         if let Some(entry) = ext_bind.get_class_entry(name)
@@ -220,7 +220,7 @@ impl<'r> Checker<'r> {
             let ty = m.ty;
             return Some((
                 self.reintern_foreign_ty(ext_bind, ty),
-                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+                super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
         if let Some(members) = ext_bind.type_members.interfaces.get(name)
@@ -229,7 +229,7 @@ impl<'r> Checker<'r> {
             let ty = m.ty;
             return Some((
                 self.reintern_foreign_ty(ext_bind, ty),
-                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+                super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
         if let Some(members) = ext_bind.type_members.namespaces.get(name)
@@ -238,7 +238,7 @@ impl<'r> Checker<'r> {
             let ty = m.ty;
             return Some((
                 self.reintern_foreign_ty(ext_bind, ty),
-                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+                super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
         if let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
@@ -247,7 +247,7 @@ impl<'r> Checker<'r> {
             let ty = m.ty;
             return Some((
                 self.reintern_foreign_ty(ext_bind, ty),
-                super::member_auth::MemberAuth::of(ext_bind, m.symbol_id),
+                super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
         if let Some(ty) = ext_bind

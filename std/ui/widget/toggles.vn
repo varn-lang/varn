@@ -77,6 +77,7 @@ export class SwitchNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(this.trackW + TOGGLE_GAP + placed.size.w, h)), [placed]);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const top = y + (p.size.h - this.trackH) / 2.0;
         cx.click(UiControlKind.Switch, x, top, this.trackW, this.trackH, Theme.colors.primary, this.on, this.onToggle);

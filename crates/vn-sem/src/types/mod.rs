@@ -21,6 +21,7 @@ pub use interned::{
     TySlice,
 };
 
+use crate::symbol::{SymbolArena, SymbolKind};
 use rustc_hash::FxHashMap;
 use std::fmt;
 use std::sync::Arc;
@@ -133,6 +134,24 @@ pub struct ClassMemberInfo {
     pub is_struct: bool,
     pub symbol_id: Option<usize>,
     pub doc: Option<Arc<str>>,
+    pub capabilities: Vec<String>,
+    pub is_pure: bool,
+    pub symbol_kind: Option<SymbolKind>,
+}
+
+impl ClassMemberInfo {
+    pub fn backfill_effects(&mut self, arena: &SymbolArena) {
+        if let Some(sid) = self.symbol_id
+            && let Some(sym) = arena.all().get(sid)
+        {
+            self.capabilities = sym.capabilities.clone();
+            self.is_pure = sym.is_pure;
+            self.symbol_kind = Some(sym.kind);
+        }
+        for m in &mut self.members {
+            m.backfill_effects(arena);
+        }
+    }
 }
 
 pub use context::TypeContext;

@@ -44,16 +44,19 @@ export class PaintContext {
         this.win.unclip();
     }
 
+    @capability("ui")
     click(kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, onActivate: () => void): void {
         this.valued(kind, x, y, w, h, color, flag, 0.0, 0.0, 0.0, (value: float) => { onActivate(); });
     }
 
+    @capability("ui")
     valued(kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, value: float, low: float, high: float, onChange: (value: float) => void): void {
         const id = this.idFor();
         this.win.control(id, kind, x, y, w, h, color, flag, value, low, high);
         this.fr.onActivate(id, onChange);
     }
 
+    @capability("ui")
     field(id: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float, onActivate: (value: float) => void, onType: (text: str) => void): void {
         this.win.field(id, kind, x, y, w, h, color, focused, text, hint, size);
         this.fr.onActivate(id, onActivate);

@@ -77,7 +77,7 @@ impl<'r> Checker<'r> {
                     let prop_name = bind.interner.resolve(*prop);
                     let obj_ty = self.infer_type(rec, *object, bind);
                     if let Some((_, auth)) = self.find_member_info(&obj_ty, prop_name, bind) {
-                        self.check_member_callee(&auth, &prop_name.to_string(), *range);
+                        self.check_member_callee(&auth, prop_name, *range);
                     }
                     None
                 } else {

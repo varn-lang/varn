@@ -13,6 +13,7 @@ const FOCUS_GAINED: float = 1.0;
 const FOCUS_LOST: float = 0.0;
 const SUBMITTED: float = 2.0;
 
+@capability("ui")
 function paintText(cx: PaintContext, slot: int, x: float, y: float, w: float, h: float, ed: TextEdit, kind: UiControlKind, hint: str, size: float, submit: ((text: str) => void)?, changed: (text: str) => void): void {
     if (cx.fr.leftPressed && !hit(cx.fr.mouseX as float, cx.fr.mouseY as float, x, y, w, h) && cx.focus.current() == slot) {
         cx.focus.clear();
@@ -67,6 +68,7 @@ export class ButtonNode extends Widget {
         this.enabled = enabled;
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
@@ -103,6 +105,7 @@ export class FieldNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(c.maxW, this.h)), []);
     }
 
+    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
