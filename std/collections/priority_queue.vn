@@ -2,17 +2,9 @@ export class PriorityQueue<T> {
     private _heap: T[];
     private _comparator: (a: T, b: T) => int;
 
-    constructor(comparator?: (a: T, b: T) => int) {
+    constructor(comparator: (a: T, b: T) => int) {
         this._heap = [];
-        this._comparator = comparator ?? ((first: T, second: T): int => {
-            if (first < second) {
-                return -1;
-            }
-            if (first > second) {
-                return 1;
-            }
-            return 0;
-        });
+        this._comparator = comparator;
     }
 
     push(item: T): void {

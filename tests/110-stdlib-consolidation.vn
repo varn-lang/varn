@@ -86,7 +86,11 @@ function testLog(): void {
 
 function testCollections(): void {
     // 1. PriorityQueue (Min-Heap default)
-    let minPq = new PriorityQueue<int>();
+    let minPq = new PriorityQueue<int>((a: int, b: int): int => {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    });
     minPq.push(40);
     minPq.push(10);
     minPq.push(30);
