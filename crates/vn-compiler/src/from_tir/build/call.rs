@@ -20,6 +20,61 @@ impl<'m> Builder<'m> {
         self.tir.class(parent)?.method_slot(name)
     }
 
+    pub(super) fn super_chain_ctorless(&self) -> bool {
+        const CONSTRUCTOR: &str = vn_core::TokenKind::Constructor.as_str();
+        let Some(f) = self.self_fn else { return false };
+        let Some(this) = self.tir.function(f).and_then(|tf| tf.this_class) else {
+            return false;
+        };
+        let Some(info) = self.tir.class(this) else {
+            return false;
+        };
+        let Some(parent) = info.parent else {
+            return false;
+        };
+        let mut cur = self.class_def(parent);
+        for _ in 0..self.tir.class_defs.len() {
+            let Some(def) = cur else { return false };
+            if !def.decorators.is_empty() {
+                return false;
+            }
+            if def
+                .methods
+                .iter()
+                .any(|m| !m.is_static && m.key.as_ref() == CONSTRUCTOR)
+            {
+                return false;
+            }
+            match def.parent {
+                Some(p) => cur = self.class_def(p),
+                None => return def.super_class.is_none(),
+            }
+        }
+        false
+    }
+
+    pub(super) fn lower_effects(&mut self, args: &[vn_tir::TirArg]) -> Result<()> {
+        let mut vals: Vec<(Value, bool)> = Vec::with_capacity(args.len());
+        let mut any_spread = false;
+        for a in args {
+            match a {
+                vn_tir::TirArg::Expr(e) => vals.push((self.lower_expr(e)?, false)),
+                vn_tir::TirArg::Spread(e) => {
+                    any_spread = true;
+                    vals.push((self.lower_expr(e)?, true));
+                }
+                vn_tir::TirArg::Named { value, .. } => vals.push((self.lower_expr(value)?, false)),
+            }
+        }
+        if any_spread {
+            self.emit(
+                InstKind::BuildArraySpread { elements: vals },
+                BackendTy::Dynamic(DynReason::Boxed),
+            );
+        }
+        Ok(())
+    }
+
     pub(super) fn lower_call(
         &mut self,
         callee: Value,

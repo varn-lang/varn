@@ -165,6 +165,10 @@ impl<'m> Builder<'m> {
                     );
                     return self.lower_call(ctor, args, ty);
                 }
+                if self.super_chain_ctorless() {
+                    self.lower_effects(args)?;
+                    return Ok(self.emit(InstKind::ConstNull, ty));
+                }
                 let ctor = self.emit(
                     InstKind::GetSuper {
                         name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
@@ -180,6 +184,10 @@ impl<'m> Builder<'m> {
                 {
                     let argv = self.lower_args(args)?;
                     return Ok(self.emit(InstKind::SuperInvokeSlot { slot, args: argv }, ty));
+                }
+                if self.super_chain_ctorless() {
+                    self.lower_effects(args)?;
+                    return Ok(self.emit(InstKind::ConstNull, ty));
                 }
                 let argv = self.lower_args(args)?;
                 Ok(self.emit(InstKind::SuperCall { args: argv }, ty))
