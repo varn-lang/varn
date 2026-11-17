@@ -11,6 +11,52 @@ impl Checker<'_> {
         is_await: bool,
         bind: &BindResult,
     ) -> Option<(ForOfPlan, Type)> {
+        if let vn_core::TypeKind::Union(members) = self.ty_table.get(source.0) {
+            let ids = self.ty_table.get_list(members).to_vec();
+            if ids.is_empty() {
+                return None;
+            }
+            let mut plans = Vec::with_capacity(ids.len());
+            let mut elems = Vec::with_capacity(ids.len());
+            for id in ids {
+                let member = Type::resolved(id);
+                if member == Type::Null {
+                    return None;
+                }
+                let (plan, elem) = self.for_of_element(member, is_await, bind)?;
+                plans.push(plan);
+                elems.push(elem);
+            }
+            let (first_plan, _) = plans.split_first()?;
+            let same_kind = plans.iter().all(|plan| match (plan, first_plan) {
+                (
+                    ForOfPlan::Collection { method: a, .. },
+                    ForOfPlan::Collection { method: b, .. },
+                ) => a == b,
+                (ForOfPlan::IntRange, ForOfPlan::IntRange) => true,
+                (ForOfPlan::Protocol { .. }, ForOfPlan::Protocol { .. }) => plan == first_plan,
+                _ => false,
+            });
+            if !same_kind {
+                return None;
+            }
+            let table = std::sync::Arc::make_mut(&mut self.ty_table);
+            let elem = Type::union(elems, table);
+            let plan = match *first_plan {
+                ForOfPlan::Collection { method, .. } => ForOfPlan::Collection { method, elem },
+                ForOfPlan::IntRange => ForOfPlan::IntRange,
+                ForOfPlan::Protocol {
+                    iterator,
+                    next,
+                    step,
+                } => ForOfPlan::Protocol {
+                    iterator,
+                    next,
+                    step,
+                },
+            };
+            return Some((plan, elem));
+        }
         match self.ty_table.get(source.0) {
             TypeKind::Array(inner) => {
                 let elem = Type::resolved(inner);

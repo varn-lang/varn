@@ -103,6 +103,31 @@ impl<'r> Checker<'r> {
     ) {
         self.check_expr(rec, right, bind);
         let right_ty = self.infer_type(rec, right, bind);
+        if !right_ty.is_unresolved() && right_ty.is_nullable(&self.ty_table) {
+            let shown = right_ty.display(&self.ty_table, &bind.interner);
+            self.emit(
+                Diagnostic::error(
+                    ErrorCode::NotIterable,
+                    format!(
+                        "'{shown}' is nullable: narrow it with `if (... != null)` before `for ... in`"
+                    ),
+                )
+                .with_range(self.ast_arena.expr(right).range),
+            );
+            self.loop_depth += 1;
+            self.with_next_child_scope_span(
+                rec,
+                bind,
+                range.start.offset,
+                range.end.offset,
+                |checker, rec| {
+                    checker.check_pattern(rec, &left, &Type::Dynamic, bind);
+                    checker.check_stmt(rec, body, bind);
+                },
+            );
+            self.loop_depth -= 1;
+            return;
+        }
         let elem_ty = match self.for_of_element(right_ty, is_await, bind) {
             Some((plan, elem)) => {
                 rec.desugar.for_of_plans.insert(right.index(), plan);

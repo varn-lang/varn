@@ -84,4 +84,11 @@ await describe("180 for-in over collections", async () => {
         for (let i = 0; i < 3000; i = i + 1) { acc = acc + totalAges() + sumPrimes() + countA("ab") }
         expect(acc).toBe(150000)
     })
+
+    await it("a union of the same iterable kind walks its members", () => {
+        const xs: Set<int> | ReadonlySet<int> = new Set([1, 2])
+        let total = 0
+        for (const x in xs) { total = total + x }
+        expect(total).toBe(3)
+    })
 })

@@ -206,12 +206,6 @@ impl Heap {
     pub(crate) fn jit_epoch(&self) -> u64 {
         unsafe { (*self.inner.get()).jit_epoch }
     }
-
-    #[allow(clippy::mut_from_ref)]
-    #[inline(always)]
-    pub(crate) unsafe fn inner_mut(&self) -> &mut HeapInner {
-        unsafe { &mut *self.inner.get() }
-    }
 }
 impl std::ops::Deref for Heap {
     type Target = HeapInner;

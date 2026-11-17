@@ -1,0 +1,3 @@
+// expect: error[VN3029]
+const maybe: int[]? = [1]
+for (const x in maybe) {}
