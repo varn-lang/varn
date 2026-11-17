@@ -1,9 +1,9 @@
 import { Base64 } from "std:encoding";
 
-export type BasicCredentials = {
+export struct BasicCredentials {
     user: str;
-    pass: str
-};
+    pass: str;
+}
 
 export namespace Auth {
     export function bearer(header: str): str? {
@@ -27,7 +27,7 @@ export namespace Auth {
         if (colon == null) {
             return null;
         }
-        return { user: decoded.slice(0, colon), pass: decoded.slice(colon + 1) };
+        return new BasicCredentials(user: decoded.slice(0, colon), pass: decoded.slice(colon + 1));
     }
 
     export function basicChallenge(realm: str = "Varn"): str {

@@ -1,7 +1,7 @@
-type CacheEntry<V> = {
+struct CacheEntry<V> {
     key: str;
-    value: V
-};
+    value: V;
+}
 
 export class LRUCache<V> {
     private _capacity: int;
@@ -32,7 +32,7 @@ export class LRUCache<V> {
             let entry = this._entries[index];
             if (entry.key == key) {
                 this._entries.splice(index, 1);
-                this._entries.push({ key: key, value: value });
+                this._entries.push(new CacheEntry(key: key, value: value));
                 return;
             }
         }
@@ -41,7 +41,7 @@ export class LRUCache<V> {
             this._entries.splice(0, 1);
         }
 
-        this._entries.push({ key: key, value: value });
+        this._entries.push(new CacheEntry(key: key, value: value));
     }
 
     has(key: str): bool {

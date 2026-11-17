@@ -18,7 +18,10 @@ const ALL_METHODS: HttpMethod[] = [
     HttpMethod.TRACE
 ];
 
-type Matched = { handler: Handler; params: Map<str, str> };
+struct Matched {
+    handler: Handler;
+    params: Map<str, str>;
+}
 
 export class HttpServer {
     private _port: int = 0;
@@ -204,7 +207,7 @@ export class HttpServer {
         if (bucket != null) {
             for (let route of bucket) {
                 if (route.accepts(method)) {
-                    return { handler: route.handler, params: new Map<str, str>() };
+                    return new Matched(handler: route.handler, params: new Map<str, str>());
                 }
             }
         }
@@ -213,13 +216,13 @@ export class HttpServer {
             for (let route of this._dynamicRoutes) {
                 let params = route.match(method, pathSegments);
                 if (params != null) {
-                    return { handler: route.handler, params: params };
+                    return new Matched(handler: route.handler, params: params);
                 }
             }
         }
         let fallback = this._fetchHandler;
         if (fallback != null) {
-            return { handler: fallback, params: new Map<str, str>() };
+            return new Matched(handler: fallback, params: new Map<str, str>());
         }
         return null;
     }

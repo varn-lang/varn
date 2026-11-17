@@ -1,13 +1,13 @@
 import { ParseError } from "std:error";
 
-export type FormPart = {
+export struct FormPart {
     name: str;
-    filename: str?;
-    contentType?: str;
+    filename: str? = null;
+    contentType: str? = null;
     headers: Map<str, str>;
     body: str;
-    data: Bytes
-};
+    data: Bytes;
+}
 
 const CRLF = Bytes.fromString("\r\n");
 const HEAD_END = Bytes.fromString("\r\n\r\n");
@@ -137,14 +137,14 @@ export namespace Multipart {
             const disposition = headers.get("content-disposition");
             const attributes = disposition == null ? new Map<str, str>() : parameters(disposition);
             const content = data.slice(bodyStart, next);
-            parts.push({
+            parts.push(new FormPart(
                 name: attributes.get("name") ?? "",
                 filename: attributes.get("filename"),
                 contentType: headers.get("content-type"),
                 headers: headers,
                 body: content.toString(),
                 data: content
-            });
+            ));
             pos = next + 2;
         }
         return parts;

@@ -65,7 +65,10 @@ export function Dialog(open: Signal<bool>, title: str, body: Widget[]): Widget {
     return new DialogNode(open, title, body);
 }
 
-export type ToastItem = { text: str; until: int };
+export struct ToastItem {
+    text: str;
+    until: int;
+}
 
 export class Toaster {
     items: Signal<ToastItem[]> = signal<ToastItem[]>([]);
@@ -73,7 +76,7 @@ export class Toaster {
     show(text: str, ms: int = 2500): void {
         const at = now();
         this.items.update((all: ToastItem[]): ToastItem[] =>
-            [...all.filter((t: ToastItem): bool => t.until > at), { text: text, until: at + ms }]
+            [...all.filter((t: ToastItem): bool => t.until > at), new ToastItem(text: text, until: at + ms)]
         );
     }
 }
