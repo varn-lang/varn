@@ -4,6 +4,7 @@ use sha1::Digest;
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
+use vn_types::VmValue;
 
 
 const WS_GUID: &str = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -48,12 +49,6 @@ vn_macros::vn_enum! {
     module: MODULE_ID,
     contract: "src/modules/runtime/ws/ws_runtime.vn",
     pub enum WsOpcode;
-}
-
-vn_macros::vn_record! {
-    contract: "src/modules/runtime/ws/ws_runtime.vn",
-    interface: "WsFrame",
-    struct WsFrame;
 }
 
 natives! {
@@ -230,14 +225,11 @@ natives! {
             .ok_or_else(|| format!("bad opcode {opcode}")).map_err(|e| NativeError::std(StdErrorClass::Protocol, e))?
             .to_value(ctx).map_err(|e| NativeError::std(StdErrorClass::Protocol, e))?;
         let payload = ctx.alloc_buffer_from_bytes(&payload);
-        Ok(Some(
-            WsFrame {
-                opcode,
-                fin,
-                payload,
-                consumed: (pos + len) as i64,
-            }
-            .alloc(ctx),
-        ))
+        Ok(Some(ctx.alloc_tuple(vec![
+            opcode,
+            VmValue::from_bool(fin),
+            payload,
+            VmValue::from_int((pos + len) as i64),
+        ])))
     },
 }

@@ -7,16 +7,9 @@ export declare enum WsOpcode {
     Pong = 10
 }
 
-export interface WsFrame {
-    opcode: WsOpcode;
-    fin: bool;
-    payload: Bytes;
-    consumed: int;
-}
-
 export declare function wsKey$(): str;
 export declare function wsAcceptResponse$(request: str): str;
 export declare function wsValidateResponse$(head: str, key: str): void;
 export declare function wsFrameBytes$(payload: Bytes, opcode: WsOpcode, mask: bool): Bytes;
-export declare function wsParseFrame$(data: Bytes, expectMasked: bool, maxPayload: int): WsFrame?;
+export declare function wsParseFrame$(data: Bytes, expectMasked: bool, maxPayload: int): (WsOpcode, bool, Bytes, int)?;
 export declare function wsDecodeText$(payload: Bytes): str;

@@ -4,8 +4,7 @@ import {
     wsFrameBytes$,
     wsParseFrame$,
     wsDecodeText$,
-    WsOpcode,
-    WsFrame
+    WsOpcode
 } from "runtime:ws";
 
 import {
@@ -266,7 +265,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
 
     async read(size?: int): Task<Bytes?> {
         while (true) {
-            let frame: WsFrame? = null;
+            let frame: (WsOpcode, bool, Bytes, int)? = null;
             try {
                 frame = wsParseFrame$(this._recvBuf, this._server, this._maxMessage);
             } catch (e) {
@@ -290,9 +289,8 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                 this._recvBuf = bytesConcat(this._recvBuf, chunk as Bytes);
                 continue;
             }
-            this._recvBuf = this._recvBuf.slice(frame.consumed);
-            let opcode = frame.opcode;
-            let payload = frame.payload;
+            const (opcode, fin, payload, consumed) = frame as (WsOpcode, bool, Bytes, int);
+            this._recvBuf = this._recvBuf.slice(consumed);
             if (opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
                 try {
                     await this._pumpControl(opcode, payload);
@@ -317,7 +315,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     await this._reject(1009, "the message exceeds the limit");
                 }
                 this._fragBuf = joined;
-                if (frame.fin) {
+                if (fin) {
                     let done = this._fragBuf as Bytes;
                     let op = this._fragOp as WsOpcode;
                     this._fragBuf = null;
@@ -329,7 +327,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             if (this._fragBuf != null) {
                 await this._reject(1002, "a new message starts inside a fragmented one");
             }
-            if (frame.fin) {
+            if (fin) {
                 return await this._deliver(opcode, payload);
             }
             this._fragBuf = payload;
