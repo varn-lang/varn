@@ -3,7 +3,7 @@ use crate::vm_value::VmValue;
 use rustc_hash::FxHashMap as HashMap;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Arc;
 use vn_core::AccessorKind;
 
@@ -26,6 +26,7 @@ pub struct ClassObj {
     pub statics: RefCell<HashMap<RuntimeString, VmValue>>,
     pub static_fields: RefCell<Vec<RuntimeString>>,
     pub vtable_version: AtomicU32,
+    pub frozen: AtomicBool,
     pub root_shape: RefCell<Rc<super::shape::Shape>>,
     pub static_getter_map: RefCell<HashMap<RuntimeString, VmValue>>,
     pub static_setter_map: RefCell<HashMap<RuntimeString, VmValue>>,
@@ -48,6 +49,7 @@ impl ClassObj {
             is_native: false,
             superclass: RefCell::new(None),
             vtable_version: AtomicU32::new(1),
+            frozen: AtomicBool::new(false),
             vtable: RefCell::new(Vec::new()),
             vtable_owners: RefCell::new(Vec::new()),
             method_map: RefCell::new(HashMap::default()),
@@ -112,7 +114,18 @@ impl ClassObj {
         Rc::clone(&self.layout.borrow())
     }
 
-    pub fn set_layout(self: &Rc<Self>, layout: Rc<vn_core::layout::ClassLayout>) {
+    pub fn is_frozen(&self) -> bool {
+        self.frozen.load(Ordering::Relaxed)
+    }
+
+    pub fn freeze(&self) {
+        self.frozen.store(true, Ordering::Relaxed);
+    }
+
+    pub fn set_layout(self: &Rc<Self>, layout: Rc<vn_core::layout::ClassLayout>) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         super::instance::invalidate_layout_cache();
         let properties: HashMap<RuntimeString, usize> = layout
             .fields
@@ -123,9 +136,16 @@ impl ClassObj {
         *self.root_shape.borrow_mut() = super::shape::Shape::create(Some(self.clone()), properties);
         *self.instance_shape_cache.borrow_mut() = None;
         *self.layout.borrow_mut() = layout;
+        true
     }
 
-    pub fn extend_layout(self: &Rc<Self>, own: &[(RuntimeString, Option<vn_core::FieldKind>)]) {
+    pub fn extend_layout(
+        self: &Rc<Self>,
+        own: &[(RuntimeString, Option<vn_core::FieldKind>)],
+    ) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         let mut fields: Vec<(RuntimeString, Option<vn_core::FieldKind>)> = self
             .layout()
             .fields
@@ -133,7 +153,7 @@ impl ClassObj {
             .map(|f| (f.name.clone(), f.kind))
             .collect();
         fields.extend(own.iter().cloned());
-        self.set_layout(Rc::new(vn_core::layout::ClassLayout::from_fields(&fields)));
+        self.set_layout(Rc::new(vn_core::layout::ClassLayout::from_fields(&fields)))
     }
 
     pub fn for_each_value_mut(&self, f: &mut dyn FnMut(&mut VmValue)) {
@@ -152,8 +172,8 @@ impl ClassObj {
         *self.ctor_cache.borrow_mut() = None;
     }
 
-    pub fn add_method(&self, name: impl Into<Arc<str>>, value: VmValue) {
-        self.add_method_with_owner(name, value, None);
+    pub fn add_method(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
+        self.add_method_with_owner(name, value, None)
     }
 
     pub fn add_method_with_owner(
@@ -161,7 +181,10 @@ impl ClassObj {
         name: impl Into<Arc<str>>,
         value: VmValue,
         owner: Option<Rc<ClassObj>>,
-    ) {
+    ) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         let name: Arc<str> = name.into();
         let mut method_map = self.method_map.borrow_mut();
         let mut vtable = self.vtable.borrow_mut();
@@ -177,10 +200,11 @@ impl ClassObj {
         }
         drop((method_map, vtable, vtable_owners));
         self.vtable_version.fetch_add(1, Ordering::Relaxed);
+        true
     }
 
-    pub fn add_accessor(&self, kind: AccessorKind, name: &str, value: VmValue) {
-        self.add_accessor_with_owner(kind, name, value, None);
+    pub fn add_accessor(&self, kind: AccessorKind, name: &str, value: VmValue) -> bool {
+        self.add_accessor_with_owner(kind, name, value, None)
     }
 
     pub fn add_accessor_with_owner(
@@ -189,16 +213,16 @@ impl ClassObj {
         name: &str,
         value: VmValue,
         owner: Option<Rc<ClassObj>>,
-    ) {
-        self.add_method_with_owner(kind.key(name), value, owner);
+    ) -> bool {
+        self.add_method_with_owner(kind.key(name), value, owner)
     }
 
-    pub fn add_getter(&self, name: &str, value: VmValue) {
-        self.add_accessor(AccessorKind::Get, name, value);
+    pub fn add_getter(&self, name: &str, value: VmValue) -> bool {
+        self.add_accessor(AccessorKind::Get, name, value)
     }
 
-    pub fn add_setter(&self, name: &str, value: VmValue) {
-        self.add_accessor(AccessorKind::Set, name, value);
+    pub fn add_setter(&self, name: &str, value: VmValue) -> bool {
+        self.add_accessor(AccessorKind::Set, name, value)
     }
 
     pub fn accessor_slot(&self, kind: AccessorKind, name: &str) -> Option<usize> {
@@ -214,31 +238,43 @@ impl ClassObj {
             .collect()
     }
 
-    pub fn add_static_getter(&self, name: impl Into<Arc<str>>, value: VmValue) {
+    pub fn add_static_getter(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         let name_rc = name.into();
         let mut fields = self.static_fields.borrow_mut();
         if !fields.contains(&name_rc) {
             fields.push(name_rc.clone());
         }
         self.static_getter_map.borrow_mut().insert(name_rc, value);
+        true
     }
 
-    pub fn add_static_setter(&self, name: impl Into<Arc<str>>, value: VmValue) {
+    pub fn add_static_setter(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         let name_rc = name.into();
         let mut fields = self.static_fields.borrow_mut();
         if !fields.contains(&name_rc) {
             fields.push(name_rc.clone());
         }
         self.static_setter_map.borrow_mut().insert(name_rc, value);
+        true
     }
 
-    pub fn add_static(&self, name: impl Into<Arc<str>>, value: VmValue) {
+    pub fn add_static(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
         let name_rc = name.into();
         let mut fields = self.static_fields.borrow_mut();
         if !fields.contains(&name_rc) {
             fields.push(name_rc.clone());
         }
         self.statics.borrow_mut().insert(name_rc, value);
+        true
     }
 
     pub fn get_static(&self, name: &str) -> Option<VmValue> {

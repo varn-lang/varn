@@ -248,6 +248,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::StoreCaptured { .. }
                         | InstKind::MakeClass { .. }
                         | InstKind::DeclareLayout { .. }
+                        | InstKind::FreezeClass { .. }
                         | InstKind::DefineStatic { .. }
                         | InstKind::DefineMethod { .. }
                         | InstKind::DefineAccessor { .. }

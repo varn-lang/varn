@@ -74,6 +74,7 @@ pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
         | SsaOp::SetFixedField { .. }
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
         | SsaOp::LoadGlobal(_)

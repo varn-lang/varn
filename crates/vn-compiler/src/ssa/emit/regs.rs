@@ -198,6 +198,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }

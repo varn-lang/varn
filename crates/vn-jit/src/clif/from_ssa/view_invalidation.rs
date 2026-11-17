@@ -111,6 +111,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::SetFixedField { .. }
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
         | SsaOp::BuildTuple { .. }

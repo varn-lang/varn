@@ -197,6 +197,7 @@ impl Chunk {
             | OpCode::DefineStaticSetter
             | OpCode::DeclareLayout
             | OpCode::AllocInstance
+            | OpCode::FreezeClass
             | OpCode::BindMethod
             | OpCode::Typeof
             | OpCode::Instanceof

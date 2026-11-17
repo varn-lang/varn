@@ -100,6 +100,7 @@ impl Views {
                 | SsaOp::This
                 | SsaOp::MakeClass { .. }
                 | SsaOp::DeclareLayout { .. }
+                | SsaOp::FreezeClass { .. }
                 | SsaOp::DefineMethod { .. }
                 | SsaOp::GetSuper { .. }
                 | SsaOp::LoadGlobal(_)
@@ -189,6 +190,7 @@ impl Views {
                 | SsaOp::SetFixedField { .. }
                 | SsaOp::MakeClass { .. }
                 | SsaOp::DeclareLayout { .. }
+                | SsaOp::FreezeClass { .. }
                 | SsaOp::DefineMethod { .. }
                 | SsaOp::GetSuper { .. }
                 | SsaOp::LoadGlobal(_)

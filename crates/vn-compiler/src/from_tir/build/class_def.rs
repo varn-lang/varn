@@ -131,6 +131,8 @@ impl<'m> Builder<'m> {
             );
         }
 
+        self.emit_effect(InstKind::FreezeClass { class: defined });
+
         Ok(())
     }
 

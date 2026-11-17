@@ -155,6 +155,7 @@ impl ExecCtx {
             | OpCode::DefineStaticGetter
             | OpCode::DefineStaticSetter
             | OpCode::DeclareLayout
+            | OpCode::FreezeClass
             | OpCode::AllocInstance
             | OpCode::BindMethod
             | OpCode::Typeof

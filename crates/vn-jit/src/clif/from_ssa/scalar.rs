@@ -266,6 +266,7 @@ pub(super) fn emit_inst(
         | SsaOp::SetFixedField { .. }
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
         | SsaOp::LoadGlobal(_)

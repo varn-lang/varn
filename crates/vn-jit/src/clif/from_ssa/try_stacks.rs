@@ -69,6 +69,7 @@ pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Ve
             | vn_types::ssa::SsaOp::SetFixedField { .. }
             | vn_types::ssa::SsaOp::MakeClass { .. }
             | vn_types::ssa::SsaOp::DeclareLayout { .. }
+            | vn_types::ssa::SsaOp::FreezeClass { .. }
             | vn_types::ssa::SsaOp::DefineMethod { .. }
             | vn_types::ssa::SsaOp::GetSuper { .. }
             | vn_types::ssa::SsaOp::LoadGlobal(_)
@@ -176,6 +177,7 @@ pub(super) fn stack_before_try(
             | vn_types::ssa::SsaOp::SetFixedField { .. }
             | vn_types::ssa::SsaOp::MakeClass { .. }
             | vn_types::ssa::SsaOp::DeclareLayout { .. }
+            | vn_types::ssa::SsaOp::FreezeClass { .. }
             | vn_types::ssa::SsaOp::DefineMethod { .. }
             | vn_types::ssa::SsaOp::GetSuper { .. }
             | vn_types::ssa::SsaOp::LoadGlobal(_)

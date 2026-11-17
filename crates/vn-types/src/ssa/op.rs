@@ -254,6 +254,10 @@ pub enum SsaOp {
         super_class: Option<u32>,
     },
 
+    FreezeClass {
+        class: u32,
+    },
+
     DeclareLayout {
         class: u32,
         layout: std::sync::Arc<vn_core::layout::ClassLayout>,

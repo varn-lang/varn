@@ -143,8 +143,11 @@ pub(crate) fn expand(input: TokenStream) -> TokenStream {
                 let mut data = ::vn_types::value::EnumVariantData::unit(def);
                 data.enum_class_id = Some(cls.id);
                 let value = ctx.alloc_enum_variant(data);
-                cls.add_static(variant.name(), value);
+                if !cls.add_static(variant.name(), value) {
+                    return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define enum variant on frozen class"));
+                }
             }
+            cls.freeze();
             ctx.register_class(#name::NAME, cls.clone());
             Ok(ctx.alloc_class(cls))
         }

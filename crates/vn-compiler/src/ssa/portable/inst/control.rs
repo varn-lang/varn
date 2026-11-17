@@ -111,6 +111,7 @@ pub(super) fn try_project(
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. }

@@ -169,7 +169,12 @@ pub(crate) fn set_property(obj: VmValue, key: &str, val: VmValue, heap: &mut Hea
             Ok(())
         }
         Some(HeapObj::Class(c)) => {
-            c.add_static(key, val);
+            if !c.add_static(key, val) {
+                return Err(RuntimeError::new(format!(
+                    "cannot set property '{key}': class '{}' is frozen",
+                    c.name
+                )));
+            }
             heap.write_barrier(idx, val);
             Ok(())
         }

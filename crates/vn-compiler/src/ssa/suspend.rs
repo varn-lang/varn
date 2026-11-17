@@ -67,6 +67,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::StoreCaptured { .. }
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
+                | InstKind::FreezeClass { .. }
                 | InstKind::DefineStatic { .. }
                 | InstKind::DefineMethod { .. }
                 | InstKind::DefineAccessor { .. }
@@ -174,6 +175,7 @@ pub fn suspend_live_regs(
                 | InstKind::StoreCaptured { .. }
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
+                | InstKind::FreezeClass { .. }
                 | InstKind::DefineStatic { .. }
                 | InstKind::DefineMethod { .. }
                 | InstKind::DefineAccessor { .. }
@@ -327,6 +329,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::MakeClosure { .. }
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
+                | InstKind::FreezeClass { .. }
                 | InstKind::DefineStatic { .. }
                 | InstKind::DefineMethod { .. }
                 | InstKind::DefineAccessor { .. }

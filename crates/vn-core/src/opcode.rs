@@ -84,6 +84,8 @@ pub enum OpCode {
 
     AllocInstance,
 
+    FreezeClass,
+
     BindMethod,
 
     Typeof,

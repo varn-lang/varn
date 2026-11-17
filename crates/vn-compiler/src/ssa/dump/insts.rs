@@ -277,6 +277,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
                     .join(", ")
             )
         }
+        InstKind::FreezeClass { class } => {
+            format!("freezeclass {}", val(*class))
+        }
         InstKind::DefineStatic { class, name, value } => {
             format!("definestatic {}.{name} = {}", val(*class), val(*value))
         }

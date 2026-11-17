@@ -205,6 +205,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. }

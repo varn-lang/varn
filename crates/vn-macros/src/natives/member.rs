@@ -38,7 +38,9 @@ pub(super) fn generate_layout(m: &Member, out: &mut Generated) {
     let sym = &m.symbol;
     let tag = mapped_tag_path(&m.ret);
     out.setup_calls.push(quote! {
-        cls.extend_layout(&[(::std::sync::Arc::from(#sym), #tag)]);
+        if !cls.extend_layout(&[(::std::sync::Arc::from(#sym), #tag)]) {
+            return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot extend frozen class"));
+        }
     });
 }
 
@@ -257,12 +259,22 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
     } else {
         let native = quote!(ctx.alloc_fn(#wrap_ident, #sym));
         let setup = match m.kind {
-            Kind::Method => quote!(cls.add_method(#sym, #native);),
-            Kind::Getter => quote!(cls.add_getter(#sym, #native);),
-            Kind::StaticMethod => quote!(cls.add_static(#sym, #native);),
-            Kind::StaticGetter => quote!(cls.add_static_getter(#sym, #native);),
+            Kind::Method => quote!(if !cls.add_method(#sym, #native) {
+                return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define method on frozen class"));
+            }),
+            Kind::Getter => quote!(if !cls.add_getter(#sym, #native) {
+                return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define getter on frozen class"));
+            }),
+            Kind::StaticMethod => quote!(if !cls.add_static(#sym, #native) {
+                return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define static on frozen class"));
+            }),
+            Kind::StaticGetter => quote!(if !cls.add_static_getter(#sym, #native) {
+                return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define static getter on frozen class"));
+            }),
             Kind::Constructor => {
-                quote!(cls.add_method(::vn_core::TokenKind::Constructor.as_str(), ctx.alloc_fn(#wrap_ident, ::vn_core::TokenKind::Constructor.as_str()));)
+                quote!(if !cls.add_method(::vn_core::TokenKind::Constructor.as_str(), ctx.alloc_fn(#wrap_ident, ::vn_core::TokenKind::Constructor.as_str())) {
+                    return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define constructor on frozen class"));
+                })
             }
             Kind::Function | Kind::Property => unreachable!(),
         };

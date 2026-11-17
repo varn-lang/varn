@@ -185,6 +185,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. }

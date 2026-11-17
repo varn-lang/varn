@@ -253,6 +253,7 @@ pub(super) fn emit_module_body(
             | OpCode::DefineStaticGetter
             | OpCode::DefineStaticSetter
             | OpCode::DeclareLayout
+            | OpCode::FreezeClass
             | OpCode::AllocInstance
             | OpCode::BindMethod
             | OpCode::Typeof

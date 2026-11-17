@@ -210,6 +210,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. }

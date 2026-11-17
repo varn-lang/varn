@@ -82,6 +82,7 @@ macro_rules! inst_uses {
             | StoreModuleSlot { value, .. } => $use!($f, value),
 
             DeclareLayout { class, .. } => $use!($f, class),
+            FreezeClass { class } => $use!($f, class),
             CatchParam { try_val } => $use!($f, try_val),
             MakeClass { super_class, .. } => {
                 if let Some(sc) = super_class {

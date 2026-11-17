@@ -224,6 +224,9 @@ pub enum InstKind {
         class: Value,
         layout: Arc<vn_core::layout::ClassLayout>,
     },
+    FreezeClass {
+        class: Value,
+    },
     DefineStatic {
         class: Value,
         name: Arc<str>,

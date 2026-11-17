@@ -131,6 +131,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
 
         MakeClass { .. }
         | DeclareLayout { .. }
+        | FreezeClass { .. }
         | DefineStatic { .. }
         | DefineMethod { .. }
         | DefineAccessor { .. } => false,

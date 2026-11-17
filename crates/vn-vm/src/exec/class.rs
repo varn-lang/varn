@@ -17,7 +17,12 @@ pub(crate) fn op_method(
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    cls.add_method_with_owner(name, method_nv, Some(cls.clone()));
+    if !cls.add_method_with_owner(name, method_nv, Some(cls.clone())) {
+        return Err(RuntimeError::new(format!(
+            "cannot define method '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), method_nv);
     }
@@ -37,7 +42,12 @@ pub(crate) fn op_define_static(
     {
         ev.enum_class_id = Some(cls.id);
     }
-    cls.add_static(name, val_nv);
+    if !cls.add_static(name, val_nv) {
+        return Err(RuntimeError::new(format!(
+            "cannot define static '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), val_nv);
     }
@@ -53,13 +63,24 @@ pub(crate) fn op_inherit(
     if subclass_nv.is_heap()
         && let Some(HeapObj::Class(sub)) = heap.get_mut(subclass_nv.as_heap())
     {
+        if sub.is_frozen() {
+            return Err(RuntimeError::new(format!(
+                "cannot inherit into frozen class '{}'",
+                sub.name
+            )));
+        }
         *sub.superclass.borrow_mut() = Some(superclass.clone());
 
         *sub.vtable.borrow_mut() = superclass.vtable.borrow().clone();
         *sub.vtable_owners.borrow_mut() = superclass.vtable_owners.borrow().clone();
         *sub.method_map.borrow_mut() = superclass.method_map.borrow().clone();
 
-        sub.set_layout(superclass.layout());
+        if !sub.set_layout(superclass.layout()) {
+            return Err(RuntimeError::new(format!(
+                "cannot inherit into frozen class '{}'",
+                sub.name
+            )));
+        }
     } else {
         return Err(RuntimeError::new("OpInherit: not a class"));
     }
@@ -75,7 +96,12 @@ pub(crate) fn op_declare_layout(
     if class_nv.is_heap()
         && let Some(HeapObj::Class(cls)) = heap.get_mut(class_nv.as_heap())
     {
-        cls.set_layout(layout);
+        if !cls.set_layout(layout) {
+            return Err(RuntimeError::new(format!(
+                "cannot declare layout: class '{}' is frozen",
+                cls.name
+            )));
+        }
         return Ok(());
     }
     Err(RuntimeError::new(format!(
@@ -120,12 +146,17 @@ pub(crate) fn op_define_getter(
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    cls.add_accessor_with_owner(
+    if !cls.add_accessor_with_owner(
         vn_core::AccessorKind::Get,
         name,
         closure_nv,
         Some(cls.clone()),
-    );
+    ) {
+        return Err(RuntimeError::new(format!(
+            "cannot define getter '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), closure_nv);
     }
@@ -139,12 +170,17 @@ pub(crate) fn op_define_setter(
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    cls.add_accessor_with_owner(
+    if !cls.add_accessor_with_owner(
         vn_core::AccessorKind::Set,
         name,
         closure_nv,
         Some(cls.clone()),
-    );
+    ) {
+        return Err(RuntimeError::new(format!(
+            "cannot define setter '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), closure_nv);
     }
@@ -158,7 +194,12 @@ pub(crate) fn op_define_static_getter(
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    cls.add_static_getter(name, closure_nv);
+    if !cls.add_static_getter(name, closure_nv) {
+        return Err(RuntimeError::new(format!(
+            "cannot define static getter '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), closure_nv);
     }
@@ -172,7 +213,12 @@ pub(crate) fn op_define_static_setter(
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    cls.add_static_setter(name, closure_nv);
+    if !cls.add_static_setter(name, closure_nv) {
+        return Err(RuntimeError::new(format!(
+            "cannot define static setter '{name}': class '{}' is frozen",
+            cls.name
+        )));
+    }
     if class_nv.is_heap() {
         heap.write_barrier(class_nv.as_heap(), closure_nv);
     }
@@ -239,6 +285,12 @@ fn default_constructor(
     _args: &[VmValue],
 ) -> vn_types::NativeFnResult {
     Ok(VmValue::null())
+}
+
+pub(crate) fn op_freeze_class(class_nv: VmValue, heap: &Heap) -> VmResult<()> {
+    let cls = get_class_arc(class_nv, heap)?;
+    cls.freeze();
+    Ok(())
 }
 
 fn get_class_arc(nv: VmValue, heap: &Heap) -> VmResult<Rc<ClassObj>> {

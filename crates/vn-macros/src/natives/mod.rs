@@ -273,8 +273,13 @@ fn expand_section(
         let superclass_setup = if let Some(parent) = &contract.extends {
             quote! {
                 if let Some(parent) = ctx.get_class(#parent) {
+                    if cls.is_frozen() {
+                        return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot inherit into frozen class"));
+                    }
                     *cls.superclass.borrow_mut() = Some(parent.clone());
-                    cls.set_layout(parent.layout());
+                    if !cls.set_layout(parent.layout()) {
+                        return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot inherit into frozen class"));
+                    }
                 }
             }
         } else {
@@ -290,6 +295,7 @@ fn expand_section(
                     .unwrap_or_else(|| ::vn_types::value::ClassObj::new_native_rc(#class));
                 #superclass_setup
                 #(#setup_calls)*
+                cls.freeze();
                 ctx.register_class(#class, cls.clone());
                 Ok(ctx.alloc_class(cls.clone()))
             }

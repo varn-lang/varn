@@ -141,6 +141,7 @@ pub(super) fn try_emit(
         | SsaOp::SetFixedField { .. }
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. } => Ok(None),
     }

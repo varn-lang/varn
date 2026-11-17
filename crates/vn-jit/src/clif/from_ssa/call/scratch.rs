@@ -97,6 +97,7 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
                 | SsaOp::SetFixedField { .. }
                 | SsaOp::MakeClass { .. }
                 | SsaOp::DeclareLayout { .. }
+                | SsaOp::FreezeClass { .. }
                 | SsaOp::DefineMethod { .. }
                 | SsaOp::GetSuper { .. }
                 | SsaOp::LoadGlobal(_)

@@ -144,6 +144,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::StoreCaptured { .. }
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
+                | InstKind::FreezeClass { .. }
                 | InstKind::DefineStatic { .. }
                 | InstKind::DefineMethod { .. }
                 | InstKind::DefineAccessor { .. }
@@ -227,6 +228,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::StoreCaptured { .. }
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. }

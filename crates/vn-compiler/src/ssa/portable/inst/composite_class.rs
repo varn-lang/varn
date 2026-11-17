@@ -31,6 +31,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             name: name.as_ref().into(),
             super_class: super_class.map(|v| v.0),
         }),
+        InstKind::FreezeClass { class } => Some(SsaOp::FreezeClass { class: class.0 }),
         InstKind::DeclareLayout { class, layout } => Some(SsaOp::DeclareLayout {
             class: class.0,
             layout: layout.clone(),

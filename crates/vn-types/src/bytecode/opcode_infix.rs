@@ -82,6 +82,7 @@ pub(super) fn infix(op: OpCode) -> Option<&'static str> {
         | O::DefineStaticSetter
         | O::DeclareLayout
         | O::AllocInstance
+        | O::FreezeClass
         | O::BindMethod
         | O::Typeof
         | O::IsNull

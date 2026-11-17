@@ -67,6 +67,17 @@ pub(crate) extern "C" fn jit_declare_layout(
     }
 }
 
+#[vn_macros::jit_slow(field = "freeze_class")]
+pub(crate) extern "C" fn jit_freeze_class(ctx: *mut ExecCtx, class_tag: u64, class_payload: u64) {
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let class_val = VmValue::from_raw_parts(class_tag, class_payload);
+        if let Err(e) = crate::exec::class::op_freeze_class(class_val, &ctx_ref.heap) {
+            jit_propagate_error(ctx_ref, e);
+        }
+    }
+}
+
 #[vn_macros::jit_slow(field = "make_class")]
 pub(crate) extern "C" fn jit_make_class(
     ctx: *mut ExecCtx,

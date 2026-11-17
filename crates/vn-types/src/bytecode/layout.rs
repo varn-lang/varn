@@ -87,6 +87,7 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
         O::StoreUpvalue => (2, vec![imm(hi(1), I::Upvalue), r(lo(1))]),
 
         O::CloseUpvalue => (2, vec![r(hi(1))]),
+        O::FreezeClass => (2, vec![r(hi(1))]),
         O::LoadModule => (2, vec![w(hi(0)), k(1, K::Module)]),
         O::LoadModuleSlot => (3, vec![w(hi(0)), r(hi(1)), imm_word(2, I::ModuleSlot)]),
         O::StoreModuleSlot => (2, vec![r(hi(0)), imm_word(1, I::ModuleSlot)]),

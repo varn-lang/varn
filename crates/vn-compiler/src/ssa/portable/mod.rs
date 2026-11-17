@@ -156,6 +156,7 @@ pub(crate) fn project(
                     | InstKind::StoreCaptured { .. }
                     | InstKind::MakeClass { .. }
                     | InstKind::DeclareLayout { .. }
+                    | InstKind::FreezeClass { .. }
                     | InstKind::DefineStatic { .. }
                     | InstKind::DefineMethod { .. }
                     | InstKind::DefineAccessor { .. }
@@ -252,6 +253,7 @@ pub(crate) fn project(
                     | InstKind::StoreCaptured { .. }
                     | InstKind::MakeClass { .. }
                     | InstKind::DeclareLayout { .. }
+                    | InstKind::FreezeClass { .. }
                     | InstKind::DefineStatic { .. }
                     | InstKind::DefineMethod { .. }
                     | InstKind::DefineAccessor { .. }

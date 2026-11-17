@@ -156,6 +156,13 @@ impl ExecCtx {
                 crate::exec::class::op_declare_layout(class, layout, &mut self.heap)?;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
+            OpCode::FreezeClass => {
+                let w1 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let class = self.stack.box_reg(base, hi(w1));
+                crate::exec::class::op_freeze_class(class, &self.heap)?;
+                Ok(Some(ObjectFlow::ContinueInstruction))
+            }
             OpCode::GetIndex => {
                 let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;

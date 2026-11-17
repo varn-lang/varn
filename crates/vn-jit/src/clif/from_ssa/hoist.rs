@@ -108,6 +108,7 @@ pub(super) fn plan_hoists(
                     | vn_types::ssa::SsaOp::SetFixedField { .. }
                     | vn_types::ssa::SsaOp::MakeClass { .. }
                     | vn_types::ssa::SsaOp::DeclareLayout { .. }
+                    | vn_types::ssa::SsaOp::FreezeClass { .. }
                     | vn_types::ssa::SsaOp::DefineMethod { .. }
                     | vn_types::ssa::SsaOp::GetSuper { .. }
                     | vn_types::ssa::SsaOp::LoadGlobal(_)

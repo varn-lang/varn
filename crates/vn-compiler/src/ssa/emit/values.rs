@@ -288,6 +288,7 @@ pub(super) fn emit_value(
         | InstKind::Dispose { .. }
         | InstKind::PopTry
         | InstKind::DeclareLayout { .. }
+        | InstKind::FreezeClass { .. }
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. } => {

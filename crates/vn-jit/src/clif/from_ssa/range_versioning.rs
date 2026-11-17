@@ -264,6 +264,7 @@ pub(super) fn version_plans(
                     | SsaOp::SetFixedField { .. }
                     | SsaOp::MakeClass { .. }
                     | SsaOp::DeclareLayout { .. }
+                    | SsaOp::FreezeClass { .. }
                     | SsaOp::DefineMethod { .. }
                     | SsaOp::GetSuper { .. }
                     | SsaOp::LoadGlobal(_)

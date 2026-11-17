@@ -111,6 +111,7 @@ macro_rules! object_ops {
             | OpCode::GetSuper
             | OpCode::AssertNotNull
             | OpCode::DeclareLayout
+            | OpCode::FreezeClass
             | OpCode::AllocInstance
             | OpCode::GetIndex
             | OpCode::SetIndex

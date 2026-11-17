@@ -76,6 +76,7 @@ pub(crate) fn has_alloc_scan(
                     | OpCode::StoreModuleSlot
                     | OpCode::GetSuper
                     | OpCode::DeclareLayout
+                    | OpCode::FreezeClass
                     | OpCode::Method
                     | OpCode::DefineStatic
                     | OpCode::DefineGetter

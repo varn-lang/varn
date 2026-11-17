@@ -228,6 +228,7 @@ impl ExecCtx {
             | OpCode::GetSuper
             | OpCode::MakeClosure
             | OpCode::DeclareLayout
+            | OpCode::FreezeClass
             | OpCode::AllocInstance
             | OpCode::Typeof
             | OpCode::Instanceof

@@ -120,6 +120,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::StoreCaptured { .. }
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
+                | InstKind::FreezeClass { .. }
                 | InstKind::DefineStatic { .. }
                 | InstKind::DefineMethod { .. }
                 | InstKind::DefineAccessor { .. }

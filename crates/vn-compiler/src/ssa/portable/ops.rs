@@ -171,6 +171,7 @@ pub(super) fn project_bin(
         | OpCode::MapGetIndex
         | OpCode::MapSetIndex
         | OpCode::Convert
+        | OpCode::FreezeClass
         | OpCode::BytesLength => return None,
     })
 }

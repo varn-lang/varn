@@ -205,6 +205,12 @@ pub(super) fn emit_effect(
             chunk.write(layout_idx, line);
             return Ok(true);
         }
+        InstKind::FreezeClass { class } => {
+            let class_reg = reg[class.0 as usize];
+            chunk.emit(OpCode::FreezeClass, line);
+            chunk.write(Chunk::pack(class_reg, 0), line);
+            return Ok(true);
+        }
         InstKind::DefineStatic { class, name, value } => {
             let class_reg = reg[class.0 as usize];
             let val_reg = reg[value.0 as usize];

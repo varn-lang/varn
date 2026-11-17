@@ -50,6 +50,10 @@ pub(super) fn emit(
             classops::emit_declare_layout(b, ctx, values, *class, layout)?;
             return Ok(Some(None));
         }
+        SsaOp::FreezeClass { class } => {
+            classops::emit_freeze_class(b, ctx, values, *class)?;
+            return Ok(Some(None));
+        }
         SsaOp::DefineMethod {
             class,
             name,
@@ -357,6 +361,7 @@ pub(super) fn emit(
         | SsaOp::ArrayPush { .. }
         | SsaOp::SetFixedField { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::LoadGlobal(_)
         | SsaOp::StoreGlobal { .. }

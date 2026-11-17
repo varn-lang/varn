@@ -76,6 +76,7 @@ pub(super) fn implied(op: OpCode) -> Option<&'static str> {
         | OpCode::DefineStaticSetter
         | OpCode::DeclareLayout
         | OpCode::AllocInstance
+        | OpCode::FreezeClass
         | OpCode::BindMethod
         | OpCode::Typeof
         | OpCode::Instanceof

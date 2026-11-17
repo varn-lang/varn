@@ -1,6 +1,6 @@
 use vn_types::{NativeOpTarget, VmValue};
 
-pub const JIT_HELPERS_VERSION: u32 = 19;
+pub const JIT_HELPERS_VERSION: u32 = 20;
 
 pub const NATIVE_FRAMELESS: u64 = 1 << 63;
 
@@ -183,6 +183,7 @@ pub struct JitHelpers {
     pub dispatch_intrinsic: usize,
     pub div: usize,
     pub eq: usize,
+    pub freeze_class: usize,
     pub gc_safepoint: usize,
     pub get_enum_tag: usize,
     pub get_fixed_field: usize,

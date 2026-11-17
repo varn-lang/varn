@@ -42,6 +42,27 @@ pub(super) fn emit_make_class(
     ))
 }
 
+pub(super) fn emit_freeze_class(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    values: &[Option<cranelift_codegen::ir::Value>],
+    class: u32,
+) -> Result<(), String> {
+    let frame = ctx
+        .frame
+        .as_ref()
+        .ok_or("from_ssa: FreezeClass without a frame")?;
+    let (ct, cp) = boxed_parts(b, ctx, values, class)?;
+    let ectx = frame.exec_ctx;
+    crate::clif::from_ssa::exceptions::call_checked(
+        b,
+        ctx,
+        ctx.helpers.freeze_class,
+        &[ectx, ct, cp],
+    )?;
+    Ok(())
+}
+
 pub(super) fn emit_declare_layout(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
