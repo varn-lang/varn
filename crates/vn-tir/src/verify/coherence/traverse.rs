@@ -201,6 +201,7 @@ fn walk_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Verif
                 walk_arg(m, f, a, errors);
             }
         }
+        TirExprKind::SuperField { .. } => {}
         TirExprKind::RangeLit { start, end, .. } => {
             walk_expr(m, f, start, errors);
             walk_expr(m, f, end, errors);

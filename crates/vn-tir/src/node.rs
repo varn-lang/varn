@@ -223,6 +223,10 @@ pub enum TirExprKind {
         args: Vec<TirArg>,
     },
 
+    SuperField {
+        name: Arc<str>,
+    },
+
     DecimalLit(Arc<str>),
 
     BigIntLit(Arc<str>),

@@ -274,6 +274,26 @@ impl<'a> FnEmitter<'a> {
             let this = self.this_var(span);
             return Some(self.field_access(this, name, ty, span));
         }
+        if self.has_own_this() {
+            if self.m.desugar.inherited_getters.contains(&at) {
+                let getter = vn_core::AccessorKind::Get.key(&name);
+                return Some(TirExpr {
+                    kind: TirExprKind::SuperMethodCall {
+                        name: Arc::from(getter),
+                        args: Vec::new(),
+                    },
+                    ty,
+                    res: Resolution::None,
+                    span,
+                });
+            }
+            return Some(TirExpr {
+                kind: TirExprKind::SuperField { name },
+                ty,
+                res: Resolution::None,
+                span,
+            });
+        }
         let accessor = self.m.desugar.inherited_getters.contains(&at);
         let member = self.inherited_member(&name, accessor, span)?;
         if !accessor {

@@ -283,6 +283,7 @@ fn check_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Veri
                 check_expr(m, f, a.value(), errors);
             }
         }
+        TirExprKind::SuperField { .. } => {}
         TirExprKind::RangeLit { start, end, .. } => {
             check_expr(m, f, start, errors);
             check_expr(m, f, end, errors);

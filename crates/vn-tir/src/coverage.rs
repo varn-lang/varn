@@ -271,6 +271,7 @@ impl Coverage {
                     self.walk_expr(a.value());
                 }
             }
+            TirExprKind::SuperField { .. } => {}
             TirExprKind::RangeLit { start, end, .. } => {
                 self.walk_expr(start);
                 self.walk_expr(end);

@@ -341,6 +341,7 @@ impl Extractor<'_> {
             | TirExprKind::ObjectKeys { .. }
             | TirExprKind::SuperCall { .. }
             | TirExprKind::SuperMethodCall { .. }
+            | TirExprKind::SuperField { .. }
             | TirExprKind::ObjectRest { .. }
             | TirExprKind::ExtensionCall { .. } => return false,
         }

@@ -314,6 +314,7 @@ impl<'m> Builder<'m> {
             | vn_tir::TirExprKind::Length { .. }
             | vn_tir::TirExprKind::SuperCall { .. }
             | vn_tir::TirExprKind::SuperMethodCall { .. }
+            | vn_tir::TirExprKind::SuperField { .. }
             | vn_tir::TirExprKind::DecimalLit(_)
             | vn_tir::TirExprKind::BigIntLit(_)
             | vn_tir::TirExprKind::RangeLit { .. }

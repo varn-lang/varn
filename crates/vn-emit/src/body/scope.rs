@@ -164,6 +164,7 @@ impl<'a> FnEmitter<'a> {
             | TirExprKind::Length { .. }
             | TirExprKind::SuperCall { .. }
             | TirExprKind::SuperMethodCall { .. }
+            | TirExprKind::SuperField { .. }
             | TirExprKind::DecimalLit(_)
             | TirExprKind::BigIntLit(_)
             | TirExprKind::RangeLit { .. }
@@ -219,6 +220,7 @@ impl<'a> FnEmitter<'a> {
             | other @ TirExprKind::Length { .. }
             | other @ TirExprKind::SuperCall { .. }
             | other @ TirExprKind::SuperMethodCall { .. }
+            | other @ TirExprKind::SuperField { .. }
             | other @ TirExprKind::DecimalLit(_)
             | other @ TirExprKind::BigIntLit(_)
             | other @ TirExprKind::RangeLit { .. }

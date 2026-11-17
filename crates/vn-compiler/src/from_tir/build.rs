@@ -225,6 +225,13 @@ impl<'m> Builder<'m> {
                 ))
             }
 
+            TirExprKind::SuperField { name } => {
+                if let Some(slot) = self.super_method_slot(name) {
+                    return Ok(self.emit(InstKind::GetSuperSlot { slot }, ty));
+                }
+                Ok(self.emit(InstKind::GetSuper { name: name.clone() }, ty))
+            }
+
             TirExprKind::Closure { func, upvalues } => {
                 let src = upvalues.iter().map(|u| ops::upvalue_src(*u)).collect();
                 Ok(self.emit(

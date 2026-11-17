@@ -34,6 +34,17 @@ class PoliceDog extends Dog {
     }
     override speak() { return super.speak() + "!"; }
 }
+class Greeter {
+    greet(): str { return "hey"; }
+    get title(): str { return "Mister"; }
+}
+class PoliteGreeter extends Greeter {
+    readTitle(): str { return super.title; }
+    tearGreet(): () => str {
+        const f = super.greet;
+        return f;
+    }
+}
 abstract class Shape {
     abstract area(): float
     describe(): str { return `shape with area ${this.area()}`; }
@@ -90,5 +101,11 @@ await describe("12 Classes", async () => {
         expect(circ.area() > 3.14 && circ.area() < 3.15).toBeTruthy();
         expect(rect2.area()).toBe(12.0);
         expect(circ.describe().startsWith("shape with area")).toBeTruthy();
+    });
+
+    await it("super getters and torn-off methods", () => {
+        const p = new PoliteGreeter();
+        expect(p.readTitle()).toBe("Mister");
+        expect(p.tearGreet()()).toBe("hey");
     });
 });

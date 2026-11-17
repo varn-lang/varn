@@ -66,7 +66,8 @@ impl Census {
             | TirExprKind::Await { .. }
             | TirExprKind::Yield { .. }
             | TirExprKind::SuperCall { .. }
-            | TirExprKind::SuperMethodCall { .. } => self.inlinable = false,
+            | TirExprKind::SuperMethodCall { .. }
+            | TirExprKind::SuperField { .. } => self.inlinable = false,
             TirExprKind::Var => {
                 self.inlinable &= !matches!(e.res, Resolution::Upvalue(_));
             }

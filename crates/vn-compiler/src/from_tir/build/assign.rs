@@ -153,6 +153,7 @@ impl<'m> Builder<'m> {
             | TirExprKind::Length { .. }
             | TirExprKind::SuperCall { .. }
             | TirExprKind::SuperMethodCall { .. }
+            | TirExprKind::SuperField { .. }
             | TirExprKind::DecimalLit(_)
             | TirExprKind::BigIntLit(_)
             | TirExprKind::RangeLit { .. }

@@ -20,6 +20,7 @@ pub fn child_exprs(e: &TirExpr) -> Vec<&TirExpr> {
         | NullLit
         | Var
         | Closure { .. }
+        | SuperField { .. }
         | DecimalLit(_)
         | BigIntLit(_) => {}
         RangeLit { start, end, .. } => {

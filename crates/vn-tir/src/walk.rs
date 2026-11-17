@@ -90,6 +90,7 @@ pub fn expr_mut(expr: &mut TirExpr, f: &mut impl FnMut(&mut TirExpr)) {
         | TirExprKind::CharLit(_)
         | TirExprKind::NullLit
         | TirExprKind::Var
+        | TirExprKind::SuperField { .. }
         | TirExprKind::DecimalLit(_)
         | TirExprKind::BigIntLit(_)
         | TirExprKind::Closure { .. } => {}
