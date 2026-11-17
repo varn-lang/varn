@@ -2,13 +2,13 @@ import { ParseError } from "std:error";
 import { sleep } from "std:task/combinators";
 import { now, toParts, fromParts, TimeParts } from "std:time";
 
-export type CronSpec = {
+export struct CronSpec {
     minutes: bool[];
     hours: bool[];
     days: bool[];
     months: bool[];
-    weekdays: bool[]
-};
+    weekdays: bool[];
+}
 
 function parseField(text: str, lo: int, hi: int): bool[] {
     let size = hi - lo + 1;
@@ -104,13 +104,13 @@ export namespace Cron {
         let wd8 = parseField(clean[4], 0, 7);
         let wd = wd8.slice(0, 7);
         wd[0] = wd[0] || wd8[7];
-        return {
+        return new CronSpec(
             minutes: parseField(clean[0], 0, 59),
             hours: parseField(clean[1], 0, 23),
             days: parseField(clean[2], 1, 31),
             months: parseField(clean[3], 1, 12),
             weekdays: wd
-        };
+        );
     }
 
     export function next(spec: CronSpec, fromMs?: int): int {
