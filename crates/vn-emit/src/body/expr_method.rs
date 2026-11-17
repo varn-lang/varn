@@ -115,6 +115,51 @@ impl<'a> FnEmitter<'a> {
         self.by_name(name.clone(), recv_ty)
     }
 
+    pub(super) fn static_call(
+        &mut self,
+        recv: TirExpr,
+        name: Arc<str>,
+        targs: Vec<TirArg>,
+        ty: BackendTy,
+        checked: Option<vn_tir::SigId>,
+        slot: u16,
+        span: Span,
+    ) -> TirExpr {
+        let ci = self.class_ref_of(&recv).or_else(|| {
+            if let BackendTy::Dynamic(DynReason::ClassObject(instance)) =
+                recv.ty.non_nullable(self.tt)
+            {
+                self.class_of(self.tt.get(instance))
+            } else {
+                None
+            }
+        });
+        let (sig, declared) = ci
+            .and_then(|ci| ci.static_at(slot))
+            .map(|s| (checked.or(s.sig), s.ty))
+            .unwrap_or((checked, ty));
+        let callee = TirExpr {
+            kind: TirExprKind::Field {
+                object: Box::new(recv),
+                name: name.clone(),
+            },
+            ty: declared,
+            res: Resolution::StaticField(slot),
+            span,
+        };
+        let targs = self.fill_omitted(targs, None, sig);
+        let (target, targs) = self.settle_args(None, Callee::Value(callee), targs, sig, span);
+        TirExpr {
+            kind: TirExprKind::Call {
+                callee: Box::new(target.into_expr()),
+                args: targs,
+            },
+            ty,
+            res: Resolution::None,
+            span,
+        }
+    }
+
     pub(super) fn method_call(
         &mut self,
         recv: TirExpr,
@@ -127,28 +172,13 @@ impl<'a> FnEmitter<'a> {
         if let Some(ci) = self.class_ref_of(&recv)
             && let Some(slot) = ci.static_slot(&name)
         {
-            let sig = checked.or(ci.static_at(slot).and_then(|s| s.sig));
-            let declared = ci.static_at(slot).map(|s| s.ty).unwrap_or(ty);
-            let callee = TirExpr {
-                kind: TirExprKind::Field {
-                    object: Box::new(recv),
-                    name: name.clone(),
-                },
-                ty: declared,
-                res: Resolution::StaticField(slot),
-                span,
-            };
-            let targs = self.fill_omitted(targs, None, sig);
-            let (target, targs) = self.settle_args(None, Callee::Value(callee), targs, sig, span);
-            return TirExpr {
-                kind: TirExprKind::Call {
-                    callee: Box::new(target.into_expr()),
-                    args: targs,
-                },
-                ty,
-                res: Resolution::None,
-                span,
-            };
+            return self.static_call(recv, name, targs, ty, checked, slot, span);
+        }
+        if let BackendTy::Dynamic(DynReason::ClassObject(instance)) = recv.ty.non_nullable(self.tt)
+            && let Some(ci) = self.class_of(self.tt.get(instance))
+            && let Some(slot) = ci.static_slot(&name)
+        {
+            return self.static_call(recv, name, targs, ty, checked, slot, span);
         }
         let class = self.class_of(recv.ty);
         let table_sig = class.and_then(|ci| {

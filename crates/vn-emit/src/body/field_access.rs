@@ -1,6 +1,6 @@
 use super::context::FnEmitter;
 use std::sync::Arc;
-use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind};
+use vn_tir::{BackendTy, DynReason, Resolution, Span, TirExpr, TirExprKind};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn field_access(
@@ -21,6 +21,44 @@ impl<'a> FnEmitter<'a> {
         span: Span,
     ) -> TirExpr {
         self.member_access(obj, name, ty, span, false)
+    }
+
+    pub(super) fn static_field(
+        &mut self,
+        obj: TirExpr,
+        name: Arc<str>,
+        ty: BackendTy,
+        span: Span,
+        slot: u16,
+    ) -> TirExpr {
+        let declared = self
+            .class_ref_of(&obj)
+            .or_else(|| {
+                if let BackendTy::Dynamic(DynReason::ClassObject(instance)) =
+                    obj.ty.non_nullable(self.tt)
+                {
+                    self.class_of(self.tt.get(instance))
+                } else {
+                    None
+                }
+            })
+            .and_then(|ci| ci.static_at(slot))
+            .map(|s| s.ty)
+            .unwrap_or(ty);
+        let ty = if ty != declared && ty == declared.non_nullable(self.tt) {
+            ty
+        } else {
+            declared
+        };
+        TirExpr {
+            kind: TirExprKind::Field {
+                object: Box::new(obj),
+                name,
+            },
+            ty,
+            res: Resolution::StaticField(slot),
+            span,
+        }
     }
 
     fn member_access(
@@ -148,21 +186,13 @@ impl<'a> FnEmitter<'a> {
         if let Some(ci) = self.class_ref_of(&obj)
             && let Some(slot) = ci.static_slot(&name)
         {
-            let declared = ci.static_at(slot).map(|s| s.ty).unwrap_or(ty);
-            let ty = if ty != declared && ty == declared.non_nullable(self.tt) {
-                ty
-            } else {
-                declared
-            };
-            return TirExpr {
-                kind: TirExprKind::Field {
-                    object: Box::new(obj),
-                    name,
-                },
-                ty,
-                res: Resolution::StaticField(slot),
-                span,
-            };
+            return self.static_field(obj, name, ty, span, slot);
+        }
+        if let BackendTy::Dynamic(DynReason::ClassObject(instance)) = obj.ty.non_nullable(self.tt)
+            && let Some(ci) = self.class_of(self.tt.get(instance))
+            && let Some(slot) = ci.static_slot(&name)
+        {
+            return self.static_field(obj, name, ty, span, slot);
         }
         if let Some(ci) = self.class_of(obj.ty) {
             if let Some(field) = ci.field(&name).cloned() {
