@@ -71,7 +71,14 @@ vn_macros::vn_enum! {
     pub enum SeekOrigin;
 }
 
+vn_macros::vn_record! {
+    contract: "src/modules/runtime/fs/fs_runtime.vn",
+    class: "RawStats",
+    pub struct RawStatsRec;
+}
+
 natives! {
+    class RawStats {}
     open(ctx, path, mode) => {
         use std::fs::OpenOptions;
         let mode = FileMode::from_value(ctx, mode)
@@ -157,12 +164,14 @@ natives! {
             .ok()
             .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
             .map(|d| d.as_millis() as i64);
-        Ok(ctx.alloc_tuple(vec![
-            VmValue::from_int(meta.len() as i64),
-            VmValue::from_bool(meta.is_dir()),
-            VmValue::from_bool(meta.is_file()),
-            mtime.map_or_else(VmValue::null, VmValue::from_int),
-        ]))
+        RawStatsRec {
+            size: meta.len() as i64,
+            is_dir: meta.is_dir(),
+            is_file: meta.is_file(),
+            mtime: mtime.map_or_else(VmValue::null, VmValue::from_int),
+        }
+        .alloc(ctx)
+        .map_err(NativeError::failure)
     },
     mkdir(ctx, path) => {
         if !ctx.check_fs_write(path) {

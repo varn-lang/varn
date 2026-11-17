@@ -70,8 +70,7 @@ function matchFrom(seg: str, si: int, name: str, ni: int): bool {
 
 function isDir(path: str): bool {
     try {
-        const (fsize, fdir, ffile, fmtime) = stat$(path);
-        return fdir;
+        return stat$(path).isDir;
     } catch (e) {
         return false;
     }
