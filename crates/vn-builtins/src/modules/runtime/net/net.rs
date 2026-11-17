@@ -23,6 +23,7 @@ fn payload(ctx: &mut dyn NativeCtx, data: VmValue) -> Result<Vec<u8>, String> {
 }
 
 natives! {
+    class HttpRequestHead {}
     isIP(s) => s.parse::<std::net::IpAddr>().is_ok(),
     isIPv4(s) => s.parse::<std::net::Ipv4Addr>().is_ok(),
     isIPv6(s) => s.parse::<std::net::Ipv6Addr>().is_ok(),

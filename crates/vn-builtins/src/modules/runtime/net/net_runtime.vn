@@ -27,7 +27,14 @@ export declare function tcpRead$(connId: int, len: int): TaskHandle<Bytes?>;
 export declare function tcpWrite$(connId: int, data: Bytes | str): TaskHandle<int>;
 export declare function tcpClose$(connId: int): void;
 export declare function tcpCloseListener$(listenerId: int): void;
-export declare function parseHttpRequest$(raw: str): (HttpMethod?, str, Map<str, str>, str)?;
+export struct HttpRequestHead {
+    method: HttpMethod?;
+    path: str;
+    headers: Map<str, str>;
+    body: str;
+}
+
+export declare function parseHttpRequest$(raw: str): HttpRequestHead?;
 export declare function httpMethodName$(method: HttpMethod): str;
 export declare function isHttpToken$(name: str): bool;
 export declare function isHttpFieldValue$(value: str): bool;

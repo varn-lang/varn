@@ -1,4 +1,4 @@
-import { tcpWrite$, parseHttpRequest$, HttpMethod } from "runtime:net";
+import { tcpWrite$, parseHttpRequest$, HttpMethod, HttpRequestHead } from "runtime:net";
 import { ProtocolError } from "std:error";
 import { WireReader, readChunkedBody, LineTooLongError, BodyTooLargeError } from "std:http/wire";
 import { Headers } from "std:http/headers";
@@ -140,11 +140,11 @@ export async function readHttpRequest(wire: WireReader, maxContentLength: int = 
     if (parsed == null) {
         throw new HttpRejection(400, "Bad Request");
     }
-    const (method, path, headers, body) = parsed as (HttpMethod?, str, Map<str, str>, str);
+    const ph = parsed as HttpRequestHead;
     const req = new RawRequest();
-    req.method = method;
-    req.path = path;
-    req.headers = headers;
+    req.method = ph.method;
+    req.path = ph.path;
+    req.headers = ph.headers;
     req.payload = await readBody(wire, req, maxContentLength);
     req.body = req.payload.toString();
     return req;

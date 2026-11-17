@@ -1,9 +1,15 @@
-use vn_types::{NativeCtx, VmValue};
+use vn_types::{NativeCtx, NativeError, VmValue};
 
 vn_macros::vn_enum! {
     module: super::MODULE_ID,
     contract: "src/modules/runtime/net/net_runtime.vn",
     pub enum HttpMethod;
+}
+
+vn_macros::vn_record! {
+    contract: "src/modules/runtime/net/net_runtime.vn",
+    class: "HttpRequestHead",
+    pub struct HttpRequestHeadRec;
 }
 
 const SINGLETON_HEADERS: [&str; 3] = ["content-length", "transfer-encoding", "host"];
@@ -53,5 +59,13 @@ pub fn parse_http_request(ctx: &mut dyn NativeCtx, raw: &str) -> Result<Option<V
     };
     let path = ctx.alloc_str(path);
     let body = ctx.alloc_str(body);
-    Ok(Some(ctx.alloc_tuple(vec![method, path, headers_obj, body])))
+    Ok(Some(
+        HttpRequestHeadRec {
+            method,
+            path,
+            headers: headers_obj,
+            body,
+        }
+        .alloc(ctx)?,
+    ))
 }
