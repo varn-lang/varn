@@ -40,14 +40,29 @@ impl<'m> Builder<'m> {
                 },
                 ty,
             );
-            self.emit(
-                InstKind::MethodCall {
-                    recv: inst,
-                    name: Arc::from(CONSTRUCTOR),
-                    args: argv,
-                },
-                BackendTy::Dynamic(DynReason::Boxed),
-            );
+            if let Some(slot) = self
+                .tir
+                .class(class)
+                .and_then(|ci| ci.method_slot(CONSTRUCTOR))
+            {
+                self.emit(
+                    InstKind::InvokeSlot {
+                        recv: inst,
+                        slot,
+                        args: argv,
+                    },
+                    BackendTy::Dynamic(DynReason::Boxed),
+                );
+            } else {
+                self.emit(
+                    InstKind::MethodCall {
+                        recv: inst,
+                        name: Arc::from(CONSTRUCTOR),
+                        args: argv,
+                    },
+                    BackendTy::Dynamic(DynReason::Boxed),
+                );
+            }
             return Ok(inst);
         }
         let cv = self.emit(
@@ -81,11 +96,15 @@ impl<'m> Builder<'m> {
             },
             ty,
         );
-        if self.chain_has_constructor(def) {
+        if let Some(slot) = self
+            .tir
+            .class(class)
+            .and_then(|ci| ci.method_slot(CONSTRUCTOR))
+        {
             self.emit(
-                InstKind::MethodCall {
+                InstKind::InvokeSlot {
                     recv: inst,
-                    name: Arc::from(CONSTRUCTOR),
+                    slot,
                     args: argv,
                 },
                 BackendTy::Dynamic(DynReason::Boxed),
@@ -112,20 +131,6 @@ impl<'m> Builder<'m> {
                 },
                 (None, Some(_)) => return false,
             }
-        }
-        false
-    }
-
-    fn chain_has_constructor(&self, def: &TirClassDef) -> bool {
-        let mut cur = Some(def);
-        while let Some(d) = cur {
-            if d.methods
-                .iter()
-                .any(|m| !m.is_static && m.key.as_ref() == CONSTRUCTOR)
-            {
-                return true;
-            }
-            cur = d.parent.and_then(|p| self.class_def(p));
         }
         false
     }
