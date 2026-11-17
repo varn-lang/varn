@@ -310,14 +310,20 @@ impl ClassObj {
     }
 
     pub fn constructor(&self) -> Option<VmValue> {
-        let ver = self.vtable_version.load(Ordering::Relaxed);
-        if let Some((cached_ver, ctor)) = self.ctor_cache.borrow().as_ref()
-            && *cached_ver == ver
-        {
-            return *ctor;
+        if self.is_frozen() {
+            if let Some((_, ctor)) = self.ctor_cache.borrow().as_ref() {
+                return *ctor;
+            }
+        } else {
+            let ver = self.vtable_version.load(Ordering::Relaxed);
+            if let Some((cached_ver, ctor)) = self.ctor_cache.borrow().as_ref()
+                && *cached_ver == ver
+            {
+                return *ctor;
+            }
         }
         let ctor = self.find_method(vn_core::TokenKind::Constructor.as_str());
-        *self.ctor_cache.borrow_mut() = Some((ver, ctor));
+        *self.ctor_cache.borrow_mut() = Some((self.vtable_version.load(Ordering::Relaxed), ctor));
         ctor
     }
 }

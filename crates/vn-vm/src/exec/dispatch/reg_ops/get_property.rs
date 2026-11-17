@@ -132,11 +132,10 @@ impl ExecCtx {
                         }
                     } else if let Some(cls) = crate::exec::props::get_class(obj, &self.heap) {
                         let slot = entry.slot as usize;
-                        if entry.is_class == ICKind::CLASS_METHOD
-                            && cls.id == entry.id
-                            && entry.vtable_ver
-                                == (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8
-                        {
+                        let ver_ok = cls.is_frozen()
+                            || entry.vtable_ver
+                                == (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8;
+                        if entry.is_class == ICKind::CLASS_METHOD && cls.id == entry.id && ver_ok {
                             let vtable = unsafe { &*cls.vtable.as_ptr() };
                             let vtable_owners = unsafe { &*cls.vtable_owners.as_ptr() };
                             if slot < vtable.len() {
@@ -146,8 +145,7 @@ impl ExecCtx {
                             }
                         } else if entry.is_class == ICKind::CLASS_GETTER
                             && cls.id == entry.id
-                            && entry.vtable_ver
-                                == (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8
+                            && ver_ok
                         {
                             let vtable = unsafe { &*cls.vtable.as_ptr() };
                             if slot < vtable.len() {

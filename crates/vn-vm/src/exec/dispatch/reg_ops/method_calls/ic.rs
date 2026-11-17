@@ -47,9 +47,14 @@ pub(super) fn probe(
         return None;
     }
     let ic = unsafe { &*closure.ic_cache.as_ptr() };
-    let cls_ver = (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8;
+    let frozen = cls.is_frozen();
+    let cls_ver = if frozen {
+        0
+    } else {
+        (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8
+    };
     for entry in &ic[site.cs].entries {
-        if entry.id == 0 || entry.id != cls.id || entry.vtable_ver != cls_ver {
+        if entry.id == 0 || entry.id != cls.id || (!frozen && entry.vtable_ver != cls_ver) {
             continue;
         }
         let vtable = unsafe { &*cls.vtable.as_ptr() };

@@ -113,8 +113,9 @@ impl ExecCtx {
                         && let Some(cls) = crate::exec::props::get_class(obj, &self.heap)
                         && entry.is_class == ICKind::CLASS_SETTER
                         && cls.id == entry.id
-                        && entry.vtable_ver
-                            == (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8
+                        && (cls.is_frozen()
+                            || entry.vtable_ver
+                                == (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8)
                     {
                         let vtable = unsafe { &*cls.vtable.as_ptr() };
                         if slot < vtable.len() {

@@ -123,7 +123,8 @@ pub(crate) extern "C" fn jit_call_method_cached_window(
             }
             let cls = &*(class_ptr as *const vn_types::value::ClassObj);
             if cls.id != entry_id
-                || (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8 != ver
+                || (!cls.is_frozen()
+                    && (cls.vtable_version.load(Ordering::Relaxed) & 0xFF) as u8 != ver)
             {
                 return None;
             }
