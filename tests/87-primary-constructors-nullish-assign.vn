@@ -14,7 +14,7 @@ class User(public id: int, public name: str, private role: str = "guest") {
 }
 
 // C# / Kotlin style without explicit modifiers
-class Point(x: int, y: int) {
+class Point(public x: int, public y: int) {
     sum(): int {
         return this.x + this.y;
     }

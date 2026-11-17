@@ -159,7 +159,6 @@ fn build_one_class(
     let mut ordered: Vec<_> = members.iter().collect();
     ordered.sort_by_key(|m| m.offset);
 
-    let mut primary_sig: Option<vn_tir::SigId> = None;
     for m in &ordered {
         if m.is_static || m.is_abstract {
             continue;
@@ -177,11 +176,6 @@ fn build_one_class(
             ClassMemberKind::Method | ClassMemberKind::Function => {
                 let sig = intern_signature(&m.ty, table, interner, tt, names, signatures);
                 push_method(m.name.clone(), sig, &mut method_names);
-            }
-            ClassMemberKind::Constructor if m.is_primary => {
-                primary_sig = Some(intern_signature(
-                    &m.ty, table, interner, tt, names, signatures,
-                ));
             }
             ClassMemberKind::Constructor => {
                 let sig = intern_signature(&m.ty, table, interner, tt, names, signatures);
@@ -215,16 +209,7 @@ fn build_one_class(
         let has_init = ordered
             .iter()
             .any(|m| !m.is_static && m.kind == ClassMemberKind::Property && m.has_init);
-        if let Some(psig) = primary_sig {
-            if parent_ctor.is_none() {
-                push_method(
-                    Arc::from(vn_core::TokenKind::Constructor.as_str()),
-                    psig,
-                    &mut method_names,
-                );
-            }
-            constructor = Some(psig);
-        } else if let Some(psig) = parent_ctor {
+        if let Some(psig) = parent_ctor {
             constructor = Some(psig);
         } else if has_init {
             let id = vn_tir::SigId(signatures.len() as u32);

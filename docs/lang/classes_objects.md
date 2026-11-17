@@ -60,7 +60,7 @@ assertTrue("default role", u2.getRole() === "guest")
 ```
 
 ```vn
-class Point(x: int, y: int) {    // sin modificador de acceso: campos públicos
+class Point(public x: int, public y: int) {
     sum(): int { return this.x + this.y }
 }
 let pt = new Point(10, 25)

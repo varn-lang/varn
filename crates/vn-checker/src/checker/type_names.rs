@@ -288,9 +288,6 @@ impl<'r> Checker<'r> {
 
     pub(crate) fn check_class_type_names(&mut self, class: &ClassDecl, bind: &BindResult) {
         self.with_type_params(&class.type_params, bind, |checker| {
-            if let Some(primary) = &class.primary_params {
-                checker.check_signature_type_names(&[], primary, None, bind);
-            }
             for member in &class.body {
                 match member {
                     ClassMember::Constructor { params, .. } => {

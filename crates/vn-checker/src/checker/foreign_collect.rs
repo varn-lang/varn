@@ -188,7 +188,6 @@ impl Checker<'_> {
             let mut ordered: Vec<_> = entry.members.iter().collect();
             ordered.sort_by_key(|m| m.offset);
             let mut level_has_ctor = false;
-            let mut level_primary: Option<Type> = None;
             let mut level_has_init = false;
             for m in &ordered {
                 if m.is_static || m.is_abstract {
@@ -215,10 +214,6 @@ impl Checker<'_> {
                             None,
                         );
                     }
-                    ClassMemberKind::Constructor if m.is_primary => {
-                        level_has_ctor = true;
-                        level_primary = Some(self.reintern_foreign_ty(level.owner.get(), m.ty));
-                    }
                     ClassMemberKind::Constructor => {
                         level_has_ctor = true;
                         upsert(
@@ -235,9 +230,7 @@ impl Checker<'_> {
                     | ClassMemberKind::Enum => {}
                 }
             }
-            if let Some(ty) = level_primary {
-                upsert(Arc::from(TokenKind::Constructor.as_str()), ty, None);
-            } else if !level_has_ctor && level_has_init {
+            if !level_has_ctor && level_has_init {
                 upsert(Arc::from(TokenKind::Constructor.as_str()), ctor_ty, None);
             }
             for m in &ordered {

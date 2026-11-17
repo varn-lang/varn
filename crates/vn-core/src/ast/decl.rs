@@ -104,7 +104,6 @@ pub struct ClassDecl {
 
     pub id_offset: u32,
     pub type_params: Vec<TypeParam>,
-    pub primary_params: Option<Vec<Param>>,
     pub super_class: Option<ExprId>,
     pub super_type_args: Vec<TypeNode>,
     pub implements: Vec<TypeNode>,

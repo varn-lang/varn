@@ -13,7 +13,6 @@ mod binder_types;
 mod binding_types;
 mod class;
 mod class_body;
-mod class_ctor;
 mod class_member;
 mod context;
 pub mod core;

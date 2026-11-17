@@ -129,7 +129,6 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
         ast_id: s.next_ast_id(),
         id_offset,
         type_params,
-        primary_params: None,
         super_class: None,
         super_type_args: vec![],
         implements,

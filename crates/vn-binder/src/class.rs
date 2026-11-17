@@ -50,8 +50,6 @@ impl<'r> super::Binder<'r> {
         let mut methods: FxHashMap<Arc<str>, Type> = FxHashMap::default();
         let mut members: Vec<ClassMemberInfo> = Vec::new();
 
-        self.bind_primary_constructor(c, &mut members);
-
         for member in &c.body {
             self.collect_class_member(member, name.as_ref(), &mut methods, &mut members);
         }

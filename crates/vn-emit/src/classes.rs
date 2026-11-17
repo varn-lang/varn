@@ -3,11 +3,10 @@ use super::decl_classify::{anon_class_of, class_decl, enum_decl, namespace_decl}
 use super::functions::{emit_member_fn, fresh_sig, lower_outer};
 use super::module_ctx::MCtx;
 use super::namespaces::ns_nested_types;
-use super::ty::lower_type;
 use super::ty::NameResolver;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
-use vn_core::ast::{AstArena, AstId, Param, Pattern, Program, StmtKind};
+use vn_core::ast::{AstArena, AstId, Program, StmtKind};
 use vn_sem::bind::BindResult;
 use vn_sem::output::TypeEntry;
 use vn_tir::{BackendTy, DynReason, Signature, TirFunction, TyTable};
@@ -158,21 +157,7 @@ pub(super) fn emit_class(
         def.decorators.push(x);
     }
 
-    let primary: &[Param] = class.primary_params.as_deref().unwrap_or(&[]);
-    let primary_tys: Vec<BackendTy> = primary
-        .iter()
-        .map(|p| {
-            p.type_ann
-                .as_ref()
-                .and_then(|t| ctx.annotation_types.get(&t.id))
-                .map(|resolved| {
-                    lower_type(resolved, ctx.checker_table, ctx.interner, types, ctx.names)
-                })
-                .unwrap_or(BackendTy::Dynamic(DynReason::Unrecorded))
-        })
-        .collect();
-
-    let (field_defaults, primary_assigns) = {
+    let field_defaults = {
         let mut stmts = Vec::new();
         let base = out.len() as u32;
         let mut cls: Vec<TirFunction> = Vec::new();
@@ -205,22 +190,9 @@ pub(super) fn emit_class(
                 stmts.push(em.this_field_assign(Arc::from(ctx.interner.resolve(*key)), value));
             }
         }
-        let mut assigns = Vec::new();
-        for (i, p) in primary.iter().enumerate() {
-            if p.modifiers.visibility.is_some() || p.modifiers.is_readonly {
-                continue;
-            }
-            if let Pattern::Identifier { name, .. } = &p.pattern {
-                assigns.push(em.this_param_field_assign(
-                    Arc::from(ctx.interner.resolve(*name)),
-                    i as u32,
-                    primary_tys[i],
-                ));
-            }
-        }
         drop(em);
         out.extend(cls);
-        (stmts, assigns)
+        stmts
     };
 
     emit_class_members(
@@ -254,9 +226,9 @@ pub(super) fn emit_class(
             new.extend(std::mem::take(body));
             *body = new;
         }
-    } else if !field_defaults.is_empty() || !primary.is_empty() {
-        let forwards = class.super_class.is_some() && primary.is_empty();
-        let sig = fresh_sig(signatures, primary.len());
+    } else if !field_defaults.is_empty() {
+        let forwards = class.super_class.is_some();
+        let sig = fresh_sig(signatures, 0);
         let rest_ty = BackendTy::Array(types.intern(BackendTy::Dynamic(DynReason::Unrecorded)));
         let inherited = def
             .parent
@@ -269,13 +241,13 @@ pub(super) fn emit_class(
         signatures[sig.0 as usize].params = if forwards {
             forward_tys.clone()
         } else {
-            primary_tys
+            vec![]
         };
         signatures[sig.0 as usize].has_rest = forwards && forward_rest;
         signatures[sig.0 as usize].return_ty = BackendTy::Void;
         let id = emit_member_fn(
             Arc::from(format!("{class_name}.constructor")),
-            primary,
+            &[],
             None,
             ast_arena,
             false,
@@ -289,8 +261,6 @@ pub(super) fn emit_class(
             signatures,
             out,
         );
-        let body = &mut out[id.0 as usize].body;
-        body.extend(primary_assigns);
         out[id.0 as usize].has_rest = forwards && forward_rest;
         let body = &mut out[id.0 as usize].body;
         let mut new = Vec::new();
