@@ -185,7 +185,7 @@ Declaración de variable mutable.
 ## M
 
 **`Map<K, V>`**  
-Contenedor asociativo dinámico clave→valor mutable. Se crea con `new Map<K, V>()`. Soporta acceso indexado por corchetes (`m[k]`, `m[k] = v`) y API de métodos (`.get()`, `.set()`, `.has()`, `.delete()`, `.clear()`). Igualdad por referencia (`===`). Distinto del diccionario `{ [key: K]: V }`, que es un objeto con claves dinámicas.
+Contenedor asociativo dinámico clave→valor mutable. Se crea con `new Map([(k, v)])`. Soporta acceso indexado por corchetes (`m[k]`, `m[k] = v`) y API de métodos (`.get()`, `.set()`, `.has()`, `.delete()`, `.clear()`). Igualdad por referencia. Un literal `{...}` nunca es `Map`.
 
 **`match`**  
 Expresión de pattern matching. Puede coincidir con valores literales, enums, payload de enums y wildcards (`_`). También puede usarse con multi-valor (`2 | 3`).

@@ -83,17 +83,18 @@ Los alias y las uniones deben demostrar que todos sus miembros admiten igualdad.
 
 `Json.parse<T>` construye y valida el tipo elegido por el llamador. Las formas
 cerradas, incluidas interfaces y records, rechazan campos desconocidos y valores
-incompatibles en cualquier nivel. Para claves abiertas se declara un diccionario
-`{ [key: str]: T }` o `Map<str, T>`.
+incompatibles en cualquier nivel. Para claves abiertas se declara
+`Map<str, T>`.
 
-### 2.4 Diccionarios (`{ [key: K]: V }`) y mapas (`Map<K, V>`)
+### 2.4 Mapas (`Map<K, V>`)
 
-Contenedores asociativos dinámicos mutables (`tests/17-map-set.vn`,
-`tests/24-record.vn`):
+Colección asociativa mutable (`tests/17-map-set.vn`,
+`tests/348-map-literals.vn`):
+Un literal `{...}` nunca es un `Map`.
 
 ```vn
-// Diccionario: firma de índice { [key: K]: V } + literal de objeto
-const scores: { [key: str]: int } = {   // tests/24-record.vn
+// Map: colección con clave; el literal {...} es objeto/record
+const scores = new Map([("alice", 95),
     "alice": 95,
     "bob": 87,
     "charlie": 72
@@ -106,7 +107,7 @@ scores["dave"] = 60               // mutación indexada
 assertTrue("map set dave",    scores["dave"] === 60)
 ```
 
-`Map<K, V>` es una colección aparte (`tests/17-map-set.vn`):
+`Map<K, V>` se construye con `new Map` (`tests/17-map-set.vn`, `tests/348-map-literals.vn`):
 
 ```vn
 const m = new Map<str, int>()
@@ -116,8 +117,8 @@ assertTrue("map size", m.size === 1)
 ```
 
 > [!NOTE]
-> No son intercambiables: `{ [key: K]: V }` baja a `BackendTy::Dict` (objeto con claves dinámicas) y `Map<K, V>` a `BackendTy::Map`. Asignar un literal de objeto a un `Map<K, V>` es error de tipos (VN3001).
-> La sintaxis `Record<K, V>` está prohibida: use `Map<K, V>` para una colección con clave o `{ [key: K]: V }` para un objeto indexable.
+> `{...}` es objeto/record. Asignar un literal de objeto a un `Map<K, V>` es error de tipos (VN3001). La firma `{ [key: K]: V }` no existe: `VN2022 ForbiddenIndexSignature`, use `Map<K, V>`.
+> La sintaxis `Record<K, V>` está prohibida: use `Map<K, V>` para una colección con clave.
 
 ### 2.5 Matriz Comparativa Canónica de Tipos Contenedor
 
@@ -126,8 +127,7 @@ assertTrue("map size", m.size === 1)
 | **`Object`** | `{ name: "Alice", age: 30 }` | `obj.name` (offset de compilación fijo) | Explícita (`sameValue(a, b)`) | Mutable |
 | **`struct`** | `new Point(1, 2)` | `p.x` | Estructural profunda (`==`) | Inmutable |
 | **`Tuple`** | `( 1, "hello" )` | `tup[0]` | Estructural profunda (`==`) | Inmutable |
-| **`Map<K, V>`** | `new Map<K, V>()` | `m[k]`, `m.get(k)`, `m.set(k, v)` | Explícita (`sameValue(a, b)`) | Mutable |
-| **`{ [key: K]: V }`** | `{ "a": 1 }` | `d[k]` | Explícita (`sameValue(a, b)`) | Mutable |
+| **`Map<K, V>`** | `new Map([(k, v)])` | `m[k]`, `m.get(k)`, `m.set(k, v)` | Explícita (`sameValue(a, b)`) | Mutable |
 
 ### 2.6 Set
 
@@ -482,7 +482,7 @@ verdaderos (tests/186-truthiness-and-logical-values.vn).
   afirma que el elemento existe. Fuera de rango, o negativo, lanza
   `RangeError`, también al escribir (tests/184-string-index.vn). Un array
   crece con `push`; el acceso que puede fallar es `at(i)`, que devuelve `T?`.
-- `m[k]` sobre `Map<K, V>` o `{ [key: K]: V }` tiene tipo `V?`: que la
+- `m[k]` sobre `Map<K, V>` tiene tipo `V?`: que la
   clave falte es un caso normal (tests/187-keyed-index-and-optional-members.vn).
   La escritura `m[k] = v` pide `V`.
 - Un miembro o parámetro opcional (`tag?: str`) es `str?`: omitirlo y pasar
