@@ -56,7 +56,7 @@ impl<'r> Checker<'r> {
             Diagnostic::error(
                 ErrorCode::NotIterable,
                 format!(
-                    "'{}' has no keys: `for ... in` walks the keys of an object, use `for ... of` for its elements",
+                    "'{}' has no keys: `for ... in` walks values of iterables and keys of an object",
                     ty.display(&self.ty_table, &bind.interner)
                 ),
             )

@@ -53,28 +53,89 @@ pub(crate) fn array_pop(arr: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
     Err(RuntimeError::new("OpArrayPop: not an array"))
 }
 
-pub(crate) fn array_extend(dst: VmValue, src: VmValue, heap: &Heap) -> VmResult<()> {
-    if dst.is_heap()
-        && src.is_heap()
-        && let (Some(HeapObj::Array(da)), Some(HeapObj::Array(sa) | HeapObj::Tuple(sa))) =
-            (heap.get(dst.as_heap()), heap.get(src.as_heap()))
-    {
-        let n = sa.len();
-        if da.len().saturating_add(n) > vn_core::MAX_ARRAY_LEN {
-            return Err(array_too_long());
-        }
-        let mut items: Vec<VmValue> = Vec::with_capacity(n);
-        for i in 0..n {
-            items.push(sa.get_vm(i).unwrap_or(VmValue::null()));
-        }
-        for &item in &items {
-            da.push_vm(item);
-        }
-        let heap_mut = unsafe { heap.inner_mut() };
-        for &item in &items {
-            heap_mut.write_barrier(dst.as_heap(), item);
-        }
-        return Ok(());
+pub(crate) fn array_extend(dst: VmValue, src: VmValue, heap: &mut Heap) -> VmResult<()> {
+    if !dst.is_heap() || !src.is_heap() {
+        return Err(RuntimeError::new("OpArrayExtend: not arrays"));
     }
-    Err(RuntimeError::new("OpArrayExtend: not arrays"))
+    let Some(HeapObj::Array(da)) = heap.get(dst.as_heap()) else {
+        return Err(RuntimeError::new("OpArrayExtend: not arrays"));
+    };
+    let da_len = da.len();
+    let mut items: Vec<VmValue> = Vec::new();
+    match heap.get(src.as_heap()) {
+        Some(HeapObj::Array(sa) | HeapObj::Tuple(sa)) => {
+            let n = sa.len();
+            if da_len.saturating_add(n) > vn_core::MAX_ARRAY_LEN {
+                return Err(array_too_long());
+            }
+            for i in 0..n {
+                items.push(sa.get_vm(i).unwrap_or(VmValue::null()));
+            }
+        }
+        Some(HeapObj::Set(s)) => {
+            let vals: Vec<VmValue> = s.read().iter().map(|k| k.0).collect();
+            if da_len.saturating_add(vals.len()) > vn_core::MAX_ARRAY_LEN {
+                return Err(array_too_long());
+            }
+            items.extend(vals);
+        }
+        Some(HeapObj::Map(m)) => {
+            let entries: Vec<(VmValue, VmValue)> =
+                m.read().iter().map(|(k, v)| (k.0, *v)).collect();
+            if da_len.saturating_add(entries.len()) > vn_core::MAX_ARRAY_LEN {
+                return Err(array_too_long());
+            }
+            for (k, v) in entries {
+                items.push(heap.alloc_tuple_vm(vec![k, v]));
+            }
+        }
+        Some(HeapObj::Str(s)) => {
+            let chars: Vec<VmValue> = s.as_str().chars().map(VmValue::from_char).collect();
+            if da_len.saturating_add(chars.len()) > vn_core::MAX_ARRAY_LEN {
+                return Err(array_too_long());
+            }
+            items.extend(chars);
+        }
+        Some(HeapObj::Range(r)) => {
+            let count = r.count();
+            if count > vn_core::MAX_ARRAY_LEN as u128
+                || da_len.saturating_add(count as usize) > vn_core::MAX_ARRAY_LEN
+            {
+                return Err(array_too_long());
+            }
+            let len = r.len().unwrap_or(0);
+            for i in 0..len {
+                let Some(raw) = r.nth(i) else { continue };
+                let v = match r.elem {
+                    vn_types::value::RangeElem::Int => VmValue::from_int(raw),
+                    vn_types::value::RangeElem::Char => {
+                        VmValue::from_char(vn_types::value::RangeData::char_of(raw))
+                    }
+                };
+                items.push(v);
+            }
+        }
+        Some(HeapObj::Buffer(b)) => {
+            let bytes: Vec<VmValue> = b
+                .as_slice()
+                .iter()
+                .map(|byte| VmValue::from_int(i64::from(*byte)))
+                .collect();
+            if da_len.saturating_add(bytes.len()) > vn_core::MAX_ARRAY_LEN {
+                return Err(array_too_long());
+            }
+            items.extend(bytes);
+        }
+        _ => return Err(RuntimeError::new("OpArrayExtend: not arrays")),
+    }
+    for &item in &items {
+        let Some(HeapObj::Array(da)) = heap.get(dst.as_heap()) else {
+            return Err(RuntimeError::new("OpArrayExtend: not arrays"));
+        };
+        da.push_vm(item);
+    }
+    for &item in &items {
+        heap.write_barrier(dst.as_heap(), item);
+    }
+    Ok(())
 }

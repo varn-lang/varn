@@ -16,7 +16,7 @@ impl ExecCtx {
         let window: Vec<VmValue> = (0..arg_count)
             .map(|i| self.stack.box_reg(base, arg_start + i))
             .collect();
-        crate::exec::calls::expand_spread_args(&self.heap, window, &mut expanded);
+        crate::exec::calls::expand_spread_args(&mut self.heap, window, &mut expanded);
         let flat_count = expanded.len();
         self.stage.clear();
         self.stage.push(callee);

@@ -193,7 +193,7 @@ impl ExecCtx {
     }
 
     pub(crate) fn exec_array_extend(&mut self, arr: VmValue, src: VmValue) -> VmResult<()> {
-        crate::exec::collections::array_extend(arr, src, &self.heap)
+        crate::exec::collections::array_extend(arr, src, &mut self.heap)
     }
 
     pub(crate) fn exec_str_length(&mut self, v: VmValue) -> VmResult<VmValue> {

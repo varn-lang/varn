@@ -57,6 +57,15 @@ impl Checker<'_> {
         }
         if let Some(builtin) = source.builtin_of(&self.ty_table) {
             match builtin {
+                BuiltinType::Bytes => {
+                    return Some((
+                        ForOfPlan::Collection {
+                            method: None,
+                            elem: Type::Int,
+                        },
+                        Type::Int,
+                    ));
+                }
                 BuiltinType::Map | BuiltinType::ReadonlyMap => {
                     let key = source.builtin_arg(0, &self.ty_table);
                     let value = source.builtin_arg(1, &self.ty_table);
@@ -99,7 +108,6 @@ impl Checker<'_> {
                     ));
                 }
                 BuiltinType::Array
-                | BuiltinType::Bytes
                 | BuiltinType::Generator
                 | BuiltinType::AsyncGenerator
                 | BuiltinType::Task

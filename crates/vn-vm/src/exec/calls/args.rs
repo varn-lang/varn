@@ -33,7 +33,7 @@ pub(crate) fn bundle_rest_args(
 }
 
 pub(crate) fn expand_spread_args(
-    heap: &Heap,
+    heap: &mut Heap,
     args: impl IntoIterator<Item = VmValue>,
     out: &mut Vec<VmValue>,
 ) {
@@ -68,21 +68,48 @@ pub(crate) fn expand_spread_args(
             Some(HeapObj::Array(arr) | HeapObj::Tuple(arr)) => {
                 out.extend((0..arr.len()).filter_map(|i| arr.get_vm(i)));
             }
+            Some(HeapObj::Set(s)) => {
+                out.extend(s.read().iter().map(|k| k.0));
+            }
+            Some(HeapObj::Map(m)) => {
+                let entries: Vec<(VmValue, VmValue)> =
+                    m.read().iter().map(|(k, v)| (k.0, *v)).collect();
+                for (k, v) in entries {
+                    out.push(heap.alloc_tuple_vm(vec![k, v]));
+                }
+            }
+            Some(HeapObj::Str(s)) => {
+                out.extend(s.as_str().chars().map(VmValue::from_char));
+            }
+            Some(HeapObj::Range(r)) => {
+                let len = r.len().unwrap_or(0);
+                for i in 0..len {
+                    if let Some(raw) = r.nth(i) {
+                        match r.elem {
+                            vn_types::value::RangeElem::Int => out.push(VmValue::from_int(raw)),
+                            vn_types::value::RangeElem::Char => out
+                                .push(VmValue::from_char(vn_types::value::RangeData::char_of(raw))),
+                        }
+                    }
+                }
+            }
+            Some(HeapObj::Buffer(b)) => {
+                out.extend(
+                    b.as_slice()
+                        .iter()
+                        .map(|byte| VmValue::from_int(i64::from(*byte))),
+                );
+            }
             Some(
-                HeapObj::Str(_)
-                | HeapObj::Object(_)
-                | HeapObj::Buffer(_)
+                HeapObj::Object(_)
                 | HeapObj::Module(_)
                 | HeapObj::FrozenModule(_)
                 | HeapObj::VmClosure(_)
                 | HeapObj::Class(_)
                 | HeapObj::NativeFn(..)
                 | HeapObj::BoundMethod(_)
-                | HeapObj::Map(_)
-                | HeapObj::Set(_)
                 | HeapObj::Task(_)
                 | HeapObj::TaskHandle(_)
-                | HeapObj::Range(_)
                 | HeapObj::EnumVariant(_)
                 | HeapObj::BigInt(_)
                 | HeapObj::Decimal(_)

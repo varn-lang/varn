@@ -18,7 +18,11 @@ pub(crate) extern "C" fn jit_call_spread_window(
         let args = std::slice::from_raw_parts(window, argc);
         let mut expanded = Vec::with_capacity(argc + 1);
         expanded.push(callee);
-        crate::exec::calls::expand_spread_args(&ctx_ref.heap, args.iter().copied(), &mut expanded);
+        crate::exec::calls::expand_spread_args(
+            &mut ctx_ref.heap,
+            args.iter().copied(),
+            &mut expanded,
+        );
         match ctx_ref.invoke(callee, &expanded) {
             Ok(v) => ctx_ref.jit_native_result = v,
             Err(e) => jit_propagate_error(ctx_ref, e),
