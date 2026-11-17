@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { Duration } from "std:time";
+import { Duration, DurationParts } from "std:time";
 
 await describe("310 Duration fields are components of totalMilliseconds", async () => {
     await it("each field is the part of its own unit", async () => {
@@ -19,7 +19,7 @@ await describe("310 Duration fields are components of totalMilliseconds", async 
     });
 
     await it("parts and ISO text decompose the same way", async () => {
-        const fromParts = Duration.from({ hours: 25, minutes: 61 });
+        const fromParts = Duration.from(new DurationParts(hours: 25, minutes: 61));
         expect(fromParts.days).toBe(1);
         expect(fromParts.hours).toBe(2);
         expect(fromParts.minutes).toBe(1);

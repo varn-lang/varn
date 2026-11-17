@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { fromISO, toISOString, fromParts, durationFromString } from "std:time";
+import { fromISO, toISOString, fromParts, durationFromString, TimeParts } from "std:time";
 
 function rejects(run: () => int): bool {
     try {
@@ -34,8 +34,8 @@ await describe("281 time parsing is strict", async () => {
     });
 
     await it("fromParts validates every range", async () => {
-        expect(fromParts({ year: 2024, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 })).toBe(1704067200000);
-        expect(rejects(() => fromParts({ year: 2024, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 5000 }))).toBeTruthy();
-        expect(rejects(() => fromParts({ year: 2024, month: -1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }))).toBeTruthy();
+        expect(fromParts(new TimeParts(year: 2024, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0))).toBe(1704067200000);
+        expect(rejects(() => fromParts(new TimeParts(year: 2024, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 5000)))).toBeTruthy();
+        expect(rejects(() => fromParts(new TimeParts(year: 2024, month: -1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0)))).toBeTruthy();
     });
 });

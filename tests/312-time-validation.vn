@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { Duration, DateTime, PlainDateTime, toISOString, fromISO } from "std:time";
+import { Duration, DateTime, PlainDateTime, toISOString, fromISO, DurationParts } from "std:time";
 import { ParseError } from "std:error";
 
 function outcome(f: () => str): str {
@@ -30,11 +30,11 @@ await describe("312 time values reject what they cannot hold", async () => {
     });
 
     await it("Duration parts that do not fit a fixed span are refused, not dropped", async () => {
-        expect(outcome(() => Duration.from({ years: 1 }).totalMilliseconds.toString())).toBe("range");
-        expect(outcome(() => Duration.from({ months: 2, days: 1 }).totalMilliseconds.toString())).toBe("range");
-        expect(outcome(() => Duration.from({ hours: 1, sign: -1 }).totalMilliseconds.toString())).toBe("-3600000");
-        expect(outcome(() => Duration.from({ hours: 1, sign: 2 }).totalMilliseconds.toString())).toBe("range");
-        expect(outcome(() => Duration.from({ minutes: 90 }).totalMilliseconds.toString())).toBe("5400000");
+        expect(outcome(() => Duration.from(new DurationParts(years: 1)).totalMilliseconds.toString())).toBe("range");
+        expect(outcome(() => Duration.from(new DurationParts(months: 2, days: 1)).totalMilliseconds.toString())).toBe("range");
+        expect(outcome(() => Duration.from(new DurationParts(hours: 1, sign: -1)).totalMilliseconds.toString())).toBe("-3600000");
+        expect(outcome(() => Duration.from(new DurationParts(hours: 1, sign: 2)).totalMilliseconds.toString())).toBe("range");
+        expect(outcome(() => Duration.from(new DurationParts(minutes: 90)).totalMilliseconds.toString())).toBe("5400000");
     });
 
     await it("years outside 0..9999 use the signed six-digit form and parse back", async () => {

@@ -7,7 +7,7 @@ import {
     RuntimeTimeParts
 } from "runtime:time";
 
-export type TimeParts = {
+export struct TimeParts {
     year: int;
     month: int;
     day: int;
@@ -15,19 +15,19 @@ export type TimeParts = {
     minute: int;
     second: int;
     millisecond: int;
-    weekday?: int;
-};
+    weekday: int? = null;
+}
 
-export type DurationParts = {
-    years?: int;
-    months?: int;
-    days?: int;
-    hours?: int;
-    minutes?: int;
-    seconds?: int;
-    milliseconds?: int;
-    sign?: int;
-};
+export struct DurationParts {
+    years: int? = null;
+    months: int? = null;
+    days: int? = null;
+    hours: int? = null;
+    minutes: int? = null;
+    seconds: int? = null;
+    milliseconds: int? = null;
+    sign: int? = null;
+}
 
 export function pad2(n: int): str {
     if (n < 10) return `0${n}`;
@@ -70,7 +70,7 @@ export function fromISO(iso: str): int {
 
 export function toParts(ms: int): TimeParts {
     let parts = msToParts$(ms);
-    return {
+    return new TimeParts(
         year: parts.year,
         month: parts.month,
         day: parts.day,
@@ -79,7 +79,7 @@ export function toParts(ms: int): TimeParts {
         second: parts.second,
         millisecond: parts.millisecond,
         weekday: parts.weekday
-    };
+    );
 }
 
 export function fromParts(parts: TimeParts): int {
@@ -96,13 +96,13 @@ export function durationToString(ms: int): str {
 
 export function durationParts(ms: int): DurationParts {
     let total_s = ms / 1000;
-    return {
+    return new DurationParts(
         days: total_s / 86400,
         hours: total_s % 86400 / 3600,
         minutes: total_s % 3600 / 60,
         seconds: (total_s % 60),
         milliseconds: (ms % 1000)
-    };
+    );
 }
 
 export function formatDurationMs(ms: int): str {
