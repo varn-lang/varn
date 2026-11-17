@@ -16,10 +16,15 @@ export namespace Cli {
             if (arg.startsWith("--")) {
                 let body = arg.slice(2);
                 let eqIdx = body.indexOf("=");
-                if (eqIdx != null && eqIdx > 0) {
-                    let k = body.slice(0, eqIdx);
-                    let v = body.slice(eqIdx + 1);
-                    flags.set(k, v);
+                if (eqIdx != null) {
+                    const ei = eqIdx as int;
+                    if (ei > 0) {
+                        let k = body.slice(0, ei);
+                        let v = body.slice(ei + 1);
+                        flags.set(k, v);
+                    } else {
+                        flags.set(body, "true");
+                    }
                 } else {
                     flags.set(body, "true");
                 }

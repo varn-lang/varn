@@ -31,11 +31,13 @@ export function isEq<T>(a: T, b: T): bool {
         return true;
     }
     if (a is str && b is str) {
-        if (a.length != b.length) {
+        const sa = a as str;
+        const sb = b as str;
+        if (sa.length != sb.length) {
             return false;
         }
-        for (let i = 0; i < a.length; i = i + 1) {
-            if (a.slice(i, i + 1) != b.slice(i, i + 1)) {
+        for (let i = 0; i < sa.length; i = i + 1) {
+            if (sa.slice(i, i + 1) != sb.slice(i, i + 1)) {
                 return false;
             }
         }

@@ -146,7 +146,7 @@ export function glob(pattern: str): str[] {
     for (let i = 1; i < out.length; i = i + 1) {
         let key = out[i];
         let j = i - 1;
-        while (j >= 0 && out[j] > key) {
+        while (j >= 0 && out[j].compare(key) > 0) {
             out[j + 1] = out[j];
             j = j - 1;
         }

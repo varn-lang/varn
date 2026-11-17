@@ -97,9 +97,10 @@ function formatTomlValue(val: TomlValue): str {
         return val.toString();
     }
     if (val is TomlValue[]) {
+        const arr = val as TomlValue[];
         let items: str[] = [];
-        for (let i = 0; i < val.length; i = i + 1) {
-            items.push(formatTomlValue(val[i]));
+        for (let i = 0; i < arr.length; i = i + 1) {
+            items.push(formatTomlValue(arr[i]));
         }
         return "[" + items.join(", ") + "]";
     }
@@ -125,11 +126,14 @@ export namespace Toml {
                 continue;
             }
             let equalsIndex = line.indexOf("=");
-            if (equalsIndex != null && equalsIndex > 0) {
-                let key = trimWhitespace(line.slice(0, equalsIndex));
-                let rawVal = line.slice(equalsIndex + 1);
-                let parsedVal = parseTomlValue(rawVal);
-                currentSection.set(key, parsedVal);
+            if (equalsIndex != null) {
+                const ei = equalsIndex as int;
+                if (ei > 0) {
+                    let key = trimWhitespace(line.slice(0, ei));
+                    let rawVal = line.slice(ei + 1);
+                    let parsedVal = parseTomlValue(rawVal);
+                    currentSection.set(key, parsedVal);
+                }
             }
         }
         return root;

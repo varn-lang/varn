@@ -248,8 +248,13 @@ export class HttpServer {
             for (let i = 0; i < pairs.length; i = i + 1) {
                 let pair = pairs[i];
                 let eqIdx = pair.indexOf("=");
-                if (eqIdx != null && eqIdx > 0) {
-                    queryMap.set(pair.slice(0, eqIdx), pair.slice(eqIdx + 1));
+                if (eqIdx != null) {
+                    const ei = eqIdx as int;
+                    if (ei > 0) {
+                        queryMap.set(pair.slice(0, ei), pair.slice(ei + 1));
+                    } else {
+                        queryMap.set(pair, "true");
+                    }
                 } else {
                     queryMap.set(pair, "true");
                 }

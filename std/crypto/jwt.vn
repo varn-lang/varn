@@ -46,7 +46,11 @@ export namespace Jwt {
         try {
             let header = Json.parse(Base64.decodeUrlBytes(parts[0]).toString()) as Map<str, JsonValue>;
             const algorithm = header.get("alg");
-            if (!(algorithm is str) || algorithm != algo) {
+            if (!(algorithm is str)) {
+                return null;
+            }
+            const alg = algorithm as str;
+            if (alg != algo) {
                 return null;
             }
             return Json.parse(Base64.decodeUrlBytes(parts[1]).toString());

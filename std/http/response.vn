@@ -60,10 +60,14 @@ export async function readHttpResponse(connId: int, headOnly: bool = false): Tas
     const afterCode = remainder.indexOf(" ");
     const codeText = afterCode == null ? remainder : remainder.slice(0, afterCode);
     const code = int.tryParse(codeText);
-    if (codeText.length != 3 || code == null || code < 100 || code > 599) {
+    if (codeText.length != 3 || code == null) {
         throw new ProtocolError(`malformed status code '${codeText}'`);
     }
-    resp.status = code;
+    const statusCode = code as int;
+    if (statusCode < 100 || statusCode > 599) {
+        throw new ProtocolError(`malformed status code '${codeText}'`);
+    }
+    resp.status = statusCode;
     resp.statusText = afterCode == null ? "" : remainder.slice(afterCode + 1);
 
     let headBytes = status.length;
@@ -98,12 +102,16 @@ export async function readHttpResponse(connId: int, headOnly: bool = false): Tas
     const lengthText = resp.headers.get("content-length");
     if (lengthText != null) {
         const expected = int.tryParse(lengthText);
-        if (expected == null || expected < 0 || expected > MAX_BODY || lengthText.trim().startsWith("+")) {
+        if (expected == null) {
             throw new ProtocolError(`unacceptable Content-Length '${lengthText}'`);
         }
-        const data = await wire.take(expected);
+        const size = expected as int;
+        if (size < 0 || size > MAX_BODY || lengthText.trim().startsWith("+")) {
+            throw new ProtocolError(`unacceptable Content-Length '${lengthText}'`);
+        }
+        const data = await wire.take(size);
         if (data == null) {
-            throw new ProtocolError(`connection closed before the ${expected} byte body arrived`);
+            throw new ProtocolError(`connection closed before the ${size} byte body arrived`);
         }
         resp.payload = data as Bytes;
         return resp;

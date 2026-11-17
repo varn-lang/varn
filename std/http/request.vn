@@ -176,10 +176,13 @@ export class Request {
                 let pairs = cookieHdr.split(";");
                 for (let p of pairs) {
                     let eq = p.indexOf("=");
-                    if (eq != null && eq > 0) {
-                        let k = p.slice(0, eq).trim();
-                        let v = p.slice(eq + 1).trim();
-                        this.cookies.set(k, v);
+                    if (eq != null) {
+                        const ei = eq as int;
+                        if (ei > 0) {
+                            let k = p.slice(0, ei).trim();
+                            let v = p.slice(ei + 1).trim();
+                            this.cookies.set(k, v);
+                        }
                     }
                 }
             }
@@ -205,10 +208,13 @@ export class Request {
         let pairs = this.body.split("&");
         for (let p of pairs) {
             let eq = p.indexOf("=");
-            if (eq != null && eq > 0) {
-                let k = p.slice(0, eq);
-                let v = p.slice(eq + 1);
-                res.set(k, v);
+            if (eq != null) {
+                const ei = eq as int;
+                if (ei > 0) {
+                    let k = p.slice(0, ei);
+                    let v = p.slice(ei + 1);
+                    res.set(k, v);
+                }
             }
         }
         return res;

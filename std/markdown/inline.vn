@@ -43,10 +43,14 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                     let title = "";
                     let quoteIdx = urlAndTitle.indexOf("\"");
                     if (quoteIdx != null) {
-                        url = urlAndTitle.slice(0, quoteIdx).trim();
+                        const qi = quoteIdx as int;
+                        url = urlAndTitle.slice(0, qi).trim();
                         let endQuote = urlAndTitle.lastIndexOf("\"");
-                        if (endQuote != null && endQuote > quoteIdx) {
-                            title = urlAndTitle.slice(quoteIdx + 1, endQuote);
+                        if (endQuote != null) {
+                            const eq2 = endQuote as int;
+                            if (eq2 > qi) {
+                                title = urlAndTitle.slice(qi + 1, eq2);
+                            }
                         }
                     }
                     let imgNode = new MarkdownNode(MarkdownNodeKind.Image, altText);
@@ -71,10 +75,14 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                     let title = "";
                     let quoteIdx = urlAndTitle.indexOf("\"");
                     if (quoteIdx != null) {
-                        url = urlAndTitle.slice(0, quoteIdx).trim();
+                        const qi = quoteIdx as int;
+                        url = urlAndTitle.slice(0, qi).trim();
                         let endQuote = urlAndTitle.lastIndexOf("\"");
-                        if (endQuote != null && endQuote > quoteIdx) {
-                            title = urlAndTitle.slice(quoteIdx + 1, endQuote);
+                        if (endQuote != null) {
+                            const eq2 = endQuote as int;
+                            if (eq2 > qi) {
+                                title = urlAndTitle.slice(qi + 1, eq2);
+                            }
                         }
                     }
                     let linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkText);

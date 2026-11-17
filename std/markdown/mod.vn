@@ -218,8 +218,11 @@ export namespace Markdown {
                     isOrdered = true;
                     let dotIdx = firstTrimmed.indexOf(".");
                     if (dotIdx == null) dotIdx = firstTrimmed.indexOf(")");
-                    if (dotIdx != null && dotIdx > 0) {
-                        listStart = firstTrimmed.slice(0, dotIdx).toInt();
+                    if (dotIdx != null) {
+                        const di = dotIdx as int;
+                        if (di > 0) {
+                            listStart = firstTrimmed.slice(0, di).toInt();
+                        }
                     }
                 }
 
@@ -252,8 +255,13 @@ export namespace Markdown {
                         content = curTrimmed.slice(2);
                     } else {
                         let spaceIdx = curTrimmed.indexOf(" ");
-                        if (spaceIdx != null && spaceIdx > 0) {
-                            content = curTrimmed.slice(spaceIdx + 1);
+                        if (spaceIdx != null) {
+                            const si = spaceIdx as int;
+                            if (si > 0) {
+                                content = curTrimmed.slice(si + 1);
+                            } else {
+                                content = curTrimmed;
+                            }
                         } else {
                             content = curTrimmed;
                         }

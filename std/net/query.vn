@@ -59,10 +59,14 @@ export class Query {
 
     get(key: str): str? {
         const bucket = this.buckets.get(key);
-        if (bucket == null || bucket.length == 0) {
+        if (bucket == null) {
             return null;
         }
-        return bucket[0];
+        const items = bucket as str[];
+        if (items.length == 0) {
+            return null;
+        }
+        return items[0];
     }
 
     getAll(key: str): str[] {

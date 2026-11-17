@@ -3,13 +3,16 @@ import { readLine } from "std:io";
 export namespace Prompt {
     export function ask(message: str, defaultValue?: str): str {
         let suffix = "";
-        if (defaultValue != null && defaultValue != "") {
-            suffix = " [" + defaultValue + "]";
+        if (defaultValue != null) {
+            const dv = defaultValue as str;
+            if (dv != "") {
+                suffix = " [" + dv + "]";
+            }
         }
         let input = readLine(message + suffix + ": ");
         let trimmed = input.trim();
         if (trimmed == "" && defaultValue != null) {
-            return defaultValue;
+            return defaultValue as str;
         }
         return trimmed;
     }

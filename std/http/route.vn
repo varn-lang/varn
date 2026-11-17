@@ -37,7 +37,8 @@ export class Route {
     }
 
     accepts(method: HttpMethod): bool {
-        return this.method == null || this.method == method;
+        const mine = this.method;
+        return mine == null || (mine as HttpMethod) == method;
     }
 
     match(method: HttpMethod, pathSegments: str[]): Map<str, str>? {
