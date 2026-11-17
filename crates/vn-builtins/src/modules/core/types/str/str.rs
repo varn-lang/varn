@@ -77,6 +77,11 @@ natives! {
         },
         includes(this, search) => find_bytes(this, search).is_some(),
         contains(this, search) => find_bytes(this, search).is_some(),
+        compare(this, other) => match this.cmp(other) {
+            std::cmp::Ordering::Less => -1,
+            std::cmp::Ordering::Equal => 0,
+            std::cmp::Ordering::Greater => 1,
+        },
         startsWith(this, search) => this.starts_with(search),
         endsWith(this, search) => this.ends_with(search),
         indexOf(this, search) => vn_types::str_util::char_index_of(this, search).map(|at| at as i64),

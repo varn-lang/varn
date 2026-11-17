@@ -42,7 +42,7 @@ function cmpPre(a: str[], b: str[]): int {
         if (yn) {
             return 1;
         }
-        return x < y ? -1 : 1;
+        return x.compare(y);
     }
     if (a.length == b.length) {
         return 0;

@@ -57,4 +57,18 @@ await describe("03 Strings", async () => {
         expect(str.join(["a", "b", "c"], "-")).toBe("a-b-c");
         expect(str.join([], ",")).toBe("");
     });
+
+    await it("compare orders strings byte-wise like relational operators", () => {
+        expect("a".compare("b")).toBe(-1);
+        expect("b".compare("a")).toBe(1);
+        expect("a".compare("a")).toBe(0);
+        expect("".compare("a")).toBe(-1);
+        expect("a".compare("")).toBe(1);
+        expect("abc".compare("abd")).toBe(-1);
+        expect("abc".compare("ab")).toBe(1);
+        expect("10".compare("9")).toBe(-1);
+        expect("beta".compare("alpha") > 0).toBeTruthy();
+        expect("alpha".compare("beta") < 0).toBeTruthy();
+        expect("same".compare("same") == 0).toBeTruthy();
+    });
 });

@@ -19,6 +19,7 @@ export declare class str {
     trimEnd(): str;
     includes(search: str): bool;
     contains(search: str): bool; // ALIAS
+    compare(other: str): int;
     startsWith(search: str): bool;
     endsWith(search: str): bool;
     indexOf(search: str): int?;
