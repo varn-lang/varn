@@ -140,10 +140,11 @@ export async function readHttpRequest(wire: WireReader, maxContentLength: int = 
     if (parsed == null) {
         throw new HttpRejection(400, "Bad Request");
     }
+    const (method, path, headers, body) = parsed as (HttpMethod?, str, Map<str, str>, str);
     const req = new RawRequest();
-    req.method = parsed.method;
-    req.path = parsed.path;
-    req.headers = parsed.headers;
+    req.method = method;
+    req.path = path;
+    req.headers = headers;
     req.payload = await readBody(wire, req, maxContentLength);
     req.body = req.payload.toString();
     return req;

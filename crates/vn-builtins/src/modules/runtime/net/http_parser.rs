@@ -6,12 +6,6 @@ vn_macros::vn_enum! {
     pub enum HttpMethod;
 }
 
-vn_macros::vn_record! {
-    contract: "src/modules/runtime/net/net_runtime.vn",
-    interface: "HttpRequestHead",
-    struct HttpRequestHead;
-}
-
 const SINGLETON_HEADERS: [&str; 3] = ["content-length", "transfer-encoding", "host"];
 
 pub fn parse_http_request(ctx: &mut dyn NativeCtx, raw: &str) -> Result<Option<VmValue>, String> {
@@ -59,13 +53,5 @@ pub fn parse_http_request(ctx: &mut dyn NativeCtx, raw: &str) -> Result<Option<V
     };
     let path = ctx.alloc_str(path);
     let body = ctx.alloc_str(body);
-    Ok(Some(
-        HttpRequestHead {
-            method,
-            path,
-            headers: headers_obj,
-            body,
-        }
-        .alloc(ctx),
-    ))
+    Ok(Some(ctx.alloc_tuple(vec![method, path, headers_obj, body])))
 }
