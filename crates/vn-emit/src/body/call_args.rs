@@ -8,7 +8,11 @@ impl<'a> FnEmitter<'a> {
     pub(super) fn lower_arg(&mut self, a: &Arg) -> TirArg {
         match a {
             Arg::Positional(e) => TirArg::Expr(self.lower_expr(*e)),
-            Arg::Spread(e) => TirArg::Spread(self.lower_expr(*e)),
+            Arg::Spread(e) => {
+                let source = self.lower_expr(*e);
+                let span = super::small_utils::span_of(self.ast_arena, *e);
+                TirArg::Spread(self.spread_to_array(source, span))
+            }
             Arg::Named { label, value } => TirArg::Named {
                 label: Arc::from(label.as_str()),
                 value: self.lower_expr(*value),
@@ -114,7 +118,11 @@ impl<'a> FnEmitter<'a> {
                             Arg::Positional(e) | Arg::Named { value: e, .. } => {
                                 TirArg::Expr(self.lower_expr(*e))
                             }
-                            Arg::Spread(e) => TirArg::Spread(self.lower_expr(*e)),
+                            Arg::Spread(e) => {
+                                let source = self.lower_expr(*e);
+                                let span = super::small_utils::span_of(self.ast_arena, *e);
+                                TirArg::Spread(self.spread_to_array(source, span))
+                            }
                         },
                         None => TirArg::Expr(TirExpr {
                             kind: TirExprKind::NullLit,

@@ -181,45 +181,22 @@ impl<'r> Checker<'r> {
             }
             Arg::Spread(expr) => {
                 let arg_ty = self.infer_type(rec, *expr, bind);
-                let spread_inner = match self.ty_table.get(arg_ty.0) {
-                    TypeKind::Array(inner) => Some(Type::resolved(inner)),
-                    TypeKind::Generic(..) if arg_ty.sequence_element(&self.ty_table).is_some() => {
-                        arg_ty.sequence_element(&self.ty_table)
-                    }
-                    TypeKind::Tuple(elements) => {
-                        return Ok(Supplied::Each(
-                            self.ty_table
-                                .get_list(elements)
-                                .iter()
-                                .map(|el| Type::resolved(*el))
-                                .collect(),
-                        ));
-                    }
-                    TypeKind::Primitive(_)
-                    | TypeKind::Literal(_)
-                    | TypeKind::This
-                    | TypeKind::Union(_)
-                    | TypeKind::Intersection(_)
-                    | TypeKind::Named(..)
-                    | TypeKind::Generic(..)
-                    | TypeKind::TemplateLiteral(_)
-                    | TypeKind::Fn(_)
-                    | TypeKind::Record(_)
-                    | TypeKind::Interface(_)
-                    | TypeKind::Typeof(_)
-                    | TypeKind::KeyOf(_)
-                    | TypeKind::IndexedAccess { .. }
-                    | TypeKind::Mapped { .. }
-                    | TypeKind::Conditional { .. }
-                    | TypeKind::Infer(_)
-                    | TypeKind::EnumVariant { .. }
-                    | TypeKind::TypePredicate { .. } => None,
-                };
-                match spread_inner {
-                    Some(inner) => Ok(Supplied::Some(arg_ty, Some(inner))),
-                    None if arg_ty.is_unresolved() => Ok(Supplied::Some(arg_ty, None)),
-                    None => Err(arg_ty),
+                if let vn_core::TypeKind::Tuple(elements) = self.ty_table.get(arg_ty.0) {
+                    return Ok(Supplied::Each(
+                        self.ty_table
+                            .get_list(elements)
+                            .iter()
+                            .map(|el| Type::resolved(*el))
+                            .collect(),
+                    ));
                 }
+                if let Some((_, elem)) = self.for_of_element(arg_ty, false, bind) {
+                    return Ok(Supplied::Some(arg_ty, Some(elem)));
+                }
+                if arg_ty.is_unresolved() {
+                    return Ok(Supplied::Some(arg_ty, None));
+                }
+                Err(arg_ty)
             }
         }
     }

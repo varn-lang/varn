@@ -5,7 +5,7 @@ use vn_sem::output::ForOfPlan;
 use vn_sem::types::Type;
 
 impl Checker<'_> {
-    pub(super) fn for_of_element(
+    pub(crate) fn for_of_element(
         &mut self,
         source: Type,
         is_await: bool,

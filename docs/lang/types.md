@@ -603,9 +603,11 @@ lo leen y lo cambian.
   un inicializador, un argumento, un valor por defecto, una asignación o un
   `yield`, y llega convertido: en `f(x: float = 1)`, `x` es siempre `float`.
   Una variable `int` no se convierte sola a `float`.
-- `[...xs]` y `f(...xs)` aceptan un array o una tupla. Un `Set`, un `Map`,
-  un `str`, un generador o un valor que puede ser `null` son error de
-  compilación (tests/191-spread-sources.vn).
+- `[...xs]` y `f(...xs)` aceptan cualquier iterable: `Array`, tupla,
+  `Set` (valores), `Map` (entradas `(K,V)`), `str` (chars) y `Range`
+  (tests/191-spread-sources.vn, tests/180-for-of-collections.vn).
+  Un valor que puede ser `null` o un objeto no iterable son error de
+  compilación.
 
 ---
 

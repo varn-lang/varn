@@ -4,6 +4,12 @@ function join(head: int[], pair: (int, int)): int[] {
     return [...head, ...pair, 9]
 }
 
+function sumAll(...xs: int[]): int {
+    let total = 0
+    for (const x of xs) { total = total + x }
+    return total
+}
+
 await describe("191 spread sources", async () => {
     await it("an array literal spreads arrays and tuples", () => {
         let total = 0
@@ -12,5 +18,26 @@ await describe("191 spread sources", async () => {
         expect(join([5, 6], (7, 8)).join(",")).toBe("5,6,7,8,9")
         const loose: dynamic = [3, 4]
         expect([...loose, 5].length).toBe(3)
+    })
+
+    await it("an array literal spreads any iterable", () => {
+        const set = new Set([1, 2])
+        expect([...set].join(",")).toBe("1,2")
+        expect([...set, 3].join(",")).toBe("1,2,3")
+        const text = "ab"
+        expect([...text].join("")).toBe("ab")
+        expect([...(0..3)].join(",")).toBe("0,1,2")
+        const map = new Map([("a", 1), ("b", 2)])
+        const entries: (str, int)[] = [...map]
+        expect(entries.length).toBe(2)
+        expect(entries[0][0]).toBe("a")
+        expect(entries[0][1]).toBe(1)
+    })
+
+    await it("a call spreads any iterable", () => {
+        const set = new Set([1, 2])
+        expect(sumAll(...set)).toBe(3)
+        expect(sumAll(...(0..4))).toBe(6)
+        expect(sumAll(...[1], ...(2..5))).toBe(10)
     })
 })

@@ -152,7 +152,7 @@ impl<'r> Checker<'r> {
                             Diagnostic::error(
                                 ErrorCode::TypeMismatch,
                                 format!(
-                                    "spread element must be an array or a tuple, got '{}'",
+                                    "spread element must be iterable, got '{}'",
                                     given.display(&self.ty_table, &bind.interner)
                                 ),
                             )
