@@ -6,11 +6,12 @@ use vn_types::{VmValue};
 
 vn_macros::vn_record! {
     contract: "src/modules/runtime/text/text_runtime.vn",
-    interface: "ShapedRun",
-    struct ShapedRun;
+    class: "ShapedRun",
+    pub struct ShapedRun;
 }
 
 natives! {
+    class ShapedRun {}
     fontCount() => vn_text::fonts().len() as i64,
     fonts() => vn_text::fonts(),
     shape(ctx, text, size) => {
@@ -40,7 +41,8 @@ natives! {
             width: run.width as f64,
             count: run.glyphs.len() as i64,
         }
-        .alloc(ctx))
+        .alloc(ctx)
+        .map_err(NativeError::failure)?)
     },
     ascent(size) => vn_text::font_ascent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
     descent(size) => vn_text::font_descent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
