@@ -3,6 +3,12 @@ use vn_macros::natives;
 use vn_types::NativeError;
 use vn_types::{NativeCtx, VmValue};
 
+vn_macros::vn_record! {
+    contract: "src/modules/runtime/time/time_runtime.vn",
+    class: "TimeParts",
+    pub struct TimePartsRec;
+}
+
 
 fn parse_iso_duration(text: &str) -> Result<i64, String> {
     let invalid = || format!("invalid ISO-8601 duration '{text}'");
@@ -87,6 +93,7 @@ fn extended_year(text: &str) -> Option<(i64, &str)> {
 }
 
 natives! {
+    class TimeParts {}
     nowMs() => {
         (std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -95,25 +102,24 @@ natives! {
     },
     parseIsoDuration(s) => (parse_iso_duration(s)).map_err(|e| NativeError::std(StdErrorClass::Parse, e)),
     parseIsoInstant(s) => (parse_iso_instant(s)).map_err(|e| NativeError::std(StdErrorClass::Parse, e)),
-    msToParts(ms) => {
+    msToParts(ctx, ms) => {
         use chrono::{Datelike, TimeZone, Timelike, Utc};
         let dt = Utc
             .timestamp_millis_opt(ms)
             .single()
             .ok_or_else(|| NativeError::range_error(format!("{ms} is not a timestamp this calendar can represent")))?;
-        Ok([
-            dt.year() as i64,
-            dt.month() as i64,
-            dt.day() as i64,
-            dt.hour() as i64,
-            dt.minute() as i64,
-            dt.second() as i64,
-            ms.rem_euclid(1000),
-            dt.weekday().num_days_from_sunday() as i64,
-        ]
-        .into_iter()
-        .map(VmValue::from_int)
-        .collect::<Vec<_>>())
+        TimePartsRec {
+            year: dt.year() as i64,
+            month: dt.month() as i64,
+            day: dt.day() as i64,
+            hour: dt.hour() as i64,
+            minute: dt.minute() as i64,
+            second: dt.second() as i64,
+            millisecond: ms.rem_euclid(1000),
+            weekday: VmValue::from_int(dt.weekday().num_days_from_sunday() as i64),
+        }
+        .alloc(ctx)
+        .map_err(NativeError::failure)
     },
     partsToMs(ctx, parts) => {
         let get_int = |ctx: &mut dyn NativeCtx, key: &str| -> i64 {

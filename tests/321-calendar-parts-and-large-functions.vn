@@ -349,6 +349,12 @@ await describe("321 calendar parts carry the weekday and big functions still com
         expect(toParts(4107542400000).day).toBe(1);
     });
 
+    await it("calendar parts are values: equal contents compare equal", async () => {
+        expect(toParts(951782400000) == toParts(951782400000)).toBe(true);
+        expect(toParts(951782400000) == toParts(951782400001)).toBe(false);
+        expect(toParts(951782400000) != toParts(0)).toBe(true);
+    });
+
     await it("an offset in an ISO text is applied", async () => {
         expect(fromISO("2024-02-29T12:30:45+05:30")).toBe(fromISO("2024-02-29T07:00:45Z"));
         expect(fromISO("2024-01-01T00:00:00-08:00")).toBe(fromISO("2024-01-01T08:00:00Z"));

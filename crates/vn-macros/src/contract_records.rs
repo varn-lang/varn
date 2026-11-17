@@ -74,7 +74,8 @@ fn interface_fields(
 }
 
 fn class_fields(c: &ClassDecl, interner: &AtomInterner) -> Fields {
-    c.body
+    let mut out: Fields = c
+        .body
         .iter()
         .filter_map(|member| match member {
             ClassMember::Property { key, type_ann, .. } => Some((
@@ -91,7 +92,26 @@ fn class_fields(c: &ClassDecl, interner: &AtomInterner) -> Fields {
             | ClassMember::Setter { .. }
             | ClassMember::StaticBlock { .. } => None,
         })
-        .collect()
+        .collect();
+    if c.is_struct {
+        for member in &c.body {
+            if let ClassMember::Constructor { params: ps, .. } = member {
+                for p in ps {
+                    let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
+                        continue;
+                    };
+                    out.push((
+                        interner.resolve(*name).to_string(),
+                        p.type_ann
+                            .as_ref()
+                            .map(|t| classify(t, interner))
+                            .unwrap_or(Mapped::Dynamic),
+                    ));
+                }
+            }
+        }
+    }
+    out
 }
 
 pub(crate) fn declared_enum_variants(

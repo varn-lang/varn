@@ -35,6 +35,7 @@ pub struct Member {
 pub struct ClassContract {
     pub extends: Option<String>,
     pub members: Vec<Member>,
+    pub is_struct: bool,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

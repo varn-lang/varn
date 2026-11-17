@@ -4,19 +4,11 @@ import {
     parseIsoInstant$,
     msToParts$,
     partsToMs$,
-    RuntimeTimeParts
+    RuntimeTimeParts,
+    TimeParts
 } from "runtime:time";
 
-export struct TimeParts {
-    year: int;
-    month: int;
-    day: int;
-    hour: int;
-    minute: int;
-    second: int;
-    millisecond: int;
-    weekday: int? = null;
-}
+export { TimeParts };
 
 export struct DurationParts {
     years: int? = null;
@@ -60,8 +52,8 @@ export function now(): int {
 }
 
 export function toISOString(ms: int): str {
-    const [year, month, day, hour, minute, second, millisecond] = msToParts$(ms);
-    return isoYear(year) + "-" + pad2(month) + "-" + pad2(day) + "T" + pad2(hour) + ":" + pad2(minute) + ":" + pad2(second) + "." + pad3(millisecond) + "Z";
+    const parts = msToParts$(ms);
+    return isoYear(parts.year) + "-" + pad2(parts.month) + "-" + pad2(parts.day) + "T" + pad2(parts.hour) + ":" + pad2(parts.minute) + ":" + pad2(parts.second) + "." + pad3(parts.millisecond) + "Z";
 }
 
 export function fromISO(iso: str): int {
@@ -69,17 +61,7 @@ export function fromISO(iso: str): int {
 }
 
 export function toParts(ms: int): TimeParts {
-    const [year, month, day, hour, minute, second, millisecond, weekday] = msToParts$(ms);
-    return new TimeParts(
-        year: year,
-        month: month,
-        day: day,
-        hour: hour,
-        minute: minute,
-        second: second,
-        millisecond: millisecond,
-        weekday: weekday
-    );
+    return msToParts$(ms);
 }
 
 export function fromParts(parts: TimeParts): int {

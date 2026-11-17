@@ -13,6 +13,7 @@ pub(crate) enum Kind {
 }
 
 pub(crate) struct ParamInfo {
+    pub(crate) name: String,
     pub(crate) mapped: Mapped,
     pub(crate) is_rest: bool,
 }

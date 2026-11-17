@@ -64,6 +64,7 @@ fn declare(
                     ClassContract {
                         extends: c.super_class.and_then(|e| identifier(e, arena, interner)),
                         members: class_members(c, arena, interner)?,
+                        is_struct: c.is_struct,
                     },
                 );
             }
@@ -217,6 +218,25 @@ fn class_members(
             | ClassMember::StaticBlock { .. } => continue,
         };
         out.push(member);
+    }
+    if decl.is_struct {
+        for m in &decl.body {
+            if let ClassMember::Constructor { params: ps, .. } = m {
+                for p in ps {
+                    let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
+                        continue;
+                    };
+                    out.push(Member {
+                        symbol: interner.resolve(*name).to_string(),
+                        kind: Kind::Property,
+                        params: Vec::new(),
+                        ret: ty(p.type_ann.as_ref(), interner, ContractTy::Dynamic),
+                        throws: Vec::new(),
+                        capability: Vec::new(),
+                    });
+                }
+            }
+        }
     }
     Ok(out)
 }

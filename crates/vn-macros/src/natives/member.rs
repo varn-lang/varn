@@ -53,6 +53,39 @@ pub(super) struct BodyIdents {
     pub(super) method: Ident,
 }
 
+pub(super) fn synthetic_struct_ctor(m: &Member) -> Result<UserMember, String> {
+    let mut params: Vec<Pat> = vec![syn::parse_quote!(__s_ctx), syn::parse_quote!(__s_this)];
+    let mut sets = Vec::new();
+    for (i, p) in m.params.iter().enumerate() {
+        if p.is_rest {
+            return Err("a native struct cannot have a rest field".to_string());
+        }
+        let ident = format_ident!("__s_f{}", i);
+        let vid = format_ident!("__s_v{}", i);
+        let name = &p.name;
+        params.push(Pat::Ident(syn::PatIdent {
+            attrs: Vec::new(),
+            by_ref: None,
+            mutability: None,
+            ident: ident.clone(),
+            subpat: None,
+        }));
+        sets.push(quote! {
+            let #vid = ::vn_types::marshal::IntoVm::into_vm(#ident, __s_ctx);
+            __s_ctx.set_field(__s_this, #name, #vid);
+        });
+    }
+    let body: syn::Expr = syn::parse_quote!({
+        #(#sets)*
+        __s_this
+    });
+    Ok(UserMember {
+        name: format_ident!("constructor"),
+        params,
+        body,
+    })
+}
+
 pub(super) fn idents(prefix: &str, sym: &str) -> BodyIdents {
     let rust_sym = sym.trim_end_matches('$');
     BodyIdents {

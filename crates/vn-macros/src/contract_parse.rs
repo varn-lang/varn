@@ -15,6 +15,7 @@ pub(crate) enum LookupFailure {
 pub(crate) struct ContractSection {
     pub(crate) members: Vec<Member>,
     pub(crate) extends: Option<String>,
+    pub(crate) is_struct: bool,
 }
 
 pub(crate) fn lookup(
@@ -30,17 +31,22 @@ pub(crate) fn lookup(
         Some(class) => contract
             .classes
             .remove(class)
-            .map(|c| section(c.members, c.extends))
+            .map(|c| section(c.members, c.extends, c.is_struct))
             .ok_or(LookupFailure::ClassNotFound),
         None if contract.functions.is_empty() => Err(LookupFailure::NoFunctions),
-        None => Ok(section(contract.functions, None)),
+        None => Ok(section(contract.functions, None, false)),
     }
 }
 
-fn section(members: Vec<vn_contract::Member>, extends: Option<String>) -> ContractSection {
+fn section(
+    members: Vec<vn_contract::Member>,
+    extends: Option<String>,
+    is_struct: bool,
+) -> ContractSection {
     ContractSection {
         members: members.into_iter().map(member).collect(),
         extends,
+        is_struct,
     }
 }
 
@@ -66,6 +72,7 @@ fn member(m: vn_contract::Member) -> Member {
             .params
             .iter()
             .map(|p| ParamInfo {
+                name: p.name.clone(),
                 mapped: if p.optional && !p.rest {
                     Mapped::Opt(Box::new(Mapped::of(&p.ty)))
                 } else {

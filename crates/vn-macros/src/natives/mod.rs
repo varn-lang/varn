@@ -228,6 +228,22 @@ fn expand_section(
             member::generate_layout(m, &mut generated);
             continue;
         }
+        if contract.is_struct && m.kind == Kind::Constructor {
+            if section
+                .members
+                .iter()
+                .any(|u| u.key() == m.symbol.trim_end_matches('$'))
+            {
+                return Err(format!(
+                    "`{prefix}::constructor` is forbidden: a struct has no constructor, its fields in order are its constructor"
+                ));
+            }
+            let synth = member::synthetic_struct_ctor(m).map_err(|reason| {
+                format!("`{prefix}::constructor` cannot be synthesized: {reason}")
+            })?;
+            member::generate(&cx, m, &synth, &mut generated);
+            continue;
+        }
         let key = m.symbol.trim_end_matches('$');
         let Some(at) = section.members.iter().position(|u| u.key() == key) else {
             return Err(format!(
@@ -287,6 +303,15 @@ fn expand_section(
         } else {
             quote! {}
         };
+        let value_setup = if contract.is_struct {
+            quote! {
+                if !cls.mark_value() {
+                    return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot mark frozen class as a value"));
+                }
+            }
+        } else {
+            quote! {}
+        };
         quote! {
             pub fn #builder_ident(
                 ctx: &mut dyn ::vn_types::NativeCtx,
@@ -299,6 +324,7 @@ fn expand_section(
                 #(#setup_calls)*
                 #(#method_setup)*
                 #(#accessor_setup)*
+                #value_setup
                 cls.freeze();
                 ctx.register_class(#class, cls.clone());
                 Ok(ctx.alloc_class(cls.clone()))

@@ -122,6 +122,15 @@ impl ClassObj {
         self.frozen.store(true, Ordering::Relaxed);
     }
 
+    pub fn mark_value(self: &Rc<Self>) -> bool {
+        if self.is_frozen() {
+            return false;
+        }
+        let mut layout = (*self.layout.borrow()).as_ref().clone();
+        layout.is_value = true;
+        self.set_layout(Rc::new(layout))
+    }
+
     pub fn set_layout(self: &Rc<Self>, layout: Rc<vn_core::layout::ClassLayout>) -> bool {
         if self.is_frozen() {
             return false;
