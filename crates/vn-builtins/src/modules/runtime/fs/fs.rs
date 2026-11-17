@@ -59,12 +59,6 @@ fn text_array(items: Vec<String>) -> SendValue {
 }
 
 
-vn_macros::vn_record! {
-    contract: "src/modules/runtime/fs/fs_runtime.vn",
-    interface: "RawStats",
-    struct RawStats;
-}
-
 vn_macros::vn_enum! {
     module: MODULE_ID,
     contract: "src/modules/runtime/fs/fs_runtime.vn",
@@ -163,13 +157,12 @@ natives! {
             .ok()
             .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
             .map(|d| d.as_millis() as i64);
-        Ok(RawStats {
-            size: meta.len() as i64,
-            is_dir: meta.is_dir(),
-            is_file: meta.is_file(),
-            mtime: mtime.map_or_else(VmValue::null, VmValue::from_int),
-        }
-        .alloc(ctx))
+        Ok(ctx.alloc_tuple(vec![
+            VmValue::from_int(meta.len() as i64),
+            VmValue::from_bool(meta.is_dir()),
+            VmValue::from_bool(meta.is_file()),
+            mtime.map_or_else(VmValue::null, VmValue::from_int),
+        ]))
     },
     mkdir(ctx, path) => {
         if !ctx.check_fs_write(path) {

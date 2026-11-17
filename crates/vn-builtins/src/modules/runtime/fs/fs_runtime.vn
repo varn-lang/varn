@@ -10,12 +10,7 @@ export declare enum SeekOrigin {
     End
 }
 
-export interface RawStats {
-    size: int;
-    isDir: bool;
-    isFile: bool;
-    mtime: int?;
-}
+export declare function stat$(path: str): (int, bool, bool, int?);
 
 export declare function open$(path: str, mode: FileMode): int;
 export declare function readFd$(fd: int, len: int): str;
@@ -37,7 +32,6 @@ export declare function writeFdBytesAsync$(fd: int, data: Bytes): TaskHandle<int
 export declare function seek$(fd: int, offset: int, origin: SeekOrigin): int;
 export declare function close$(fd: int): void;
 export declare function exists$(path: str): bool;
-export declare function stat$(path: str): RawStats;
 export declare function mkdir$(path: str): void;
 export declare function mkdirAll$(path: str): void;
 export declare function readDir$(path: str): str[];

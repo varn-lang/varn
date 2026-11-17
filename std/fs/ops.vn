@@ -44,13 +44,8 @@ export function exists(path: str): bool {
 }
 
 export function stat(path: str): Stats {
-    let raw = stat$(path);
-    return new Stats(
-        raw.size,
-        raw.isDir,
-        raw.isFile,
-        raw.mtime
-    );
+    const (size, isDir, isFile, mtime) = stat$(path);
+    return new Stats(size, isDir, isFile, mtime);
 }
 
 export function mkdir(path: str): void {
