@@ -30,6 +30,25 @@ impl<'m> Builder<'m> {
                 BackendTy::Dynamic(DynReason::Runtime),
             );
             if spreads {
+                if let Some(slot) = self
+                    .tir
+                    .class(class)
+                    .and_then(|ci| ci.method_slot(CONSTRUCTOR))
+                {
+                    let inst = self.emit(
+                        InstKind::AllocInstance {
+                            class: cv,
+                            payload_size,
+                        },
+                        ty,
+                    );
+                    let bound = self.emit(
+                        InstKind::GetSlotMethod { object: inst, slot },
+                        BackendTy::Dynamic(DynReason::Runtime),
+                    );
+                    self.lower_call(bound, args, ty)?;
+                    return Ok(inst);
+                }
                 return self.lower_call(cv, args, ty);
             }
             let argv = self.lower_args(args)?;
@@ -71,12 +90,11 @@ impl<'m> Builder<'m> {
         );
         let static_def = self
             .class_def(class)
-            .filter(|def| def.decorators.is_empty() && self.ancestry_is_local(def))
-            .filter(|_| !args.iter().any(|a| matches!(a, TirArg::Spread(_))));
+            .filter(|def| def.decorators.is_empty() && self.ancestry_is_local(def));
         let Some(def) = static_def else {
             return self.lower_call(cv, args, ty);
         };
-        if let Some(func) = self.inlinable_constructor(def, args) {
+        if !spreads && let Some(func) = self.inlinable_constructor(def, args) {
             let argv = self.lower_ctor_args(func, args)?;
             let inst = self.emit(
                 InstKind::AllocInstance {
@@ -86,6 +104,29 @@ impl<'m> Builder<'m> {
                 ty,
             );
             self.inline_constructor(func, args, argv, inst)?;
+            return Ok(inst);
+        }
+        if spreads {
+            let inst = self.emit(
+                InstKind::AllocInstance {
+                    class: cv,
+                    payload_size,
+                },
+                ty,
+            );
+            if let Some(slot) = self
+                .tir
+                .class(class)
+                .and_then(|ci| ci.method_slot(CONSTRUCTOR))
+            {
+                let bound = self.emit(
+                    InstKind::GetSlotMethod { object: inst, slot },
+                    BackendTy::Dynamic(DynReason::Runtime),
+                );
+                self.lower_call(bound, args, ty)?;
+            } else {
+                self.lower_effects(args)?;
+            }
             return Ok(inst);
         }
         let argv = self.lower_args(args)?;
@@ -113,7 +154,7 @@ impl<'m> Builder<'m> {
         Ok(inst)
     }
 
-    fn class_def(&self, class: ClassId) -> Option<&'m TirClassDef> {
+    pub(super) fn class_def(&self, class: ClassId) -> Option<&'m TirClassDef> {
         self.tir
             .class_defs
             .iter()
