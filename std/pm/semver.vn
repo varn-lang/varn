@@ -1,11 +1,11 @@
 import { ParseError } from "std:error";
-export type SemVer = {
+export struct SemVer {
     major: int;
     minor: int;
     patch: int;
     pre: str[];
-    build: str
-};
+    build: str;
+}
 
 function parsePre(text: str): str[] {
     if (text.length == 0) {
@@ -95,13 +95,13 @@ export namespace Semver {
         if (nums.length != 3) {
             throw new ParseError("Semver: expected major.minor.patch, got '" + text + "'");
         }
-        return {
+        return new SemVer(
             major: int.parse(nums[0]),
             minor: int.parse(nums[1]),
             patch: int.parse(nums[2]),
             pre: pre,
             build: build
-        };
+        );
     }
 
     export function toString(v: SemVer): str {
