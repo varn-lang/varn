@@ -105,6 +105,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
+                | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
@@ -149,6 +150,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::GetSuper { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
+                | InstKind::SuperInvokeSlot { .. }
                 | InstKind::ExtensionCall { .. }
                 | InstKind::CallSpread { .. }
                 | InstKind::BuildArraySpread { .. }

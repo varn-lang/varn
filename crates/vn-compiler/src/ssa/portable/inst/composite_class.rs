@@ -102,6 +102,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
@@ -141,6 +142,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::ObjectKeys { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

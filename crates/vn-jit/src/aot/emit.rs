@@ -227,6 +227,8 @@ pub(super) fn emit_module_body(
             | OpCode::Loop
             | OpCode::CallMethod
             | OpCode::InvokeVirtual
+            | OpCode::InvokeSlot
+            | OpCode::SuperInvokeSlot
             | OpCode::CallSpread
             | OpCode::BuildArray
             | OpCode::BuildTuple

@@ -176,35 +176,30 @@ pub fn build(bind: &BindResult, desugar: &vn_sem::output::Desugarings, tt: &mut 
             };
             fields.push((field.name.clone(), bt));
         }
-        let accessors: Vec<(Arc<str>, vn_tir::SigId)> = f
-            .accessors
-            .iter()
-            .map(|accessor| {
-                let sig = super::signatures::accessor_signature(
-                    accessor.kind,
-                    &accessor.ty,
-                    &bind.ty_table,
-                    &bind.interner,
-                    tt,
-                    &names,
-                    &mut signatures,
-                );
-                (Arc::from(accessor.kind.key(&accessor.name)), sig)
-            })
-            .collect();
         let methods: Vec<(Arc<str>, vn_tir::SigId)> = f
-            .methods
+            .vtable
             .iter()
-            .map(|method| {
-                let sig = super::intern_signature(
-                    &method.ty,
-                    &bind.ty_table,
-                    &bind.interner,
-                    tt,
-                    &names,
-                    &mut signatures,
-                );
-                (method.name.clone(), sig)
+            .map(|entry| {
+                let sig = match entry.accessor {
+                    Some(kind) => super::signatures::accessor_signature(
+                        kind,
+                        &entry.ty,
+                        &bind.ty_table,
+                        &bind.interner,
+                        tt,
+                        &names,
+                        &mut signatures,
+                    ),
+                    None => super::intern_signature(
+                        &entry.ty,
+                        &bind.ty_table,
+                        &bind.interner,
+                        tt,
+                        &names,
+                        &mut signatures,
+                    ),
+                };
+                (entry.key.clone(), sig)
             })
             .collect();
         let statics = super::classes::build_statics(
@@ -221,7 +216,7 @@ pub fn build(bind: &BindResult, desugar: &vn_sem::output::Desugarings, tt: &mut 
             f.name.clone(),
             vn_tir::Ancestry::Root,
             fields,
-            accessors.into_iter().chain(methods).collect(),
+            methods,
             statics,
             tt,
         );

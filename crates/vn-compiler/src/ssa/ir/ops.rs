@@ -162,6 +162,12 @@ pub enum InstKind {
         args: Vec<Value>,
     },
 
+    InvokeSlot {
+        recv: Value,
+        slot: u16,
+        args: Vec<Value>,
+    },
+
     IsNull {
         operand: Value,
     },
@@ -347,6 +353,11 @@ pub enum InstKind {
 
     SuperMethodCall {
         name: Arc<str>,
+        args: Vec<Value>,
+    },
+
+    SuperInvokeSlot {
+        slot: u16,
         args: Vec<Value>,
     },
 

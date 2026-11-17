@@ -52,6 +52,9 @@ pub(super) fn try_emit(
         SsaOp::SuperMethodCall { name, args } => {
             invoke::super_method_call(b, ctx, values, name, args)
         }
+        SsaOp::SuperInvokeSlot { slot, args } => {
+            invoke::super_invoke_slot(b, ctx, values, *slot, args)
+        }
         SsaOp::ExtensionCall {
             func,
             slot,
@@ -134,6 +137,7 @@ pub(super) fn try_emit(
         | SsaOp::StrLength { .. }
         | SsaOp::BytesLength { .. }
         | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::ArrayPush { .. }
         | SsaOp::This

@@ -129,6 +129,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
+                | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
@@ -175,6 +176,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::GetSuper { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
+                | InstKind::SuperInvokeSlot { .. }
                 | InstKind::ExtensionCall { .. }
                 | InstKind::CallSpread { .. }
                 | InstKind::BuildArraySpread { .. }
@@ -215,6 +217,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::Cast { .. }
         | InstKind::BuildArray { .. }
         | InstKind::BuildTuple { .. }
@@ -259,6 +262,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::GetSuper { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

@@ -48,6 +48,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::ArrayPush { .. }
         | other @ InstKind::ObjectMerge { .. }
         | other @ InstKind::MethodCall { .. }
+        | other @ InstKind::InvokeSlot { .. }
         | other @ InstKind::IsNull { .. }
         | other @ InstKind::Cast { .. }
         | other @ InstKind::Convert { .. }
@@ -94,6 +95,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::GetSuper { .. }
         | other @ InstKind::SuperCall { .. }
         | other @ InstKind::SuperMethodCall { .. }
+        | other @ InstKind::SuperInvokeSlot { .. }
         | other @ InstKind::ExtensionCall { .. }
         | other @ InstKind::CallSpread { .. }
         | other @ InstKind::BuildArraySpread { .. }

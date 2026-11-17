@@ -48,6 +48,8 @@ pub(super) fn implied(op: OpCode) -> Option<&'static str> {
         | OpCode::Call
         | OpCode::CallMethod
         | OpCode::InvokeVirtual
+        | OpCode::InvokeSlot
+        | OpCode::SuperInvokeSlot
         | OpCode::CallSpread
         | OpCode::Return
         | OpCode::BuildArray

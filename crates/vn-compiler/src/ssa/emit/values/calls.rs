@@ -78,6 +78,48 @@ pub(super) fn emit_method_call(
     Ok(())
 }
 
+pub(super) fn emit_invoke_slot(
+    chunk: &mut Chunk,
+    d: u8,
+    recv: Value,
+    slot: u16,
+    args: &[Value],
+    reg: &[u8],
+    call_base: u8,
+    ic_slot: Option<u8>,
+    line: u32,
+) -> Result<()> {
+    for (i, a) in args.iter().enumerate() {
+        chunk.emit_rr(OpCode::Move, call_base + i as u8, reg[a.0 as usize], line);
+    }
+    let argc = args.len() as u8;
+    let cs = ic_slot.ok_or(OptError::Unsupported("ssa-emit: cache site without a slot"))?;
+    chunk.write(Chunk::pack_op(OpCode::InvokeSlot, cs), line);
+    chunk.write(Chunk::pack(d, reg[recv.0 as usize]), line);
+    chunk.write(slot, line);
+    chunk.write(Chunk::pack(argc, call_base), line);
+    Ok(())
+}
+
+pub(super) fn emit_super_invoke_slot(
+    chunk: &mut Chunk,
+    d: u8,
+    slot: u16,
+    args: &[Value],
+    reg: &[u8],
+    call_base: u8,
+    line: u32,
+) {
+    for (i, a) in args.iter().enumerate() {
+        chunk.emit_rr(OpCode::Move, call_base + i as u8, reg[a.0 as usize], line);
+    }
+    let argc = args.len() as u8;
+    chunk.write(Chunk::pack_op(OpCode::SuperInvokeSlot, 0), line);
+    chunk.write(Chunk::pack(d, 0), line);
+    chunk.write(slot, line);
+    chunk.write(Chunk::pack(argc, call_base), line);
+}
+
 pub(super) fn emit_super_call(
     chunk: &mut Chunk,
     d: u8,

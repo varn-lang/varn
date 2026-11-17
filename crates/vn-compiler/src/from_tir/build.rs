@@ -166,6 +166,13 @@ impl<'m> Builder<'m> {
                 self.lower_call(ctor, args, ty)
             }
             TirExprKind::SuperCall { args } => {
+                if !args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_)))
+                    && let Some(slot) =
+                        self.super_method_slot(vn_core::TokenKind::Constructor.as_str())
+                {
+                    let argv = self.lower_args(args)?;
+                    return Ok(self.emit(InstKind::SuperInvokeSlot { slot, args: argv }, ty));
+                }
                 let argv = self.lower_args(args)?;
                 Ok(self.emit(InstKind::SuperCall { args: argv }, ty))
             }
@@ -179,6 +186,12 @@ impl<'m> Builder<'m> {
                 self.lower_call(method, args, ty)
             }
             TirExprKind::SuperMethodCall { name, args } => {
+                if !args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_)))
+                    && let Some(slot) = self.super_method_slot(name)
+                {
+                    let argv = self.lower_args(args)?;
+                    return Ok(self.emit(InstKind::SuperInvokeSlot { slot, args: argv }, ty));
+                }
                 let argv = self.lower_args(args)?;
                 Ok(self.emit(
                     InstKind::SuperMethodCall {

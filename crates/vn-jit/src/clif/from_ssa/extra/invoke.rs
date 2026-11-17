@@ -1,3 +1,5 @@
+use super::super::super::emit::call_helper;
+use super::super::call::{entry_out_slot, run_entered_or};
 use super::super::heap::{boxed_value, exec_ctx};
 use super::super::load_value;
 use super::super::store::Out;
@@ -36,6 +38,38 @@ pub(super) fn super_method_call(
     let (mt, mp) = b.ins().isplit(m);
     let r = super::super::call::emit_invoke(b, ctx, w, (mt, mp), vals.len() + 1)?;
     Ok(Some(Some(Out::Boxed(r))))
+}
+
+pub(super) fn super_invoke_slot(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    values: &mut [Option<Value>],
+    slot: u16,
+    args: &[u32],
+) -> Result<Option<Option<Out>>, String> {
+    frame(ctx)?;
+    let this = super::super::props::emit_this(ctx)?;
+    let mut vals = Vec::with_capacity(args.len() + 1);
+    vals.push(this);
+    for a in args {
+        vals.push(boxed_value(b, ctx, values, *a)?);
+    }
+    let addr = super::super::call::scratch_addr(b, ctx, vals.len().max(1));
+    for (i, v) in vals.iter().enumerate() {
+        b.ins()
+            .store(MemFlagsData::trusted(), *v, addr, (i * 16) as i32);
+    }
+    let slot_v = b.ins().iconst(types::I64, i64::from(slot));
+    let total_v = b.ins().iconst(types::I64, vals.len() as i64);
+    let out = entry_out_slot(b);
+    let ectx = exec_ctx(ctx);
+    let entry = call_helper(
+        b,
+        ctx.cc,
+        ctx.helpers.jit_super_invoke_slot_window,
+        &[ectx, slot_v, addr, total_v, out],
+    );
+    Ok(Some(Some(Out::Boxed(run_entered_or(b, ctx, entry, out)?))))
 }
 
 pub(super) fn extension_call(

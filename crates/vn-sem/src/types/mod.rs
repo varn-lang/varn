@@ -137,6 +137,8 @@ pub struct ClassMemberInfo {
     pub capabilities: Vec<String>,
     pub is_pure: bool,
     pub symbol_kind: Option<SymbolKind>,
+    pub is_primary: bool,
+    pub has_init: bool,
 }
 
 impl ClassMemberInfo {

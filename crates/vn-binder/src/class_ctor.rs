@@ -53,6 +53,7 @@ impl<'r> Binder<'r> {
             is_abstract: false,
             is_readonly: false,
             is_override: false,
+            is_primary: true,
             symbol_id: Some(symbol_id),
             ..Default::default()
         });

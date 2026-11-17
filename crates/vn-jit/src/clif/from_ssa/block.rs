@@ -234,6 +234,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::StrLength { .. }
             | vn_types::ssa::SsaOp::BytesLength { .. }
             | vn_types::ssa::SsaOp::MethodCall { .. }
+            | vn_types::ssa::SsaOp::InvokeSlot { .. }
             | vn_types::ssa::SsaOp::CallNativeOp { .. }
             | vn_types::ssa::SsaOp::ArrayPush { .. }
             | vn_types::ssa::SsaOp::This
@@ -257,6 +258,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::Range { .. }
             | vn_types::ssa::SsaOp::SuperCall { .. }
             | vn_types::ssa::SsaOp::SuperMethodCall { .. }
+            | vn_types::ssa::SsaOp::SuperInvokeSlot { .. }
             | vn_types::ssa::SsaOp::ExtensionCall { .. }
             | vn_types::ssa::SsaOp::CallSpread { .. }
             | vn_types::ssa::SsaOp::LoadModule { .. }

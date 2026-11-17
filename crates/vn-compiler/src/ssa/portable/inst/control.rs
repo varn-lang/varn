@@ -100,6 +100,7 @@ pub(super) fn try_project(
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::BuildArray { .. }
         | InstKind::BuildTuple { .. }
         | InstKind::BuildObject { .. }
@@ -131,6 +132,7 @@ pub(super) fn try_project(
         | InstKind::GetSuper { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

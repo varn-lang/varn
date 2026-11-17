@@ -169,6 +169,8 @@ impl<'r> Binder<'r> {
                     is_abstract: false,
                     is_readonly: modifiers.is_readonly,
                     is_override: modifiers.is_override,
+                    is_primary: false,
+                    has_init: init.is_some(),
                     symbol_id: Some(symbol_id),
                     ..Default::default()
                 });

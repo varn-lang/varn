@@ -129,6 +129,7 @@ pub(super) fn compute(
                         | SsaOp::StrLength { .. }
                         | SsaOp::BytesLength { .. }
                         | SsaOp::MethodCall { .. }
+                        | SsaOp::InvokeSlot { .. }
                         | SsaOp::CallNativeOp { .. }
                         | SsaOp::This
                         | SsaOp::GetFixedField { .. }
@@ -152,6 +153,7 @@ pub(super) fn compute(
                         | SsaOp::Range { .. }
                         | SsaOp::SuperCall { .. }
                         | SsaOp::SuperMethodCall { .. }
+                        | SsaOp::SuperInvokeSlot { .. }
                         | SsaOp::ExtensionCall { .. }
                         | SsaOp::CallSpread { .. }
                         | SsaOp::LoadModule { .. }

@@ -139,6 +139,7 @@ fn window_size(kind: &InstKind) -> u32 {
         InstKind::CallDirect { args, .. } => args.len() as u32 + 1,
         InstKind::SelfCall { args } => args.len() as u32 + 1,
         InstKind::MethodCall { args, .. } => args.len() as u32,
+        InstKind::InvokeSlot { args, .. } => args.len() as u32,
 
         InstKind::BuildArray { elements, .. } => elements.len() as u32,
         InstKind::BuildTuple { elements } => elements.len() as u32,
@@ -151,6 +152,7 @@ fn window_size(kind: &InstKind) -> u32 {
 
         InstKind::SuperCall { args } => args.len() as u32 + 2,
         InstKind::SuperMethodCall { args, .. } => args.len() as u32 + 1,
+        InstKind::SuperInvokeSlot { args, .. } => args.len() as u32 + 1,
 
         InstKind::ExtensionCall { args, .. } => args.len() as u32 + 2,
         InstKind::CallSpread { args, .. } => args.len() as u32 + 1,

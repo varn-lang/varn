@@ -68,16 +68,10 @@ pub struct InheritedField {
 }
 
 #[derive(Clone, Debug)]
-pub struct ForeignAccessor {
-    pub kind: vn_core::AccessorKind,
-    pub name: Arc<str>,
+pub struct ForeignVtableEntry {
+    pub key: Arc<str>,
     pub ty: Type,
-}
-
-#[derive(Clone, Debug)]
-pub struct ForeignMethod {
-    pub name: Arc<str>,
-    pub ty: Type,
+    pub accessor: Option<vn_core::AccessorKind>,
 }
 
 #[derive(Clone, Debug)]
@@ -93,9 +87,8 @@ pub struct ForeignClass {
     pub name: Arc<str>,
     pub origin: Arc<str>,
     pub fields: Vec<InheritedField>,
-    pub methods: Vec<ForeignMethod>,
+    pub vtable: Vec<ForeignVtableEntry>,
     pub statics: Vec<ForeignStatic>,
-    pub accessors: Vec<ForeignAccessor>,
     pub constructor: Option<Type>,
     pub import_binding: Option<Arc<str>>,
     pub is_struct: bool,

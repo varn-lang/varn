@@ -156,8 +156,12 @@ fn build_one_class(
         }
     };
 
-    for m in members {
-        if m.is_static {
+    let mut ordered: Vec<_> = members.iter().collect();
+    ordered.sort_by_key(|m| m.offset);
+
+    let mut primary_sig: Option<vn_tir::SigId> = None;
+    for m in &ordered {
+        if m.is_static || m.is_abstract {
             continue;
         }
         match m.kind {
@@ -174,11 +178,73 @@ fn build_one_class(
                 let sig = intern_signature(&m.ty, table, interner, tt, names, signatures);
                 push_method(m.name.clone(), sig, &mut method_names);
             }
-            ClassMemberKind::Constructor => {
-                constructor = Some(intern_signature(
+            ClassMemberKind::Constructor if m.is_primary => {
+                primary_sig = Some(intern_signature(
                     &m.ty, table, interner, tt, names, signatures,
                 ));
             }
+            ClassMemberKind::Constructor => {
+                let sig = intern_signature(&m.ty, table, interner, tt, names, signatures);
+                constructor = Some(sig);
+                push_method(
+                    Arc::from(vn_core::TokenKind::Constructor.as_str()),
+                    sig,
+                    &mut method_names,
+                );
+            }
+            ClassMemberKind::Getter
+            | ClassMemberKind::Setter
+            | ClassMemberKind::Class
+            | ClassMemberKind::Interface
+            | ClassMemberKind::Namespace
+            | ClassMemberKind::Enum => {}
+        }
+    }
+
+    if !method_names
+        .iter()
+        .any(|n| n.as_ref() == vn_core::TokenKind::Constructor.as_str())
+    {
+        let parent_ctor = parent_info.and_then(|p| {
+            p.method_slot(vn_core::TokenKind::Constructor.as_str())
+                .map(|_| p.constructor)
+                .flatten()
+        });
+        let has_init = ordered
+            .iter()
+            .any(|m| !m.is_static && m.kind == ClassMemberKind::Property && m.has_init);
+        if let Some(psig) = primary_sig {
+            if parent_ctor.is_none() {
+                push_method(
+                    Arc::from(vn_core::TokenKind::Constructor.as_str()),
+                    psig,
+                    &mut method_names,
+                );
+            }
+            constructor = Some(psig);
+        } else if let Some(psig) = parent_ctor {
+            constructor = Some(psig);
+        } else if has_init {
+            let id = vn_tir::SigId(signatures.len() as u32);
+            signatures.push(Signature {
+                params: Vec::new(),
+                return_ty: BackendTy::Dynamic(DynReason::Unrecorded),
+                has_rest: false,
+            });
+            constructor = Some(id);
+            push_method(
+                Arc::from(vn_core::TokenKind::Constructor.as_str()),
+                id,
+                &mut method_names,
+            );
+        }
+    }
+
+    for m in &ordered {
+        if m.is_static || m.is_abstract {
+            continue;
+        }
+        match m.kind {
             ClassMemberKind::Getter => {
                 let sig = accessor_signature(
                     vn_core::AccessorKind::Get,
@@ -211,7 +277,12 @@ fn build_one_class(
                     &mut method_names,
                 );
             }
-            ClassMemberKind::Class
+            ClassMemberKind::Property
+            | ClassMemberKind::Variable
+            | ClassMemberKind::Method
+            | ClassMemberKind::Function
+            | ClassMemberKind::Constructor
+            | ClassMemberKind::Class
             | ClassMemberKind::Interface
             | ClassMemberKind::Namespace
             | ClassMemberKind::Enum => {}

@@ -68,6 +68,8 @@ impl ExecCtx {
             | OpCode::Call
             | OpCode::CallMethod
             | OpCode::InvokeVirtual
+            | OpCode::InvokeSlot
+            | OpCode::SuperInvokeSlot
             | OpCode::CallSpread
             | OpCode::Return
             | OpCode::BuildArray
@@ -274,6 +276,8 @@ impl ExecCtx {
             | OpCode::Call
             | OpCode::CallMethod
             | OpCode::InvokeVirtual
+            | OpCode::InvokeSlot
+            | OpCode::SuperInvokeSlot
             | OpCode::CallSpread
             | OpCode::Return
             | OpCode::BuildArray

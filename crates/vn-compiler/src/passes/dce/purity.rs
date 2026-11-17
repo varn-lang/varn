@@ -109,8 +109,10 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | CallDirect { .. }
         | SelfCall { .. }
         | MethodCall { .. }
+        | InvokeSlot { .. }
         | SuperCall { .. }
         | SuperMethodCall { .. }
+        | SuperInvokeSlot { .. }
         | ExtensionCall { .. }
         | IntrinsicCall { .. }
         | CallNativeOp { .. }

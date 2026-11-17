@@ -261,6 +261,8 @@ fn expand_section(
         bodies,
         wrappers,
         setup_calls,
+        method_setup,
+        accessor_setup,
         fn_entries,
         method_entries,
         mut generated_entry_idents,
@@ -295,6 +297,8 @@ fn expand_section(
                     .unwrap_or_else(|| ::vn_types::value::ClassObj::new_native_rc(#class));
                 #superclass_setup
                 #(#setup_calls)*
+                #(#method_setup)*
+                #(#accessor_setup)*
                 cls.freeze();
                 ctx.register_class(#class, cls.clone());
                 Ok(ctx.alloc_class(cls.clone()))

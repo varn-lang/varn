@@ -54,6 +54,7 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
@@ -94,6 +95,7 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::GetSuper { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

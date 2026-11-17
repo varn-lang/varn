@@ -12,6 +12,14 @@ fn creates_closure(e: &vn_tir::TirExpr) -> bool {
 }
 
 impl<'m> Builder<'m> {
+    pub(super) fn super_method_slot(&self, name: &str) -> Option<u16> {
+        let f = self.self_fn?;
+        let this = self.tir.function(f)?.this_class?;
+        let info = self.tir.class(this)?;
+        let parent = info.parent?;
+        self.tir.class(parent)?.method_slot(name)
+    }
+
     pub(super) fn lower_call(
         &mut self,
         callee: Value,

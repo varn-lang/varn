@@ -54,6 +54,8 @@ pub(super) fn infix(op: OpCode) -> Option<&'static str> {
         | O::Call
         | O::CallMethod
         | O::InvokeVirtual
+        | O::InvokeSlot
+        | O::SuperInvokeSlot
         | O::CallSpread
         | O::Return
         | O::BuildArray

@@ -21,6 +21,8 @@ pub(super) struct Generated {
     pub(super) bodies: Vec<TS2>,
     pub(super) wrappers: Vec<TS2>,
     pub(super) setup_calls: Vec<TS2>,
+    pub(super) method_setup: Vec<TS2>,
+    pub(super) accessor_setup: Vec<TS2>,
     pub(super) fn_entries: Vec<TS2>,
     pub(super) method_entries: Vec<TS2>,
     pub(super) generated_entry_idents: Vec<Ident>,
@@ -278,7 +280,12 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
             }
             Kind::Function | Kind::Property => unreachable!(),
         };
-        out.setup_calls.push(setup);
+        match m.kind {
+            Kind::Method | Kind::Constructor => out.method_setup.push(setup),
+            Kind::Getter => out.accessor_setup.push(setup),
+            Kind::StaticMethod | Kind::StaticGetter => out.setup_calls.push(setup),
+            Kind::Function | Kind::Property => unreachable!(),
+        }
 
         let mkind = match m.kind {
             Kind::Method => Some(quote!(InstanceMethod)),

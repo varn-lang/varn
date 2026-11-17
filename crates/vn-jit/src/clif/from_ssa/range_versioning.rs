@@ -257,6 +257,7 @@ pub(super) fn version_plans(
                     | SsaOp::StrLength { .. }
                     | SsaOp::BytesLength { .. }
                     | SsaOp::MethodCall { .. }
+                    | SsaOp::InvokeSlot { .. }
                     | SsaOp::CallNativeOp { .. }
                     | SsaOp::ArrayPush { .. }
                     | SsaOp::This
@@ -282,6 +283,7 @@ pub(super) fn version_plans(
                     | SsaOp::Range { .. }
                     | SsaOp::SuperCall { .. }
                     | SsaOp::SuperMethodCall { .. }
+                    | SsaOp::SuperInvokeSlot { .. }
                     | SsaOp::ExtensionCall { .. }
                     | SsaOp::CallSpread { .. }
                     | SsaOp::LoadModule { .. }

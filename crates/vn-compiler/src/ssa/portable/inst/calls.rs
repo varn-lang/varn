@@ -36,6 +36,12 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             args: args.iter().map(|v| v.0).collect(),
             cs: u16::from(site.ic_slot?),
         }),
+        InstKind::InvokeSlot { recv, slot, args } => Some(SsaOp::InvokeSlot {
+            recv: recv.0,
+            slot: *slot,
+            args: args.iter().map(|v| v.0).collect(),
+            cs: u16::from(site.ic_slot?),
+        }),
         InstKind::CallNativeOp {
             object,
             args,
@@ -59,6 +65,10 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         }),
         InstKind::SuperMethodCall { name, args } => Some(SsaOp::SuperMethodCall {
             name: name.as_ref().into(),
+            args: args.iter().map(|v| v.0).collect(),
+        }),
+        InstKind::SuperInvokeSlot { slot, args } => Some(SsaOp::SuperInvokeSlot {
+            slot: *slot,
             args: args.iter().map(|v| v.0).collect(),
         }),
         InstKind::ExtensionCall {

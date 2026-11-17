@@ -126,7 +126,7 @@ pub(super) fn run_pass(
                 .fields
                 .iter()
                 .map(|f| f.ty)
-                .chain(class.accessors.iter().map(|a| a.ty))
+                .chain(class.vtable.iter().map(|e| e.ty))
         })
         .collect();
     rec.desugar.foreign_enums = checker.collect_foreign_enums(

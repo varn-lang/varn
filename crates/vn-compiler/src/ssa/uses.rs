@@ -157,9 +157,10 @@ macro_rules! inst_uses {
                 $use!($f, value);
             }
 
-            SelfCall { args } | SuperCall { args } | SuperMethodCall { args, .. } => {
-                $iter!(args).for_each(|v| $use!($f, v))
-            }
+            SelfCall { args }
+            | SuperCall { args }
+            | SuperMethodCall { args, .. }
+            | SuperInvokeSlot { args, .. } => $iter!(args).for_each(|v| $use!($f, v)),
             Call { callee, args, .. } => {
                 $use!($f, callee);
                 $iter!(args).for_each(|v| $use!($f, v));
@@ -169,7 +170,9 @@ macro_rules! inst_uses {
                 $iter!(args).for_each(|v| $use!($f, v));
             }
             AllocInstance { class, .. } => $use!($f, class),
-            MethodCall { recv, args, .. } | ExtensionCall { recv, args, .. } => {
+            MethodCall { recv, args, .. }
+            | InvokeSlot { recv, args, .. }
+            | ExtensionCall { recv, args, .. } => {
                 $use!($f, recv);
                 $iter!(args).for_each(|v| $use!($f, v));
             }

@@ -202,6 +202,49 @@ impl ExecCtx {
                 *ip = self.frames[frame_idx2].ip;
                 Ok(Some(ControlCallFlow::ContinueInstruction))
             }
+            OpCode::InvokeSlot => {
+                let cs = first_reg;
+                let w1 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
+                *ip += 1;
+                let w3 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let (dest, recv_reg) = (hi(w1), lo(w1));
+                let (arg_count, arg_start) = (hi(w3), lo(w3));
+                self.frames[frame_idx].ip = *ip;
+                let this_val = self.stack.box_reg(base, recv_reg);
+                let jumped = self.exec_invoke_slot_reg(
+                    this_val, slot, base, cs, arg_start, arg_count, dest, frame_idx, closure,
+                )?;
+                if jumped {
+                    return Ok(Some(ControlCallFlow::ContinueFrame));
+                }
+                let frame_idx2 = self.frames.len() - 1;
+                *ip = self.frames[frame_idx2].ip;
+                Ok(Some(ControlCallFlow::ContinueInstruction))
+            }
+            OpCode::SuperInvokeSlot => {
+                let w1 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
+                *ip += 1;
+                let w3 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let (dest, _) = (hi(w1), lo(w1));
+                let (arg_count, arg_start) = (hi(w3), lo(w3));
+                self.frames[frame_idx].ip = *ip;
+                let this_val = self.stack.box_reg(base, 0);
+                let jumped = self.exec_super_invoke_slot_reg(
+                    this_val, slot, base, arg_start, arg_count, dest, frame_idx,
+                )?;
+                if jumped {
+                    return Ok(Some(ControlCallFlow::ContinueFrame));
+                }
+                let frame_idx2 = self.frames.len() - 1;
+                *ip = self.frames[frame_idx2].ip;
+                Ok(Some(ControlCallFlow::ContinueInstruction))
+            }
             OpCode::CallSpread => {
                 let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;

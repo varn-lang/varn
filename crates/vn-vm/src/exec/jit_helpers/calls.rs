@@ -238,3 +238,52 @@ pub(crate) extern "C" fn jit_call_method_window(
         finish_method_outcome(ctx_ref, caller_depth, outcome, out)
     }
 }
+
+#[vn_macros::jit_slow(field = "jit_invoke_slot_window")]
+pub(crate) extern "C" fn jit_invoke_slot_window(
+    ctx: *mut ExecCtx,
+    recv_tag: u64,
+    recv_payload: u64,
+    slot: u16,
+    cs: usize,
+    window: *const VmValue,
+    total: usize,
+    out: *mut usize,
+) -> usize {
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let caller_depth = ctx_ref.frames.len();
+        let frame_idx = caller_depth - 1;
+        let closure_ref = ctx_ref.frames[frame_idx].closure().clone();
+        let window = std::slice::from_raw_parts(window, total);
+        let args = crate::exec::method_args::MethodArgs::Boxed(&window[1..]);
+        let outcome = ctx_ref.invoke_slot_slow(
+            VmValue::from_raw_parts(recv_tag, recv_payload),
+            slot as usize,
+            cs,
+            args,
+            frame_idx,
+            &closure_ref,
+        );
+        finish_method_outcome(ctx_ref, caller_depth, outcome, out)
+    }
+}
+
+#[vn_macros::jit_slow(field = "jit_super_invoke_slot_window")]
+pub(crate) extern "C" fn jit_super_invoke_slot_window(
+    ctx: *mut ExecCtx,
+    slot: u16,
+    window: *const VmValue,
+    total: usize,
+    out: *mut usize,
+) -> usize {
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let caller_depth = ctx_ref.frames.len();
+        let frame_idx = caller_depth - 1;
+        let window = std::slice::from_raw_parts(window, total);
+        let args = crate::exec::method_args::MethodArgs::Boxed(&window[1..]);
+        let outcome = ctx_ref.invoke_super_slot_slow(window[0], slot as usize, args, frame_idx);
+        finish_method_outcome(ctx_ref, caller_depth, outcome, out)
+    }
+}

@@ -44,6 +44,8 @@ pub enum OpCode {
     Call,
     CallMethod,
     InvokeVirtual,
+    InvokeSlot,
+    SuperInvokeSlot,
     CallSpread,
     Return,
     BuildArray,

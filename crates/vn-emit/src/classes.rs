@@ -242,101 +242,98 @@ pub(super) fn emit_class(
         .iter()
         .any(|m| m.key.as_ref() == vn_core::TokenKind::Constructor.as_str());
 
-    if !field_defaults.is_empty() || (!primary.is_empty() && !has_ctor) {
-        match def
-            .methods
-            .iter()
-            .find(|m| m.key.as_ref() == vn_core::TokenKind::Constructor.as_str())
+    if has_ctor {
+        if !field_defaults.is_empty()
+            && let Some(ctor) = def
+                .methods
+                .iter()
+                .find(|m| m.key.as_ref() == vn_core::TokenKind::Constructor.as_str())
         {
-            Some(ctor) => {
-                let body = &mut out[ctor.func.0 as usize].body;
-                let mut new = field_defaults;
-                new.extend(std::mem::take(body));
-                *body = new;
-            }
-            None => {
-                let forwards = class.super_class.is_some() && primary.is_empty();
-                let sig = fresh_sig(signatures, primary.len());
-                let rest_ty =
-                    BackendTy::Array(types.intern(BackendTy::Dynamic(DynReason::Unrecorded)));
-                let inherited = def
-                    .parent
-                    .and_then(|parent| crate::tables::inherited_constructor(ctx.classes, parent))
-                    .and_then(|parent_sig| signatures.get(parent_sig.0 as usize).cloned());
-                let (forward_tys, forward_rest) = match &inherited {
-                    Some(parent_sig) => (parent_sig.params.clone(), parent_sig.has_rest),
-                    None => (vec![rest_ty], true),
-                };
-                signatures[sig.0 as usize].params = if forwards {
-                    forward_tys.clone()
-                } else {
-                    primary_tys
-                };
-                signatures[sig.0 as usize].has_rest = forwards && forward_rest;
-                signatures[sig.0 as usize].return_ty = BackendTy::Void;
-                let id = emit_member_fn(
-                    Arc::from(format!("{class_name}.constructor")),
-                    primary,
-                    None,
-                    ast_arena,
-                    false,
-                    false,
-                    class_id,
-                    None,
-                    sig,
-                    ctx,
-                    expr_table,
-                    types,
-                    signatures,
-                    out,
-                );
-                let body = &mut out[id.0 as usize].body;
-                body.extend(primary_assigns);
-                out[id.0 as usize].has_rest = forwards && forward_rest;
-                let body = &mut out[id.0 as usize].body;
-                let mut new = Vec::new();
-                if class.super_class.is_some() {
-                    let args = if forwards {
-                        let last = forward_tys.len().saturating_sub(1);
-                        forward_tys
-                            .iter()
-                            .enumerate()
-                            .map(|(i, ty)| {
-                                let param = vn_tir::TirExpr {
-                                    kind: vn_tir::TirExprKind::Var,
-                                    ty: *ty,
-                                    res: vn_tir::Resolution::Param(i as u32),
-                                    span: vn_tir::Span::EMPTY,
-                                };
-                                if forward_rest && i == last {
-                                    vn_tir::TirArg::Spread(param)
-                                } else {
-                                    vn_tir::TirArg::Expr(param)
-                                }
-                            })
-                            .collect()
-                    } else {
-                        vec![]
-                    };
-                    new.push(vn_tir::TirStmt::Expr(vn_tir::TirExpr {
-                        kind: vn_tir::TirExprKind::SuperCall { args },
-                        ty: BackendTy::Void,
-                        res: vn_tir::Resolution::None,
-                        span: vn_tir::Span::EMPTY,
-                    }));
-                }
-                new.extend(field_defaults);
-                new.extend(std::mem::take(body));
-                *body = new;
-                def.methods.push(vn_tir::TirClassMember {
-                    key: Arc::from(vn_core::TokenKind::Constructor.as_str()),
-                    func: id,
-                    is_static: false,
-                    is_private: false,
-                    decorators: vec![],
-                });
-            }
+            let body = &mut out[ctor.func.0 as usize].body;
+            let mut new = field_defaults;
+            new.extend(std::mem::take(body));
+            *body = new;
         }
+    } else if !field_defaults.is_empty() || !primary.is_empty() {
+        let forwards = class.super_class.is_some() && primary.is_empty();
+        let sig = fresh_sig(signatures, primary.len());
+        let rest_ty = BackendTy::Array(types.intern(BackendTy::Dynamic(DynReason::Unrecorded)));
+        let inherited = def
+            .parent
+            .and_then(|parent| crate::tables::inherited_constructor(ctx.classes, parent))
+            .and_then(|parent_sig| signatures.get(parent_sig.0 as usize).cloned());
+        let (forward_tys, forward_rest) = match &inherited {
+            Some(parent_sig) => (parent_sig.params.clone(), parent_sig.has_rest),
+            None => (vec![rest_ty], true),
+        };
+        signatures[sig.0 as usize].params = if forwards {
+            forward_tys.clone()
+        } else {
+            primary_tys
+        };
+        signatures[sig.0 as usize].has_rest = forwards && forward_rest;
+        signatures[sig.0 as usize].return_ty = BackendTy::Void;
+        let id = emit_member_fn(
+            Arc::from(format!("{class_name}.constructor")),
+            primary,
+            None,
+            ast_arena,
+            false,
+            false,
+            class_id,
+            None,
+            sig,
+            ctx,
+            expr_table,
+            types,
+            signatures,
+            out,
+        );
+        let body = &mut out[id.0 as usize].body;
+        body.extend(primary_assigns);
+        out[id.0 as usize].has_rest = forwards && forward_rest;
+        let body = &mut out[id.0 as usize].body;
+        let mut new = Vec::new();
+        if class.super_class.is_some() {
+            let args = if forwards {
+                let last = forward_tys.len().saturating_sub(1);
+                forward_tys
+                    .iter()
+                    .enumerate()
+                    .map(|(i, ty)| {
+                        let param = vn_tir::TirExpr {
+                            kind: vn_tir::TirExprKind::Var,
+                            ty: *ty,
+                            res: vn_tir::Resolution::Param(i as u32),
+                            span: vn_tir::Span::EMPTY,
+                        };
+                        if forward_rest && i == last {
+                            vn_tir::TirArg::Spread(param)
+                        } else {
+                            vn_tir::TirArg::Expr(param)
+                        }
+                    })
+                    .collect()
+            } else {
+                vec![]
+            };
+            new.push(vn_tir::TirStmt::Expr(vn_tir::TirExpr {
+                kind: vn_tir::TirExprKind::SuperCall { args },
+                ty: BackendTy::Void,
+                res: vn_tir::Resolution::None,
+                span: vn_tir::Span::EMPTY,
+            }));
+        }
+        new.extend(field_defaults);
+        new.extend(std::mem::take(body));
+        *body = new;
+        def.methods.push(vn_tir::TirClassMember {
+            key: Arc::from(vn_core::TokenKind::Constructor.as_str()),
+            func: id,
+            is_static: false,
+            is_private: false,
+            decorators: vec![],
+        });
     }
 
     def

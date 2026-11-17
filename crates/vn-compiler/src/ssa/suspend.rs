@@ -52,6 +52,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
+                | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
@@ -96,6 +97,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::GetSuper { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
+                | InstKind::SuperInvokeSlot { .. }
                 | InstKind::ExtensionCall { .. }
                 | InstKind::CallSpread { .. }
                 | InstKind::BuildArraySpread { .. }
@@ -160,6 +162,7 @@ pub fn suspend_live_regs(
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
+                | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
@@ -204,6 +207,7 @@ pub fn suspend_live_regs(
                 | InstKind::GetSuper { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
+                | InstKind::SuperInvokeSlot { .. }
                 | InstKind::ExtensionCall { .. }
                 | InstKind::CallSpread { .. }
                 | InstKind::BuildArraySpread { .. }
@@ -316,6 +320,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
+                | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
@@ -358,6 +363,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::GetSuper { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
+                | InstKind::SuperInvokeSlot { .. }
                 | InstKind::ExtensionCall { .. }
                 | InstKind::CallSpread { .. }
                 | InstKind::BuildArraySpread { .. }

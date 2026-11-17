@@ -170,6 +170,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
@@ -214,6 +215,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::GetSuper { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

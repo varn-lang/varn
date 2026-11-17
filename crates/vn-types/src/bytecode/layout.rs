@@ -224,6 +224,24 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
                 imm(hi(0), I::CallSite),
             ],
         ),
+        O::InvokeSlot => (
+            4,
+            vec![
+                w(hi(1)),
+                r(lo(1)),
+                imm_word(2, I::Count),
+                run(lo(3), byte(hi(3)), RunKind::CallArgs),
+                imm(hi(0), I::CallSite),
+            ],
+        ),
+        O::SuperInvokeSlot => (
+            4,
+            vec![
+                w(hi(1)),
+                imm_word(2, I::Count),
+                run(lo(3), byte(hi(3)), RunKind::CallArgs),
+            ],
+        ),
 
         O::Intrinsic => (
             2,

@@ -1,6 +1,7 @@
 mod ic;
 mod intrinsic;
 mod invoke;
+mod slot;
 
 use crate::closure::VmClosure;
 use crate::error::{RuntimeError, VmResult};

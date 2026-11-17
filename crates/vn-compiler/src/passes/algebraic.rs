@@ -209,6 +209,7 @@ fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
+        | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
@@ -255,6 +256,7 @@ fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::GetSuper { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
+        | InstKind::SuperInvokeSlot { .. }
         | InstKind::ExtensionCall { .. }
         | InstKind::CallSpread { .. }
         | InstKind::BuildArraySpread { .. }

@@ -141,6 +141,7 @@ pub(crate) fn project(
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }
+                    | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
@@ -186,6 +187,7 @@ pub(crate) fn project(
                     | InstKind::GetSuper { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
+                    | InstKind::SuperInvokeSlot { .. }
                     | InstKind::ExtensionCall { .. }
                     | InstKind::CallSpread { .. }
                     | InstKind::BuildArraySpread { .. }
@@ -238,6 +240,7 @@ pub(crate) fn project(
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }
+                    | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
@@ -281,6 +284,7 @@ pub(crate) fn project(
                     | InstKind::GetSuper { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
+                    | InstKind::SuperInvokeSlot { .. }
                     | InstKind::ExtensionCall { .. }
                     | InstKind::CallSpread { .. }
                     | InstKind::BuildArraySpread { .. }

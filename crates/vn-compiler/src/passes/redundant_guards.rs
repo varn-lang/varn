@@ -67,6 +67,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }
+                    | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
@@ -104,6 +105,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::GetSuper { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
+                    | InstKind::SuperInvokeSlot { .. }
                     | InstKind::ExtensionCall { .. }
                     | InstKind::CallSpread { .. }
                     | InstKind::BuildArraySpread { .. }
@@ -228,6 +230,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }
+                    | InstKind::InvokeSlot { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
                     | InstKind::BuildArray { .. }
@@ -273,6 +276,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::GetSuper { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
+                    | InstKind::SuperInvokeSlot { .. }
                     | InstKind::ExtensionCall { .. }
                     | InstKind::CallSpread { .. }
                     | InstKind::BuildArraySpread { .. }

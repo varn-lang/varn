@@ -95,6 +95,8 @@ macro_rules! control_call_ops {
             | OpCode::CallSelf
             | OpCode::CallMethod
             | OpCode::InvokeVirtual
+            | OpCode::InvokeSlot
+            | OpCode::SuperInvokeSlot
             | OpCode::CallSpread
     };
 }

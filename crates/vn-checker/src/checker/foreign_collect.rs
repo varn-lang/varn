@@ -2,9 +2,10 @@ use super::foreign_classes::OwnerRef;
 use super::Checker;
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use vn_core::TokenKind;
 use vn_core::TypeKind;
 use vn_sem::bind::BindResult;
-use vn_sem::output::{ForeignAccessor, ForeignClass, ForeignMethod, ForeignStatic, InheritedField};
+use vn_sem::output::{ForeignClass, ForeignStatic, ForeignVtableEntry, InheritedField};
 use vn_sem::types::{ClassMemberKind, ObjectTypeMember, Type};
 
 impl Checker<'_> {
@@ -166,19 +167,38 @@ impl Checker<'_> {
         }
         let chain = self.foreign_chain(name.as_ref(), OwnerRef::Foreign(owner.clone()));
         let mut fields = Vec::new();
-        let mut methods = Vec::new();
-        let mut accessors: Vec<ForeignAccessor> = Vec::new();
+        let mut vtable: Vec<ForeignVtableEntry> = Vec::new();
+        let ctor_ty = self.effective_ctor_ty(name.as_ref(), OwnerRef::Foreign(owner.clone()));
+        let mut upsert =
+            |key: Arc<str>, ty: Type, accessor: Option<vn_core::AccessorKind>| match vtable
+                .iter_mut()
+                .find(|e| e.key == key)
+            {
+                Some(slot) => {
+                    slot.ty = ty;
+                    slot.accessor = accessor;
+                }
+                None => vtable.push(ForeignVtableEntry { key, ty, accessor }),
+            };
 
         for level in chain.iter().rev() {
             let Some(entry) = level.owner.get().get_class_entry(&level.name) else {
                 continue;
             };
-            for m in &entry.members {
-                if m.is_static {
+            let mut ordered: Vec<_> = entry.members.iter().collect();
+            ordered.sort_by_key(|m| m.offset);
+            let mut level_has_ctor = false;
+            let mut level_primary: Option<Type> = None;
+            let mut level_has_init = false;
+            for m in &ordered {
+                if m.is_static || m.is_abstract {
                     continue;
                 }
                 match m.kind {
                     ClassMemberKind::Property | ClassMemberKind::Variable => {
+                        if m.kind == ClassMemberKind::Property && m.has_init {
+                            level_has_init = true;
+                        }
                         if fields.iter().any(|f: &InheritedField| f.name == m.name) {
                             continue;
                         }
@@ -189,42 +209,55 @@ impl Checker<'_> {
                         });
                     }
                     ClassMemberKind::Method | ClassMemberKind::Function => {
-                        let method = ForeignMethod {
-                            name: m.name.clone(),
-                            ty: self.reintern_foreign_ty(level.owner.get(), m.ty),
-                        };
-                        match methods
-                            .iter_mut()
-                            .find(|k: &&mut ForeignMethod| k.name == m.name)
-                        {
-                            Some(slot) => *slot = method,
-                            None => methods.push(method),
-                        }
+                        upsert(
+                            m.name.clone(),
+                            self.reintern_foreign_ty(level.owner.get(), m.ty),
+                            None,
+                        );
                     }
-                    ClassMemberKind::Constructor => {}
+                    ClassMemberKind::Constructor if m.is_primary => {
+                        level_has_ctor = true;
+                        level_primary = Some(self.reintern_foreign_ty(level.owner.get(), m.ty));
+                    }
+                    ClassMemberKind::Constructor => {
+                        level_has_ctor = true;
+                        upsert(
+                            Arc::from(TokenKind::Constructor.as_str()),
+                            self.reintern_foreign_ty(level.owner.get(), m.ty),
+                            None,
+                        );
+                    }
+                    ClassMemberKind::Getter
+                    | ClassMemberKind::Setter
+                    | ClassMemberKind::Class
+                    | ClassMemberKind::Interface
+                    | ClassMemberKind::Namespace
+                    | ClassMemberKind::Enum => {}
+                }
+            }
+            if let Some(ty) = level_primary {
+                upsert(Arc::from(TokenKind::Constructor.as_str()), ty, None);
+            } else if !level_has_ctor && level_has_init {
+                upsert(Arc::from(TokenKind::Constructor.as_str()), ctor_ty, None);
+            }
+            for m in &ordered {
+                if m.is_static || m.is_abstract {
+                    continue;
+                }
+                match m.kind {
                     ClassMemberKind::Getter | ClassMemberKind::Setter => {
                         let kind = if m.kind == ClassMemberKind::Getter {
                             vn_core::AccessorKind::Get
                         } else {
                             vn_core::AccessorKind::Set
                         };
-                        let accessor = ForeignAccessor {
-                            kind,
-                            name: m.name.clone(),
-                            ty: self.reintern_foreign_ty(level.owner.get(), m.ty),
-                        };
-                        match accessors
-                            .iter_mut()
-                            .find(|a| a.kind == kind && a.name == m.name)
-                        {
-                            Some(slot) => *slot = accessor,
-                            None => accessors.push(accessor),
-                        }
+                        upsert(
+                            Arc::from(kind.key(&m.name)),
+                            self.reintern_foreign_ty(level.owner.get(), m.ty),
+                            Some(kind),
+                        );
                     }
-                    ClassMemberKind::Class
-                    | ClassMemberKind::Interface
-                    | ClassMemberKind::Namespace
-                    | ClassMemberKind::Enum => {}
+                    _ => {}
                 }
             }
         }
@@ -279,8 +312,7 @@ impl Checker<'_> {
         let field_tys = fields
             .iter()
             .map(|f| f.ty)
-            .chain(accessors.iter().map(|a| a.ty))
-            .chain(methods.iter().map(|m| m.ty))
+            .chain(vtable.iter().map(|e| e.ty))
             .chain(statics.iter().map(|s| s.ty))
             .collect();
         Some((
@@ -288,9 +320,8 @@ impl Checker<'_> {
                 name: name.clone(),
                 origin: origin.clone(),
                 fields,
-                methods,
+                vtable,
                 statics,
-                accessors,
                 constructor,
                 import_binding,
                 is_struct,

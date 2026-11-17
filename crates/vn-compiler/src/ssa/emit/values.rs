@@ -219,6 +219,16 @@ pub(super) fn emit_value(
             calls::emit_super_method_call(chunk, d, name, args, reg, call_base, line);
         }
 
+        InstKind::InvokeSlot {
+            recv, slot, args, ..
+        } => {
+            calls::emit_invoke_slot(chunk, d, *recv, *slot, args, reg, call_base, ic_slot, line)?;
+        }
+
+        InstKind::SuperInvokeSlot { slot, args } => {
+            calls::emit_super_invoke_slot(chunk, d, *slot, args, reg, call_base, line);
+        }
+
         InstKind::ExtensionCall {
             func,
             slot,

@@ -8,8 +8,10 @@ pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
         | SsaOp::CallDirect { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
         | SsaOp::Dispose { .. }
@@ -101,6 +103,7 @@ pub(super) fn needs_frame(ssa: &SsaProto, op: &SsaOp) -> bool {
             | SsaOp::AllocInstance { .. }
             | SsaOp::CallNativeOp { .. }
             | SsaOp::MethodCall { .. }
+            | SsaOp::InvokeSlot { .. }
             | SsaOp::LoadGlobalIdx(_)
             | SsaOp::LoadNativeGlobalIdx(_)
             | SsaOp::StoreGlobalIdx { .. }
@@ -134,6 +137,7 @@ pub(super) fn needs_frame(ssa: &SsaProto, op: &SsaOp) -> bool {
             | SsaOp::Range { .. }
             | SsaOp::SuperCall { .. }
             | SsaOp::SuperMethodCall { .. }
+            | SsaOp::SuperInvokeSlot { .. }
             | SsaOp::ExtensionCall { .. }
             | SsaOp::CallSpread { .. }
             | SsaOp::LoadModule { .. }

@@ -149,6 +149,16 @@ pub(super) fn emit_inst(
                 b, ctx, values, *recv, name, args, *cs, dest,
             )?)))
         }
+        SsaOp::InvokeSlot {
+            recv,
+            slot,
+            args,
+            cs,
+        } => {
+            return Ok(Some(Out::Boxed(call::emit_invoke_slot(
+                b, ctx, values, *recv, *slot, args, *cs, dest,
+            )?)))
+        }
         SsaOp::CallNativeOp {
             object,
             args,
@@ -284,6 +294,7 @@ pub(super) fn emit_inst(
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
         | SsaOp::LoadModule { .. }

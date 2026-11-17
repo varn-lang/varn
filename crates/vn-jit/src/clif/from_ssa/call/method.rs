@@ -6,6 +6,171 @@ use super::super::{heap, props, store, Ctx, Out};
 use super::direct::{entry_out_slot, run_entered_or};
 use super::invoke::boxed_window;
 use super::native_entry::{self, NativeCall};
+pub(crate) fn emit_invoke_slot(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    values: &[Option<Value>],
+    recv: u32,
+    slot: u16,
+    args: &[u32],
+    cs: u16,
+    dest: Option<u32>,
+) -> Result<Value, String> {
+    use cranelift_codegen::ir::condcodes::IntCC;
+    use cranelift_codegen::ir::types;
+    let frame = ctx
+        .frame
+        .as_ref()
+        .ok_or("from_ssa: invoke slot without a frame")?;
+    let receiver = heap::boxed_value(b, ctx, values, recv)?;
+    let window = boxed_window(b, ctx, values, receiver, args)?;
+    let slot_v = b.ins().iconst(types::I64, i64::from(slot));
+    let cs_v = b.ins().iconst(types::I64, i64::from(cs));
+    let total = b.ins().iconst(types::I64, (args.len() + 1) as i64);
+
+    let slow = b.create_block();
+    b.set_cold_block(slow);
+    let merge = b.create_block();
+    b.append_block_param(merge, types::I128);
+    let out = entry_out_slot(b);
+
+    let m = cranelift_codegen::ir::MemFlagsData::trusted();
+    let ectx = frame.exec_ctx;
+
+    let (rt, rp) = b.ins().isplit(receiver);
+    let kind = b.ins().band_imm_u(rt, super::super::super::emit::KIND_MASK);
+    let is_heap = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, kind, super::super::super::emit::HEAP_KIND);
+    let chk = b.create_block();
+    b.ins().brif(is_heap, chk, &[], slow, &[]);
+    b.switch_to_block(chk);
+    let slot_addr = rp;
+    let tagb = b.ins().uload8(
+        types::I64,
+        m,
+        slot_addr,
+        ctx.helpers.array_layout.kind_off as i32,
+    );
+    let is_inst = b.ins().icmp_imm_u(
+        IntCC::Equal,
+        tagb,
+        vn_types::cell::CELL_KIND_INSTANCE as i64,
+    );
+    let ok = b.create_block();
+    b.ins().brif(is_inst, ok, &[], slow, &[]);
+    b.switch_to_block(ok);
+    let cid32 = b.ins().load(
+        types::I32,
+        m,
+        slot_addr,
+        (vn_types::cell::INST_CELL_DATA_OFF + vn_types::INST_CLASS_ID_OFF) as i32,
+    );
+    let cid = b.ins().uextend(types::I64, cid32);
+
+    let ic_base = b.ins().load(
+        types::I64,
+        m,
+        frame.closure,
+        ctx.helpers.closure_ic_entries_offset as i32,
+    );
+    let slot_base = b.ins().iadd_imm_u(
+        ic_base,
+        i64::from(cs) * (ctx.helpers.poly_ic_slot_size as i64),
+    );
+    let resolved = b.create_block();
+    b.append_block_param(resolved, types::I64);
+    b.append_block_param(resolved, types::I64);
+    let entry_size = std::mem::size_of::<vn_types::chunk::CacheEntry>() as i64;
+    let mut next = b.create_block();
+    b.ins().jump(next, &[]);
+    for i in 0..8 {
+        b.switch_to_block(next);
+        next = b.create_block();
+        let hit = b.create_block();
+        let entry = b.ins().iadd_imm_u(slot_base, i * entry_size);
+        let id32 = b.ins().load(types::I32, m, entry, 0);
+        let id = b.ins().uextend(types::I64, id32);
+        let kc = b.ins().uload8(types::I64, m, entry, 6);
+        let id_eq = b.ins().icmp(IntCC::Equal, id, cid);
+        let is_slot = b.ins().icmp_imm_u(
+            IntCC::Equal,
+            kc,
+            vn_types::chunk::ICKind::SLOT_METHOD as i64,
+        );
+        let matched = b.ins().band(id_eq, is_slot);
+        b.ins().brif(matched, hit, &[], next, &[]);
+
+        b.switch_to_block(hit);
+        let control = b.ins().load(types::I64, m, entry, 8);
+        let has_class = b.ins().icmp_imm_u(IntCC::NotEqual, control, 0);
+        let go = b.create_block();
+        b.ins().brif(has_class, go, &[], next, &[]);
+        b.switch_to_block(go);
+        let class = b
+            .ins()
+            .iadd_imm_u(control, ctx.helpers.call_layout.rc_value_off as i64);
+        b.ins().jump(resolved, &[class.into(), id.into()]);
+    }
+    b.switch_to_block(next);
+    b.ins().jump(slow, &[]);
+
+    b.switch_to_block(resolved);
+    let p = b.block_params(resolved).to_vec();
+    let (class, _id) = (p[0], p[1]);
+    let slow_path = |b: &mut FunctionBuilder| -> Result<Value, String> {
+        let entry = call_helper(
+            b,
+            ctx.cc,
+            ctx.helpers.jit_invoke_slot_window,
+            &[ectx, rt, rp, slot_v, cs_v, window, total, out],
+        );
+        store::drop_home_addrs(ctx);
+        run_entered_or(b, ctx, entry, out)
+    };
+    let lay = &ctx.helpers.call_layout;
+    let vt_len = b
+        .ins()
+        .load(types::I64, m, class, lay.class_vtable_len_off as i32);
+    let in_range = b.ins().icmp(IntCC::UnsignedLessThan, slot_v, vt_len);
+    let direct_blk = b.create_block();
+    let slow_blk = b.create_block();
+    b.ins().brif(in_range, direct_blk, &[], slow_blk, &[]);
+
+    b.switch_to_block(direct_blk);
+    let vt_ptr = b
+        .ins()
+        .load(types::I64, m, class, lay.class_vtable_ptr_off as i32);
+    let off = b.ins().ishl_imm_u(slot_v, 4);
+    let at = b.ins().iadd(vt_ptr, off);
+    let method = b.ins().load(types::I128, m, at, 0);
+    let call = NativeCall {
+        callee: method,
+        receiver,
+        args,
+        dest,
+    };
+    let landed = native_entry::emit(b, ctx, values, call, |b| slow_path(b))?;
+    let dest_kind = dest
+        .map(|d| ctx.ssa.value_ty(d))
+        .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
+    let boxed = match landed {
+        Out::Native(v) => heap::box_native(b, dest_kind, v),
+        Out::Boxed(v) => v,
+    };
+    b.ins().jump(merge, &[boxed.into()]);
+
+    b.switch_to_block(slow_blk);
+    let boxed = slow_path(b)?;
+    b.ins().jump(merge, &[boxed.into()]);
+
+    b.switch_to_block(slow);
+    let boxed = slow_path(b)?;
+    b.ins().jump(merge, &[boxed.into()]);
+
+    b.switch_to_block(merge);
+    Ok(b.block_params(merge)[0])
+}
 pub(in crate::clif::from_ssa) fn emit_is_str(
     b: &mut FunctionBuilder,
     alay: &crate::JitArrayLayout,

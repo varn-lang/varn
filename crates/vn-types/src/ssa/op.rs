@@ -221,6 +221,13 @@ pub enum SsaOp {
         cs: u16,
     },
 
+    InvokeSlot {
+        recv: u32,
+        slot: u16,
+        args: Vec<u32>,
+        cs: u16,
+    },
+
     CallNativeOp {
         object: u32,
         args: Vec<u32>,
@@ -339,6 +346,11 @@ pub enum SsaOp {
 
     SuperMethodCall {
         name: Box<str>,
+        args: Vec<u32>,
+    },
+
+    SuperInvokeSlot {
+        slot: u16,
         args: Vec<u32>,
     },
 

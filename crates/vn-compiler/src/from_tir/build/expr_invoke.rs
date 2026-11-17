@@ -204,6 +204,17 @@ impl<'m> Builder<'m> {
         {
             return Ok(v);
         }
+        if let Resolution::VtableSlot(slot) = res {
+            let argv = self.lower_args(args)?;
+            return Ok(self.emit(
+                InstKind::InvokeSlot {
+                    recv: r,
+                    slot: *slot,
+                    args: argv,
+                },
+                ty,
+            ));
+        }
         let argv = self.lower_args(args)?;
         if let Resolution::NativeOp(op_id) = res {
             if *op_id == vn_core::op_id::KnownOp::ArrayPush.id() && argv.len() == 1 {

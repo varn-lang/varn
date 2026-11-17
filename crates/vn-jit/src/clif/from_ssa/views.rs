@@ -95,6 +95,7 @@ impl Views {
                 | SsaOp::StrLength { .. }
                 | SsaOp::BytesLength { .. }
                 | SsaOp::MethodCall { .. }
+                | SsaOp::InvokeSlot { .. }
                 | SsaOp::CallNativeOp { .. }
                 | SsaOp::ArrayPush { .. }
                 | SsaOp::This
@@ -118,6 +119,7 @@ impl Views {
                 | SsaOp::Range { .. }
                 | SsaOp::SuperCall { .. }
                 | SsaOp::SuperMethodCall { .. }
+                | SsaOp::SuperInvokeSlot { .. }
                 | SsaOp::ExtensionCall { .. }
                 | SsaOp::CallSpread { .. }
                 | SsaOp::LoadModule { .. }
@@ -183,6 +185,7 @@ impl Views {
                 | SsaOp::StrLength { .. }
                 | SsaOp::BytesLength { .. }
                 | SsaOp::MethodCall { .. }
+                | SsaOp::InvokeSlot { .. }
                 | SsaOp::CallNativeOp { .. }
                 | SsaOp::ArrayPush { .. }
                 | SsaOp::This
@@ -208,6 +211,7 @@ impl Views {
                 | SsaOp::Range { .. }
                 | SsaOp::SuperCall { .. }
                 | SsaOp::SuperMethodCall { .. }
+                | SsaOp::SuperInvokeSlot { .. }
                 | SsaOp::ExtensionCall { .. }
                 | SsaOp::CallSpread { .. }
                 | SsaOp::LoadModule { .. }

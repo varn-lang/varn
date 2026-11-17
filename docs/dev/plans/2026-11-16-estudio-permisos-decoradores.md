@@ -65,6 +65,29 @@ El código es el manifiesto: capabilities como valores + efectos, sin `varn.json
 - Decoradores y extensiones no se tocan: los primeros aplican durante
   la definición, las segundas nunca pasaron por vtable.
 
+## 6. Clases 100% estáticas, corte 2: slots estáticos (2026-11-17)
+
+- Nuevos ops `InvokeSlot { recv, slot }` / `SuperInvokeSlot { slot }`:
+  el slot se resuelve una vez en compilación (`VtableSlot` de
+  `method_resolution`; `super` vía `this_class` + padre) y el runtime
+  despacha por índice sin hash de nombre. `super` usa `current_class`
+  con fallback al walk de `home_class` (frames directos del JIT no la
+  fijan) y luego al receptor, igual que la vía dinámica.
+- Cimiento (Ley 14): el orden de la vtable es ahora canónico e idéntico
+  en TIR y runtime, o el slot llamaría al método equivocado: ctor
+  siempre presente (explícito en posición de fuente, si no sintetizado
+  al final de métodos; el runtime ahora siempre sintetiza), accessors
+  tras métodos, abstractos excluidos (sin entrada en runtime), orden de
+  fuente por offset, foráneas con vtable unificada por niveles con
+  override in-place, nativas con layout, luego métodos, luego accessors.
+- Conmutador fail-closed: slot fuera de rango o receptor sin clase es
+  error con nombre de clase, slot y longitud (`InvokeSlot: slot 3 out
+  of range for class 'Palette' (vtable len 1)`).
+- El ctor sintetizado solo existe si hace falta (campos con init o
+  params primarios): la TIR lo predice con `has_init`/`is_primary` del
+  binder y el runtime mantiene su condición original, así la compilación
+  en frío no paga funciones de más.
+
 Fragmentación actual: `@permission` (contratos, 1 dominio, sin validar) vs `@capability` (usuario, N dominios free-form como `"fs"`/`"net"` que ni parsean contra `Capability`), `ContractDecorator` vs `BuiltinDecoratorKind`, 5 copias del extractor de head, shadowing que neutraliza en silencio (test `116` loconsagra), `user_decorators` regado por binder/checker/emit, `check_native_fn_capability` que deja pasar lo desconocido (`dispatch/mod.rs:95-97`).
 
 Unificación (un commit, sin pasarelas):

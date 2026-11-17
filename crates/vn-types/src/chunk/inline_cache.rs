@@ -21,6 +21,8 @@ impl ICKind {
     pub const INSTANCE_FIELD: u8 = 10;
 
     pub const DIRECT_CALL: u8 = 11;
+
+    pub const SLOT_METHOD: u8 = 12;
 }
 
 #[derive(Clone, Default, Debug, serde::Serialize, serde::Deserialize)]

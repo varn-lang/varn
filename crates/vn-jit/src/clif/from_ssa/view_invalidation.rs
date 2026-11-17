@@ -105,6 +105,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::GetIndex { .. }
         | SsaOp::SetIndex { .. }
         | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::ArrayPush { .. }
         | SsaOp::This
@@ -126,6 +127,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
         | SsaOp::LoadModule { .. }

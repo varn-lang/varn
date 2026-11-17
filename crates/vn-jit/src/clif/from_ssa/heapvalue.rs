@@ -113,6 +113,7 @@ pub(super) fn emit(
         | SsaOp::StrLength { .. }
         | SsaOp::BytesLength { .. }
         | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::This
         | SsaOp::GetFixedField { .. }
@@ -133,6 +134,7 @@ pub(super) fn emit(
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
         | SsaOp::LoadModule { .. }
@@ -357,6 +359,7 @@ pub(super) fn emit(
         | SsaOp::SetProperty { .. }
         | SsaOp::SetIndex { .. }
         | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
         | SsaOp::CallNativeOp { .. }
         | SsaOp::ArrayPush { .. }
         | SsaOp::SetFixedField { .. }
@@ -378,6 +381,7 @@ pub(super) fn emit(
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
         | SsaOp::LoadModule { .. }

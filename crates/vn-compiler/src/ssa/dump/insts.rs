@@ -141,6 +141,11 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::MethodCall { recv, name, args } => {
             format!("callmethod {}.{name}{}", val(*recv), args_list(args))
         }
+        InstKind::InvokeSlot {
+            recv, slot, args, ..
+        } => {
+            format!("invokeslot {}.#{slot}{}", val(*recv), args_list(args))
+        }
         InstKind::IsNull { operand } => format!("isnull {}", val(*operand)),
         InstKind::Cast { operand, ty } => format!("cast {} as {ty:?}", val(*operand)),
         InstKind::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
@@ -206,6 +211,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::SuperCall { args } => format!("supercall{}", args_list(args)),
         InstKind::SuperMethodCall { name, args } => {
             format!("supercall super.{name}{}", args_list(args))
+        }
+        InstKind::SuperInvokeSlot { slot, args } => {
+            format!("supercall super.#{slot}{}", args_list(args))
         }
         InstKind::ExtensionCall {
             func, recv, args, ..
