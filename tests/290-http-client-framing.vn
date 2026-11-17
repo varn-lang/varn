@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 import { spawn, delay } from "std:task";
 import { now } from "std:time";
 import { TcpStream, TcpListener } from "std:net";
-import { fetch, HttpMethod } from "std:http";
+import { fetch, HttpMethod, RequestInit } from "std:http";
 
 async function readRequest(conn: TcpStream): Task<str> {
     let text = "";
@@ -134,7 +134,7 @@ await describe("290 http client framing", async () => {
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
         }));
-        await fetch("http://127.0.0.1:19899/echo", { method: HttpMethod.POST, body: "é" });
+        await fetch("http://127.0.0.1:19899/echo", new RequestInit(method: HttpMethod.POST, body: "é"));
         expect(seen.request.indexOf("Content-Length: 2\r\n") != null).toBeTruthy();
         expect(seen.request.indexOf("Host: 127.0.0.1:19899\r\n") != null).toBeTruthy();
         expect(seen.request.indexOf("Connection: close\r\n") != null).toBeTruthy();

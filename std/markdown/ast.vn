@@ -26,20 +26,20 @@ export enum TableAlign {
     Right
 }
 
-export interface MarkdownOptions {
-    gfm?: bool;
-    xhtml?: bool;
-    escapeHtml?: bool;
-    breaks?: bool;
+export struct MarkdownOptions {
+    gfm: bool? = null;
+    xhtml: bool? = null;
+    escapeHtml: bool? = null;
+    breaks: bool? = null;
 }
 
-export interface MarkdownHeading {
+export struct MarkdownHeading {
     level: int;
     text: str;
     id: str;
 }
 
-export interface MarkdownLink {
+export struct MarkdownLink {
     text: str;
     url: str;
     title: str;

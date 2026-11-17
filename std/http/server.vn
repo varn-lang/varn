@@ -2,7 +2,7 @@ import { tcpListen$, tcpListenTls$, tcpAccept$, tcpWrite$, tcpClose$, tcpCloseLi
 import { spawn, Task } from "std:task";
 import { TimeoutError } from "std:error";
 
-import { Request, Response, RawRequest, readHttpRequest, HttpRejection, Route, Handler, Middleware } from "std:http/core";
+import { Request, RequestInit, Response, RawRequest, readHttpRequest, HttpRejection, Route, Handler, Middleware } from "std:http/core";
 import { AsyncReader } from "std:io";
 import { WireReader } from "std:http/wire";
 
@@ -238,7 +238,7 @@ export class HttpServer {
 
         let matched = this._match(method, pathOnly);
 
-        let reqObj = new Request(rawReq.path, { method: method, headers: rawReq.headers, body: rawReq.body });
+        let reqObj = new Request(rawReq.path, new RequestInit(method: method, headers: rawReq.headers, body: rawReq.body));
         reqObj.path = pathOnly;
         reqObj.payload = rawReq.payload;
 

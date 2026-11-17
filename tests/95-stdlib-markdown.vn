@@ -61,13 +61,13 @@ let plainText = Markdown.toPlainText(mdComplex);
 
 // 10. Options (XHTML mode, HTML escaping, line breaks)
 let mdXhtml = "![Alt](img.png)\n\n---";
-let htmlXhtml = Markdown.render(mdXhtml, { xhtml: true });
+let htmlXhtml = Markdown.render(mdXhtml, new MarkdownOptions(xhtml: true));
 
 let mdXss = "<script>alert('xss')</script>";
-let htmlEscaped = Markdown.render(mdXss, { escapeHtml: true });
+let htmlEscaped = Markdown.render(mdXss, new MarkdownOptions(escapeHtml: true));
 
 let mdBreaks = "Line 1\nLine 2";
-let htmlBreaks = Markdown.render(mdBreaks, { breaks: true });
+let htmlBreaks = Markdown.render(mdBreaks, new MarkdownOptions(breaks: true));
 await describe("95 stdlib markdown", async () => {
         await it("group 1 part 1", async () => {
         expect(headingsAst.children.length).toBe(4);

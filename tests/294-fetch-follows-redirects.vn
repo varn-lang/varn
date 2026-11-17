@@ -1,6 +1,6 @@
 import { describe, it, expect } from "std:test";
 import { delay } from "std:task";
-import { fetch, HttpServer, HttpMethod, Request, Response, redirect } from "std:http";
+import { fetch, HttpServer, HttpMethod, Request, RequestInit, Response, redirect } from "std:http";
 
 async function failureOf(run: () => Task<dynamic>): Task<str> {
     try {
@@ -49,28 +49,28 @@ await describe("294 fetch follows redirects", async () => {
     });
 
     await it("a POST becomes a GET on 302 but keeps its method and body on 307", async () => {
-        const turned = await fetch("http://127.0.0.1:19920/post-redirect", { method: HttpMethod.POST, body: "payload" });
+        const turned = await fetch("http://127.0.0.1:19920/post-redirect", new RequestInit(method: HttpMethod.POST, body: "payload"));
         expect(turned.text()).toBe("GET");
-        const kept = await fetch("http://127.0.0.1:19920/keep", { method: HttpMethod.POST, body: "payload" });
+        const kept = await fetch("http://127.0.0.1:19920/keep", new RequestInit(method: HttpMethod.POST, body: "payload"));
         expect(kept.text()).toBe("body=payload");
     });
 
     await it("credentials are sent to the same origin but dropped across origins", async () => {
         const headers = new Map<str, str>([("Authorization", "Bearer secret")]);
-        const same = await fetch("http://127.0.0.1:19920/same", { headers: headers });
+        const same = await fetch("http://127.0.0.1:19920/same", new RequestInit(headers: headers));
         expect(same.text()).toBe("auth=Bearer secret");
-        const cross = await fetch("http://127.0.0.1:19920/to-other", { headers: headers });
+        const cross = await fetch("http://127.0.0.1:19920/to-other", new RequestInit(headers: headers));
         expect(cross.text()).toBe("auth=none");
     });
 
     await it("followRedirects: false returns the redirect itself", async () => {
-        const res = await fetch("http://127.0.0.1:19920/start", { followRedirects: false });
+        const res = await fetch("http://127.0.0.1:19920/start", new RequestInit(followRedirects: false));
         expect(res.status).toBe(302);
         expect(res.headers.get("location")).toBe("/two");
     });
 
     await it("a redirect loop stops at the limit", async () => {
-        const message = await failureOf(() => fetch("http://127.0.0.1:19920/loop", { maxRedirects: 3 }));
+        const message = await failureOf(() => fetch("http://127.0.0.1:19920/loop", new RequestInit(maxRedirects: 3)));
         expect(message.indexOf("more than 3 redirects") != null).toBeTruthy();
     });
 

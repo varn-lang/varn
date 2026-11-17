@@ -1,5 +1,5 @@
 import { describe, it, expect, summary } from "std:test";
-import { Json, Csv, Base64, Base32, Hex, Html, Toml, MsgPack } from "std:encoding";
+import { Json, Csv, CsvOptions, Base64, Base32, Hex, Html, Toml, MsgPack } from "std:encoding";
 
 await describe("example std:encoding", async () => {
     await it("json parses and stringifies", () => {
@@ -13,7 +13,7 @@ await describe("example std:encoding", async () => {
         expect(rows.length).toBe(2);
         expect(rows[0]["a"]).toBe(1);
         expect(Csv.stringify(rows).indexOf("a,b") != null).toBe(true);
-        let noHeader = Csv.parse("a,b\n1,2", { hasHeader: false });
+        let noHeader = Csv.parse("a,b\n1,2", new CsvOptions(hasHeader: false));
         expect(noHeader.length).toBe(2);
     });
 

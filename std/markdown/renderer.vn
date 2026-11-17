@@ -196,11 +196,11 @@ export function extractHeadings(ast: MarkdownNode): MarkdownHeading[] {
 
     function walk(n: MarkdownNode): void {
         if (n.kind == MarkdownNodeKind.Heading) {
-            list.push({
+            list.push(new MarkdownHeading(
                 level: n.level,
                 text: n.text,
                 id: slugifyUtil(n.text)
-            });
+            ));
         }
         for (let c of n.children) {
             walk(c);
@@ -216,19 +216,19 @@ export function extractLinks(ast: MarkdownNode): MarkdownLink[] {
 
     function walk(n: MarkdownNode): void {
         if (n.kind == MarkdownNodeKind.Link) {
-            links.push({
+            links.push(new MarkdownLink(
                 text: n.text,
                 url: n.url,
                 title: n.title,
                 isImage: false
-            });
+            ));
         } else if (n.kind == MarkdownNodeKind.Image) {
-            links.push({
+            links.push(new MarkdownLink(
                 text: n.text,
                 url: n.url,
                 title: n.title,
                 isImage: true
-            });
+            ));
         }
         for (let c of n.children) {
             walk(c);

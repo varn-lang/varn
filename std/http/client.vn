@@ -142,7 +142,7 @@ async function fetchFollowing(url: str, init: RequestInit, state: FetchState): T
     }
 }
 
-export async function fetch(url: str, init: RequestInit = {}): Task<Response> {
+export async function fetch(url: str, init: RequestInit = new RequestInit()): Task<Response> {
     const state = new FetchState();
     const limit = init.timeoutMs;
     if (limit == null) {
@@ -159,21 +159,21 @@ export async function fetch(url: str, init: RequestInit = {}): Task<Response> {
 }
 
 export async function get(url: str, headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, { method: HttpMethod.GET, headers: headers });
+    return await fetch(url, new RequestInit(method: HttpMethod.GET, headers: headers));
 }
 
 export async function post(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, { method: HttpMethod.POST, headers: headers, body: body });
+    return await fetch(url, new RequestInit(method: HttpMethod.POST, headers: headers, body: body));
 }
 
 export async function put(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, { method: HttpMethod.PUT, headers: headers, body: body });
+    return await fetch(url, new RequestInit(method: HttpMethod.PUT, headers: headers, body: body));
 }
 
 export async function patch(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, { method: HttpMethod.PATCH, headers: headers, body: body });
+    return await fetch(url, new RequestInit(method: HttpMethod.PATCH, headers: headers, body: body));
 }
 
 export async function del(url: str, headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, { method: HttpMethod.DELETE, headers: headers });
+    return await fetch(url, new RequestInit(method: HttpMethod.DELETE, headers: headers));
 }

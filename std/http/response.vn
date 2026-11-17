@@ -9,6 +9,14 @@ const MAX_BODY = 1073741824;
 const MAX_HEADERS = 200;
 const MAX_HEAD = 131072;
 
+export struct CookieOptions {
+    maxAge: int? = null;
+    path: str? = null;
+    secure: bool? = null;
+    httpOnly: bool? = null;
+    sameSite: str? = null;
+}
+
 export class RawResponse {
     status: int = 200;
     statusText: str = "";
@@ -171,7 +179,7 @@ export class Response {
         return Json.parse(this.body);
     }
 
-    setCookie(name: str, value: str, options?: { maxAge?: int; path?: str; secure?: bool; httpOnly?: bool; sameSite?: str }): Response {
+    setCookie(name: str, value: str, options?: CookieOptions): Response {
         requireCookiePart("name", name, true);
         requireCookiePart("value", value, false);
         if (options != null && options.path != null) {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 import { Task, delay } from "std:task";
 import { TcpStream } from "std:net";
-import { HttpServer, Request, Response, fetch } from "std:http";
+import { HttpServer, Request, RequestInit, Response, fetch } from "std:http";
 import { TimeoutError } from "std:error";
 
 async function slow(): Task<int> {
@@ -62,12 +62,12 @@ await describe("299 timeouts", async () => {
 
         let code = "";
         try {
-            await fetch("http://127.0.0.1:18932/slow", { timeoutMs: 100 });
+            await fetch("http://127.0.0.1:18932/slow", new RequestInit(timeoutMs: 100));
         } catch (e: TimeoutError) {
             code = e.code;
         }
         expect(code).toBe("timeout");
-        const quick = await fetch("http://127.0.0.1:18932/quick", { timeoutMs: 2000 });
+        const quick = await fetch("http://127.0.0.1:18932/quick", new RequestInit(timeoutMs: 2000));
         expect(quick.text()).toBe("on time");
         server.close();
     });

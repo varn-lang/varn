@@ -4,15 +4,15 @@ import { WireReader, readChunkedBody, LineTooLongError, BodyTooLargeError } from
 import { Headers } from "std:http/headers";
 import { Json, JsonValue } from "std:encoding";
 
-export interface RequestInit {
-    method?: HttpMethod;
-    headers?: Map<str, str>;
-    body?: str;
-    ca?: str;
-    identity?: str;
-    followRedirects?: bool;
-    maxRedirects?: int;
-    timeoutMs?: int;
+export struct RequestInit {
+    method: HttpMethod? = null;
+    headers: Map<str, str>? = null;
+    body: str? = null;
+    ca: str? = null;
+    identity: str? = null;
+    followRedirects: bool? = null;
+    maxRedirects: int? = null;
+    timeoutMs: int? = null;
 }
 
 const MAX_LINE = 8192;
@@ -160,7 +160,7 @@ export class Request {
     params: Map<str, str> = new Map<str, str>();
     cookies: Map<str, str> = new Map<str, str>();
 
-    constructor(url: str = "", init: RequestInit = {}) {
+    constructor(url: str = "", init: RequestInit = new RequestInit()) {
         this.url = url;
         this.path = url;
         this.query = new Map<str, str>();

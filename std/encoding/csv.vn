@@ -2,10 +2,10 @@ import { parse$, stringify$ } from "runtime:csv";
 
 export type CsvValue = int | float | str | bool;
 
-export interface CsvOptions {
-    delimiter?: str;
-    hasHeader?: bool;
-    trim?: bool;
+export struct CsvOptions {
+    delimiter: str? = null;
+    hasHeader: bool? = null;
+    trim: bool? = null;
 }
 
 export namespace Csv {
