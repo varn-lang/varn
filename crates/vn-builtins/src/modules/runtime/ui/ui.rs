@@ -75,13 +75,29 @@ fn ui_event(ctx: &mut dyn NativeCtx, e: &vn_ui::RealEvent) -> Result<VmValue, St
         vn_ui::RealEvent::Close => (UiEventKind::Close, 0, false, 0, 0, 0, 0, 0),
     };
     let kind = kind.to_value(ctx)?;
-    Ok(UiEvent { kind, key, pressed, x, y, button, w, h }.alloc(ctx))
+    UiEventRec {
+        kind,
+        key,
+        pressed,
+        x,
+        y,
+        button,
+        w,
+        h,
+    }
+    .alloc(ctx)
 }
 
 vn_macros::vn_record! {
     contract: "src/modules/runtime/ui/ui_runtime.vn",
-    interface: "TypedText",
-    struct TypedText;
+    class: "TypedText",
+    pub struct TypedTextRec;
+}
+
+vn_macros::vn_record! {
+    contract: "src/modules/runtime/ui/ui_runtime.vn",
+    class: "UiEvent",
+    pub struct UiEventRec;
 }
 
 vn_macros::vn_record! {
@@ -90,14 +106,10 @@ vn_macros::vn_record! {
     struct DrawnItem;
 }
 
-vn_macros::vn_record! {
-    contract: "src/modules/runtime/ui/ui_runtime.vn",
-    interface: "UiEvent",
-    struct UiEvent;
-}
-
 
 natives! {
+    class UiEvent {}
+    class TypedText {}
     open(title, w, h, headless) => {
         if w <= 0 || h <= 0 {
             return Err(NativeError::range_error(format!("ui.open: bad size ({w}x{h})")));
@@ -326,17 +338,18 @@ natives! {
     },
     typed(ctx, id) => {
         let changes = with_win(id, |win| Ok(std::mem::take(&mut win.typed))).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;
-        Ok(changes
+        let out: Vec<VmValue> = changes
             .into_iter()
             .map(|c| {
-                let text = ctx.alloc_str_owned(c.text);
-                TypedText {
+                TypedTextRec {
                     id: i64::from(c.id),
-                    text,
+                    text: ctx.alloc_str_owned(c.text),
                 }
                 .alloc(ctx)
             })
-            .collect())
+            .collect::<Result<_, String>>()
+            .map_err(NativeError::failure)?;
+        Ok(out)
     },
     activated(id) => {
         let hits = with_win(id, |win| Ok(std::mem::take(&mut win.activated))).map_err(|e| NativeError::std(StdErrorClass::Std, e))?;

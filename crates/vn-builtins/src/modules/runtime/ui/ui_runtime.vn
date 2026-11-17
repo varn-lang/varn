@@ -30,7 +30,7 @@ export declare enum UiInjectKind {
     Wheel
 }
 
-export interface UiEvent {
+export struct UiEvent {
     kind: UiEventKind;
     key: int;
     pressed: bool;
@@ -40,6 +40,7 @@ export interface UiEvent {
     w: int;
     h: int;
 }
+
 
 @capability("ui")
 export declare function open$(title: str, w: int, h: int, headless: bool): int;
@@ -87,10 +88,11 @@ export interface DrawnItem {
     text: str;
 }
 
-export interface TypedText {
+export struct TypedText {
     id: int;
     text: str;
 }
+
 
 @capability("ui")
 export declare function field$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float): void;
