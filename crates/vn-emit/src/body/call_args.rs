@@ -11,7 +11,7 @@ impl<'a> FnEmitter<'a> {
             Arg::Spread(e) => {
                 let source = self.lower_expr(*e);
                 let span = super::small_utils::span_of(self.ast_arena, *e);
-                TirArg::Spread(self.spread_to_array(source, span))
+                TirArg::Spread(self.spread_to_array(*e, source, span))
             }
             Arg::Named { label, value } => TirArg::Named {
                 label: Arc::from(label.as_str()),
@@ -121,7 +121,7 @@ impl<'a> FnEmitter<'a> {
                             Arg::Spread(e) => {
                                 let source = self.lower_expr(*e);
                                 let span = super::small_utils::span_of(self.ast_arena, *e);
-                                TirArg::Spread(self.spread_to_array(source, span))
+                                TirArg::Spread(self.spread_to_array(*e, source, span))
                             }
                         },
                         None => TirArg::Expr(TirExpr {

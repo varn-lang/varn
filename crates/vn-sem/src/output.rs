@@ -112,6 +112,7 @@ pub struct Desugarings {
     pub foreign_inherited_fields: std::collections::BTreeMap<Arc<str>, Vec<InheritedField>>,
     pub match_arm_subjects: FxHashMap<vn_core::ast::AstId, Vec<Type>>,
     pub for_of_plans: FxHashMap<vn_core::ast::AstId, ForOfPlan>,
+    pub spread_methods: FxHashMap<u32, vn_core::MemberKey>,
 }
 
 #[derive(Clone, Copy, Debug)]

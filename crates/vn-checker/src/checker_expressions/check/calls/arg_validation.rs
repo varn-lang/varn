@@ -109,7 +109,7 @@ impl<'r> Checker<'r> {
                         Diagnostic::error(
                             ErrorCode::TypeMismatch,
                             format!(
-                                "spread argument must be an array or a tuple, got '{}'",
+                                "spread argument must be an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-of or toArray()",
                                 arg_ty.display(&self.ty_table, &bind.interner)
                             ),
                         )
@@ -190,8 +190,22 @@ impl<'r> Checker<'r> {
                             .collect(),
                     ));
                 }
-                if let Some((_, elem)) = self.for_of_element(arg_ty, false, bind) {
-                    return Ok(Supplied::Some(arg_ty, Some(elem)));
+                if let Some((plan, elem)) = self.for_of_element(arg_ty, false, bind) {
+                    match plan {
+                        vn_sem::output::ForOfPlan::Collection { method, .. } => {
+                            if let Some(key) = method {
+                                rec.desugar.spread_methods.insert(expr.index(), key);
+                            }
+                            return Ok(Supplied::Some(arg_ty, Some(elem)));
+                        }
+                        vn_sem::output::ForOfPlan::IntRange => {
+                            rec.desugar
+                                .spread_methods
+                                .insert(expr.index(), vn_core::MemberKey::ToArray);
+                            return Ok(Supplied::Some(arg_ty, Some(elem)));
+                        }
+                        vn_sem::output::ForOfPlan::Protocol { .. } => {}
+                    }
                 }
                 if arg_ty.is_unresolved() {
                     return Ok(Supplied::Some(arg_ty, None));

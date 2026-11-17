@@ -3,7 +3,7 @@ use crate::checker::Checker;
 use rustc_hash::FxHashSet;
 use vn_core::ast::Arg;
 use vn_core::source::SourceRange;
-use vn_core::{Diagnostic, ErrorCode, TypeKind};
+use vn_core::{Diagnostic, ErrorCode};
 use vn_sem::bind::BindResult;
 use vn_sem::types::{FunctionParam, Type};
 
@@ -37,18 +37,15 @@ impl<'r> Checker<'r> {
                 }
                 Arg::Positional(e) => (None, self.infer_type(rec, *e, bind)),
                 Arg::Spread(e) => {
-                    let arg_ty = self.infer_type(rec, *e, bind);
-                    if !arg_ty.is_unresolved()
-                        && !matches!(
-                            self.ty_table.get(arg_ty.0),
-                            TypeKind::Array(_) | TypeKind::Tuple(_)
-                        )
+                    let spread = Arg::Spread(*e);
+                    if let Err(arg_ty) = self.infer_arg_type(rec, &spread, bind)
+                        && !arg_ty.is_unresolved()
                     {
                         self.emit(
                             Diagnostic::error(
                                 ErrorCode::TypeMismatch,
                                 format!(
-                                    "spread argument must be an array or a tuple, got '{}'",
+                                    "spread argument must be an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-of or toArray()",
                                     arg_ty.display(&self.ty_table, &bind.interner)
                                 ),
                             )

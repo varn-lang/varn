@@ -8,56 +8,29 @@ use vn_tir::{
 };
 
 impl<'a> FnEmitter<'a> {
-    pub(super) fn spread_to_array(&mut self, source: TirExpr, span: Span) -> TirExpr {
-        match source.ty.non_nullable(self.tt) {
+    pub(super) fn spread_to_array(
+        &mut self,
+        source_id: ExprId,
+        source: TirExpr,
+        span: Span,
+    ) -> TirExpr {
+        let Some(key) = self
+            .m
+            .desugar
+            .spread_methods
+            .get(&source_id.index())
+            .copied()
+        else {
+            return source;
+        };
+        let elem = match source.ty.non_nullable(self.tt) {
             BackendTy::Map(key, value) => {
                 let (key, value) = (self.tt.get(key), self.tt.get(value));
-                let pair = BackendTy::Tuple(self.tt.intern_list(&[key, value]));
-                let ty = BackendTy::Array(self.tt.intern(pair));
-                self.member_call(
-                    source,
-                    Arc::from(vn_core::MemberKey::Entries.as_str()),
-                    vec![],
-                    ty,
-                    None,
-                    span,
-                )
+                BackendTy::Tuple(self.tt.intern_list(&[key, value]))
             }
-            BackendTy::Set(inner) => {
-                let elem = self.tt.get(inner);
-                let ty = BackendTy::Array(self.tt.intern(elem));
-                self.member_call(
-                    source,
-                    Arc::from(vn_core::MemberKey::Values.as_str()),
-                    vec![],
-                    ty,
-                    None,
-                    span,
-                )
-            }
-            BackendTy::Str => {
-                let ty = BackendTy::Array(self.tt.intern(BackendTy::Char));
-                self.member_call(
-                    source,
-                    Arc::from(vn_core::MemberKey::Chars.as_str()),
-                    vec![],
-                    ty,
-                    None,
-                    span,
-                )
-            }
-            BackendTy::Dynamic(DynReason::Range(inner)) => {
-                let elem = self.tt.get(inner);
-                let ty = BackendTy::Array(self.tt.intern(elem));
-                self.member_call(
-                    source,
-                    Arc::from(vn_core::MemberKey::ToArray.as_str()),
-                    vec![],
-                    ty,
-                    None,
-                    span,
-                )
-            }
+            BackendTy::Set(inner) => self.tt.get(inner),
+            BackendTy::Str => BackendTy::Char,
+            BackendTy::Dynamic(DynReason::Range(inner)) => self.tt.get(inner),
             BackendTy::Literal(_)
             | BackendTy::Num(_)
             | BackendTy::Bool
@@ -73,8 +46,10 @@ impl<'a> FnEmitter<'a> {
             | BackendTy::Nullable(_)
             | BackendTy::Void
             | BackendTy::Never
-            | BackendTy::Dynamic(_) => source,
-        }
+            | BackendTy::Dynamic(_) => return source,
+        };
+        let ty = BackendTy::Array(self.tt.intern(elem));
+        self.member_call(source, Arc::from(key.as_str()), vec![], ty, None, span)
     }
 
     pub(super) fn lower_array(
@@ -89,7 +64,7 @@ impl<'a> FnEmitter<'a> {
                 ArrayEl::Expr(e) => TirArrayEl::Expr(self.lower_expr(*e)),
                 ArrayEl::Spread(e) => {
                     let source = self.lower_expr(*e);
-                    TirArrayEl::Spread(self.spread_to_array(source, span))
+                    TirArrayEl::Spread(self.spread_to_array(*e, source, span))
                 }
                 ArrayEl::Hole => TirArrayEl::Hole,
             })
