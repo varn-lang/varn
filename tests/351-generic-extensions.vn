@@ -36,9 +36,9 @@ await describe("351 generic extensions", async () => {
     })
 
     await it("several type parameters follow the receiver in order", () => {
-        const ages: ReadonlyMap<str, int> = { ann: 30 }
+        const ages: ReadonlyMap<str, int> = new Map([("ann", 30)])
         expect(ages.anyValue()).toBe(30)
-        const empty: ReadonlyMap<str, int> = {}
+        const empty: ReadonlyMap<str, int> = new Map<str, int>()
         expect(empty.anyValue()).toBe(null)
     })
 

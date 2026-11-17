@@ -93,7 +93,7 @@ await describe("350 read-only views", async () => {
     })
 
     await it("a Map and a Set are read through their views", () => {
-        const m: Map<str, int> = { a: 1, b: 2 }
+        const m = new Map([("a", 1), ("b", 2)])
         expect(lookup(m, "b")).toBe(2)
         expect(lookup(m, "z")).toBe(null)
         const view: ReadonlyMap<str, int> = m
@@ -112,14 +112,14 @@ await describe("350 read-only views", async () => {
         expect(sum).toBe(6)
     })
 
-    await it("a key-value literal can build a read-only map directly", () => {
-        const view: ReadonlyMap<str, int> = { a: 1, b: 2 }
+    await it("a key-value Map is read through a read-only view", () => {
+        const view: ReadonlyMap<str, int> = new Map([("a", 1), ("b", 2)])
         expect(view.size).toBe(2)
         expect(view.get("b")).toBe(2)
     })
 
     await it("a view of values is covariant and a view of keys is not", () => {
-        const dogs: Map<str, Dog> = { rex: new Dog() }
+        const dogs = new Map([("rex", new Dog())])
         const animals: ReadonlyMap<str, Animal> = dogs
         expect(animals.get("rex")?.name).toBe("animal")
     })

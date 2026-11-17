@@ -86,22 +86,9 @@ impl<'m> Builder<'m> {
         ty: BackendTy,
     ) -> Result<Value> {
         if matches!(ty, BackendTy::Map(..)) {
-            let mut pairs = Vec::with_capacity(entries.len());
-            for entry in entries {
-                match entry {
-                    vn_tir::TirObjectEntry::Field { name, value } => {
-                        let key_val = self.emit(InstKind::ConstStr(name.clone()), BackendTy::Str);
-                        let v = self.lower_expr(value)?;
-                        pairs.push((key_val, v));
-                    }
-                    vn_tir::TirObjectEntry::Spread(_) => {
-                        return Err(crate::OptError::Unsupported(
-                            "from_tir: a Map literal holds `key: value` entries only, never a spread",
-                        ));
-                    }
-                }
-            }
-            return Ok(self.emit(InstKind::BuildMap { pairs }, ty));
+            return Err(crate::OptError::Unsupported(
+                "from_tir: an object literal never builds a Map: use `new Map([(k, v)])`",
+            ));
         }
         let any_spread = entries
             .iter()
