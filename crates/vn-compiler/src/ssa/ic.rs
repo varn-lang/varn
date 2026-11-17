@@ -184,7 +184,9 @@ fn sites(kind: &InstKind, has_dest: bool) -> u16 {
         | InstKind::This
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

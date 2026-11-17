@@ -156,6 +156,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -213,6 +214,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

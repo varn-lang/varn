@@ -186,3 +186,20 @@ pub(crate) extern "C" fn jit_bind_method(
         }
     }
 }
+
+#[vn_macros::jit_slow(field = "bind_slot_method")]
+pub(crate) extern "C" fn jit_bind_slot_method(
+    ctx: *mut ExecCtx,
+    obj_tag: u64,
+    obj_payload: u64,
+    slot: usize,
+) {
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let obj = VmValue::from_raw_parts(obj_tag, obj_payload);
+        match crate::exec::method_bind::slot_method_bound(obj, slot, &mut ctx_ref.heap) {
+            Ok(v) => ctx_ref.jit_native_result = v,
+            Err(e) => jit_propagate_error(ctx_ref, e),
+        }
+    }
+}

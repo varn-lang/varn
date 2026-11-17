@@ -195,6 +195,7 @@ fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -254,6 +255,7 @@ fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

@@ -54,6 +54,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::AllocInstance { class, .. } => format!("alloc {}", val(*class)),
         InstKind::SelfCall { args } => format!("callself{}", args_list(args)),
         InstKind::GetProperty { object, name } => format!("getprop {}.{name}", val(*object)),
+        InstKind::GetSlotMethod { object, slot } => {
+            format!("getslotmethod {}.#{slot}", val(*object))
+        }
         InstKind::GetFixedField { object, slot, .. } => {
             format!("getfixed {}[{slot}]", val(*object))
         }
@@ -208,6 +211,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         }
         InstKind::ObjectKeys { operand } => format!("objectkeys {}", val(*operand)),
         InstKind::GetSuper { name } => format!("getsuper super.{name}"),
+        InstKind::GetSuperSlot { slot } => format!("getsuperslot super.#{slot}"),
         InstKind::SuperCall { args } => format!("supercall{}", args_list(args)),
         InstKind::SuperMethodCall { name, args } => {
             format!("supercall super.{name}{}", args_list(args))

@@ -67,6 +67,8 @@ pub(super) fn implied(op: OpCode) -> Option<&'static str> {
         | OpCode::GetFixedField
         | OpCode::SetFixedField
         | OpCode::GetSuper
+        | OpCode::GetSlotMethod
+        | OpCode::GetSuperSlot
         | OpCode::MakeClosure
         | OpCode::MakeClass
         | OpCode::Inherit

@@ -184,6 +184,11 @@ pub enum SsaOp {
         cs: u16,
     },
 
+    GetSlotMethod {
+        object: u32,
+        slot: u16,
+    },
+
     SetProperty {
         object: u32,
         value: u32,
@@ -279,6 +284,10 @@ pub enum SsaOp {
 
     GetSuper {
         name: Box<str>,
+    },
+
+    GetSuperSlot {
+        slot: u16,
     },
 
     LoadGlobal(Box<str>),

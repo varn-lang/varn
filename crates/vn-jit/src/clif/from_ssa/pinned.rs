@@ -122,6 +122,7 @@ pub(super) fn compute(
                         | SsaOp::BuildMap { .. }
                         | SsaOp::BuildObject { .. }
                         | SsaOp::GetProperty { .. }
+                        | SsaOp::GetSlotMethod { .. }
                         | SsaOp::SetProperty { .. }
                         | SsaOp::GetIndex { .. }
                         | SsaOp::SetIndex { .. }
@@ -139,6 +140,7 @@ pub(super) fn compute(
                         | SsaOp::FreezeClass { .. }
                         | SsaOp::DefineMethod { .. }
                         | SsaOp::GetSuper { .. }
+                        | SsaOp::GetSuperSlot { .. }
                         | SsaOp::LoadGlobal(_)
                         | SsaOp::StoreGlobal { .. }
                         | SsaOp::BuildTuple { .. }

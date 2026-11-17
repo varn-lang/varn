@@ -22,7 +22,8 @@ fn op_color(op: OpCode) -> &'static str {
         MakeClass | MakeClosure | LoadStaticFn | BuildArray | BuildObject
         | BuildObjectWithShape | BuildStr | Method | DefineStatic | DefineGetter | DefineSetter
         | DefineStaticGetter | DefineStaticSetter | DeclareLayout | FreezeClass | Inherit
-        | InvokeSlot | SuperInvokeSlot | BindMethod | MakeEnumVariant => BLUE,
+        | InvokeSlot | SuperInvokeSlot | BindMethod | GetSlotMethod | GetSuperSlot
+        | MakeEnumVariant => BLUE,
 
         Add | Sub | Mul | Div | Mod | Pow | Eq | Neq | Lt | Lte | Gt | Gte | BitAnd | BitOr
         | BitXor | Shl | Shr | Ushr | In | Instanceof | AddInt | SubInt | MulInt | DivInt

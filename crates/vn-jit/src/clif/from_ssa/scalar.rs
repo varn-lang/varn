@@ -266,6 +266,7 @@ pub(super) fn emit_inst(
         | SsaOp::BuildObject { .. }
         | SsaOp::GetIndex { .. }
         | SsaOp::GetProperty { .. }
+        | SsaOp::GetSlotMethod { .. }
         | SsaOp::SetProperty { .. }
         | SsaOp::ArrayLength { .. }
         | SsaOp::BytesLength { .. }
@@ -279,6 +280,7 @@ pub(super) fn emit_inst(
         | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
         | SsaOp::LoadGlobal(_)
         | SsaOp::StoreGlobal { .. }
         | SsaOp::BuildTuple { .. }

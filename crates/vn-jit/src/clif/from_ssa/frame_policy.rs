@@ -79,6 +79,7 @@ pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
         | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
         | SsaOp::LoadGlobal(_)
         | SsaOp::StoreGlobal { .. }
         | SsaOp::BuildTuple { .. }
@@ -87,6 +88,7 @@ pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
         | SsaOp::ObjectRest { .. }
         | SsaOp::AssertNotNull { .. }
         | SsaOp::BindMethod { .. }
+        | SsaOp::GetSlotMethod { .. }
         | SsaOp::ArrayExtend { .. }
         | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }

@@ -301,6 +301,18 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
                 k(1, K::Name),
             ],
         ),
+        O::GetSlotMethod => (3, vec![w(hi(0)), r(hi(1)), imm_word(2, I::Count)]),
+        O::GetSuperSlot => (
+            2,
+            vec![
+                w(hi(0)),
+                Operand::Fixed {
+                    reg: 0,
+                    access: Access::Read,
+                },
+                imm_word(1, I::Count),
+            ],
+        ),
         O::BindMethod => (3, vec![w(hi(1)), r(lo(1)), k(2, K::Name)]),
 
         O::MakeClass => (3, vec![w(hi(0)), k(2, K::Name), r(hi(1))]),

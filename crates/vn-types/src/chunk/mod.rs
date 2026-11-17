@@ -288,6 +288,9 @@ impl Chunk {
                 self.write(Self::pack_op(op, dest), line);
                 self.write(Self::pack(src, 0), line);
             }
+            OpCode::GetSlotMethod | OpCode::GetSuperSlot => {
+                unreachable!("chunk: slot-method ops carry a slot word; use emit_rrc/emit_rc")
+            }
         }
     }
 

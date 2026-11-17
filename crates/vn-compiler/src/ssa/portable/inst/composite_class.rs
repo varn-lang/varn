@@ -68,6 +68,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
         InstKind::GetSuper { name } => Some(SsaOp::GetSuper {
             name: name.as_ref().into(),
         }),
+        InstKind::GetSuperSlot { slot } => Some(SsaOp::GetSuperSlot { slot: *slot }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)
         | InstKind::ConstBool(_)
@@ -90,6 +91,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. }

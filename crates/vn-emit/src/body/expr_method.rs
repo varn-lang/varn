@@ -68,6 +68,7 @@ impl<'a> FnEmitter<'a> {
         name: &Arc<str>,
         arg_count: usize,
         all_positional: bool,
+        spread_static: bool,
     ) -> Resolution {
         let slotted = match recv_ty.non_nullable(self.tt) {
             BackendTy::Enum(id) => self.m.enums.get(id.0 as usize).and_then(|info| {
@@ -98,6 +99,9 @@ impl<'a> FnEmitter<'a> {
         };
         if let Some((slot, sig)) = slotted {
             if !all_positional {
+                if spread_static {
+                    return Resolution::VtableSlot(slot);
+                }
                 return Resolution::ByName {
                     name: name.clone(),
                     why: DynReason::Spread,
@@ -198,7 +202,10 @@ impl<'a> FnEmitter<'a> {
             (target.into_expr(), targs)
         };
         let all_positional = targs.iter().all(|a| matches!(a, TirArg::Expr(_)));
-        let res = self.method_resolution(recv.ty, &name, targs.len(), all_positional);
+        let spread_static = targs.iter().any(TirArg::is_spread)
+            && targs.iter().all(|a| !matches!(a, TirArg::Named { .. }));
+        let res =
+            self.method_resolution(recv.ty, &name, targs.len(), all_positional, spread_static);
 
         TirExpr {
             kind: TirExprKind::MethodCall {

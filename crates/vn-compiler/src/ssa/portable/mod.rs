@@ -127,6 +127,7 @@ pub(crate) fn project(
                     | InstKind::AllocInstance { .. }
                     | InstKind::SelfCall { .. }
                     | InstKind::GetProperty { .. }
+                    | InstKind::GetSlotMethod { .. }
                     | InstKind::GetFixedField { .. }
                     | InstKind::GetIndex { .. }
                     | InstKind::ArrayGetIndex { .. }
@@ -185,6 +186,7 @@ pub(crate) fn project(
                     | InstKind::Range { .. }
                     | InstKind::ObjectKeys { .. }
                     | InstKind::GetSuper { .. }
+                    | InstKind::GetSuperSlot { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
                     | InstKind::SuperInvokeSlot { .. }
@@ -226,6 +228,7 @@ pub(crate) fn project(
                     | InstKind::AllocInstance { .. }
                     | InstKind::SelfCall { .. }
                     | InstKind::GetProperty { .. }
+                    | InstKind::GetSlotMethod { .. }
                     | InstKind::GetFixedField { .. }
                     | InstKind::GetIndex { .. }
                     | InstKind::ArrayGetIndex { .. }
@@ -282,6 +285,7 @@ pub(crate) fn project(
                     | InstKind::Range { .. }
                     | InstKind::ObjectKeys { .. }
                     | InstKind::GetSuper { .. }
+                    | InstKind::GetSuperSlot { .. }
                     | InstKind::SuperCall { .. }
                     | InstKind::SuperMethodCall { .. }
                     | InstKind::SuperInvokeSlot { .. }

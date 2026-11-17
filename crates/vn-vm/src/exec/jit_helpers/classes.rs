@@ -33,6 +33,34 @@ pub(crate) extern "C" fn jit_get_super(ctx: *mut ExecCtx, name_idx: usize) {
     }
 }
 
+#[vn_macros::jit_slow(field = "bind_super_slot")]
+pub(crate) extern "C" fn jit_bind_super_slot(ctx: *mut ExecCtx, slot: usize) {
+    unsafe {
+        let ctx_ref = &mut *ctx;
+        let frame_idx = ctx_ref.frames.len() - 1;
+        let closure_ref = ctx_ref.frames[frame_idx].closure();
+        let base = ctx_ref.frames[frame_idx].base;
+        let this_val = ctx_ref.stack.box_reg(base, 0);
+
+        let receiver = crate::exec::props::get_class(this_val, &ctx_ref.heap);
+        let Some(cls) =
+            crate::exec::class::home_class(receiver.clone(), closure_ref, &ctx_ref.heap)
+                .or_else(|| ctx_ref.frames[frame_idx].current_class.clone())
+                .or(receiver)
+        else {
+            jit_propagate_error(
+                ctx_ref,
+                crate::error::RuntimeError::new("GetSuperSlot: 'this' has no class"),
+            );
+            return;
+        };
+        match crate::exec::class::op_get_super_slot(cls, slot, this_val, &mut ctx_ref.heap) {
+            Ok(v) => ctx_ref.jit_native_result = v,
+            Err(e) => jit_propagate_error(ctx_ref, e),
+        }
+    }
+}
+
 #[vn_macros::jit_slow(field = "alloc_instance")]
 pub(crate) extern "C" fn jit_alloc_instance(ctx: *mut ExecCtx, class_tag: u64, class_payload: u64) {
     unsafe {

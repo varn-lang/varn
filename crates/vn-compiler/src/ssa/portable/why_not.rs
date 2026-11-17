@@ -34,6 +34,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::AllocInstance { .. }
         | other @ InstKind::SelfCall { .. }
         | other @ InstKind::GetProperty { .. }
+        | other @ InstKind::GetSlotMethod { .. }
         | other @ InstKind::GetFixedField { .. }
         | other @ InstKind::GetIndex { .. }
         | other @ InstKind::ArrayGetIndex { .. }
@@ -93,6 +94,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::Range { .. }
         | other @ InstKind::ObjectKeys { .. }
         | other @ InstKind::GetSuper { .. }
+        | other @ InstKind::GetSuperSlot { .. }
         | other @ InstKind::SuperCall { .. }
         | other @ InstKind::SuperMethodCall { .. }
         | other @ InstKind::SuperInvokeSlot { .. }

@@ -86,6 +86,7 @@ pub(super) fn try_project(
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -130,6 +131,7 @@ pub(super) fn try_project(
         | InstKind::BytesLength { .. }
         | InstKind::This
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

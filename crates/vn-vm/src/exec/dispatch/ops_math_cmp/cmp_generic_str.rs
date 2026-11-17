@@ -82,11 +82,13 @@ impl ExecCtx {
             | OpCode::ObjectKeys
             | OpCode::ObjectMerge
             | OpCode::GetProperty
+            | OpCode::GetSlotMethod
             | OpCode::GetPropertyMaybe
             | OpCode::SetProperty
             | OpCode::GetFixedField
             | OpCode::SetFixedField
             | OpCode::GetSuper
+            | OpCode::GetSuperSlot
             | OpCode::MakeClosure
             | OpCode::MakeClass
             | OpCode::Inherit
@@ -290,11 +292,13 @@ impl ExecCtx {
             | OpCode::ObjectKeys
             | OpCode::ObjectMerge
             | OpCode::GetProperty
+            | OpCode::GetSlotMethod
             | OpCode::GetPropertyMaybe
             | OpCode::SetProperty
             | OpCode::GetFixedField
             | OpCode::SetFixedField
             | OpCode::GetSuper
+            | OpCode::GetSuperSlot
             | OpCode::MakeClosure
             | OpCode::MakeClass
             | OpCode::Inherit

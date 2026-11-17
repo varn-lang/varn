@@ -88,6 +88,7 @@ impl Views {
                 | SsaOp::BuildMap { .. }
                 | SsaOp::BuildObject { .. }
                 | SsaOp::GetProperty { .. }
+                | SsaOp::GetSlotMethod { .. }
                 | SsaOp::SetProperty { .. }
                 | SsaOp::GetIndex { .. }
                 | SsaOp::SetIndex { .. }
@@ -104,6 +105,7 @@ impl Views {
                 | SsaOp::FreezeClass { .. }
                 | SsaOp::DefineMethod { .. }
                 | SsaOp::GetSuper { .. }
+                | SsaOp::GetSuperSlot { .. }
                 | SsaOp::LoadGlobal(_)
                 | SsaOp::StoreGlobal { .. }
                 | SsaOp::BuildTuple { .. }
@@ -178,6 +180,7 @@ impl Views {
                 | SsaOp::BuildMap { .. }
                 | SsaOp::BuildObject { .. }
                 | SsaOp::GetProperty { .. }
+                | SsaOp::GetSlotMethod { .. }
                 | SsaOp::SetProperty { .. }
                 | SsaOp::GetIndex { .. }
                 | SsaOp::SetIndex { .. }
@@ -196,6 +199,7 @@ impl Views {
                 | SsaOp::FreezeClass { .. }
                 | SsaOp::DefineMethod { .. }
                 | SsaOp::GetSuper { .. }
+                | SsaOp::GetSuperSlot { .. }
                 | SsaOp::LoadGlobal(_)
                 | SsaOp::StoreGlobal { .. }
                 | SsaOp::BuildTuple { .. }

@@ -176,6 +176,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::StoreUpvalue { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -228,6 +229,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::BuildObjectSpread { .. } => 0,
     }
 }

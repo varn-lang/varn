@@ -108,6 +108,7 @@ pub(super) fn emit(
         | SsaOp::BuildMap { .. }
         | SsaOp::BuildObject { .. }
         | SsaOp::GetProperty { .. }
+        | SsaOp::GetSlotMethod { .. }
         | SsaOp::GetIndex { .. }
         | SsaOp::ArrayLength { .. }
         | SsaOp::StrLength { .. }
@@ -119,6 +120,7 @@ pub(super) fn emit(
         | SsaOp::GetFixedField { .. }
         | SsaOp::MakeClass { .. }
         | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
         | SsaOp::LoadGlobal(_)
         | SsaOp::StoreGlobal { .. }
         | SsaOp::BuildTuple { .. }
@@ -376,6 +378,8 @@ pub(super) fn emit(
         | SsaOp::GetPropertyMaybe { .. }
         | SsaOp::AssertNotNull { .. }
         | SsaOp::BindMethod { .. }
+        | SsaOp::GetSlotMethod { .. }
+        | SsaOp::GetSuperSlot { .. }
         | SsaOp::ArrayExtend { .. }
         | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }

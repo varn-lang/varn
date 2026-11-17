@@ -280,6 +280,40 @@ pub(crate) fn op_get_super(
     ))
 }
 
+pub(crate) fn op_get_super_slot(
+    cls: Rc<ClassObj>,
+    slot: usize,
+    receiver_nv: VmValue,
+    heap: &mut Heap,
+) -> VmResult<VmValue> {
+    let super_cls = cls
+        .superclass
+        .borrow()
+        .clone()
+        .ok_or_else(|| RuntimeError::new("no superclass"))?;
+    let vtable = super_cls.vtable.borrow();
+    let method = vtable.get(slot).copied().ok_or_else(|| {
+        RuntimeError::new(format!(
+            "GetSuperSlot: slot {slot} out of range for class '{}' (vtable len {})",
+            super_cls.name,
+            vtable.len()
+        ))
+    })?;
+    let owner = super_cls
+        .vtable_owners
+        .borrow()
+        .get(slot)
+        .cloned()
+        .flatten();
+    drop(vtable);
+    Ok(bind_method_to_receiver(
+        heap,
+        receiver_nv,
+        method,
+        owner.or(Some(super_cls)),
+    ))
+}
+
 fn default_constructor(
     _ctx: &mut dyn vn_types::NativeCtx,
     _args: &[VmValue],

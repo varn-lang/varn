@@ -188,13 +188,36 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         let r = self.lower_expr(recv)?;
         if args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_))) {
-            let bound = self.emit(
-                InstKind::GetProperty {
-                    object: r,
-                    name: name.clone(),
-                },
-                BackendTy::Dynamic(DynReason::Runtime),
-            );
+            let bound = match res {
+                Resolution::VtableSlot(slot) => self.emit(
+                    InstKind::GetSlotMethod {
+                        object: r,
+                        slot: *slot,
+                    },
+                    BackendTy::Dynamic(DynReason::Runtime),
+                ),
+                Resolution::None
+                | Resolution::Local(_)
+                | Resolution::Param(_)
+                | Resolution::Upvalue(_)
+                | Resolution::GlobalSlot(_)
+                | Resolution::NativeGlobal(_)
+                | Resolution::ModuleSlot { .. }
+                | Resolution::FieldSlot(_)
+                | Resolution::StaticField(_)
+                | Resolution::DirectFn(_)
+                | Resolution::Intrinsic(_)
+                | Resolution::NativeOp(_)
+                | Resolution::NativeDecode { .. }
+                | Resolution::EnumVariant { .. }
+                | Resolution::ByName { .. } => self.emit(
+                    InstKind::GetProperty {
+                        object: r,
+                        name: name.clone(),
+                    },
+                    BackendTy::Dynamic(DynReason::Runtime),
+                ),
+            };
             return self.lower_call(bound, args, ty);
         }
         if !matches!(

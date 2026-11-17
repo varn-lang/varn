@@ -139,6 +139,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         | InstKind::StoreGlobalIdx { .. }
         | InstKind::AllocInstance { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -190,6 +191,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::BuildArraySpread { .. }
         | InstKind::BuildObjectSpread { .. } => None,
     }

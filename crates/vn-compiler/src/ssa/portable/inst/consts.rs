@@ -46,6 +46,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -101,6 +102,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

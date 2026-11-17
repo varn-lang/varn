@@ -157,6 +157,14 @@ impl<'m> Builder<'m> {
             TirExprKind::SuperCall { args }
                 if args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_))) =>
             {
+                if let Some(slot) = self.super_method_slot(vn_core::TokenKind::Constructor.as_str())
+                {
+                    let ctor = self.emit(
+                        InstKind::GetSuperSlot { slot },
+                        BackendTy::Dynamic(DynReason::Runtime),
+                    );
+                    return self.lower_call(ctor, args, ty);
+                }
                 let ctor = self.emit(
                     InstKind::GetSuper {
                         name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
@@ -179,6 +187,13 @@ impl<'m> Builder<'m> {
             TirExprKind::SuperMethodCall { name, args }
                 if args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_))) =>
             {
+                if let Some(slot) = self.super_method_slot(name) {
+                    let method = self.emit(
+                        InstKind::GetSuperSlot { slot },
+                        BackendTy::Dynamic(DynReason::Runtime),
+                    );
+                    return self.lower_call(method, args, ty);
+                }
                 let method = self.emit(
                     InstKind::GetSuper { name: name.clone() },
                     BackendTy::Dynamic(DynReason::Runtime),

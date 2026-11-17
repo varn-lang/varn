@@ -60,6 +60,44 @@ pub(super) fn bind_method(
     Ok(Some(Some(Out::Boxed(native(b, ectx, h)))))
 }
 
+pub(super) fn slot_method(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    values: &mut [Option<Value>],
+    object: u32,
+    slot: u16,
+) -> Result<Option<Option<Out>>, String> {
+    let ectx = exec_ctx(ctx);
+    let h = ctx.helpers;
+    let o = boxed_value(b, ctx, values, object)?;
+    let (ot, op_) = b.ins().isplit(o);
+    let slot_v = b.ins().iconst(types::I64, i64::from(slot));
+    crate::clif::from_ssa::exceptions::call_checked(
+        b,
+        ctx,
+        h.bind_slot_method,
+        &[ectx, ot, op_, slot_v],
+    )?;
+    Ok(Some(Some(Out::Boxed(native(b, ectx, h)))))
+}
+
+pub(super) fn super_slot(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    slot: u16,
+) -> Result<Option<Option<Out>>, String> {
+    let frame = ctx
+        .frame
+        .as_ref()
+        .ok_or("from_ssa: GetSuperSlot without a frame")?;
+    frame.base.ok_or(super::super::NEEDS_ACTIVATION)?;
+    let ectx = frame.exec_ctx;
+    let h = ctx.helpers;
+    let slot_v = b.ins().iconst(types::I64, i64::from(slot));
+    crate::clif::from_ssa::exceptions::call_checked(b, ctx, h.bind_super_slot, &[ectx, slot_v])?;
+    Ok(Some(Some(Out::Boxed(native(b, ectx, h)))))
+}
+
 pub(super) fn array_extend(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,

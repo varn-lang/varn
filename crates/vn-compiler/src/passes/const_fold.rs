@@ -115,6 +115,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
+                | InstKind::GetSlotMethod { .. }
                 | InstKind::GetFixedField { .. }
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
@@ -174,6 +175,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::Range { .. }
                 | InstKind::ObjectKeys { .. }
                 | InstKind::GetSuper { .. }
+                | InstKind::GetSuperSlot { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
                 | InstKind::SuperInvokeSlot { .. }
@@ -203,6 +205,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
@@ -260,6 +263,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

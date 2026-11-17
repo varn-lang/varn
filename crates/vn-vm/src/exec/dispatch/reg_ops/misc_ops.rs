@@ -63,6 +63,21 @@ impl ExecCtx {
         crate::exec::class::op_get_super(cls, &name, this_val, &mut self.heap)
     }
 
+    pub(in crate::exec::dispatch) fn exec_get_super_slot_reg(
+        &mut self,
+        this_val: VmValue,
+        slot: usize,
+        frame_idx: usize,
+        closure: &VmClosure,
+    ) -> VmResult<VmValue> {
+        let receiver = crate::exec::props::get_class(this_val, &self.heap);
+        let cls = crate::exec::class::home_class(receiver.clone(), closure, &self.heap)
+            .or_else(|| self.frames[frame_idx].current_class.clone())
+            .or(receiver)
+            .ok_or_else(|| RuntimeError::new("GetSuperSlot: 'this' has no class"))?;
+        crate::exec::class::op_get_super_slot(cls, slot, this_val, &mut self.heap)
+    }
+
     pub(in crate::exec::dispatch) fn exec_assert_not_null(&self, v: VmValue) -> VmResult<()> {
         crate::exec::advanced::assert_not_null(v)
     }

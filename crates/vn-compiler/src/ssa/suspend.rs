@@ -38,6 +38,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
+                | InstKind::GetSlotMethod { .. }
                 | InstKind::GetFixedField { .. }
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
@@ -95,6 +96,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::Range { .. }
                 | InstKind::ObjectKeys { .. }
                 | InstKind::GetSuper { .. }
+                | InstKind::GetSuperSlot { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
                 | InstKind::SuperInvokeSlot { .. }
@@ -148,6 +150,7 @@ pub fn suspend_live_regs(
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
+                | InstKind::GetSlotMethod { .. }
                 | InstKind::GetFixedField { .. }
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
@@ -205,6 +208,7 @@ pub fn suspend_live_regs(
                 | InstKind::Range { .. }
                 | InstKind::ObjectKeys { .. }
                 | InstKind::GetSuper { .. }
+                | InstKind::GetSuperSlot { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
                 | InstKind::SuperInvokeSlot { .. }
@@ -306,6 +310,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
+                | InstKind::GetSlotMethod { .. }
                 | InstKind::GetFixedField { .. }
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
@@ -361,6 +366,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::Range { .. }
                 | InstKind::ObjectKeys { .. }
                 | InstKind::GetSuper { .. }
+                | InstKind::GetSuperSlot { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
                 | InstKind::SuperInvokeSlot { .. }

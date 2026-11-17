@@ -111,6 +111,8 @@ macro_rules! object_ops {
             | OpCode::GetFixedField
             | OpCode::SetFixedField
             | OpCode::GetSuper
+            | OpCode::GetSlotMethod
+            | OpCode::GetSuperSlot
             | OpCode::AssertNotNull
             | OpCode::DeclareLayout
             | OpCode::FreezeClass

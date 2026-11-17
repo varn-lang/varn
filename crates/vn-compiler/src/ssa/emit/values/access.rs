@@ -50,6 +50,21 @@ pub(super) fn emit_get_super(chunk: &mut Chunk, d: u8, name: &Arc<str>, line: u3
     chunk.emit_rc(OpCode::GetSuper, d, idx, line);
 }
 
+pub(super) fn emit_get_slot_method(
+    chunk: &mut Chunk,
+    d: u8,
+    object: Value,
+    slot: u16,
+    reg: &[u8],
+    line: u32,
+) {
+    chunk.emit_rrc(OpCode::GetSlotMethod, d, reg[object.0 as usize], slot, line);
+}
+
+pub(super) fn emit_get_super_slot(chunk: &mut Chunk, d: u8, slot: u16, line: u32) {
+    chunk.emit_rc(OpCode::GetSuperSlot, d, slot, line);
+}
+
 pub(super) fn emit_get_property(
     chunk: &mut Chunk,
     d: u8,

@@ -70,6 +70,9 @@ pub(super) fn emit_value(
         InstKind::GetProperty { object, name } => {
             access::emit_get_property(chunk, d, *object, name, reg, ic_slot, line)?;
         }
+        InstKind::GetSlotMethod { object, slot } => {
+            access::emit_get_slot_method(chunk, d, *object, *slot, reg, line);
+        }
         InstKind::GetFixedField {
             object,
             slot,
@@ -209,6 +212,9 @@ pub(super) fn emit_value(
 
         InstKind::GetSuper { name } => {
             access::emit_get_super(chunk, d, name, line);
+        }
+        InstKind::GetSuperSlot { slot } => {
+            access::emit_get_super_slot(chunk, d, *slot, line);
         }
 
         InstKind::SuperCall { args } => {

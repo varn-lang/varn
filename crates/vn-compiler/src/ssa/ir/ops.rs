@@ -78,6 +78,11 @@ pub enum InstKind {
         name: Arc<str>,
     },
 
+    GetSlotMethod {
+        object: Value,
+        slot: u16,
+    },
+
     GetFixedField {
         object: Value,
         slot: u16,
@@ -345,6 +350,10 @@ pub enum InstKind {
 
     GetSuper {
         name: Arc<str>,
+    },
+
+    GetSuperSlot {
+        slot: u16,
     },
 
     SuperCall {

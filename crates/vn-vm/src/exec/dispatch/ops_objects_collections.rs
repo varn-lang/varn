@@ -54,6 +54,18 @@ impl ExecCtx {
                 *ip = self.frames[frame_idx2].ip;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
+            OpCode::GetSlotMethod => {
+                let w1 = unsafe { *code.get_unchecked(*ip) };
+                *ip += 1;
+                let obj_reg = hi(w1);
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
+                *ip += 1;
+                self.frames[frame_idx].ip = *ip;
+                let obj = self.stack.box_reg(base, obj_reg);
+                let val = crate::exec::method_bind::slot_method_bound(obj, slot, &mut self.heap)?;
+                self.stack.unbox_into_reg(base, first_reg, val)?;
+                Ok(Some(ObjectFlow::ContinueInstruction))
+            }
             OpCode::GetPropertyMaybe => {
                 let obj_reg = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
@@ -124,6 +136,18 @@ impl ExecCtx {
                 let this_val = self.stack.box_reg(base, 0);
                 self.frames[frame_idx].ip = *ip;
                 let val = self.exec_get_super_reg(this_val, name_idx, frame_idx, closure)?;
+                let frame_idx2 = self.frames.len() - 1;
+                self.stack.unbox_into_reg(base, first_reg, val)?;
+                *ip = self.frames[frame_idx2].ip;
+                Ok(Some(ObjectFlow::ContinueInstruction))
+            }
+            OpCode::GetSuperSlot => {
+                let slot = unsafe { *code.get_unchecked(*ip) } as usize;
+                *ip += 1;
+
+                let this_val = self.stack.box_reg(base, 0);
+                self.frames[frame_idx].ip = *ip;
+                let val = self.exec_get_super_slot_reg(this_val, slot, frame_idx, closure)?;
                 let frame_idx2 = self.frames.len() - 1;
                 self.stack.unbox_into_reg(base, first_reg, val)?;
                 *ip = self.frames[frame_idx2].ip;

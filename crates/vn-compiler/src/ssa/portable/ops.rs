@@ -174,6 +174,8 @@ pub(super) fn project_bin(
         | OpCode::FreezeClass
         | OpCode::InvokeSlot
         | OpCode::SuperInvokeSlot
+        | OpCode::GetSlotMethod
+        | OpCode::GetSuperSlot
         | OpCode::BytesLength => return None,
     })
 }

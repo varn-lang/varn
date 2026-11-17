@@ -91,6 +91,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::AllocInstance { .. }
                 | InstKind::SelfCall { .. }
                 | InstKind::GetProperty { .. }
+                | InstKind::GetSlotMethod { .. }
                 | InstKind::GetFixedField { .. }
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
@@ -148,6 +149,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::Range { .. }
                 | InstKind::ObjectKeys { .. }
                 | InstKind::GetSuper { .. }
+                | InstKind::GetSuperSlot { .. }
                 | InstKind::SuperCall { .. }
                 | InstKind::SuperMethodCall { .. }
                 | InstKind::SuperInvokeSlot { .. }

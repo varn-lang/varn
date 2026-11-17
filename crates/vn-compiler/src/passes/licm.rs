@@ -182,6 +182,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetIndex { .. }
         | InstKind::SetProperty { .. }
         | InstKind::SetFixedField { .. }
@@ -232,6 +233,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

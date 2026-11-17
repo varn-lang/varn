@@ -219,6 +219,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::AllocInstance { .. }
                         | InstKind::SelfCall { .. }
                         | InstKind::GetProperty { .. }
+                        | InstKind::GetSlotMethod { .. }
                         | InstKind::GetFixedField { .. }
                         | InstKind::GetIndex { .. }
                         | InstKind::ArrayGetIndex { .. }
@@ -277,6 +278,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::Range { .. }
                         | InstKind::ObjectKeys { .. }
                         | InstKind::GetSuper { .. }
+                        | InstKind::GetSuperSlot { .. }
                         | InstKind::SuperCall { .. }
                         | InstKind::SuperMethodCall { .. }
                         | InstKind::SuperInvokeSlot { .. }

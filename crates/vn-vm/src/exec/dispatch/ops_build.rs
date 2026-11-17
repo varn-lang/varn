@@ -308,11 +308,13 @@ impl ExecCtx {
             | OpCode::GetIndex
             | OpCode::SetIndex
             | OpCode::GetProperty
+            | OpCode::GetSlotMethod
             | OpCode::GetPropertyMaybe
             | OpCode::SetProperty
             | OpCode::GetFixedField
             | OpCode::SetFixedField
             | OpCode::GetSuper
+            | OpCode::GetSuperSlot
             | OpCode::MakeClosure
             | OpCode::MakeClass
             | OpCode::Inherit

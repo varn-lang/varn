@@ -220,12 +220,15 @@ pub enum OpCode {
     NeqBool,
     EqChar,
     NeqChar,
+
+    GetSlotMethod,
+    GetSuperSlot,
 }
 
 impl OpCode {
     #[inline(always)]
     pub fn from_u8(v: u8) -> Option<Self> {
-        if v <= OpCode::NeqChar as u8 {
+        if v <= OpCode::GetSuperSlot as u8 {
             Some(unsafe { std::mem::transmute::<u8, OpCode>(v) })
         } else {
             None

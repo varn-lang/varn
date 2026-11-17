@@ -55,6 +55,10 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
             name: name.as_ref().into(),
             cs: u16::from(site.ic_slot?),
         }),
+        InstKind::GetSlotMethod { object, slot } => Some(SsaOp::GetSlotMethod {
+            object: object.0,
+            slot: *slot,
+        }),
         InstKind::SetProperty {
             object,
             name,
@@ -138,6 +142,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }
@@ -237,6 +242,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::AllocInstance { .. }
         | InstKind::SelfCall { .. }
         | InstKind::GetProperty { .. }
+        | InstKind::GetSlotMethod { .. }
         | InstKind::GetFixedField { .. }
         | InstKind::SetProperty { .. }
         | InstKind::SetFixedField { .. }
@@ -287,6 +293,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::Range { .. }
         | InstKind::ObjectKeys { .. }
         | InstKind::GetSuper { .. }
+        | InstKind::GetSuperSlot { .. }
         | InstKind::SuperCall { .. }
         | InstKind::SuperMethodCall { .. }
         | InstKind::SuperInvokeSlot { .. }

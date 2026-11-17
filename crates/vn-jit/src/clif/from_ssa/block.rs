@@ -227,6 +227,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::BuildMap { .. }
             | vn_types::ssa::SsaOp::BuildObject { .. }
             | vn_types::ssa::SsaOp::GetProperty { .. }
+            | vn_types::ssa::SsaOp::GetSlotMethod { .. }
             | vn_types::ssa::SsaOp::SetProperty { .. }
             | vn_types::ssa::SsaOp::GetIndex { .. }
             | vn_types::ssa::SsaOp::SetIndex { .. }
@@ -243,6 +244,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::FreezeClass { .. }
             | vn_types::ssa::SsaOp::DefineMethod { .. }
             | vn_types::ssa::SsaOp::GetSuper { .. }
+            | vn_types::ssa::SsaOp::GetSuperSlot { .. }
             | vn_types::ssa::SsaOp::LoadGlobal(_)
             | vn_types::ssa::SsaOp::StoreGlobal { .. }
             | vn_types::ssa::SsaOp::BuildTuple { .. }

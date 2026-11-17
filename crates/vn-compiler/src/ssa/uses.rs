@@ -51,7 +51,8 @@ macro_rules! inst_uses {
             | Dispose { .. }
             | LoadModule { .. }
             | This
-            | GetSuper { .. } => {}
+            | GetSuper { .. }
+            | GetSuperSlot { .. } => {}
 
             Unary { operand, .. }
             | IsNull { operand }
@@ -70,6 +71,7 @@ macro_rules! inst_uses {
             | Yield { operand } => $use!($f, operand),
 
             GetProperty { object, .. }
+            | GetSlotMethod { object, .. }
             | ObjectRest { object, .. }
             | GetFixedField { object, .. }
             | GetPropertyMaybe { object, .. }

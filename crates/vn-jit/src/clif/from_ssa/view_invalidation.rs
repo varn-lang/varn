@@ -101,6 +101,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::BuildMap { .. }
         | SsaOp::BuildObject { .. }
         | SsaOp::GetProperty { .. }
+        | SsaOp::GetSlotMethod { .. }
         | SsaOp::SetProperty { .. }
         | SsaOp::GetIndex { .. }
         | SsaOp::SetIndex { .. }
@@ -115,6 +116,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMethod { .. }
         | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
         | SsaOp::BuildTuple { .. }
         | SsaOp::BuildArraySpread { .. }
         | SsaOp::BuildObjectSpread { .. }

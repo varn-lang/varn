@@ -96,7 +96,12 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
             }
         },
 
-        GetProperty { .. } | GetPropertyMaybe { .. } | GetIndex { .. } | GetSuper { .. } => false,
+        GetProperty { .. }
+        | GetSlotMethod { .. }
+        | GetPropertyMaybe { .. }
+        | GetIndex { .. }
+        | GetSuper { .. }
+        | GetSuperSlot { .. } => false,
 
         ToString { .. } | BuildStr { .. } => false,
 

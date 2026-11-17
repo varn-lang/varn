@@ -73,6 +73,8 @@ pub(super) fn infix(op: OpCode) -> Option<&'static str> {
         | O::GetFixedField
         | O::SetFixedField
         | O::GetSuper
+        | O::GetSlotMethod
+        | O::GetSuperSlot
         | O::MakeClosure
         | O::MakeClass
         | O::Inherit

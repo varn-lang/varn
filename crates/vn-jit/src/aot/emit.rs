@@ -240,11 +240,13 @@ pub(super) fn emit_module_body(
             | OpCode::ObjectKeys
             | OpCode::ObjectMerge
             | OpCode::GetProperty
+            | OpCode::GetSlotMethod
             | OpCode::GetPropertyMaybe
             | OpCode::SetProperty
             | OpCode::GetFixedField
             | OpCode::SetFixedField
             | OpCode::GetSuper
+            | OpCode::GetSuperSlot
             | OpCode::MakeClosure
             | OpCode::MakeClass
             | OpCode::Inherit
