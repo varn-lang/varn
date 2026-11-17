@@ -51,7 +51,7 @@ pub(crate) fn parse_yield_stmt(s: &mut TokenStream) -> PResult<StmtId> {
     );
     Ok(s.stmt(
         range,
-        StmtKind::ForOf {
+        StmtKind::ForIn {
             kind: VarKind::Const,
             left: Pattern::Identifier { name: item, range },
             right: source,

@@ -91,7 +91,7 @@ impl<'r> Checker<'r> {
         self.loop_depth -= 1;
     }
 
-    pub(super) fn check_for_of_stmt(
+    pub(super) fn check_for_in_stmt(
         &mut self,
         rec: &mut Recorder,
         left: Pattern,
@@ -109,17 +109,8 @@ impl<'r> Checker<'r> {
                 elem
             }
             None => {
-                let shown = right_ty.display(&self.ty_table, &bind.interner);
-                self.emit(
-                    Diagnostic::error(
-                        ErrorCode::NotIterable,
-                        format!(
-                            "'{shown}' is not iterable: for-of needs an array, str, Map, Set, Range or a type whose next() returns Option<T>"
-                        ),
-                    )
-                    .with_range(self.ast_arena.expr(right).range),
-                );
-                Type::Dynamic
+                self.require_keyed_receiver(rec, right, bind);
+                Type::Str
             }
         };
         self.loop_depth += 1;
@@ -130,31 +121,6 @@ impl<'r> Checker<'r> {
             range.end.offset,
             |checker, rec| {
                 checker.check_pattern(rec, &left, &elem_ty, bind);
-                checker.check_stmt(rec, body, bind);
-            },
-        );
-        self.loop_depth -= 1;
-    }
-
-    pub(super) fn check_for_in_stmt(
-        &mut self,
-        rec: &mut Recorder,
-        left: Pattern,
-        right: ExprId,
-        body: StmtId,
-        range: SourceRange,
-        bind: &BindResult,
-    ) {
-        self.check_expr(rec, right, bind);
-        self.require_keyed_receiver(rec, right, bind);
-        self.loop_depth += 1;
-        self.with_next_child_scope_span(
-            rec,
-            bind,
-            range.start.offset,
-            range.end.offset,
-            |checker, rec| {
-                checker.check_pattern(rec, &left, &Type::Str, bind);
                 checker.check_stmt(rec, body, bind);
             },
         );

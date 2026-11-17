@@ -3,10 +3,10 @@ import { readDir, readText, stat } from "std:fs";
 
 function sources(dir: str): str[] {
     let found: str[] = [];
-    for (const name of readDir(dir)) {
+    for (const name in readDir(dir)) {
         const path = dir + "/" + name;
         if (stat(path).isDir) {
-            for (const inner of sources(path)) {
+            for (const inner in sources(path)) {
                 found.push(inner);
             }
         } else if (name.endsWith(".vn")) {
@@ -18,7 +18,7 @@ function sources(dir: str): str[] {
 
 function offences(text: str): int {
     let count = 0;
-    for (const line of text.split("\n")) {
+    for (const line in text.split("\n")) {
         const at = line.indexOf("new Error(");
         if (at == null) {
             continue
@@ -49,7 +49,7 @@ await describe("298 std errors are typed", async () => {
         const files = sources("std");
         expect(files.length > 100).toBeTruthy();
         let total = 0;
-        for (const file of files) {
+        for (const file in files) {
             total = total + offences(readText(file));
         }
         expect(total).toBe(0);
@@ -57,7 +57,7 @@ await describe("298 std errors are typed", async () => {
 
     await it("no std module still imports the old coded-error helpers", async () => {
         let total = 0;
-        for (const file of sources("std")) {
+        for (const file in sources("std")) {
             const text = readText(file);
             if (text.indexOf("toStdError") != null || text.indexOf("stdError(") != null) {
                 total = total + 1;

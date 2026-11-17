@@ -15,7 +15,7 @@ function depth(step: Step?): int { return step == null ? 0 : 1 + depth(step.next
 function widthOf(v: str | int[]): int { return v is str ? v.slice(0, 1).length : v.length }
 function widths(items: (str | int[])[]): int {
     let n = 0
-    for (const item of items) {
+    for (const item in items) {
         if (item is str) { n = n + item.length } else { n = n + item.length + 100 }
     }
     return n
@@ -41,7 +41,7 @@ await describe("181 narrowing in expressions", async () => {
         expect(widthOf([1, 2, 3])).toBe(3)
     })
 
-    await it("an is test narrows the variable of a for-of", () => {
+    await it("an is test narrows the variable in a for-of", () => {
         expect(widths(["ab", [1, 2, 3]])).toBe(105)
     })
 

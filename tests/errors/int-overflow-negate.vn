@@ -2,6 +2,6 @@
 //
 // `-INT_MIN` has no `int` representation: the two's-complement range is
 // asymmetric. Unchecked negation returned INT_MIN again, so `-x == x` held
-// for one value of `x`.
+// for one value in `x`.
 function neg(a: int): int { return -a }
 print(neg(-9223372036854775807 - 1))

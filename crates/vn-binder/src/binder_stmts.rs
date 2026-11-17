@@ -113,9 +113,6 @@ impl<'r> Binder<'r> {
             }
             StmtKind::ForIn {
                 left, right, body, ..
-            }
-            | StmtKind::ForOf {
-                left, right, body, ..
             } => {
                 let (right, body) = (*right, *body);
                 let child = self.scopes.child(ScopeKind::Block, self.current);

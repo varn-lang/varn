@@ -72,7 +72,7 @@ impl<'r> Checker<'r> {
                 self.check_for_stmt(rec, init.clone(), *test, *update, *body, range, bind);
             }
 
-            StmtKind::ForOf {
+            StmtKind::ForIn {
                 left,
                 right,
                 body,
@@ -80,14 +80,7 @@ impl<'r> Checker<'r> {
                 ..
             } => {
                 self.forget_loop_assignments(rec, stmt, bind);
-                self.check_for_of_stmt(rec, left.clone(), *right, *body, *is_await, range, bind);
-            }
-
-            StmtKind::ForIn {
-                left, right, body, ..
-            } => {
-                self.forget_loop_assignments(rec, stmt, bind);
-                self.check_for_in_stmt(rec, left.clone(), *right, *body, range, bind);
+                self.check_for_in_stmt(rec, left.clone(), *right, *body, *is_await, range, bind);
             }
 
             StmtKind::Try {
@@ -110,7 +103,6 @@ impl<'r> Checker<'r> {
                         | StmtKind::DoWhile { .. }
                         | StmtKind::For { .. }
                         | StmtKind::ForIn { .. }
-                        | StmtKind::ForOf { .. }
                 );
                 if !on_loop {
                     self.emit(

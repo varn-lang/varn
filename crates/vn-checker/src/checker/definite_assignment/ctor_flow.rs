@@ -299,7 +299,7 @@ impl<'a> CtorFlow<'a> {
                 }
                 false
             }
-            StmtKind::ForIn { right, body, .. } | StmtKind::ForOf { right, body, .. } => {
+            StmtKind::ForIn { right, body, .. } => {
                 self.expr(*right, assigned);
                 self.branch(*body, assigned);
                 false

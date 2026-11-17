@@ -58,13 +58,6 @@ fn stmt_uses_receiver(arena: &AstArena, id: StmtId) -> bool {
                 || expr_uses_receiver(arena, *right)
                 || stmt_uses_receiver(arena, *body)
         }
-        StmtKind::ForOf {
-            left, right, body, ..
-        } => {
-            pattern_default_uses_receiver(arena, left)
-                || expr_uses_receiver(arena, *right)
-                || stmt_uses_receiver(arena, *body)
-        }
         StmtKind::Return { argument } => argument.is_some_and(|e| expr_uses_receiver(arena, e)),
         StmtKind::Break { .. } => false,
         StmtKind::Continue { .. } => false,

@@ -39,7 +39,7 @@ pub static POSTFIX_TEMPLATES: &[PostfixTemplate] = &[
     },
     PostfixTemplate {
         name: "for",
-        detail: "Postfix for-of",
+        detail: "Postfix for-in",
         description: "Iterate over collection:\n```vn\nfor (const item of expr) {\n    $0\n}\n```",
         snippet_format: |expr| format!("for (const ${{1:item}} of {expr}) {{\n    $0\n}}"),
     },

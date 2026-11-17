@@ -341,7 +341,7 @@ await describe("321 calendar parts carry the weekday and big functions still com
     });
 
     await it("parts round-trip across leap years and century boundaries", async () => {
-        for (const ms of [951782400000, 4107542400000, -2203891200000, -62135596800000, 253402300799999]) {
+        for (const ms in [951782400000, 4107542400000, -2203891200000, -62135596800000, 253402300799999]) {
             expect(fromParts(toParts(ms))).toBe(ms);
             expect(fromISO(toISOString(ms))).toBe(ms);
         }

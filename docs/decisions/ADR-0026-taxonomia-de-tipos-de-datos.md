@@ -179,11 +179,11 @@ const m2 = new Map([("a", 1), ("b", 2)])                            ✚
 const m3: Map<str, int> = { a: 1, [key]: 2 }                        ✚ literal tipado por el Map esperado
 "a" in m3                                                           ✚ m3.has("a")
 m.set("c", 3)    m.get("a")     m.has("a")    m.delete("a")    m.size
-for (const (k, v) of m) { ... }
+for (const (k, v) in m) { ... }
 
 const s = new Set([1, 2, 3])                                        ✚
 s.add(4)    s.has(2)    s.delete(2)    s.size
-for (const e of s) { ... }
+for (const e in s) { ... }
 ```
 `m.get(k)` devuelve `V?`. `arr[i]` devuelve `T` y falla en runtime fuera de rango (error de programación, no un caso normal).
 
@@ -210,7 +210,7 @@ function f(x: int, y: int = 2, ...rest: int[]): void { ... }
 function pick<T extends Animal>(x: T): T { return x }
 class Box<out T> { constructor(public readonly value: T) {} }       ✚
 
-if / else   while   do-while   for (;;)   for (const x of it)
+if / else   while   do-while   for (;;)   for (const x in it)
 break   continue   return   throw
 try { } catch (e) { } finally { }       const v = riskyCall()?
 using win = Window.open(...)

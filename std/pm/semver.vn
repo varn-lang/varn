@@ -154,7 +154,7 @@ export namespace Semver {
 
     function satisfiesAnd(v: SemVer, group: str): bool {
         let parts = group.split(" ");
-        for (let part of parts) {
+        for (let part in parts) {
             if (part.length == 0) {
                 continue;
             }
@@ -168,7 +168,7 @@ export namespace Semver {
 
     export function satisfies(v: SemVer, range: str): bool {
         let groups = range.split("||");
-        for (let g of groups) {
+        for (let g in groups) {
             if (satisfiesAnd(v, g.trim())) {
                 return true;
             }

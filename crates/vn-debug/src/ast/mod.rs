@@ -134,18 +134,6 @@ pub(super) fn print_stmt(
             print_stmt(body, arena, &child_indent, true, interner);
         }
         StmtKind::ForIn {
-            left, right, body, ..
-        } => {
-            let (right, body) = (*right, *body);
-            terminal::log(format!("{indent}{marker}{}", chalk("ForInStmt").bold()));
-            terminal::log(format!(
-                "{child_indent}├── {}",
-                chalk(format_pattern(left, interner)).yellow()
-            ));
-            print_expr(right, arena, &child_indent, false, interner);
-            print_stmt(body, arena, &child_indent, true, interner);
-        }
-        StmtKind::ForOf {
             left,
             right,
             body,
@@ -156,7 +144,7 @@ pub(super) fn print_stmt(
             let await_str = if is_await { " await" } else { "" };
             terminal::log(format!(
                 "{indent}{marker}{}{}",
-                chalk("ForOfStmt").bold(),
+                chalk("ForInStmt").bold(),
                 chalk(await_str).dim()
             ));
             terminal::log(format!(

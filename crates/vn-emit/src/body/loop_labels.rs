@@ -68,8 +68,7 @@ impl<'a> FnEmitter<'a> {
             StmtKind::While { .. }
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
-            | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. } => self.lower_loop(s),
+            | StmtKind::ForIn { .. } => self.lower_loop(s),
             StmtKind::Break { label: Some(label) } => self.jump_to(*label, LEAVE),
             StmtKind::Continue { label: Some(label) } => self.jump_to(*label, AGAIN),
             StmtKind::Break { label: None }

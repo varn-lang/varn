@@ -51,7 +51,7 @@ export namespace Markdown {
         let root = new MarkdownNode(MarkdownNodeKind.Root);
         let rawLines = source.split("\n");
         let lines: str[] = [];
-        for (let l of rawLines) {
+        for (let l in rawLines) {
             if (l.endsWith("\r")) {
                 lines.push(l.slice(0, l.length - 1));
             } else {
@@ -129,7 +129,7 @@ export namespace Markdown {
                 let headingNode = new MarkdownNode(MarkdownNodeKind.Heading, headingText);
                 headingNode.level = headingLevel;
                 let inlines = parseInlineTokens(headingText, optEscape);
-                for (let c of inlines) {
+                for (let c in inlines) {
                     headingNode.addChild(c);
                 }
                 root.addChild(headingNode);
@@ -162,7 +162,7 @@ export namespace Markdown {
                 let quoteContent = quoteLines.join("\n");
                 let blockNode = new MarkdownNode(MarkdownNodeKind.Blockquote);
                 let innerAst = parse(quoteContent, options);
-                for (let c of innerAst.children) {
+                for (let c in innerAst.children) {
                     blockNode.addChild(c);
                 }
                 root.addChild(blockNode);
@@ -176,10 +176,10 @@ export namespace Markdown {
                 tableNode.align = alignments;
 
                 let headRowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
-                for (let cell of headerRow) {
+                for (let cell in headerRow) {
                     let cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
                     let inlines = parseInlineTokens(cell, optEscape);
-                    for (let c of inlines) {
+                    for (let c in inlines) {
                         cellNode.addChild(c);
                     }
                     headRowNode.addChild(cellNode);
@@ -194,10 +194,10 @@ export namespace Markdown {
                     }
                     let rowCells = splitTableRow(cur);
                     let rowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
-                    for (let cell of rowCells) {
+                    for (let cell in rowCells) {
                         let cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
                         let inlines = parseInlineTokens(cell, optEscape);
-                        for (let c of inlines) {
+                        for (let c in inlines) {
                             cellNode.addChild(c);
                         }
                         rowNode.addChild(cellNode);
@@ -276,7 +276,7 @@ export namespace Markdown {
 
                     itemNode.text = content;
                     let inlines = parseInlineTokens(content, optEscape);
-                    for (let c of inlines) {
+                    for (let c in inlines) {
                         itemNode.addChild(c);
                     }
                     listNode.addChild(itemNode);
@@ -304,7 +304,7 @@ export namespace Markdown {
             let pText = pLines.join("\n");
             let pNode = new MarkdownNode(MarkdownNodeKind.Paragraph, pText);
             let inlines = parseInlineTokens(pText, optEscape);
-            for (let c of inlines) {
+            for (let c in inlines) {
                 pNode.addChild(c);
             }
             root.addChild(pNode);

@@ -48,7 +48,7 @@ let gcMixed: GcMixed[] = []
 
 function gcMixedChecksum(xs: GcMixed[]): int {
     let acc = 0
-    for (const m of xs) {
+    for (const m in xs) {
         acc = acc + m.a + m.leaf.n + m.items[2] + m.b
         if (m.flag) { acc = acc + 1 }
         if (m.label == `mixed-label-long-enough-for-the-heap-${m.a}`) { acc = acc + 1 }
@@ -99,7 +99,7 @@ for (let i = 0; i < 5000; i = i + 1) {
     gcScalars.push(new GcScalars(i))
 }
 gcChurn(60000)
-for (const s of gcScalars) {
+for (const s in gcScalars) {
     gcScalarSum = gcScalarSum + s.a + s.b
 }
 

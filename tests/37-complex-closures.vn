@@ -79,7 +79,7 @@ class EventBus {
     private handlers: ((data: str) => void)[] = []
     subscribe(h: (data: str) => void): void { this.handlers.push(h) }
     emit(data: str): void {
-        for (const h of this.handlers) h(data)
+        for (const h in this.handlers) h(data)
     }
 }
 await describe("37 complex closures", async () => {

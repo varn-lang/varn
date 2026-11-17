@@ -112,14 +112,6 @@ impl AstJson<'_> {
                 line,
                 vec![self.expr(*right), self.stmt(*body)],
             ),
-            StmtKind::ForOf {
-                left, right, body, ..
-            } => node(
-                format!("for {} of", self.text(*left.range())),
-                "keyword",
-                line,
-                vec![self.expr(*right), self.stmt(*body)],
-            ),
             StmtKind::Return { argument } => {
                 let children = argument.iter().map(|&a| self.expr(a)).collect();
                 node("ReturnStmt".to_string(), "keyword", line, children)

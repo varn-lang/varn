@@ -20,7 +20,7 @@ await describe("130 range generic", async () => {
         expect(letters.start == 'a' && letters.end).toBe('e');
         expect(letters.contains('c') && !letters.contains('z')).toBeTruthy();
         expect(letters.toArray().join("")).toBe("abcde");
-        for (const c of 'x'..='z') { word = `${word}${c}`}
+        for (const c in 'x'..='z') { word = `${word}${c}`}
         expect(word).toBe("xyz");
     });
 
@@ -28,7 +28,7 @@ await describe("130 range generic", async () => {
         expect(evens.length == 5 && evens[4]).toBe(8);
         expect(evens.contains(4) && !evens.contains(5)).toBeTruthy();
         expect(evens.step(2).toArray().join(",")).toBe("0,4,8");
-        for (const i of (1..=9).step(4)) { total = total + i }
+        for (const i in (1..=9).step(4)) { total = total + i }
         expect(total).toBe(1 + 5 + 9);
         expect(badStep()).toBeTruthy();
     });

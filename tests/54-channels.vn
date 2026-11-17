@@ -36,7 +36,7 @@ async function testForAwait(): void {
     await ch.tx.send(20)
     ch.tx.close()
     let sum = 0
-    for await (const v of ch.rx) {
+    for await (const v in ch.rx) {
         sum = sum + v
     }
     expect(sum).toBe(30)

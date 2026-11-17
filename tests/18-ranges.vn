@@ -26,7 +26,7 @@ await describe("18 Ranges", async () => {
 
     await it("iteration and from", () => {
         let rangeSum = 0;
-        for (const i of 1..=10) {
+        for (const i in 1..=10) {
             rangeSum = rangeSum + i;
         }
         expect(rangeSum).toBe(55);

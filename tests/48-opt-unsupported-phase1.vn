@@ -32,7 +32,7 @@ class Child extends Parent {
 }
 await describe("48 opt unsupported phase1", async () => {
     await it("tests", async () => {
-        // Tests for Phase 1 of varn-opt unsupported features parity
+        // Tests for Phase 1 in varn-opt unsupported features parity
         // 1. Compound assignment operators (**=, >>>=)
         let x = 2;
         x **= 3;

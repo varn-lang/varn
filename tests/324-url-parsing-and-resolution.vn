@@ -61,7 +61,7 @@ function parseFails(text: str): bool {
 await describe("324 url parsing and resolution", async () => {
     await it("resolving a reference follows RFC 3986 section 5.4", async () => {
         const base = Url.parse(BASE);
-        for (const (reference, expected) of RESOLUTIONS) {
+        for (const (reference, expected) in RESOLUTIONS) {
             expect(Url.resolve(base, reference).toString()).toBe(expected);
         }
     });

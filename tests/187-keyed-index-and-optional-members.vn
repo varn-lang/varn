@@ -4,7 +4,7 @@ type Part = { name: str; tag?: str }
 
 function tally(words: str[]): Map<str, int> {
     const seen = new Map<str, int>()
-    for (const w of words) { seen[w] = (seen[w] ?? 0) + 1 }
+    for (const w in words) { seen[w] = (seen[w] ?? 0) + 1 }
     return seen
 }
 function lookup(seen: Map<str, int>, key: str): int { return seen[key] ?? -1 }
@@ -22,9 +22,9 @@ function describeValue(value: str | str[] | null): int {
 }
 function afterContinue(q: Map<str, str | str[]>): int {
     let n = 0
-    for (const (key, value) of q) {
+    for (const (key, value) in q) {
         if (value is str[]) {
-            for (const item of value) { n = n + size(item) }
+            for (const item in value) { n = n + size(item) }
         } else {
             n = n + size(value)
         }

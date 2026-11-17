@@ -52,7 +52,7 @@ struct Tagged {
 
 function sumPoints(points: Point[]): int {
     let total = 0;
-    for (const p of points) {
+    for (const p in points) {
         total += p.manhattan();
     }
     return total;

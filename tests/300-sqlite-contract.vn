@@ -26,7 +26,7 @@ await describe("300 sqlite contract", async () => {
         const row = db.get("SELECT name, id, weight, photo FROM pet WHERE id = ?", 7);
         expect(row != null).toBe(true);
         let order = "";
-        for (const (column, value) of row!) {
+        for (const (column, value) in row!) {
             order = order + (order.length == 0 ? "" : ",") + column;
         }
         expect(order).toBe("name,id,weight,photo");

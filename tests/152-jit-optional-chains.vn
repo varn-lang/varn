@@ -47,7 +47,7 @@ let ratios = 0.0
 let ons = 0
 let nulls = 0
 
-// Even i hold a leaf: sum of even i, and -1 for each of the 1000 odd ones.
+// Even i hold a leaf: sum in even i, and -1 for each of the 1000 odd ones.
 // Even leaves are all `on` (1); empty boxes give 2.
 await describe("152 jit optional chains", async () => {
         await it("group 1 part 1", async () => {

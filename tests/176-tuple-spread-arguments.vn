@@ -3,7 +3,7 @@ import { describe, it, expect } from "std:test";
 function pair(a: int, b: str): str { return `${a}:${b}`}
 function sum(label: str, ...xs: int[]): int {
     let t = 0
-    for (const x of xs) { t = t + x }
+    for (const x in xs) { t = t + x }
     return t
 }
 class Point {

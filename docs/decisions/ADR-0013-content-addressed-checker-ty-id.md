@@ -11,7 +11,7 @@ ADR-0012 stay; what changes is what an id **is**.
 
 ## Context
 `CheckerTyId` was a positional index into `entries: Vec<InternedTypeKind>`. A
-shape's id therefore depended on the *insertion order* of the table that minted
+shape's id therefore depended on the *insertion order* in the table that minted
 it. Two tables grown independently from a common snapshot could hold different
 shapes at the same index — the root cause of the cross-module type-lineage bug
 family. Every crossing needed a translation (`reintern`, `reintern_foreign_ty`,

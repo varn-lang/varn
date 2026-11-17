@@ -10,36 +10,36 @@ primes.add(5)
 
 function totalAges(): int {
     let total = 0
-    for (const (name, age) of ages) { total = total + age + name.length }
+    for (const (name, age) in ages) { total = total + age + name.length }
     return total
 }
 function sumPrimes(): int {
     let total = 0
-    for (const p of primes) { total = total + p }
+    for (const p in primes) { total = total + p }
     return total
 }
 function countA(text: str): int {
     let n = 0
-    for (const c of text) {
+    for (const c in text) {
         if (c == 'a') { n = n + 1 }
     }
     return n
 }
 function countChars(text: str): int {
     let n = 0
-    for (const c of text) { n = n + 1 }
+    for (const c in text) { n = n + 1 }
     return n
 }
 
-await describe("180 for-of over collections", async () => {
+await describe("180 for-in over collections", async () => {
     await it("a Map yields key/value tuples in insertion order", () => {
         expect(totalAges()).toBe(39)
         const seen: str[] = []
-        for (const entry of ages) { seen.push(entry::type) }
+        for (const entry in ages) { seen.push(entry::type) }
         expect(seen.length).toBe(2)
         expect(seen[0]).toBe("Tuple")
         const names: str[] = []
-        for (const (name, age) of ages) { names.push(name) }
+        for (const (name, age) in ages) { names.push(name) }
         expect(names[0]).toBe("ana")
         expect(names[1]).toBe("bo")
     })
@@ -56,14 +56,14 @@ await describe("180 for-of over collections", async () => {
     await it("a tuple yields its slots", () => {
         const mixed = (1, "x", true)
         let slots = 0
-        for (const slot of mixed) { slots = slots + 1 }
+        for (const slot in mixed) { slots = slots + 1 }
         expect(slots).toBe(3)
     })
 
     await it("a map built from entries iterates over its entries", () => {
         const dict = new Map([("x", 1), ("y", 2)])
         let total = 0
-        for (const (k, v) of dict) { total = total + v }
+        for (const (k, v) in dict) { total = total + v }
         expect(total).toBe(3)
     })
 
@@ -71,7 +71,7 @@ await describe("180 for-of over collections", async () => {
         const live = new Map<str, int>()
         live.set("a", 1)
         let rounds = 0
-        for (const (k, v) of live) {
+        for (const (k, v) in live) {
             live.set(k + "x", v)
             rounds = rounds + 1
         }

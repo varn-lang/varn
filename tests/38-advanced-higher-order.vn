@@ -14,7 +14,7 @@ function square(n: int): int { return n * n }
 // ── pipe: left-to-right function application ─────────────────────
 function pipe<A>(val: A, fns: ((A) => A)[]): A {
     let result = val
-    for (const f of fns) result = f(result)
+    for (const f in fns) result = f(result)
     return result
 }
 
@@ -68,9 +68,9 @@ function takeFirst<T>(f: (T) => void, n: int): (T) => void {
 // ── flatMap via higher-order ─────────────────────────────────────
 function flatMap<A, B>(arr: A[], f: (A) => B[]): B[] {
     const out: B[] = []
-    for (const x of arr) {
+    for (const x in arr) {
         const chunk = f(x)
-        for (const y of chunk) out.push(y)
+        for (const y in chunk) out.push(y)
     }
     return out
 }
@@ -78,7 +78,7 @@ function flatMap<A, B>(arr: A[], f: (A) => B[]): B[] {
 // ── reduce ────────────────────────────────────────────────────────
 function reduce<A, B>(arr: A[], f: (a:B, b:A) => B, init: B): B {
     let acc = init
-    for (const x of arr) acc = f(acc, x)
+    for (const x in arr) acc = f(acc, x)
     return acc
 }
 await describe("38 advanced higher order", async () => {

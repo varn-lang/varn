@@ -19,7 +19,7 @@ await describe("320 decimal results keep the scale their operands imply", async 
         expect(power(1.5d, 0)).toBe("1");
     });
 
-    await it("powers of one stay cheap for huge exponents", async () => {
+    await it("powers in one stay cheap for huge exponents", async () => {
         expect((1d ** 1000000000).toString()).toBe("1");
         expect(((-1d) ** 1000000001).toString()).toBe("-1");
     });

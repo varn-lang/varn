@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
 
-// Tests for Phase 3 of varn-opt unsupported features parity
+// Tests for Phase 3 in varn-opt unsupported features parity
 
 // 1. for-await-of loops (asynchronous iteration)
 class AsyncCounter {
@@ -29,7 +29,7 @@ const myAsyncIterable = new AsyncCounterSource();
 
 async function testForAwait(): int {
     let sum = 0;
-    for await (let x of myAsyncIterable) {
+    for await (let x in myAsyncIterable) {
         sum = sum + x;
     }
     return sum;

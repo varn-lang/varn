@@ -84,7 +84,6 @@ pub(super) fn collect_free_functions<'a>(
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

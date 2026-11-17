@@ -28,7 +28,7 @@ function frame(first: int, payload: Bytes, masked: bool = true, lengthBytes: int
         head.push(maskBit + size);
     }
     if (masked) {
-        for (const k of key) { head.push(k); }
+        for (const k in key) { head.push(k); }
     }
     const out = Bytes.alloc(head.length + size);
     for (let i = 0; i < head.length; i = i + 1) { out.setByte(i, head[i]); }
@@ -64,7 +64,7 @@ async function serverReadFails(port: int, send: Bytes[]): Task<bool> {
     const raw = await TcpStream.connect("127.0.0.1", port, 1);
     await raw.write(Bytes.fromString(HANDSHAKE));
     await readUntilHeadEnd(raw);
-    for (const piece of send) {
+    for (const piece in send) {
         await raw.write(piece);
         await delay(20);
     }

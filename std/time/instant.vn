@@ -82,7 +82,7 @@ export class PlainDateTime {
             order(a.year, b.year), order(a.month, b.month), order(a.day, b.day), order(a.hour, b.hour),
             order(a.minute, b.minute), order(a.second, b.second), order(a.millisecond, b.millisecond)
         ];
-        for (const f of fields) {
+        for (const f in fields) {
             if (f != 0) return f;
         }
         return 0;

@@ -177,7 +177,11 @@ impl<'a> FnEmitter<'a> {
         left: &Pattern,
         right: ExprId,
         body: StmtId,
+        is_await: bool,
     ) -> Vec<TirStmt> {
+        if self.m.desugar.for_of_plans.contains_key(&right.index()) {
+            return self.lower_for_of(left, right, body, is_await);
+        }
         let obj = self.lower_expr(right);
         let mut out = std::mem::take(&mut self.pending);
         let s = self.tt.intern(BackendTy::Str);

@@ -138,7 +138,7 @@ cambios.
 
 array_sum 6x → ~3x (proyección original, **no confirmada empíricamente** —
 ver "Implementación" abajo: el bench pareado mide a la par de baseline en
-esta máquina). Cualquier loop `for x of arr` / `while i<arr.length` sobre
+esta máquina). Cualquier loop `for x in arr` / `while i<arr.length` sobre
 array invariante. Real-code: iteración de arrays es ubicua.
 
 ### Validación

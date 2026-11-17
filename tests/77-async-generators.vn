@@ -56,7 +56,7 @@ async function runAsyncGenerators() {
     expect((await between.next())!).toBe(50)
 
     let total = 0
-    for await (const v of awaitsThenYields()) {
+    for await (const v in awaitsThenYields()) {
         total = total + v
     }
     expect(total).toBe(60)

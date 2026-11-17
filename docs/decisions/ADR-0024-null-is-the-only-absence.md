@@ -12,13 +12,13 @@ Dos formas de "puede faltar" obligan a recordar cuál usa cada API (`pop(): T?` 
 
 - El protocolo de iteración es `next(): T?`: `null` marca el final. `Generator<T>`, `Iterator<T>`, `AsyncGenerator<T>` (`Task<T?>`), `Receiver<T>.next()` (`TaskHandle<T?>`) lo siguen.
 - Un generador no puede ceder `null`: el checker rechaza `yield null`, `yield;` y valores anulables, y la VM lanza un error si un valor dinámico resulta ser `null` en un `yield`. Así `null` no se confunde con el final.
-- `for-of` sobre un tipo con `next(): T?` baja a un bucle que sale al ver `null`; el elemento es `T`.
+- `for-in` sobre un tipo con `next(): T?` baja a un bucle que sale al ver `null`; el elemento es `T`.
 - `if (const v = e)` y `while (const v = e)` (azúcar del parser) sustituyen a `match Some(v)`.
 - El operador `try` sigue aceptando `Result` y tipos anulables.
 
 ## Qué se borra
 
-`core:types/option`, `CoreSum::Option`, `NativeCtx::option`, `ExecCtx::make_option`, las etiquetas de variante en el `for-of` y los usos en `std/signals`.
+`core:types/option`, `CoreSum::Option`, `NativeCtx::option`, `ExecCtx::make_option`, las etiquetas de variante en el `for-in` y los usos en `std/signals`.
 
 ## Verificación
 

@@ -30,7 +30,6 @@ impl<'r> Checker<'r> {
             | StmtKind::DoWhile { body, .. }
             | StmtKind::For { body, .. }
             | StmtKind::ForIn { body, .. }
-            | StmtKind::ForOf { body, .. }
             | StmtKind::Labeled { body, .. } => self.reject_return_in_finally(*body),
             StmtKind::Try {
                 block,

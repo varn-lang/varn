@@ -7,7 +7,7 @@ extension Geometry on { x: int; y: int } {
 extension Sum on int[] {
     total(): int {
         let sum = 0
-        for (const value of this) { sum = sum + value }
+        for (const value in this) { sum = sum + value }
         return sum
     }
 }

@@ -277,7 +277,6 @@ pub(super) fn emit_extensions(
                     | StmtKind::DoWhile { .. }
                     | StmtKind::For { .. }
                     | StmtKind::ForIn { .. }
-                    | StmtKind::ForOf { .. }
                     | StmtKind::Return { .. }
                     | StmtKind::Break { .. }
                     | StmtKind::Continue { .. }

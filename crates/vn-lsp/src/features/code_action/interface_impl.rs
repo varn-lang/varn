@@ -179,7 +179,6 @@ fn find_class_at_line<'a>(
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }
@@ -224,7 +223,6 @@ fn find_interface(
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

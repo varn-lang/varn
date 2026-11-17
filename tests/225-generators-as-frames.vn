@@ -32,10 +32,10 @@ function* inner(base: int) {
 }
 
 function* outer() {
-    for (const v of inner(10)) {
+    for (const v in inner(10)) {
         yield v * 2
     }
-    for (const v of inner(20)) {
+    for (const v in inner(20)) {
         yield v * 2
     }
 }
@@ -112,7 +112,7 @@ await describe("225 generators as frames", async () => {
 
     await it("an async generator settles its awaits inside next", async () => {
         let out: int[] = []
-        for await (const v of slowCount()) {
+        for await (const v in slowCount()) {
             out.push(v)
         }
         expect(out.join(",")).toBe("0,1,2")

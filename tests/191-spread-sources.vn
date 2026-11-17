@@ -6,7 +6,7 @@ function join(head: int[], pair: (int, int)): int[] {
 
 function sumAll(...xs: int[]): int {
     let total = 0
-    for (const x of xs) { total = total + x }
+    for (const x in xs) { total = total + x }
     return total
 }
 

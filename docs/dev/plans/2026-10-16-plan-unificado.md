@@ -282,9 +282,9 @@ Freeze/thaw (B2, otra sesión); tabla nueva cae en
   `Generator.return` (`iteration.rs`), `task.rs::next_result` y
   `host_tasks.rs::iter_result`.
 - `for … of` sobre un iterable no-array
-  (`stmt_for_of.rs::lower_for_of_protocol`) baja a `IterInit` (símbolo de
+  (`stmt_for_in.rs::lower_for_in_protocol`) baja a `IterInit` (símbolo de
   iterador) + `MethodCall "next"` con `Resolution::ByName` + dos `Field` por
-  nombre (`done`, `value`), todo `Dynamic(NotYetSupported)`. Un `for of`
+  nombre (`done`, `value`), todo `Dynamic(NotYetSupported)`. Un `for in`
   sobre un generador **no usa `KnownOp::GeneratorNext`**: paga `call_method`
   por nombre, la asignación y dos lecturas de propiedad por nombre por
   elemento.
@@ -296,7 +296,7 @@ Freeze/thaw (B2, otra sesión); tabla nueva cae en
 
 **Causa raíz.** El protocolo se modela como "método que devuelve un objeto"
 aunque el compilador conoce ambos campos y, en el caso abrumador, el objeto
-muere en la misma expresión (`g.next(v).value`, `for of`). Es la mentira de
+muere en la misma expresión (`g.next(v).value`, `for in`). Es la mentira de
 representación que combate §2.1: un hecho estático (paso = valor + bandera)
 se materializa en el heap y se relee por nombre.
 
@@ -305,7 +305,7 @@ se materializa en el heap y se relee por nombre.
    SSA con **dos resultados** (`value`, `done: Bool`), o un valor de paso
    descompuesto por ops puras `StepValue`/`StepDone` que el regalloc deja en
    registros. Semántica: avanzar el iterador una vez.
-2. *Emisor.* (a) `for of` cuyo origen tipa `Generator<T>`/`AsyncGenerator<T>`
+2. *Emisor.* (a) `for in` cuyo origen tipa `Generator<T>`/`AsyncGenerator<T>`
    (`Dynamic(Yields)`) baja a `IterStep`, sin `IterInit`/`GetSymbol`/`next`
    por nombre/`Field`. (b) `g.next(v)` cuyo resultado solo se lee por
    `.value`/`.done` (análisis local de usos en el emisor) baja a `IterStep`.
@@ -322,13 +322,13 @@ se materializa en el heap y se relee por nombre.
    tipo es exacto (Fase E); el objeto lo asigna el usuario.
 
 **Qué se borra.** `make_iter_result` del camino caliente; la rama
-`lower_for_of_protocol` para generadores; las lecturas `Field` por nombre de
+`lower_for_in_protocol` para generadores; las lecturas `Field` por nombre de
 `done`/`value` cuando el tipo es conocido.
 
 **Ganancia esperada (a medir).** −25% por `next`; −1 asignación por elemento
-en `for of` sobre generadores, que además deja de pasar por `call_method`.
+en `for in` sobre generadores, que además deja de pasar por `call_method`.
 
-**Verificación.** Tests 20, 77, 225; `vn debug -p gc` sobre un `for of` de 1M
+**Verificación.** Tests 20, 77, 225; `vn debug -p gc` sobre un `for in` de 1M
 elementos: `alloc_count` constante respecto a N; pareado `gp.vn` y
 `bench_generator.vn` contra HEAD (mínimo de 10).
 

@@ -22,7 +22,7 @@ export async function workerArgs(tx: Sender<str>, num: int, text: str, arr: Arra
 
 export async function workerDialog(rx: Receiver<Msg>, tx: Sender<int>) {
     let open = true
-    for await (const msg of rx) {
+    for await (const msg in rx) {
         match (msg) {
             Val(n) => await tx.send(n + 1),
             Msg.Exit => open = false,
@@ -40,7 +40,7 @@ export async function workerParallel(tx: Sender<int>, id: int, delayMs: int) {
 }
 
 export async function echoWorker(rx: Receiver<int>, tx: Sender<int>) {
-    for await (const v of rx) {
+    for await (const v in rx) {
         await tx.send(v * 2)
     }
     tx.close()

@@ -5,7 +5,7 @@
 # ADR-0012: Single-owner, immutable `CheckerTyTable` (Arc + interned names)
 
 ## Status
-Accepted. Step 2 of Ley 3 (single owner). Supersedes the snapshot/`absorb` model for
+Accepted. Step 2 in Ley 3 (single owner). Supersedes the snapshot/`absorb` model for
 in-process sharing.
 
 ## Context

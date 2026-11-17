@@ -42,7 +42,7 @@ export class CheckboxNode extends Widget {
         cx.win.rect(x, top, this.size, this.size, edge, BOX_RADIUS);
         cx.win.rect(x + BOX_INSET, top + BOX_INSET, this.size - 2.0 * BOX_INSET, this.size - 2.0 * BOX_INSET, this.checked ? Theme.colors.primary : Theme.colors.surface, BOX_RADIUS - 1.0);
         cx.click(UiControlKind.Surface, x, top, this.size, this.size, 0, false, this.onToggle);
-        for (const placed of p.children) {
+        for (const placed in p.children) {
             cx.keyed("label", () => paintPlaced(cx, placed, x, y));
             cx.click(UiControlKind.Surface, x + placed.x, y + placed.y, placed.size.w, placed.size.h, 0, false, this.onToggle);
         }
@@ -81,7 +81,7 @@ export class SwitchNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const top = y + (p.size.h - this.trackH) / 2.0;
         cx.click(UiControlKind.Switch, x, top, this.trackW, this.trackH, Theme.colors.primary, this.on, this.onToggle);
-        for (const placed of p.children) {
+        for (const placed in p.children) {
             cx.keyed("label", () => paintPlaced(cx, placed, x, y));
             cx.click(UiControlKind.Surface, x + placed.x, y + placed.y, placed.size.w, placed.size.h, 0, false, this.onToggle);
         }

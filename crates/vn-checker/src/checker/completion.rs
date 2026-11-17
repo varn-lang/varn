@@ -33,7 +33,6 @@ pub(crate) fn can_complete_normally(stmt: StmtId, arena: &AstArena) -> bool {
         | StmtKind::DoWhile { .. }
         | StmtKind::For { .. }
         | StmtKind::ForIn { .. }
-        | StmtKind::ForOf { .. }
         | StmtKind::Using { .. }
         | StmtKind::Labeled { .. } => true,
     }

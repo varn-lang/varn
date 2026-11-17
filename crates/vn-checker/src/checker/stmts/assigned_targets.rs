@@ -87,7 +87,7 @@ pub(crate) fn assigned_in_stmt(stmt: StmtId, arena: &AstArena, out: &mut Assigne
             }
             assigned_in_stmt(*body, arena, out);
         }
-        StmtKind::ForIn { right, body, .. } | StmtKind::ForOf { right, body, .. } => {
+        StmtKind::ForIn { right, body, .. } => {
             assigned_in_expr(*right, arena, out);
             assigned_in_stmt(*body, arena, out);
         }

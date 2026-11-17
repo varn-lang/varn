@@ -1,6 +1,6 @@
 function sum(nums: int[]): int {
     let total = 0
-    for (const n of nums) {
+    for (const n in nums) {
         total = total + n
     }
     return total

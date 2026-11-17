@@ -69,7 +69,7 @@ await describe("296 error model", async () => {
             new Expected(new SqlConstraintError("m"), "sql.constraint", "SqlError")
         ];
         expect(all.length).toBe(21);
-        for (const item of all) {
+        for (const item in all) {
             expect(item.error.code).toBe(item.code);
             expect(parentName(item.error)).toBe(item.parent);
             expect(item.error is StdError).toBe(true);

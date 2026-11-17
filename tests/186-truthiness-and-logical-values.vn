@@ -62,8 +62,8 @@ await describe("186 truthiness and logical values", async () => {
     await it("a dynamic value follows the same rule", () => {
         const falsy: dynamic[] = [null, false]
         const truthy: dynamic[] = [0, 0.0, 0.0 / 0.0, "", "a", [], {}, true, 7]
-        for (const v of falsy) { expect(ifDynamic(v)).toBe(0) }
-        for (const v of truthy) { expect(ifDynamic(v)).toBe(1) }
+        for (const v in falsy) { expect(ifDynamic(v)).toBe(0) }
+        for (const v in truthy) { expect(ifDynamic(v)).toBe(1) }
     })
 
     await it("|| and && give back one of their operands", () => {

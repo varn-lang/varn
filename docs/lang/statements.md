@@ -128,25 +128,25 @@ Itera sobre arrays, rangos, generadores e iterables:
 
 ```vn
 let forOfSum = 0
-for (const n of [10, 20, 30]) {
+for (const n in [10, 20, 30]) {
     forOfSum = forOfSum + n
 }
-assertTrue("for-of sum", forOfSum === 60)   // tests/09-control-flow.vn
+assertTrue("for-in sum", forOfSum === 60)   // tests/09-control-flow.vn
 
 // Con rango inclusivo
 let rangeSum = 0
-for (const i of 1..=10) {
+for (const i in 1..=10) {
     rangeSum = rangeSum + i
 }
-assertTrue("range for-of sum", rangeSum === 55)   // tests/18-ranges.vn
+assertTrue("range for-in sum", rangeSum === 55)   // tests/18-ranges.vn
 
 // Con break
 let forOfBreak = 0
-for (const n of [1, 2, 3, 4, 5]) {
+for (const n in [1, 2, 3, 4, 5]) {
     if (n === 3) break
     forOfBreak = forOfBreak + n
 }
-assertTrue("for-of break", forOfBreak === 3)
+assertTrue("for-in break", forOfBreak === 3)
 
 // Con generador
 for (let i = 0; i < 8; i = i + 1) {
@@ -176,11 +176,11 @@ assertTrue("for-in key count", keyCount === 3)   // tests/09-control-flow.vn
 Consume iterables asíncronos, como canales o async generators:
 
 ```vn
-for await (const v of ch.rx) {         // tests/54-channels.vn
+for await (const v in ch.rx) {         // tests/54-channels.vn
     sum = sum + v
 }
 
-for await (const msg of rx) {          // tests/47-isolates-multithread.vn
+for await (const msg in rx) {          // tests/47-isolates-multithread.vn
     match (msg) {
         Val(n) => await tx.send(n + 1),
         Msg.Exit => open = false,
@@ -188,7 +188,7 @@ for await (const msg of rx) {          // tests/47-isolates-multithread.vn
     if (!open) break
 }
 
-for await (const v of awaitsThenYields()) {   // tests/77-async-generators.vn
+for await (const v in awaitsThenYields()) {   // tests/77-async-generators.vn
     total = total + v
 }
 ```
@@ -416,7 +416,7 @@ while (const next = queue.shift()) {
 
 Se acepta `const` o `let`, y cualquier patrón de destructuring (`if (const { a, b } = lookup())`). Es azúcar: `if (const v = e) A else B` equivale a `{ const t = e; if (t !== null) { const v = t; A } else B }`, y `while` equivale a un bucle que sale cuando `e` es `null`. El valor debe ser anulable; si no lo es, el compilador lo rechaza igual que `x !== null` sobre un `int`. Para `Option<T>` usa `match`.
 
-Para recorrer con índice: `for (const [i, v] of xs.entries())`. `x in d` solo vale para diccionarios (`{ [k: str]: V }`) y `dynamic`; para rangos usa `.contains(x)`.
+Para recorrer con índice: `for (const [i, v] in xs.entries())`. `x in d` solo vale para diccionarios (`{ [k: str]: V }`) y `dynamic`; para rangos usa `.contains(x)`.
 
 Test: `tests/318-binding-conditions-entries-and-optional-calls.vn`.
 

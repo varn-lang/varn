@@ -165,8 +165,8 @@ export class UiFrame {
     }
 
     fireTyped(changes: TypedText[]): void {
-        for (let change of changes) {
-            for (let h of this.handlers) {
+        for (let change in changes) {
+            for (let h in this.handlers) {
                 const onText = h.onText;
                 if (h.id == change.id && onText != null && this.reachable(h)) {
                     onText(change.text);
@@ -178,7 +178,7 @@ export class UiFrame {
     fire(pairs: float[]): void {
         for (let i = 0; i + 1 < pairs.length; i = i + 2) {
             const id = pairs[i] as int;
-            for (let h of this.handlers) {
+            for (let h in this.handlers) {
                 const onValue = h.onValue;
                 if (h.id == id && onValue != null && this.reachable(h)) {
                     onValue(pairs[i + 1]);

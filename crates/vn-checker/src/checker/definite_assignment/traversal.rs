@@ -386,9 +386,6 @@ impl<'r> Checker<'r> {
             }
             StmtKind::ForIn {
                 right, body, left, ..
-            }
-            | StmtKind::ForOf {
-                right, body, left, ..
             } => {
                 let (right, body, left) = (*right, *body, left.clone());
                 self.da_expr(right, flow, bind);

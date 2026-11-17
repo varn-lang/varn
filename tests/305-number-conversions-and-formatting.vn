@@ -11,7 +11,7 @@ function outcome(f: () => str): str {
 }
 
 await describe("305 number conversions and formatting", async () => {
-    await it("float.parse reports a malformed text instead of answering NaN", async () => {
+    await it("float.parse reports a malformed text instead in answering NaN", async () => {
         expect(outcome(() => float.parse("  1.5e3 ").toString())).toBe("1500.0");
         expect(outcome(() => float.parse("abc").toString())).toBe("parse");
         expect(outcome(() => float.parse("").toString())).toBe("parse");

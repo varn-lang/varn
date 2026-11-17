@@ -12,7 +12,7 @@ function outcome(f: () => void): str {
 
 function total(label: str, ...xs: int[]): int {
     let t = 0
-    for (const x of xs) { t = t + x }
+    for (const x in xs) { t = t + x }
     return t
 }
 function letter(c: char): char { return c }

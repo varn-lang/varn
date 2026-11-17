@@ -7,7 +7,7 @@ import {
 @capability("ui")
 function paintedRects(win: UiWindow): float[][] {
     const out: float[][] = [];
-    for (const cmd of win.drawn()) {
+    for (const cmd in win.drawn()) {
         if (cmd.kind == "rect") {
             out.push([cmd.x, cmd.y, cmd.w, cmd.h]);
         }
@@ -24,7 +24,7 @@ function leafRects(p: Placement, ox: float, oy: float, out: float[][]): void {
     if (p.children.length == 0) {
         out.push([x, y, p.size.w, p.size.h]);
     }
-    for (const child of p.children) {
+    for (const child in p.children) {
         leafRects(child, x, y, out);
     }
 }

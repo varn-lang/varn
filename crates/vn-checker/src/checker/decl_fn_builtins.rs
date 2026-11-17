@@ -93,7 +93,6 @@ impl<'r> Checker<'r> {
                         | vn_core::ast::StmtKind::DoWhile { .. }
                         | vn_core::ast::StmtKind::For { .. }
                         | vn_core::ast::StmtKind::ForIn { .. }
-                        | vn_core::ast::StmtKind::ForOf { .. }
                         | vn_core::ast::StmtKind::Return { .. }
                         | vn_core::ast::StmtKind::Break { .. }
                         | vn_core::ast::StmtKind::Continue { .. }
@@ -116,7 +115,6 @@ impl<'r> Checker<'r> {
                 | vn_core::ast::StmtKind::DoWhile { .. }
                 | vn_core::ast::StmtKind::For { .. }
                 | vn_core::ast::StmtKind::ForIn { .. }
-                | vn_core::ast::StmtKind::ForOf { .. }
                 | vn_core::ast::StmtKind::Return { .. }
                 | vn_core::ast::StmtKind::Break { .. }
                 | vn_core::ast::StmtKind::Continue { .. }

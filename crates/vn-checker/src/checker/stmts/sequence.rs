@@ -77,7 +77,6 @@ impl<'r> Checker<'r> {
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

@@ -43,7 +43,7 @@ await describe("319 null is the only absent value", async () => {
 
     await it("any type whose next() returns T? is iterable", async () => {
         let out = "";
-        for (const n of new Source()) { out = out + n.toString(); }
+        for (const n in new Source()) { out = out + n.toString(); }
         expect(out).toBe("321");
     });
 
@@ -58,7 +58,7 @@ await describe("319 null is the only absent value", async () => {
     await it("arrays of nullable values still iterate every element", async () => {
         const values: (int?)[] = [1, null, 3];
         let seen = 0;
-        for (const v of values) { seen = seen + 1; }
+        for (const v in values) { seen = seen + 1; }
         expect(seen).toBe(3);
     });
 });

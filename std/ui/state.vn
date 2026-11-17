@@ -12,10 +12,10 @@ export function beginFrame(): void {
 
 export function endFrame(): void {
     const keys: str[] = [];
-    for (let key of owners.keys()) {
+    for (let key in owners.keys()) {
         keys.push(key);
     }
-    for (let key of keys) {
+    for (let key in keys) {
         if (!touched.has(key)) {
             const gone = owners.get(key);
             if (gone != null) {

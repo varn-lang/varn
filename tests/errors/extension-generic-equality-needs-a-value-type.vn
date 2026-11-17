@@ -1,7 +1,7 @@
 // expect: error[VN3010]
 extension Tools<T> on readonly T[] {
     has(x: T): bool {
-        for (const v of this) {
+        for (const v in this) {
             if (v == x) { return true }
         }
         return false

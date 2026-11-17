@@ -27,7 +27,7 @@ export interface Iterator<out T> {
 }
 
 /**
- * Something `for-of` can walk: it hands out a fresh `Iterator<T>`.
+ * Something `for-in` can walk: it hands out a fresh `Iterator<T>`.
  */
 export interface Iterable<out T> {
     iter(): Iterator<T>;

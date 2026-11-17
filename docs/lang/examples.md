@@ -220,10 +220,10 @@ function sumOdds(max: int): int {
 }
 assertTrue("for continue", sumOdds(10) === 25)
 
-// for-of
+// for-in
 let forOfSum = 0
-for (const n of [10, 20, 30]) { forOfSum = forOfSum + n }
-assertTrue("for-of sum", forOfSum === 60)
+for (const n in [10, 20, 30]) { forOfSum = forOfSum + n }
+assertTrue("for-in sum", forOfSum === 60)
 
 // for-in
 const obj2 = { x: 1, y: 2, z: 3 }

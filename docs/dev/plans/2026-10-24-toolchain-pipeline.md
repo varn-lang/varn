@@ -328,7 +328,7 @@ Va separada de la 7 porque es la comprobación de un modo de fallo, con su propi
 
 - [ ] **Paso 1:** Mover `build_capabilities` de `run.rs` a `policy.rs` sin cambiar su semántica (sin ninguna bandera se concede todo; con alguna, solo lo pedido). `#[command(flatten)]` en `run`, `eval`, `repl`, `test`, `debug`, `bench`.
 - [ ] **Paso 2: check `eval-honors-permissions`**: `vn eval "…lectura de archivo…" --allow-net` falla por falta de `--allow-read`, y con `--allow-read` pasa.
-- [ ] **Paso 3:** G1. Commit: `cli: one Policy and one set of permission flags for every executing command`.
+- [ ] **Paso 3:** G1. Commit: `cli: one Policy and one set in permission flags for every executing command`.
 
 ---
 

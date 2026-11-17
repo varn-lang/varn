@@ -1,9 +1,9 @@
 import { describe, it, expect } from "std:test";
 
 
-// `passes::algebraic` forwards an arithmetic result to one of its operands
+// `passes::algebraic` forwards an arithmetic result to one in its operands
 // when the other operand makes the operation an identity. Every rule has to
-// hold for ALL values of the surviving operand, so this file pins both
+// hold for ALL values in the surviving operand, so this file pins both
 // directions: the integer identities must fire, and the float near-misses
 // must NOT.
 //

@@ -20,7 +20,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
 
     if (node.kind == MarkdownNodeKind.Root) {
         let out = "";
-        for (let child of node.children) {
+        for (let child in node.children) {
             out = out + renderAst(child, options);
         }
         return out;
@@ -29,7 +29,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
     if (node.kind == MarkdownNodeKind.Heading) {
         let tag = `h${node.level}`;
         let inner = "";
-        for (let c of node.children) {
+        for (let c in node.children) {
             inner = inner + renderAst(c, options);
         }
         return "<" + tag + ">" + inner + "</" + tag + ">\n";
@@ -37,7 +37,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
 
     if (node.kind == MarkdownNodeKind.Paragraph) {
         let inner = "";
-        for (let c of node.children) {
+        for (let c in node.children) {
             inner = inner + renderAst(c, options);
         }
         if (optBreaks) {
@@ -56,7 +56,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
 
     if (node.kind == MarkdownNodeKind.Blockquote) {
         let inner = "";
-        for (let c of node.children) {
+        for (let c in node.children) {
             inner = inner + renderAst(c, options);
         }
         return "<blockquote>\n" + inner + "</blockquote>\n";
@@ -66,7 +66,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
         let tag = node.ordered ? "ol" : "ul";
         let startAttr = (node.ordered && node.start != 1) ? (` start="${node.start}"`) : "";
         let inner = "";
-        for (let c of node.children) {
+        for (let c in node.children) {
             inner = inner + renderAst(c, options);
         }
         return "<" + tag + startAttr + ">\n" + inner + "</" + tag + ">\n";
@@ -79,7 +79,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
             let inputTag = optXhtml ? ("<input type=\"checkbox\"" + chk + " disabled=\"\" /> ") : ("<input type=\"checkbox\"" + chk + " disabled> ");
             inner = inputTag;
         }
-        for (let c of node.children) {
+        for (let c in node.children) {
             inner = inner + renderAst(c, options);
         }
         return "<li>" + inner + "</li>\n";
@@ -94,7 +94,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
                 let cell = headRow.children[i];
                 let alignAttr = i < node.align.length ? alignAttribute(node.align[i]) : "";
                 let cellContent = "";
-                for (let c of cell.children) cellContent = cellContent + renderAst(c, options);
+                for (let c in cell.children) cellContent = cellContent + renderAst(c, options);
                 ths = ths + "<th" + alignAttr + ">" + cellContent + "</th>";
             }
             thead = "<thead>\n<tr>" + ths + "</tr>\n</thead>\n";
@@ -108,7 +108,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
                 let cell = row.children[i];
                 let alignAttr = i < node.align.length ? alignAttribute(node.align[i]) : "";
                 let cellContent = "";
-                for (let c of cell.children) cellContent = cellContent + renderAst(c, options);
+                for (let c in cell.children) cellContent = cellContent + renderAst(c, options);
                 tds = tds + "<td" + alignAttr + ">" + cellContent + "</td>";
             }
             tbodyRows = tbodyRows + "<tr>" + tds + "</tr>\n";
@@ -133,25 +133,25 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
 
     if (node.kind == MarkdownNodeKind.Bold) {
         let inner = "";
-        for (let c of node.children) inner = inner + renderAst(c, options);
+        for (let c in node.children) inner = inner + renderAst(c, options);
         return "<strong>" + inner + "</strong>";
     }
 
     if (node.kind == MarkdownNodeKind.Italic) {
         let inner = "";
-        for (let c of node.children) inner = inner + renderAst(c, options);
+        for (let c in node.children) inner = inner + renderAst(c, options);
         return "<em>" + inner + "</em>";
     }
 
     if (node.kind == MarkdownNodeKind.Strikethrough) {
         let inner = "";
-        for (let c of node.children) inner = inner + renderAst(c, options);
+        for (let c in node.children) inner = inner + renderAst(c, options);
         return "<del>" + inner + "</del>";
     }
 
     if (node.kind == MarkdownNodeKind.Link) {
         let inner = "";
-        for (let c of node.children) inner = inner + renderAst(c, options);
+        for (let c in node.children) inner = inner + renderAst(c, options);
         let titleAttr = node.title.length > 0 ? (" title=\"" + escapeHtmlStr(node.title) + "\"") : "";
         return "<a href=\"" + escapeHtmlStr(node.url) + "\"" + titleAttr + ">" + inner + "</a>";
     }
@@ -178,7 +178,7 @@ export function toPlainText(ast: MarkdownNode): str {
         } else if (n.kind == MarkdownNodeKind.CodeBlock) {
             out.push(n.text + "\n");
         } else {
-            for (let c of n.children) {
+            for (let c in n.children) {
                 walk(c);
             }
             if (n.kind == MarkdownNodeKind.Paragraph || n.kind == MarkdownNodeKind.Heading || n.kind == MarkdownNodeKind.ListItem || n.kind == MarkdownNodeKind.ThematicBreak) {
@@ -202,7 +202,7 @@ export function extractHeadings(ast: MarkdownNode): MarkdownHeading[] {
                 id: slugifyUtil(n.text)
             ));
         }
-        for (let c of n.children) {
+        for (let c in n.children) {
             walk(c);
         }
     }
@@ -230,7 +230,7 @@ export function extractLinks(ast: MarkdownNode): MarkdownLink[] {
                 isImage: true
             ));
         }
-        for (let c of n.children) {
+        for (let c in n.children) {
             walk(c);
         }
     }

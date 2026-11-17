@@ -86,7 +86,6 @@ pub(super) fn lower_top_level(
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

@@ -71,7 +71,6 @@ fn completes(
         | StmtKind::Decl(_)
         | StmtKind::Error
         | StmtKind::ForIn { .. }
-        | StmtKind::ForOf { .. }
         | StmtKind::Break { .. }
         | StmtKind::Continue { .. }
         | StmtKind::Using { .. }
@@ -114,8 +113,7 @@ fn breaks(stmt: StmtId, arena: &AstArena) -> bool {
         StmtKind::While { body, .. }
         | StmtKind::DoWhile { body, .. }
         | StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => labeled_break(*body, arena),
+        | StmtKind::ForIn { body, .. } => labeled_break(*body, arena),
         StmtKind::Empty
         | StmtKind::Expr { .. }
         | StmtKind::Decl(_)
@@ -153,8 +151,7 @@ fn labeled_break(stmt: StmtId, arena: &AstArena) -> bool {
         | StmtKind::While { body, .. }
         | StmtKind::DoWhile { body, .. }
         | StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => labeled_break(*body, arena),
+        | StmtKind::ForIn { body, .. } => labeled_break(*body, arena),
         StmtKind::Empty
         | StmtKind::Expr { .. }
         | StmtKind::Decl(_)

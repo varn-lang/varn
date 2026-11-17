@@ -16,7 +16,7 @@ function length(head: Link?): int {
 function leaves(tree: Branch): int {
     if (tree.kids.length == 0) { return 1 }
     let total = 0
-    for (const kid of tree.kids) { total = total + leaves(kid) }
+    for (const kid in tree.kids) { total = total + leaves(kid) }
     return total
 }
 

@@ -8,7 +8,7 @@ async function* ticks() {
 }
 
 const seen: int[] = []
-for await (const v of ticks()) {
+for await (const v in ticks()) {
     seen.push(v)
 }
 

@@ -152,7 +152,7 @@ impl<'r> Checker<'r> {
                             Diagnostic::error(
                                 ErrorCode::TypeMismatch,
                                 format!(
-                                    "spread needs an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-of or toArray()",
+                                    "spread needs an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-in or toArray()",
                                     given.display(&self.ty_table, &bind.interner)
                                 ),
                             )

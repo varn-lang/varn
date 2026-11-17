@@ -75,7 +75,6 @@ pub(super) fn emit_member_fn(
                 | StmtKind::DoWhile { .. }
                 | StmtKind::For { .. }
                 | StmtKind::ForIn { .. }
-                | StmtKind::ForOf { .. }
                 | StmtKind::Return { .. }
                 | StmtKind::Break { .. }
                 | StmtKind::Continue { .. }
@@ -296,7 +295,6 @@ pub(super) fn emit_function(
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

@@ -273,23 +273,13 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
                     left: pat,
                     right,
                     body,
+                    is_await,
                 },
             ));
         }
-        if s.eat(TokenKind::Of) {
-            let right = crate::expressions::parse_expr(s)?;
-            s.expect(TokenKind::RParen)?;
-            let body = parse_stmt_or_decl_inner(s)?;
-            let range = s.span_from(start_range);
-            return Ok(s.stmt(
-                range,
-                StmtKind::ForOf {
-                    kind,
-                    left: pat,
-                    right,
-                    body,
-                    is_await,
-                },
+        if s.check(TokenKind::Of) {
+            return Err(ParseError::invalid(
+                "`of` is reserved: write `for (... in ...)`".to_owned(),
             ));
         }
 

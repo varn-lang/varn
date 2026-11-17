@@ -5,7 +5,7 @@
 │       ├── VariableDecl (Let)
 │       │   └── Var total
 │       │       └── 0 (int)
-│       ├── ForOfStmt
+│       ├── ForInStmt
 │       │   ├── n
 │       │   ├── nums (id)
 │       │   └── BlockStmt

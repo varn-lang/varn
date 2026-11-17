@@ -215,7 +215,7 @@ export function assertNotEqual<T>(a: T, b: T, msg: str = "assertNotEqual"): void
 
 export function assertContainsItem<T>(container: T[], item: T, msg: str = "assertContainsItem"): void {
     let found = false;
-    for (let elem of container) {
+    for (let elem in container) {
         if (isEq(elem, item)) {
             found = true;
             break;

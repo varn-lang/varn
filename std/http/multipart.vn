@@ -80,7 +80,7 @@ function parameters(value: str): Map<str, str> {
 
 function parsePartHeaders(block: str): Map<str, str> {
     const out = new Map<str, str>();
-    for (const line of block.split("\r\n")) {
+    for (const line in block.split("\r\n")) {
         const colon = line.indexOf(":");
         if (colon != null) {
             const ci = colon as int;

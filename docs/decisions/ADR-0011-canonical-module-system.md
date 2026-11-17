@@ -23,7 +23,7 @@ different types, different resolution rules, and different representation choice
 4. **CLI/LSP/build**: `read_source_file`, `ImportSpecifier::parse`,
    `vn_modules::resolver::ModuleResolver`, `register_provider`.
 
-Every one of them can pick a different representation for the *same* `ModuleId`. That
+Every one in them can pick a different representation for the *same* `ModuleId`. That
 is not theoretical: the checker once served `std:` modules from a precompiled **blob**
 while the VM compiled the **source**, so the same module had two different type sets.
 The earlier F1 work removed the symptom (prefer source) but left the duplication in

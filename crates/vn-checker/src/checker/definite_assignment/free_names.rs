@@ -246,9 +246,6 @@ impl Collector<'_> {
             }
             StmtKind::ForIn {
                 left, right, body, ..
-            }
-            | StmtKind::ForOf {
-                left, right, body, ..
             } => {
                 self.declared.extend(left.bound_names());
                 self.expr(*right);

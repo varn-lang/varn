@@ -14,7 +14,7 @@ implícito, `int / int → float`, ocho anchos angostos públicos, y tenía
 crashes y errores silenciosos (ver `docs/dev/plans/2026-09-23-new-spec-roadmap.md` §2.1).
 
 ## Decisiones
-- D1 `for (const x of e)` se mantiene; `for x in e` del spec es ilustrativo.
+- D1 `for (const x in e)` se mantiene; `for x in e` del spec es ilustrativo.
 - D2 `Symbol` sale del núcleo (Fase C).
 - D3 `float as int` trunca hacia cero; NaN/±Inf/fuera de rango → `IntegerOverflow`.
 - D4 Implícitas: solo `int → bigint`, `int → decimal`.

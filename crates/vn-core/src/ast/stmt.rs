@@ -62,12 +62,6 @@ pub enum StmtKind {
         left: Pattern,
         right: ExprId,
         body: StmtId,
-    },
-    ForOf {
-        kind: VarKind,
-        left: Pattern,
-        right: ExprId,
-        body: StmtId,
         is_await: bool,
     },
 

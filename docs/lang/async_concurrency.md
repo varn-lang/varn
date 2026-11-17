@@ -256,7 +256,7 @@ await ch.tx.send(10)
 await ch.tx.send(20)
 ch.tx.close()
 let sum = 0
-for await (const v of ch.rx) {
+for await (const v in ch.rx) {
     sum = sum + v
 }
 assertTrue("for-await drains", sum === 30)
@@ -280,7 +280,7 @@ assertTrue("closed after dispose", closed)
 
 ```vn
 export async function echoWorker(rx: Receiver<int>, tx: Sender<int>) {
-    for await (const v of rx) {
+    for await (const v in rx) {
         await tx.send(v * 2)
     }
     tx.close()
@@ -306,7 +306,7 @@ enum Msg { Val(int), Exit }
 
 export async function workerDialog(rx: Receiver<Msg>, tx: Sender<int>) {
     let open = true
-    for await (const msg of rx) {
+    for await (const msg in rx) {
         match (msg) {
             Val(n)    => await tx.send(n + 1),
             Msg.Exit  => open = false,

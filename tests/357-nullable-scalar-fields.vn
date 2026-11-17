@@ -13,7 +13,7 @@ class Probe {
 
 function tally(ps: Probe[]): int {
     let t = 0
-    for (const p of ps) {
+    for (const p in ps) {
         if (p.seen == true) { t = t + 1 }
         if (p.seen == false) { t = t + 10 }
         if (p.seen == null) { t = t + 100 }

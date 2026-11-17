@@ -175,7 +175,7 @@ export class Request {
         if (cookieHdr != null) {
             if (cookieHdr.length > 0) {
                 let pairs = cookieHdr.split(";");
-                for (let p of pairs) {
+                for (let p in pairs) {
                     let eq = p.indexOf("=");
                     if (eq != null) {
                         const ei = eq as int;
@@ -207,7 +207,7 @@ export class Request {
         const res = new Map<str, str>();
         if (this.body.length == 0) return res;
         let pairs = this.body.split("&");
-        for (let p of pairs) {
+        for (let p in pairs) {
             let eq = p.indexOf("=");
             if (eq != null) {
                 const ei = eq as int;

@@ -3,7 +3,7 @@
 
 # Varn Runtime Performance Investigation
 
-Investigation of eight reported performance/correctness anomalies. All numbers
+Investigation in eight reported performance/correctness anomalies. All numbers
 below are **measured on this machine** with the release binary
 (`cargo build --release -p vn-cli`), Windows 11, via `vn run` (wall clock) and
 `vn bench`. Bytecode dumps are from `vn debug -p bytecode`.

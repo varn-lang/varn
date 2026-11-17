@@ -17,7 +17,7 @@ function sameBool(a: bool, b: bool): bool { return a == b }
 function differ(a: char, b: char): bool { return a != b }
 function occurrences(text: str, target: char): int {
     let n = 0
-    for (const c of text.chars()) { if (c == target) { n = n + 1 } }
+    for (const c in text.chars()) { if (c == target) { n = n + 1 } }
     return n
 }
 
@@ -38,7 +38,7 @@ class Cell {
 }
 function markedTotal(cells: Cell[]): int {
     let t = 0
-    for (const c of cells) { if (c.mark == 'b') { t = t + c.code } }
+    for (const c in cells) { if (c.mark == 'b') { t = t + c.code } }
     return t
 }
 
@@ -103,7 +103,7 @@ await describe("34 char type", async () => {
         // char in loop
         let digitCount = 0
         const sample: char[] = ['1', 'a', '2', 'b', '3']
-        for (const ch of sample) {
+        for (const ch in sample) {
             if (ch.isDigit()) digitCount = digitCount + 1
         }
         expect(digitCount).toBe(3)
@@ -111,7 +111,7 @@ await describe("34 char type", async () => {
         // round-trip: codePoint -> char -> str
         const codes: int[] = [72, 101, 108, 108, 111]
         let built = ""
-        for (const code of codes) {
+        for (const code in codes) {
             built = built + char.fromCode(code).toString()
         }
         expect(built).toBe("Hello")
@@ -162,7 +162,7 @@ await describe("34 char type", async () => {
     await it("a char field holds its code point in four bytes", async () => {
         const cells: Cell[] = []
         for (let i = 0; i < 3000; i = i + 1) { cells.push(new Cell(i % 2 == 0 ? 'a' : 'b', i)) }
-        for (const c of cells) { c.bump() }
+        for (const c in cells) { c.bump() }
         expect(markedTotal(cells)).toBe(2248500)
         let viaInterface: char = 'x'
         for (let i = 0; i < 2000; i = i + 1) { viaInterface = readMark(cells[i]) }

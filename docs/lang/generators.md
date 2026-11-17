@@ -206,14 +206,14 @@ assertTrue("async gen heap value", heaps.length === 2 && heaps[1] === 20)
 
 ```vn
 let total = 0
-for await (const v of awaitsThenYields()) {
+for await (const v in awaitsThenYields()) {
     total = total + v
 }
 assertTrue("for await sums", total === 60)
 
 // También funciona con for...of normal (valores ya settled)
 let plain = 0
-for (const v of awaitsThenYields()) {
+for (const v in awaitsThenYields()) {
     plain = plain + v
 }
 assertTrue("plain for over async gen", plain === 60)
@@ -252,7 +252,7 @@ assertTrue("async gen awaits sleep", awaitsSleep().next().value === 7)
 | `.next()` | `T?` | Avanza al siguiente `yield`; devuelve el valor cedido, o `null` cuando el generador terminó. |
 | `.close()` | `void` | Cierra un generador suspendido y ejecuta sus `finally`. |
 
-Un generador no puede ceder `null` (marca el final). Para consumirlo sin comparar: `while (const v = gen.next()) { ... }` o `for (const v of gen)`.
+Un generador no puede ceder `null` (marca el final). Para consumirlo sin comparar: `while (const v = gen.next()) { ... }` o `for (const v in gen)`.
 
 Para **async generators**: `.next()` devuelve `Task<T?>` (`await gen.next()`), y `.close()` devuelve `Task<void>`.
 
@@ -262,7 +262,7 @@ Para **async generators**: `.next()` devuelve `Task<T?>` (`await gen.next()`), y
 
 `yield` no produce valor (`next()` no envía nada al generador), así que solo se acepta como sentencia: `const x = yield 1` es un error de sintaxis.
 
-`yield* fuente;` delega: equivale a `for (const x of fuente) { yield x; }` y acepta cualquier cosa que `for...of` acepte.
+`yield* fuente;` delega: equivale a `for (const x in fuente) { yield x; }` y acepta cualquier cosa que `for...of` acepte.
 
 Un generador suspendido dentro de un `try/finally` ejecuta sus `finally` cuando se cierra:
 

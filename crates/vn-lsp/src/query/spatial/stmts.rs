@@ -63,7 +63,7 @@ pub(super) fn collect_stmt(a: &AstArena, stmt: &StmtId, out: &mut Vec<SpatialEnt
             }
             collect_stmt(a, body, out);
         }
-        StmtKind::ForIn { right, body, .. } | StmtKind::ForOf { right, body, .. } => {
+        StmtKind::ForIn { right, body, .. } => {
             collect_expr(a, right, out);
             collect_stmt(a, body, out);
         }

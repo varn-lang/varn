@@ -81,7 +81,7 @@ export class BoxNode extends Widget {
         if (click != null) {
             cx.click(UiControlKind.Surface, x, y, w, h, 0, false, click);
         }
-        for (const placed of p.children) {
+        for (const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -177,7 +177,7 @@ export class PaddingNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        for (const placed of p.children) {
+        for (const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -209,7 +209,7 @@ export class SizedBoxNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        for (const placed of p.children) {
+        for (const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -293,7 +293,7 @@ export function Card(children: Widget[], title: str = "", gap: float = 12.0, pad
     if (title != "") {
         body.push(Title(title));
     }
-    for (let child of children) {
+    for (let child in children) {
         body.push(child);
     }
     const card = new BoxNode(w, h, Theme.colors.surface, radius, pad, null, Column(body, gap: gap));

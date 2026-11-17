@@ -141,8 +141,7 @@ fn has_continue_in(ast_arena: &AstArena, stmt: StmtId, in_nested_loop: bool) -> 
         StmtKind::While { body, .. }
         | StmtKind::DoWhile { body, .. }
         | StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => has_continue_in(ast_arena, *body, true),
+        | StmtKind::ForIn { body, .. } => has_continue_in(ast_arena, *body, true),
         StmtKind::Expr { expression } => {
             expression_has_continue(ast_arena, *expression, in_nested_loop)
         }

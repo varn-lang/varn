@@ -65,7 +65,7 @@ continuous work stealing.
   content-addressed). Workers sharing the interner see the same `Atom` for the
   same text, so in-process parallel is correct; but if a worker interns new
   names concurrently, `Atom` numbering depends on order. Discovery/pre-pass
-  interning of all names before the parallel phase removes the race; otherwise
+  interning in all names before the parallel phase removes the race; otherwise
   content-address `Atom` (follow-up from ADR-0013).
 - **Diagnostics ordering**: must be canonicalised (sort by `ModuleId`, then
   span) or the "deterministic" claim is false.

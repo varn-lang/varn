@@ -8,7 +8,7 @@ async function* fromFeed() {
 }
 
 async function firstFromFeed(): Task<int> {
-    for await (const v of fromFeed()) {
+    for await (const v in fromFeed()) {
         return v;
     }
     return -1;

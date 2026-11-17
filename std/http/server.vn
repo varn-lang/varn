@@ -205,7 +205,7 @@ export class HttpServer {
     private _match(method: HttpMethod, pathOnly: str): Matched? {
         let bucket = this._staticRoutes.get(pathOnly);
         if (bucket != null) {
-            for (let route of bucket) {
+            for (let route in bucket) {
                 if (route.accepts(method)) {
                     return new Matched(handler: route.handler, params: new Map<str, str>());
                 }
@@ -213,7 +213,7 @@ export class HttpServer {
         }
         if (this._dynamicRoutes.length > 0) {
             let pathSegments = pathOnly.split("/");
-            for (let route of this._dynamicRoutes) {
+            for (let route in this._dynamicRoutes) {
                 let params = route.match(method, pathSegments);
                 if (params != null) {
                     return new Matched(handler: route.handler, params: params);

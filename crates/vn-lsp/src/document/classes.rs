@@ -32,7 +32,6 @@ pub fn top_level_classes(state: &DocumentState) -> impl Iterator<Item = &ClassDe
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }

@@ -24,11 +24,11 @@ class Holder {
 
 function score(hs: Holder[]): int {
     let t = 0;
-    for (const h of hs) {
+    for (const h in hs) {
         t = t + h.pair[0] + h.pick(1);
         if (h.shade == Shade.Dark) { t = t + 1 }
         if (h.mark != Mark.Dot) { t = t + 3 }
-        for (const i of h.span) { t = t + i }
+        for (const i in h.span) { t = t + i }
     }
     return t
 }

@@ -45,7 +45,7 @@ impl<'r> Checker<'r> {
                             Diagnostic::error(
                                 ErrorCode::TypeMismatch,
                                 format!(
-                                    "spread argument must be an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-of or toArray()",
+                                    "spread argument must be an array, tuple, Set, Map, string or Range, got '{}': lazy iterators use for-in or toArray()",
                                     arg_ty.display(&self.ty_table, &bind.interner)
                                 ),
                             )

@@ -18,7 +18,7 @@ export type FfiValue = FfiScalar | Pointer;
 
 function marshal(args: FfiValue[]): FfiScalar[] {
     let out: FfiScalar[] = [];
-    for (let arg of args) {
+    for (let arg in args) {
         if (arg is Pointer) {
             out.push(arg.address);
         } else {
@@ -30,7 +30,7 @@ function marshal(args: FfiValue[]): FfiScalar[] {
 
 function rawTypes(types: FfiType[]): int[] {
     let out: int[] = [];
-    for (let type of types) {
+    for (let type in types) {
         out.push(type.rawValue);
     }
     return out;

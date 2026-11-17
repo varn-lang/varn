@@ -193,7 +193,6 @@ fn find_class_in_stmt(
         | StmtKind::DoWhile { .. }
         | StmtKind::For { .. }
         | StmtKind::ForIn { .. }
-        | StmtKind::ForOf { .. }
         | StmtKind::Return { .. }
         | StmtKind::Break { .. }
         | StmtKind::Continue { .. }

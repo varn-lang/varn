@@ -1,4 +1,4 @@
-> Estado verificado 2026-10-13: PARCIAL — `for-of` especializado vigente (`lower_for_of` en `crates/vn-emit/src/body/stmt_for_of.rs:8`, `tests/180-for-of-collections.vn`); `interface Iterable/Iterator` sin evidencia en `std/` ni crates.
+> Estado verificado 2026-10-13: PARCIAL — `for-in` especializado vigente (`lower_for_in` en `crates/vn-emit/src/body/stmt_for_in.rs:8`, `tests/180-for-in-collections.vn`); `interface Iterable/Iterator` sin evidencia en `std/` ni crates.
 >
 > Histórico. No spec vigente. Código manda. Revalidar antes de usar.
 
@@ -8,7 +8,7 @@
 Aceptada (2026-09-24), con el usuario. Spec §33, §44, §46, §49.
 
 ## Contexto
-Hoy `for-of` sobre algo que no es array/rango baja a `IterInit` + llamadas
+Hoy `for-in` sobre algo que no es array/rango baja a `IterInit` + llamadas
 por nombre, y el protocolo es el de JS: una clave-símbolo
 `[Symbol.iterator]` resuelta en runtime y un `next()` que devuelve un objeto
 `{ value, done }` por paso (el runtime reutiliza un `__res` mutándolo para
@@ -23,7 +23,7 @@ interface Iterator<T> { next(): Option<T> }
 ```
 - Métodos con nombre normal, satisfechos estructuralmente (§32); sin
   símbolos ni claves calculadas.
-- `for (const x of e)` se resuelve por el tipo estático de `e`: arrays,
+- `for (const x in e)` se resuelve por el tipo estático de `e`: arrays,
   rangos y mapas con bucles especializados (§46); un tipo de usuario por slot
   de vtable (`iter()`, luego `next()` por paso), con `x: T`.
 - `Generator<T>` implementa `Iterator<T>`; `{ value, done }` sale de la

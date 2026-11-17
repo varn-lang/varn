@@ -4,7 +4,7 @@ function castFails(source: dynamic[]): bool {
     try {
         const ints = source as int[];
         let total = 0;
-        for (const x of ints) { total = total + x }
+        for (const x in ints) { total = total + x }
         return false
     } catch (e) {
         return true

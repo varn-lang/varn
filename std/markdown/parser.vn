@@ -68,7 +68,7 @@ export function isTableSeparator(line: str): bool {
     if (!trimmed.includes("-")) return false;
     let parts = trimmed.split("|");
     let validCols = 0;
-    for (let p of parts) {
+    for (let p in parts) {
         let col = p.trim();
         if (col.length == 0) continue;
         let isSep = true;
@@ -91,7 +91,7 @@ export function isTableSeparator(line: str): bool {
 export function parseTableAlignments(sepLine: str): TableAlign[] {
     let parts = sepLine.trim().split("|");
     let aligns: TableAlign[] = [];
-    for (let p of parts) {
+    for (let p in parts) {
         let col = p.trim();
         if (col.length == 0) continue;
         let left = col.startsWith(":");
@@ -115,7 +115,7 @@ export function splitTableRow(rowLine: str): str[] {
     if (trimmed.endsWith("|")) trimmed = trimmed.slice(0, trimmed.length - 1);
     let cells = trimmed.split("|");
     let res: str[] = [];
-    for (let c of cells) {
+    for (let c in cells) {
         res.push(c.trim());
     }
     return res;

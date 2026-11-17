@@ -8,7 +8,7 @@ export namespace Stats {
     export function sum(values: float[]): float {
         let total = 0.0;
         let lost = 0.0;
-        for (let v of values) {
+        for (let v in values) {
             const next = total + v;
             if (abs(total) >= abs(v)) {
                 lost = lost + ((total - next) + v);
@@ -35,7 +35,7 @@ export namespace Stats {
             throw new RangeError("Stats.min requires at least one value");
         }
         let best = values[0];
-        for (let v of values) {
+        for (let v in values) {
             best = lesser(best, v);
         }
         return best;
@@ -46,7 +46,7 @@ export namespace Stats {
             throw new RangeError("Stats.max requires at least one value");
         }
         let best = values[0];
-        for (let v of values) {
+        for (let v in values) {
             best = greater(best, v);
         }
         return best;
@@ -58,7 +58,7 @@ export namespace Stats {
         }
         let avg = mean(values);
         let total = 0.0;
-        for (let v of values) {
+        for (let v in values) {
             let d = v - avg;
             total = total + d * d;
         }
@@ -73,7 +73,7 @@ export namespace Stats {
         if (values.length == 0) {
             throw new RangeError("Stats.median requires at least one value");
         }
-        for (let v of values) {
+        for (let v in values) {
             if (v != v) {
                 return v;
             }

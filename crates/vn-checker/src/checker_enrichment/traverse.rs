@@ -116,9 +116,7 @@ fn collect_returns_recursive(
                 table,
             );
         }
-        StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => {
+        StmtKind::For { body, .. } | StmtKind::ForIn { body, .. } => {
             collect_returns_recursive(
                 ctx,
                 sym_map,
@@ -294,9 +292,7 @@ fn enrich_vars_recursive(
                 current_class,
             );
         }
-        StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => {
+        StmtKind::For { body, .. } | StmtKind::ForIn { body, .. } => {
             enrich_vars_recursive(
                 ctx,
                 sym_map,

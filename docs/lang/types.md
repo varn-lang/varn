@@ -187,7 +187,7 @@ type Shape2 = Square2 | Circle2    // tests/15-unions.vn
 
 function totalArea(shapes: Shape2[]): float {
     let total = 0.0
-    for (const s of shapes) {
+    for (const s in shapes) {
         total = total + s.area()
     }
     return total
@@ -541,7 +541,7 @@ Un estrechamiento vale mientras la variable no cambie
   tests/201-loop-labels.vn). Una etiqueta que no nombra un bucle que
   rodea al salto es error.
 - Cada vuelta de un `for (let i ...)` tiene su propia `i`, igual que en
-  `for-of`: una closure creada en la vuelta ve el valor de esa vuelta
+  `for-in`: una closure creada en la vuelta ve el valor de esa vuelta
   (tests/198-loop-variable-per-iteration.vn).
 - `x!` afirma que `x` no es `null` y lo comprueba al ejecutar: si lo es,
   lanza. No es una forma de saltarse el tipo.
@@ -605,7 +605,7 @@ lo leen y lo cambian.
   Una variable `int` no se convierte sola a `float`.
 - `[...xs]` y `f(...xs)` aceptan cualquier iterable: `Array`, tupla,
   `Set` (valores), `Map` (entradas `(K,V)`), `str` (chars) y `Range`
-  (tests/191-spread-sources.vn, tests/180-for-of-collections.vn).
+  (tests/191-spread-sources.vn, tests/180-for-in-collections.vn).
   Un valor que puede ser `null` o un objeto no iterable son error de
   compilación.
 

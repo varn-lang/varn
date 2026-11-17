@@ -26,7 +26,7 @@ class Circle2 {
 type Shape2 = Square2 | Circle2
 function totalArea(shapes: Shape2[]): float {
     let total = 0.0;
-    for (const s of shapes) {
+    for (const s in shapes) {
         total = total + s.area();
     }
     return total;

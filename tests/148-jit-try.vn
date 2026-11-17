@@ -15,7 +15,7 @@ class TyFail {
     }
 }
 
-// The catch reads values of every class defined before the `try`.
+// The catch reads values in every class defined before the `try`.
 function tyReads(i: int, label: str): int {
     const k = i * 3
     const f = (i as float) + 0.5

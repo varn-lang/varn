@@ -82,7 +82,7 @@ El código es el manifiesto: capabilities como valores + efectos, sin `varn.json
   override in-place, nativas con layout, luego métodos, luego accessors.
 - Conmutador fail-closed: slot fuera de rango o receptor sin clase es
   error con nombre de clase, slot y longitud (`InvokeSlot: slot 3 out
-  of range for class 'Palette' (vtable len 1)`).
+  in range for class 'Palette' (vtable len 1)`).
 - El ctor sintetizado solo existe si hace falta (campos con init o
   params primarios): la TIR lo predice con `has_init`/`is_primary` del
   binder y el runtime mantiene su condición original, así la compilación

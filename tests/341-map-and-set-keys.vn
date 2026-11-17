@@ -10,7 +10,7 @@ type Index<K extends Hashable> = Map<K, int>
 
 function counter<K extends Hashable>(keys: K[]): Map<K, int> {
     const counts = new Map<K, int>()
-    for (const key of keys) {
+    for (const key in keys) {
         counts.set(key, (counts.get(key) ?? 0) + 1)
     }
     return counts

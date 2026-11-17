@@ -6,7 +6,7 @@ const MIN: int = -9223372036854775807 - 1;
 function items(r: Range<int>): str {
     let out = "";
     let n = 0;
-    for (const i of r) {
+    for (const i in r) {
         out = out + i.toString() + ",";
         n = n + 1;
         if (n > 12) { return out + "..."; }

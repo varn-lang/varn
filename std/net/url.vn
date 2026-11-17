@@ -297,9 +297,9 @@ export function appendQuery(url: str, q: Map<str, str | str[]>): str {
     }
 
     const parsed = Url.parse(url);
-    for (const (key, value) of q) {
+    for (const (key, value) in q) {
         if (value is str[]) {
-            for (const item of value) {
+            for (const item in value) {
                 parsed.query.append(key, item);
             }
         } else {

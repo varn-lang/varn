@@ -58,7 +58,6 @@ impl<'a> FnEmitter<'a> {
             | StmtKind::DoWhile { .. }
             | StmtKind::For { .. }
             | StmtKind::ForIn { .. }
-            | StmtKind::ForOf { .. }
             | StmtKind::Return { .. }
             | StmtKind::Break { .. }
             | StmtKind::Continue { .. }
@@ -207,16 +206,13 @@ impl<'a> FnEmitter<'a> {
                 })
             }
 
-            StmtKind::ForOf {
+            StmtKind::ForIn {
                 left,
                 right,
                 body,
                 is_await,
                 ..
-            } => self.lower_for_of(left, *right, *body, *is_await),
-            StmtKind::ForIn {
-                left, right, body, ..
-            } => self.lower_for_in(left, *right, *body),
+            } => self.lower_for_in(left, *right, *body, *is_await),
 
             StmtKind::Try {
                 block,

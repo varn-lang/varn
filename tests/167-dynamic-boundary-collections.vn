@@ -20,14 +20,14 @@ function ints(d: dynamic): int { const xs: int[] = d as int[]; return xs.length 
 function floatSum(d: dynamic): float {
     const xs: float[] = d as float[]
     let total = 0.0
-    for (const x of xs) { total = total + x }
+    for (const x in xs) { total = total + x }
     return total
 }
 function strs(d: dynamic): str[] { return d as str[] }
 function legs(d: dynamic): int {
     const xs: Beast[] = d as Beast[]
     let total = 0
-    for (const b of xs) { total = total + b.legs }
+    for (const b in xs) { total = total + b.legs }
     return total
 }
 function mapSize(d: dynamic): int { const m: Map<str, int> = d as Map<str, int>; return m.size }

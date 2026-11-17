@@ -14,8 +14,8 @@ function nested(): str {
 }
 function overItems(): str {
     let out = ""
-    outer: for (const p of [1, 2, 3]) {
-        for (const q of [1, 2, 3]) {
+    outer: for (const p in [1, 2, 3]) {
+        for (const q in [1, 2, 3]) {
             if (q == 2) { continue outer }
             out = out + (p * 10 + q).toString() + " "
         }

@@ -7,7 +7,7 @@ class Crate<T> {
 extension Tools<T> on readonly T[] {
     head(): T? { return this.at(0) }
     has(x: T): bool {
-        for (const v of this) {
+        for (const v in this) {
             if (sameValue(v, x)) { return true }
         }
         return false
@@ -16,7 +16,7 @@ extension Tools<T> on readonly T[] {
 
 extension Pairs<K extends Hashable, V> on ReadonlyMap<K, V> {
     anyValue(): V? {
-        for (const (_, v) of this) { return v }
+        for (const (_, v) in this) { return v }
         return null
     }
 }

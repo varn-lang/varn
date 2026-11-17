@@ -34,7 +34,7 @@ await describe("238 signals meet tasks", async () => {
         const gather = async (): Task<int[]> => {
             using stream = changes(level)
             const seen: int[] = []
-            for await (const v of stream) {
+            for await (const v in stream) {
                 seen.push(v)
                 if (seen.length == 3) { break }
             }

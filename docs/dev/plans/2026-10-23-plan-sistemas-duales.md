@@ -51,7 +51,7 @@ Orden: capa más baja primero (Ley 14). Validación por item:
   `BackendTy`: `resolve_type_ref` no las encuentra porque `collect_foreign_classes`
   excluye builtins, así que `catch (e)` y todo valor `Error` caen en NYS. Siguiente
   paso real de A2: representar las clases core en la tabla de clases de TIR.
-- Trampa medida: `guard_dynamic` sobre el valor de `for await (const msg of rx)`
+- Trampa medida: `guard_dynamic` sobre el valor de `for await (const msg in rx)`
   cuelga `tests/47`; el binding tipado va sin guarda.
 - Hecho (2da tanda): `collect_foreign_classes/enums` se siembran con todo tipo
   alcanzable (expr, símbolos, anotaciones), así `catch (e)` es `Class(Error)`;

@@ -90,7 +90,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
         } catch (e) {
             return;
         }
-        for (let entry of entries) {
+        for (let entry in entries) {
             let full = join(dir, entry);
             if (isDir(full)) {
                 walk(full, segs, idx, out);
@@ -104,7 +104,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
     } catch (e) {
         return;
     }
-    for (let entry of entries) {
+    for (let entry in entries) {
         if (!segMatch(seg, entry)) {
             continue;
         }
@@ -120,7 +120,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
 export function glob(pattern: str): str[] {
     let norm = pattern.replaceAll("\\", "/");
     let segs: str[] = [];
-    for (let s of norm.split("/")) {
+    for (let s in norm.split("/")) {
         if (s.length > 0) {
             segs.push(s);
         }

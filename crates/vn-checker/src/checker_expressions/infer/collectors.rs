@@ -99,9 +99,7 @@ fn collect_returns(
         StmtKind::While { body, .. } | StmtKind::DoWhile { body, .. } => {
             collect_returns(*body, checker, rec, bind, out);
         }
-        StmtKind::For { body, .. }
-        | StmtKind::ForIn { body, .. }
-        | StmtKind::ForOf { body, .. } => {
+        StmtKind::For { body, .. } | StmtKind::ForIn { body, .. } => {
             collect_returns(*body, checker, rec, bind, out);
         }
         StmtKind::Try {

@@ -4,7 +4,7 @@ function before(a: str, b: str): bool { return a < b }
 function atMost(a: str, b: str): bool { return a <= b }
 function smallest(words: str[]): str {
     let best = words[0]
-    for (const w of words) { if (w < best) { best = w } }
+    for (const w in words) { if (w < best) { best = w } }
     return best
 }
 

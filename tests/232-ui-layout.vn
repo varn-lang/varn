@@ -8,7 +8,7 @@ import {
 @capability("ui")
 function rects(win: UiWindow): float[][] {
     const out: float[][] = [];
-    for (const cmd of win.drawn()) {
+    for (const cmd in win.drawn()) {
         if (cmd.kind == "rect") {
             out.push([cmd.x, cmd.y, cmd.w, cmd.h]);
         }

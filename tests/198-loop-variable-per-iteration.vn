@@ -43,7 +43,7 @@ function inside(): int {
 }
 
 await describe("198 loop variable per iteration", async () => {
-    await it("each turn of a for loop has its own variable", () => {
+    await it("each turn in a for loop has its own variable", () => {
         expect(plain()).toBe(12)
         expect(skipping()).toBe(24)
         expect(nested()).toBe(1011)

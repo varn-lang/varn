@@ -17,7 +17,7 @@ export class ManualScheduler implements Scheduler {
         while (this._jobs.length > 0) {
             const due = this._jobs;
             this._jobs = [];
-            for (let job of due) {
+            for (let job in due) {
                 job();
             }
         }

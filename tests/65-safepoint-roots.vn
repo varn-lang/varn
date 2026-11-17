@@ -73,7 +73,7 @@ function spNested(outer: int, inner: int): int {
 // ---------------------------------------------------------------------------
 
 // The range is built from two int registers and read back, rather than
-// iterated: `for (const k of lo..hi)` over COMPUTED bounds drops iterations
+// iterated: `for (const k in lo..hi)` over COMPUTED bounds drops iterations
 // today (8989 instead of 9000 over 1000 rounds, identically under the JIT and
 // the interpreter, so it is a compiler bug and not a flush-set one). Building
 // the range is what exercises `jit_range`'s home-slot reads; iterating it adds

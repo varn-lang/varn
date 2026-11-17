@@ -5,7 +5,7 @@ export type RedisValue = str | int | null | RedisValue[];
 
 function encodeCommand(args: str[]): Bytes {
     let out = "*" + args.length.toString() + "\r\n";
-    for (let arg of args) {
+    for (let arg in args) {
         out = out + "$" + arg.length.toString() + "\r\n" + arg + "\r\n";
     }
     return Bytes.fromString(out);
@@ -127,7 +127,7 @@ export class Redis {
 
     async delete(...keys: str[]): Task<int> {
         let args: str[] = ["DEL"];
-        for (let k of keys) {
+        for (let k in keys) {
             args.push(k);
         }
         let res = await this.command(args);
@@ -136,7 +136,7 @@ export class Redis {
 
     async exists(...keys: str[]): Task<int> {
         let args: str[] = ["EXISTS"];
-        for (let k of keys) {
+        for (let k in keys) {
             args.push(k);
         }
         let res = await this.command(args);
