@@ -205,11 +205,13 @@ fn build_one_class(
         .iter()
         .any(|n| n.as_ref() == vn_core::TokenKind::Constructor.as_str())
     {
-        let parent_ctor = parent_info.and_then(|p| {
-            p.method_slot(vn_core::TokenKind::Constructor.as_str())
-                .map(|_| p.constructor)
-                .flatten()
-        });
+        let mut parent_ctor = None;
+        if let Some(p) = parent_info
+            && p.method_slot(vn_core::TokenKind::Constructor.as_str())
+                .is_some()
+        {
+            parent_ctor = p.constructor;
+        }
         let has_init = ordered
             .iter()
             .any(|m| !m.is_static && m.kind == ClassMemberKind::Property && m.has_init);

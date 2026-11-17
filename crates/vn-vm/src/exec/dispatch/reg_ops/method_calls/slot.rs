@@ -136,11 +136,13 @@ impl ExecCtx {
         args: MethodArgs<'_>,
         frame_idx: usize,
     ) -> VmResult<MethodOutcome> {
-        if let Some(nc) = self.heap.closure_of(method_val).cloned() {
-            if !nc.proto.is_generator && !nc.proto.is_async && args.len() <= nc.proto.arity {
-                self.record_ic_hit_callmethod();
-                return self.invoke_vm_method_fast(nc, owner, this_val, args, "#slot");
-            }
+        if let Some(nc) = self.heap.closure_of(method_val).cloned()
+            && !nc.proto.is_generator
+            && !nc.proto.is_async
+            && args.len() <= nc.proto.arity
+        {
+            self.record_ic_hit_callmethod();
+            return self.invoke_vm_method_fast(nc, owner, this_val, args, "#slot");
         }
         if let Some((f, _)) = self.heap.native_of(method_val) {
             self.record_ic_hit_callmethod();
@@ -157,10 +159,12 @@ impl ExecCtx {
         args: MethodArgs<'_>,
         frame_idx: usize,
     ) -> VmResult<MethodOutcome> {
-        if let Some(nc) = self.heap.closure_of(method_val).cloned() {
-            if !nc.proto.is_generator && !nc.proto.is_async && args.len() <= nc.proto.arity {
-                return self.invoke_vm_method_fast(nc, owner, this_val, args, "super");
-            }
+        if let Some(nc) = self.heap.closure_of(method_val).cloned()
+            && !nc.proto.is_generator
+            && !nc.proto.is_async
+            && args.len() <= nc.proto.arity
+        {
+            return self.invoke_vm_method_fast(nc, owner, this_val, args, "super");
         }
         if let Some((f, _)) = self.heap.native_of(method_val) {
             return self.call_native_method(f, this_val, args, "super");

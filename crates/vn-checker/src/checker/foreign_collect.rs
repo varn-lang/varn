@@ -257,7 +257,15 @@ impl Checker<'_> {
                             Some(kind),
                         );
                     }
-                    _ => {}
+                    ClassMemberKind::Property
+                    | ClassMemberKind::Variable
+                    | ClassMemberKind::Method
+                    | ClassMemberKind::Function
+                    | ClassMemberKind::Constructor
+                    | ClassMemberKind::Class
+                    | ClassMemberKind::Interface
+                    | ClassMemberKind::Namespace
+                    | ClassMemberKind::Enum => {}
                 }
             }
         }
