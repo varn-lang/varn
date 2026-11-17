@@ -1,6 +1,6 @@
 import { args$ } from "runtime:sys";
 
-export interface ParsedArgs {
+export struct ParsedArgs {
     flags: Map<str, str>;
     positionals: str[];
 }
@@ -36,9 +36,9 @@ export namespace Cli {
             }
         }
 
-        return {
+        return new ParsedArgs(
             flags: flags,
             positionals: positionals
-        };
+        );
     }
 }

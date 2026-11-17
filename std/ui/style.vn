@@ -57,7 +57,17 @@ export enum Curve {
     easeInOut
 }
 
-export const Colors = {
+struct ColorsPalette {
+    black: int;
+    white: int;
+    red: int;
+    green: int;
+    blue: int;
+    gray: int;
+    transparent: int;
+}
+
+export const Colors = new ColorsPalette(
     black: 0xFF000000,
     white: 0xFFFFFFFF,
     red: 0xFFFF0000,
@@ -65,7 +75,7 @@ export const Colors = {
     blue: 0xFF2196F3,
     gray: 0xFF888888,
     transparent: 0x00000000
-};
+);
 
 export class Palette {
     background: int;
