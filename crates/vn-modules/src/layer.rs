@@ -15,7 +15,16 @@ impl Layer {
             Some(vn_core::ModuleKind::Core) => Layer::Core,
             Some(vn_core::ModuleKind::Runtime) => Layer::Runtime,
             Some(vn_core::ModuleKind::Stdlib) => Layer::Std,
-            None if crate::std_root::in_source_tree(module) => Layer::Std,
+            None => Layer::User,
+        }
+    }
+
+    pub fn of_source_file(file: &str) -> Layer {
+        match vn_core::ModuleKind::of(file) {
+            Some(vn_core::ModuleKind::Core) => Layer::Core,
+            Some(vn_core::ModuleKind::Runtime) => Layer::Runtime,
+            Some(vn_core::ModuleKind::Stdlib) => Layer::Std,
+            None if crate::std_root::in_source_tree(file) => Layer::Std,
             None => Layer::User,
         }
     }
@@ -28,7 +37,11 @@ pub fn check_import(from: Layer, specifier: &str) -> Result<(), String> {
     ) {
         return Ok(());
     }
-    match (Layer::of_module(specifier), from) {
+    check_resolved_import(from, Layer::of_module(specifier), specifier)
+}
+
+pub fn check_resolved_import(from: Layer, target: Layer, specifier: &str) -> Result<(), String> {
+    match (target, from) {
         (Layer::Core, Layer::Core)
         | (Layer::Runtime, Layer::Std)
         | (Layer::Std, Layer::Std | Layer::User)

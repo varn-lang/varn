@@ -6,8 +6,9 @@ use vn_sem::symbol::{Symbol, SymbolKind};
 impl<'r> super::Binder<'r> {
     pub(super) fn bind_import(&mut self, i: &ImportDecl) {
         let source_str = self.interner.resolve(i.source).to_string();
-        use vn_modules::layer::{check_import, Layer};
-        if let Err(message) = check_import(Layer::of_module(&self.source_file), &source_str) {
+        use vn_modules::layer::{check_import, check_resolved_import, Layer};
+        let from = Layer::of_source_file(&self.source_file);
+        if let Err(message) = check_import(from, &source_str) {
             self.emit(Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(i.range));
 
             if Layer::of_module(&source_str) == Layer::Core {
@@ -39,6 +40,14 @@ impl<'r> super::Binder<'r> {
                 .parent()
                 .unwrap_or(std::path::Path::new("."));
             if let Err(message) = vn_modules::contain::check_within_root(base_path, abs) {
+                self.emit(
+                    Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(i.range),
+                );
+                return;
+            }
+            if let Err(message) =
+                check_resolved_import(from, Layer::of_source_file(abs), &source_str)
+            {
                 self.emit(
                     Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(i.range),
                 );
@@ -318,9 +327,10 @@ impl<'r> super::Binder<'r> {
         source: vn_core::Atom,
         range: &vn_core::SourceRange,
     ) -> bool {
-        use vn_modules::layer::{check_import, Layer};
+        use vn_modules::layer::{check_import, check_resolved_import, Layer};
         let source_str = self.interner.resolve(source).to_string();
-        if let Err(message) = check_import(Layer::of_module(&self.source_file), &source_str) {
+        let from = Layer::of_source_file(&self.source_file);
+        if let Err(message) = check_import(from, &source_str) {
             self.emit(Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(*range));
             return false;
         }
@@ -331,6 +341,14 @@ impl<'r> super::Binder<'r> {
             let joined = base_path.join(&source_str);
             let resolved = vn_modules::canonical_or_original(&joined);
             if let Err(message) = vn_modules::contain::check_within_root(base_path, &resolved) {
+                self.emit(
+                    Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(*range),
+                );
+                return false;
+            }
+            if let Err(message) =
+                check_resolved_import(from, Layer::of_source_file(&resolved), &source_str)
+            {
                 self.emit(
                     Diagnostic::error(ErrorCode::InvalidImportPath, message).with_range(*range),
                 );

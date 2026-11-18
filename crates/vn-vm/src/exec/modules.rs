@@ -3,7 +3,7 @@ use vn_core::ModuleId;
 
 pub(crate) fn resolve_specifier_to_id(specifier: &str, from: &ModuleId) -> VmResult<ModuleId> {
     let from_str = from.as_str().to_string();
-    let from_layer = vn_modules::layer::Layer::of_module(&from_str);
+    let from_layer = vn_modules::layer::Layer::of_source_file(&from_str);
     let target_layer = vn_modules::layer::Layer::of_module(specifier);
     if matches!(target_layer, vn_modules::layer::Layer::Runtime)
         && !matches!(from_layer, vn_modules::layer::Layer::Std)

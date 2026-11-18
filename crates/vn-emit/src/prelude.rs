@@ -11,7 +11,7 @@ pub(super) fn prelude_imports(
     ast_arena: &AstArena,
     interner: &AtomInterner,
 ) -> Vec<TirImport> {
-    if Layer::of_module(module) == Layer::Core {
+    if Layer::of_source_file(module) == Layer::Core {
         return Vec::new();
     }
     let used: FxHashSet<&str> = ast_arena
