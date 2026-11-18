@@ -71,9 +71,7 @@ impl FnEmitter<'_> {
     ) -> Option<Resolution> {
         let target = self.m.native_targets.get(key)?;
         if let Some(max_args) = target.max_args
-            && (targs.is_empty()
-                || targs.len() > max_args as usize
-                || !self.forward_keeps_checks(targs, callee_sig))
+            && (targs.len() > max_args as usize || !self.forward_keeps_checks(targs, callee_sig))
         {
             return None;
         }
