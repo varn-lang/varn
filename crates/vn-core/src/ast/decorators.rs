@@ -302,7 +302,13 @@ pub fn match_builtin(
             K::Decodes => match args {
                 Some([single]) => match single {
                     Arg::Positional(e) => match str_arg(arena, *e) {
-                        Some(op) => Ok(BuiltinDecorator::Decodes { op }),
+                        Some(op) if crate::runtime_ops::ALL.contains(&op.as_str()) => {
+                            Ok(BuiltinDecorator::Decodes { op })
+                        }
+                        Some(op) => Err(format!(
+                            "`@decodes` unknown op `{op}`; expected one of: {}",
+                            crate::runtime_ops::ALL.join(", ")
+                        )),
                         None => Err("`@decodes` takes exactly one string op".to_string()),
                     },
                     Arg::Spread(_) | Arg::Named { .. } => {

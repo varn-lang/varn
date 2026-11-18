@@ -9,7 +9,6 @@ impl Binder<'_> {
             || f.modifiers.is_generator
             || f.modifiers.is_declare
             || !f.decorators.is_empty()
-            || f.params.is_empty()
         {
             return None;
         }
@@ -52,7 +51,7 @@ impl Binder<'_> {
         else {
             return None;
         };
-        if !type_args.is_empty() || args.is_empty() || args.len() > names.len() {
+        if !type_args.is_empty() || args.len() > names.len() {
             return None;
         }
         for (slot, arg) in args.iter().enumerate() {
@@ -65,6 +64,9 @@ impl Binder<'_> {
             if *name != names[slot] {
                 return None;
             }
+        }
+        if f.params[args.len()..].iter().any(|p| !p.is_optional) {
+            return None;
         }
         let ExprKind::Identifier { name: callee } = &self.ast_arena.expr(*callee).kind else {
             return None;

@@ -31,8 +31,9 @@ pub const ALL: [&str; 13] = [
 pub const COUNT: u64 = ALL.len() as u64;
 
 pub fn op_id(name: &str) -> u64 {
-    ALL.iter()
-        .position(|n| *n == name)
-        .map(|i| i as u64)
-        .unwrap_or_else(|| panic!("unknown VM runtime op `{name}`"))
+    try_op_id(name).unwrap_or_else(|| panic!("unknown VM runtime op `{name}`"))
+}
+
+pub fn try_op_id(name: &str) -> Option<u64> {
+    ALL.iter().position(|n| *n == name).map(|i| i as u64)
 }
