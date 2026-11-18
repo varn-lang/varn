@@ -281,8 +281,6 @@ impl Parser {
                 | TokenKind::This
                 | TokenKind::Super
                 | TokenKind::Delete
-                | TokenKind::Typeof
-                | TokenKind::Instanceof
                 | TokenKind::In
                 | TokenKind::Of
                 | TokenKind::Void

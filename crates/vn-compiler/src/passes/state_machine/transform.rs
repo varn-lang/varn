@@ -108,6 +108,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::MethodCall { .. }
                 | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
+                | InstKind::TypeTest { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
                 | InstKind::BuildArray { .. }

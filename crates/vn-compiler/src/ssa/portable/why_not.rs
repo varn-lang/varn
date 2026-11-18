@@ -51,6 +51,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::MethodCall { .. }
         | other @ InstKind::InvokeSlot { .. }
         | other @ InstKind::IsNull { .. }
+        | other @ InstKind::TypeTest { .. }
         | other @ InstKind::Cast { .. }
         | other @ InstKind::Convert { .. }
         | other @ InstKind::BuildArray { .. }

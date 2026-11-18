@@ -231,9 +231,9 @@ impl ExecCtx {
                         let cls = cls.clone();
                         self.heap.set_intrinsic_class(name, cls);
                     }
-                    crate::heap::HeapObj::NativeFn(f, _) => {
-                        let f = *f;
-                        if let Ok(class_nv) = self.invoke_native(f, &[])
+                    crate::heap::HeapObj::NativeFn(f, _, mask) => {
+                        let (f, mask) = (*f, *mask);
+                        if let Ok(class_nv) = self.invoke_native(f, mask, &[])
                             && let Some(crate::heap::HeapObj::Class(cls)) =
                                 self.heap.get(class_nv.as_heap())
                         {

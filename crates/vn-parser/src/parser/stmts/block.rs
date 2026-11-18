@@ -149,8 +149,6 @@ pub fn parse_block(s: &mut TokenStream) -> PResult<StmtId> {
                         | TokenKind::This
                         | TokenKind::Super
                         | TokenKind::Delete
-                        | TokenKind::Typeof
-                        | TokenKind::Instanceof
                         | TokenKind::In
                         | TokenKind::Of
                         | TokenKind::Void

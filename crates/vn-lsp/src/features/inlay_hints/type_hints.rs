@@ -229,8 +229,6 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::This
             | vn_core::TokenKind::Super
             | vn_core::TokenKind::Delete
-            | vn_core::TokenKind::Typeof
-            | vn_core::TokenKind::Instanceof
             | vn_core::TokenKind::In
             | vn_core::TokenKind::Of
             | vn_core::TokenKind::Void

@@ -156,8 +156,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::This
                                 | TokenKind::Super
                                 | TokenKind::Delete
-                                | TokenKind::Typeof
-                                | TokenKind::Instanceof
                                 | TokenKind::In
                                 | TokenKind::Of
                                 | TokenKind::Void
@@ -322,8 +320,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::This
             | TokenKind::Super
             | TokenKind::Delete
-            | TokenKind::Typeof
-            | TokenKind::Instanceof
             | TokenKind::In
             | TokenKind::Of
             | TokenKind::Void

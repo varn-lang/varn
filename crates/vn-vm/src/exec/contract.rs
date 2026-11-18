@@ -3,7 +3,7 @@ use super::contract_natives::{
     verify_super_native, verify_super_spread_native,
 };
 use crate::closure::VmClosure;
-use crate::exec::advanced::typeof_val;
+use crate::exec::advanced::kind_of_val;
 use crate::exec::conform::{fit, mismatch};
 use crate::exec::ctx::ExecCtx;
 use crate::heap::{Heap, HeapObj};
@@ -237,7 +237,7 @@ fn check_args(
             return Err(mismatch(format!(
                 "type mismatch: argument {} expected '{expected}', got '{}'",
                 i + 1,
-                typeof_val(given.get(i).copied().unwrap_or(*arg), heap)
+                kind_of_val(given.get(i).copied().unwrap_or(*arg), heap)
             )));
         }
     }

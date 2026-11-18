@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub use vn_core::BinOp as DynBinOp;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SsaBinOp {
     IntAdd,
@@ -43,30 +45,6 @@ pub enum SsaBinOp {
     BitsNe,
 
     Dyn(DynBinOp),
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum DynBinOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
-    Pow,
-    Eq,
-    Ne,
-    Lt,
-    Le,
-    Gt,
-    Ge,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Shl,
-    Shr,
-    Ushr,
-    Instanceof,
-    In,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

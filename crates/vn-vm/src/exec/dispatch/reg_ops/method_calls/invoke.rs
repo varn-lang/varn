@@ -84,6 +84,7 @@ impl ExecCtx {
     pub(crate) fn call_native_with_receiver(
         &mut self,
         f: vn_types::NativeFn,
+        mask: u64,
         receiver: VmValue,
         args: MethodArgs<'_>,
     ) -> VmResult<VmValue> {
@@ -132,14 +133,14 @@ impl ExecCtx {
             for i in 0..arg_count {
                 buf[1 + i] = args.get(&self.stack, i);
             }
-            self.invoke_native(f, &buf[..arg_count + 1])
+            self.invoke_native(f, mask, &buf[..arg_count + 1])
         } else {
             let mut all = Vec::with_capacity(arg_count + 1);
             all.push(receiver);
             for i in 0..arg_count {
                 all.push(args.get(&self.stack, i));
             }
-            self.invoke_native(f, &all)
+            self.invoke_native(f, mask, &all)
         }
         .map_err(RuntimeError::from)?;
         Ok(result)

@@ -79,8 +79,8 @@ pub(super) fn prefix(op: OpCode) -> Option<&'static str> {
         | OpCode::AllocInstance
         | OpCode::FreezeClass
         | OpCode::BindMethod
-        | OpCode::Typeof
-        | OpCode::Instanceof
+        | OpCode::KindOf
+        | OpCode::TypeTest
         | OpCode::In
         | OpCode::IsNull
         | OpCode::IsArray

@@ -62,13 +62,6 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             Ok(s.type_node(range, TypeKind::This))
         }
 
-        TokenKind::Typeof => {
-            s.advance();
-            let expr = crate::expressions::parse_unary_expr(s)?;
-            let full_range = s.span_from(range);
-            Ok(s.type_node(full_range, TypeKind::Typeof(expr)))
-        }
-
         TokenKind::LParen => {
             s.advance();
 
@@ -353,7 +346,6 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::New
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Public
         | TokenKind::Private

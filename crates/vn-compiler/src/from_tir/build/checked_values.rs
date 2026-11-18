@@ -22,11 +22,9 @@ impl Builder<'_> {
             BackendTy::Dynamic(DynReason::Runtime),
         );
         let is_instance = self.emit(
-            InstKind::Binary {
-                op: crate::hir::HirBinOp::Instanceof,
-                lhs: v,
-                rhs: cls,
-                ty: BackendTy::Dynamic(DynReason::Boxed),
+            InstKind::TypeTest {
+                value: v,
+                class: cls,
             },
             BackendTy::Bool,
         );
@@ -79,7 +77,7 @@ impl Builder<'_> {
         self.current = throw_blk;
         let got = self.emit(
             InstKind::Unary {
-                op: crate::hir::HirUnOp::Typeof,
+                op: crate::hir::HirUnOp::KindOf,
                 operand: v,
                 ty: BackendTy::Str,
             },

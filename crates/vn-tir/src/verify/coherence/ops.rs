@@ -4,13 +4,6 @@ use crate::ty::{BackendTy, DynReason};
 use crate::verify::VerifyError;
 use crate::TirModule;
 
-fn is_comparison(op: TirBinOp) -> bool {
-    matches!(
-        op,
-        TirBinOp::Eq | TirBinOp::Ne | TirBinOp::Lt | TirBinOp::Le | TirBinOp::Gt | TirBinOp::Ge
-    )
-}
-
 pub(super) fn check_binary(
     m: &TirModule,
     e: &TirExpr,
@@ -19,7 +12,7 @@ pub(super) fn check_binary(
     rhs: &TirExpr,
     errors: &mut Vec<VerifyError>,
 ) {
-    if is_comparison(op) {
+    if op.is_comparison() {
         if e.ty != BackendTy::Bool {
             errors.push(VerifyError::new(
                 format!("comparison {op:?} must produce Bool, node says {:?}", e.ty),
@@ -29,7 +22,7 @@ pub(super) fn check_binary(
         return;
     }
 
-    if matches!(op, TirBinOp::Instanceof | TirBinOp::In) {
+    if matches!(op, TirBinOp::In) {
         if e.ty != BackendTy::Bool {
             errors.push(VerifyError::new(
                 format!("{op:?} must produce Bool, node says {:?}", e.ty),

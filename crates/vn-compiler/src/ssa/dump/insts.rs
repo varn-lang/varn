@@ -150,6 +150,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
             format!("invokeslot {}.#{slot}{}", val(*recv), args_list(args))
         }
         InstKind::IsNull { operand } => format!("isnull {}", val(*operand)),
+        InstKind::TypeTest { value, class } => {
+            format!("typetest {} {}", val(*value), val(*class))
+        }
         InstKind::Cast { operand, ty } => format!("cast {} as {ty:?}", val(*operand)),
         InstKind::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
         InstKind::BuildArray { elements } => format!("array{}", args_list(elements)),

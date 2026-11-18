@@ -161,6 +161,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         }
 
         InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::IsArray { .. }
         | InstKind::GetEnumTag { .. }
         | InstKind::StrLength { .. } => true,
@@ -270,6 +271,7 @@ fn is_transparent(kind: &InstKind) -> bool {
             | InstKind::MapGetIndex { .. }
             | InstKind::MapSetIndex { .. }
             | InstKind::IsNull { .. }
+            | InstKind::TypeTest { .. }
             | InstKind::IsArray { .. }
             | InstKind::StrLength { .. }
             | InstKind::ArrayLength { .. }

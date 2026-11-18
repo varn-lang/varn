@@ -48,19 +48,26 @@ impl ExecCtx {
             if let Some(bm) = bound_method {
                 let receiver = bm.receiver;
                 match &bm.target {
-                    vn_types::value::BoundMethodTarget::Native { func, name, .. } => {
+                    vn_types::value::BoundMethodTarget::Native { func, name, mask, .. } => {
                         let f = *func;
+                        let mask = *mask;
                         self.record_call_native(f, Some(name));
-                        let args = self.stack.box_range(base, arg_start, arg_count);
-                        let mut args = args;
-                        if !args.is_empty() {
-                            args[0] = receiver;
+                        let result = if arg_count <= 16 {
+                            let mut buf = [VmValue::null(); 16];
+                            self.stack.box_range_into(base, arg_start, &mut buf[..arg_count]);
+                            buf[0] = receiver;
+                            self.invoke_native(f, mask, &buf[..arg_count.max(1)])
                         } else {
-                            args.push(receiver);
+                            let args = self.stack.box_range(base, arg_start, arg_count);
+                            let mut args = args;
+                            if !args.is_empty() {
+                                args[0] = receiver;
+                            } else {
+                                args.push(receiver);
+                            }
+                            self.invoke_native(f, mask, &args)
                         }
-                        let result = self
-                            .invoke_native(f, &args)
-                            .map_err(crate::error::RuntimeError::from)?;
+                        .map_err(crate::error::RuntimeError::from)?;
                         self.store_call_result(frame_idx, dest, result)?;
                         return Ok(false);
                     }
@@ -105,15 +112,22 @@ impl ExecCtx {
                 pending_receiver = Some(receiver);
             } else {
                 match self.heap.get(callee.as_heap()) {
-                    Some(crate::heap::HeapObj::NativeFn(f, name)) => {
+                    Some(crate::heap::HeapObj::NativeFn(f, name, mask)) => {
                         let f = *f;
+                        let mask = *mask;
                         let name_str = *name;
                         self.record_call_native(f, Some(name_str));
-                        let args = self.stack.box_range(base, arg_start, arg_count);
-                        let slice = if args.len() > 1 { &args[1..] } else { &[] };
-                        let result = self
-                            .invoke_native(f, slice)
-                            .map_err(crate::error::RuntimeError::from)?;
+                        let result = if arg_count <= 16 {
+                            let mut buf = [VmValue::null(); 16];
+                            self.stack.box_range_into(base, arg_start, &mut buf[..arg_count]);
+                            let slice = if arg_count > 1 { &buf[1..arg_count] } else { &buf[..0] };
+                            self.invoke_native(f, mask, slice)
+                        } else {
+                            let args = self.stack.box_range(base, arg_start, arg_count);
+                            let slice = if args.len() > 1 { &args[1..] } else { &[] };
+                            self.invoke_native(f, mask, slice)
+                        }
+                        .map_err(crate::error::RuntimeError::from)?;
                         self.store_call_result(frame_idx, dest, result)?;
                         return Ok(false);
                     }

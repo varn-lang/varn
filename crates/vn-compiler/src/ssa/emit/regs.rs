@@ -191,6 +191,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::ObjectRest { .. }

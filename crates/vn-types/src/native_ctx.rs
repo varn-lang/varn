@@ -113,6 +113,12 @@ pub trait NativeCtx: crate::Buffers {
         self.str_owned(v).map(std::sync::Arc::from)
     }
 
+    fn str_shared_cached(&self, v: VmValue) -> Option<(std::sync::Arc<str>, bool)> {
+        let shared = self.str_shared(v)?;
+        let ascii = shared.is_ascii();
+        Some((shared, ascii))
+    }
+
     fn str_sub(&mut self, base: &crate::marshal::VnStr, start: usize, len: usize) -> VmValue {
         let s = base.as_str();
         let start = start.min(s.len());

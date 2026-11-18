@@ -180,6 +180,7 @@ pub enum BoundMethodTarget {
     Native {
         func: NativeFn,
         name: &'static str,
+        mask: u64,
     },
     Vm {
         closure: crate::vm_value::VmValue,

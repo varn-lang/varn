@@ -248,6 +248,10 @@ impl Coverage {
             TirExprKind::Discriminant { value }
             | TirExprKind::VariantPayload { value, .. }
             | TirExprKind::TypeTest { value, .. } => self.walk_expr(value),
+            TirExprKind::DynamicTypeTest { value, class } => {
+                self.walk_expr(value);
+                self.walk_expr(class);
+            }
             TirExprKind::Select {
                 cond,
                 then_val,

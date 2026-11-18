@@ -13,10 +13,7 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         let mut l = self.lower_expr(lhs)?;
         let mut r = self.lower_expr(rhs)?;
-        let is_cmp = matches!(
-            op,
-            TirBinOp::Eq | TirBinOp::Ne | TirBinOp::Lt | TirBinOp::Le | TirBinOp::Gt | TirBinOp::Ge
-        );
+        let is_cmp = op.is_comparison();
         if !is_cmp && matches!(ty, BackendTy::Num(_) | BackendTy::Str) {
             l = self.coerce(l, ty);
             r = self.coerce(r, ty);
@@ -44,7 +41,7 @@ impl<'m> Builder<'m> {
         };
         let result = self.emit(
             InstKind::Binary {
-                op: super::ops::bin_op(op),
+                op,
                 lhs: l,
                 rhs: r,
                 ty: op_ty,
@@ -66,7 +63,7 @@ impl<'m> Builder<'m> {
     fn u64_binary(&mut self, op: TirBinOp, l: Value, r: Value, ty: BackendTy) -> Value {
         self.emit(
             InstKind::Binary {
-                op: super::ops::bin_op(op),
+                op,
                 lhs: l,
                 rhs: r,
                 ty,
@@ -118,7 +115,7 @@ impl<'m> Builder<'m> {
                 );
                 self.emit(
                     InstKind::Binary {
-                        op: super::ops::bin_op(op),
+                        op,
                         lhs: lb,
                         rhs: rb,
                         ty: boxed,
@@ -132,7 +129,6 @@ impl<'m> Builder<'m> {
             | TirBinOp::Div
             | TirBinOp::Mod
             | TirBinOp::Pow
-            | TirBinOp::Instanceof
             | TirBinOp::In => {
                 let (lb, rb) = (
                     self.u64_convert(l, C::U64ToBigInt),
@@ -213,7 +209,7 @@ impl<'m> Builder<'m> {
                 let mask = self.emit(InstKind::ConstInt(kind.max() as i64), ty);
                 Ok(self.emit(
                     InstKind::Binary {
-                        op: super::ops::bin_op(TirBinOp::BitXor),
+                        op: TirBinOp::BitXor,
                         lhs: v,
                         rhs: mask,
                         ty,
@@ -221,7 +217,7 @@ impl<'m> Builder<'m> {
                     ty,
                 ))
             }
-            TirUnOp::Neg | TirUnOp::Not | TirUnOp::BitNot | TirUnOp::Typeof => {
+            TirUnOp::Neg | TirUnOp::Not | TirUnOp::BitNot | TirUnOp::KindOf => {
                 let result = self.emit(
                     InstKind::Unary {
                         op: super::ops::un_op(op),

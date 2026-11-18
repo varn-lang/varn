@@ -81,9 +81,9 @@ impl ExecCtx {
         if let Some(cls) = &receiver_class {
             if site.usable() {
                 match ic::probe(&self.heap, closure, site, cls, args.len()) {
-                    Some(IcHit::Native(f)) => {
+                    Some(IcHit::Native(f, mask)) => {
                         self.record_ic_hit_callmethod();
-                        return self.call_native_method(f, this_val, args, name);
+                        return self.call_native_method(f, mask, this_val, args, name);
                     }
                     Some(IcHit::Vm(nc, owner)) => {
                         self.record_ic_hit_callmethod();
@@ -113,8 +113,8 @@ impl ExecCtx {
             && let Some(HeapObj::BoundMethod(bm)) = self.heap.get(method_nv.as_heap())
         {
             match &bm.target {
-                BoundMethodTarget::Native { func, .. } => {
-                    let f = *func;
+                BoundMethodTarget::Native { func, mask, .. } => {
+                    let (f, mask) = (*func, *mask);
                     ic::record(
                         closure,
                         site,
@@ -122,7 +122,7 @@ impl ExecCtx {
                         name,
                         ICKind::NATIVE_VTABLE_METHOD,
                     );
-                    return self.call_native_method(f, this_val, args, name);
+                    return self.call_native_method(f, mask, this_val, args, name);
                 }
                 BoundMethodTarget::Vm {
                     closure: method_closure,
@@ -168,9 +168,9 @@ impl ExecCtx {
                 .invoke_vm_method_fast(nc, Some(owner_cls), this_val, args, name)
                 .map(Some);
         }
-        if let Some((f, _)) = self.heap.native_of(method_val) {
+        if let Some((f, _, mask)) = self.heap.native_of(method_val) {
             ic::record(closure, site, Some(cls), name, ICKind::NATIVE_VTABLE_METHOD);
-            return self.call_native_method(f, this_val, args, name).map(Some);
+            return self.call_native_method(f, mask, this_val, args, name).map(Some);
         }
         Ok(None)
     }
@@ -178,12 +178,13 @@ impl ExecCtx {
     pub(crate) fn call_native_method(
         &mut self,
         f: vn_types::NativeFn,
+        mask: u64,
         this_val: VmValue,
         args: MethodArgs<'_>,
         name: &str,
     ) -> VmResult<MethodOutcome> {
         self.record_call_native(f, Some(name));
-        let result = self.call_native_with_receiver(f, this_val, args)?;
+        let result = self.call_native_with_receiver(f, mask, this_val, args)?;
         Ok(MethodOutcome::Value(result))
     }
 }

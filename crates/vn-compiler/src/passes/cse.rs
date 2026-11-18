@@ -20,6 +20,7 @@ enum Key {
     Unary(HirUnOp, BackendTy, u32),
     IsNull(u32),
     IsArray(u32),
+    TypeTest(u32, u32),
     StrLength(u32),
     EnumTag(u32),
 
@@ -159,6 +160,7 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         InstKind::Binary { op, lhs, rhs, ty } => Key::Binary(*op, *ty, id(*lhs), id(*rhs)),
         InstKind::Unary { op, operand, ty } => Key::Unary(*op, *ty, id(*operand)),
         InstKind::IsNull { operand } => Key::IsNull(id(*operand)),
+        InstKind::TypeTest { value, class } => Key::TypeTest(id(*value), id(*class)),
         InstKind::IsArray { operand } => Key::IsArray(id(*operand)),
         InstKind::StrLength { operand } => Key::StrLength(id(*operand)),
         InstKind::GetEnumTag { operand } => Key::EnumTag(id(*operand)),

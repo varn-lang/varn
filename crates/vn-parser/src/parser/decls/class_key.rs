@@ -140,8 +140,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

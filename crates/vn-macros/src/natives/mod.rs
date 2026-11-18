@@ -340,6 +340,7 @@ fn expand_section(
                 entry_kind: ::vn_types::EntryKind::ClassDef,
                 flags: 0,
                 capability: "",
+                capability_mask: 0,
             };
 
             #(#method_entries)*

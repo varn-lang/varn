@@ -240,7 +240,8 @@ pub(super) fn version_plans(
                     | SsaOp::Cast { .. }
                     | SsaOp::Convert { .. }
                     | SsaOp::IsNull { .. }
-                    | SsaOp::Typeof { .. }
+                    | SsaOp::KindOf { .. }
+                    | SsaOp::TypeTest { .. }
                     | SsaOp::ToString { .. }
                     | SsaOp::IsArray { .. }
                     | SsaOp::GetEnumTag { .. }

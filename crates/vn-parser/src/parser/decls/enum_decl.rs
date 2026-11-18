@@ -217,8 +217,6 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                     | TokenKind::This
                     | TokenKind::Super
                     | TokenKind::Delete
-                    | TokenKind::Typeof
-                    | TokenKind::Instanceof
                     | TokenKind::In
                     | TokenKind::Of
                     | TokenKind::Void

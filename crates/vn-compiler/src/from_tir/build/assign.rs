@@ -142,6 +142,7 @@ impl<'m> Builder<'m> {
             | TirExprKind::Discriminant { .. }
             | TirExprKind::VariantPayload { .. }
             | TirExprKind::TypeTest { .. }
+            | TirExprKind::DynamicTypeTest { .. }
             | TirExprKind::Cast { .. }
             | TirExprKind::Checked { .. }
             | TirExprKind::Closure { .. }

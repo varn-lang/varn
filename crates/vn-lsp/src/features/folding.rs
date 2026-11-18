@@ -193,8 +193,6 @@ pub fn fold_tokens(tokens: &[TokenRecord]) -> Vec<FoldingRange> {
             | TokenKind::This
             | TokenKind::Super
             | TokenKind::Delete
-            | TokenKind::Typeof
-            | TokenKind::Instanceof
             | TokenKind::In
             | TokenKind::Of
             | TokenKind::Void

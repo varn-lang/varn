@@ -141,7 +141,12 @@ pub enum SsaOp {
         operand: u32,
     },
 
-    Typeof {
+    TypeTest {
+        value: u32,
+        class: u32,
+    },
+
+    KindOf {
         operand: u32,
     },
 

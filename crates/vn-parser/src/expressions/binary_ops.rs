@@ -23,7 +23,6 @@ pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinaryOp> {
         TokenKind::GtGtGt => Some(BinaryOp::UShr),
         TokenKind::In => Some(BinaryOp::In),
         TokenKind::EOF
-        | TokenKind::Instanceof
         | TokenKind::Dynamic
         | TokenKind::Identifier
         | TokenKind::IntegerLiteral
@@ -125,7 +124,6 @@ pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinaryOp> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
         | TokenKind::Of
         | TokenKind::Void
         | TokenKind::Is

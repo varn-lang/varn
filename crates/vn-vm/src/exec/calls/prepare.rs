@@ -22,13 +22,13 @@ pub(crate) fn try_prepare_call_fast(
         }
 
         HeapObj::BoundMethod(bm) => match &bm.target {
-            BoundMethodTarget::Native { func, .. } => {
-                Some((PreparedCall::NativeImmediate(*func, arg_count), true))
+            BoundMethodTarget::Native { func, mask, .. } => {
+                Some((PreparedCall::NativeImmediate(*func, *mask, arg_count), true))
             }
             BoundMethodTarget::Vm { .. } => None,
         },
-        HeapObj::NativeFn(f, _name) => {
-            Some((PreparedCall::RawNativeImmediate(*f, arg_count), false))
+        HeapObj::NativeFn(f, _name, mask) => {
+            Some((PreparedCall::RawNativeImmediate(*f, *mask, arg_count), false))
         }
         HeapObj::Str(_)
         | HeapObj::Array(_)
@@ -113,14 +113,14 @@ pub(crate) fn prepare_call(
                 let _ = arg_count;
                 return Ok(PreparedCall::Frame(materialize_frame(store, &nc, &window)?));
             }
-            HeapObj::NativeFn(f, _name) => {
-                let func = *f;
-                return Ok(PreparedCall::RawNativeImmediate(func, arg_count));
+            HeapObj::NativeFn(f, _name, mask) => {
+                let (func, mask) = (*f, *mask);
+                return Ok(PreparedCall::RawNativeImmediate(func, mask, arg_count));
             }
             HeapObj::BoundMethod(bm) => {
                 let bm = bm.clone();
                 match bm.target {
-                    BoundMethodTarget::Native { func, .. } => {
+                    BoundMethodTarget::Native { func, mask, .. } => {
                         let recv_nv = bm.receiver;
                         let mut final_count = arg_count;
 
@@ -131,7 +131,7 @@ pub(crate) fn prepare_call(
                             let start = staging.len().saturating_sub(arg_count);
                             staging[start] = recv_nv;
                         }
-                        return Ok(PreparedCall::NativeImmediate(func, final_count));
+                        return Ok(PreparedCall::NativeImmediate(func, mask, final_count));
                     }
                     BoundMethodTarget::Vm {
                         closure,
@@ -212,10 +212,10 @@ pub(crate) fn prepare_call(
                         frame.current_class = Some(cls.clone());
                         return Ok(PreparedCall::Constructor(frame, instance_nv));
                     }
-                    if let Some((f, _)) = heap.native_of(ctor) {
+                    if let Some((f, _, mask)) = heap.native_of(ctor) {
                         let take = staging.len().saturating_sub(full_arg_count);
                         let vm_args: Vec<VmValue> = staging.drain(take..).collect();
-                        return Ok(PreparedCall::NativeConstructor(f, vm_args, instance_nv));
+                        return Ok(PreparedCall::NativeConstructor(f, mask, vm_args, instance_nv));
                     }
                 }
                 staging.clear();

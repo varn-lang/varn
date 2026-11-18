@@ -17,8 +17,8 @@ pub mod modules;
 pub use dispatch::all_native_module_ids;
 #[cfg(feature = "runtime")]
 pub use dispatch::{
-    check_native_fn_capability, find_native_op_entry, native_op_fn, native_op_id,
-    native_op_name_by_fn, register_globals_vm,
+    check_native_fn_capability, check_native_mask, find_native_op_entry, native_capability_mask,
+    native_op_fn, native_op_id, native_op_name_by_fn, register_globals_vm,
 };
 #[cfg(feature = "runtime")]
 pub use modules::build_module;

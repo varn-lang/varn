@@ -62,7 +62,7 @@ impl<'a> FnEmitter<'a> {
         let tag = |name: &'static str| {
             let got = TirExpr {
                 kind: TirExprKind::Unary {
-                    op: TirUnOp::Typeof,
+                    op: TirUnOp::KindOf,
                     operand: Box::new(v.clone()),
                 },
                 ty: BackendTy::Str,
@@ -106,10 +106,9 @@ impl<'a> FnEmitter<'a> {
                 let res = self.resolve_name(written);
                 if matches!(res, Resolution::GlobalSlot(_) | Resolution::NativeGlobal(_)) {
                     return Some(TirExpr {
-                        kind: TirExprKind::Binary {
-                            op: TirBinOp::Instanceof,
-                            lhs: Box::new(v.clone()),
-                            rhs: Box::new(TirExpr {
+                        kind: TirExprKind::DynamicTypeTest {
+                            value: Box::new(v.clone()),
+                            class: Box::new(TirExpr {
                                 kind: TirExprKind::Var,
                                 ty: BackendTy::Dynamic(DynReason::Runtime),
                                 res,

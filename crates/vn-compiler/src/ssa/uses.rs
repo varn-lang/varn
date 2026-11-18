@@ -96,6 +96,10 @@ macro_rules! inst_uses {
                 $use!($f, lhs);
                 $use!($f, rhs);
             }
+            TypeTest { value, class } => {
+                $use!($f, value);
+                $use!($f, class);
+            }
             GetIndex { object, index }
             | ArrayGetIndex { object, index }
             | BytesGetIndex { object, index }

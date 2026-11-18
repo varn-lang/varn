@@ -4,7 +4,7 @@ use super::small_utils::bool_lit;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::ast::{Pattern, StmtId};
-use vn_tir::{BackendTy, DynReason, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt};
+use vn_tir::{BackendTy, DynReason, Resolution, Span, TirExpr, TirExprKind, TirStmt};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn catch_type_names(&self, t: &vn_core::ast::TypeNode) -> Vec<Arc<str>> {
@@ -36,7 +36,7 @@ impl<'a> FnEmitter<'a> {
         }
     }
 
-    pub(super) fn instance_of_name(&mut self, value: TirExpr, name: &str) -> TirExpr {
+    pub(super) fn type_test_of_name(&mut self, value: TirExpr, name: &str) -> TirExpr {
         let span = value.span;
         if let Some(class) = self.class_named(name) {
             return TirExpr {
@@ -56,10 +56,9 @@ impl<'a> FnEmitter<'a> {
             span,
         };
         TirExpr {
-            kind: TirExprKind::Binary {
-                op: TirBinOp::Instanceof,
-                lhs: Box::new(value),
-                rhs: Box::new(rhs),
+            kind: TirExprKind::DynamicTypeTest {
+                value: Box::new(value),
+                class: Box::new(rhs),
             },
             ty: BackendTy::Bool,
             res: Resolution::None,
@@ -113,7 +112,7 @@ impl<'a> FnEmitter<'a> {
             let names = self.catch_type_names(c.type_ann.as_ref().unwrap());
             let cond = names
                 .into_iter()
-                .map(|n| self.instance_of_name(e_var(Span::EMPTY), &n))
+                .map(|n| self.type_test_of_name(e_var(Span::EMPTY), &n))
                 .reduce(|a, b| TirExpr {
                     kind: TirExprKind::Select {
                         cond: Box::new(a),

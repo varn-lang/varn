@@ -130,6 +130,21 @@ impl NativeCtx for Heap {
         None
     }
 
+    fn str_shared_cached(&self, v: VmValue) -> Option<(std::sync::Arc<str>, bool)> {
+        if v.is_sso() {
+            let mut buf = [0u8; vn_types::vm_value::SSO_MAX_LEN];
+            let text = v.sso_as_str(&mut buf);
+            let ascii = text.is_ascii();
+            return Some((std::sync::Arc::from(text), ascii));
+        }
+        if v.is_heap()
+            && let Some(HeapObj::Str(s)) = self.get(v.as_heap())
+        {
+            return Some((s.to_shared(), s.is_ascii()));
+        }
+        None
+    }
+
     fn str_sub(&mut self, base: &vn_types::marshal::VnStr, start: usize, len: usize) -> VmValue {
         use super::str::HeapStr;
         let s = base.as_str();

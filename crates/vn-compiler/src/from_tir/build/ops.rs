@@ -1,37 +1,12 @@
-use crate::hir::{HirBinOp, HirUnOp, HirUpvalueSrc, LocalId};
-use vn_tir::{BackendTy, TirBinOp, TirUnOp};
-
-pub(super) fn bin_op(op: TirBinOp) -> HirBinOp {
-    match op {
-        TirBinOp::Add => HirBinOp::Add,
-        TirBinOp::Sub => HirBinOp::Sub,
-        TirBinOp::Mul => HirBinOp::Mul,
-        TirBinOp::Div => HirBinOp::Div,
-        TirBinOp::Mod => HirBinOp::Mod,
-        TirBinOp::Pow => HirBinOp::Pow,
-        TirBinOp::Eq => HirBinOp::Eq,
-        TirBinOp::Ne => HirBinOp::Ne,
-        TirBinOp::Lt => HirBinOp::Lt,
-        TirBinOp::Le => HirBinOp::Le,
-        TirBinOp::Gt => HirBinOp::Gt,
-        TirBinOp::Ge => HirBinOp::Ge,
-        TirBinOp::BitAnd => HirBinOp::BitAnd,
-        TirBinOp::BitOr => HirBinOp::BitOr,
-        TirBinOp::BitXor => HirBinOp::BitXor,
-        TirBinOp::Shl => HirBinOp::Shl,
-        TirBinOp::Shr => HirBinOp::Shr,
-        TirBinOp::Ushr => HirBinOp::Ushr,
-        TirBinOp::Instanceof => HirBinOp::Instanceof,
-        TirBinOp::In => HirBinOp::In,
-    }
-}
+use crate::hir::{HirUnOp, HirUpvalueSrc, LocalId};
+use vn_tir::{BackendTy, TirUnOp};
 
 pub(super) fn un_op(op: TirUnOp) -> HirUnOp {
     match op {
         TirUnOp::Neg => HirUnOp::Neg,
         TirUnOp::Not => HirUnOp::Not,
         TirUnOp::BitNot => HirUnOp::BitNot,
-        TirUnOp::Typeof => HirUnOp::Typeof,
+        TirUnOp::KindOf => HirUnOp::KindOf,
         TirUnOp::IsNull | TirUnOp::Present | TirUnOp::ToStr => {
             unreachable!("handled by lower_expr")
         }

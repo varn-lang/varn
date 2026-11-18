@@ -113,7 +113,6 @@ fn simplify(
                 | HirBinOp::Shl
                 | HirBinOp::Shr
                 | HirBinOp::Ushr
-                | HirBinOp::Instanceof
                 | HirBinOp::In => None,
             }
         }
@@ -146,7 +145,6 @@ fn simplify(
                 | HirBinOp::Shl
                 | HirBinOp::Shr
                 | HirBinOp::Ushr
-                | HirBinOp::Instanceof
                 | HirBinOp::In => None,
             }
         }
@@ -212,6 +210,7 @@ fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::MethodCall { .. }
         | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

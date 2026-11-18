@@ -98,7 +98,8 @@ pub(super) fn emit(
         | SsaOp::Cast { .. }
         | SsaOp::Convert { .. }
         | SsaOp::IsNull { .. }
-        | SsaOp::Typeof { .. }
+        | SsaOp::KindOf { .. }
+        | SsaOp::TypeTest { .. }
         | SsaOp::ToString { .. }
         | SsaOp::IsArray { .. }
         | SsaOp::GetEnumTag { .. }
@@ -296,9 +297,23 @@ pub(super) fn emit(
             let boxed = classops::emit_get_super(b, ctx, name)?;
             Out::Boxed(boxed)
         }
-        SsaOp::Typeof { operand } => {
-            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.typeof_val)?;
+        SsaOp::KindOf { operand } => {
+            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.kind_of_val)?;
             Out::Boxed(boxed)
+        }
+        SsaOp::TypeTest { value, class } => {
+            let a = heap::boxed_parts(b, ctx, values, *value)?;
+            let c = heap::boxed_parts(b, ctx, values, *class)?;
+            let cond = super::super::generic::boxed_compare(
+                b,
+                ctx.cc,
+                ctx.helpers.type_test,
+                ctx.exec_ctx,
+                None,
+                a,
+                c,
+            );
+            Out::Native(cond)
         }
         SsaOp::ToString { operand } => {
             let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.to_string)?;

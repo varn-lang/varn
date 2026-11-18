@@ -78,7 +78,8 @@ impl Views {
                 | SsaOp::Cast { .. }
                 | SsaOp::Convert { .. }
                 | SsaOp::IsNull { .. }
-                | SsaOp::Typeof { .. }
+                | SsaOp::KindOf { .. }
+                | SsaOp::TypeTest { .. }
                 | SsaOp::ToString { .. }
                 | SsaOp::IsArray { .. }
                 | SsaOp::GetEnumTag { .. }
@@ -170,7 +171,8 @@ impl Views {
                 | SsaOp::Cast { .. }
                 | SsaOp::Convert { .. }
                 | SsaOp::IsNull { .. }
-                | SsaOp::Typeof { .. }
+                | SsaOp::KindOf { .. }
+                | SsaOp::TypeTest { .. }
                 | SsaOp::ToString { .. }
                 | SsaOp::IsArray { .. }
                 | SsaOp::GetEnumTag { .. }

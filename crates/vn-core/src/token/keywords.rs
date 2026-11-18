@@ -58,8 +58,6 @@ keywords! {
     This => "this",
     Super => "super",
     Delete => "delete",
-    Typeof => "typeof",
-    Instanceof => "instanceof",
     In => "in",
     Of => "of",
     Void => "void",

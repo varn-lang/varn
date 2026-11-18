@@ -17,9 +17,10 @@ impl ExecCtx {
     pub(crate) fn invoke_native(
         &mut self,
         f: vn_types::NativeFn,
+        mask: u64,
         args: &[crate::value::VmValue],
     ) -> vn_types::NativeFnResult {
-        vn_builtins::check_native_fn_capability(f, &*self)?;
+        vn_builtins::check_native_mask(mask, f, &*self)?;
         let scope = self.heap.cells.enter_native();
         let result = self.timed_native(f, args);
         self.heap.cells.exit_native(scope);

@@ -338,8 +338,8 @@ impl ExecCtx {
             | OpCode::DefineStaticGetter
             | OpCode::DefineStaticSetter
             | OpCode::BindMethod
-            | OpCode::Typeof
-            | OpCode::Instanceof
+            | OpCode::KindOf
+            | OpCode::TypeTest
             | OpCode::In
             | OpCode::IsNull
             | OpCode::IsArray

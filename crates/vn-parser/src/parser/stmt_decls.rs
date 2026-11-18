@@ -294,8 +294,6 @@ pub(super) fn try_parse_decl_stmt_mode(
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

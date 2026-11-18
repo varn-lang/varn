@@ -63,7 +63,7 @@ fn freeze_value(val: VmValue, heap: &crate::heap::HeapInner) -> Option<FrozenExp
 
     match heap.get(val.as_heap()) {
         Some(HeapObj::Str(s)) => Some(FrozenExport::Str(Arc::from(s.as_ref()))),
-        Some(HeapObj::NativeFn(f, name)) => Some(FrozenExport::NativeFn(*f, name)),
+        Some(HeapObj::NativeFn(f, name, _)) => Some(FrozenExport::NativeFn(*f, name)),
         Some(HeapObj::Class(_)) => None,
         Some(HeapObj::VmClosure(_)) => None,
         Some(HeapObj::Object(obj_ref)) => {

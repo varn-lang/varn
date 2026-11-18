@@ -146,8 +146,8 @@ impl ExecCtx {
                     .ok_or_else(|| RuntimeError::new("BindMethod: non-string const"))?;
                 let method = crate::exec::props::get_property(obj_nv, &key, &mut self.heap)?;
 
-                let target = if let Some((func, name)) = self.heap.native_of(method) {
-                    vn_types::value::BoundMethodTarget::Native { func, name }
+                let target = if let Some((func, name, mask)) = self.heap.native_of(method) {
+                    vn_types::value::BoundMethodTarget::Native { func, name, mask }
                 } else if self.heap.closure_of(method).is_some() {
                     vn_types::value::BoundMethodTarget::Vm {
                         closure: method,
@@ -234,8 +234,8 @@ impl ExecCtx {
             | OpCode::DeclareLayout
             | OpCode::FreezeClass
             | OpCode::AllocInstance
-            | OpCode::Typeof
-            | OpCode::Instanceof
+            | OpCode::KindOf
+            | OpCode::TypeTest
             | OpCode::In
             | OpCode::IsNull
             | OpCode::IsArray

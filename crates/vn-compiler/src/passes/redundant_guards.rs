@@ -70,6 +70,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::MethodCall { .. }
                     | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
+                    | InstKind::TypeTest { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
                     | InstKind::ObjectRest { .. }
@@ -284,7 +285,8 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::ExtensionCall { .. }
                     | InstKind::CallSpread { .. }
                     | InstKind::BuildArraySpread { .. }
-                    | InstKind::BuildObjectSpread { .. } => {}
+                    | InstKind::BuildObjectSpread { .. }
+                    | InstKind::TypeTest { .. } => {}
                 }
             }
 

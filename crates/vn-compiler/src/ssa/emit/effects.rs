@@ -287,6 +287,7 @@ pub(super) fn emit_effect(
         | InstKind::MapGetIndex { .. }
         | InstKind::MethodCall { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

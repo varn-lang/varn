@@ -177,6 +177,11 @@ pub enum InstKind {
         operand: Value,
     },
 
+    TypeTest {
+        value: Value,
+        class: Value,
+    },
+
     Cast {
         operand: Value,
         ty: BackendTy,

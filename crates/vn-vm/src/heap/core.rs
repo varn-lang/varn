@@ -8,7 +8,8 @@ use vn_types::{ClassObj, HeapRef, NativeFn};
 impl HeapInner {
     #[inline]
     pub(crate) fn alloc_native_fn(&mut self, f: NativeFn, name: &'static str) -> VmValue {
-        VmValue::from_heap(self.alloc(HeapObj::NativeFn(f, name)))
+        let mask = vn_builtins::native_capability_mask(f);
+        VmValue::from_heap(self.alloc(HeapObj::NativeFn(f, name, mask)))
     }
 
     pub(crate) fn alloc(&mut self, obj: HeapObj) -> HeapRef {

@@ -20,10 +20,10 @@ pub(super) fn try_project(
             })
         }
         InstKind::Unary {
-            op: crate::hir::HirUnOp::Typeof,
+            op: crate::hir::HirUnOp::KindOf,
             operand,
             ..
-        } => Some(SsaOp::Typeof { operand: operand.0 }),
+        } => Some(SsaOp::KindOf { operand: operand.0 }),
         InstKind::Unary { op, operand, .. } => Some(SsaOp::Unary {
             op: super::super::ops::project_un(*op, value_tys.get(operand.0 as usize).copied())?,
             operand: operand.0,
@@ -38,6 +38,10 @@ pub(super) fn try_project(
             conv: *conv,
         }),
         InstKind::IsNull { operand } => Some(SsaOp::IsNull { operand: operand.0 }),
+        InstKind::TypeTest { value, class } => Some(SsaOp::TypeTest {
+            value: value.0,
+            class: class.0,
+        }),
         InstKind::AssertNotNull { operand } => Some(SsaOp::AssertNotNull { operand: operand.0 }),
         InstKind::Range {
             start,

@@ -4,7 +4,7 @@ use crate::value::VmValue;
 use vn_core::RuntimeKind;
 use vn_types::{ClassObj, NativeCtx};
 
-pub(crate) fn typeof_val(val: VmValue, heap: &Heap) -> &'static str {
+pub(crate) fn kind_of_val(val: VmValue, heap: &Heap) -> &'static str {
     if val.is_null() {
         return RuntimeKind::Null.name();
     }
@@ -34,7 +34,7 @@ pub(crate) fn typeof_val(val: VmValue, heap: &Heap) -> &'static str {
     vn_core::UNKNOWN
 }
 
-pub(crate) fn instanceof(obj: VmValue, class_nv: VmValue, heap: &Heap) -> bool {
+pub(crate) fn type_test(obj: VmValue, class_nv: VmValue, heap: &Heap) -> bool {
     if !class_nv.is_heap() {
         return false;
     }

@@ -96,6 +96,13 @@ pub(super) fn idents(prefix: &str, sym: &str) -> BodyIdents {
     }
 }
 
+fn capability_mask(domains: &[String]) -> u64 {
+    domains
+        .iter()
+        .filter_map(|d| vn_core::sandbox::Capability::parse(d).map(|c| c.bit()))
+        .fold(0, |acc, b| acc | b)
+}
+
 pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generated) {
     let prefix = cx.prefix;
     let module = cx.module;
@@ -271,6 +278,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
     out.wrappers.push(fast_wrapper);
 
     let capability = m.capability.join(", ");
+    let mask = capability_mask(&m.capability);
     if m.kind == Kind::Function {
         let fn_entry_ident = format_ident!(
             "__VN_OP_{}_{}",
@@ -289,6 +297,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
                 entry_kind: ::vn_types::EntryKind::Function,
                 flags: 0,
                 capability: #capability,
+                capability_mask: #mask,
             };
         });
     } else {
@@ -346,6 +355,7 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
                     entry_kind: ::vn_types::EntryKind::#mkind,
                     flags: 0,
                     capability: #capability,
+                    capability_mask: #mask,
                 };
             });
         }

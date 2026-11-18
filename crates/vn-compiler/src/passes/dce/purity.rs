@@ -39,9 +39,12 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
             true
         }
 
-        IsNull { .. } | Cast { .. } | IsArray { .. } | GetEnumTag { .. } | ObjectKeys { .. } => {
-            true
-        }
+        IsNull { .. }
+        | TypeTest { .. }
+        | Cast { .. }
+        | IsArray { .. }
+        | GetEnumTag { .. }
+        | ObjectKeys { .. } => true,
 
         StrLength { .. } | ArrayLength { .. } | BytesLength { .. } => true,
         Convert { conv, .. } => !conv.can_fault(),
@@ -89,7 +92,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
             typed && never_traps && !int_can_overflow
         }
         Unary { op, ty, .. } => match op {
-            HirUnOp::Typeof => true,
+            HirUnOp::KindOf => true,
             HirUnOp::Neg => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
             HirUnOp::Not | HirUnOp::BitNot => {
                 matches!(ty, BackendTy::Num(_) | BackendTy::Bool)

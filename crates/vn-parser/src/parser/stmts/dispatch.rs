@@ -191,8 +191,6 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

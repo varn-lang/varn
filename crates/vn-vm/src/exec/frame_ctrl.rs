@@ -108,38 +108,53 @@ impl ExecCtx {
                 self.pending_constructors
                     .push((ctor_frame_idx, instance_nv));
             }
-            PreparedCall::NativeImmediate(f, arg_count) => {
+            PreparedCall::NativeImmediate(f, mask, arg_count) => {
                 self.record_call_native(f, None);
 
                 let take = arg_count.min(self.stage.len());
-                let start = self.stage.len() - take;
-                let args: Vec<VmValue> = self.stage.drain(start..).collect();
-                let result = if args.len() <= 16 {
+                let result = if take <= 16 {
                     let mut buf = [VmValue::null(); 16];
-                    buf[..args.len()].copy_from_slice(&args);
-                    self.invoke_native(f, &buf[..args.len()])
+                    let start = self.stage.len() - take;
+                    for i in 0..take {
+                        buf[i] = self.stage[start + i];
+                    }
+                    self.stage.truncate(start);
+                    self.invoke_native(f, mask, &buf[..take])
                 } else {
-                    self.invoke_native(f, &args)
+                    let start = self.stage.len() - take;
+                    let args: Vec<VmValue> = self.stage.drain(start..).collect();
+                    self.invoke_native(f, mask, &args)
                 }
                 .map_err(RuntimeError::from)?;
 
                 self.stage.clear();
                 self.stage.push(result);
             }
-            PreparedCall::RawNativeImmediate(f, arg_count) => {
+            PreparedCall::RawNativeImmediate(f, mask, arg_count) => {
                 self.record_call_native(f, None);
                 let take = arg_count.min(self.stage.len());
                 let start = self.stage.len() - take;
-                let args: Vec<VmValue> = self.stage.drain(start..).collect();
-                let slice = if args.len() > 1 { &args[1..] } else { &[] };
-                let result = self.invoke_native(f, slice).map_err(RuntimeError::from)?;
+                let result = if take <= 16 {
+                    let mut buf = [VmValue::null(); 16];
+                    for i in 0..take {
+                        buf[i] = self.stage[start + i];
+                    }
+                    self.stage.truncate(start);
+                    let slice = if take > 1 { &buf[1..take] } else { &buf[..0] };
+                    self.invoke_native(f, mask, slice)
+                } else {
+                    let args: Vec<VmValue> = self.stage.drain(start..).collect();
+                    let slice = if args.len() > 1 { &args[1..] } else { &[] };
+                    self.invoke_native(f, mask, slice)
+                }
+                .map_err(RuntimeError::from)?;
 
                 self.stage.clear();
                 self.stage.push(result);
             }
-            PreparedCall::NativeConstructor(f, args, instance_nv) => {
+            PreparedCall::NativeConstructor(f, mask, args, instance_nv) => {
                 self.record_call_native(f, None);
-                let result = self.invoke_native(f, &args).map_err(RuntimeError::from)?;
+                let result = self.invoke_native(f, mask, &args).map_err(RuntimeError::from)?;
                 let nv = if result.is_null() {
                     instance_nv
                 } else {

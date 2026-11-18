@@ -281,8 +281,6 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

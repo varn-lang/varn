@@ -54,6 +54,10 @@ impl NativeCtx for ExecCtx {
         self.heap.str_shared(v)
     }
 
+    fn str_shared_cached(&self, v: VmValue) -> Option<(std::sync::Arc<str>, bool)> {
+        self.heap.str_shared_cached(v)
+    }
+
     fn str_sub(&mut self, base: &vn_types::marshal::VnStr, start: usize, len: usize) -> VmValue {
         self.host_str_sub(base, start, len)
     }

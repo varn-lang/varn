@@ -102,6 +102,9 @@ pub(super) fn emit_value(
         InstKind::IsNull { operand } => {
             scalars::emit_is_null(chunk, d, *operand, reg, line);
         }
+        InstKind::TypeTest { value, class } => {
+            scalars::emit_type_test(chunk, d, *value, *class, reg, line);
+        }
         InstKind::Cast { operand, .. } => {
             scalars::emit_cast(chunk, d, *operand, reg, line);
         }

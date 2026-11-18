@@ -25,6 +25,7 @@ pub mod numeric_conv;
 pub mod op_id;
 pub mod op_meta;
 pub mod opcode;
+pub mod ops;
 pub mod paths;
 pub mod regex_pattern;
 pub mod runtime_kind;
@@ -55,6 +56,7 @@ pub use lang_type::{
     is_lang_type, BuiltinType, CoreSum, LangConstraint, LangPrimitive, TYPE_ALIASES_MODULE,
 };
 pub use opcode::OpCode;
+pub use ops::BinOp;
 pub use source::{SourceLocation, SourceRange};
 
 pub use accessor::AccessorKind;

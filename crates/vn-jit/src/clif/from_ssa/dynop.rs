@@ -66,7 +66,6 @@ pub(super) fn emit_bin(
         DynBinOp::Le => compare(b, h.lte, None),
         DynBinOp::Gt => compare(b, h.gt, None),
         DynBinOp::Ge => compare(b, h.gte, None),
-        DynBinOp::Instanceof => compare(b, h.instanceof, None),
         DynBinOp::In => compare(b, h.op_in, None),
     })
 }

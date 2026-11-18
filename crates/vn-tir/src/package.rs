@@ -335,6 +335,7 @@ impl Extractor<'_> {
             | TirExprKind::Discriminant { .. }
             | TirExprKind::VariantPayload { .. }
             | TirExprKind::TypeTest { .. }
+            | TirExprKind::DynamicTypeTest { .. }
             | TirExprKind::Closure { .. }
             | TirExprKind::New { .. }
             | TirExprKind::MakeVariant { .. }

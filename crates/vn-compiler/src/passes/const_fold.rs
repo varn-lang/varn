@@ -90,6 +90,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
             fold_binary(*op, lhs_const, rhs_const, *ty)
         }
         InstKind::Convert { operand, conv } => fold_convert(*conv, const_map.get(operand)?),
+        InstKind::TypeTest { .. } => None,
         InstKind::IsNull { operand } => {
             let operand_const = const_map.get(operand)?;
             match operand_const {
@@ -132,6 +133,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::MethodCall { .. }
                 | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
+                | InstKind::TypeTest { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
                 | InstKind::BuildArray { .. }

@@ -145,8 +145,6 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

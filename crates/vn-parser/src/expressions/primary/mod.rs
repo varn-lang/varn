@@ -277,8 +277,6 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::Await
         | TokenKind::Yield
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

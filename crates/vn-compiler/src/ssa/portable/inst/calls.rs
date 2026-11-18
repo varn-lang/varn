@@ -154,6 +154,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

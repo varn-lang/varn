@@ -31,7 +31,7 @@ impl IcSite {
 }
 
 pub(super) enum IcHit {
-    Native(vn_types::NativeFn),
+    Native(vn_types::NativeFn, u64),
 
     Vm(Rc<VmClosure>, Rc<ClassObj>),
 }
@@ -60,8 +60,8 @@ pub(super) fn probe(
         let vtable = unsafe { &*cls.vtable.as_ptr() };
         let method = vtable.get(entry.slot as usize);
         if entry.is_class == ICKind::NATIVE_VTABLE_METHOD {
-            if let Some((f, _)) = method.and_then(|m| heap.native_of(*m)) {
-                return Some(IcHit::Native(f));
+            if let Some((f, _, mask)) = method.and_then(|m| heap.native_of(*m)) {
+                return Some(IcHit::Native(f, mask));
             }
         } else if entry.is_class == ICKind::VM_VTABLE_METHOD
             && let Some(nc) = method.and_then(|m| heap.closure_of(*m))

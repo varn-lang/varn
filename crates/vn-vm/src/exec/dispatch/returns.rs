@@ -55,7 +55,7 @@ impl ExecCtx {
         self.stack.unbox_into_reg(base, dest, value)
     }
 
-    pub(crate) fn exec_typeof(&self, v: VmValue) -> &'static str {
-        crate::exec::advanced::typeof_val(v, &self.heap)
+    pub(crate) fn exec_kind_of(&self, v: VmValue) -> &'static str {
+        crate::exec::advanced::kind_of_val(v, &self.heap)
     }
 }

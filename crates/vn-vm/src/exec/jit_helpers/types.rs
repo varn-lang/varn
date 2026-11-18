@@ -2,18 +2,18 @@ use super::construct::jit_propagate_error;
 use crate::exec::ctx::ExecCtx;
 use crate::value::VmValue;
 
-#[vn_macros::jit_slow(field = "typeof_val")]
-pub(crate) extern "C" fn jit_typeof_val(ctx: *mut ExecCtx, v_tag: u64, v_payload: u64) {
+#[vn_macros::jit_slow(field = "kind_of_val")]
+pub(crate) extern "C" fn jit_kind_of_val(ctx: *mut ExecCtx, v_tag: u64, v_payload: u64) {
     unsafe {
         let ctx_ref = &mut *ctx;
         let v = VmValue::from_raw_parts(v_tag, v_payload);
-        let s = crate::exec::advanced::typeof_val(v, &ctx_ref.heap);
+        let s = crate::exec::advanced::kind_of_val(v, &ctx_ref.heap);
         ctx_ref.jit_native_result = ctx_ref.heap.alloc_str(s);
     }
 }
 
-#[vn_macros::jit_slow(field = "instanceof")]
-pub(crate) extern "C" fn jit_instanceof(
+#[vn_macros::jit_slow(field = "type_test")]
+pub(crate) extern "C" fn jit_type_test(
     ctx: *mut ExecCtx,
     a_tag: u64,
     a_payload: u64,
@@ -24,7 +24,7 @@ pub(crate) extern "C" fn jit_instanceof(
         let ctx_ref = &*ctx;
         let a = VmValue::from_raw_parts(a_tag, a_payload);
         let b = VmValue::from_raw_parts(b_tag, b_payload);
-        let r = crate::exec::advanced::instanceof(a, b, &ctx_ref.heap);
+        let r = crate::exec::advanced::type_test(a, b, &ctx_ref.heap);
         if r {
             1
         } else {

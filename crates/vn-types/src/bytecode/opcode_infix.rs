@@ -28,7 +28,7 @@ pub(super) fn infix(op: OpCode) -> Option<&'static str> {
         O::Gt | O::GtInt | O::GtFloat => ">",
         O::Gte | O::GteInt | O::GteFloat => ">=",
         O::In => "in",
-        O::Instanceof => "instanceof",
+        O::TypeTest => "is",
         O::LoadConst
         | O::LoadNull
         | O::LoadTrue
@@ -88,7 +88,7 @@ pub(super) fn infix(op: OpCode) -> Option<&'static str> {
         | O::AllocInstance
         | O::FreezeClass
         | O::BindMethod
-        | O::Typeof
+        | O::KindOf
         | O::IsNull
         | O::IsArray
         | O::AssertNotNull

@@ -1,4 +1,4 @@
-// expect: error[VN2002]
+// expect: error[VN3002]
 class Animal {}
 const a = new Animal()
 const same = a instanceof Animal

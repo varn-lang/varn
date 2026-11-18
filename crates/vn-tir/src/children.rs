@@ -80,6 +80,10 @@ pub fn child_exprs(e: &TirExpr) -> Vec<&TirExpr> {
         Discriminant { value } | VariantPayload { value, .. } | TypeTest { value, .. } => {
             out.push(value)
         }
+        DynamicTypeTest { value, class } => {
+            out.push(value);
+            out.push(class);
+        }
         New { args, .. }
         | MakeVariant { args }
         | SuperCall { args }

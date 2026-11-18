@@ -229,9 +229,8 @@ impl FromVm for VnStr {
             let ascii = buf[..len as usize].is_ascii();
             return Ok(VnStr::Sso { buf, len, ascii });
         }
-        let ascii = ctx.str_is_ascii(v);
-        ctx.str_shared(v)
-            .map(|s| VnStr::Shared(s, ascii))
+        ctx.str_shared_cached(v)
+            .map(|(s, ascii)| VnStr::Shared(s, ascii))
             .ok_or_else(|| NativeError::type_error(format!("expected str, got {v:?}")))
     }
 }

@@ -214,22 +214,22 @@ impl ExecCtx {
                     .unbox_into_reg(base, first_reg, VmValue::from_bool(r))?;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
-            OpCode::Instanceof => {
+            OpCode::TypeTest => {
                 let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let (src1, src2) = (hi(w1), lo(w1));
                 let a = self.stack.box_reg(base, src1);
                 let b = self.stack.box_reg(base, src2);
-                let r = crate::exec::advanced::instanceof(a, b, &self.heap);
+                let r = crate::exec::advanced::type_test(a, b, &self.heap);
                 self.stack
                     .unbox_into_reg(base, first_reg, VmValue::from_bool(r))?;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
-            OpCode::Typeof => {
+            OpCode::KindOf => {
                 let src = hi(unsafe { *code.get_unchecked(*ip) });
                 *ip += 1;
                 let v = self.stack.box_reg(base, src);
-                let s = self.exec_typeof(v);
+                let s = self.exec_kind_of(v);
                 self.stack
                     .unbox_into_reg(base, first_reg, self.heap.alloc_str(s))?;
                 Ok(Some(ObjectFlow::ContinueInstruction))

@@ -41,7 +41,6 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
             Shl => OpCode::Shl,
             Shr => OpCode::Shr,
             Ushr => OpCode::Ushr,
-            Instanceof => OpCode::Instanceof,
             In => OpCode::In,
         },
         BackendTy::Num(vn_core::NumKind::Float(_)) => match op {
@@ -63,7 +62,6 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
             Shl => OpCode::Shl,
             Shr => OpCode::Shr,
             Ushr => OpCode::Ushr,
-            Instanceof => OpCode::Instanceof,
             In => OpCode::In,
         },
         BackendTy::Str => match op {
@@ -85,20 +83,19 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
             Shl => OpCode::Shl,
             Shr => OpCode::Shr,
             Ushr => OpCode::Ushr,
-            Instanceof => OpCode::Instanceof,
             In => OpCode::In,
         },
         BackendTy::Bool => match op {
             Eq => OpCode::EqBool,
             Ne => OpCode::NeqBool,
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => dynamic_opcode(op),
+            | Shl | Shr | Ushr | In => dynamic_opcode(op),
         },
         BackendTy::Char => match op {
             Eq => OpCode::EqChar,
             Ne => OpCode::NeqChar,
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => dynamic_opcode(op),
+            | Shl | Shr | Ushr | In => dynamic_opcode(op),
         },
         BackendTy::Bytes
         | BackendTy::Enum(_)
@@ -138,7 +135,6 @@ fn dynamic_opcode(op: HirBinOp) -> OpCode {
         Shl => OpCode::Shl,
         Shr => OpCode::Shr,
         Ushr => OpCode::Ushr,
-        Instanceof => OpCode::Instanceof,
         In => OpCode::In,
     }
 }

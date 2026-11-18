@@ -161,8 +161,6 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::New
         | TokenKind::This
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Is

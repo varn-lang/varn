@@ -90,9 +90,9 @@ pub enum OpCode {
 
     BindMethod,
 
-    Typeof,
+    KindOf,
 
-    Instanceof,
+    TypeTest,
 
     In,
 

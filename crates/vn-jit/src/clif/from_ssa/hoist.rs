@@ -84,7 +84,8 @@ pub(super) fn plan_hoists(
                     | vn_types::ssa::SsaOp::Cast { .. }
                     | vn_types::ssa::SsaOp::Convert { .. }
                     | vn_types::ssa::SsaOp::IsNull { .. }
-                    | vn_types::ssa::SsaOp::Typeof { .. }
+                    | vn_types::ssa::SsaOp::KindOf { .. }
+                    | vn_types::ssa::SsaOp::TypeTest { .. }
                     | vn_types::ssa::SsaOp::ToString { .. }
                     | vn_types::ssa::SsaOp::IsArray { .. }
                     | vn_types::ssa::SsaOp::GetEnumTag { .. }

@@ -11,6 +11,10 @@ pub enum Capability {
 }
 
 impl Capability {
+    pub const fn bit(self) -> u64 {
+        1u64 << (self as u64)
+    }
+
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::FsRead => "fs.read",

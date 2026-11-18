@@ -63,6 +63,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
         | InstKind::MethodCall { .. }
         | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

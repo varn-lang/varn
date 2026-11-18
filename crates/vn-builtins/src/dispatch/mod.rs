@@ -20,10 +20,15 @@ fn op_key(module: &str, namespace: &str, symbol: &str) -> String {
     format!("{module}\u{1}{namespace}\u{1}{symbol}")
 }
 
+struct FnGate {
+    entry: &'static NativeOpEntry,
+    mask: u64,
+}
+
 struct Registry {
     by_id: Vec<Option<&'static NativeOpEntry>>,
     by_name: FxHashMap<String, u64>,
-    by_fn: FxHashMap<usize, &'static NativeOpEntry>,
+    by_fn: FxHashMap<usize, FnGate>,
     modules: BTreeSet<&'static str>,
 }
 
@@ -58,7 +63,10 @@ fn registry() -> &'static Registry {
                 reg.by_id[id as usize] = Some(entry);
             }
             reg.by_name.insert(key, id);
-            reg.by_fn.entry(entry.func() as usize).or_insert(entry);
+            reg.by_fn.entry(entry.func() as usize).or_insert_with(|| FnGate {
+                entry,
+                mask: entry.capability_mask,
+            });
             reg.modules.insert(entry.module_id());
         }
         reg
@@ -85,34 +93,58 @@ pub fn native_op_fn(id: u64) -> Option<vn_types::NativeFn> {
 }
 
 pub fn native_op_name_by_fn(f: vn_types::NativeFn) -> Option<&'static str> {
-    registry().by_fn.get(&(f as usize)).map(|e| e.symbol_name())
+    registry().by_fn.get(&(f as usize)).map(|g| g.entry.symbol_name())
+}
+
+pub fn native_capability_mask(f: vn_types::NativeFn) -> u64 {
+    registry()
+        .by_fn
+        .get(&(f as usize))
+        .map(|g| g.mask)
+        .unwrap_or(0)
+}
+
+pub fn check_native_mask(
+    mask: u64,
+    f: vn_types::NativeFn,
+    ctx: &dyn NativeCtx,
+) -> Result<(), vn_types::NativeError> {
+    if mask == 0 {
+        return Ok(());
+    }
+    if ctx.capabilities().has_mask(mask) {
+        return Ok(());
+    }
+    let (module, symbol) = registry()
+        .by_fn
+        .get(&(f as usize))
+        .map(|g| (g.entry.module_id(), g.entry.symbol_name()))
+        .unwrap_or(("unknown", "unknown"));
+    for cap in [
+        vn_core::sandbox::Capability::FsRead,
+        vn_core::sandbox::Capability::FsWrite,
+        vn_core::sandbox::Capability::NetClient,
+        vn_core::sandbox::Capability::NetServer,
+        vn_core::sandbox::Capability::SysEnv,
+        vn_core::sandbox::Capability::SysExec,
+        vn_core::sandbox::Capability::SysFfi,
+        vn_core::sandbox::Capability::Ui,
+    ] {
+        if (mask & cap.bit()) != 0 && !ctx.has_capability(cap) {
+            return Err(vn_types::NativeError::capability(
+                cap.as_str(),
+                format!("{module}:{symbol}"),
+            ));
+        }
+    }
+    Ok(())
 }
 
 pub fn check_native_fn_capability(
     f: vn_types::NativeFn,
     ctx: &dyn NativeCtx,
 ) -> Result<(), vn_types::NativeError> {
-    let Some(entry) = registry().by_fn.get(&(f as usize)) else {
-        return Ok(());
-    };
-    let Some(name) = entry.capability() else {
-        return Ok(());
-    };
-    for domain in vn_core::sandbox::Capability::split_joined(name) {
-        let Some(cap) = vn_core::sandbox::Capability::parse(domain) else {
-            return Err(vn_types::NativeError::capability(
-                domain,
-                format!("{}:{}", entry.module_id(), entry.symbol_name()),
-            ));
-        };
-        if !ctx.has_capability(cap) {
-            return Err(vn_types::NativeError::capability(
-                cap.as_str(),
-                format!("{}:{}", entry.module_id(), entry.symbol_name()),
-            ));
-        }
-    }
-    Ok(())
+    check_native_mask(native_capability_mask(f), f, ctx)
 }
 
 pub fn all_native_module_ids() -> impl Iterator<Item = &'static str> {

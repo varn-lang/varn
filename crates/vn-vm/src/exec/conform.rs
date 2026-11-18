@@ -1,4 +1,4 @@
-use crate::exec::advanced::{instanceof, typeof_val};
+use crate::exec::advanced::{kind_of_val, type_test};
 use crate::heap::{Heap, HeapObj};
 use crate::value::VmValue;
 use std::cell::RefCell;
@@ -125,7 +125,7 @@ fn conform_to(
         Some(()) => Ok(value),
         None => Err(mismatch(format!(
             "type mismatch: expected '{desc}', got '{}'",
-            typeof_val(value, heap)
+            kind_of_val(value, heap)
         ))),
     }
 }
@@ -135,7 +135,7 @@ fn exact(holds: bool) -> Option<()> {
 }
 
 fn kind_is(heap: &Heap, v: VmValue, kind: RuntimeKind) -> bool {
-    typeof_val(v, heap) == kind.name()
+    kind_of_val(v, heap) == kind.name()
 }
 
 pub(crate) fn fit(
@@ -234,7 +234,7 @@ fn fit_in(cx: &Cx, v: VmValue, desc: &TypeDesc, scope: Option<&Scope>) -> Option
         }
         TypeDesc::Class { witness, .. } => {
             let class = *witnesses.get(*witness as usize)?;
-            exact(class.is_null() || instanceof(v, class, heap))
+            exact(class.is_null() || type_test(v, class, heap))
         }
         TypeDesc::Enum { witness, name } => {
             if !v.is_heap() {
@@ -247,7 +247,7 @@ fn fit_in(cx: &Cx, v: VmValue, desc: &TypeDesc, scope: Option<&Scope>) -> Option
             if class.is_null() {
                 return exact(data.def.enum_name.as_ref() == name.as_str());
             }
-            exact(instanceof(v, class, heap))
+            exact(type_test(v, class, heap))
         }
         TypeDesc::Nullable(inner) => {
             if v.is_null() {

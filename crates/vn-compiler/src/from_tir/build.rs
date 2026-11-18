@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use vn_tir::{BackendTy, DynReason};
 
-use crate::hir::HirBinOp;
 use crate::ssa::ir::{InstKind, Value};
 use vn_tir::{TirExpr, TirExprKind};
 
@@ -137,11 +136,20 @@ impl<'m> Builder<'m> {
                     BackendTy::Dynamic(DynReason::Runtime),
                 );
                 Ok(self.emit(
-                    InstKind::Binary {
-                        op: HirBinOp::Instanceof,
-                        lhs: v,
-                        rhs: cls,
-                        ty: BackendTy::Dynamic(DynReason::Boxed),
+                    InstKind::TypeTest {
+                        value: v,
+                        class: cls,
+                    },
+                    BackendTy::Bool,
+                ))
+            }
+            TirExprKind::DynamicTypeTest { value, class } => {
+                let v = self.lower_expr(value)?;
+                let cls = self.lower_expr(class)?;
+                Ok(self.emit(
+                    InstKind::TypeTest {
+                        value: v,
+                        class: cls,
                     },
                     BackendTy::Bool,
                 ))

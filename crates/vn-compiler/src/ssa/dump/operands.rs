@@ -62,7 +62,6 @@ pub(super) fn binop(op: HirBinOp) -> &'static str {
         HirBinOp::Shl => "shl",
         HirBinOp::Shr => "shr",
         HirBinOp::Ushr => "ushr",
-        HirBinOp::Instanceof => "instanceof",
         HirBinOp::In => "in",
     }
 }
@@ -72,6 +71,6 @@ pub(super) fn unop(op: HirUnOp) -> &'static str {
         HirUnOp::Neg => "neg",
         HirUnOp::Not => "not",
         HirUnOp::BitNot => "bnot",
-        HirUnOp::Typeof => "typeof",
+        HirUnOp::KindOf => "::type",
     }
 }

@@ -73,6 +73,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::MethodCall { .. }
                     | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
+                    | InstKind::TypeTest { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
                     | InstKind::BuildMap { .. }

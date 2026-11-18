@@ -150,6 +150,10 @@ pub fn expr_mut(expr: &mut TirExpr, f: &mut impl FnMut(&mut TirExpr)) {
         TirExprKind::Discriminant { value }
         | TirExprKind::VariantPayload { value, .. }
         | TirExprKind::TypeTest { value, .. } => expr_mut(value, f),
+        TirExprKind::DynamicTypeTest { value, class } => {
+            expr_mut(value, f);
+            expr_mut(class, f);
+        }
         TirExprKind::New { args, .. }
         | TirExprKind::MakeVariant { args }
         | TirExprKind::SuperCall { args }

@@ -138,6 +138,12 @@ impl FrameStore {
         (0..count).map(|k| self.box_reg(id, start + k)).collect()
     }
 
+    pub fn box_range_into(&self, id: usize, start: usize, out: &mut [VmValue]) {
+        for (i, slot) in out.iter_mut().enumerate() {
+            *slot = self.box_reg(id, start + i);
+        }
+    }
+
     pub fn adopt_values(&mut self, id: usize, start: usize, vals: &[VmValue], nregs: usize) {
         for r in start..start + nregs {
             let v = vals.get(r - start).copied().unwrap_or_else(VmValue::null);

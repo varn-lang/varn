@@ -253,6 +253,10 @@ fn check_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Veri
             }
             check_expr(m, f, value, errors);
         }
+        TirExprKind::DynamicTypeTest { value, class } => {
+            check_expr(m, f, value, errors);
+            check_expr(m, f, class, errors);
+        }
         TirExprKind::Select {
             cond,
             then_val,

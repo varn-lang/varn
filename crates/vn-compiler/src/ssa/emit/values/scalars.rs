@@ -93,7 +93,7 @@ pub(super) fn emit_unary(
     match op {
         HirUnOp::Neg => chunk.emit_rr(OpCode::Negate, d, s, line),
         HirUnOp::Not => chunk.emit_rr(OpCode::Not, d, s, line),
-        HirUnOp::Typeof => chunk.emit_rr(OpCode::Typeof, d, s, line),
+        HirUnOp::KindOf => chunk.emit_rr(OpCode::KindOf, d, s, line),
         HirUnOp::BitNot => {
             let idx = chunk.add_constant(PoolEntry::Literal(Literal::Int(-1)));
             chunk.emit_rc(OpCode::LoadConst, scratch, idx, line);
@@ -104,6 +104,23 @@ pub(super) fn emit_unary(
 
 pub(super) fn emit_is_null(chunk: &mut Chunk, d: u8, operand: Value, reg: &[u8], line: u32) {
     chunk.emit_rr(OpCode::IsNull, d, reg[operand.0 as usize], line);
+}
+
+pub(super) fn emit_type_test(
+    chunk: &mut Chunk,
+    d: u8,
+    value: Value,
+    class: Value,
+    reg: &[u8],
+    line: u32,
+) {
+    chunk.emit_rrr(
+        OpCode::TypeTest,
+        d,
+        reg[value.0 as usize],
+        reg[class.0 as usize],
+        line,
+    );
 }
 
 pub(super) fn emit_cast(chunk: &mut Chunk, d: u8, operand: Value, reg: &[u8], line: u32) {

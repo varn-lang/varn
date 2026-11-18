@@ -131,8 +131,8 @@ pub(crate) extern "C" fn jit_call_method_cached_window(
             let vtable = &*cls.vtable.as_ptr();
             let method = *vtable.get(slot as usize)?;
             if kind == ICKind::NATIVE_VTABLE_METHOD {
-                let (f, _) = ctx_ref.heap.native_of(method)?;
-                Some(FastMethod::Native(f))
+                let (f, _, mask) = ctx_ref.heap.native_of(method)?;
+                Some(FastMethod::Native(f, mask))
             } else {
                 let nc = ctx_ref.heap.closure_of(method)?;
                 if nc.proto.is_generator || nc.proto.is_async || args.len() > nc.proto.arity {
@@ -150,16 +150,16 @@ pub(crate) extern "C" fn jit_call_method_cached_window(
         })();
 
         enum FastMethod {
-            Native(vn_types::NativeFn),
+            Native(vn_types::NativeFn, u64),
             Vm(
                 std::rc::Rc<crate::closure::VmClosure>,
                 std::rc::Rc<vn_types::value::ClassObj>,
             ),
         }
         let outcome = match fast {
-            Some(FastMethod::Native(f)) => {
+            Some(FastMethod::Native(f, mask)) => {
                 ctx_ref.record_ic_hit_callmethod();
-                ctx_ref.call_native_method(f, this_val, args, "")
+                ctx_ref.call_native_method(f, mask, this_val, args, "")
             }
             Some(FastMethod::Vm(nc, owner_rc)) => {
                 ctx_ref.record_ic_hit_callmethod();

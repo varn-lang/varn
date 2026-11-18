@@ -61,7 +61,6 @@ pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<I
         | H::Shl
         | H::Shr
         | H::Ushr
-        | H::Instanceof
         | H::In => None,
     }
 }

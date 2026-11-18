@@ -191,8 +191,6 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

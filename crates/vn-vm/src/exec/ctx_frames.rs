@@ -40,8 +40,8 @@ impl ExecCtx {
                         PreparedCall::Frame(ref frame) => {
                             self.stack.unbox_into_reg(frame.base, 0, recv_nv)?;
                         }
-                        PreparedCall::NativeImmediate(_, _)
-                        | PreparedCall::RawNativeImmediate(_, _) => {
+                        PreparedCall::NativeImmediate(_, _, _)
+                        | PreparedCall::RawNativeImmediate(_, _, _) => {
                             if self.stage.is_empty() {
                                 self.stage.push(recv_nv);
                             } else {

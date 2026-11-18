@@ -3,6 +3,11 @@ use std::path::PathBuf;
 use vn_pipeline::CapabilitySet;
 use vn_types::capabilities::*;
 
+fn canonical_or_raw(s: &str) -> PathBuf {
+    let raw = PathBuf::from(s);
+    raw.canonicalize().unwrap_or(raw)
+}
+
 pub fn capabilities(args: &PermissionArgs) -> CapabilitySet {
     if args.sandbox {
         return CapabilitySet::sandbox();
@@ -32,7 +37,7 @@ pub fn capabilities(args: &PermissionArgs) -> CapabilitySet {
             fs_read_paths = Some(
                 read_spec
                     .split(',')
-                    .map(|s| PathBuf::from(s.trim()))
+                    .map(|s| canonical_or_raw(s.trim()))
                     .collect(),
             );
         }
@@ -44,7 +49,7 @@ pub fn capabilities(args: &PermissionArgs) -> CapabilitySet {
             fs_write_paths = Some(
                 write_spec
                     .split(',')
-                    .map(|s| PathBuf::from(s.trim()))
+                    .map(|s| canonical_or_raw(s.trim()))
                     .collect(),
             );
         }

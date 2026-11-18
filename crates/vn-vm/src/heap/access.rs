@@ -70,9 +70,9 @@ impl HeapInner {
         self.instance(self.heap_ref(v)?)
     }
 
-    pub(crate) fn native_of(&self, v: VmValue) -> Option<(vn_types::NativeFn, &'static str)> {
+    pub(crate) fn native_of(&self, v: VmValue) -> Option<(vn_types::NativeFn, &'static str, u64)> {
         match self.get(self.heap_ref(v)?)? {
-            HeapObj::NativeFn(f, name) => Some((*f, *name)),
+            HeapObj::NativeFn(f, name, mask) => Some((*f, *name, *mask)),
             HeapObj::Str(_)
             | HeapObj::Array(_)
             | HeapObj::Tuple(_)

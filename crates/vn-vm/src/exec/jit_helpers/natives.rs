@@ -13,9 +13,12 @@ pub(crate) extern "C" fn jit_call_native_window(
     unsafe {
         let ctx_ref = &mut *ctx;
         let f = resolve_native(ctx_ref, fn_addr, op_id);
+        let mask = vn_builtins::find_native_op_entry(op_id)
+            .map(|e| e.capability_mask)
+            .unwrap_or_else(|| vn_builtins::native_capability_mask(f));
         ctx_ref.record_call_native(f, None);
         let args = std::slice::from_raw_parts(window, total);
-        match ctx_ref.invoke_native(f, args) {
+        match ctx_ref.invoke_native(f, mask, args) {
             Ok(v) => {
                 ctx_ref.jit_native_result = v;
             }

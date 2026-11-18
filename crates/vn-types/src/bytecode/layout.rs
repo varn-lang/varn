@@ -98,7 +98,7 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
         | O::ToString
         | O::IsNull
         | O::IsArray
-        | O::Typeof
+        | O::KindOf
         | O::WrapSpread
         | O::ArrayLength
         | O::ArrayPop
@@ -137,7 +137,7 @@ pub fn layout(code: &[u16], offset: usize, constants: &[PoolEntry]) -> Option<La
         | O::Lte
         | O::Gt
         | O::Gte
-        | O::Instanceof
+        | O::TypeTest
         | O::In
         | O::StrConcat
         | O::StrSlice

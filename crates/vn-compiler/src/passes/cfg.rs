@@ -236,6 +236,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::MethodCall { .. }
                         | InstKind::InvokeSlot { .. }
                         | InstKind::IsNull { .. }
+                        | InstKind::TypeTest { .. }
                         | InstKind::Cast { .. }
                         | InstKind::Convert { .. }
                         | InstKind::BuildArray { .. }

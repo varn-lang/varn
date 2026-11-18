@@ -116,7 +116,6 @@ pub static KEYWORDS: &[KwEntry] = &[
     kw(TokenKind::False, EXPRESSION | TYPE),
     kw(TokenKind::Null, EXPRESSION | TYPE),
     kw(TokenKind::Void, TYPE),
-    kw(TokenKind::Typeof, TYPE),
     kw(TokenKind::Public, MEMBER),
     kw(TokenKind::Private, MEMBER),
     kw(TokenKind::Protected, MEMBER),

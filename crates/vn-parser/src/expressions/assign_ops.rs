@@ -125,8 +125,6 @@ pub(crate) fn token_to_assign_op(kind: TokenKind) -> Option<AssignOp> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

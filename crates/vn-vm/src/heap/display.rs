@@ -174,7 +174,7 @@ impl HeapInner {
                     nc.proto.name.as_deref().unwrap_or("<anon>")
                 );
             }
-            HeapObj::NativeFn(_, name) => {
+            HeapObj::NativeFn(_, name, _) => {
                 let _ = write!(out, "[NativeFn: {name}]");
             }
             HeapObj::BoundMethod(method) => match &method.target {

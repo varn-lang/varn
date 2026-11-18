@@ -63,7 +63,7 @@ pub(crate) fn has_alloc_scan(
                     | OpCode::InvokeSlot
                     | OpCode::SuperInvokeSlot
                     | OpCode::ToString
-                    | OpCode::Typeof
+                    | OpCode::KindOf
                     | OpCode::Negate
                     | OpCode::StrSlice
                     | OpCode::Intrinsic

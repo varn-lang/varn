@@ -173,6 +173,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::MethodCall { .. }
         | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

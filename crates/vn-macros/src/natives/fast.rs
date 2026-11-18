@@ -46,7 +46,7 @@ pub(super) fn fast_path(cx: &Cx, m: &Member, ids: &BodyIdents) -> (TS2, TS2, TS2
         let call = quote!(#method_ident(&mut dummy_ctx, #(#fast_call_args),*));
         let fast_body = if is_fn {
             quote! {
-                let mut dummy_ctx = ::vn_types::native::DummyCtx;
+                let mut dummy_ctx = ::vn_types::native::NullCtx;
                 #(#fast_decode)*
                 match #call {
                     Ok(v) => v,
@@ -55,7 +55,7 @@ pub(super) fn fast_path(cx: &Cx, m: &Member, ids: &BodyIdents) -> (TS2, TS2, TS2
             }
         } else {
             quote! {
-                let mut dummy_ctx = ::vn_types::native::DummyCtx;
+                let mut dummy_ctx = ::vn_types::native::NullCtx;
                 #(#fast_decode)*
                 #call
             }

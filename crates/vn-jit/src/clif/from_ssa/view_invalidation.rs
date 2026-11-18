@@ -91,7 +91,8 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::StoreUpvalue { .. }
         | SsaOp::CloseUpvalues { .. }
         | SsaOp::IsNull { .. }
-        | SsaOp::Typeof { .. }
+        | SsaOp::KindOf { .. }
+        | SsaOp::TypeTest { .. }
         | SsaOp::ToString { .. }
         | SsaOp::IsArray { .. }
         | SsaOp::GetEnumTag { .. }

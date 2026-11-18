@@ -157,8 +157,6 @@ pub fn build_signature_help(state: &DocumentState, line: u32, col: u32) -> Optio
             | TokenKind::This
             | TokenKind::Super
             | TokenKind::Delete
-            | TokenKind::Typeof
-            | TokenKind::Instanceof
             | TokenKind::In
             | TokenKind::Of
             | TokenKind::Void

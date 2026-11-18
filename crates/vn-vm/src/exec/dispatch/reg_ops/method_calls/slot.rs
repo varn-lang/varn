@@ -144,9 +144,9 @@ impl ExecCtx {
             self.record_ic_hit_callmethod();
             return self.invoke_vm_method_fast(nc, owner, this_val, args, "#slot");
         }
-        if let Some((f, _)) = self.heap.native_of(method_val) {
+        if let Some((f, _, mask)) = self.heap.native_of(method_val) {
             self.record_ic_hit_callmethod();
-            return self.call_native_method(f, this_val, args, "#slot");
+            return self.call_native_method(f, mask, this_val, args, "#slot");
         }
         self.finish_generic_method_call(method_val, this_val, args, frame_idx)
     }
@@ -166,8 +166,8 @@ impl ExecCtx {
         {
             return self.invoke_vm_method_fast(nc, owner, this_val, args, "super");
         }
-        if let Some((f, _)) = self.heap.native_of(method_val) {
-            return self.call_native_method(f, this_val, args, "super");
+        if let Some((f, _, mask)) = self.heap.native_of(method_val) {
+            return self.call_native_method(f, mask, this_val, args, "super");
         }
         self.finish_generic_method_call(method_val, this_val, args, frame_idx)
     }

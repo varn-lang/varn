@@ -52,7 +52,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 let dty = func.value_ty(dest);
                 let expected = match op {
                     crate::hir::HirUnOp::Not => BackendTy::Bool,
-                    crate::hir::HirUnOp::Typeof => BackendTy::Str,
+                    crate::hir::HirUnOp::KindOf => BackendTy::Str,
                     crate::hir::HirUnOp::Neg | crate::hir::HirUnOp::BitNot => *ty,
                 };
                 if dty != expected && !expected.is_boxed() {
@@ -124,6 +124,17 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 if dty != BackendTy::Bool {
                     return Err(format!(
                         "IsNull defines v{}: {dty:?}, expected Bool",
+                        dest.0
+                    ));
+                }
+            }
+        }
+        InstKind::TypeTest { .. } => {
+            if let Some(dest) = inst.dest {
+                let dty = func.value_ty(dest);
+                if dty != BackendTy::Bool {
+                    return Err(format!(
+                        "TypeTest defines v{}: {dty:?}, expected Bool",
                         dest.0
                     ));
                 }

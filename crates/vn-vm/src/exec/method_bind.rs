@@ -20,7 +20,7 @@ pub(crate) fn bind_method(
     method: VmValue,
     heap: &mut Heap,
 ) -> VmResult<VmValue> {
-    if let Some((f, name)) = heap.native_of(method) {
+    if let Some((f, name, _)) = heap.native_of(method) {
         return Ok(heap.alloc_bound_native(receiver, f, name));
     }
     if heap.closure_of(method).is_some() && !receiver.is_null() {

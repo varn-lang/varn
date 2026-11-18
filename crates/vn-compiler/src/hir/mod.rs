@@ -12,40 +12,13 @@ pub enum HirUpvalueSrc {
     ParentUpvalue(u32),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum HirBinOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
-    Pow,
-    Eq,
-    Ne,
-    Lt,
-    Le,
-    Gt,
-    Ge,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Shl,
-    Shr,
-
-    Ushr,
-
-    Instanceof,
-
-    In,
-}
+pub use vn_core::BinOp as HirBinOp;
 
 pub(crate) fn binary_result_ty(op: HirBinOp, operand_ty: BackendTy) -> BackendTy {
-    use HirBinOp::*;
-    match op {
-        Eq | Ne | Lt | Le | Gt | Ge | Instanceof | In => BackendTy::Bool,
-        Add | Sub | Mul | Div | Mod | Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr => {
-            operand_ty
-        }
+    if op.produces_bool() {
+        BackendTy::Bool
+    } else {
+        operand_ty
     }
 }
 
@@ -54,5 +27,5 @@ pub enum HirUnOp {
     Neg,
     Not,
     BitNot,
-    Typeof,
+    KindOf,
 }

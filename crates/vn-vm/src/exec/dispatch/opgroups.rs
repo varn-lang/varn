@@ -137,8 +137,8 @@ macro_rules! object_ops {
             | OpCode::ArrayPop
             | OpCode::ArrayExtend
             | OpCode::In
-            | OpCode::Instanceof
-            | OpCode::Typeof
+            | OpCode::TypeTest
+            | OpCode::KindOf
             | OpCode::IsNull
             | OpCode::IsArray
             | OpCode::BuildMap

@@ -61,7 +61,7 @@ pub(super) fn fold_binary(
             Shl => vn_core::shl_int(*x, *y).map(InstKind::ConstInt),
             Shr => vn_core::shr_int(*x, *y).map(InstKind::ConstInt),
             Ushr => vn_core::ushr_int(*x, *y).map(InstKind::ConstInt),
-            Instanceof | In => None,
+            In => None,
         },
         (InstKind::ConstFloat(x), InstKind::ConstFloat(y)) => match op {
             Add => Some(InstKind::ConstFloat(x + y)),
@@ -76,25 +76,25 @@ pub(super) fn fold_binary(
             Le => Some(InstKind::ConstBool(x <= y)),
             Gt => Some(InstKind::ConstBool(x > y)),
             Ge => Some(InstKind::ConstBool(x >= y)),
-            BitAnd | BitOr | BitXor | Shl | Shr | Ushr | Instanceof | In => None,
+            BitAnd | BitOr | BitXor | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstBool(x), InstKind::ConstBool(y)) => match op {
             Eq => Some(InstKind::ConstBool(x == y)),
             Ne => Some(InstKind::ConstBool(x != y)),
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => None,
+            | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstStr(x), InstKind::ConstStr(y)) => match op {
             Eq => Some(InstKind::ConstBool(x == y)),
             Ne => Some(InstKind::ConstBool(x != y)),
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => None,
+            | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstChar(x), InstKind::ConstChar(y)) => match op {
             Eq => Some(InstKind::ConstBool(x == y)),
             Ne => Some(InstKind::ConstBool(x != y)),
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => None,
+            | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstDecimal(x), InstKind::ConstDecimal(y)) => match op {
             Add => Some(InstKind::ConstDecimal(x + y)),
@@ -111,14 +111,14 @@ pub(super) fn fold_binary(
             Le => Some(InstKind::ConstBool(x <= y)),
             Gt => Some(InstKind::ConstBool(x > y)),
             Ge => Some(InstKind::ConstBool(x >= y)),
-            Mod | Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr | Instanceof | In => None,
+            Mod | Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstBigInt(x), InstKind::ConstBigInt(y)) => fold_bigint(op, x, y),
         (InstKind::ConstNull, InstKind::ConstNull) => match op {
             Eq => Some(InstKind::ConstBool(true)),
             Ne => Some(InstKind::ConstBool(false)),
             Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | Instanceof | In => None,
+            | Shl | Shr | Ushr | In => None,
         },
         (InstKind::ConstNull, other) | (other, InstKind::ConstNull) => {
             if is_constant_kind(other) {
@@ -126,7 +126,7 @@ pub(super) fn fold_binary(
                     Eq => Some(InstKind::ConstBool(false)),
                     Ne => Some(InstKind::ConstBool(true)),
                     Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr
-                    | BitXor | Shl | Shr | Ushr | Instanceof | In => None,
+                    | BitXor | Shl | Shr | Ushr | In => None,
                 }
             } else {
                 None
@@ -179,6 +179,7 @@ pub(super) fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
         | InstKind::MethodCall { .. }
         | InstKind::InvokeSlot { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }
@@ -249,6 +250,6 @@ pub(super) fn fold_bigint(op: HirBinOp, x: &str, y: &str) -> Option<InstKind> {
         Le => Some(InstKind::ConstBool(a <= b)),
         Gt => Some(InstKind::ConstBool(a > b)),
         Ge => Some(InstKind::ConstBool(a >= b)),
-        Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr | Instanceof | In => None,
+        Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr | In => None,
     }
 }

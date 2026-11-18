@@ -178,8 +178,6 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             | TokenKind::This
             | TokenKind::Super
             | TokenKind::Delete
-            | TokenKind::Typeof
-            | TokenKind::Instanceof
             | TokenKind::In
             | TokenKind::Of
             | TokenKind::Void

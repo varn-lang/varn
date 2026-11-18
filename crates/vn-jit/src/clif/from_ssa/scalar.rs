@@ -257,7 +257,8 @@ pub(super) fn emit_inst(
         | SsaOp::IsNull { .. }
         | SsaOp::IsArray { .. }
         | SsaOp::GetEnumTag { .. }
-        | SsaOp::Typeof { .. }
+        | SsaOp::KindOf { .. }
+        | SsaOp::TypeTest { .. }
         | SsaOp::ToString { .. }
         | SsaOp::ObjectKeys { .. }
         | SsaOp::BuildStr { .. }

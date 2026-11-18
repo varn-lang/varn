@@ -160,8 +160,6 @@ pub fn parse_new_callee_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::This
             | TokenKind::Super
             | TokenKind::Delete
-            | TokenKind::Typeof
-            | TokenKind::Instanceof
             | TokenKind::In
             | TokenKind::Of
             | TokenKind::Void

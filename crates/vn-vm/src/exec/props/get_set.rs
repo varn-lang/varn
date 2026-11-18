@@ -111,7 +111,7 @@ pub(crate) fn get_property(obj: VmValue, key: &str, heap: &mut Heap) -> VmResult
         return Err(RuntimeError::new(format!(
             "cannot read property '{}' of {}",
             key,
-            crate::exec::advanced::typeof_val(obj, heap)
+            crate::exec::advanced::kind_of_val(obj, heap)
         )));
     }
     Ok(VmValue::null())

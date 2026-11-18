@@ -125,8 +125,6 @@ pub(crate) fn token_to_logical_op(kind: TokenKind) -> Option<LogicalOp> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

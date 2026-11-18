@@ -6,7 +6,7 @@ enum Figure { Circle(r: float), Square }
 function isHue(d: dynamic): bool { return d is Hue }
 function asHue(d: dynamic): Hue { return d as Hue }
 
-await describe("175 enum instanceof", async () => {
+await describe("175 enum is", async () => {
     await it("a variant is an instance of its own enum", () => {
         expect(Hue.Red is Hue).toBe(true)
         expect(Figure.Square is Figure).toBe(true)

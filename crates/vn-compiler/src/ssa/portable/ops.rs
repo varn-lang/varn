@@ -65,7 +65,6 @@ pub(super) fn project_bin(
         OpCode::Shl => SsaBinOp::Dyn(D::Shl),
         OpCode::Shr => SsaBinOp::Dyn(D::Shr),
         OpCode::Ushr => SsaBinOp::Dyn(D::Ushr),
-        OpCode::Instanceof => SsaBinOp::Dyn(D::Instanceof),
         OpCode::In => SsaBinOp::Dyn(D::In),
         OpCode::LoadConst
         | OpCode::LoadNull
@@ -121,7 +120,8 @@ pub(super) fn project_bin(
         | OpCode::DeclareLayout
         | OpCode::AllocInstance
         | OpCode::BindMethod
-        | OpCode::Typeof
+        | OpCode::KindOf
+        | OpCode::TypeTest
         | OpCode::IsNull
         | OpCode::IsArray
         | OpCode::AssertNotNull
@@ -190,6 +190,6 @@ pub(super) fn project_un(op: HirUnOp, operand_ty: Option<BackendTy>) -> Option<S
         (HirUnOp::BitNot, Some(BackendTy::INT)) => SsaUnOp::BitNotInt,
         (HirUnOp::BitNot, _) => SsaUnOp::Dyn(DynUnOp::BitNot),
 
-        (HirUnOp::Typeof, _) => return None,
+        (HirUnOp::KindOf, _) => return None,
     })
 }

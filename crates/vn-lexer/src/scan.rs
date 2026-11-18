@@ -173,8 +173,6 @@ fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::P
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

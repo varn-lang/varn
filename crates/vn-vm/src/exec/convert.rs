@@ -125,7 +125,7 @@ fn not_a(expected: LangPrimitive, nullable: bool, v: VmValue, heap: &Heap) -> Ru
     RuntimeError::type_error(format!(
         "type mismatch: expected '{}{optional}', got '{}'",
         expected.name(),
-        crate::exec::advanced::typeof_val(v, heap)
+        crate::exec::advanced::kind_of_val(v, heap)
     ))
 }
 
@@ -225,7 +225,7 @@ pub(crate) fn convert(conv: ValueConv, v: VmValue, heap: &mut Heap) -> VmResult<
                 Err(RuntimeError::type_error(format!(
                     "type mismatch: expected '{}', got '{}'",
                     vn_core::RuntimeKind::Object.name(),
-                    crate::exec::advanced::typeof_val(v, heap)
+                    crate::exec::advanced::kind_of_val(v, heap)
                 )))
             };
         }

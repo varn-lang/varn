@@ -193,6 +193,16 @@ fn walk_expr(m: &TirModule, f: &TirFunction, e: &TirExpr, errors: &mut Vec<Verif
                 ));
             }
         }
+        TirExprKind::DynamicTypeTest { value, class } => {
+            walk_expr(m, f, value, errors);
+            walk_expr(m, f, class, errors);
+            if e.ty != BackendTy::Bool {
+                errors.push(VerifyError::new(
+                    format!("DynamicTypeTest must produce Bool, node says {:?}", e.ty),
+                    e.span,
+                ));
+            }
+        }
         TirExprKind::ObjectKeys { operand } | TirExprKind::Length { operand } => {
             walk_expr(m, f, operand, errors)
         }

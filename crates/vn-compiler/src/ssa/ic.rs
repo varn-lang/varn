@@ -143,6 +143,7 @@ fn sites(kind: &InstKind, has_dest: bool) -> u16 {
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::IsNull { .. }
+        | InstKind::TypeTest { .. }
         | InstKind::Cast { .. }
         | InstKind::Convert { .. }
         | InstKind::BuildArray { .. }

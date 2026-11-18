@@ -144,6 +144,7 @@ pub(crate) fn project(
                     | InstKind::MethodCall { .. }
                     | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
+                    | InstKind::TypeTest { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
                     | InstKind::BuildArray { .. }
@@ -245,6 +246,7 @@ pub(crate) fn project(
                     | InstKind::MethodCall { .. }
                     | InstKind::InvokeSlot { .. }
                     | InstKind::IsNull { .. }
+                    | InstKind::TypeTest { .. }
                     | InstKind::Cast { .. }
                     | InstKind::Convert { .. }
                     | InstKind::BuildArray { .. }

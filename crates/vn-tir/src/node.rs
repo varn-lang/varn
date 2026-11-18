@@ -26,31 +26,7 @@ pub enum CheckKind {
     Decode,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-pub enum TirBinOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
-    Pow,
-    Eq,
-    Ne,
-    Lt,
-    Le,
-    Gt,
-    Ge,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Shl,
-    Shr,
-    Ushr,
-
-    Instanceof,
-
-    In,
-}
+pub use vn_core::BinOp as TirBinOp;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TirUnOp {
@@ -58,7 +34,7 @@ pub enum TirUnOp {
     Not,
     BitNot,
 
-    Typeof,
+    KindOf,
 
     IsNull,
 
@@ -171,6 +147,11 @@ pub enum TirExprKind {
     TypeTest {
         value: Box<TirExpr>,
         class: ClassId,
+    },
+
+    DynamicTypeTest {
+        value: Box<TirExpr>,
+        class: Box<TirExpr>,
     },
 
     Cast {

@@ -80,7 +80,8 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
                 | SsaOp::Cast { .. }
                 | SsaOp::Convert { .. }
                 | SsaOp::IsNull { .. }
-                | SsaOp::Typeof { .. }
+                | SsaOp::KindOf { .. }
+                | SsaOp::TypeTest { .. }
                 | SsaOp::ToString { .. }
                 | SsaOp::IsArray { .. }
                 | SsaOp::GetEnumTag { .. }

@@ -50,7 +50,7 @@ fn for_each_heap_child(
         | HeapObj::BigInt(_)
         | HeapObj::Decimal(_)
         | HeapObj::Range(_)
-        | HeapObj::NativeFn(_, _)
+        | HeapObj::NativeFn(_, _, _)
         | HeapObj::FrozenModule(_)
         | HeapObj::Buffer(_) => {}
         HeapObj::Module(m) => m.exports.iter().for_each(|&v| value(v)),

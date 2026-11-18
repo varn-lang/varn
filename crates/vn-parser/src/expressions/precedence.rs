@@ -42,7 +42,6 @@ pub(crate) fn binary_prec(kind: TokenKind) -> Option<(Prec, bool)> {
         TokenKind::StarStar => (Prec::Exponent, true),
         TokenKind::QuestionQuestion => (Prec::NullCoalesce, false),
         TokenKind::EOF
-        | TokenKind::Instanceof
         | TokenKind::Dynamic
         | TokenKind::Identifier
         | TokenKind::IntegerLiteral
@@ -138,7 +137,6 @@ pub(crate) fn binary_prec(kind: TokenKind) -> Option<(Prec, bool)> {
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
         | TokenKind::Of
         | TokenKind::Void
         | TokenKind::Is

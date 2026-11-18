@@ -78,10 +78,14 @@ impl ExecCtx {
                 let f = (crate::exec::contract::native_op(op_id).ok_or_else(|| {
                     crate::error::RuntimeError::new(format!("CallNativeOp: unknown op-id {op_id}"))
                 }))?;
+                let mask = vn_builtins::find_native_op_entry(op_id)
+                    .map(|e| e.capability_mask)
+                    .unwrap_or(0);
                 let receiver = self.stack.box_reg(base, first_reg);
 
                 let result = (self.call_native_with_receiver(
                     f,
+                    mask,
                     receiver,
                     crate::exec::method_args::MethodArgs::Regs {
                         base,
@@ -169,8 +173,8 @@ impl ExecCtx {
             | OpCode::FreezeClass
             | OpCode::AllocInstance
             | OpCode::BindMethod
-            | OpCode::Typeof
-            | OpCode::Instanceof
+            | OpCode::KindOf
+            | OpCode::TypeTest
             | OpCode::In
             | OpCode::IsNull
             | OpCode::IsArray

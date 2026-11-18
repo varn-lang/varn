@@ -162,6 +162,7 @@ pub(crate) fn expand(input: TokenStream) -> TokenStream {
             entry_kind: ::vn_types::EntryKind::ClassDef,
             flags: 0,
             capability: "",
+            capability_mask: 0,
         };
 
         pub static #entries: &[&::vn_types::NativeOpEntry] = &[&#entry];

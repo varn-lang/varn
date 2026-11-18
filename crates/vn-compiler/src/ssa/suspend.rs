@@ -55,6 +55,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::MethodCall { .. }
                 | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
+                | InstKind::TypeTest { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
                 | InstKind::BuildArray { .. }
@@ -167,6 +168,7 @@ pub fn suspend_live_regs(
                 | InstKind::MethodCall { .. }
                 | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
+                | InstKind::TypeTest { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
                 | InstKind::BuildArray { .. }
@@ -327,6 +329,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::MethodCall { .. }
                 | InstKind::InvokeSlot { .. }
                 | InstKind::IsNull { .. }
+                | InstKind::TypeTest { .. }
                 | InstKind::Cast { .. }
                 | InstKind::Convert { .. }
                 | InstKind::BuildArray { .. }

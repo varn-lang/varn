@@ -91,6 +91,7 @@ impl Census {
             | TirExprKind::Discriminant { .. }
             | TirExprKind::VariantPayload { .. }
             | TirExprKind::TypeTest { .. }
+            | TirExprKind::DynamicTypeTest { .. }
             | TirExprKind::Cast { .. }
             | TirExprKind::Checked { .. }
             | TirExprKind::New { .. }

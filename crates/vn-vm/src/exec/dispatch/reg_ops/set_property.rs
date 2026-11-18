@@ -297,9 +297,9 @@ impl ExecCtx {
         value: VmValue,
         _base: usize,
     ) -> VmResult<()> {
-        if let Some((f, _)) = self.heap.native_of(setter_nv) {
+        if let Some((f, _, mask)) = self.heap.native_of(setter_nv) {
             let args = [receiver, value];
-            self.invoke_native(f, &args)
+            self.invoke_native(f, mask, &args)
                 .map_err(crate::error::RuntimeError::from)?;
             return Ok(());
         }
@@ -345,10 +345,10 @@ impl ExecCtx {
                 self.heap.get(getter_nv.as_heap()),
                 Some(crate::heap::HeapObj::VmClosure(_) | crate::heap::HeapObj::BoundMethod(_))
             );
-        let result_opt: Option<VmValue> = if let Some((f, _)) = self.heap.native_of(getter_nv) {
+        let result_opt: Option<VmValue> = if let Some((f, _, mask)) = self.heap.native_of(getter_nv) {
             let args = [receiver];
             let nv = self
-                .invoke_native(f, &args)
+                .invoke_native(f, mask, &args)
                 .map_err(crate::error::RuntimeError::from)?;
             Some(nv)
         } else {

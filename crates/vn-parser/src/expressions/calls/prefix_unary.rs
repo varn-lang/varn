@@ -68,9 +68,6 @@ pub fn parse_unary_expr(s: &mut TokenStream) -> PResult<ExprId> {
                 },
             ))
         }
-        TokenKind::Typeof => Err(ParseError::invalid(
-            "`typeof` does not exist as an operator: write `x::type` to read the kind of a value, or `x is T` to test it".to_owned(),
-        )),
         TokenKind::Void => Err(ParseError::invalid(
             "`void` is not supported; use `_` to discard values".to_owned(),
         )),
@@ -231,7 +228,6 @@ pub fn parse_unary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::New
         | TokenKind::This
         | TokenKind::Super
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Is

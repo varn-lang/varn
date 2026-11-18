@@ -83,10 +83,10 @@ pub enum PreparedCall {
     Async(LazyParts),
     Constructor(CallFrame, VmValue),
 
-    NativeImmediate(vn_types::NativeFn, usize),
+    NativeImmediate(vn_types::NativeFn, u64, usize),
 
-    RawNativeImmediate(vn_types::NativeFn, usize),
-    NativeConstructor(vn_types::NativeFn, Vec<VmValue>, VmValue),
+    RawNativeImmediate(vn_types::NativeFn, u64, usize),
+    NativeConstructor(vn_types::NativeFn, u64, Vec<VmValue>, VmValue),
     PushValue(VmValue),
 
     Generator {

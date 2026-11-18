@@ -24,7 +24,7 @@ pub enum HeapObj {
     FrozenModule(Arc<FrozenModuleObj>),
     VmClosure(Rc<VmClosure>),
     Class(Rc<ClassObj>),
-    NativeFn(NativeFn, &'static str),
+    NativeFn(NativeFn, &'static str, u64),
     BoundMethod(Box<BoundMethod>),
     Map(MapRef),
     Set(SetRef),

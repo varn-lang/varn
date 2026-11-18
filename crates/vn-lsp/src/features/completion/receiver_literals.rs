@@ -129,8 +129,6 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         | TokenKind::This
         | TokenKind::Super
         | TokenKind::Delete
-        | TokenKind::Typeof
-        | TokenKind::Instanceof
         | TokenKind::In
         | TokenKind::Of
         | TokenKind::Void

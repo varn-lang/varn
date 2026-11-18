@@ -147,7 +147,7 @@ pub(crate) fn bind_method_to_receiver(
     }
     match heap.get(method.as_heap()) {
         Some(HeapObj::VmClosure(_)) => heap.alloc_bound_vm(receiver, method, owner),
-        Some(HeapObj::NativeFn(f, name)) => {
+        Some(HeapObj::NativeFn(f, name, _)) => {
             let (f, name) = (*f, *name);
             heap.alloc_bound_native(receiver, f, name)
         }

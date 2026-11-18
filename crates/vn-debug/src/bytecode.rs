@@ -26,7 +26,7 @@ fn op_color(op: OpCode) -> &'static str {
         | MakeEnumVariant => BLUE,
 
         Add | Sub | Mul | Div | Mod | Pow | Eq | Neq | Lt | Lte | Gt | Gte | BitAnd | BitOr
-        | BitXor | Shl | Shr | Ushr | In | Instanceof | AddInt | SubInt | MulInt | DivInt
+        | BitXor | Shl | Shr | Ushr | In | TypeTest | AddInt | SubInt | MulInt | DivInt
         | ModInt | PowInt | LtInt | GtInt | LteInt | GteInt | EqInt | NeqInt | AddFloat
         | SubFloat | MulFloat | DivFloat | ModFloat | PowFloat | LtFloat | GtFloat | LteFloat
         | GteFloat | EqFloat | NeqFloat | EqStr | NeqStr | EqBool | NeqBool | EqChar | NeqChar
@@ -35,7 +35,7 @@ fn op_color(op: OpCode) -> &'static str {
         LoadNull | LoadTrue | LoadFalse | Move | CloseUpvalue | Negate | Not | ToString
         | BuildTuple | GetIndex | SetIndex | ObjectRest | ObjectKeys | ObjectMerge
         | GetProperty | GetPropertyMaybe | SetProperty | GetFixedField | SetFixedField
-        | GetSuper | AllocInstance | Typeof | IsNull | IsArray | AssertNotNull | StrLength
+        | GetSuper | AllocInstance | KindOf | IsNull | IsArray | AssertNotNull | StrLength
         | ArrayLength | ArrayPush | ArrayPop | ArrayExtend | WrapSpread | GetEnumTag | Await
         | Yield | InvokeRuntimeStatic | Intrinsic | Nop | ArrayGetIndex | ArraySetIndex
         | BytesGetIndex | BytesSetIndex | CallNativeOp | IntrinsicDirect | BuildMap

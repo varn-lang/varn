@@ -184,10 +184,7 @@ impl<'a> FnEmitter<'a> {
         rhs: TirExpr,
         checked: BackendTy,
     ) -> (TirExpr, TirExpr, BackendTy) {
-        let is_cmp = matches!(
-            op,
-            TirBinOp::Eq | TirBinOp::Ne | TirBinOp::Lt | TirBinOp::Le | TirBinOp::Gt | TirBinOp::Ge
-        );
+        let is_cmp = op.is_comparison();
         let l = lhs.ty.non_nullable(self.tt).representation();
         let r = rhs.ty.non_nullable(self.tt).representation();
 

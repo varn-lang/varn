@@ -303,6 +303,7 @@ impl<'m> Builder<'m> {
             | vn_tir::TirExprKind::Discriminant { .. }
             | vn_tir::TirExprKind::VariantPayload { .. }
             | vn_tir::TirExprKind::TypeTest { .. }
+            | vn_tir::TirExprKind::DynamicTypeTest { .. }
             | vn_tir::TirExprKind::Cast { .. }
             | vn_tir::TirExprKind::Checked { .. }
             | vn_tir::TirExprKind::Closure { .. }

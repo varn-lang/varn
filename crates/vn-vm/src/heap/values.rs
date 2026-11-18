@@ -38,9 +38,10 @@ impl HeapInner {
         func: vn_types::NativeFn,
         name: &'static str,
     ) -> VmValue {
+        let mask = vn_builtins::native_capability_mask(func);
         let bound = vn_types::value::BoundMethod {
             receiver,
-            target: vn_types::value::BoundMethodTarget::Native { func, name },
+            target: vn_types::value::BoundMethodTarget::Native { func, name, mask },
         };
         VmValue::from_heap(self.alloc(HeapObj::BoundMethod(Box::new(bound))))
     }

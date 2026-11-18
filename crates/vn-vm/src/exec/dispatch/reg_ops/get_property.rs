@@ -41,8 +41,8 @@ impl ExecCtx {
         match self.read_property(obj, name_idx, cs_idx, closure)? {
             PropRead::Value(v) => Ok(v),
             PropRead::Getter(g) => {
-                if let Some((f, _)) = self.heap.native_of(g) {
-                    return self.invoke_native(f, &[obj]).map_err(RuntimeError::from);
+                if let Some((f, _, mask)) = self.heap.native_of(g) {
+                    return self.invoke_native(f, mask, &[obj]).map_err(RuntimeError::from);
                 }
                 self.invoke(g, &[obj])
             }
