@@ -114,14 +114,22 @@ del escaneo de deuda de los 12 crates del pipeline y del mapeo de huecos
 - [x] C7. Deuda (D6): contenedores Fx, unsafe encapsulado, unwraps→
   `Option`, wildcards exhaustivos, pases y lowering a `Result`,
   panics VM→`RuntimeError`. Puerta: clippy + suite + corpus.
-  Retenidos con justificación (auditoría, no omisión): `un_op`,
-  `suspend -> !`, tripwires de heap (fail-stop), invariante de boot,
-  `ids.rs` u32, wildcards estructurales/defer/fail-closed de `compat`,
-  reglas generales de narrowing, `op_id` solo-constantes (rutas de
-  usuario usan `try_op_id`).
+  Retenidos con justificación (auditoría, no omisión): `un_op`
+  (enum exhaustivo + brazo muerto sin fallback seguro),
+  `suspend -> !` (divergente), tripwires de heap + `verify.rs`
+  (fail-stop ante corrupción), invariante de boot y
+  `native.rs::resources` (deny de capability sin canal en el trait),
+  `ids.rs` u32, wildcards estructurales/defer/fail-closed de `compat`
+  (incl. pares `Option` y regla general `==`), reglas generales de
+  narrowing, `check/mod` por forma (no identidad), parsers
+  (`type_desc`, `debug_flags`: input abierto → `None`),
+  `op_id` solo-constantes (rutas de usuario usan `try_op_id`),
+  `compact`/`instance_ic` (enums exhaustivos + muertos por construcción
+  tras whitelist del llamador).
   Follow-ups con diseño propio: migración `CheckerTyTable::get`/
   `AtomInterner::resolve` a tipos totales, enum `RuntimeOp`,
-  enforcement de caps por paquete/manifiesto.
+  enforcement de caps por paquete/manifiesto, `infer/ops` gradual
+  (cambio de semántica, RFC).
 - [x] C8. JIT: 9 slots muertos podados (D7). Sin bump (nada los
   referenciaba ni se serializa). Puerta: suite + tiers sin regresión.
 - [x] C9. `GetProperty`: medido, sin cambio de compilador justificado.
