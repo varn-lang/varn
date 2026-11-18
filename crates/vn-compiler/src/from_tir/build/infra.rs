@@ -151,7 +151,7 @@ impl<'m> Builder<'m> {
             })?;
         for pred in self.blocks[block.0 as usize].preds.clone() {
             let arg = self.read_var(var, pred)?;
-            self.append_edge_arg(pred, block, pos, arg);
+            self.append_edge_arg(pred, block, pos, arg)?;
         }
         Ok(())
     }
@@ -162,7 +162,7 @@ impl<'m> Builder<'m> {
         block: BlockId,
         pos: usize,
         arg: Value,
-    ) {
+    ) -> Result<()> {
         match &mut self.block_mut(pred).term {
             Terminator::Jump { target, args } if *target == block => {
                 debug_assert_eq!(args.len(), pos);
@@ -185,8 +185,14 @@ impl<'m> Builder<'m> {
             Terminator::Return(_)
             | Terminator::Throw(_)
             | Terminator::Jump { .. }
-            | Terminator::Unreachable => panic!("predecessor {pred:?} has no edge to {block:?}"),
+            | Terminator::Unreachable => {
+                return Err(crate::OptError::Internal(format!(
+                    "from_tir: predecessor b{} has no edge to b{}",
+                    pred.0, block.0
+                )));
+            }
         }
+        Ok(())
     }
 
     pub(super) fn seal_block(&mut self, block: BlockId) {

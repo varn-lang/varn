@@ -66,7 +66,9 @@ pub(super) fn emit_bin(
         StrConcat | StrEq | StrNe | BitsEq | BitsNe => {
             return Err("from_ssa: concat is a heap op".into())
         }
-        IntDiv | IntMod | IntPow | FloatMod | FloatPow => unreachable!("lowered above"),
+        IntDiv | IntMod | IntPow | FloatMod | FloatPow => {
+            return Err("from_ssa: int div/mod/pow are lowered above".into())
+        }
     })
 }
 

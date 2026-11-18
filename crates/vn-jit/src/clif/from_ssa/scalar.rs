@@ -307,7 +307,7 @@ pub(super) fn emit_inst(
         | SsaOp::Spawn { .. }
         | SsaOp::Yield { .. }
         | SsaOp::Dispose { .. } => {
-            unreachable!("heap/extra ops are emitted above")
+            return Err("from_ssa: heap/extra ops are emitted above".into())
         }
     };
     Ok(Some(Out::Native(v)))

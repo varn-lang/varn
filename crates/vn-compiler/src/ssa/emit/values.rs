@@ -311,7 +311,9 @@ pub(super) fn emit_value(
         | InstKind::DefineStatic { .. }
         | InstKind::DefineMethod { .. }
         | InstKind::DefineAccessor { .. } => {
-            unreachable!()
+            return Err(OptError::Internal(
+                "ssa-emit: effect op has no value to define".to_owned(),
+            ))
         }
     }
     Ok(())
