@@ -32,7 +32,9 @@ impl<'r> Checker<'r> {
             let ann = d.type_ann.as_ref();
             let ann_ty_opt = ann.map(|node| self.resolve_type_node_cached(node, bind));
 
-            let init = d.init.unwrap();
+            let Some(init) = d.init else {
+                continue;
+            };
             self.with_expected(ann_ty_opt, |c| c.check_expr(rec, init, bind));
             let init_ty = self.infer_type(rec, init, bind);
 

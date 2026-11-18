@@ -128,11 +128,12 @@ impl<'a> CtorFlow<'a> {
                     }
                     return;
                 }
-                match (op, self.this_field(*target)) {
-                    (AssignOp::Assign, Some(field)) => {
-                        assigned.insert(field);
-                    }
-                    _ => self.expr(*target, assigned),
+                if matches!(op, AssignOp::Assign)
+                    && let Some(field) = self.this_field(*target)
+                {
+                    assigned.insert(field);
+                } else {
+                    self.expr(*target, assigned);
                 }
             }
             ExprKind::Function { .. } | ExprKind::Arrow { .. } | ExprKind::ClassExpr { .. } => {}

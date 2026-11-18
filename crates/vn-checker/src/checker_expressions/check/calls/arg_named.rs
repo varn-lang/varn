@@ -56,8 +56,8 @@ impl<'r> Checker<'r> {
                     if params.last().is_some_and(|p| p.is_rest)
                         && let Some(idx) = params.len().checked_sub(1)
                         && mapping[idx].is_none()
+                        && let Some(arg_idx) = args.iter().position(|a| std::ptr::eq(a, arg))
                     {
-                        let arg_idx = args.iter().position(|a| std::ptr::eq(a, arg)).unwrap();
                         mapping[idx] = Some(arg_idx);
                     }
                     continue;
@@ -105,8 +105,9 @@ impl<'r> Checker<'r> {
                 self.emit(Diagnostic::error(ErrorCode::TypeMismatch, problem).with_range(*range));
                 has_error = true;
             }
-            if let Some(idx) = param_idx {
-                let arg_idx = args.iter().position(|a| std::ptr::eq(a, arg)).unwrap();
+            if let Some(idx) = param_idx
+                && let Some(arg_idx) = args.iter().position(|a| std::ptr::eq(a, arg))
+            {
                 mapping[idx] = Some(arg_idx);
             }
 

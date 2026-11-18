@@ -41,7 +41,7 @@ pub(crate) fn arrow_body_return_type(
                     Type::Never
                 }
                 0 => Type::Void,
-                1 => return_tys.pop().expect("one return type"),
+                1 => return_tys.into_iter().next().unwrap_or(Type::Never),
                 _ => Type::union(
                     return_tys,
                     &mut *std::sync::Arc::make_mut(&mut checker.ty_table),

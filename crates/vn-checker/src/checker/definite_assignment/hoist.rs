@@ -69,7 +69,12 @@ fn hoist_decl(arena: &AstArena, decl: &Decl, out: &mut Vec<Hoisted>) {
                         | ExprKind::With { .. }
                         | ExprKind::MetaAccess { .. } => None,
                     },
-                    _ => None,
+                    (Pattern::Identifier { .. }, None)
+                    | (Pattern::Array { .. }, _)
+                    | (Pattern::Tuple { .. }, _)
+                    | (Pattern::Object { .. }, _)
+                    | (Pattern::Assignment { .. }, _)
+                    | (Pattern::Rest { .. }, _) => None,
                 };
                 for name in d.id.bound_names() {
                     out.push(Hoisted {

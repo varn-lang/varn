@@ -61,7 +61,9 @@ impl<'r> Checker<'r> {
             }
         };
         let mut scope = declarant;
-        let sid = bind.scopes.get(declarant).lookup(name).unwrap();
+        let Some(sid) = bind.scopes.get(declarant).lookup(name) else {
+            return;
+        };
         loop {
             if scope == pure {
                 if matches!(

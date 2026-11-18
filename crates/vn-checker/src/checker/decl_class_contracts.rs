@@ -31,7 +31,7 @@ impl<'r> Checker<'r> {
         };
         let inherited = match self.substitute_chain(class, inherited, bind) {
             Some((ty, true)) => ty,
-            _ => {
+            Some((_, false)) | None => {
                 if self.lineage_is_generic(class, bind) {
                     return;
                 }

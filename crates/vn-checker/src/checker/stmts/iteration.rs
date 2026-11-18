@@ -35,7 +35,12 @@ impl Checker<'_> {
                 ) => a == b,
                 (ForOfPlan::IntRange, ForOfPlan::IntRange) => true,
                 (ForOfPlan::Protocol { .. }, ForOfPlan::Protocol { .. }) => plan == first_plan,
-                _ => false,
+                (ForOfPlan::Collection { .. }, ForOfPlan::IntRange)
+                | (ForOfPlan::Collection { .. }, ForOfPlan::Protocol { .. })
+                | (ForOfPlan::IntRange, ForOfPlan::Collection { .. })
+                | (ForOfPlan::IntRange, ForOfPlan::Protocol { .. })
+                | (ForOfPlan::Protocol { .. }, ForOfPlan::Collection { .. })
+                | (ForOfPlan::Protocol { .. }, ForOfPlan::IntRange) => false,
             });
             if !same_kind {
                 return None;

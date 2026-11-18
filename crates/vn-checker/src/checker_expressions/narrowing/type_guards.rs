@@ -95,14 +95,16 @@ impl<'r> Checker<'r> {
                                 };
                                 if !matched.is_empty() {
                                     let narrowed = if matched.len() == 1 {
-                                        matched.into_iter().next().unwrap()
+                                        matched.into_iter().next()
                                     } else {
-                                        Type::union(
+                                        Some(Type::union(
                                             matched,
                                             &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                                        )
+                                        ))
                                     };
-                                    out.push((id, narrowed));
+                                    if let Some(narrowed) = narrowed {
+                                        out.push((id, narrowed));
+                                    }
                                 } else {
                                     out.push((id, target_type));
                                 }

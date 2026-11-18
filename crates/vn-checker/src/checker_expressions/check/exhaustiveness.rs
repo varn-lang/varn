@@ -265,22 +265,32 @@ fn pattern_covers(
 ) -> bool {
     match pattern {
         MatchPattern::Wildcard | MatchPattern::Identifier(_) => true,
-        MatchPattern::Literal(e) => match (table.get(member.0), &arena.expr(*e).kind) {
-            (TypeKind::Primitive(vn_core::LangPrimitive::Null), ExprKind::NullLiteral) => true,
-            (TypeKind::Literal(TypeLiteral::Str(a)), ExprKind::StrLiteral { value }) => {
-                bind.interner.try_resolve(a) == Some(value.as_str())
+        MatchPattern::Literal(e) => {
+            let member_ty = table.get(member.0);
+            let expr_kind = &arena.expr(*e).kind;
+            if matches!(member_ty, TypeKind::Primitive(vn_core::LangPrimitive::Null)) {
+                return matches!(expr_kind, ExprKind::NullLiteral);
             }
-            (TypeKind::Literal(TypeLiteral::Bool(b)), ExprKind::BoolLiteral { value }) => {
-                b == *value
+            let TypeKind::Literal(lit) = member_ty else {
+                return false;
+            };
+            match lit {
+                TypeLiteral::Str(a) => matches!(
+                    expr_kind,
+                    ExprKind::StrLiteral { value }
+                        if bind.interner.try_resolve(a) == Some(value.as_str())
+                ),
+                TypeLiteral::Bool(b) => {
+                    matches!(expr_kind, ExprKind::BoolLiteral { value } if b == *value)
+                }
+                TypeLiteral::Char(c) => {
+                    matches!(expr_kind, ExprKind::CharLiteral { value } if c == *value)
+                }
+                TypeLiteral::Int(v) => {
+                    vn_sem::types::numeric_literal::const_int_value(arena, *e) == Some(v)
+                }
             }
-            (TypeKind::Literal(TypeLiteral::Char(c)), ExprKind::CharLiteral { value }) => {
-                c == *value
-            }
-            (TypeKind::Literal(TypeLiteral::Int(v)), _) => {
-                vn_sem::types::numeric_literal::const_int_value(arena, *e) == Some(v)
-            }
-            _ => false,
-        },
+        }
         MatchPattern::Tuple(_)
         | MatchPattern::Array { .. }
         | MatchPattern::Record { .. }

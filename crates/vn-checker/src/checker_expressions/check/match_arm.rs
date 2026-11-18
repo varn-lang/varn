@@ -109,7 +109,10 @@ impl<'r> Checker<'r> {
                 if let Some((id, matched)) = narrowings {
                     match matched.len() {
                         0 => vec![],
-                        1 => vec![(id, matched.into_iter().next().unwrap())],
+                        1 => match matched.into_iter().next() {
+                            Some(t) => vec![(id, t)],
+                            None => vec![],
+                        },
                         _ => vec![(
                             id,
                             vn_sem::types::Type::union(

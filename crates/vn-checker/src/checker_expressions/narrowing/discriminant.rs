@@ -178,7 +178,7 @@ impl<'r> Checker<'r> {
                                     .len()
                                 {
                                     0 => None,
-                                    1 => Some(v.into_iter().next().unwrap()),
+                                    1 => v.into_iter().next(),
                                     _ => Some(Type::union(v, table)),
                                 };
                             if (is_eq && is_true_branch) || (is_neq && !is_true_branch) {

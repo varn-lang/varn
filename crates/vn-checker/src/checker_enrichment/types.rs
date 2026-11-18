@@ -19,7 +19,7 @@ pub(super) fn join_types(mut types: Vec<Type>, table: &mut CheckerTyTable) -> Ty
     }
 
     if types.len() == 1 {
-        types.pop().unwrap()
+        types.into_iter().next().unwrap_or(Type::Void)
     } else {
         Type::union(types, table)
     }

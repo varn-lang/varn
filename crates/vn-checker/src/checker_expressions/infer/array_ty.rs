@@ -159,7 +159,7 @@ impl<'r> Checker<'r> {
                 Type::Never
             }
         } else if non_never.len() == 1 {
-            non_never.into_iter().next().unwrap()
+            non_never.into_iter().next().unwrap_or(Type::Never)
         } else {
             Type::union(
                 non_never,
