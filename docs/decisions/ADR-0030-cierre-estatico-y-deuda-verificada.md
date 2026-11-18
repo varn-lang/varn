@@ -124,4 +124,13 @@ del escaneo de deuda de los 12 crates del pipeline y del mapeo de huecos
   enforcement de caps por paquete/manifiesto.
 - [x] C8. JIT: 9 slots muertos podados (D7). Sin bump (nada los
   referenciaba ni se serializa). Puerta: suite + tiers sin regresión.
-- [ ] C9. `GetProperty` tipado + ADR-0028 (D8). Puerta: ratio + `xtask compare`.
+- [x] C9. `GetProperty`: medido, sin cambio de compilador justificado.
+  `typeloss` en HEAD: 1337 genéricos/1362 tipados en sitios mejorables;
+  `GetProperty` domina tests/ (216 filas: `x`49 `y`39 `kind`38 `name`32…),
+  pero en `tests/benchmarks` (33 ficheros, escritos para ser rápidos) solo
+  quedan 5 filas. El gap no sobrevive donde el código va anotado: es
+  test-code dinámico, no defecto inherente (skill vn-static-coverage).
+  Sin benchmark que muestre impacto, Ley 10 prohíbe el opcode nuevo.
+  ADR-0028 (métodos/clases, estado no-const, nullary-en-paquete,
+  `import *`, std-std) queda como proyectos RFC con su propia puerta
+  (ratio + `xtask compare`).
