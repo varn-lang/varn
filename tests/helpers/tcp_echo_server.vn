@@ -1,5 +1,6 @@
 import { TcpListener } from "std:net";
 
+@capability("net.server")
 async function main() {
     let listener = TcpListener.listen(19876);
     while (true) {

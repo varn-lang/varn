@@ -9,6 +9,7 @@ const FILE = "examples/todos.json";
 
 type Todo = { text: str, done: bool };
 
+@capability("fs.read")
 function loadTodos(): Todo[] {
     if (!exists(FILE)) {
         return [];

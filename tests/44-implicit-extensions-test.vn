@@ -3,6 +3,7 @@ import { File, exists as fsExists, remove as fsRemove, FileMode } from "std:fs";
 import { Reader, Writer } from "std:io";
 
 
+@capability("fs.read", "fs.write")
 function runTest(): void {
     let testFile = "./temp_implicit_ext.txt";
     let backupFile = "./temp_implicit_ext.bak";

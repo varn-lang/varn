@@ -14,6 +14,7 @@ async function readToEnd(client: TcpStream): Task<str> {
     }
 }
 
+@capability("net.client")
 async function exchange(port: int, raw: str): Task<str> {
     const client = await TcpStream.connect("127.0.0.1", port, 1);
     await client.write(Bytes.fromString(raw));
@@ -33,6 +34,7 @@ async function fakeServer(listener: TcpListener, script: str): Task<void> {
     conn.close();
 }
 
+@capability("net.server", "net.client")
 async function fetchFails(port: int, script: str): Task<bool> {
     const listener = TcpListener.listen(port);
     spawn(fakeServer(listener, script));

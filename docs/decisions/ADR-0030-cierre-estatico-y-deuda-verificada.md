@@ -74,10 +74,12 @@ del escaneo de deuda de los 12 crates del pipeline y del mapeo de huecos
   principio: **sin enforcement nuevo**):
   `fs_runtime.vn`: `fs.read` en `stat$/readFile*/readLines$/readDir$/exists$`
   (+Async), `fs.write` en `write*/append*/mkdir*/remove*` (+Async),
-  ambas en `open$` (modo-dependiente → fail-closed con las dos),
-  `copyFile$/rename$` (read+write); `net_runtime.vn`: `net.server` en
+  `open$` partido en `openRead$`/`openWrite$(path, append)` (una función ↔
+  un set; `FileMode` sigue como intención de usuario; el ctor `File`
+  declara ambas por ramas), `copyFile$/rename$` (read+write); `net_runtime.vn`: `net.server` en
   `tcpListen$/tcpListenTls$/udpBind$`, `net.client` en
-  `tcpConnect$/tcpConnectTls$`; resto libre (fd-ops: cap en `open$`;
+  `tcpConnect$/tcpConnectTls$`; resto libre (fd-ops: cap en
+  `openRead$/openWrite$`;
   `tcpAccept/Read/Write/Close$`, `udpSendTo/RecvFrom/Close$`,
   cómputo puro, `tempDir$`: sin gate dinámico).
   Re-declarar en cada wrapper `std` que los llame (`fs,file,async_ops,glob,ops`,

@@ -5,6 +5,7 @@ import { join } from "std:path";
 import { tempDir } from "std:fs";
 import { mkdirAll, removeAll, readText, exists } from "std:fs";
 
+@capability("fs.read", "fs.write")
 function clean(path: str): void {
     if (exists(path)) {
         removeAll(path);

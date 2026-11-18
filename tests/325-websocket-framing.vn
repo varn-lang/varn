@@ -50,6 +50,7 @@ async function readUntilHeadEnd(conn: TcpStream): Task<str> {
     return text
 }
 
+@capability("net.server", "net.client")
 async function serverReadFails(port: int, send: Bytes[]): Task<bool> {
     const server = WsServer.listen(port);
     const outcome = new Outcome();

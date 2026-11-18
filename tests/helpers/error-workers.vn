@@ -1,5 +1,6 @@
 import { readText } from "std:fs";
 
+@capability("fs.read")
 export async function readsMissingFile(path: str): Task<void> {
     readText(path);
 }

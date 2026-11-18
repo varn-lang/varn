@@ -1,5 +1,6 @@
 import { WsServer } from "std:ws";
 
+@capability("net.server")
 async function main(): Task<void> {
     let srv = WsServer.listen(19884);
     let conn = await srv.accept();

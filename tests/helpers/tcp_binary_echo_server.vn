@@ -1,6 +1,7 @@
 import { TcpListener } from "std:net";
 import { delay } from "std:task";
 
+@capability("net.server")
 async function listenWithRetry(port: int): Task<TcpListener> {
     let attempt = 0;
     while (true) {
@@ -16,6 +17,7 @@ async function listenWithRetry(port: int): Task<TcpListener> {
     }
 }
 
+@capability("net.server")
 async function main() {
     let listener = await listenWithRetry(19877);
     let client = await listener.accept();

@@ -4,6 +4,7 @@ import { Stream } from "std:io";
 import { describe, it, expect } from "std:test";
 
 
+@capability("fs.read", "fs.write")
 function testBinaryFsOps(): void {
     let testPath = "target/test_fs_binary.bin";
     let testData = Bytes.alloc(4);
@@ -58,6 +59,7 @@ function testBinaryCompression(): void {
         expect(inflated.getByte(255)).toBe(42);;
 
 }
+@capability("fs.read", "fs.write")
 async function testFileStreamAsync(): Task<void> {
 let srcPath = "target/stream_src.bin";
 let dstPath = "target/stream_dst.bin";

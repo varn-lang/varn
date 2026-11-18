@@ -4,6 +4,7 @@ import { delay } from "std:task";
 import { isIP, isIPv4, isIPv6, encodeURIComponent, decodeURIComponent } from "std:net";
 
 
+@capability("net.server", "net.client")
 async function runHttpVerification() {
     let live = new HttpServer();
     live.get("/", async (req: Request) => json({ ok: true }));

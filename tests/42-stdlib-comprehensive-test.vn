@@ -25,6 +25,7 @@ class ResourceImpl implements Disposable {
     }
 }
 
+@capability("fs.read", "fs.write", "net.server", "net.client")
 async function runComprehensiveTest(): Task<void> {
 
     // 1. std:time

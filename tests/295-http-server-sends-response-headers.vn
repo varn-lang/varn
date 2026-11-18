@@ -3,6 +3,7 @@ import { delay } from "std:task";
 import { TcpStream } from "std:net";
 import { HttpServer, Request, Response, json } from "std:http";
 
+@capability("net.client")
 async function rawGet(port: int, path: str): Task<str> {
     const client = await TcpStream.connect("127.0.0.1", port, 1);
     await client.write(`GET ${path} HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n`);

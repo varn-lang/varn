@@ -14,6 +14,7 @@ async function readToEnd(client: TcpStream): Task<str> {
     }
 }
 
+@capability("net.client")
 async function exchange(port: int, pieces: Bytes[]): Task<str> {
     const client = await TcpStream.connect("127.0.0.1", port, 1);
     for (const piece in pieces) {

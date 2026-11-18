@@ -1,6 +1,7 @@
 import { describe, it, expect } from "std:test";
 import { readDir, readText, stat } from "std:fs";
 
+@capability("fs.read")
 function sources(dir: str): str[] {
     let found: str[] = [];
     for (const name in readDir(dir)) {
