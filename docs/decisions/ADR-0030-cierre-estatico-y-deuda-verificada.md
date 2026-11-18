@@ -134,3 +134,10 @@ del escaneo de deuda de los 12 crates del pipeline y del mapeo de huecos
   ADR-0028 (métodos/clases, estado no-const, nullary-en-paquete,
   `import *`, std-std) queda como proyectos RFC con su propia puerta
   (ratio + `xtask compare`).
+- [x] Matriz completa verde en serie (`verify.ps1 -NoParallel`):
+  release + Q1-Q4 + GC stress + JIT-cache verify + bench + corpus
+  (6165/437). Hallazgos del runner (preexistentes): los cuadrantes
+  paralelos usan scratch-CWDs (rompía el test 80, que asumía raíz →
+  hecho hermético, Ley 15) y colisionan en puertos fijos
+  (EADDRINUSE) → la matriz paralela local no es fiable; CI corre en
+  serie desde raíz.
