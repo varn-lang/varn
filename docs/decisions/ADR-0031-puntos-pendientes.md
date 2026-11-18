@@ -46,6 +46,16 @@ implementa (Ley 10).
   en imagen. Puerta: ratio + `xtask compare`.
 - P5. Semántica gradual de `infer/ops` (retorno `Dynamic` por defecto):
   cambio de semántica, RFC. Puerta: corpus de errores actualizado.
+- P6. Scheduler paralelo de checking (diseño diferido heredado):
+  paralelizar por fase y nivel topológico del DAG, no por work-stealing
+  (barreras por nivel + sort canónico de diagnósticos = determinismo
+  trivial); prereqs ya ciertos (`Send+Sync`, ids content-addressed).
+  Trigger: el wall-clock de compilación en proyectos multi-módulo se
+  vuelve cuello de botella. Puerta: mismos diagnósticos (orden
+  canónico) y mismo bytecode SHA256 en serie y paralelo + speedup
+  medido. Riesgos heredados: interner compartido (`Atom` no
+  content-addressed), orden canónico obligatorio, writes de caché
+  sin colisión.
 
 ## Migración
 Un punto por esfuerzo, un cambio por commit (Ley 9); `-Min` por commit,

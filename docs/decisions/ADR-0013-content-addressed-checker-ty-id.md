@@ -75,6 +75,6 @@ pub type InternedTypeKind = TypeKind<CheckerTyId, Atom, TyListId, FunctionTypeId
 
 ## Pending
 - Parallel module-checking scheduler over the module DAG + a parallel checking
-  test — designed and **deferred** in ADR-0014 (Option A, phase-parallel).
+  test — designed and **deferred** (Option A, phase-parallel; see ADR-0031 P6).
 - Optionally: content-addressed `Atom` for cross-process id stability.
 
