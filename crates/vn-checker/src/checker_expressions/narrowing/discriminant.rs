@@ -179,7 +179,7 @@ impl<'r> Checker<'r> {
                                 {
                                     0 => None,
                                     1 => v.into_iter().next(),
-                                    _ => Some(Type::union(v, table)),
+                                    2.. => Some(Type::union(v, table)),
                                 };
                             if (is_eq && is_true_branch) || (is_neq && !is_true_branch) {
                                 if !matched.is_empty()

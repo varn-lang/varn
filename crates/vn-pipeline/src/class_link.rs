@@ -79,7 +79,9 @@ pub fn verify_foreign_layouts(tables: &HashMap<String, ModuleClasses>) -> Result
                 .zip(entry.classes.iter())
                 .find(|(o, ci)| o.as_deref() == Some(origin) && ci.name.as_ref() == name)
                 .map(|(_, ci)| ci)
-                .expect("foreign entry vanished");
+                .ok_or_else(|| {
+                    format!("E_CLASS_LAYOUT_DIVERGENCE: '{name}' copied into '{module}' from '{origin}' has no recorded origin entry")
+                })?;
             if !fields_cover(&copy.fields, &entry.types, &local.fields, &defining.types) {
                 let show = |fields: &[vn_tir::FieldInfo], types: &vn_tir::TyTable| {
                     fields
