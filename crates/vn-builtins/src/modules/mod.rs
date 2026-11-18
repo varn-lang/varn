@@ -12,7 +12,6 @@ macro_rules! native_modules {
 }
 
 native_modules! {
-    buffer = "runtime/buffer/buffer.rs" => [buffer::NATIVE_ENTRIES];
     compress = "runtime/compress/compress.rs" => [compress::NATIVE_ENTRIES];
     crypto = "runtime/crypto/crypto.rs" => [crypto::NATIVE_ENTRIES];
     csv = "runtime/csv/csv.rs" => [csv::NATIVE_ENTRIES];
