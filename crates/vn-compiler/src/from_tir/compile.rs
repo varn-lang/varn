@@ -175,18 +175,16 @@ pub fn compile_module(
 }
 
 fn verify_module_protos(top: &FunctionProto) -> std::result::Result<(), OptError> {
-    use std::rc::Rc;
     use vn_types::bytecode::verify_chunk;
-    // Identity is by address: every pointer below derives from a live borrow
-    // (`top` for the module proto, the constants' `Rc` for nested ones), so
-    // dereferencing them while `top` is borrowed is sound.
-    let mut seen = std::collections::HashSet::new();
-    let mut stack = vec![top as *const FunctionProto];
-    while let Some(ptr) = stack.pop() {
-        if !seen.insert(ptr as usize) {
-            continue;
+    // Identity is by address; traversal is recursive so every use goes
+    // through a live borrow instead of a raw pointer.
+    fn visit(
+        proto: &FunctionProto,
+        seen: &mut rustc_hash::FxHashSet<usize>,
+    ) -> std::result::Result<(), OptError> {
+        if !seen.insert(proto as *const FunctionProto as usize) {
+            return Ok(());
         }
-        let proto = unsafe { &*ptr };
         verify_chunk(
             &proto.chunk.code,
             &proto.chunk.constants,
@@ -200,9 +198,10 @@ fn verify_module_protos(top: &FunctionProto) -> std::result::Result<(), OptError
         })?;
         for entry in &proto.chunk.constants {
             if let vn_types::chunk::PoolEntry::Function(rc) = entry {
-                stack.push(Rc::as_ptr(rc));
+                visit(rc, seen)?;
             }
         }
+        Ok(())
     }
-    Ok(())
+    visit(top, &mut rustc_hash::FxHashSet::default())
 }

@@ -111,7 +111,7 @@ pub fn enter_main(machine: &mut Vm, main_proto: Rc<FunctionProto>) -> Rc<Functio
         vn_types::ModuleObj::new(main_module_id.clone(), main_proto.export_names.len());
     module_obj.export_map = export_map;
     let module_val = machine.ctx.heap.alloc_module(Rc::new(module_obj));
-    unsafe { &mut *machine.ctx.modules.get() }.insert(main_module_id, module_val);
+    machine.ctx.register_module(main_module_id, module_val);
     machine.ctx.module_exports.insert(0, module_val);
     main_proto
 }

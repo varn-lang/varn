@@ -281,6 +281,10 @@ impl ExecCtx {
         unsafe { &*self.modules.get() }
     }
 
+    pub fn register_module(&mut self, id: ModuleId, val: VmValue) {
+        unsafe { &mut *self.modules.get() }.insert(id, val);
+    }
+
     pub(crate) fn fork_for_task(&self) -> Self {
         Self {
             stack: crate::frame_store::FrameStore::new_for_task(),

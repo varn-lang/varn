@@ -1,3 +1,4 @@
+use rustc_hash::FxHashMap;
 use std::path::{Path, PathBuf};
 
 fn canonicalize(path: &Path) -> PathBuf {
@@ -9,11 +10,10 @@ fn find_root_from(base_canon: &Path) -> (PathBuf, bool) {
     (canonicalize(&located.dir), located.manifest.is_some())
 }
 
-fn root_cache() -> &'static std::sync::Mutex<std::collections::HashMap<PathBuf, (PathBuf, bool)>> {
-    static CACHE: std::sync::OnceLock<
-        std::sync::Mutex<std::collections::HashMap<PathBuf, (PathBuf, bool)>>,
-    > = std::sync::OnceLock::new();
-    CACHE.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+fn root_cache() -> &'static std::sync::Mutex<FxHashMap<PathBuf, (PathBuf, bool)>> {
+    static CACHE: std::sync::OnceLock<std::sync::Mutex<FxHashMap<PathBuf, (PathBuf, bool)>>> =
+        std::sync::OnceLock::new();
+    CACHE.get_or_init(|| std::sync::Mutex::new(FxHashMap::default()))
 }
 
 pub fn project_root_cached(base_dir: &Path) -> (PathBuf, bool) {
