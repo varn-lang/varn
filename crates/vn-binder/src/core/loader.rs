@@ -41,7 +41,9 @@ fn exports_of<'a>(
         let mut keys: Vec<String> = exports.keys().cloned().collect();
         keys.sort();
         for k in keys {
-            let v = exports.get(&k).expect("sorted core export missing");
+            let Some(v) = exports.get(&k) else {
+                continue;
+            };
             let mut symbol = v.clone();
             symbol.origin_module = symbol.origin_module.or(Some(origin));
             core.symbols.insert(Arc::from(k.as_str()), symbol);

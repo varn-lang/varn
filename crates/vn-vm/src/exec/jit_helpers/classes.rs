@@ -195,7 +195,10 @@ pub(crate) extern "C" fn jit_class_member_op(
                 args.fn_val,
                 &mut ctx_ref.heap,
             ),
-            _ => panic!("Unknown class member op kind: {}", args.kind),
+            _ => Err(crate::error::RuntimeError::new(format!(
+                "Unknown class member op kind: {}",
+                args.kind
+            ))),
         };
         if let Err(e) = res {
             jit_propagate_error(ctx_ref, e);

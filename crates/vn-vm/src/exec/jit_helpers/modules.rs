@@ -80,11 +80,23 @@ pub(crate) extern "C" fn jit_store_module_slot(
         let exports_nv = if let Some(nv) = ctx_ref.module_exports.get(&frame_idx).copied() {
             nv
         } else {
-            panic!("OpStoreModuleSlot: no active module object for current frame");
+            jit_propagate_error(
+                ctx_ref,
+                crate::error::RuntimeError::new(
+                    "OpStoreModuleSlot: no active module object for current frame",
+                ),
+            );
+            return;
         };
 
         if !exports_nv.is_heap() {
-            panic!("OpStoreModuleSlot: active module object is not a heap object");
+            jit_propagate_error(
+                ctx_ref,
+                crate::error::RuntimeError::new(
+                    "OpStoreModuleSlot: active module object is not a heap object",
+                ),
+            );
+            return;
         }
 
         if let Some(crate::heap::HeapObj::Module(m)) = ctx_ref.heap.get_mut(exports_nv.as_heap()) {
@@ -92,7 +104,12 @@ pub(crate) extern "C" fn jit_store_module_slot(
             m.set_slot(slot_idx, val_nv);
             ctx_ref.heap.write_barrier(exports_nv.as_heap(), val_nv);
         } else {
-            panic!("OpStoreModuleSlot: active module object is not a ModuleObj");
+            jit_propagate_error(
+                ctx_ref,
+                crate::error::RuntimeError::new(
+                    "OpStoreModuleSlot: active module object is not a ModuleObj",
+                ),
+            );
         }
     }
 }

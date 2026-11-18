@@ -179,7 +179,11 @@ impl ExecCtx {
             | OpCode::MapGetIndex
             | OpCode::MapSetIndex
             | OpCode::Convert
-            | OpCode::BytesLength => unreachable!(),
+            | OpCode::BytesLength => {
+                return Err(crate::error::RuntimeError::new(
+                    "mismatched opcode dispatcher: BytesLength",
+                ));
+            }
         };
         self.stack.unbox_into_reg(base, first_reg, r)?;
         Ok(())
@@ -391,7 +395,11 @@ impl ExecCtx {
             | OpCode::MapGetIndex
             | OpCode::MapSetIndex
             | OpCode::Convert
-            | OpCode::BytesLength => unreachable!(),
+            | OpCode::BytesLength => {
+                return Err(crate::error::RuntimeError::new(
+                    "mismatched opcode dispatcher: BytesLength",
+                ));
+            }
         }
         Ok(())
     }

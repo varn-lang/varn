@@ -19,7 +19,10 @@ pub(crate) extern "C" fn jit_spawn(ctx: *mut ExecCtx, task_tag: u64, task_payloa
     unsafe {
         let ctx_ref = &mut *ctx;
         let task_val = VmValue::from_raw_parts(task_tag, task_payload);
-        ctx_ref.jit_native_result = ctx_ref.exec_spawn(task_val).unwrap();
+        match ctx_ref.exec_spawn(task_val) {
+            Ok(v) => ctx_ref.jit_native_result = v,
+            Err(e) => super::construct::jit_propagate_error(ctx_ref, e),
+        }
     }
 }
 
@@ -119,7 +122,15 @@ unsafe fn settle_await(
     ctx.jit_panic_suspend_resume_ip = resume_at;
     let buf = ctx.jit_suspend_buf;
     if buf.is_null() {
-        panic!("JIT suspend triggered but no jump buffer registered");
+        unsafe {
+            super::construct::jit_propagate_error(
+                ctx,
+                crate::error::RuntimeError::new(
+                    "JIT suspend triggered but no jump buffer registered",
+                ),
+            )
+        };
+        return;
     }
     unsafe { crate::exec::ctx::my_longjmp(buf, 2) }
 }

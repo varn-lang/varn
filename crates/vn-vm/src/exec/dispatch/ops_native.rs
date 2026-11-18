@@ -253,7 +253,11 @@ impl ExecCtx {
             | OpCode::MapGetIndex
             | OpCode::MapSetIndex
             | OpCode::Convert
-            | OpCode::BytesLength => unreachable!("exec_native_op called with a non-native opcode"),
+            | OpCode::BytesLength => {
+                return Err(crate::error::RuntimeError::new(
+                    "exec_native_op called with a non-native opcode",
+                ));
+            }
         }
         Ok(())
     }
