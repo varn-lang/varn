@@ -36,35 +36,35 @@ fn assignable_with_depth(m: &TirModule, from: BackendTy, to: BackendTy, depth: u
         return true;
     }
 
-    match (from, to) {
-        (BackendTy::Array(a), BackendTy::Array(b)) | (BackendTy::Set(a), BackendTy::Set(b))
-            if m.types.contains(a) && m.types.contains(b) =>
-        {
-            return assignable_with_depth(m, m.types.get(a), m.types.get(b), depth + 1);
+    if let (BackendTy::Array(a), BackendTy::Array(b)) | (BackendTy::Set(a), BackendTy::Set(b)) =
+        (from, to)
+        && m.types.contains(a)
+        && m.types.contains(b)
+    {
+        return assignable_with_depth(m, m.types.get(a), m.types.get(b), depth + 1);
+    }
+    if let (BackendTy::Map(ak, av), BackendTy::Map(bk, bv)) = (from, to)
+        && m.types.contains(ak)
+        && m.types.contains(av)
+        && m.types.contains(bk)
+        && m.types.contains(bv)
+    {
+        return assignable_with_depth(m, m.types.get(ak), m.types.get(bk), depth + 1)
+            && assignable_with_depth(m, m.types.get(av), m.types.get(bv), depth + 1);
+    }
+    if let (BackendTy::Tuple(a), BackendTy::Tuple(b)) = (from, to)
+        && m.types.contains_list(a)
+        && m.types.contains_list(b)
+    {
+        let fa = m.types.get_list(a).to_vec();
+        let fb = m.types.get_list(b).to_vec();
+        if fa.len() != fb.len() {
+            return false;
         }
-        (BackendTy::Map(ak, av), BackendTy::Map(bk, bv))
-            if m.types.contains(ak)
-                && m.types.contains(av)
-                && m.types.contains(bk)
-                && m.types.contains(bv) =>
-        {
-            return assignable_with_depth(m, m.types.get(ak), m.types.get(bk), depth + 1)
-                && assignable_with_depth(m, m.types.get(av), m.types.get(bv), depth + 1);
-        }
-        (BackendTy::Tuple(a), BackendTy::Tuple(b))
-            if m.types.contains_list(a) && m.types.contains_list(b) =>
-        {
-            let fa = m.types.get_list(a).to_vec();
-            let fb = m.types.get_list(b).to_vec();
-            if fa.len() != fb.len() {
-                return false;
-            }
-            return fa
-                .into_iter()
-                .zip(fb)
-                .all(|(x, y)| assignable_with_depth(m, x, y, depth + 1));
-        }
-        _ => {}
+        return fa
+            .into_iter()
+            .zip(fb)
+            .all(|(x, y)| assignable_with_depth(m, x, y, depth + 1));
     }
 
     if let (BackendTy::Class(sub), BackendTy::Class(sup)) = (from, to) {

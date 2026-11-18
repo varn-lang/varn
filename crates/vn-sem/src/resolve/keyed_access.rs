@@ -163,7 +163,7 @@ pub(super) fn resolve_indexed_access(
                     .collect();
                 return match resolved.len() {
                     0 => Type::Dynamic,
-                    1 => resolved.into_iter().next().unwrap(),
+                    1 => resolved.into_iter().next().unwrap_or(Type::Dynamic),
                     _ => Type::union(resolved, table),
                 };
             }
@@ -218,7 +218,7 @@ pub(super) fn resolve_indexed_access(
                 .collect();
             match types.len() {
                 0 => Type::Dynamic,
-                1 => types.into_iter().next().unwrap(),
+                1 => types.into_iter().next().unwrap_or(Type::Dynamic),
                 _ => Type::union(types, table),
             }
         }

@@ -193,14 +193,14 @@ impl Type {
         }
         if members.len() == 1 {
             if !matches!(table.get(members[0].0), TypeKind::Union(_)) {
-                return members.into_iter().next().unwrap();
+                return members.into_iter().next().unwrap_or(Type::Never);
             }
         } else if members.len() == 2 {
             if !matches!(table.get(members[0].0), TypeKind::Union(_))
                 && !matches!(table.get(members[1].0), TypeKind::Union(_))
             {
                 if members[0] == members[1] {
-                    return members.into_iter().next().unwrap();
+                    return members.into_iter().next().unwrap_or(Type::Never);
                 } else {
                     let ids: Vec<CheckerTyId> = members.iter().map(|m| m.0).collect();
                     let list = table.intern_list(&ids);

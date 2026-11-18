@@ -96,7 +96,7 @@ fn collapse_union_never(results: Vec<Type>, table: &mut CheckerTyTable) -> Type 
         .collect();
     match non_never.len() {
         0 => Type::Never,
-        1 => non_never.into_iter().next().unwrap(),
+        1 => non_never.into_iter().next().unwrap_or(Type::Never),
         _ => Type::union(non_never, table),
     }
 }

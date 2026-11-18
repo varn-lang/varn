@@ -137,7 +137,13 @@ pub fn link(module: &mut TirModule, source: &dyn TemplateSource) {
                 (None, Some(literal), Some(slot)) => {
                     constants.insert(slot as u32, literal.clone());
                 }
-                _ => all = false,
+                (Some(_), None, None)
+                | (Some(_), Some(_), None)
+                | (None, Some(_), None)
+                | (None, None, None)
+                | (None, None, Some(_)) => {
+                    all = false;
+                }
             }
         }
         if all && templates.inert {

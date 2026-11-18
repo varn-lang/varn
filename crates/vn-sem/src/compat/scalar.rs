@@ -65,14 +65,19 @@ pub(super) fn literal_expr_admitted(
 ) -> bool {
     use vn_core::ast::ExprKind;
     use vn_core::TypeLiteral;
-    let is_value = |lit: TypeLiteral<vn_core::Atom>| match (lit, &arena.expr(expr).kind) {
-        (TypeLiteral::Str(atom), ExprKind::StrLiteral { value }) => {
-            interner.and_then(|i| i.try_resolve(atom)) == Some(value.as_str())
+    let is_value = |lit: TypeLiteral<vn_core::Atom>| match lit {
+        TypeLiteral::Str(atom) => matches!(
+            &arena.expr(expr).kind,
+            ExprKind::StrLiteral { value }
+                if interner.and_then(|i| i.try_resolve(atom)) == Some(value.as_str())
+        ),
+        TypeLiteral::Bool(b) => {
+            matches!(&arena.expr(expr).kind, ExprKind::BoolLiteral { value } if b == *value)
         }
-        (TypeLiteral::Bool(b), ExprKind::BoolLiteral { value }) => b == *value,
-        (TypeLiteral::Char(c), ExprKind::CharLiteral { value }) => c == *value,
-        (TypeLiteral::Int(v), _) => const_int_value(arena, expr) == Some(v),
-        _ => false,
+        TypeLiteral::Char(c) => {
+            matches!(&arena.expr(expr).kind, ExprKind::CharLiteral { value } if c == *value)
+        }
+        TypeLiteral::Int(v) => const_int_value(arena, expr) == Some(v),
     };
     match table.get(target.0) {
         TypeKind::Literal(l) => is_value(l),

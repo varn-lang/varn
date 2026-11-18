@@ -60,7 +60,7 @@ impl Type {
                 if new_members.is_empty() {
                     Type::Never
                 } else if new_members.len() == 1 {
-                    new_members.into_iter().next().unwrap()
+                    new_members.into_iter().next().unwrap_or(Type::Never)
                 } else {
                     let ids: Vec<CheckerTyId> = new_members.iter().map(|m| m.0).collect();
                     let new_list = table.intern_list(&ids);

@@ -142,7 +142,7 @@ pub(super) fn resolve_named_type(
             && !defaults.is_empty()
             && defaults.iter().all(|d| d.is_some())
         {
-            let args = defaults.into_iter().map(|d| d.unwrap()).collect();
+            let args = defaults.into_iter().flatten().collect();
             return Type::generic_atom(n, args, o, table);
         }
         return resolved;
