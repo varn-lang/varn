@@ -21,25 +21,6 @@ pub(crate) extern "C" fn jit_str_concat(
     }
 }
 
-#[vn_macros::jit_slow(field = "str_slice")]
-pub(crate) extern "C" fn jit_str_slice(
-    ctx: *mut ExecCtx,
-    s_tag: u64,
-    s_payload: u64,
-    idx_tag: u64,
-    idx_payload: u64,
-) {
-    unsafe {
-        let ctx_ref = &mut *ctx;
-        let s = VmValue::from_raw_parts(s_tag, s_payload);
-        let idx = VmValue::from_raw_parts(idx_tag, idx_payload);
-        match ctx_ref.exec_str_slice(s, idx) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
-    }
-}
-
 #[vn_macros::jit_slow(field = "str_length")]
 pub(crate) extern "C" fn jit_str_length(ctx: *mut ExecCtx, v_tag: u64, v_payload: u64) {
     unsafe {

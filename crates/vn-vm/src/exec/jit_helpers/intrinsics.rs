@@ -3,35 +3,6 @@ use crate::exec::ctx::ExecCtx;
 use crate::heap::{Heap, HeapObj};
 use crate::value::VmValue;
 
-#[vn_macros::jit_slow(field = "dispatch_intrinsic")]
-pub(crate) extern "C" fn jit_dispatch_intrinsic(
-    ctx: *mut ExecCtx,
-    wire_byte: usize,
-    act_id: usize,
-    reg_start: usize,
-    arg_count: usize,
-) {
-    unsafe {
-        let ctx_ref = &mut *ctx;
-        let args = ctx_ref.stack.box_range(act_id, reg_start, arg_count);
-        if crate::home_trace::enabled() {
-            let fname = ctx_ref
-                .frames
-                .last()
-                .and_then(|f| f.closure().proto.name.clone());
-            let tags: Vec<String> = args
-                .iter()
-                .map(|v| format!("{:#x}/{:#x}", v.raw_tag(), v.raw_payload()))
-                .collect();
-            eprintln!("INTRINSIC {fname:?} wire={wire_byte:#x} args={tags:?}");
-        }
-        match crate::exec::intrinsics::dispatch(wire_byte as u8, &args) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
-    }
-}
-
 #[vn_macros::jit_slow(field = "intrinsic_window")]
 pub(crate) extern "C" fn jit_intrinsic_window(
     ctx: *mut ExecCtx,

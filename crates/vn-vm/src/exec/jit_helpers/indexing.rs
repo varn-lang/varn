@@ -267,18 +267,6 @@ pub(crate) extern "C" fn jit_array_push(
     }
 }
 
-#[vn_macros::jit_slow(field = "array_pop")]
-pub(crate) extern "C" fn jit_array_pop(ctx: *mut ExecCtx, arr_tag: u64, arr_payload: u64) {
-    unsafe {
-        let ctx_ref = &mut *ctx;
-        let arr = VmValue::from_raw_parts(arr_tag, arr_payload);
-        match ctx_ref.exec_array_pop(arr) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
-    }
-}
-
 #[vn_macros::jit_slow(field = "array_extend")]
 pub(crate) extern "C" fn jit_array_extend(
     ctx: *mut ExecCtx,

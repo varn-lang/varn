@@ -69,43 +69,6 @@ pub(crate) extern "C" fn jit_build_map_window(
     }
 }
 
-#[vn_macros::jit_slow(field = "build_object_with_shape")]
-pub(crate) extern "C" fn jit_build_object_with_shape(
-    ctx: *mut ExecCtx,
-    base: usize,
-    start_reg: usize,
-    shape: *const vn_types::Shape,
-) {
-    unsafe {
-        use crate::alloc_profile as prof;
-        let on = prof::enabled();
-        let t_all = if on { prof::read() } else { 0 };
-        let out = build_shaped_from_ptr(ctx, base, start_reg, shape);
-        if on {
-            prof::record(prof::Seg::HelperTotal, t_all, prof::read());
-        }
-        (*ctx).jit_native_result = out;
-    }
-}
-
-#[inline(always)]
-unsafe fn build_shaped_from_ptr(
-    ctx: *mut ExecCtx,
-    base: usize,
-    start_reg: usize,
-    shape: *const vn_types::Shape,
-) -> VmValue {
-    let ctx_ref = unsafe { &mut *ctx };
-    let shape = unsafe { std::mem::ManuallyDrop::new(std::rc::Rc::from_raw(shape)) };
-    crate::exec::collections::build_with_shape(
-        &ctx_ref.stack,
-        base,
-        start_reg,
-        (*shape).clone(),
-        &mut ctx_ref.heap,
-    )
-}
-
 #[vn_macros::jit_slow(field = "build_object_window")]
 pub(crate) extern "C" fn jit_build_object_window(
     ctx: *mut ExecCtx,

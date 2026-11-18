@@ -2,17 +2,6 @@ use crate::exec::closures::UpvalueSrc;
 use crate::exec::ctx::ExecCtx;
 use crate::value::VmValue;
 
-#[vn_macros::jit_slow(field = "load_const")]
-pub(crate) extern "C" fn jit_load_const(
-    closure: *const crate::closure::VmClosure,
-    idx: usize,
-) -> VmValue {
-    unsafe {
-        let closure_ref = &*closure;
-        closure_ref.constants[idx]
-    }
-}
-
 #[vn_macros::jit_slow(field = "eq")]
 pub(crate) extern "C" fn jit_eq(
     ctx: *mut ExecCtx,
@@ -230,28 +219,6 @@ pub(crate) extern "C" fn jit_store_upvalue(
         }
         let owner = closure_ref.upvalues[uv_idx].owner();
         ctx_ref.heap.write_upvalue_barrier(owner, val);
-    }
-}
-
-#[vn_macros::jit_slow(field = "make_closure")]
-pub(crate) extern "C" fn jit_make_closure(
-    ctx: *mut ExecCtx,
-    closure: *const crate::closure::VmClosure,
-    ip_offset: usize,
-    base: usize,
-) {
-    unsafe {
-        let ctx_ref = &mut *ctx;
-        let closure_ref = &*closure;
-        let code = &closure_ref.proto.chunk.code;
-        let uv_count = (*code.get_unchecked(ip_offset + 1) & 0xFF) as usize;
-        let proto_idx = *code.get_unchecked(ip_offset + 2) as usize;
-        let descs = code.get_unchecked(ip_offset + 3..ip_offset + 3 + uv_count);
-        let upvalues = descs.iter().map(|&w| UpvalueSrc::from_bytecode(w));
-        match ctx_ref.make_closure(closure_ref, proto_idx, base, upvalues) {
-            Ok(val) => ctx_ref.jit_native_result = val,
-            Err(e) => super::construct::jit_propagate_error(ctx_ref, e),
-        }
     }
 }
 
