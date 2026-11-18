@@ -68,6 +68,7 @@ function matchFrom(seg: str, si: int, name: str, ni: int): bool {
     return ni >= name.length;
 }
 
+@capability("fs.read")
 function isDir(path: str): bool {
     try {
         return stat$(path).isDir;
@@ -76,6 +77,7 @@ function isDir(path: str): bool {
     }
 }
 
+@capability("fs.read")
 function walk(dir: str, segs: str[], idx: int, out: str[]): void {
     if (idx >= segs.length) {
         out.push(dir);
@@ -117,6 +119,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
     }
 }
 
+@capability("fs.read")
 export function glob(pattern: str): str[] {
     let norm = pattern.replaceAll("\\", "/");
     let segs: str[] = [];

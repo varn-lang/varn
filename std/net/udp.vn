@@ -19,6 +19,7 @@ export class UdpSocket {
         this._port = port;
     }
 
+    @capability("net.server")
     static bind(port: int, host?: str): UdpSocket {
         let bindHost = host ?? "0.0.0.0";
         return new UdpSocket(udpBind$(bindHost, port), bindHost, port);

@@ -17,19 +17,30 @@ export struct RawStats {
     mtime: int?;
 }
 
+@capability("fs.read")
 export declare function stat$(path: str): RawStats;
 
-export declare function open$(path: str, mode: FileMode): int;
+@capability("fs.read")
+export declare function openRead$(path: str): int;
+@capability("fs.write")
+export declare function openWrite$(path: str, append: bool): int;
 export declare function readFd$(fd: int, len: int): str;
 export declare function readFdBytes$(fd: int, len: int): Bytes;
 export declare function writeFd$(fd: int, data: str): int;
 export declare function writeFdBytes$(fd: int, data: Bytes): int;
+@capability("fs.read")
 export declare function readFileBytes$(path: str): Bytes;
+@capability("fs.write")
 export declare function writeFileBytes$(path: str, data: Bytes): void;
+@capability("fs.read")
 export declare function readFileText$(path: str): str;
+@capability("fs.write")
 export declare function writeFileText$(path: str, data: str): void;
+@capability("fs.write")
 export declare function appendFileText$(path: str, data: str): void;
+@capability("fs.read", "fs.write")
 export declare function copyFile$(from: str, to: str): void;
+@capability("fs.read")
 export declare function readLines$(path: str): str[];
 export declare function readFdAll$(fd: int): str;
 export declare function readFdAllBytes$(fd: int): Bytes;
@@ -38,20 +49,36 @@ export declare function readFdAllBytesAsync$(fd: int): TaskHandle<Bytes>;
 export declare function writeFdBytesAsync$(fd: int, data: Bytes): TaskHandle<int>;
 export declare function seek$(fd: int, offset: int, origin: SeekOrigin): int;
 export declare function close$(fd: int): void;
+@capability("fs.read")
 export declare function exists$(path: str): bool;
+@capability("fs.write")
 export declare function mkdir$(path: str): void;
+@capability("fs.write")
 export declare function mkdirAll$(path: str): void;
+@capability("fs.read")
 export declare function readDir$(path: str): str[];
+@capability("fs.write")
 export declare function remove$(path: str): void;
+@capability("fs.write")
 export declare function removeAll$(path: str): void;
+@capability("fs.read", "fs.write")
 export declare function rename$(from: str, to: str): void;
+@capability("fs.read")
 export declare function readFileTextAsync$(path: str): TaskHandle<str>;
+@capability("fs.read")
 export declare function readFileBytesAsync$(path: str): TaskHandle<Bytes>;
+@capability("fs.write")
 export declare function writeFileTextAsync$(path: str, data: str): TaskHandle<void>;
+@capability("fs.write")
 export declare function writeFileBytesAsync$(path: str, data: Bytes): TaskHandle<void>;
+@capability("fs.write")
 export declare function appendFileTextAsync$(path: str, data: str): TaskHandle<void>;
+@capability("fs.read", "fs.write")
 export declare function copyFileAsync$(from: str, to: str): TaskHandle<void>;
+@capability("fs.read")
 export declare function readLinesAsync$(path: str): TaskHandle<str[]>;
+@capability("fs.read")
 export declare function readDirAsync$(path: str): TaskHandle<str[]>;
+@capability("fs.write")
 export declare function removeAllAsync$(path: str): TaskHandle<void>;
 export declare function tempDir$(): str;

@@ -19,6 +19,7 @@ export class Redis {
         this._stream = stream;
     }
 
+    @capability("net.client")
     static async connect(host: str = "127.0.0.1", port: int = 6379): Task<Redis> {
         let stream = await TcpStream.connect(host, port);
         return new Redis(stream);

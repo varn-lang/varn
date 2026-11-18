@@ -12,38 +12,47 @@ import {
 
 import { Task } from "std:task";
 
+@capability("fs.read")
 export async function readBytesAsync(path: str): Task<Bytes> {
     return await readFileBytesAsync$(path);
 }
 
+@capability("fs.write")
 export async function writeBytesAsync(path: str, data: Bytes): Task<void> {
     await writeFileBytesAsync$(path, data);
 }
 
+@capability("fs.read")
 export async function readTextAsync(path: str): Task<str> {
     return await readFileTextAsync$(path);
 }
 
+@capability("fs.write")
 export async function writeTextAsync(path: str, content: str): Task<void> {
     await writeFileTextAsync$(path, content);
 }
 
+@capability("fs.write")
 export async function appendTextAsync(path: str, content: str): Task<void> {
     await appendFileTextAsync$(path, content);
 }
 
+@capability("fs.read")
 export async function readDirAsync(path: str): Task<str[]> {
     return await readDirAsync$(path);
 }
 
+@capability("fs.write")
 export async function removeAllAsync(path: str): Task<void> {
     await removeAllAsync$(path);
 }
 
+@capability("fs.read", "fs.write")
 export async function copyAsync(from: str, to: str): Task<void> {
     await copyFileAsync$(from, to);
 }
 
+@capability("fs.read")
 export async function readLinesAsync(path: str): Task<str[]> {
     return await readLinesAsync$(path);
 }

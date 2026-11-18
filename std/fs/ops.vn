@@ -19,59 +19,73 @@ import {
 
 import { Stats } from "std:fs/stats";
 
+@capability("fs.read")
 export function readBytes(path: str): Bytes {
     return readFileBytes$(path);
 }
 
+@capability("fs.write")
 export function writeBytes(path: str, data: Bytes): void {
     writeFileBytes$(path, data);
 }
 
+@capability("fs.read")
 export function readText(path: str): str {
     return readFileText$(path);
 }
 
+@capability("fs.write")
 export function writeText(path: str, content: str): void {
     writeFileText$(path, content);
 }
 
+@capability("fs.write")
 export function appendText(path: str, content: str): void {
     appendFileText$(path, content);
 }
 
+@capability("fs.read")
 export function exists(path: str): bool {
     return exists$(path);
 }
 
+@capability("fs.read")
 export function stat(path: str): Stats {
     const raw = stat$(path);
     return new Stats(raw.size, raw.isDir, raw.isFile, raw.mtime);
 }
 
+@capability("fs.write")
 export function mkdir(path: str): void {
     mkdir$(path);
 }
 
+@capability("fs.write")
 export function mkdirAll(path: str): void {
     mkdirAll$(path);
 }
 
+@capability("fs.read")
 export function readDir(path: str): str[] {
     return readDir$(path) as str[];
 }
 
+@capability("fs.write")
 export function remove(path: str): void {
     remove$(path);
 }
 
+@capability("fs.write")
 export function removeAll(path: str): void {
     removeAll$(path);
 }
 
+@capability("fs.read", "fs.write")
 export function rename(from: str, to: str): void {
     rename$(from, to);
 }
 
+@capability("fs.read", "fs.write")
 export function copy(from: str, to: str): void {
     copyFile$(from, to);
 }
@@ -80,6 +94,7 @@ export function tempDir(): str {
     return tempDir$();
 }
 
+@capability("fs.read")
 export function readLines(path: str): str[] {
     return readLines$(path);
 }

@@ -89,6 +89,7 @@ class FetchState {
     connId: int = -1;
 }
 
+@capability("net.client")
 async function fetchOnce(url: str, method: HttpMethod, headers: Map<str, str>, body: str, ca: str?, identity: str?, state: FetchState): Task<Response> {
     const parsedUrl = Url.parse(url);
     const host = parsedUrl.host;
@@ -110,6 +111,7 @@ async function fetchOnce(url: str, method: HttpMethod, headers: Map<str, str>, b
     return await doFetch(connId, parsedUrl, method, headers, body);
 }
 
+@capability("net.client")
 async function fetchFollowing(url: str, init: RequestInit, state: FetchState): Task<Response> {
     const follow = init.followRedirects ?? true;
     const limit = init.maxRedirects ?? 20;
@@ -142,6 +144,7 @@ async function fetchFollowing(url: str, init: RequestInit, state: FetchState): T
     }
 }
 
+@capability("net.client")
 export async function fetch(url: str, init: RequestInit = new RequestInit()): Task<Response> {
     const state = new FetchState();
     const limit = init.timeoutMs;
@@ -158,22 +161,27 @@ export async function fetch(url: str, init: RequestInit = new RequestInit()): Ta
     }
 }
 
+@capability("net.client")
 export async function get(url: str, headers: Map<str, str> = new Map<str, str>()): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.GET, headers: headers));
 }
 
+@capability("net.client")
 export async function post(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.POST, headers: headers, body: body));
 }
 
+@capability("net.client")
 export async function put(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.PUT, headers: headers, body: body));
 }
 
+@capability("net.client")
 export async function patch(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.PATCH, headers: headers, body: body));
 }
 
+@capability("net.client")
 export async function del(url: str, headers: Map<str, str> = new Map<str, str>()): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.DELETE, headers: headers));
 }

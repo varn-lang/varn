@@ -129,6 +129,7 @@ export class HttpServer {
         return this._isListening;
     }
 
+    @capability("net.server")
     listen(port: int, host: str = "127.0.0.1"): void {
         if (this._isListening) return;
         this._port = port;
@@ -138,6 +139,7 @@ export class HttpServer {
         spawn(this._acceptLoop());
     }
 
+    @capability("net.server")
     listenTls(port: int, cert: str, key: str, host: str = "127.0.0.1", clientCa?: str): void {
         if (this._isListening) return;
         this._port = port;
@@ -339,6 +341,7 @@ export class HttpServer {
     }
 }
 
+@capability("net.server")
 export function serve(handler?: Handler, port: int = 3000): HttpServer {
     let server = new HttpServer();
     if (handler != null) {

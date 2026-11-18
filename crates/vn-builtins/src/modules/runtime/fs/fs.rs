@@ -79,24 +79,33 @@ vn_macros::vn_record! {
 
 natives! {
     class RawStats {}
-    open(ctx, path, mode) => {
-        use std::fs::OpenOptions;
-        let mode = FileMode::from_value(ctx, mode)
-            .ok_or_else(|| type_error("expected a FileMode"))?;
-        let (allowed, capability) = match mode {
-            FileMode::Read => (ctx.check_fs_read(path), Capability::FsRead),
-            FileMode::Write | FileMode::Append => (ctx.check_fs_write(path), Capability::FsWrite),
-        };
-        if !allowed {
-            return Err(capability_denied(capability.as_str(), path));
+    openRead(ctx, path) => {
+        if !ctx.check_fs_read(path) {
+            return Err(capability_denied(Capability::FsRead.as_str(), path));
         }
-
-        let file = match mode {
-            FileMode::Read => OpenOptions::new().read(true).open(path),
-            FileMode::Write => OpenOptions::new().write(true).create(true).truncate(true).open(path),
-            FileMode::Append => OpenOptions::new().create(true).append(true).open(path),
-        }.map_err(|e| fs_error(e, path))?;
-
+        let file = std::fs::OpenOptions::new()
+            .read(true)
+            .open(path)
+            .map_err(|e| fs_error(e, path))?;
+        Ok(descriptors::register(file))
+    },
+    openWrite(ctx, path, append) => {
+        if !ctx.check_fs_write(path) {
+            return Err(capability_denied(Capability::FsWrite.as_str(), path));
+        }
+        let file = if append {
+            std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(path)
+        } else {
+            std::fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .truncate(true)
+                .open(path)
+        }
+        .map_err(|e| fs_error(e, path))?;
         Ok(descriptors::register(file))
     },
     readFd(fd, len) => {

@@ -1,5 +1,6 @@
 import {
-    open$,
+    openRead$,
+    openWrite$,
     readFd$,
     readFdBytes$,
     readFdAll$,
@@ -22,12 +23,14 @@ export class File {
     private _path: str;
     private _mode: FileMode;
 
+    @capability("fs.read", "fs.write")
     constructor(path: str, mode: FileMode = FileMode.Read) {
         this._path = path;
         this._mode = mode;
-        this._fd = open$(path, mode);
+        this._fd = mode == FileMode.Read ? openRead$(path) : openWrite$(path, mode == FileMode.Append);
     }
 
+    @capability("fs.read", "fs.write")
     static open(path: str, mode: FileMode): File {
         return new File(path, mode);
     }
@@ -40,15 +43,17 @@ export class File {
         return writeFdBytes$(this._fd, data);
     }
 
+    @capability("fs.write")
     append(content: str): int {
-        let fd = open$(this._path, FileMode.Append);
+        let fd = openWrite$(this._path, true);
         let written = writeFd$(fd, content);
         close$(fd);
         return written;
     }
 
+    @capability("fs.write")
     appendBytes(data: Bytes): int {
-        let fd = open$(this._path, FileMode.Append);
+        let fd = openWrite$(this._path, true);
         let written = writeFdBytes$(fd, data);
         close$(fd);
         return written;
@@ -88,6 +93,7 @@ export class File {
         this.close();
     }
 
+    @capability("fs.read", "fs.write")
     stream(): FileStream {
         return new FileStream(this._path, this._mode);
     }
@@ -98,12 +104,14 @@ export class FileStream implements AsyncReader, AsyncWriter {
     private _path: str;
     private _mode: FileMode;
 
+    @capability("fs.read", "fs.write")
     constructor(path: str, mode: FileMode = FileMode.Read) {
         this._path = path;
         this._mode = mode;
-        this._fd = open$(path, mode);
+        this._fd = mode == FileMode.Read ? openRead$(path) : openWrite$(path, mode == FileMode.Append);
     }
 
+    @capability("fs.read", "fs.write")
     static open(path: str, mode: FileMode): FileStream {
         return new FileStream(path, mode);
     }
