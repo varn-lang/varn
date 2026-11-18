@@ -19,6 +19,9 @@ pub struct TirFunction {
     pub has_rest: bool,
 
     pub force_inline: bool,
+
+    #[serde(default)]
+    pub required_caps: Vec<Arc<str>>,
 }
 
 #[derive(Debug, Clone, Default)]

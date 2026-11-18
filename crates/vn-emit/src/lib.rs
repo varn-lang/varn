@@ -164,6 +164,7 @@ pub fn emit_module(
         is_generator: false,
         has_rest: false,
         force_inline: false,
+        required_caps: Vec::new(),
     };
 
     functions.extend(closures);

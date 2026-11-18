@@ -255,6 +255,7 @@ pub(super) fn emit_class(
             class_id,
             None,
             sig,
+            &[],
             ctx,
             expr_table,
             types,

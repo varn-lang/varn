@@ -329,3 +329,21 @@ pub fn match_builtin(
     }
     out
 }
+
+pub fn capability_domains(
+    arena: &AstArena,
+    interner: &AtomInterner,
+    decorators: &[Decorator],
+) -> Vec<String> {
+    let mut out = Vec::new();
+    for m in match_builtin(arena, interner, decorators) {
+        if let Some(Ok(BuiltinDecorator::Capability { domains })) = m.result {
+            for d in domains {
+                if !out.contains(&d) {
+                    out.push(d);
+                }
+            }
+        }
+    }
+    out
+}

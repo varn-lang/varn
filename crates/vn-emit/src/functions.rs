@@ -22,6 +22,7 @@ pub(super) fn emit_member_fn(
     this_class: Option<vn_tir::ClassId>,
     this_enum: Option<vn_tir::EnumId>,
     sig: SigId,
+    decorators: &[vn_core::ast::Decorator],
     ctx: &MCtx,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
@@ -101,6 +102,14 @@ pub(super) fn emit_member_fn(
         is_generator,
         has_rest: params.last().is_some_and(|p| p.is_rest),
         force_inline: false,
+        required_caps: vn_core::ast::decorators::capability_domains(
+            ast_arena,
+            ctx.interner,
+            decorators,
+        )
+        .into_iter()
+        .map(|d| Arc::from(d.as_str()))
+        .collect(),
     });
     out.extend(mcls);
     fn_id
@@ -331,5 +340,13 @@ pub(super) fn emit_function(
                 Some(Ok(vn_core::ast::decorators::BuiltinDecorator::Inline))
             )
         }),
+        required_caps: vn_core::ast::decorators::capability_domains(
+            ast_arena,
+            ctx.interner,
+            &f.decorators,
+        )
+        .into_iter()
+        .map(|d| Arc::from(d.as_str()))
+        .collect(),
     }
 }

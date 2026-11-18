@@ -20,20 +20,7 @@ pub(super) fn caps_of(
     arena: &vn_core::ast::AstArena,
     bind: &BindResult,
 ) -> Vec<String> {
-    let mut out = Vec::new();
-    for (m, _d) in match_builtin(arena, &bind.interner, decorators)
-        .into_iter()
-        .zip(decorators.iter())
-    {
-        if let Some(Ok(BuiltinDecorator::Capability { domains })) = m.result {
-            for d in domains {
-                if !out.contains(&d) {
-                    out.push(d);
-                }
-            }
-        }
-    }
-    out
+    vn_core::ast::decorators::capability_domains(arena, &bind.interner, decorators)
 }
 
 impl<'r> Checker<'r> {

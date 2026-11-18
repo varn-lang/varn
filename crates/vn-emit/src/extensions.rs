@@ -224,7 +224,12 @@ pub(super) fn emit_extensions(
             if matches!(member, ExtensionMember::Method(f) if f.modifiers.is_declare) {
                 continue;
             }
-            let (mangled, params, body): (Arc<str>, Vec<Arc<str>>, StmtId) = match member {
+            let (mangled, params, body, decorators): (
+                Arc<str>,
+                Vec<Arc<str>>,
+                StmtId,
+                &[vn_core::ast::Decorator],
+            ) = match member {
                 ExtensionMember::Method(f) => (
                     Arc::from(ExtensionKind::Method.mangled(&label, ctx.interner.resolve(f.id))),
                     f.params
@@ -232,11 +237,13 @@ pub(super) fn emit_extensions(
                         .map(|p| param_name(p, ctx.interner))
                         .collect(),
                     f.body,
+                    &f.decorators,
                 ),
                 ExtensionMember::Getter { key, body, .. } => (
                     Arc::from(ExtensionKind::Getter.mangled(&label, ctx.interner.resolve(*key))),
                     vec![],
                     *body,
+                    &[],
                 ),
                 ExtensionMember::Setter {
                     key, param, body, ..
@@ -244,6 +251,7 @@ pub(super) fn emit_extensions(
                     Arc::from(ExtensionKind::Setter.mangled(&label, ctx.interner.resolve(*key))),
                     vec![param_name(param, ctx.interner)],
                     *body,
+                    &[],
                 ),
             };
             let arity = params.len();
@@ -301,6 +309,14 @@ pub(super) fn emit_extensions(
                 is_generator: false,
                 has_rest: matches!(member, ExtensionMember::Method(f) if f.params.last().is_some_and(|p| p.is_rest)),
                 force_inline: false,
+                required_caps: vn_core::ast::decorators::capability_domains(
+                    ast_arena,
+                    ctx.interner,
+                    decorators,
+                )
+                .into_iter()
+                .map(|d| Arc::from(d.as_str()))
+                .collect(),
             });
             out.extend(mcls);
         }

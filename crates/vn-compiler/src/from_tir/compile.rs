@@ -65,6 +65,7 @@ fn fn_meta(f: &TirFunction) -> FnMeta {
         is_generator: f.is_generator,
         has_this: f.has_this,
         upvalue_count: 0,
+        required_caps: f.required_caps.clone(),
     }
 }
 

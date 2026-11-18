@@ -35,6 +35,7 @@ pub struct FnMeta {
     pub is_generator: bool,
     pub has_this: bool,
     pub upvalue_count: u32,
+    pub required_caps: Vec<Arc<str>>,
 }
 
 pub(crate) fn emit_function_meta(
@@ -214,7 +215,11 @@ pub(crate) fn emit_function_meta(
         cache_count: ic.count() as usize,
         direct_count: direct.count() as usize,
         chunk,
-        required_caps: Vec::new(),
+        required_caps: f
+            .required_caps
+            .iter()
+            .map(|c| Arc::from(c.as_ref()))
+            .collect(),
         state_size: 0,
 
         global_count: 0,

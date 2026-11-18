@@ -251,5 +251,6 @@ fn empty_function() -> TirFunction {
         is_generator: false,
         has_rest: false,
         force_inline: false,
+        required_caps: Vec::new(),
     }
 }
