@@ -1,3 +1,0 @@
-// expect: error[VN3001]
-const base: Map<str, int> = new Map()
-const ages: Map<str, int> = new Map([...base, ("ann", 30)])

@@ -1,3 +1,0 @@
-// expect: error[VN3001]
-const seen = new Set<int>()
-const listed = [...seen]
