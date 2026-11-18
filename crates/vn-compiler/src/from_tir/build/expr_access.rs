@@ -131,7 +131,7 @@ impl<'m> Builder<'m> {
             InstKind::CallNativeOp {
                 object: obj,
                 args: vec![idx],
-                op_id: vn_core::runtime_ops::op_id(vn_core::runtime_ops::STR_INDEX),
+                op_id: vn_core::runtime_ops::RuntimeOp::StrIndex.id(),
             }
         } else if matches!(object.ty, vn_tir::BackendTy::Bytes)
             && matches!(self.value_ty(idx), BackendTy::INT | BackendTy::Dynamic(_))

@@ -14,35 +14,48 @@ use vn_types::chunk::ContractWitness;
 use vn_types::value::BoundMethodTarget;
 use vn_types::{Boundary, ClassObj, NativeCtx, NativeError, NativeFn, NativeFnResult};
 
-const RUNTIME_OPS: [(&str, NativeFn); vn_core::runtime_ops::ALL.len()] = [
+const RUNTIME_OPS: [(vn_core::runtime_ops::RuntimeOp, NativeFn);
+    vn_core::runtime_ops::RuntimeOp::COUNT as usize] = [
     (
-        vn_core::runtime_ops::CONFORM,
+        vn_core::runtime_ops::RuntimeOp::Conform,
         crate::exec::conform::conform_native,
     ),
     (
-        vn_core::runtime_ops::DECODE,
+        vn_core::runtime_ops::RuntimeOp::Decode,
         crate::exec::conform::decode_native,
     ),
-    (vn_core::runtime_ops::VERIFY_CALL, verify_call_native),
-    (vn_core::runtime_ops::VERIFY_SPREAD, verify_spread_native),
-    (vn_core::runtime_ops::VERIFY_METHOD, verify_method_native),
     (
-        vn_core::runtime_ops::VERIFY_METHOD_SPREAD,
+        vn_core::runtime_ops::RuntimeOp::VerifyCall,
+        verify_call_native,
+    ),
+    (
+        vn_core::runtime_ops::RuntimeOp::VerifySpread,
+        verify_spread_native,
+    ),
+    (
+        vn_core::runtime_ops::RuntimeOp::VerifyMethod,
+        verify_method_native,
+    ),
+    (
+        vn_core::runtime_ops::RuntimeOp::VerifyMethodSpread,
         verify_method_spread_native,
     ),
-    (vn_core::runtime_ops::VERIFY_SUPER, verify_super_native),
     (
-        vn_core::runtime_ops::VERIFY_SUPER_SPREAD,
+        vn_core::runtime_ops::RuntimeOp::VerifySuper,
+        verify_super_native,
+    ),
+    (
+        vn_core::runtime_ops::RuntimeOp::VerifySuperSpread,
         verify_super_spread_native,
     ),
-    (vn_core::runtime_ops::STR_INDEX, str_index_native),
-    (vn_core::runtime_ops::INHERITED, inherited_native),
+    (vn_core::runtime_ops::RuntimeOp::StrIndex, str_index_native),
+    (vn_core::runtime_ops::RuntimeOp::Inherited, inherited_native),
     (
-        vn_core::runtime_ops::PARSE_TYPED,
+        vn_core::runtime_ops::RuntimeOp::ParseTyped,
         crate::exec::conform::parse_typed_native,
     ),
-    (vn_core::runtime_ops::META, meta_native),
-    (vn_core::runtime_ops::COPY, copy_native),
+    (vn_core::runtime_ops::RuntimeOp::Meta, meta_native),
+    (vn_core::runtime_ops::RuntimeOp::Copy, copy_native),
 ];
 
 fn copy_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult {
@@ -103,17 +116,9 @@ fn str_index_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult
 }
 
 pub(crate) fn runtime_op(op_id: u64) -> Option<NativeFn> {
-    static BY_ID: std::sync::OnceLock<[NativeFn; vn_core::runtime_ops::ALL.len()]> =
+    static BY_ID: std::sync::OnceLock<[NativeFn; vn_core::runtime_ops::RuntimeOp::COUNT as usize]> =
         std::sync::OnceLock::new();
-    let by_id = BY_ID.get_or_init(|| {
-        vn_core::runtime_ops::ALL.map(|name| {
-            RUNTIME_OPS
-                .iter()
-                .find(|(n, _)| *n == name)
-                .map(|(_, f)| *f)
-                .unwrap_or_else(|| panic!("VM runtime op `{name}` has no implementation"))
-        })
-    });
+    let by_id = BY_ID.get_or_init(|| RUNTIME_OPS.map(|(_, native)| native));
     by_id.get(usize::try_from(op_id).ok()?).copied()
 }
 

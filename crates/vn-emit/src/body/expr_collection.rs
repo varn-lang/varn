@@ -244,11 +244,11 @@ impl<'a> FnEmitter<'a> {
         let duplicate = TirExpr {
             kind: TirExprKind::MethodCall {
                 recv: Box::new(source),
-                name: Arc::from(vn_core::runtime_ops::COPY),
+                name: Arc::from(vn_core::runtime_ops::RuntimeOp::Copy.name()),
                 args: Vec::new(),
             },
             ty,
-            res: Resolution::NativeOp(vn_core::runtime_ops::op_id(vn_core::runtime_ops::COPY)),
+            res: Resolution::NativeOp(vn_core::runtime_ops::RuntimeOp::Copy.id()),
             span,
         };
         let mut stmts = vec![TirStmt::Let {

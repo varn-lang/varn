@@ -74,8 +74,8 @@ impl<'a> FnEmitter<'a> {
         &mut self,
         mut lead: Vec<TirExpr>,
         args: Vec<TirArg>,
-        positional: &str,
-        spread: &str,
+        positional: vn_core::runtime_ops::RuntimeOp,
+        spread: vn_core::runtime_ops::RuntimeOp,
         span: Span,
     ) -> Vec<TirArg> {
         let opaque = BackendTy::Dynamic(DynReason::Declared);
@@ -117,7 +117,7 @@ impl<'a> FnEmitter<'a> {
 
     pub(super) fn call_runtime(
         &mut self,
-        op: &str,
+        op: vn_core::runtime_ops::RuntimeOp,
         args: Vec<TirExpr>,
         ty: BackendTy,
         span: Span,
@@ -127,11 +127,11 @@ impl<'a> FnEmitter<'a> {
         Some(TirExpr {
             kind: TirExprKind::MethodCall {
                 recv: Box::new(subject),
-                name: Arc::from(op),
+                name: Arc::from(op.name()),
                 args: args.map(TirArg::Expr).collect(),
             },
             ty,
-            res: Resolution::NativeOp(vn_core::runtime_ops::op_id(op)),
+            res: Resolution::NativeOp(op.id()),
             span,
         })
     }

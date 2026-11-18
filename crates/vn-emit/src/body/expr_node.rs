@@ -400,9 +400,7 @@ impl<'a> FnEmitter<'a> {
                         })],
                     },
                     ty,
-                    res: Resolution::NativeOp(vn_core::runtime_ops::op_id(
-                        vn_core::runtime_ops::META,
-                    )),
+                    res: Resolution::NativeOp(vn_core::runtime_ops::RuntimeOp::Meta.id()),
                     span,
                 };
             }

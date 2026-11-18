@@ -231,10 +231,9 @@ pub(super) fn native_targets(
                 NativeTarget {
                     op,
                     max_args: Some(forward.args),
-                    typed: forward
-                        .typed
-                        .as_deref()
-                        .and_then(vn_core::runtime_ops::try_op_id),
+                    typed: forward.typed.as_deref().and_then(|name| {
+                        vn_core::runtime_ops::RuntimeOp::parse(name).map(|op| op.id())
+                    }),
                 },
             );
         }

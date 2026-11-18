@@ -97,8 +97,8 @@ impl<'a> FnEmitter<'a> {
                 let args = self.verify_at_runtime(
                     vec![c.clone()],
                     args,
-                    vn_core::runtime_ops::VERIFY_CALL,
-                    vn_core::runtime_ops::VERIFY_SPREAD,
+                    vn_core::runtime_ops::RuntimeOp::VerifyCall,
+                    vn_core::runtime_ops::RuntimeOp::VerifySpread,
                     span,
                 );
                 (Callee::Value(c), args)
@@ -114,8 +114,8 @@ impl<'a> FnEmitter<'a> {
                 let args = self.verify_at_runtime(
                     vec![recv.clone(), label],
                     args,
-                    vn_core::runtime_ops::VERIFY_METHOD,
-                    vn_core::runtime_ops::VERIFY_METHOD_SPREAD,
+                    vn_core::runtime_ops::RuntimeOp::VerifyMethod,
+                    vn_core::runtime_ops::RuntimeOp::VerifyMethodSpread,
                     span,
                 );
                 (Callee::Method { recv, name }, args)
@@ -131,8 +131,8 @@ impl<'a> FnEmitter<'a> {
                 let args = self.verify_at_runtime(
                     vec![class.clone(), label],
                     args,
-                    vn_core::runtime_ops::VERIFY_SUPER,
-                    vn_core::runtime_ops::VERIFY_SUPER_SPREAD,
+                    vn_core::runtime_ops::RuntimeOp::VerifySuper,
+                    vn_core::runtime_ops::RuntimeOp::VerifySuperSpread,
                     span,
                 );
                 (Callee::Inherited { class, name }, args)
@@ -165,7 +165,7 @@ impl<'a> FnEmitter<'a> {
         let name = literal(TirExprKind::StrLit(Arc::from(name)), BackendTy::Str);
         let accessor = literal(TirExprKind::BoolLit(accessor), BackendTy::Bool);
         self.call_runtime(
-            vn_core::runtime_ops::INHERITED,
+            vn_core::runtime_ops::RuntimeOp::Inherited,
             vec![home, this, name, accessor],
             BackendTy::Dynamic(DynReason::Callable),
             span,

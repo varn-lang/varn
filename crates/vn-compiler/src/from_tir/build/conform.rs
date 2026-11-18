@@ -36,10 +36,10 @@ impl<'m> Builder<'m> {
         kind: vn_tir::CheckKind,
     ) -> Result<Value> {
         let op = match kind {
-            vn_tir::CheckKind::Conform => vn_core::runtime_ops::CONFORM,
-            vn_tir::CheckKind::Decode => vn_core::runtime_ops::DECODE,
+            vn_tir::CheckKind::Conform => vn_core::runtime_ops::RuntimeOp::Conform,
+            vn_tir::CheckKind::Decode => vn_core::runtime_ops::RuntimeOp::Decode,
         };
-        self.lower_conform_op(v, node_ty, ty, vn_core::runtime_ops::op_id(op))
+        self.lower_conform_op(v, node_ty, ty, op.id())
     }
 
     pub(super) fn lower_conform_op(

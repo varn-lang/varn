@@ -32,7 +32,7 @@ pub(crate) fn emit_call_native_op(
         let (pos_tag, pos_payload) = heap::boxed_parts(b, ctx, values, args[0])?;
         return emit_char_code_at(b, ctx, recv_tag, recv_payload, pos_tag, pos_payload);
     }
-    if args.len() == 1 && op_id == vn_core::runtime_ops::op_id(vn_core::runtime_ops::STR_INDEX) {
+    if args.len() == 1 && op_id == vn_core::runtime_ops::RuntimeOp::StrIndex.id() {
         let (recv_tag, recv_payload) = b.ins().isplit(receiver);
         let (pos_tag, pos_payload) = heap::boxed_parts(b, ctx, values, args[0])?;
         crate::clif::from_ssa::exceptions::call_checked(

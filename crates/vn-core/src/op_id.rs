@@ -41,7 +41,7 @@ impl KnownOp {
     ];
 
     pub const fn id(self) -> u64 {
-        crate::runtime_ops::COUNT + self as u64
+        crate::runtime_ops::RuntimeOp::COUNT + self as u64
     }
 
     pub fn names(self) -> (RuntimeKind, &'static str) {
@@ -72,7 +72,7 @@ impl KnownOp {
     }
 }
 
-pub const FIRST_REGISTRY_ID: u64 = crate::runtime_ops::COUNT + KnownOp::ALL.len() as u64;
+pub const FIRST_REGISTRY_ID: u64 = crate::runtime_ops::RuntimeOp::COUNT + KnownOp::ALL.len() as u64;
 
 pub const CORE_CLASSES: [RuntimeKind; 14] = [
     RuntimeKind::Array,
