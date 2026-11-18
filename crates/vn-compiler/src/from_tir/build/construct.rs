@@ -168,7 +168,7 @@ impl<'m> Builder<'m> {
                 (None, None) => return true,
                 (Some(p), _) => match self.class_def(p) {
                     Some(parent) if parent.decorators.is_empty() => cur = parent,
-                    _ => return false,
+                    Some(_) | None => return false,
                 },
                 (None, Some(_)) => return false,
             }

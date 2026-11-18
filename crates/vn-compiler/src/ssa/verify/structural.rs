@@ -66,7 +66,7 @@ pub fn verify(func: &SsaFunc) -> VerifyResult {
         }
     }
 
-    let dom = DomTree::compute(func);
+    let dom = DomTree::compute(func).map_err(|e| e.to_string())?;
     for (b, block) in func.blocks.iter().enumerate() {
         let bid = BlockId(b as u32);
 

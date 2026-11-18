@@ -52,20 +52,20 @@ fn intersect(
     rpo_index: &[usize],
     mut a: BlockId,
     mut b: BlockId,
-) -> BlockId {
+) -> Option<BlockId> {
     while a != b {
         while rpo_index[a.0 as usize] > rpo_index[b.0 as usize] {
-            a = idom[a.0 as usize].expect("a processed block has an immediate dominator");
+            a = idom[a.0 as usize]?;
         }
         while rpo_index[b.0 as usize] > rpo_index[a.0 as usize] {
-            b = idom[b.0 as usize].expect("a processed block has an immediate dominator");
+            b = idom[b.0 as usize]?;
         }
     }
-    a
+    Some(a)
 }
 
 impl DomTree {
-    pub(crate) fn compute(func: &SsaFunc) -> Self {
+    pub(crate) fn compute(func: &SsaFunc) -> Result<Self, crate::OptError> {
         let n = func.blocks.len();
         let rpo = reverse_postorder(func);
         let mut rpo_index = vec![usize::MAX; n];
@@ -88,7 +88,13 @@ impl DomTree {
                     }
                     candidate = Some(match candidate {
                         None => p,
-                        Some(current) => intersect(&idom, &rpo_index, p, current),
+                        Some(current) => {
+                            intersect(&idom, &rpo_index, p, current).ok_or_else(|| {
+                                crate::OptError::Internal(
+                                    "dom: no common dominator during fixpoint".to_owned(),
+                                )
+                            })?
+                        }
                     });
                 }
                 if candidate.is_some() && idom[b.0 as usize] != candidate {
@@ -122,7 +128,7 @@ impl DomTree {
                 clock += 1;
             }
         }
-        Self { tin, tout }
+        Ok(Self { tin, tout })
     }
 
     pub(crate) fn dominates(&self, a: usize, b: usize) -> bool {

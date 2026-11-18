@@ -4,15 +4,15 @@ pub mod transform;
 use crate::ssa::ir::SsaFunc;
 use crate::ssa::suspend;
 
-pub fn run(func: &mut SsaFunc) -> u16 {
+pub fn run(func: &mut SsaFunc) -> Result<u16, crate::OptError> {
     let is_suspendible = func.is_async || func.is_generator;
     if !is_suspendible {
-        return 0;
+        return Ok(0);
     }
 
     let points = suspend::analyze(func);
     if points.is_empty() {
-        return 1;
+        return Ok(1);
     }
 
     transform::transform_suspend_func(func, &points)

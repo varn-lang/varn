@@ -29,8 +29,9 @@ pub fn run(func: &mut SsaFunc) -> bool {
         for (i, inst) in block.insts.iter().enumerate() {
             match simplify(inst, &int_const, &float_const) {
                 Some(Simplified::Use(v)) => {
-                    let dest = inst.dest.expect("simplified inst defines a value");
-                    if func.value_ty(v) == func.value_ty(dest) {
+                    if let Some(dest) = inst.dest
+                        && func.value_ty(v) == func.value_ty(dest)
+                    {
                         rewrites.insert(dest, v);
                     }
                 }

@@ -146,7 +146,9 @@ impl<'m> Builder<'m> {
             .params
             .iter()
             .position(|p| *p == phi)
-            .expect("phi is a param of block");
+            .ok_or_else(|| {
+                crate::OptError::Internal("from_tir: phi is not a param of block".to_owned())
+            })?;
         for pred in self.blocks[block.0 as usize].preds.clone() {
             let arg = self.read_var(var, pred)?;
             self.append_edge_arg(pred, block, pos, arg);

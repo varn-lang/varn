@@ -363,7 +363,9 @@ impl<'m> Builder<'m> {
             (Some(f), Some(t)) => vn_core::ValueConv::between(f, t),
             (None, Some(D::Int)) => Some(vn_core::ValueConv::DynToInt),
             (None, Some(D::Float)) => Some(vn_core::ValueConv::DynToFloat),
-            _ => None,
+            (None, Some(D::BigInt)) | (None, Some(D::Decimal)) | (None, None) | (Some(_), None) => {
+                None
+            }
         };
         if let Some(conv) = conv {
             let result_ty = crate::ssa::verify::convert_result_ty(conv);

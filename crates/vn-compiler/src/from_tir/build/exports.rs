@@ -67,7 +67,7 @@ impl<'m> Builder<'m> {
                         },
                         BackendTy::Dynamic(DynReason::Boxed),
                     ),
-                    _ => {
+                    (None, _) | (Some(_), None) => {
                         let name: Arc<str> = match &spec.kind {
                             vn_tir::TirImportKind::Namespace => {
                                 let store = self.global_store(&spec.local, mod_v);

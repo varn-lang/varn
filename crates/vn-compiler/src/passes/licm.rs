@@ -8,7 +8,9 @@ pub fn run(func: &mut SsaFunc) -> bool {
         return false;
     }
 
-    let dom = crate::ssa::dom::DomTree::compute(func);
+    let Ok(dom) = crate::ssa::dom::DomTree::compute(func) else {
+        return false;
+    };
     let mut changed = false;
 
     let mut loops: rustc_hash::FxHashMap<BlockId, Vec<BlockId>> = rustc_hash::FxHashMap::default();

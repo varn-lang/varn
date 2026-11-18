@@ -3,23 +3,31 @@ use crate::ssa::suspend::SuspendPoint;
 
 use super::layout::StateLayout;
 
-pub fn transform_suspend_func(func: &mut SsaFunc, points: &[SuspendPoint]) -> u16 {
+pub fn transform_suspend_func(
+    func: &mut SsaFunc,
+    points: &[SuspendPoint],
+) -> Result<u16, crate::OptError> {
     let layout = StateLayout::compute(points);
 
     for (k, pt) in points.iter().enumerate() {
-        split_at_suspend_point(func, k, pt);
+        split_at_suspend_point(func, k, pt)?;
     }
 
     compute_preds(func);
 
     reorder_blocks_rpo(func);
 
-    layout.state_size
+    Ok(layout.state_size)
 }
 
-fn split_at_suspend_point(func: &mut SsaFunc, _k: usize, pt: &SuspendPoint) {
-    let (target_bid, inst_idx) = find_suspend_inst(func, pt.operand)
-        .expect("suspend point instruction must exist in func blocks");
+fn split_at_suspend_point(
+    func: &mut SsaFunc,
+    _k: usize,
+    pt: &SuspendPoint,
+) -> Result<(), crate::OptError> {
+    let (target_bid, inst_idx) = find_suspend_inst(func, pt.operand).ok_or_else(|| {
+        crate::OptError::Internal("state_machine: suspend point instruction missing".to_owned())
+    })?;
 
     let cont_bid = func.alloc_block();
 
@@ -42,6 +50,7 @@ fn split_at_suspend_point(func: &mut SsaFunc, _k: usize, pt: &SuspendPoint) {
         target: cont_bid,
         args: Vec::new(),
     };
+    Ok(())
 }
 
 fn compute_preds(func: &mut SsaFunc) {

@@ -13,7 +13,7 @@ pub mod state_machine;
 
 use crate::ssa::ir::SsaFunc;
 
-pub fn optimize(func: &mut SsaFunc) {
+pub fn optimize(func: &mut SsaFunc) -> Result<(), crate::OptError> {
     let mut iterations = 0;
     loop {
         let mut changed = false;
@@ -36,7 +36,7 @@ pub fn optimize(func: &mut SsaFunc) {
 
         changed |= dce::run(func);
 
-        changed |= cfg::simplify_and_compact(func);
+        changed |= cfg::simplify_and_compact(func)?;
 
         if !changed || iterations >= 100 {
             break;
@@ -48,4 +48,5 @@ pub fn optimize(func: &mut SsaFunc) {
     if cse::run_global(func) {
         dce::run(func);
     }
+    Ok(())
 }

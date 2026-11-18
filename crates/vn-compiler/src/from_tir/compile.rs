@@ -84,8 +84,8 @@ fn compile_one(
         build_function(tir, f, self_fn, scope.lines)?
     };
     crate::ssa::verify::recompute_preds(&mut ssa);
-    crate::passes::optimize(&mut ssa);
-    let state_size = crate::passes::state_machine::run(&mut ssa);
+    crate::passes::optimize(&mut ssa)?;
+    let state_size = crate::passes::state_machine::run(&mut ssa)?;
     crate::ssa::verify::recompute_preds(&mut ssa);
     if let Err(why) = crate::ssa::verify::verify(&ssa) {
         return Err(crate::OptError::Internal(format!(

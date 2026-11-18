@@ -21,7 +21,9 @@ pub(crate) fn eliminate_trivial_phis(func: &mut SsaFunc) -> bool {
         }
     }
 
-    let dom = crate::ssa::dom::DomTree::compute(func);
+    let Ok(dom) = crate::ssa::dom::DomTree::compute(func) else {
+        return false;
+    };
     let mut any_changed = false;
     let mut replacements: rustc_hash::FxHashMap<Value, Value> = rustc_hash::FxHashMap::default();
     let resolve = |replacements: &rustc_hash::FxHashMap<Value, Value>, mut v: Value| {

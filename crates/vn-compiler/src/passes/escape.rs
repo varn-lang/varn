@@ -37,10 +37,11 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     _,
                 ) if sites.contains_key(&object.0) => {
                     escaped.insert(value.0);
-                    let site = sites.get_mut(&object.0).expect("a site");
-                    let in_order = site.store_block == bi && !read_here.contains(&object.0);
-                    if !in_order || site.stores.insert(*slot, *value).is_some() {
-                        escaped.insert(object.0);
+                    if let Some(site) = sites.get_mut(&object.0) {
+                        let in_order = site.store_block == bi && !read_here.contains(&object.0);
+                        if !in_order || site.stores.insert(*slot, *value).is_some() {
+                            escaped.insert(object.0);
+                        }
                     }
                     continue;
                 }

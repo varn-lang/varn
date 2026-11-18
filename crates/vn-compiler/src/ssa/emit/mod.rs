@@ -293,7 +293,10 @@ fn emit_inst(
         return Ok(());
     }
     if let Some(form) = immediates::immediate_operand(&inst.kind, &imms.imm) {
-        let dest = reg[inst.dest.expect("binary defines a value").0 as usize];
+        let d = inst
+            .dest
+            .ok_or_else(|| OptError::Internal("ssa-emit: binary without dest".to_owned()))?;
+        let dest = reg[d.0 as usize];
         chunk.emit_rrr(
             form.opcode,
             dest,

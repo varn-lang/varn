@@ -1,6 +1,6 @@
 use crate::ssa::ir::{Block, BlockId, InstKind, SsaFunc, Terminator};
 
-pub fn simplify_and_compact(func: &mut SsaFunc) -> bool {
+pub fn simplify_and_compact(func: &mut SsaFunc) -> Result<bool, crate::OptError> {
     let mut changed = false;
 
     changed |= fold_redundant_branches(func);
@@ -9,10 +9,10 @@ pub fn simplify_and_compact(func: &mut SsaFunc) -> bool {
 
     changed |= merge_blocks(func);
 
-    let discarded = compact_cfg(func);
+    let discarded = compact_cfg(func)?;
     changed |= discarded;
 
-    changed
+    Ok(changed)
 }
 
 fn get_reachable(func: &SsaFunc) -> Vec<BlockId> {
@@ -320,16 +320,20 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
     changed
 }
 
-fn compact_cfg(func: &mut SsaFunc) -> bool {
+fn compact_cfg(func: &mut SsaFunc) -> Result<bool, crate::OptError> {
     let reachable = get_reachable(func);
     if reachable.len() == func.blocks.len() {
-        return false;
+        return Ok(false);
     }
 
     let mut old_to_new = vec![None; func.blocks.len()];
     for (new_idx, &old_id) in reachable.iter().enumerate() {
         old_to_new[old_id.0 as usize] = Some(BlockId(new_idx as u32));
     }
+    let remap = |id: BlockId| {
+        old_to_new[id.0 as usize]
+            .ok_or_else(|| crate::OptError::Internal(format!("cfg: unreachable target b{}", id.0)))
+    };
 
     let mut new_blocks = Vec::with_capacity(reachable.len());
     for &old_id in &reachable {
@@ -353,18 +357,18 @@ fn compact_cfg(func: &mut SsaFunc) -> bool {
 
         for inst in &mut block.insts {
             if let InstKind::Try { handler } = &mut inst.kind {
-                *handler = old_to_new[handler.0 as usize].expect("reachable targets reachable");
+                *handler = remap(*handler)?;
             }
         }
         match &mut block.term {
             Terminator::Jump { target, .. } => {
-                *target = old_to_new[target.0 as usize].expect("reachable targets reachable");
+                *target = remap(*target)?;
             }
             Terminator::Branch {
                 then_blk, else_blk, ..
             } => {
-                *then_blk = old_to_new[then_blk.0 as usize].expect("reachable targets reachable");
-                *else_blk = old_to_new[else_blk.0 as usize].expect("reachable targets reachable");
+                *then_blk = remap(*then_blk)?;
+                *else_blk = remap(*else_blk)?;
             }
             Terminator::Return(_) | Terminator::Throw(_) | Terminator::Unreachable => {}
         }
@@ -374,5 +378,5 @@ fn compact_cfg(func: &mut SsaFunc) -> bool {
 
     func.entry = BlockId(0);
     func.blocks = new_blocks;
-    true
+    Ok(true)
 }
