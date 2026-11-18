@@ -104,13 +104,24 @@ del escaneo de deuda de los 12 crates del pipeline y del mapeo de huecos
 ## Migración (un cambio por commit, Ley 9; `-Min` por commit, `-Fast` antes de push)
 
 - [x] C0. `718e5958/0cdd931d/76b8dc81`: forwarder exacto, Layer pura, nullary.
-- [ ] C1. ADR-0030 (este archivo).
-- [ ] C2. Runner `tests/errors` en `verify.ps1` + fixture `decodes-unknown-op`.
-- [ ] C3. Borrar `runtime:buffer`. Puerta: build + suite + `scaffold` 1:1.
-- [ ] C4. Contratos `fs/net` (D3). Puerta: parse + `vn debug -p caps` en std.
-- [ ] C5. Wrappers `std` (D3). Puerta: imagen std construye.
-- [ ] C6. Tests anotados (D4). Puerta: `main.vn` verde.
-- [ ] C7. `required_caps` punta a punta (D5). Puerta: rechazo de paquete.
-- [ ] C8. Deuda D6 por crate, en orden de cimientos. Puerta: clippy + suite.
-- [ ] C9. JIT D7. Puerta: suite + tiers sin regresión.
-- [ ] C10. `GetProperty`/ADR-0028 (D8). Puerta: ratio + `xtask compare`.
+- [x] C1. ADR-0030 (este archivo).
+- [x] C2. Runner `tests/errors` en `verify.ps1` + fixture `decodes-unknown-op`.
+- [x] C3. Borrar `runtime:buffer`. Puerta: build + suite + `scaffold` 1:1.
+- [x] C4. Contratos `fs/net` (D3, con `open` partido). Puerta: parse + caps en std.
+- [x] C5. Wrappers `std` + llamadores (D3/D4). Puerta: imagen std + `main.vn` verde.
+- [x] C6. `required_caps` checker→TIR→proto (dato + `cap_trace` real).
+  Enforcement por paquete: pendiente de decisión (roadmap item 3).
+- [x] C7. Deuda (D6): contenedores Fx, unsafe encapsulado, unwraps→
+  `Option`, wildcards exhaustivos, pases y lowering a `Result`,
+  panics VM→`RuntimeError`. Puerta: clippy + suite + corpus.
+  Retenidos con justificación (auditoría, no omisión): `un_op`,
+  `suspend -> !`, tripwires de heap (fail-stop), invariante de boot,
+  `ids.rs` u32, wildcards estructurales/defer/fail-closed de `compat`,
+  reglas generales de narrowing, `op_id` solo-constantes (rutas de
+  usuario usan `try_op_id`).
+  Follow-ups con diseño propio: migración `CheckerTyTable::get`/
+  `AtomInterner::resolve` a tipos totales, enum `RuntimeOp`,
+  enforcement de caps por paquete/manifiesto.
+- [x] C8. JIT: 9 slots muertos podados (D7). Sin bump (nada los
+  referenciaba ni se serializa). Puerta: suite + tiers sin regresión.
+- [ ] C9. `GetProperty` tipado + ADR-0028 (D8). Puerta: ratio + `xtask compare`.
