@@ -200,13 +200,25 @@ impl TokenStream {
     }
 
     #[inline]
-    pub fn save(&self) -> (usize, u8) {
-        (self.pos, self.split_count)
+    pub fn save(&self) -> StreamState {
+        StreamState {
+            pos: self.pos,
+            split_count: self.split_count,
+            diagnostics: self.errors.len(),
+        }
     }
 
     #[inline]
-    pub fn restore(&mut self, state: (usize, u8)) {
-        self.pos = state.0;
-        self.split_count = state.1;
+    pub fn restore(&mut self, state: StreamState) {
+        self.pos = state.pos;
+        self.split_count = state.split_count;
+        self.errors.truncate(state.diagnostics);
     }
+}
+
+#[derive(Clone, Copy)]
+pub struct StreamState {
+    pos: usize,
+    split_count: u8,
+    diagnostics: usize,
 }

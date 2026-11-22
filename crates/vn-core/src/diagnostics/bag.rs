@@ -48,6 +48,10 @@ impl DiagnosticBag {
         self.items.len()
     }
 
+    pub fn truncate(&mut self, len: usize) {
+        self.items.truncate(len);
+    }
+
     pub fn extend(&mut self, other: DiagnosticBag) {
         self.items.extend(other.items);
     }

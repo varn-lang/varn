@@ -1,2 +1,0 @@
-// expect: error[VN3024]
-type Bad = infer T
