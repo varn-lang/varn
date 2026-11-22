@@ -1,0 +1,2 @@
+// expect: error[VN2002]
+type M = { [K in str]: int }

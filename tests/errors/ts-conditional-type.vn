@@ -1,0 +1,2 @@
+// expect: error[VN2002]
+type C<T> = T extends int ? str : bool

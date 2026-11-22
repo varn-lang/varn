@@ -20,15 +20,9 @@ impl Type {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => false,
         }
@@ -74,15 +68,9 @@ impl Type {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => *self,
         }
@@ -122,15 +110,9 @@ impl Type {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => *self,
         }
@@ -177,15 +159,9 @@ impl Type {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => *self,
         }
@@ -287,42 +263,10 @@ impl Type {
                 let new_list = table.intern_list(&new_els);
                 Type(table.intern(TypeKind::Tuple(new_list)))
             }
-            TypeKind::Conditional {
-                check,
-                extends,
-                true_type,
-                false_type,
-            } => {
-                let new_check = Type::resolved(check).map_generics(mapping, table);
-                let new_extends = Type::resolved(extends).map_generics(mapping, table);
-                let new_true = Type::resolved(true_type).map_generics(mapping, table);
-                let new_false = Type::resolved(false_type).map_generics(mapping, table);
-                if new_check.0 != check {
-                    crate::resolve::evaluate_conditional(
-                        new_check,
-                        new_extends,
-                        new_true,
-                        new_false,
-                        table,
-                    )
-                } else {
-                    Type::resolved(table.intern(TypeKind::Conditional {
-                        check: new_check.0,
-                        extends: new_extends.0,
-                        true_type: new_true.0,
-                        false_type: new_false.0,
-                    }))
-                }
-            }
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::Intersection(_)
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => *self,
         }
@@ -434,12 +378,6 @@ impl Type {
             | TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::Intersection(_)
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => self,
         }
@@ -459,15 +397,9 @@ impl Type {
             | TypeKind::Union(_)
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => self,
         }

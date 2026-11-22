@@ -40,7 +40,6 @@ impl ErrorCode {
         ErrorCode::IntegerOverflow,
         ErrorCode::VoidValueUsed,
         ErrorCode::ForbiddenRecordGeneric,
-        ErrorCode::InferOutsideConditional,
         ErrorCode::DeprecatedUse,
         ErrorCode::ImpureOperation,
         ErrorCode::ConditionNeverFalse,
@@ -147,7 +146,6 @@ impl ErrorCode {
             | ErrorCode::IntegerOverflow
             | ErrorCode::VoidValueUsed
             | ErrorCode::ForbiddenRecordGeneric
-            | ErrorCode::InferOutsideConditional
             | ErrorCode::ImpureOperation
             | ErrorCode::ConditionNeverFalse
             | ErrorCode::NeverNull
@@ -236,7 +234,6 @@ impl ErrorCode {
             ErrorCode::IntegerOverflow => "A constant integer expression does not fit in `int`.",
             ErrorCode::VoidValueUsed => "The result of a call that returns `void` is used as a value.",
             ErrorCode::ForbiddenRecordGeneric => "A `Record` type is written with type arguments that are not allowed.",
-            ErrorCode::InferOutsideConditional => "`infer` is only meaningful inside the extends clause of a conditional type.",
             ErrorCode::DeprecatedUse => "A declaration marked deprecated is used.",
             ErrorCode::ImpureOperation => "A pure function performs an operation with side effects.",
             ErrorCode::ConditionNeverFalse => "A condition is statically always true, so the other branch is dead.",

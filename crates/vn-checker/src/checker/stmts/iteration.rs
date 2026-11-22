@@ -67,7 +67,7 @@ impl Checker<'_> {
                 let elem = Type::resolved(inner);
                 return Some((ForOfPlan::Collection { method: None, elem }, elem));
             }
-            TypeKind::Primitive(LangPrimitive::Str) | TypeKind::TemplateLiteral(_) => {
+            TypeKind::Primitive(LangPrimitive::Str) => {
                 let elem = Type::Char;
                 return Some((
                     ForOfPlan::Collection {
@@ -97,11 +97,6 @@ impl Checker<'_> {
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
             | TypeKind::Fn(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => {}
         }
@@ -200,14 +195,8 @@ impl Checker<'_> {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => None,
         }

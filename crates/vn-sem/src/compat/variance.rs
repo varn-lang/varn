@@ -78,13 +78,10 @@ fn walk(ctx: &mut Ctx, id: crate::types::CheckerTyId, pol: Pol, shadow: &[String
             }
             walk(ctx, ft.return_type, pol, &shadow);
         }
-        TypeKind::Array(el) | TypeKind::KeyOf(el) => {
+        TypeKind::Array(el) => {
             walk_both(ctx, el, shadow);
         }
-        TypeKind::Union(list)
-        | TypeKind::Intersection(list)
-        | TypeKind::Tuple(list)
-        | TypeKind::TemplateLiteral(list) => {
+        TypeKind::Union(list) | TypeKind::Intersection(list) | TypeKind::Tuple(list) => {
             for id in table.get_list(list) {
                 walk(ctx, *id, pol, shadow);
             }
@@ -146,41 +143,13 @@ fn walk(ctx: &mut Ctx, id: crate::types::CheckerTyId, pol: Pol, shadow: &[String
                 }
             }
         }
-        TypeKind::IndexedAccess { object, index } => {
-            walk_both(ctx, object, shadow);
-            walk_both(ctx, index, shadow);
-        }
-        TypeKind::Mapped {
-            key_var,
-            source,
-            value,
-            ..
-        } => {
-            let mut shadow = shadow.to_vec();
-            if let Some(name) = resolve_name(ctx, key_var) {
-                shadow.push(name);
-            }
-            walk_both(ctx, source, &shadow);
-            walk_both(ctx, value, &shadow);
-        }
-        TypeKind::Conditional {
-            check,
-            extends,
-            true_type,
-            false_type,
-        } => {
-            walk_both(ctx, check, shadow);
-            walk_both(ctx, extends, shadow);
-            walk(ctx, true_type, pol, shadow);
-            walk(ctx, false_type, pol, shadow);
-        }
         TypeKind::EnumVariant { payload_ty, .. } => {
             walk_both(ctx, payload_ty, shadow);
         }
         TypeKind::TypePredicate { target_type, .. } => {
             walk_both(ctx, target_type, shadow);
         }
-        TypeKind::Primitive(_) | TypeKind::Literal(_) | TypeKind::This | TypeKind::Infer(_) => {}
+        TypeKind::Primitive(_) | TypeKind::Literal(_) | TypeKind::This => {}
     }
 }
 
@@ -225,14 +194,8 @@ pub fn measure_params(
                     | TypeKind::Tuple(_)
                     | TypeKind::Named(..)
                     | TypeKind::Generic(..)
-                    | TypeKind::TemplateLiteral(_)
                     | TypeKind::Record(_)
                     | TypeKind::Interface(_)
-                    | TypeKind::KeyOf(_)
-                    | TypeKind::IndexedAccess { .. }
-                    | TypeKind::Mapped { .. }
-                    | TypeKind::Conditional { .. }
-                    | TypeKind::Infer(_)
                     | TypeKind::EnumVariant { .. }
                     | TypeKind::TypePredicate { .. } => walk_both(&mut ctx, m.ty.0, &[]),
                 }

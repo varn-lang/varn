@@ -230,12 +230,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Union(_)
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::TypePredicate { .. } => false,
         }
     }

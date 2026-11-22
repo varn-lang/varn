@@ -91,7 +91,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::EnumVariant { .. } => true,
             TypeKind::Union(list) => self
                 .ty_table
@@ -99,14 +98,7 @@ impl<'r> Checker<'r> {
                 .iter()
                 .all(|member| self.never_false(Type::resolved(*member), bind)),
             TypeKind::Named(..) | TypeKind::Generic(..) => self.is_class_instance(ty, bind),
-            TypeKind::This
-            | TypeKind::Intersection(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
-            | TypeKind::TypePredicate { .. } => false,
+            TypeKind::This | TypeKind::Intersection(_) | TypeKind::TypePredicate { .. } => false,
         }
     }
 }

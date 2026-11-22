@@ -61,15 +61,9 @@ impl Checker<'_> {
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => false,
         }
@@ -109,8 +103,6 @@ impl Checker<'_> {
             }
             TypeKind::Literal(_)
             | TypeKind::EnumVariant { .. }
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::KeyOf(_)
             | TypeKind::TypePredicate { .. } => true,
             TypeKind::Union(list) | TypeKind::Intersection(list) => self
                 .ty_table
@@ -139,15 +131,9 @@ impl Checker<'_> {
                         | TypeKind::Union(_)
                         | TypeKind::Intersection(_)
                         | TypeKind::Tuple(_)
-                        | TypeKind::TemplateLiteral(_)
                         | TypeKind::Fn(_)
                         | TypeKind::Record(_)
                         | TypeKind::Interface(_)
-                        | TypeKind::KeyOf(_)
-                        | TypeKind::IndexedAccess { .. }
-                        | TypeKind::Mapped { .. }
-                        | TypeKind::Conditional { .. }
-                        | TypeKind::Infer(_)
                         | TypeKind::EnumVariant { .. }
                         | TypeKind::TypePredicate { .. } => false,
                     };
@@ -162,14 +148,7 @@ impl Checker<'_> {
                         .is_some_and(|alias| self.equality_value_type(alias, view, path))
                 }
             }
-            TypeKind::This
-            | TypeKind::Array(_)
-            | TypeKind::Interface(_)
-            | TypeKind::Fn(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_) => false,
+            TypeKind::This | TypeKind::Array(_) | TypeKind::Interface(_) | TypeKind::Fn(_) => false,
         };
         path.remove(&ty.0);
         holds

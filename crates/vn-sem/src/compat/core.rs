@@ -52,11 +52,6 @@ pub fn types_compatible_with_cache(
     if declared == inferred {
         return true;
     }
-    if matches!(table.get(declared.0), TypeKind::Conditional { .. })
-        || matches!(table.get(inferred.0), TypeKind::Conditional { .. })
-    {
-        return true;
-    }
     if is_simple_type(declared, table) && is_simple_type(inferred, table) {
         return simple_types_compatible(declared, inferred, table);
     }
@@ -82,11 +77,6 @@ pub(super) fn types_compatible_impl(
         return fits;
     }
     if declared == inferred {
-        return true;
-    }
-    if matches!(table.get(declared.0), TypeKind::Conditional { .. })
-        || matches!(table.get(inferred.0), TypeKind::Conditional { .. })
-    {
         return true;
     }
     if is_simple_type(declared, table) && is_simple_type(inferred, table) {
@@ -116,15 +106,9 @@ pub(super) fn types_compatible_impl(
         | TypeKind::Tuple(_)
         | TypeKind::Named(..)
         | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => None,
     };
@@ -149,8 +133,6 @@ pub(super) fn types_compatible_impl(
             simple_types_compatible(declared, inferred, table)
         }
         (TypeKind::Primitive(p), TypeKind::Literal(l)) => p == l.base(),
-        (TypeKind::Primitive(vn_core::LangPrimitive::Str), TypeKind::TemplateLiteral(_)) => true,
-        (TypeKind::TemplateLiteral(a), TypeKind::TemplateLiteral(b)) => a == b,
 
         (TypeKind::Tuple(decl_elems), TypeKind::Tuple(inf_elems)) => {
             let decl_ids = table.get_list(decl_elems).to_vec();

@@ -83,32 +83,14 @@ impl Reach {
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
             | TypeKind::This
-            | TypeKind::Named(..)
-            | TypeKind::Infer(_) => {}
-            TypeKind::Array(t) | TypeKind::KeyOf(t) => self.pending.push(t),
+            | TypeKind::Named(..) => {}
+            TypeKind::Array(t) => self.pending.push(t),
             TypeKind::Union(c)
             | TypeKind::Intersection(c)
             | TypeKind::Tuple(c)
-            | TypeKind::TemplateLiteral(c)
             | TypeKind::Generic(_, c, _) => self.visit_list(table, c),
             TypeKind::Fn(f) => self.visit_function(table, f),
             TypeKind::Record(o) | TypeKind::Interface(o) => self.visit_object(table, o),
-            TypeKind::IndexedAccess { object, index } => {
-                self.pending.push(object);
-                self.pending.push(index);
-            }
-            TypeKind::Mapped { source, value, .. } => {
-                self.pending.push(source);
-                self.pending.push(value);
-            }
-            TypeKind::Conditional {
-                check,
-                extends,
-                true_type,
-                false_type,
-            } => {
-                self.pending.extend([check, extends, true_type, false_type]);
-            }
             TypeKind::EnumVariant {
                 type_args,
                 payload_ty,
@@ -124,12 +106,11 @@ impl Reach {
 
 fn kind_atoms(kind: &InternedTypeKind, out: &mut Vec<Atom>) {
     match *kind {
-        TypeKind::Literal(TypeLiteral::Str(n)) | TypeKind::Infer(n) => out.push(n),
+        TypeKind::Literal(TypeLiteral::Str(n)) => out.push(n),
         TypeKind::Named(n, origin) | TypeKind::Generic(n, _, origin) => {
             out.push(n);
             out.extend(origin);
         }
-        TypeKind::Mapped { key_var, .. } => out.push(key_var),
         TypeKind::EnumVariant {
             enum_name,
             variant_name,
@@ -146,13 +127,9 @@ fn kind_atoms(kind: &InternedTypeKind, out: &mut Vec<Atom>) {
         | TypeKind::Union(_)
         | TypeKind::Intersection(_)
         | TypeKind::Tuple(_)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
-        | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Conditional { .. } => {}
+        | TypeKind::Interface(_) => {}
     }
 }
 

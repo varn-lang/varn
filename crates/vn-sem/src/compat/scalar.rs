@@ -91,15 +91,9 @@ pub(super) fn literal_expr_admitted(
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => false,
         }),
@@ -110,15 +104,9 @@ pub(super) fn literal_expr_admitted(
         | TypeKind::Tuple(_)
         | TypeKind::Named(..)
         | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => false,
     }
@@ -135,15 +123,9 @@ pub(super) fn array_element_type(ty: &Type, table: &CheckerTyTable) -> Option<Ty
         | TypeKind::Tuple(_)
         | TypeKind::Named(..)
         | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => None,
     }

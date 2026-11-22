@@ -73,15 +73,9 @@ pub(super) fn infer_member(c: &mut CallTypeCtx, object: ExprId, property: ExprId
         | TypeKind::Union(_)
         | TypeKind::Intersection(_)
         | TypeKind::Tuple(_)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => (Some(obj_ty.stdlib_key(c.table)?.to_string()), None),
     };

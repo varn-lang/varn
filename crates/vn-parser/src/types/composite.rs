@@ -27,5 +27,9 @@ pub(crate) fn parse_template_literal_type(s: &mut TokenStream) -> PResult<TypeNo
         }
     }
     let full_range = s.span_from(start);
+    s.push_error(
+        vn_core::ForeignForm::TemplateLiteralType.message(),
+        full_range,
+    );
     Ok(s.type_node(full_range, TypeKind::Primitive(vn_core::LangPrimitive::Str)))
 }

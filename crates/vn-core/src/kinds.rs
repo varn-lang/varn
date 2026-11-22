@@ -35,35 +35,9 @@ pub enum TypeKind<T, N, C, F, O, I> {
     Tuple(C),
     Named(N, Option<N>),
     Generic(N, C, Option<N>),
-
-    TemplateLiteral(C),
     Fn(F),
     Record(O),
     Interface(I),
-
-    KeyOf(T),
-
-    IndexedAccess {
-        object: T,
-        index: T,
-    },
-
-    Mapped {
-        key_var: N,
-        source: T,
-        value: T,
-        optional: bool,
-        readonly: bool,
-    },
-
-    Conditional {
-        check: T,
-        extends: T,
-        true_type: T,
-        false_type: T,
-    },
-
-    Infer(N),
 
     EnumVariant {
         enum_name: N,
@@ -94,15 +68,9 @@ impl<T, N, C, F, O, I> TypeKind<T, N, C, F, O, I> {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => None,
         }

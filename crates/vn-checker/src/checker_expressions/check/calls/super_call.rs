@@ -61,14 +61,8 @@ impl<'r> Checker<'r> {
                 | TypeKind::Tuple(_)
                 | TypeKind::Named(..)
                 | TypeKind::Generic(..)
-                | TypeKind::TemplateLiteral(_)
                 | TypeKind::Record(_)
                 | TypeKind::Interface(_)
-                | TypeKind::KeyOf(_)
-                | TypeKind::IndexedAccess { .. }
-                | TypeKind::Mapped { .. }
-                | TypeKind::Conditional { .. }
-                | TypeKind::Infer(_)
                 | TypeKind::EnumVariant { .. }
                 | TypeKind::TypePredicate { .. } => Vec::new(),
             };

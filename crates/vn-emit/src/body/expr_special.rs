@@ -156,14 +156,8 @@ impl<'a> FnEmitter<'a> {
             | vn_core::TypeKind::Literal(_)
             | vn_core::TypeKind::This
             | vn_core::TypeKind::Intersection(_)
-            | vn_core::TypeKind::TemplateLiteral(_)
             | vn_core::TypeKind::Record(_)
             | vn_core::TypeKind::Interface(_)
-            | vn_core::TypeKind::KeyOf(_)
-            | vn_core::TypeKind::IndexedAccess { .. }
-            | vn_core::TypeKind::Mapped { .. }
-            | vn_core::TypeKind::Conditional { .. }
-            | vn_core::TypeKind::Infer(_)
             | vn_core::TypeKind::EnumVariant { .. }
             | vn_core::TypeKind::TypePredicate { .. } => self.builtin_tag(type_ann).map(tag),
         }

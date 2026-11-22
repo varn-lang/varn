@@ -15,8 +15,11 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             if ContextualKeyword::of(s.lexeme()) == Some(ContextualKeyword::Keyof) {
                 s.advance();
                 let inner = super::suffixes::parse_array_type(s)?;
-                let full_range = s.span_from(range);
-                return Ok(s.type_node(full_range, TypeKind::KeyOf(Box::new(inner))));
+                s.push_error(
+                    vn_core::ForeignForm::KeyofType.message(),
+                    s.span_from(range),
+                );
+                return Ok(inner);
             }
 
             if ContextualKeyword::of(s.lexeme()) == Some(ContextualKeyword::Infer)
@@ -25,7 +28,8 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
                 s.advance();
                 let name = s.consume_lexeme();
                 let full_range = s.span_from(range);
-                return Ok(s.type_node(full_range, TypeKind::Infer(name)));
+                s.push_error(vn_core::ForeignForm::InferType.message(), full_range);
+                return Ok(s.type_node(full_range, TypeKind::Named(name, None)));
             }
 
             let mut name_buf = s.lexeme().to_owned();
@@ -159,27 +163,21 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             };
 
             if is_mapped {
-                let mapped_readonly = s.eat(TokenKind::Readonly);
+                s.eat(TokenKind::Readonly);
                 s.advance();
-                let key_var = s.consume_lexeme();
                 s.advance();
-                let source = super::entry::parse_type(s)?;
+                s.advance();
+                super::entry::parse_type(s)?;
                 s.expect(TokenKind::RBracket)?;
-                let optional = s.eat(TokenKind::Question);
+                s.eat(TokenKind::Question);
                 s.expect(TokenKind::Colon)?;
                 let value = super::entry::parse_type(s)?;
                 s.expect(TokenKind::RBrace)?;
-                let full_range = s.span_from(range);
-                return Ok(s.type_node(
-                    full_range,
-                    TypeKind::Mapped {
-                        key_var,
-                        source: Box::new(source),
-                        value: Box::new(value),
-                        optional,
-                        readonly: mapped_readonly,
-                    },
-                ));
+                s.push_error(
+                    vn_core::ForeignForm::MappedType.message(),
+                    s.span_from(range),
+                );
+                return Ok(value);
             }
 
             let mut members = vec![];

@@ -44,10 +44,23 @@ pub enum ForeignForm {
     Require,
     DateGlobal,
     ObjectGlobal,
+    KeyofType,
+    IndexedAccessType,
+    MappedType,
+    ConditionalType,
+    InferType,
+    TemplateLiteralType,
+    OptionalityUtility,
+    ReadonlyUtility,
+    ShapeUtility,
+    UnionUtility,
+    NonNullableUtility,
+    ReturnTypeUtility,
+    AwaitedUtility,
 }
 
 impl ForeignForm {
-    const TYPE_NAMES: [(&'static str, Self); 12] = [
+    const TYPE_NAMES: [(&'static str, Self); 23] = [
         ("number", Self::NumberType),
         ("string", Self::StringType),
         ("boolean", Self::BooleanType),
@@ -60,6 +73,17 @@ impl ForeignForm {
         ("Object", Self::BoxedObjectType),
         ("String", Self::BoxedStringType),
         ("Number", Self::BoxedNumberType),
+        ("Partial", Self::OptionalityUtility),
+        ("Required", Self::OptionalityUtility),
+        ("Mutable", Self::OptionalityUtility),
+        ("Readonly", Self::ReadonlyUtility),
+        ("Pick", Self::ShapeUtility),
+        ("Omit", Self::ShapeUtility),
+        ("Exclude", Self::UnionUtility),
+        ("Extract", Self::UnionUtility),
+        ("NonNullable", Self::NonNullableUtility),
+        ("ReturnType", Self::ReturnTypeUtility),
+        ("Awaited", Self::AwaitedUtility),
     ];
 
     const WORDS: [(&'static str, Self); 23] = [
@@ -120,6 +144,12 @@ impl ForeignForm {
             Self::MatchWithoutParens => "match x { ... }",
             Self::ArrayHole => "[a, , b]",
             Self::HashPrivate => "#name",
+            Self::KeyofType => "keyof T",
+            Self::IndexedAccessType => "T[K]",
+            Self::MappedType => "{ [K in T]: V }",
+            Self::ConditionalType => "A extends B ? X : Y",
+            Self::InferType => "infer T",
+            Self::TemplateLiteralType => "`prefix${T}`",
             Self::NumberType
             | Self::StringType
             | Self::BooleanType
@@ -131,7 +161,14 @@ impl ForeignForm {
             | Self::FunctionType
             | Self::BoxedObjectType
             | Self::BoxedStringType
-            | Self::BoxedNumberType => Self::TYPE_NAMES
+            | Self::BoxedNumberType
+            | Self::OptionalityUtility
+            | Self::ReadonlyUtility
+            | Self::ShapeUtility
+            | Self::UnionUtility
+            | Self::NonNullableUtility
+            | Self::ReturnTypeUtility
+            | Self::AwaitedUtility => Self::TYPE_NAMES
                 .iter()
                 .find(|(_, f)| *f == self)
                 .map_or("", |&(n, _)| n),
@@ -209,6 +246,17 @@ impl ForeignForm {
             Self::DateGlobal => "read the clock with `now()` from \"std:time\"",
             Self::ObjectGlobal => "a record has the fields of its declared type; keyed data is a `Map<K, V>`",
             Self::ArrayHole => "a sequence has no holes: write every element (or `null` in a `T?[]`) and discard a position with `_`",
+            Self::KeyofType => "a type has no set of keys to compute with: name a closed set of keys with an `enum`, or keep keyed data in a `Map<K, V>`",
+            Self::IndexedAccessType => "write the member's type itself, or give it a name with `type`",
+            Self::MappedType | Self::ShapeUtility => "declare the shape you need as its own `interface` or `struct`",
+            Self::ConditionalType | Self::InferType => "types are not computed: declare the operation only where it applies, as `extension<U> on U[][]`, and write its result in the signature",
+            Self::TemplateLiteralType => "a set of allowed texts is a union of literals or an `enum`",
+            Self::OptionalityUtility => "a value is built against its declared type, a field that may be absent is declared `x?: T`, and a changed copy is `value with { field: x }`",
+            Self::ReadonlyUtility => "a read-only view is `readonly T[]` or `ReadonlyMap<K, V>`, and a fixed field is declared `readonly`",
+            Self::UnionUtility => "write the union you mean, or take it apart with `match`",
+            Self::NonNullableUtility => "write the type without `?`, or narrow the value with `x != null`",
+            Self::ReturnTypeUtility => "write the result type in the signature",
+            Self::AwaitedUtility => "`await` on a `Task<T>` gives a `T`: write `T`",
         }
     }
 

@@ -77,13 +77,7 @@ impl Checker<'_> {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => {
                 "only int, float, str, bool, char, bigint, decimal, enums, classes and tuples or structs of those can be keys"

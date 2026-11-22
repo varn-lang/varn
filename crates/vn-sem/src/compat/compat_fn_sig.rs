@@ -45,14 +45,8 @@ pub(super) fn fn_signature_compatible_type(
         | TypeKind::Tuple(_)
         | TypeKind::Named(..)
         | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => {
             let mut owned_table = table.clone();
@@ -106,14 +100,8 @@ pub(super) fn types_compatible_with_fn_signature(
         | TypeKind::Tuple(_)
         | TypeKind::Named(..)
         | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => {
             let mut owned_table = table.clone();

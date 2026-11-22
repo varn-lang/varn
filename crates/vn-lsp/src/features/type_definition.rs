@@ -106,15 +106,9 @@ fn extract_type_identifier(state: &DocumentState, ty: &vn_sem::types::Type) -> O
         | TypeKind::This
         | TypeKind::Intersection(_)
         | TypeKind::Tuple(_)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => None,
     }

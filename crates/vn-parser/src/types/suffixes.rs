@@ -79,14 +79,18 @@ pub(crate) fn parse_array_type(s: &mut TokenStream) -> PResult<TypeNode> {
             s.advance();
             let index = super::entry::parse_type(s)?;
             s.expect(TokenKind::RBracket)?;
-            let full_range = s.span_from(start);
-            ty = s.type_node(
-                full_range,
-                TypeKind::IndexedAccess {
-                    object: Box::new(ty),
-                    index: Box::new(index),
-                },
-            );
+            if matches!(index.kind, TypeKind::Literal(vn_core::TypeLiteral::Int(_))) {
+                s.push_diagnostic(
+                    vn_core::ErrorCode::InvalidTypeOperator,
+                    "a type has no fixed length: write `T[]`, or a tuple `(T, T, T)` for a fixed set of values".to_owned(),
+                    s.span_from(start),
+                );
+            } else {
+                s.push_error(
+                    vn_core::ForeignForm::IndexedAccessType.message(),
+                    s.span_from(start),
+                );
+            }
         } else if s.check(TokenKind::Question) && !is_ternary_at(s) {
             let q_range = s.range();
             s.advance();

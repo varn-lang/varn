@@ -42,10 +42,8 @@ impl<'r> Binder<'r> {
                 }
                 args.iter().collect()
             }
-            K::Array(inner) | K::KeyOf(inner) => vec![inner.as_ref()],
-            K::Union(list) | K::Intersection(list) | K::Tuple(list) | K::TemplateLiteral(list) => {
-                list.iter().collect()
-            }
+            K::Array(inner) => vec![inner.as_ref()],
+            K::Union(list) | K::Intersection(list) | K::Tuple(list) => list.iter().collect(),
             K::Fn((params, ret)) => params
                 .iter()
                 .filter_map(|p| p.constraint.as_ref())
@@ -53,14 +51,6 @@ impl<'r> Binder<'r> {
                 .collect(),
             K::Record(members) => members.iter().flat_map(interface_member_types).collect(),
             K::Interface(never) => match *never {},
-            K::IndexedAccess { object, index } => vec![object.as_ref(), index.as_ref()],
-            K::Mapped { source, value, .. } => vec![source.as_ref(), value.as_ref()],
-            K::Conditional {
-                check,
-                true_type,
-                false_type,
-                ..
-            } => vec![check.as_ref(), true_type.as_ref(), false_type.as_ref()],
             K::TypePredicate { target_type, .. } => vec![target_type.as_ref()],
             K::EnumVariant {
                 type_args,
@@ -70,18 +60,6 @@ impl<'r> Binder<'r> {
                 .iter()
                 .chain(std::iter::once(payload_ty.as_ref()))
                 .collect(),
-            K::Infer(_) => {
-                if self.reported_type_forms.insert(node.range.start.offset) {
-                    self.emit(
-                        vn_core::Diagnostic::error(
-                            vn_core::ErrorCode::InferOutsideConditional,
-                            "`infer` is only valid in the `extends` clause of a conditional type",
-                        )
-                        .with_range(node.range),
-                    );
-                }
-                vec![]
-            }
             K::Primitive(_) | K::Literal(_) | K::This | K::Named(..) => {
                 vec![]
             }

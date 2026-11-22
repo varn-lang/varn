@@ -234,13 +234,7 @@ pub fn get_members_of_type(
             }
         }
         TypeKind::This
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => {}
     }

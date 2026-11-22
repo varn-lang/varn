@@ -398,15 +398,9 @@ impl<'r> Checker<'r> {
             | TypeKind::Union(_)
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => (None, Vec::new(), None),
         };
@@ -506,12 +500,6 @@ impl Checker<'_> {
             | vn_core::TypeKind::Union(_)
             | vn_core::TypeKind::Intersection(_)
             | vn_core::TypeKind::Tuple(_)
-            | vn_core::TypeKind::TemplateLiteral(_)
-            | vn_core::TypeKind::KeyOf(_)
-            | vn_core::TypeKind::IndexedAccess { .. }
-            | vn_core::TypeKind::Mapped { .. }
-            | vn_core::TypeKind::Conditional { .. }
-            | vn_core::TypeKind::Infer(_)
             | vn_core::TypeKind::TypePredicate { .. } => false,
         };
         if not_sequence {

@@ -5,11 +5,10 @@ impl Type {
     pub fn components(self, table: &CheckerTyTable) -> Vec<Type> {
         let mut ids = Vec::new();
         match table.get(self.0) {
-            TypeKind::Array(inner) | TypeKind::KeyOf(inner) => ids.push(inner),
+            TypeKind::Array(inner) => ids.push(inner),
             TypeKind::Union(list)
             | TypeKind::Intersection(list)
             | TypeKind::Tuple(list)
-            | TypeKind::TemplateLiteral(list)
             | TypeKind::Generic(_, list, _) => ids.extend_from_slice(table.get_list(list)),
             TypeKind::Fn(id) => {
                 let f = table.get_function(id);
@@ -37,16 +36,6 @@ impl Type {
                     }
                 }
             }
-            TypeKind::IndexedAccess { object, index } => ids.extend([object, index]),
-            TypeKind::Mapped { source, value, .. } => ids.extend([source, value]),
-            TypeKind::Conditional {
-                check,
-                extends,
-                true_type,
-                false_type,
-            } => {
-                ids.extend([check, extends, true_type, false_type]);
-            }
             TypeKind::EnumVariant {
                 type_args,
                 payload_ty,
@@ -59,8 +48,7 @@ impl Type {
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
             | TypeKind::This
-            | TypeKind::Named(..)
-            | TypeKind::Infer(_) => {}
+            | TypeKind::Named(..) => {}
         }
         ids.into_iter().map(Type::resolved).collect()
     }

@@ -185,15 +185,9 @@ fn lower_kind(
 
         TypeKind::Intersection(_) => interface(),
 
-        TypeKind::TemplateLiteral(_) | TypeKind::KeyOf(_) => BackendTy::Str,
-
         TypeKind::TypePredicate { .. } => BackendTy::Bool,
 
-        TypeKind::This
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_) => BackendTy::Dynamic(DynReason::Generic),
+        TypeKind::This => BackendTy::Dynamic(DynReason::Generic),
     }
 }
 
@@ -292,15 +286,9 @@ fn lower_builtin(
         | TypeKind::Union(_)
         | TypeKind::Intersection(_)
         | TypeKind::Tuple(_)
-        | TypeKind::TemplateLiteral(_)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
         | TypeKind::EnumVariant { .. }
         | TypeKind::TypePredicate { .. } => vec![],
     };

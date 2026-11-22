@@ -46,15 +46,9 @@ impl<'r> super::Binder<'r> {
             | TypeKind::Union(_)
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => return None,
         };

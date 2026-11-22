@@ -281,15 +281,7 @@ impl<'r> Checker<'r> {
                 ids.iter()
                     .any(|id| self.member_exists(&Type::resolved(*id), key, bind))
             }
-            TypeKind::This
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::Fn(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
-            | TypeKind::TypePredicate { .. } => false,
+            TypeKind::This | TypeKind::Fn(_) | TypeKind::TypePredicate { .. } => false,
         };
         res || self.extension_member_exists(ty, key, bind)
     }

@@ -114,12 +114,6 @@ impl Checker<'_> {
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
             | TypeKind::This
-            | TypeKind::TemplateLiteral(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => {}
         }

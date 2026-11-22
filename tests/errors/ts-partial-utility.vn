@@ -1,0 +1,2 @@
+// expect: error[VN3002]
+const p: Partial<{ x: int }> = { x: 1 }

@@ -210,22 +210,16 @@ impl<'r> Checker<'r> {
             },
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Array(_)
             | TypeKind::Tuple(_)
             | TypeKind::Fn(_)
-            | TypeKind::KeyOf(_)
             | TypeKind::EnumVariant { .. }
             | TypeKind::TypePredicate { .. } => false,
             TypeKind::Record(_)
             | TypeKind::Interface(_)
             | TypeKind::This
             | TypeKind::Union(_)
-            | TypeKind::Intersection(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_) => true,
+            | TypeKind::Intersection(_) => true,
         }
     }
 

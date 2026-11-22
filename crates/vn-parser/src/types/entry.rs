@@ -23,21 +23,16 @@ pub fn parse_type(s: &mut TokenStream) -> PResult<TypeNode> {
     let ty = super::combinators::parse_union_type(s)?;
 
     if s.eat(TokenKind::Extends) {
-        let extends_ty = super::combinators::parse_union_type(s)?;
+        super::combinators::parse_union_type(s)?;
         s.expect(TokenKind::Question)?;
-        let true_ty = parse_type(s)?;
+        parse_type(s)?;
         s.expect(TokenKind::Colon)?;
-        let false_ty = parse_type(s)?;
-        let full_range = s.span_from(start);
-        return Ok(s.type_node(
-            full_range,
-            TypeKind::Conditional {
-                check: Box::new(ty),
-                extends: Box::new(extends_ty),
-                true_type: Box::new(true_ty),
-                false_type: Box::new(false_ty),
-            },
-        ));
+        parse_type(s)?;
+        s.push_error(
+            vn_core::ForeignForm::ConditionalType.message(),
+            s.span_from(start),
+        );
+        return Ok(ty);
     }
 
     Ok(ty)

@@ -1,28 +1,18 @@
 mod aliases;
 mod compound;
-mod conditional;
 mod contexts;
 mod functions;
 mod intersections;
-mod keyed_access;
-mod mapped;
 mod names;
 mod nominal;
 pub use nominal::nominal_origin;
 mod objects;
 mod qualified;
 mod scalar;
-mod template;
 
 use crate::types::{CheckerTyTable, Type, TypeContext};
 use vn_core::ast::TypeNode;
 use vn_core::TypeKind;
-
-pub(crate) use conditional::evaluate_conditional;
-use conditional::resolve_conditional;
-use keyed_access::{resolve_indexed_access, resolve_keyof};
-use mapped::resolve_mapped_type;
-use template::resolve_template_literal_type;
 
 pub use aliases::{expand_alias, resolve_primitive};
 
@@ -63,38 +53,9 @@ pub fn resolve_type_node(
             Type::record(members, table)
         }
         TypeKind::Interface(never) => match *never {},
-        TypeKind::TemplateLiteral(parts) => resolve_template_literal_type(parts, ctx, table),
         TypeKind::Intersection(members) => {
             intersections::resolve_intersection_type(members, ctx, table)
         }
-        TypeKind::KeyOf(inner) => {
-            let resolved = resolve_type_node(inner, ctx, table);
-            resolve_keyof(resolved, ctx, table)
-        }
-        TypeKind::IndexedAccess { object, index } => {
-            let obj = resolve_type_node(object, ctx, table);
-            let idx = resolve_type_node(index, ctx, table);
-            resolve_indexed_access(obj, idx, ctx, table)
-        }
-        TypeKind::Mapped {
-            key_var,
-            source,
-            value,
-            optional,
-            readonly,
-        } => resolve_mapped_type(
-            *key_var, source, value, *optional, *readonly, ctx, interner, table,
-        ),
-        TypeKind::Conditional {
-            check,
-            extends,
-            true_type,
-            false_type,
-        } => {
-            let check_ty = resolve_type_node(check, ctx, table);
-            resolve_conditional(check, &check_ty, extends, true_type, false_type, ctx, table)
-        }
-        TypeKind::Infer(_) => Type::Error,
         TypeKind::Tuple(elements) => {
             let ids: Vec<_> = elements
                 .iter()

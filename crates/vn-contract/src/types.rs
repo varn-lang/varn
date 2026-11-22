@@ -48,14 +48,8 @@ impl ContractTy {
             TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::Intersection(_)
-            | TypeKind::TemplateLiteral(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::KeyOf(_)
-            | TypeKind::IndexedAccess { .. }
-            | TypeKind::Mapped { .. }
-            | TypeKind::Conditional { .. }
-            | TypeKind::Infer(_)
             | TypeKind::EnumVariant { .. } => Self::Other,
         }
     }

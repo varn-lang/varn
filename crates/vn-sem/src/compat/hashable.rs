@@ -73,7 +73,6 @@ fn hashable_kind(
     match table.get(ty.0) {
         TypeKind::Primitive(primitive) => primitive_is_hashable(primitive),
         TypeKind::Literal(literal) => primitive_is_hashable(literal.base()),
-        TypeKind::TemplateLiteral(_) => true,
         TypeKind::EnumVariant {
             type_args,
             payload_ty,
@@ -101,11 +100,6 @@ fn hashable_kind(
         | TypeKind::Interface(_)
         | TypeKind::This
         | TypeKind::TypePredicate { .. } => false,
-        TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. } => true,
         TypeKind::Named(name, origin) => {
             nominal_is_hashable(name, origin, &[], bind, visiting, table)
         }

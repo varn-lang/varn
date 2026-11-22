@@ -54,10 +54,9 @@ impl fmt::Display for TypeDisplay<'_> {
             },
             TypeKind::This => f.write_str(vn_core::TokenKind::This.as_str()),
             TypeKind::Array(t) => match table.get(t) {
-                TypeKind::Union(_)
-                | TypeKind::Intersection(_)
-                | TypeKind::Fn(_)
-                | TypeKind::Conditional { .. } => write!(f, "({})[]", self.child(t)),
+                TypeKind::Union(_) | TypeKind::Intersection(_) | TypeKind::Fn(_) => {
+                    write!(f, "({})[]", self.child(t))
+                }
                 TypeKind::Primitive(_)
                 | TypeKind::Literal(_)
                 | TypeKind::This
@@ -65,13 +64,8 @@ impl fmt::Display for TypeDisplay<'_> {
                 | TypeKind::Tuple(_)
                 | TypeKind::Named(..)
                 | TypeKind::Generic(..)
-                | TypeKind::TemplateLiteral(_)
                 | TypeKind::Record(_)
                 | TypeKind::Interface(_)
-                | TypeKind::KeyOf(_)
-                | TypeKind::IndexedAccess { .. }
-                | TypeKind::Mapped { .. }
-                | TypeKind::Infer(_)
                 | TypeKind::EnumVariant { .. }
                 | TypeKind::TypePredicate { .. } => write!(f, "{}[]", self.child(t)),
             },
@@ -114,17 +108,6 @@ impl fmt::Display for TypeDisplay<'_> {
                     write!(f, "{}", self.child(*arg))?;
                 }
                 write!(f, ">")
-            }
-            TypeKind::TemplateLiteral(parts) => {
-                write!(f, "`")?;
-                for (i, part) in table.get_list(parts).iter().enumerate() {
-                    if i % 2 == 0 {
-                        write!(f, "{}", self.child(*part))?;
-                    } else {
-                        write!(f, "${{{}}}", self.child(*part))?;
-                    }
-                }
-                write!(f, "`")
             }
             TypeKind::Fn(fid) => {
                 let ft = table.get_function(fid);
@@ -228,15 +211,9 @@ impl fmt::Display for TypeDisplay<'_> {
                         | TypeKind::Tuple(_)
                         | TypeKind::Named(..)
                         | TypeKind::Generic(..)
-                        | TypeKind::TemplateLiteral(_)
                         | TypeKind::Fn(_)
                         | TypeKind::Record(_)
                         | TypeKind::Interface(_)
-                        | TypeKind::KeyOf(_)
-                        | TypeKind::IndexedAccess { .. }
-                        | TypeKind::Mapped { .. }
-                        | TypeKind::Conditional { .. }
-                        | TypeKind::Infer(_)
                         | TypeKind::EnumVariant { .. }
                         | TypeKind::TypePredicate { .. } => write!(f, "{}", self.child(*m))?,
                     }
@@ -259,44 +236,6 @@ impl fmt::Display for TypeDisplay<'_> {
                 write!(f, ")")
             }
             TypeKind::EnumVariant { .. } => write!(f, "enum variant"),
-
-            TypeKind::KeyOf(t) => write!(f, "keyof {}", self.child(t)),
-            TypeKind::IndexedAccess { object, index } => {
-                write!(f, "{}[{}]", self.child(object), self.child(index))
-            }
-            TypeKind::Mapped {
-                key_var,
-                source,
-                value,
-                optional,
-                readonly,
-            } => {
-                write!(
-                    f,
-                    "{{ {}[{} in {}]{}: {} }}",
-                    if readonly { "readonly " } else { "" },
-                    self.name(key_var),
-                    self.child(source),
-                    if optional { "?" } else { "" },
-                    self.child(value)
-                )
-            }
-            TypeKind::Conditional {
-                check,
-                extends,
-                true_type,
-                false_type,
-            } => {
-                write!(
-                    f,
-                    "{} extends {} ? {} : {}",
-                    self.child(check),
-                    self.child(extends),
-                    self.child(true_type),
-                    self.child(false_type)
-                )
-            }
-            TypeKind::Infer(name) => write!(f, "infer {}", self.name(name)),
             TypeKind::TypePredicate {
                 parameter_name,
                 target_type,
