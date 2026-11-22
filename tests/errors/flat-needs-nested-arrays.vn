@@ -1,0 +1,2 @@
+// expect: error[VN3004]
+const words: str[] = ["a"].flat()

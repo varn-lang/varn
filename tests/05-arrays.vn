@@ -49,8 +49,6 @@ await describe("05 Arrays", async () => {
         const fallback: int[] = labels.length > 5 ? [1] : [];
         expect(fallback.length).toBe(0);
         const flat: int[] = [[1, 2], [3, 4]].flat();
-        const words: str[] = ["a"].flat();
-        expect(words.length).toBe(1);
         expect(flat.length).toBe(4);
         expect(flat[2]).toBe(3);
         const fm = [[1, 2], [3]].flatMap((a) => a);

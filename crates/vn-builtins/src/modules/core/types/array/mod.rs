@@ -24,21 +24,6 @@ fn room_for(ctx: &mut dyn NativeCtx, array: &VnArray, extra: usize) -> Result<()
     Ok(())
 }
 
-fn flatten_one_level(ctx: &mut dyn NativeCtx, arr: VmValue, out: &mut Vec<VmValue>) {
-    let len = ctx.array_len(arr);
-    for i in 0..len {
-        let v = ctx.array_get(arr, i).unwrap_or(VmValue::null());
-        if ctx.is_array(v) {
-            let inner = ctx.array_len(v);
-            for j in 0..inner {
-                out.push(ctx.array_get(v, j).unwrap_or(VmValue::null()));
-            }
-        } else {
-            out.push(v);
-        }
-    }
-}
-
 natives! {
     class Array {
         constructor(ctx, _this) => ctx.alloc_array(vn_core::ArrayStorage::Boxed, Vec::new()),
@@ -208,11 +193,6 @@ natives! {
                 this.set(ctx, i, value);
             }
             this.raw()
-        },
-        flat(ctx, this) => {
-            let mut out = Vec::new();
-            flatten_one_level(ctx, this.raw(), &mut out);
-            out
         },
         reverse(ctx, this) => {
             let mut items = this.to_vec(ctx);
