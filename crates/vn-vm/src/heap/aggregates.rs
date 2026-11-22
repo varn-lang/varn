@@ -77,10 +77,12 @@ impl HeapInner {
         self.alloc_object_cell(Rc::clone(shape), values.len(), values)
     }
 
+    #[inline(always)]
     pub(crate) fn alloc_empty_map_vm(&mut self) -> VmValue {
         self.alloc_map_vm(vn_types::value::ValueMap::default())
     }
 
+    #[inline(always)]
     pub(crate) fn alloc_map_vm(&mut self, map: vn_types::value::ValueMap) -> VmValue {
         if let Some(h) = &self.hotspot {
             h.borrow_mut()

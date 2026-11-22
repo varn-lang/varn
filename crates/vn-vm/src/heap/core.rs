@@ -69,6 +69,7 @@ impl HeapInner {
         VmValue::from_heap(r)
     }
 
+    #[inline(always)]
     pub(crate) fn alloc_array_inline_vm(
         &mut self,
         tuple: bool,

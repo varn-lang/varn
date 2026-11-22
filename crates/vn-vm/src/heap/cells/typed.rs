@@ -70,7 +70,7 @@ impl CellSpace {
         r
     }
 
-    #[inline]
+    #[inline(always)]
     pub(crate) fn alloc_array_inline(
         &mut self,
         tuple: bool,
@@ -108,7 +108,7 @@ impl CellSpace {
         r
     }
 
-    #[inline]
+    #[inline(always)]
     pub(crate) fn alloc_map(
         &mut self,
         map: vn_types::value::ValueMap,
