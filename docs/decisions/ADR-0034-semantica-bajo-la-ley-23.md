@@ -105,3 +105,25 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 3. D8: clases nominales frente a interfaces.
 4. D10: asignación e incremento como sentencias.
 5. D9: retirada de la maquinaria de tipos.
+
+## 6. Estado de la implementación (2026-11-22)
+
+| Punto | Estado | Commit |
+|---|---|---|
+| B1 igualdad con nulables | Corregido; el test 357 fijaba el defecto | `2595bb7c` |
+| B2 huecos de array | Rechazados en literales y en asignaciones | `00925fd0` |
+| B2 `_` en declaraciones | Descarta en vez de ligar | `59ba8671` |
+| B3 llamada `void` como argumento | VN3022 | `a0f881a5` |
+| B4 `#privado` | Rechazado | `ef9f887e` |
+| B5 `as` fallido | `TypeError` con el tipo recibido | `2f2c72f7` |
+| B6 globales de JS | Pista de `ForeignForm` | `be49ddaf` |
+| D7 condiciones `bool` | Hecho; migración del corpus y de la std | `f8737870` |
+| D8 clases por `implements` | Hecho para interfaces con nombre | `a0610203` |
+| D10 asignación como sentencia | Hecho | `fc63e2a8` |
+| D9 maquinaria de tipos | Bloqueado, ver 6.1 | — |
+
+### 6.1 Bloqueos y pendientes
+
+- **D9.** El preludio usa la maquinaria para 12 tipos utilitarios, y `Array.flat()` depende de `Flattened<T>` (condicional con `infer`). El recuento inicial de 0–1 usos solo miró código de usuario. Darle a `flat()` una regla propia exige extensiones con patrón genérico en el receptor (`extension<U> on Array<U[]>`), que hoy no existen: las extensiones se indexan por una clave textual exacta, y hay dos implementaciones distintas de `extension_key` (`vn-sem` y el checker) que dan resultados diferentes para arrays (Ley 6). Primero va esa capacidad; después, D9.
+- **D8.** Una interfaz genérica instanciada se expande a una forma anónima antes de compararse y sigue siendo estructural. Hacerla nominal exige que el tipo conserve su interfaz de origen.
+- **D7.** El runtime conserva la veracidad dinámica (`truthy` en el JIT y en la VM) aunque el checker ya no produce condiciones que no sean `bool`; hay que retirarla.
