@@ -39,7 +39,7 @@ function probes(): Probe[] {
 await describe("357 nullable scalar fields", async () => {
     await it("a bool? and a char? field keep null apart from every value", async () => {
         const ps = probes()
-        expect(tally(ps)).toBe(19315550)
+        expect(tally(ps)).toBe(19313550)
         expect(ps[0].seen).toBe(null)
         expect(ps[1].seen).toBe(true)
         expect(ps[2].seen).toBe(false)

@@ -126,6 +126,11 @@ impl<'a> FnEmitter<'a> {
                 span,
             };
         }
+        let nullable = |e: &TirExpr| matches!(e.ty, BackendTy::Nullable(_));
+        let present = |e: &TirExpr| !matches!(e.ty, BackendTy::Nullable(_) | BackendTy::Dynamic(_));
+        if nullable(&lhs) != nullable(&rhs) && (present(&lhs) || present(&rhs)) {
+            return self.equality_with_absent(op, lhs, rhs, span);
+        }
         let (lhs, rhs, ty) = self.coerce_binary_operands(op, lhs, rhs, BackendTy::Bool);
         TirExpr {
             kind: TirExprKind::Binary {
@@ -134,6 +139,36 @@ impl<'a> FnEmitter<'a> {
                 rhs: Box::new(rhs),
             },
             ty,
+            res: Resolution::None,
+            span,
+        }
+    }
+
+    fn equality_with_absent(
+        &mut self,
+        op: TirBinOp,
+        lhs: TirExpr,
+        rhs: TirExpr,
+        span: Span,
+    ) -> TirExpr {
+        let lhs_nullable = matches!(lhs.ty, BackendTy::Nullable(_));
+        let (maybe, value) = if lhs_nullable { (lhs, rhs) } else { (rhs, lhs) };
+        let maybe = self.pin(maybe);
+        let inner_ty = maybe.ty.non_nullable(self.tt);
+        let unwrapped = self.cast_to(maybe.clone(), inner_ty);
+        let (l, r) = if lhs_nullable {
+            (unwrapped, value)
+        } else {
+            (value, unwrapped)
+        };
+        let compared = self.equality(op, l, r, span);
+        TirExpr {
+            kind: TirExprKind::Select {
+                cond: Box::new(unary_bool(TirUnOp::IsNull, maybe, span)),
+                then_val: Box::new(bool_lit(op != TirBinOp::Eq)),
+                else_val: Box::new(compared),
+            },
+            ty: BackendTy::Bool,
             res: Resolution::None,
             span,
         }
