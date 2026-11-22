@@ -8,7 +8,11 @@ use super::super::heap::{boxed_value, exec_ctx};
 use super::super::store::{load_value, Out};
 use super::super::Ctx;
 
-fn field_io<'a>(b: &mut FunctionBuilder, ctx: &'a Ctx<'_>) -> Result<FieldIo<'a>, String> {
+fn field_io<'a>(
+    b: &mut FunctionBuilder,
+    ctx: &'a Ctx<'_>,
+    object: u32,
+) -> Result<FieldIo<'a>, String> {
     let (landing, err_ret) = ctx.exits(b);
     Ok(FieldIo {
         helpers: ctx.helpers,
@@ -17,6 +21,7 @@ fn field_io<'a>(b: &mut FunctionBuilder, ctx: &'a Ctx<'_>) -> Result<FieldIo<'a>
         landing,
         err_ret,
         site: super::super::exceptions::site_store(ctx),
+        trusted_instance: ctx.ssa.value_ty(object) == vn_types::register_meta::SlotKind::Ref,
     })
 }
 fn field_trusts_dest(
@@ -80,6 +85,7 @@ pub(crate) fn emit_get_fixed_field(
             let v = emit_get_fixed_field_native(
                 b,
                 ctx,
+                object,
                 obj,
                 ivar,
                 offset,
@@ -91,7 +97,7 @@ pub(crate) fn emit_get_fixed_field(
         }
     }
     if let vn_core::FieldAccess::Compact(kind) = access {
-        let io = field_io(b, ctx)?;
+        let io = field_io(b, ctx, object)?;
         let loaded = load_compact(b, &io, ivar, obj, offset, kind, slot as usize);
         let trusted = dest.is_some_and(|d| field_trusts_dest(kind, ctx.ssa.value_ty(d)));
         return Ok(if trusted {
@@ -120,6 +126,7 @@ pub(crate) fn emit_get_fixed_field(
 fn emit_get_fixed_field_native(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
+    object: u32,
     obj: Value,
     ivar: Option<cranelift_frontend::Variable>,
     offset: u32,
@@ -143,7 +150,7 @@ fn emit_get_fixed_field_native(
     let slow = b.create_block();
     let cont = b.create_block();
     b.append_block_param(cont, merge_ty);
-    let io = field_io(b, ctx)?;
+    let io = field_io(b, ctx, object)?;
     let data_base = cached_base(b, ivar, &io, obj, slow);
     let off = offset as i32;
     let m = cranelift_codegen::ir::MemFlagsData::trusted();
@@ -213,12 +220,12 @@ pub(crate) fn emit_set_fixed_field(
     );
     if native {
         let raw = load_value(b, ctx, values, value)?;
-        let io = field_io(b, ctx)?;
+        let io = field_io(b, ctx, object)?;
         store_compact_native(b, &io, ivar, obj, raw, vk, offset, kind, slot as usize);
         return Ok(());
     }
     let val = boxed_value(b, ctx, values, value)?;
-    let io = field_io(b, ctx)?;
+    let io = field_io(b, ctx, object)?;
     store_compact(b, &io, ivar, obj, val, offset, kind, slot as usize);
     Ok(())
 }

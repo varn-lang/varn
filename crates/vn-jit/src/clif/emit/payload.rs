@@ -269,3 +269,18 @@ pub(in crate::clif) fn is_young(
         alay.young_state as i64,
     )
 }
+
+pub(in crate::clif) fn trusted_instance_payload(
+    b: &mut FunctionBuilder,
+    obj: cranelift_codegen::ir::Value,
+) -> cranelift_codegen::ir::Value {
+    let obj_payload = if b.func.dfg.value_type(obj) == types::I128 {
+        b.ins().isplit(obj).1
+    } else {
+        obj
+    };
+    b.ins().iadd_imm_u(
+        obj_payload,
+        (vn_types::cell::INST_CELL_DATA_OFF + vn_types::INST_PAYLOAD_OFF) as i64,
+    )
+}

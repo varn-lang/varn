@@ -17,6 +17,8 @@ pub(crate) struct FieldIo<'a> {
     pub landing: Option<Block>,
     pub err_ret: Option<Block>,
     pub site: Option<emit::SiteStore>,
+
+    pub trusted_instance: bool,
 }
 
 fn call_checked_void(b: &mut FunctionBuilder, io: &FieldIo, helper: usize, args: &[Value]) {
@@ -75,6 +77,9 @@ pub(crate) fn cached_base(
     obj: Value,
     slow: Block,
 ) -> Value {
+    if io.trusted_instance {
+        return emit::trusted_instance_payload(b, obj);
+    }
     let Some(var) = var else {
         return emit::emit_instance_payload(b, obj, &io.helpers.array_layout, slow);
     };
