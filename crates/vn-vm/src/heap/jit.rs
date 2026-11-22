@@ -52,7 +52,7 @@ impl Heap {
             slots_probe.push(None);
         }
 
-        let (slots_ptr_off, vec_len_off) = vec_word_offsets(&slots_probe);
+        let (slots_ptr_off, _) = vec_word_offsets(&slots_probe);
 
         let (disc_off, elems_ptr_off, elems_len_off) = {
             use vn_types::vm_value::{ArrayRepr, CellVec};

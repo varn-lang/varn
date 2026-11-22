@@ -137,7 +137,7 @@ impl<T: Copy> CellVec<T> {
     }
 
     pub fn edit<R>(&mut self, f: impl FnOnce(&mut Vec<T>) -> R) -> R {
-        let mut vec = std::mem::replace(self, Self::new()).into_vec();
+        let mut vec = std::mem::take(self).into_vec();
         let out = f(&mut vec);
         *self = Self::from_vec(vec);
         out
