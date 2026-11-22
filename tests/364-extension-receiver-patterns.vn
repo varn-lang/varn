@@ -1,0 +1,56 @@
+import { describe, it, expect } from "std:test";
+
+extension<U> on U[][] {
+    joined(): U[] {
+        const out: U[] = []
+        for (const items in this) {
+            for (const item in items) {
+                out.push(item)
+            }
+        }
+        return out
+    }
+}
+
+extension<E> on E[] {
+    describe(): str { return "any array" }
+}
+
+extension on int[] {
+    describe(): str { return "int array" }
+}
+
+extension<V> on Map<str, V[]> {
+    total(): int {
+        let n = 0
+        for (const items in this.values()) {
+            n += items.length
+        }
+        return n
+    }
+}
+
+await describe("364 extensions match their receiver by pattern", async () => {
+    await it("a nested pattern binds the element type", () => {
+        const nested: int[][] = [[1, 2], [3]]
+        const flat = nested.joined()
+        expect(flat.length).toBe(3)
+        expect(flat[2] + 1).toBe(4)
+        const words: str[][] = [["a"], ["b", "c"]]
+        expect(words.joined()[1]).toBe("b")
+    })
+
+    await it("the most specific receiver wins", () => {
+        const ints: int[] = [1]
+        const strs: str[] = ["a"]
+        expect(ints.describe()).toBe("int array")
+        expect(strs.describe()).toBe("any array")
+    })
+
+    await it("a pattern binds a parameter inside a generic receiver", () => {
+        const groups = new Map<str, int[]>()
+        groups.set("a", [1, 2])
+        groups.set("b", [3])
+        expect(groups.total()).toBe(3)
+    })
+})

@@ -61,27 +61,48 @@ pub struct TypeMembers {
 #[derive(Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct Extensions {
     #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
-    pub methods: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Arc<str>>>,
+    pub methods: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<ExtensionCandidate>>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
-    pub getters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Arc<str>>>,
+    pub getters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<ExtensionCandidate>>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
-    pub setters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Arc<str>>>,
+    pub setters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<ExtensionCandidate>>>,
     #[serde(default)]
     pub forwarded: std::collections::BTreeSet<Arc<str>>,
 }
 
+type ExtensionBuckets = FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<ExtensionCandidate>>>;
+
 impl Extensions {
+    fn table(&self, kind: vn_core::extension_names::ExtensionKind) -> &ExtensionBuckets {
+        use vn_core::extension_names::ExtensionKind;
+        match kind {
+            ExtensionKind::Method => &self.methods,
+            ExtensionKind::Getter => &self.getters,
+            ExtensionKind::Setter => &self.setters,
+        }
+    }
+
+    fn table_mut(
+        &mut self,
+        kind: vn_core::extension_names::ExtensionKind,
+    ) -> &mut ExtensionBuckets {
+        use vn_core::extension_names::ExtensionKind;
+        match kind {
+            ExtensionKind::Method => &mut self.methods,
+            ExtensionKind::Getter => &mut self.getters,
+            ExtensionKind::Setter => &mut self.setters,
+        }
+    }
+
     pub fn absorb(&mut self, other: &Extensions) {
+        use vn_core::extension_names::ExtensionKind;
         self.forwarded.extend(other.forwarded.iter().cloned());
-        for (mine, theirs) in [
-            (&mut self.methods, &other.methods),
-            (&mut self.getters, &other.getters),
-            (&mut self.setters, &other.setters),
-        ] {
-            for (target, members) in theirs {
-                let entry = mine.entry(target.clone()).or_default();
-                for (member, mangled) in members {
-                    entry.insert(member.clone(), mangled.clone());
+        for kind in ExtensionKind::ALL {
+            for (head, members) in other.table(kind) {
+                for (member, candidates) in members {
+                    for candidate in candidates {
+                        let _ = self.record(kind, head, member, candidate.clone());
+                    }
                 }
             }
         }
@@ -90,21 +111,91 @@ impl Extensions {
     pub fn record(
         &mut self,
         kind: vn_core::extension_names::ExtensionKind,
-        target: &str,
+        head: &str,
         member: &str,
-        mangled: &str,
-    ) {
-        use vn_core::extension_names::ExtensionKind;
-        let table = match kind {
-            ExtensionKind::Method => &mut self.methods,
-            ExtensionKind::Getter => &mut self.getters,
-            ExtensionKind::Setter => &mut self.setters,
-        };
-        table
-            .entry(Arc::from(target))
+        candidate: ExtensionCandidate,
+    ) -> Result<(), Arc<str>> {
+        let slot = self
+            .table_mut(kind)
+            .entry(Arc::from(head))
             .or_default()
-            .insert(Arc::from(member), Arc::from(mangled));
+            .entry(Arc::from(member))
+            .or_default();
+        if slot.iter().any(|c| c.mangled == candidate.mangled) {
+            return Ok(());
+        }
+        let rank = candidate.pattern.specificity();
+        if let Some(clash) = slot
+            .iter()
+            .find(|c| c.pattern.specificity() == rank && c.pattern.overlaps(&candidate.pattern))
+        {
+            return Err(clash.mangled.clone());
+        }
+        slot.push(candidate);
+        slot.sort_by(|a, b| a.mangled.cmp(&b.mangled));
+        Ok(())
     }
+
+    pub fn resolve(
+        &self,
+        kind: vn_core::extension_names::ExtensionKind,
+        receiver: Type,
+        member: &str,
+        table: &crate::types::CheckerTyTable,
+        name_of: receiver_pattern::NameOf,
+    ) -> Option<Arc<str>> {
+        let concrete = ReceiverPattern::of(receiver, table, name_of, &[])?;
+        let head = concrete.head()?;
+        let candidates = self.table(kind).get(&head)?.get(member)?;
+        best_candidate(candidates, &concrete).map(|c| c.mangled.clone())
+    }
+
+    pub fn members_for(
+        &self,
+        kind: vn_core::extension_names::ExtensionKind,
+        receiver: Type,
+        table: &crate::types::CheckerTyTable,
+        name_of: receiver_pattern::NameOf,
+    ) -> Vec<(Arc<str>, Arc<str>)> {
+        let Some(concrete) = ReceiverPattern::of(receiver, table, name_of, &[]) else {
+            return Vec::new();
+        };
+        let Some(bucket) = concrete.head().and_then(|head| self.table(kind).get(&head)) else {
+            return Vec::new();
+        };
+        let mut out: Vec<(Arc<str>, Arc<str>)> = bucket
+            .iter()
+            .filter_map(|(member, candidates)| {
+                best_candidate(candidates, &concrete).map(|c| (member.clone(), c.mangled.clone()))
+            })
+            .collect();
+        out.sort();
+        out
+    }
+
+    pub fn all_mangled(&self) -> Vec<Arc<str>> {
+        use vn_core::extension_names::ExtensionKind;
+        let mut out: Vec<Arc<str>> = ExtensionKind::ALL
+            .into_iter()
+            .flat_map(|kind| self.table(kind).values())
+            .flat_map(|members| members.values())
+            .flatten()
+            .map(|c| c.mangled.clone())
+            .collect();
+        out.sort();
+        out.dedup();
+        out
+    }
+}
+
+fn best_candidate<'a>(
+    candidates: &'a [ExtensionCandidate],
+    concrete: &ReceiverPattern,
+) -> Option<&'a ExtensionCandidate> {
+    candidates
+        .iter()
+        .filter(|c| c.pattern.matches(concrete, &mut Vec::new()))
+        .max_by_key(|c| c.pattern.specificity())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -191,9 +282,11 @@ pub enum DeclKind {
 }
 
 mod extension_labels;
+pub mod receiver_pattern;
 mod settle;
 mod view;
-pub use extension_labels::{extension_label, extension_names, ExtensionName};
+pub use extension_labels::{extension_label, extension_names, extension_pattern, ExtensionName};
+pub use receiver_pattern::{ExtensionCandidate, ReceiverPattern};
 pub use settle::settle_members;
 pub use view::BindView;
 

@@ -1,0 +1,4 @@
+// expect: error[VN3010]
+extension<T> on T {
+    me(): T { return this }
+}

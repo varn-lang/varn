@@ -30,6 +30,18 @@ fn export_extension(
     ) else {
         return;
     };
+    let Some(pattern) = bind
+        .annotation_types
+        .get(&ext.target.id)
+        .and_then(|receiver| {
+            vn_sem::bind::extension_pattern(ext, *receiver, &bind.ty_table, &bind.interner)
+        })
+    else {
+        return;
+    };
+    let Some(head) = pattern.head() else {
+        return;
+    };
     for name in vn_sem::bind::extension_names(ext, &label, &bind.interner) {
         let Some(sym) = lookup_global(bind, &name.mangled) else {
             continue;
@@ -37,8 +49,13 @@ fn export_extension(
         let mut exported = sym.clone();
         exported.origin_module = Some(intern_origin(out, abs_path));
         out.insert(name.mangled.to_string(), exported);
-        out.extensions
-            .record(name.kind, &label, &name.member, &name.mangled);
+        let candidate = vn_sem::bind::ExtensionCandidate {
+            mangled: name.mangled.clone(),
+            pattern: pattern.clone(),
+        };
+        let _ = out
+            .extensions
+            .record(name.kind, &head, &name.member, candidate);
         if bind.extensions.forwarded.contains(&name.mangled) {
             out.extensions.forwarded.insert(name.mangled.clone());
         }

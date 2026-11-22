@@ -67,31 +67,27 @@ impl<'r> Checker<'r> {
             let instance = ty.builtin_arg(0, &self.ty_table);
             return self.find_member_info_uncached(&instance, key, bind);
         }
-        if res.is_none()
-            && self.owner_lookup_depth == 0
-            && let Some(tn) = crate::checker_expressions::check::members::extension_type_name(
-                self,
-                ty,
-                &self.ty_table,
-                bind,
-            )
-        {
-            if let Some(mangled) = bind.extensions.methods.get(&tn).and_then(|m| m.get(key)) {
-                let mangled = mangled.clone();
-                if let Some(sym_ty) = super::member_util::extension_method_type(
-                    bind,
-                    &mangled,
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                ) {
+        if res.is_none() && self.owner_lookup_depth == 0 {
+            use crate::checker_expressions::check::members::resolve_extension;
+            use vn_core::extension_names::ExtensionKind;
+            let method = resolve_extension(self, ExtensionKind::Method, ty, key, bind);
+            let getter = resolve_extension(self, ExtensionKind::Getter, ty, key, bind);
+            if let Some(mangled) = method {
+                if let Some(sym_ty) = {
+                    let receiver = *ty;
+                    super::member_util::extension_method_type(self, bind, &mangled, &receiver)
+                } {
                     return Some((
                         sym_ty,
                         super::member_util::extension_method_auth(bind, &mangled),
                     ));
                 }
             }
-            if let Some(mangled) = bind.extensions.getters.get(&tn).and_then(|m| m.get(key))
-                && let Some(sym_ty) =
-                    super::member_util::extension_getter_type(bind, mangled, &self.ty_table)
+            if let Some(mangled) = getter.as_ref()
+                && let Some(sym_ty) = {
+                    let receiver = *ty;
+                    super::member_util::extension_getter_type(self, bind, mangled, &receiver)
+                }
             {
                 return Some((
                     sym_ty,
@@ -255,22 +251,17 @@ impl<'r> Checker<'r> {
             | TypeKind::Infer(_)
             | TypeKind::TypePredicate { .. } => None,
         };
-        if res.is_none()
-            && self.owner_lookup_depth == 0
-            && let Some(tn) = crate::checker_expressions::check::members::extension_type_name(
-                self,
-                ty,
-                &self.ty_table,
-                bind,
-            )
-        {
-            if let Some(mangled) = bind.extensions.methods.get(&tn).and_then(|m| m.get(key)) {
-                let mangled = mangled.clone();
-                if let Some(sym) = super::member_util::extension_method_type(
-                    bind,
-                    &mangled,
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                ) {
+        if res.is_none() && self.owner_lookup_depth == 0 {
+            use crate::checker_expressions::check::members::resolve_extension;
+            use vn_core::extension_names::ExtensionKind;
+            let method = resolve_extension(self, ExtensionKind::Method, ty, key, bind);
+            let getter = resolve_extension(self, ExtensionKind::Getter, ty, key, bind);
+            let setter = resolve_extension(self, ExtensionKind::Setter, ty, key, bind);
+            if let Some(mangled) = method {
+                if let Some(sym) = {
+                    let receiver = *ty;
+                    super::member_util::extension_method_type(self, bind, &mangled, &receiver)
+                } {
                     let sym_kind = self.ty_table.get(sym.0);
                     let (params, return_type, type_params) = match sym_kind {
                         vn_core::TypeKind::Fn(fid) => {
@@ -309,16 +300,13 @@ impl<'r> Checker<'r> {
                     });
                 }
             }
-            if let Some(mangled) = bind.extensions.getters.get(&tn).and_then(|m| m.get(key))
-                && let Some(sym) =
-                    super::member_util::extension_getter_type(bind, mangled, &self.ty_table)
+            if let Some(mangled) = getter.as_ref()
+                && let Some(sym) = {
+                    let receiver = *ty;
+                    super::member_util::extension_getter_type(self, bind, mangled, &receiver)
+                }
             {
-                let has_setter = bind
-                    .extensions
-                    .setters
-                    .get(&tn)
-                    .and_then(|m| m.get(key))
-                    .is_some();
+                let has_setter = setter.is_some();
                 return Some(ObjectTypeMember::Property {
                     name: Arc::from(key),
                     ty: sym.0,

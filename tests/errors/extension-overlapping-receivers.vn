@@ -1,0 +1,7 @@
+// expect: error[VN4002]
+extension<A> on A[] {
+    first2(): A? { return null }
+}
+extension<B> on B[] {
+    first2(): B? { return null }
+}

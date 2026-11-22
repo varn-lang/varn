@@ -49,6 +49,18 @@ impl<'r> super::super::Binder<'r> {
             return;
         };
         let type_name = type_name.to_string();
+        let pattern =
+            vn_sem::bind::extension_pattern(e, receiver_ty, &self.ty_table, &self.interner);
+        let Some((pattern, head)) = pattern.and_then(|p| p.head().map(|h| (p, h))) else {
+            self.emit(
+                vn_core::Diagnostic::error(
+                    vn_core::ErrorCode::InvalidTypeOperator,
+                    "an extension targets a type constructor such as `Array<T>`, `Map<K, V>` or a class, not a bare type parameter",
+                )
+                .with_range(e.target.range),
+            );
+            return;
+        };
 
         if let Some(id) = e.id {
             let line = e.range.start.line;
@@ -127,14 +139,15 @@ impl<'r> super::super::Binder<'r> {
                             .forwarded
                             .insert(Arc::from(mangled.as_str()));
                     }
-                    self.extensions
-                        .methods
-                        .entry(Arc::from(type_name.as_str()))
-                        .or_default()
-                        .insert(
-                            Arc::from(self.interner.resolve(method.id)),
-                            Arc::from(mangled.as_str()),
-                        );
+                    let member = self.interner.resolve(method.id).to_owned();
+                    self.record_extension(
+                        vn_core::extension_names::ExtensionKind::Method,
+                        &head,
+                        &member,
+                        &mangled,
+                        &pattern,
+                        method.range,
+                    );
                     self.bind_extension_function_scope(
                         line,
                         receiver_ty,
@@ -187,11 +200,14 @@ impl<'r> super::super::Binder<'r> {
                     sym.offset = range.start.offset;
                     sym.has_explicit_type = return_type.is_some();
                     self.define_outside(outer, mangled_atom, sym);
-                    self.extensions
-                        .getters
-                        .entry(Arc::from(type_name.as_str()))
-                        .or_default()
-                        .insert(Arc::from(key_str.as_str()), Arc::from(mangled.as_str()));
+                    self.record_extension(
+                        vn_core::extension_names::ExtensionKind::Getter,
+                        &head,
+                        &key_str,
+                        &mangled,
+                        &pattern,
+                        *range,
+                    );
                     self.bind_extension_function_scope(range.start.line, receiver_ty, &[], *body);
                 }
                 ExtensionMember::Setter {
@@ -241,11 +257,14 @@ impl<'r> super::super::Binder<'r> {
                     sym.offset = range.start.offset;
                     sym.has_explicit_type = true;
                     self.define_outside(outer, mangled_atom, sym);
-                    self.extensions
-                        .setters
-                        .entry(Arc::from(type_name.as_str()))
-                        .or_default()
-                        .insert(Arc::from(key_str.as_str()), Arc::from(mangled.as_str()));
+                    self.record_extension(
+                        vn_core::extension_names::ExtensionKind::Setter,
+                        &head,
+                        &key_str,
+                        &mangled,
+                        &pattern,
+                        *range,
+                    );
                     self.bind_extension_function_scope(
                         range.start.line,
                         receiver_ty,
@@ -254,6 +273,36 @@ impl<'r> super::super::Binder<'r> {
                     );
                 }
             }
+        }
+    }
+
+    fn record_extension(
+        &mut self,
+        kind: vn_core::extension_names::ExtensionKind,
+        head: &str,
+        member: &str,
+        mangled: &str,
+        pattern: &vn_sem::bind::ReceiverPattern,
+        range: vn_core::SourceRange,
+    ) {
+        let candidate = vn_sem::bind::ExtensionCandidate {
+            mangled: Arc::from(mangled),
+            pattern: pattern.clone(),
+        };
+        if self
+            .extensions
+            .record(kind, head, member, candidate)
+            .is_err()
+        {
+            self.emit(
+                vn_core::Diagnostic::error(
+                    vn_core::ErrorCode::DuplicateDeclaration,
+                    format!(
+                        "the extension member '{member}' overlaps another one for the same receivers: make one of them more specific"
+                    ),
+                )
+                .with_range(range),
+            );
         }
     }
 

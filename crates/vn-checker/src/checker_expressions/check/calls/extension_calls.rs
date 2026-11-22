@@ -4,7 +4,7 @@ use vn_core::ast::{ExprId, ExprKind};
 use vn_core::source::SourceRange;
 use vn_sem::bind::BindResult;
 
-use super::super::members::extension_type_name;
+use super::super::members::resolve_extension;
 
 impl<'r> Checker<'r> {
     pub(super) fn record_extension_call(
@@ -30,18 +30,17 @@ impl<'r> Checker<'r> {
         };
         let obj_ty_raw = self.infer_type(rec, object, bind);
         let obj_ty = obj_ty_raw.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
-        let Some(tn) = extension_type_name(self, &obj_ty, &self.ty_table, bind) else {
-            return;
-        };
-        let Some(method_map) = bind.extensions.methods.get(tn.as_ref()) else {
-            return;
-        };
-        if let Some(mangled) = method_map.get(bind.interner.resolve(*method_name))
-            && !bind.extensions.forwarded.contains(mangled)
+        if let Some(mangled) = resolve_extension(
+            self,
+            vn_core::extension_names::ExtensionKind::Method,
+            &obj_ty,
+            bind.interner.resolve(*method_name),
+            bind,
+        ) && !bind.extensions.forwarded.contains(&mangled)
         {
             rec.desugar
                 .extension_calls
-                .insert(range.start.offset, mangled.clone());
+                .insert(range.start.offset, mangled);
         }
     }
 }

@@ -266,17 +266,7 @@ impl<'r> super::Binder<'r> {
     ) {
         self.extensions.absorb(&exports.extensions);
         let origin_atom = origin.map(|o| self.intern_local(o));
-        let mut mangled: Vec<Arc<str>> = [
-            &exports.extensions.methods,
-            &exports.extensions.getters,
-            &exports.extensions.setters,
-        ]
-        .into_iter()
-        .flat_map(|by_type| by_type.values())
-        .flat_map(|members| members.values().cloned())
-        .collect();
-        mangled.sort();
-        mangled.dedup();
+        let mangled: Vec<Arc<str>> = exports.extensions.all_mangled();
         for name in mangled {
             let Some(exported) = exports.get(name.as_ref()) else {
                 continue;

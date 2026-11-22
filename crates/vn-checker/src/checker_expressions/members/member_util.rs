@@ -3,7 +3,7 @@ use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::TypeKind;
 use vn_sem::bind::BindResult;
-use vn_sem::types::{CheckerTyTable, Type};
+use vn_sem::types::Type;
 
 pub(crate) fn class_type_params(
     resolver: &dyn vn_sem::resolver::ImportResolver,
@@ -89,64 +89,93 @@ pub(super) fn extension_method_auth(bind: &BindResult, mangled: &Arc<str>) -> Me
     MemberAuth::of(bind, sid)
 }
 
-pub(super) fn extension_method_type(
+pub(super) fn extension_signature(
+    checker: &mut crate::checker::Checker,
     bind: &BindResult,
     mangled: &Arc<str>,
-    table: &mut CheckerTyTable,
-) -> Option<Type> {
+    receiver: &Type,
+) -> Option<vn_sem::types::FunctionType> {
     let sym_ty = resolve_extension_symbol_type(bind, mangled)?;
-    let TypeKind::Fn(fid) = table.get(sym_ty.0) else {
-        return Some(sym_ty);
+    let TypeKind::Fn(fid) = checker.ty_table.get(sym_ty.0) else {
+        return None;
     };
-    let ft = table.get_function(fid).clone();
-
-    let params: Vec<vn_sem::types::FunctionParam> = ft
-        .params
-        .iter()
-        .skip_while(|p| p.name.as_deref() == Some(vn_core::TokenKind::This.as_str()))
-        .cloned()
+    let ft = checker.ty_table.get_function(fid).clone();
+    let (declared_receiver, params) = match ft.params.split_first() {
+        Some((first, rest)) if first.name.as_deref() == Some(vn_core::TokenKind::This.as_str()) => {
+            (Some(Type::resolved(first.ty)), rest.to_vec())
+        }
+        Some(_) | None => (None, ft.params.clone()),
+    };
+    let mut mapping: FxHashMap<Arc<str>, Type> = FxHashMap::default();
+    if let Some(declared) = declared_receiver {
+        crate::checker_type_inferences::collect_type_inferences(
+            &declared,
+            receiver,
+            &ft.type_params,
+            &mut mapping,
+            &mut *std::sync::Arc::make_mut(&mut checker.ty_table),
+            &bind.interner,
+        );
+    }
+    let params = params
+        .into_iter()
+        .map(|p| vn_sem::types::FunctionParam {
+            ty: crate::generic_substitution::map_generics_cached(
+                checker,
+                &Type::resolved(p.ty),
+                &mapping,
+            )
+            .0,
+            ..p
+        })
         .collect();
+    let return_type = crate::generic_substitution::map_generics_cached(
+        checker,
+        &Type::resolved(ft.return_type),
+        &mapping,
+    )
+    .0;
+    let (type_params, type_param_defaults) = ft
+        .type_params
+        .iter()
+        .zip(
+            ft.type_param_defaults
+                .iter()
+                .copied()
+                .chain(std::iter::repeat(None)),
+        )
+        .filter(|(name, _)| !mapping.contains_key(*name))
+        .map(|(name, default)| (name.clone(), default))
+        .unzip();
+    Some(vn_sem::types::FunctionType {
+        params,
+        return_type,
+        is_arrow: ft.is_arrow,
+        type_params,
+        type_param_defaults,
+    })
+}
 
+pub(super) fn extension_method_type(
+    checker: &mut crate::checker::Checker,
+    bind: &BindResult,
+    mangled: &Arc<str>,
+    receiver: &Type,
+) -> Option<Type> {
+    let signature = extension_signature(checker, bind, mangled, receiver)?;
     Some(Type::fn_(
-        vn_sem::types::FunctionType {
-            params,
-            return_type: ft.return_type,
-            is_arrow: ft.is_arrow,
-            type_params: ft.type_params.clone(),
-            type_param_defaults: ft.type_param_defaults.clone(),
-        },
-        table,
+        signature,
+        &mut *std::sync::Arc::make_mut(&mut checker.ty_table),
     ))
 }
 
 pub(super) fn extension_getter_type(
+    checker: &mut crate::checker::Checker,
     bind: &BindResult,
     mangled: &Arc<str>,
-    table: &CheckerTyTable,
+    receiver: &Type,
 ) -> Option<Type> {
-    let sym_ty = resolve_extension_symbol_type(bind, mangled)?;
-    match table.get(sym_ty.0) {
-        TypeKind::Fn(fid) => Some(Type::resolved(table.get_function(fid).return_type)),
-        TypeKind::Primitive(_)
-        | TypeKind::Literal(_)
-        | TypeKind::This
-        | TypeKind::Array(_)
-        | TypeKind::Union(_)
-        | TypeKind::Intersection(_)
-        | TypeKind::Tuple(_)
-        | TypeKind::Named(..)
-        | TypeKind::Generic(..)
-        | TypeKind::TemplateLiteral(_)
-        | TypeKind::Record(_)
-        | TypeKind::Interface(_)
-        | TypeKind::KeyOf(_)
-        | TypeKind::IndexedAccess { .. }
-        | TypeKind::Mapped { .. }
-        | TypeKind::Conditional { .. }
-        | TypeKind::Infer(_)
-        | TypeKind::EnumVariant { .. }
-        | TypeKind::TypePredicate { .. } => Some(sym_ty),
-    }
+    extension_signature(checker, bind, mangled, receiver).map(|s| Type::resolved(s.return_type))
 }
 
 pub(super) fn intrinsic_member_info(

@@ -27,6 +27,30 @@ pub fn extension_label(
         })
 }
 
+pub fn extension_pattern(
+    ext: &ExtensionDecl,
+    receiver: Type,
+    table: &CheckerTyTable,
+    interner: &AtomInterner,
+) -> Option<super::ReceiverPattern> {
+    let params: Vec<Arc<str>> = ext
+        .type_params
+        .iter()
+        .map(|p| Arc::from(interner.resolve(p.name)))
+        .collect();
+    super::ReceiverPattern::of(
+        receiver,
+        table,
+        &|atom| {
+            interner
+                .try_resolve(atom)
+                .or_else(|| table.name(atom))
+                .map(Arc::from)
+        },
+        &params,
+    )
+}
+
 pub fn extension_names(
     ext: &ExtensionDecl,
     label: &str,

@@ -10,9 +10,6 @@ pub(super) fn collect_extension_members(
     bind: &BindResult,
     table: &mut CheckerTyTable,
 ) {
-    let Some(type_name) = extension_key(ty, table, bind) else {
-        return;
-    };
     let scope = bind.scopes.get(bind.global_scope);
 
     let strip_this = |ft: &vn_sem::types::FunctionType| {
@@ -79,71 +76,26 @@ pub(super) fn collect_extension_members(
         }
     };
 
+    use vn_core::extension_names::ExtensionKind;
     use vn_sem::semantic_info::ResolvedMemberKind as K;
-    if let Some(methods) = bind.extensions.methods.get(type_name.as_ref()) {
-        for (name, mangled) in methods {
+    let name_of = |atom: vn_core::Atom| -> Option<Arc<str>> {
+        Some(Arc::from(super::member_atom::resolve_atom_text(bind, atom)))
+    };
+    for (kind, member_kind, as_return) in [
+        (ExtensionKind::Method, K::ExtensionMethod, false),
+        (ExtensionKind::Getter, K::ExtensionProperty, true),
+        (ExtensionKind::Setter, K::ExtensionProperty, true),
+    ] {
+        for (name, mangled) in bind.extensions.members_for(kind, *ty, table, &name_of) {
             push(
-                name,
-                mangled,
-                K::ExtensionMethod,
-                false,
+                &name,
+                &mangled,
+                member_kind,
+                as_return,
                 results,
                 seen,
                 table,
             );
         }
-    }
-    if let Some(getters) = bind.extensions.getters.get(type_name.as_ref()) {
-        for (name, mangled) in getters {
-            push(
-                name,
-                mangled,
-                K::ExtensionProperty,
-                true,
-                results,
-                seen,
-                table,
-            );
-        }
-    }
-    if let Some(setters) = bind.extensions.setters.get(type_name.as_ref()) {
-        for (name, mangled) in setters {
-            push(
-                name,
-                mangled,
-                K::ExtensionProperty,
-                true,
-                results,
-                seen,
-                table,
-            );
-        }
-    }
-}
-
-fn extension_key(ty: &Type, table: &CheckerTyTable, bind: &BindResult) -> Option<Arc<str>> {
-    match table.get(ty.0) {
-        vn_core::TypeKind::Named(n, _) | vn_core::TypeKind::Generic(n, _, _) => {
-            Some(Arc::from(super::member_atom::resolve_atom_text(bind, n)))
-        }
-        k @ (vn_core::TypeKind::Primitive(_) | vn_core::TypeKind::Literal(_)) => {
-            k.lang_name().map(Arc::from)
-        }
-        vn_core::TypeKind::Array(_) => Some(Arc::from(vn_core::BuiltinType::Array.name())),
-        vn_core::TypeKind::This
-        | vn_core::TypeKind::Union(_)
-        | vn_core::TypeKind::Intersection(_)
-        | vn_core::TypeKind::Tuple(_)
-        | vn_core::TypeKind::TemplateLiteral(_)
-        | vn_core::TypeKind::Fn(_)
-        | vn_core::TypeKind::Record(_)
-        | vn_core::TypeKind::Interface(_)
-        | vn_core::TypeKind::KeyOf(_)
-        | vn_core::TypeKind::IndexedAccess { .. }
-        | vn_core::TypeKind::Mapped { .. }
-        | vn_core::TypeKind::Conditional { .. }
-        | vn_core::TypeKind::Infer(_)
-        | vn_core::TypeKind::EnumVariant { .. }
-        | vn_core::TypeKind::TypePredicate { .. } => None,
     }
 }

@@ -1,0 +1,6 @@
+// expect: error[VN3004]
+extension<U> on U[][] {
+    joined(): U[] { return [] }
+}
+const words: str[] = ["a"]
+words.joined()

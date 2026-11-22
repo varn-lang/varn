@@ -118,21 +118,20 @@ impl<'r> Checker<'r> {
             TypeKind::Primitive(vn_core::LangPrimitive::Never)
         );
 
-        if let Some(tn) = extension_type_name(self, &check_ty, &self.ty_table, bind) {
-            if let Some(getter_map) = bind.extensions.getters.get(tn.as_ref()) {
-                if let Some(mangled) = getter_map.get(prop_name) {
-                    rec.desugar
-                        .extension_members
-                        .insert(property_range.start.offset, mangled.clone());
-                }
-            } else if let Some(method_map) = bind.extensions.methods.get(tn.as_ref())
-                && let Some(mangled) = method_map.get(prop_name)
-                && !bind.extensions.forwarded.contains(mangled)
-            {
-                rec.desugar
-                    .extension_members
-                    .insert(property_range.start.offset, mangled.clone());
-            }
+        use vn_core::extension_names::ExtensionKind;
+        if let Some(mangled) =
+            resolve_extension(self, ExtensionKind::Getter, &check_ty, prop_name, bind)
+        {
+            rec.desugar
+                .extension_members
+                .insert(property_range.start.offset, mangled);
+        } else if let Some(mangled) =
+            resolve_extension(self, ExtensionKind::Method, &check_ty, prop_name, bind)
+            && !bind.extensions.forwarded.contains(&mangled)
+        {
+            rec.desugar
+                .extension_members
+                .insert(property_range.start.offset, mangled);
         }
 
         self.check_member_side(object, &check_ty, prop_name, range, bind);
@@ -300,11 +299,15 @@ impl<'r> Checker<'r> {
     }
 }
 
-pub(crate) fn extension_type_name(
+pub(crate) fn resolve_extension(
     checker: &Checker,
+    kind: vn_core::extension_names::ExtensionKind,
     ty: &Type,
-    table: &vn_sem::types::CheckerTyTable,
+    member: &str,
     bind: &BindResult,
 ) -> Option<std::sync::Arc<str>> {
-    ty.extension_key(table, &|atom| Some(checker.resolve_bind_atom(bind, atom)))
+    bind.extensions
+        .resolve(kind, *ty, member, &checker.ty_table, &|atom| {
+            Some(checker.resolve_bind_atom(bind, atom))
+        })
 }

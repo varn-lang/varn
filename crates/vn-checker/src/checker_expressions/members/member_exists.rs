@@ -298,20 +298,13 @@ impl<'r> Checker<'r> {
         if self.owner_lookup_depth != 0 {
             return false;
         }
-        let Some(tn) = crate::checker_expressions::check::members::extension_type_name(
-            self,
-            ty,
-            &self.ty_table,
-            bind,
-        ) else {
-            return false;
-        };
-        [
-            &bind.extensions.methods,
-            &bind.extensions.getters,
-            &bind.extensions.setters,
-        ]
-        .into_iter()
-        .any(|table| table.get(&tn).is_some_and(|m| m.contains_key(key)))
+        vn_core::extension_names::ExtensionKind::ALL
+            .into_iter()
+            .any(|kind| {
+                crate::checker_expressions::check::members::resolve_extension(
+                    self, kind, ty, key, bind,
+                )
+                .is_some()
+            })
     }
 }
