@@ -34,6 +34,8 @@ pub fn shared_isa() -> Result<&'static OwnedTargetIsa, String> {
     ISA.get_or_init(host_isa).as_ref().map_err(|e| e.clone())
 }
 
+include!(concat!(env!("OUT_DIR"), "/codegen_fingerprint.rs"));
+
 pub fn isa_identity() -> u64 {
     static ID: OnceLock<u64> = OnceLock::new();
     *ID.get_or_init(|| match shared_isa() {
@@ -43,8 +45,9 @@ pub fn isa_identity() -> u64 {
                 text.push_str(&format!(";{v}"));
             }
             text.push_str(&format!(
-                ";{}",
-                crate::config::config().codegen_fingerprint()
+                ";{};{:x}",
+                crate::config::config().codegen_fingerprint(),
+                CODEGEN_SOURCE_FINGERPRINT
             ));
             vn_core::fingerprint::fingerprint(text.as_bytes())
         }
