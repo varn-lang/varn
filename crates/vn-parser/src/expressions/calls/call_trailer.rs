@@ -360,7 +360,6 @@ pub(super) fn parse_call_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

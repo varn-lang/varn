@@ -213,8 +213,7 @@ fn class_members(
                 throws: throws(Kind::Constructor, decorators, arena, interner)?,
                 capability: capability(Kind::Constructor, decorators, arena, interner)?,
             },
-            ClassMember::Destructor { .. }
-            | ClassMember::Property { .. }
+            ClassMember::Property { .. }
             | ClassMember::Setter { .. }
             | ClassMember::StaticBlock { .. } => continue,
         };

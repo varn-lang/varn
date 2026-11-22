@@ -94,7 +94,6 @@ impl TokenKind {
                 | TokenKind::Namespace
                 | TokenKind::Extension
                 | TokenKind::Constructor
-                | TokenKind::Destructor
                 | TokenKind::Placeholder
                 | TokenKind::Public
                 | TokenKind::Private

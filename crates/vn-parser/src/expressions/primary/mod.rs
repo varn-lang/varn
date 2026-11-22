@@ -296,7 +296,6 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::At
         | TokenKind::Backslash
         | TokenKind::Dollar

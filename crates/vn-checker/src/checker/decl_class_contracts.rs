@@ -140,9 +140,7 @@ impl<'r> Checker<'r> {
                 | ClassMember::Property { key, .. } => {
                     Some(std::sync::Arc::from(bind.interner.resolve(*key)))
                 }
-                ClassMember::Constructor { .. }
-                | ClassMember::Destructor { .. }
-                | ClassMember::StaticBlock { .. } => None,
+                ClassMember::Constructor { .. } | ClassMember::StaticBlock { .. } => None,
             })
             .collect();
         for inherited in superclass_members {
@@ -174,7 +172,6 @@ impl<'r> Checker<'r> {
             | ClassMember::Property { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
-            | ClassMember::Destructor { .. }
             | ClassMember::StaticBlock { .. } => &[],
         }) {
             let declares_property =
@@ -228,9 +225,7 @@ impl<'r> Checker<'r> {
                     range,
                     ..
                 } => (key, modifiers, range, 2u8),
-                ClassMember::Constructor { .. }
-                | ClassMember::Destructor { .. }
-                | ClassMember::StaticBlock { .. } => continue,
+                ClassMember::Constructor { .. } | ClassMember::StaticBlock { .. } => continue,
             };
             let clash = seen.iter().any(|(name, is_static, other)| {
                 name == key

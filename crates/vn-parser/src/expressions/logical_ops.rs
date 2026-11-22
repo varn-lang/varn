@@ -147,7 +147,6 @@ pub(crate) fn token_to_logical_op(kind: TokenKind) -> Option<LogicalOp> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

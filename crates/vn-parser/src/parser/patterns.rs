@@ -167,7 +167,6 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

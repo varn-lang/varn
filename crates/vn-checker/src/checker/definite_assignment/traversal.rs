@@ -197,7 +197,6 @@ impl<'r> Checker<'r> {
                             self.da_stmt(*body, &mut inner, bind);
                         }
                         ClassMember::Constructor { .. }
-                        | ClassMember::Destructor { .. }
                         | ClassMember::Method { .. }
                         | ClassMember::Property { .. }
                         | ClassMember::Getter { .. }
@@ -237,8 +236,7 @@ impl<'r> Checker<'r> {
                         | ClassMember::Setter { body: Some(b), .. } => Some(*b),
                         ClassMember::Constructor { body, .. }
                         | ClassMember::StaticBlock { body, .. } => Some(*body),
-                        ClassMember::Destructor { .. }
-                        | ClassMember::Method { .. }
+                        ClassMember::Method { .. }
                         | ClassMember::Property { .. }
                         | ClassMember::Getter { .. }
                         | ClassMember::Setter { .. } => None,

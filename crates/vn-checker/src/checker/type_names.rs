@@ -322,7 +322,7 @@ impl<'r> Checker<'r> {
                             bind,
                         );
                     }
-                    ClassMember::Destructor { .. } | ClassMember::StaticBlock { .. } => {}
+                    ClassMember::StaticBlock { .. } => {}
                 }
             }
         });

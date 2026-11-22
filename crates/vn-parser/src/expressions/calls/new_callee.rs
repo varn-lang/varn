@@ -182,7 +182,6 @@ pub fn parse_new_callee_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

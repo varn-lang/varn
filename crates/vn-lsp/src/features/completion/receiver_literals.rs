@@ -149,7 +149,6 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

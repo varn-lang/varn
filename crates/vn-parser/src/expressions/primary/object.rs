@@ -303,7 +303,6 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

@@ -129,7 +129,6 @@ pub static KEYWORDS: &[KwEntry] = &[
     kw(TokenKind::Get, MEMBER),
     kw(TokenKind::Set, MEMBER),
     kw(TokenKind::Constructor, MEMBER),
-    kw(TokenKind::Destructor, MEMBER),
     kw_snip(
         TokenKind::Match,
         "pattern match",

@@ -37,8 +37,8 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         | Finally | Using | With | Import | Export | From | As | Async | Await | Yield | New
         | Super | Delete | In | Of | Is | Public | Private | Protected | Static | Abstract
         | Override | Readonly | Mut | Out | Declare | Native | Extends | Implements | Get | Set
-        | Constructor | Destructor | Match | At | Hash | Backslash | Dollar | Backtick
-        | Newline | Whitespace | DocComment | Placeholder | RawStr => {}
+        | Constructor | Match | At | Hash | Backslash | Dollar | Backtick | Newline
+        | Whitespace | DocComment | Placeholder | RawStr => {}
     }
 
     if tok.kind == Identifier

@@ -180,7 +180,6 @@ impl<'r> Checker<'r> {
                     }
                 }
                 ClassMember::Constructor { .. }
-                | ClassMember::Destructor { .. }
                 | ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }

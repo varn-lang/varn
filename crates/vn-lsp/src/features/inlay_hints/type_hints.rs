@@ -251,7 +251,6 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::Get
             | vn_core::TokenKind::Set
             | vn_core::TokenKind::Constructor
-            | vn_core::TokenKind::Destructor
             | vn_core::TokenKind::Match
             | vn_core::TokenKind::At
             | vn_core::TokenKind::Hash

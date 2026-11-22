@@ -213,7 +213,6 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

@@ -286,7 +286,6 @@ pub fn build_semantic_tokens(state: &DocumentState) -> Vec<u32> {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

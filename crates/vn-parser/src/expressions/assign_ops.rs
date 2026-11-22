@@ -147,7 +147,6 @@ pub(crate) fn token_to_assign_op(kind: TokenKind) -> Option<AssignOp> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

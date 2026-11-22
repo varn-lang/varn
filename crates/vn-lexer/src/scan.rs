@@ -195,7 +195,6 @@ fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::P
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

@@ -95,8 +95,7 @@ pub(super) fn print_decl(
                     ClassMember::Constructor { .. } => {
                         terminal::log(format!("{child_indent}{mk}{}", chalk("Constructor").bold()))
                     }
-                    ClassMember::Destructor { .. }
-                    | ClassMember::Getter { .. }
+                    ClassMember::Getter { .. }
                     | ClassMember::Setter { .. }
                     | ClassMember::StaticBlock { .. } => terminal::log(format!(
                         "{child_indent}{mk}{}",

@@ -94,11 +94,6 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
                     "a struct has no constructor: its fields, in order, are its constructor",
                 ));
             }
-            ClassMember::Destructor { .. } => {
-                return Err(ParseError::invalid(
-                    "a struct has no destructor: it owns no resources".to_owned(),
-                ));
-            }
             ClassMember::Setter { .. } => {
                 return Err(ParseError::invalid(
                     "a struct is immutable: it cannot declare a setter".to_owned(),

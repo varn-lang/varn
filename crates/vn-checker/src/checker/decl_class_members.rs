@@ -227,8 +227,7 @@ impl<'r> Checker<'r> {
                     self.enclosing_caps = saved_caps;
                     self.current_scope = saved_scope;
                 }
-                ClassMember::Destructor { .. }
-                | ClassMember::Method { .. }
+                ClassMember::Method { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }
                 | ClassMember::StaticBlock { .. } => {}

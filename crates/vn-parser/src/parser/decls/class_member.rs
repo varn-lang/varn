@@ -76,30 +76,6 @@ pub fn parse_class_member(
             range: full_range,
         });
     }
-    if s.check(TokenKind::Destructor) {
-        s.advance();
-        if !decorators.is_empty() {
-            return Err(ParseError::invalid(
-                "decorators are not supported on destructors".to_owned(),
-            ));
-        }
-        let body = if class_is_declare {
-            if s.check(TokenKind::LBrace) {
-                return Err(ParseError::invalid(
-                    "declare destructor cannot have a body".to_owned(),
-                ));
-            }
-            s.eat_semicolon();
-            s.stmt(s.range(), vn_core::ast::StmtKind::Empty)
-        } else {
-            super::super::stmts::parse_block(s)?
-        };
-        let full_range = s.span_from(range);
-        return Ok(ClassMember::Destructor {
-            body,
-            range: full_range,
-        });
-    }
 
     let is_get = s.check(TokenKind::Get) && {
         let nk = s.peek_kind(1);

@@ -80,7 +80,6 @@ keywords! {
     Get => "get",
     Set => "set",
     Constructor => "constructor",
-    Destructor => "destructor",
     Match => "match",
     Placeholder => "_",
 }

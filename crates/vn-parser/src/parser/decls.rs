@@ -189,7 +189,6 @@ pub(super) fn parse_var_decl_with_declare(
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

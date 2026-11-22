@@ -37,7 +37,6 @@ pub(super) fn emit_enum(
             }
             ClassMember::Property { .. }
             | ClassMember::Constructor { .. }
-            | ClassMember::Destructor { .. }
             | ClassMember::Method { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
@@ -338,8 +337,7 @@ pub(super) fn emit_enum(
                 );
                 def.static_blocks.push(id);
             }
-            ClassMember::Destructor { .. }
-            | ClassMember::Method { .. }
+            ClassMember::Method { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. } => {}
         }

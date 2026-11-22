@@ -185,8 +185,7 @@ impl AstJson<'_> {
                             range.start.line,
                             vec![self.stmt(*body)],
                         )),
-                        ClassMember::Destructor { .. }
-                        | ClassMember::Getter { .. }
+                        ClassMember::Getter { .. }
                         | ClassMember::Setter { .. }
                         | ClassMember::StaticBlock { .. } => None,
                     })

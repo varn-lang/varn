@@ -286,8 +286,7 @@ impl<'r> super::super::Binder<'r> {
                 } => {
                     self.bind_expr(*init);
                 }
-                ClassMember::Destructor { .. }
-                | ClassMember::Method { .. }
+                ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }

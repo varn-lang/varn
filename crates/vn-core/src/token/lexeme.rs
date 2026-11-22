@@ -129,7 +129,6 @@ impl TokenKind {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::Placeholder => match self.keyword_text() {
                 Some(text) => text,

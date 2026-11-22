@@ -143,27 +143,26 @@ pub enum TokenKind {
     Get = 139,
     Set = 140,
     Constructor = 141,
-    Destructor = 142,
-    Match = 143,
-    At = 144,
-    Hash = 145,
-    Backslash = 146,
-    Dollar = 147,
-    Backtick = 148,
-    Newline = 149,
-    Whitespace = 150,
+    Match = 142,
+    At = 143,
+    Hash = 144,
+    Backslash = 145,
+    Dollar = 146,
+    Backtick = 147,
+    Newline = 148,
+    Whitespace = 149,
 
-    DocComment = 151,
+    DocComment = 150,
 
-    Placeholder = 152,
+    Placeholder = 151,
 
-    DecimalLiteral = 153,
+    DecimalLiteral = 152,
 
-    RawStr = 154,
+    RawStr = 153,
 
-    Mut = 155,
+    Mut = 154,
 
-    Out = 156,
+    Out = 155,
 }
 
 impl TokenKind {

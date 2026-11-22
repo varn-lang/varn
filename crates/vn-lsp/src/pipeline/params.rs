@@ -202,7 +202,6 @@ fn collect_type_param_names(
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

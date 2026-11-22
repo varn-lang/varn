@@ -199,7 +199,6 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

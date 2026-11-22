@@ -145,7 +145,7 @@ pub(super) fn collect_class_decl(a: &AstArena, c: &ClassDecl, out: &mut Vec<Spat
                 }
                 collect_stmt(a, body, out);
             }
-            ClassMember::Destructor { body, .. } | ClassMember::StaticBlock { body, .. } => {
+            ClassMember::StaticBlock { body, .. } => {
                 collect_stmt(a, body, out);
             }
             ClassMember::Method {

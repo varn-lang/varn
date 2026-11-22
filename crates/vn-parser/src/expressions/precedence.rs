@@ -158,7 +158,6 @@ pub(crate) fn binary_prec(kind: TokenKind) -> Option<(Prec, bool)> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

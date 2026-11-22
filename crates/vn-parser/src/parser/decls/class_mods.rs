@@ -195,7 +195,6 @@ pub(super) fn parse_member_mods(s: &mut TokenStream) -> Modifiers {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

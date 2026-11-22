@@ -331,7 +331,7 @@ impl<'r> Binder<'r> {
                     ..Default::default()
                 });
             }
-            ClassMember::Destructor { .. } | ClassMember::StaticBlock { .. } => {}
+            ClassMember::StaticBlock { .. } => {}
         }
     }
 }
@@ -343,6 +343,6 @@ fn member_doc(member: &ClassMember) -> Option<&str> {
         | ClassMember::Property { doc, .. }
         | ClassMember::Getter { doc, .. }
         | ClassMember::Setter { doc, .. } => doc.as_deref(),
-        ClassMember::Destructor { .. } | ClassMember::StaticBlock { .. } => None,
+        ClassMember::StaticBlock { .. } => None,
     }
 }

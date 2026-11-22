@@ -235,8 +235,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::Mut
         | TokenKind::Out
         | TokenKind::Native
-        | TokenKind::Constructor
-        | TokenKind::Destructor => {
+        | TokenKind::Constructor => {
             let name = s.consume_lexeme();
             Ok(s.type_node(range, TypeKind::Named(name, None)))
         }

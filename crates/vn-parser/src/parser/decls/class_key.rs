@@ -162,7 +162,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Backslash

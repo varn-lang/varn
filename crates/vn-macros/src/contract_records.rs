@@ -86,7 +86,6 @@ fn class_fields(c: &ClassDecl, interner: &AtomInterner) -> Fields {
                     .unwrap_or(Mapped::Dynamic),
             )),
             ClassMember::Constructor { .. }
-            | ClassMember::Destructor { .. }
             | ClassMember::Method { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }

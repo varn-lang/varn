@@ -122,7 +122,6 @@ impl<'r> Checker<'r> {
                     }
                 }
                 ClassMember::Constructor { .. }
-                | ClassMember::Destructor { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::StaticBlock { .. } => {}
             }

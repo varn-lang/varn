@@ -93,8 +93,7 @@ impl<'r> Checker<'r> {
             .iter()
             .filter_map(|m| match m {
                 ClassMember::Constructor { body, .. } => Some(*body),
-                ClassMember::Destructor { .. }
-                | ClassMember::Method { .. }
+                ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }

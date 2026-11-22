@@ -213,7 +213,6 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash

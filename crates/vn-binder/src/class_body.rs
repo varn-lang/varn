@@ -87,8 +87,7 @@ impl<'r> Binder<'r> {
                 } => {
                     self.bind_expr(*init);
                 }
-                ClassMember::Destructor { .. }
-                | ClassMember::Method { .. }
+                ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }
@@ -100,8 +99,7 @@ impl<'r> Binder<'r> {
     pub(super) fn mark_optional_fields(&mut self, c: &ClassDecl, members: &mut [ClassMemberInfo]) {
         let declared_ctor = c.body.iter().find_map(|m| match m {
             ClassMember::Constructor { body, .. } => Some(body),
-            ClassMember::Destructor { .. }
-            | ClassMember::Method { .. }
+            ClassMember::Method { .. }
             | ClassMember::Property { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
@@ -118,7 +116,6 @@ impl<'r> Binder<'r> {
                     ..
                 } if !modifiers.is_static => Some(Arc::from(self.interner.resolve(*key))),
                 ClassMember::Constructor { .. }
-                | ClassMember::Destructor { .. }
                 | ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }

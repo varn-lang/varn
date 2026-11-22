@@ -98,10 +98,6 @@ pub enum ClassMember {
         doc: Option<String>,
         range: SourceRange,
     },
-    Destructor {
-        body: StmtId,
-        range: SourceRange,
-    },
     Method {
         key: Atom,
         type_params: Vec<TypeParam>,

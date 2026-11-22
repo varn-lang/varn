@@ -186,7 +186,6 @@ fn parse_param(s: &mut TokenStream) -> PResult<Param> {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

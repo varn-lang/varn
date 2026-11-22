@@ -178,7 +178,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::Get
                                 | TokenKind::Set
                                 | TokenKind::Constructor
-                                | TokenKind::Destructor
                                 | TokenKind::Match
                                 | TokenKind::At
                                 | TokenKind::Hash
@@ -338,7 +337,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::Get
             | TokenKind::Set
             | TokenKind::Constructor
-            | TokenKind::Destructor
             | TokenKind::Match
             | TokenKind::At
             | TokenKind::Hash

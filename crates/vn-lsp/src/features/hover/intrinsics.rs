@@ -179,7 +179,6 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::Get
         | TokenKind::Set
         | TokenKind::Constructor
-        | TokenKind::Destructor
         | TokenKind::Hash
         | TokenKind::Backslash
         | TokenKind::Dollar
