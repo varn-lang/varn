@@ -46,13 +46,19 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   compara direcciones; mover objetos rompe `Map`, `Set` e internado. Hacerlo
   exigiria una identidad independiente de la direccion (handles con indireccion
   en cada acceso), lo que penaliza el JIT.
-- A2d. Almacenamiento dentro de la celda sin mover objetos: un `CellVec<T>` con
-  capacidad inline en la propia celda para arrays, tuplas y entradas de `Map`
-  pequenos, con `NEEDS_DROP` solo cuando se desborda. Elimina `malloc`, `free` y
-  `drop_object` de los objetos pequenos y permite reiniciar en bloque los
-  bloques jovenes sin supervivientes. Debe conservar los offsets que lee el JIT
-  (`elems_ptr_off`, `elems_len_off`). Puerta: array literal y `new Map` por debajo
-  de 12 ns y GC menor por debajo del 5% en `http_routing`.
+- [x] A2d. Arrays y tuplas pequenos dentro de su celda: `CellVec<T>` (ptr, len y
+  capacidad con bit de propiedad, 24 bytes) con los elementos inline tras el
+  `ArrayRepr` (hasta 32, minimo 4 si nace vacio); desbordar pasa a heap y se
+  contabiliza en el ledger. Los offsets `ptr`/`len` que lee el JIT son constantes
+  de `CellVec`. Medido: array literal que escapa 265 a ~175 ms (10M); suite 6165
+  verde y estres de GC con verificacion sin fallos. Al medirlo aparecio un
+  precipicio de pacing (el ledger externo fijo en 16 MiB disparaba un segundo GC
+  menor y uno mayor en `http_routing`, que retiene el 76%), corregido en A2b
+  escalando vivero y presupuesto por 1/(1 - supervivencia) y midiendo el tamano
+  medio de celda (antes caia siempre a 24 B).
+- A2e. Entradas de `Map`/`Set` pequenos inline con el mismo `CellVec`, y reinicio
+  en bloque de bloques jovenes sin supervivientes. `new Map` sigue en ~700 ms
+  (30M): su coste ya no es el almacenamiento sino la propia celda.
 - A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
   asignacion en region de frame para arrays y `Map` que no escapan.
