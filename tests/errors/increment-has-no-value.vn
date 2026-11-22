@@ -1,0 +1,3 @@
+// expect: error[VN2007]
+let i = 0
+const j = i++

@@ -49,6 +49,7 @@ impl<'r> Checker<'r> {
             yielded_types: None,
             declared_yield: None,
             loop_depth: 0,
+            statement_position: None,
             switch_depth: 0,
             namespace_bases: Default::default(),
             loop_labels: Vec::new(),

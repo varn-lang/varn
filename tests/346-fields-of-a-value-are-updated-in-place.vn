@@ -37,16 +37,10 @@ await describe("346 fields of a value are updated through their place", async ()
         p.y--
         expect(p.x).toBe(6)
         expect(p.y).toBe(6)
-        const before = p.x++
+        const before = p.x
+        p.x++
         expect(before).toBe(6)
         expect(p.x).toBe(7)
-    })
-
-    await it("the assignment is an expression with the assigned value", () => {
-        let p: Pt = { x: 1, y: 2 }
-        const got = (p.x = 9)
-        expect(got).toBe(9)
-        expect(p.x).toBe(9)
     })
 
     await it("nested records are rebuilt from the root", () => {

@@ -75,7 +75,7 @@ impl<'r> Checker<'r> {
                         ForInit::Var { declarators, .. } => {
                             checker.check_for_var_init(rec, declarators, bind)
                         }
-                        ForInit::Expr(e) => checker.check_expr(rec, *e, bind),
+                        ForInit::Expr(e) => checker.check_statement_expr(rec, *e, bind),
                     }
                 }
                 if let Some(t) = test {
@@ -83,7 +83,7 @@ impl<'r> Checker<'r> {
                     checker.require_condition(rec, t, bind);
                 }
                 if let Some(u) = update {
-                    checker.check_expr(rec, u, bind);
+                    checker.check_statement_expr(rec, u, bind);
                 }
                 checker.check_stmt(rec, body, bind);
             },

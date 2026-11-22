@@ -168,6 +168,7 @@ impl<'r> Checker<'r> {
                 }
             }
             ExprKind::Assign { target, value, op } => {
+                self.require_statement_position(expr, range);
                 self.check_assign(rec, *op, *target, *value, range, bind);
                 self.forget_assigned_target(rec, *target, bind)
             }
@@ -262,7 +263,10 @@ impl<'r> Checker<'r> {
                 self.check_match(rec, *subject, cases, expr, range, bind)
             }
 
-            ExprKind::Update { operand, .. } => self.check_update(rec, *operand, bind),
+            ExprKind::Update { operand, .. } => {
+                self.require_statement_position(expr, range);
+                self.check_update(rec, *operand, bind)
+            }
             ExprKind::Spread { argument } => self.check_expr(rec, *argument, bind),
 
             ExprKind::Pipeline { left, right } => self.check_pipeline(rec, *left, *right, bind),

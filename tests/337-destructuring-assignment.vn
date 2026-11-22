@@ -98,14 +98,12 @@ await describe("337 destructuring assignment", async () => {
         expect(slots[1]).toBe(8);
     });
 
-    await it("is the value of the expression and evaluates its right side once", async () => {
+    await it("evaluates its right side once", async () => {
         let a = 0;
         let b = 0;
         ;(a, b) = counted();
         expect(evaluations).toBe(1);
         expect(a + b).toBe(3);
-        const whole = ((a, b) = (3, 4));
-        expect(whole[1]).toBe(4);
     });
 
     await it("works in a loop and inside a closure", async () => {

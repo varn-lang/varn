@@ -14,6 +14,7 @@ impl<'r> Checker<'r> {
         bind: &BindResult,
     ) {
         let arena = self.ast_arena;
+        let as_statement = self.statement_position == Some(expr);
         self.check_expr(rec, subject, bind);
         let disc_narrowings = self.collect_match_disc_narrowings(rec, subject, bind);
         let base_subject_ty = self.infer_type(rec, subject, bind);
@@ -144,6 +145,9 @@ impl<'r> Checker<'r> {
                     Vec::new()
                 };
                 checker.with_narrowings(&guard_narrowings, |checker| match &case.body {
+                    vn_core::ast::MatchBody::Expr(e) if as_statement => {
+                        checker.check_statement_expr(rec, *e, bind)
+                    }
                     vn_core::ast::MatchBody::Expr(e) => checker.check_expr(rec, *e, bind),
                     vn_core::ast::MatchBody::Block(stmt) => checker.check_stmt(rec, *stmt, bind),
                 });

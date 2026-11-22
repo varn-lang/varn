@@ -14,7 +14,8 @@ await describe("347 postfix update stays on its line", async () => {
 
     await it("a postfix update on the same line still applies", () => {
         let n = 5
-        const old = n++
+        const old = n
+        n++
         expect(old).toBe(5)
         expect(n).toBe(6)
     })

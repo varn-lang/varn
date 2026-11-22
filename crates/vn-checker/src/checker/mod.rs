@@ -87,6 +87,7 @@ pub struct Checker<'r> {
     pub(crate) yielded_types: Option<Vec<Type>>,
     pub(crate) declared_yield: Option<Type>,
     pub(crate) loop_depth: u32,
+    pub(crate) statement_position: Option<vn_core::ast::ExprId>,
     pub(crate) switch_depth: u32,
     pub(crate) namespace_bases: rustc_hash::FxHashSet<vn_core::ast::ExprId>,
     pub(crate) loop_labels: Vec<vn_core::Atom>,

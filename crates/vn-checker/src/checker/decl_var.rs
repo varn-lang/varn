@@ -18,6 +18,38 @@ impl<'r> Checker<'r> {
         }
     }
 
+    pub(crate) fn check_statement_expr(
+        &mut self,
+        rec: &mut Recorder,
+        expr: vn_core::ast::ExprId,
+        bind: &BindResult,
+    ) {
+        let mut inner = expr;
+        while let ExprKind::Paren { expression } = &self.ast_arena.expr(inner).kind {
+            inner = *expression;
+        }
+        let saved = self.statement_position.replace(inner);
+        self.check_expr(rec, expr, bind);
+        self.statement_position = saved;
+    }
+
+    pub(crate) fn require_statement_position(
+        &mut self,
+        expr: vn_core::ast::ExprId,
+        range: vn_core::SourceRange,
+    ) {
+        if self.statement_position == Some(expr) {
+            return;
+        }
+        self.emit(
+            Diagnostic::error(
+                ErrorCode::InvalidStatement,
+                "an assignment or `++`/`--` is a statement and has no value: write it on its own line",
+            )
+            .with_range(range),
+        );
+    }
+
     pub(crate) fn is_rejected_regex_literal(
         v: &vn_core::ast::VariableDecl,
         bind: &BindResult,
