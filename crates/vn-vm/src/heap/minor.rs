@@ -221,6 +221,7 @@ impl HeapInner {
         self.young.survivors = survivors;
         self.young.retired += born.len() as u64;
         self.young.bytes = bytes;
+        self.young.avg_cell_bytes = (bytes / born.len().max(1) as u64).max(1);
         let counts = (born.len(), survived);
         born.clear();
         self.young.born = born;

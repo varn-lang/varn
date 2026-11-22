@@ -3,6 +3,7 @@ use vn_types::HeapRef;
 pub struct YoungGen {
     pub(crate) limit_cells: u64,
     pub(crate) bytes: u64,
+    pub(crate) avg_cell_bytes: u64,
     pub(crate) born: Vec<HeapRef>,
     pub(crate) survivors: Vec<HeapRef>,
     pub(crate) remembered: Vec<HeapRef>,
@@ -18,6 +19,7 @@ impl YoungGen {
         Self {
             limit_cells: 0,
             bytes: 0,
+            avg_cell_bytes: 24,
             born: Vec::new(),
             survivors: Vec::new(),
             remembered: Vec::new(),
