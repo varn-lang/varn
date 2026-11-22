@@ -143,14 +143,24 @@ impl<'r> Checker<'r> {
             let candidates = self.collect_member_names(&check_ty, bind);
             let suggestion = closest_in_list(prop_name, &candidates)
                 .map(|c| Suggestion::did_you_mean(c, *range));
-            let mut diag = Diagnostic::error(
-                ErrorCode::MissingProperty,
+            let forms = crate::checker_expressions::members::member_util::extension_receiver_forms(
+                self, &check_ty, prop_name, bind,
+            );
+            let shown = check_ty.display(&self.ty_table, &bind.interner);
+            let message = if forms.is_empty() {
+                format!("property '{prop_name}' does not exist on type '{shown}'")
+            } else {
                 format!(
-                    "property '{prop_name}' does not exist on type '{}'",
-                    check_ty.display(&self.ty_table, &bind.interner)
-                ),
-            )
-            .with_range(*range);
+                    "property '{prop_name}' does not exist on type '{shown}': it is an extension for {}",
+                    forms
+                        .iter()
+                        .map(|f| format!("'{f}'"))
+                        .collect::<Vec<_>>()
+                        .join(" and ")
+                )
+            };
+            let mut diag =
+                Diagnostic::error(ErrorCode::MissingProperty, message).with_range(*range);
             if let Some(s) = suggestion {
                 diag = diag.with_suggestion(s);
             }

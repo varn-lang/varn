@@ -150,6 +150,22 @@ impl Extensions {
         best_candidate(candidates, &concrete).map(|c| c.mangled.clone())
     }
 
+    pub fn candidates_named(
+        &self,
+        kind: vn_core::extension_names::ExtensionKind,
+        receiver: Type,
+        member: &str,
+        table: &crate::types::CheckerTyTable,
+        name_of: receiver_pattern::NameOf,
+    ) -> Vec<Arc<str>> {
+        ReceiverPattern::of(receiver, table, name_of, &[])
+            .and_then(|concrete| concrete.head())
+            .and_then(|head| self.table(kind).get(&head))
+            .and_then(|bucket| bucket.get(member))
+            .map(|candidates| candidates.iter().map(|c| c.mangled.clone()).collect())
+            .unwrap_or_default()
+    }
+
     pub fn members_for(
         &self,
         kind: vn_core::extension_names::ExtensionKind,

@@ -156,6 +156,38 @@ pub(super) fn extension_signature(
     })
 }
 
+pub(crate) fn extension_receiver_forms(
+    checker: &crate::checker::Checker,
+    receiver: &Type,
+    member: &str,
+    bind: &BindResult,
+) -> Vec<String> {
+    let mut forms: Vec<String> = vn_core::extension_names::ExtensionKind::ALL
+        .into_iter()
+        .flat_map(|kind| {
+            bind.extensions
+                .candidates_named(kind, *receiver, member, &checker.ty_table, &|atom| {
+                    Some(checker.resolve_bind_atom(bind, atom))
+                })
+        })
+        .filter_map(|mangled| {
+            let sym_ty = resolve_extension_symbol_type(bind, &mangled)?;
+            let TypeKind::Fn(fid) = checker.ty_table.get(sym_ty.0) else {
+                return None;
+            };
+            let this = checker.ty_table.get_function(fid).params.first()?.ty;
+            Some(
+                Type::resolved(this)
+                    .display(&checker.ty_table, &bind.interner)
+                    .to_string(),
+            )
+        })
+        .collect();
+    forms.sort();
+    forms.dedup();
+    forms
+}
+
 pub(super) fn extension_method_type(
     checker: &mut crate::checker::Checker,
     bind: &BindResult,
