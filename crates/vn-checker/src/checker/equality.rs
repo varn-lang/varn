@@ -47,7 +47,7 @@ impl Checker<'_> {
         }
         match self.ty_table.get(ty.0) {
             TypeKind::Named(name, origin) => {
-                let name = self.ty_table.names().try_resolve(name).unwrap_or_default();
+                let name = self.ty_table.names().resolve(name);
                 let origin = origin.and_then(|o| self.ty_table.names().try_resolve(o));
                 view.class_entry(name, origin).is_none()
                     && view.get_interface_members(name, origin).is_none()
@@ -119,7 +119,7 @@ impl Checker<'_> {
                 .iter()
                 .all(|id| self.equality_value_type(Type::resolved(*id), view, path)),
             TypeKind::Named(name, origin) | TypeKind::Generic(name, _, origin) => {
-                let name = self.ty_table.names().try_resolve(name).unwrap_or_default();
+                let name = self.ty_table.names().resolve(name);
                 let origin = origin.and_then(|o| self.ty_table.names().try_resolve(o));
                 if view.get_enum_members(name, origin).is_some() {
                     true

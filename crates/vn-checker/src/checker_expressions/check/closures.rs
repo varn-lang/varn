@@ -44,14 +44,14 @@ impl<'r> Checker<'r> {
                 if let vn_core::TypeKind::Named(n, origin) = self.ty_table.get(ep.ty)
                     && !vn_core::is_lang_type(n, origin)
                 {
-                    let n_str = bind.interner.try_resolve(n).unwrap_or_default();
+                    let n_str = bind.interner.resolve(n);
                     injected_type_params.push(Arc::from(n_str));
                 }
             }
             if let vn_core::TypeKind::Named(n, origin) = self.ty_table.get(expected_fn.return_type)
                 && !vn_core::is_lang_type(n, origin)
             {
-                let n_str = bind.interner.try_resolve(n).unwrap_or_default();
+                let n_str = bind.interner.resolve(n);
                 injected_type_params.push(Arc::from(n_str));
             }
             for tp in &injected_type_params {
@@ -380,7 +380,7 @@ impl<'r> Checker<'r> {
                 let actual = self.infer_type(rec, e, bind);
                 if let Some(expected) = self.expected_return_type {
                     let expected_kind = self.ty_table.get(expected.0);
-                    let is_tp = matches!(expected_kind, vn_core::TypeKind::Named(n, _) if self.active_type_params.contains(bind.interner.try_resolve(n).unwrap_or_default()));
+                    let is_tp = matches!(expected_kind, vn_core::TypeKind::Named(n, _) if self.active_type_params.contains(bind.interner.resolve(n)));
                     let is_void = matches!(
                         expected_kind,
                         vn_core::TypeKind::Primitive(vn_core::LangPrimitive::Void)

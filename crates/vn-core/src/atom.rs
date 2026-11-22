@@ -83,12 +83,8 @@ impl AtomInterner {
         (self.lookup(atom) == Some(s)).then_some(atom)
     }
 
-    #[track_caller]
     pub fn resolve(&self, atom: Atom) -> &str {
-        match self.try_resolve(atom) {
-            Some(text) => text,
-            None => panic!("Atom {atom:?} is not present in this interner"),
-        }
+        self.try_resolve(atom).unwrap_or_default()
     }
 
     pub fn try_resolve(&self, atom: Atom) -> Option<&str> {
