@@ -120,10 +120,10 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 | D7 condiciones `bool` | Hecho; migración del corpus y de la std | `f8737870` |
 | D8 clases por `implements` | Hecho para interfaces con nombre | `a0610203` |
 | D10 asignación como sentencia | Hecho | `fc63e2a8` |
-| D9 maquinaria de tipos | Bloqueado, ver 6.1 | — |
+| D9 maquinaria de tipos | Hecho, tras las extensiones con patrón de receptor (ADR-0035) | `9fbf3b68` |
 
 ### 6.1 Bloqueos y pendientes
 
-- **D9.** El preludio usa la maquinaria para 12 tipos utilitarios, y `Array.flat()` depende de `Flattened<T>` (condicional con `infer`). El recuento inicial de 0–1 usos solo miró código de usuario. Darle a `flat()` una regla propia exige extensiones con patrón genérico en el receptor (`extension<U> on Array<U[]>`), que hoy no existen: las extensiones se indexan por una clave textual exacta, y hay dos implementaciones distintas de `extension_key` (`vn-sem` y el checker) que dan resultados diferentes para arrays (Ley 6). Primero va esa capacidad; después, D9.
+- **D9.** Resuelto. El preludio usaba la maquinaria para 12 tipos utilitarios y `Array.flat()` dependía de `Flattened<T>`; el recuento inicial de 0–1 usos solo miró código de usuario. `flat()` pasó a ser una extensión sobre `U[][]` (ADR-0035) y la maquinaria se retiró.
 - **D8.** Una interfaz genérica instanciada se expande a una forma anónima antes de compararse y sigue siendo estructural. Hacerla nominal exige que el tipo conserve su interfaz de origen.
 - **D7.** El runtime conserva la veracidad dinámica (`truthy` en el JIT y en la VM) aunque el checker ya no produce condiciones que no sean `bool`; hay que retirarla.
