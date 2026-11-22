@@ -13,8 +13,19 @@ impl ArrayRepr {
         ArrayRepr::Boxed(BoxedElems::new(items))
     }
 
-    pub fn from_items(items: Vec<VmValue>) -> Self {
+    pub fn inferred(items: Vec<VmValue>) -> Self {
         Self::unboxed(&items).unwrap_or_else(|| Self::boxed(items))
+    }
+
+    pub fn from_storage_owned(storage: vn_core::ArrayStorage, items: Vec<VmValue>) -> Self {
+        match storage {
+            vn_core::ArrayStorage::Boxed => Self::boxed(items),
+            vn_core::ArrayStorage::Int
+            | vn_core::ArrayStorage::Float
+            | vn_core::ArrayStorage::Char
+            | vn_core::ArrayStorage::Bool
+            | vn_core::ArrayStorage::Ref => Self::from_storage(storage, &items),
+        }
     }
 
     pub fn from_storage(storage: vn_core::ArrayStorage, items: &[VmValue]) -> Self {

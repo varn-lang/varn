@@ -284,7 +284,7 @@ impl<'a, 'ctx> FastJsonParser<'a, 'ctx> {
             self.skip_whitespace();
             if self.pos < self.bytes.len() && self.bytes[self.pos] == b']' {
                 self.pos += 1;
-                return Some(self.ctx.alloc_array(items));
+                return Some(self.ctx.alloc_array_inferred(items));
             }
             let elem = self.parse_value()?;
             items.push(elem);
@@ -295,7 +295,7 @@ impl<'a, 'ctx> FastJsonParser<'a, 'ctx> {
                     self.pos += 1;
                 } else if b == b']' {
                     self.pos += 1;
-                    return Some(self.ctx.alloc_array(items));
+                    return Some(self.ctx.alloc_array_inferred(items));
                 } else {
                     return None;
                 }

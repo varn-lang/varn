@@ -267,7 +267,7 @@ pub(super) fn gather_tasks(ctx: &mut ExecCtx, tasks: VmValue) -> Result<VmValue,
         return Err("parallel: argument must be an array".to_string());
     }
     let count = ctx.array_len(tasks);
-    let results = ctx.heap.alloc_array_vm(vec![VmValue::null(); count]);
+    let results = ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, vec![VmValue::null(); count]);
     let parent = crate::task::TaskCell::gather(results, count);
     crate::task::track_cell(&mut ctx.heap, &parent);
     let handle = crate::task::alloc_handle(&mut ctx.heap, std::rc::Rc::clone(&parent));

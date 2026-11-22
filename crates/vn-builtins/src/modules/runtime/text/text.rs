@@ -31,9 +31,9 @@ natives! {
             .iter()
             .map(|g| VmValue::from_int(g.cluster as i64))
             .collect();
-        let glyphs = ctx.alloc_array(chars);
-        let advances = ctx.alloc_array(adv);
-        let clusters = ctx.alloc_array(clusters);
+        let glyphs = ctx.alloc_array(vn_core::ArrayStorage::Int, chars);
+        let advances = ctx.alloc_array(vn_core::ArrayStorage::Float, adv);
+        let clusters = ctx.alloc_array(vn_core::ArrayStorage::Int, clusters);
         Ok(ShapedRun {
             glyphs,
             advances,

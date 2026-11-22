@@ -103,7 +103,7 @@ impl SendValue {
                 for item in items {
                     vm_items.push(item.to_value_ctx(ctx));
                 }
-                ctx.alloc_array(vm_items)
+                ctx.alloc_array_inferred(vm_items)
             }
             SendValue::Object(fields) => {
                 let obj = ctx.alloc_object();

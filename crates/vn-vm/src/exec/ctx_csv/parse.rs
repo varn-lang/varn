@@ -15,7 +15,7 @@ pub(crate) fn parse_csv(
     let mut row_buf: Vec<std::borrow::Cow<'_, str>> = Vec::with_capacity(32);
 
     if !parser.next_row_into(&mut row_buf)? || row_buf.is_empty() {
-        return Ok(ctx.heap.alloc_array_vm(Vec::new()));
+        return Ok(ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, Vec::new()));
     }
 
     if has_header {
@@ -54,7 +54,7 @@ pub(crate) fn parse_csv(
             out_objects.push(obj);
         }
 
-        Ok(ctx.heap.alloc_array_vm(out_objects))
+        Ok(ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Ref, out_objects))
     } else {
         let est_rows = (text.len() / 32).clamp(16, 131072);
         let mut out_rows: Vec<VmValue> = Vec::with_capacity(est_rows);
@@ -63,7 +63,7 @@ pub(crate) fn parse_csv(
         for cell in &row_buf {
             first_vals.push(parse_cell_value(ctx, cell.as_ref()));
         }
-        out_rows.push(ctx.heap.alloc_array_vm(first_vals));
+        out_rows.push(ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, first_vals));
 
         while parser.next_row_into(&mut row_buf)? {
             if row_buf.is_empty() || (row_buf.len() == 1 && row_buf[0].is_empty()) {
@@ -73,10 +73,10 @@ pub(crate) fn parse_csv(
             for cell in &row_buf {
                 row_vals.push(parse_cell_value(ctx, cell.as_ref()));
             }
-            out_rows.push(ctx.heap.alloc_array_vm(row_vals));
+            out_rows.push(ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, row_vals));
         }
 
-        Ok(ctx.heap.alloc_array_vm(out_rows))
+        Ok(ctx.heap.alloc_array_vm(vn_core::ArrayStorage::Ref, out_rows))
     }
 }
 

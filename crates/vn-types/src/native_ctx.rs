@@ -42,7 +42,8 @@ pub trait NativeCtx: crate::Buffers {
 
     fn alloc_str(&mut self, s: &str) -> VmValue;
     fn alloc_str_owned(&mut self, s: String) -> VmValue;
-    fn alloc_array(&mut self, items: Vec<VmValue>) -> VmValue;
+    fn alloc_array(&mut self, storage: vn_core::ArrayStorage, items: Vec<VmValue>) -> VmValue;
+    fn alloc_array_inferred(&mut self, items: Vec<VmValue>) -> VmValue;
     fn alloc_tuple(&mut self, items: Vec<VmValue>) -> VmValue;
     fn alloc_object(&mut self) -> VmValue;
     fn alloc_bigint(&mut self, value: num_bigint::BigInt) -> VmValue;

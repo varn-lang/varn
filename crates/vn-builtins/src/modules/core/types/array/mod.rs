@@ -41,7 +41,7 @@ fn flatten_one_level(ctx: &mut dyn NativeCtx, arr: VmValue, out: &mut Vec<VmValu
 
 natives! {
     class Array {
-        constructor(ctx, _this) => ctx.alloc_array(Vec::new()),
+        constructor(ctx, _this) => ctx.alloc_array(vn_core::ArrayStorage::Boxed, Vec::new()),
         filled(length, value) => {
             let len = usize::try_from(length)
                 .ok()

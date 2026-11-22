@@ -228,7 +228,7 @@ fn walk(
                 scope,
                 visiting,
             ) {
-                Some(items) => heap.alloc_array_vm(items),
+                Some(items) => heap.alloc_array_inferred_vm(items),
                 None => v,
             }
         }

@@ -77,7 +77,7 @@ impl<'de, 'a> Visitor<'de> for VmVisitor<'a> {
         while let Some(elem) = seq.next_element_seed(VmSeed(self.0))? {
             items.push(elem);
         }
-        Ok(self.0.alloc_array(items))
+        Ok(self.0.alloc_array_inferred(items))
     }
 
     fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>

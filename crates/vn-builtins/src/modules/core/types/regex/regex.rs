@@ -96,7 +96,7 @@ fn match_record(
         .map(|g| g.map_or(VmValue::null(), |grp| ctx.alloc_str(grp.as_str())))
         .collect();
     let matched = ctx.alloc_str(whole.as_str());
-    let groups = ctx.alloc_array(groups);
+    let groups = ctx.alloc_array(vn_core::ArrayStorage::Boxed, groups);
     RegexMatch {
         r#match: matched,
         index: index.at(whole.start()),

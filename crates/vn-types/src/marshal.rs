@@ -7,6 +7,8 @@ pub trait FromVm: Sized {
 }
 
 pub trait IntoVm {
+    const STORAGE: Option<vn_core::ArrayStorage> = None;
+
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue;
 }
 
@@ -61,6 +63,7 @@ narrow_int!(i8, i16, i32, u8, u16, u32);
 macro_rules! narrow_int_into {
     ($($kind:ty),* $(,)?) => {$(
         impl IntoVm for $kind {
+            const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Int);
             #[inline]
             fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
                 VmValue::from_int(i64::from(self))
@@ -108,6 +111,8 @@ impl FromVm for f32 {
 }
 
 impl IntoVm for f32 {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Float);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_f64(f64::from(self))
@@ -262,6 +267,8 @@ impl IntoVm for VmValue {
 }
 
 impl IntoVm for i64 {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Int);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_int(self)
@@ -269,6 +276,8 @@ impl IntoVm for i64 {
 }
 
 impl IntoVm for i32 {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Int);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_int(self as i64)
@@ -276,6 +285,8 @@ impl IntoVm for i32 {
 }
 
 impl IntoVm for usize {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Int);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_int(self as i64)
@@ -283,6 +294,8 @@ impl IntoVm for usize {
 }
 
 impl IntoVm for f64 {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Float);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_f64(self)
@@ -290,6 +303,8 @@ impl IntoVm for f64 {
 }
 
 impl IntoVm for bool {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Bool);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_bool(self)
@@ -297,6 +312,8 @@ impl IntoVm for bool {
 }
 
 impl IntoVm for String {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Boxed);
+
     #[inline]
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
         ctx.alloc_str_owned(self)
@@ -304,6 +321,8 @@ impl IntoVm for String {
 }
 
 impl IntoVm for &str {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Boxed);
+
     #[inline]
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
         ctx.alloc_str(self)
@@ -311,6 +330,8 @@ impl IntoVm for &str {
 }
 
 impl IntoVm for char {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Char);
+
     #[inline]
     fn into_vm(self, _ctx: &mut dyn NativeCtx) -> VmValue {
         VmValue::from_char(self)
@@ -325,6 +346,8 @@ impl IntoVm for () {
 }
 
 impl<T: IntoVm> IntoVm for Option<T> {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Boxed);
+
     #[inline]
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
         match self {
@@ -335,9 +358,14 @@ impl<T: IntoVm> IntoVm for Option<T> {
 }
 
 impl<T: IntoVm> IntoVm for Vec<T> {
+    const STORAGE: Option<vn_core::ArrayStorage> = Some(vn_core::ArrayStorage::Ref);
+
     fn into_vm(self, ctx: &mut dyn NativeCtx) -> VmValue {
         let items = self.into_iter().map(|item| item.into_vm(ctx)).collect();
-        ctx.alloc_array(items)
+        match T::STORAGE {
+            Some(storage) => ctx.alloc_array(storage, items),
+            None => ctx.alloc_array_inferred(items),
+        }
     }
 }
 

@@ -61,8 +61,12 @@ impl NativeCtx for Heap {
         self.deref_mut().alloc_enum_variant_vm(data)
     }
 
-    fn alloc_array(&mut self, items: Vec<VmValue>) -> VmValue {
-        self.alloc_array_vm(items)
+    fn alloc_array(&mut self, storage: vn_core::ArrayStorage, items: Vec<VmValue>) -> VmValue {
+        self.alloc_array_vm(storage, items)
+    }
+
+    fn alloc_array_inferred(&mut self, items: Vec<VmValue>) -> VmValue {
+        self.alloc_array_inferred_vm(items)
     }
 
     fn alloc_tuple(&mut self, items: Vec<VmValue>) -> VmValue {

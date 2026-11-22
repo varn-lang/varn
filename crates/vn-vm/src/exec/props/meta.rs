@@ -12,7 +12,7 @@ use crate::value::VmValue;
 
 fn str_array(heap: &mut Heap, names: impl Iterator<Item = Arc<str>>) -> VmValue {
     let items = names.map(|n| HeapInner::alloc_str(heap, &n)).collect();
-    heap.alloc_array_vm(items)
+    heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, items)
 }
 
 fn class_field_names(cls: &ClassObj) -> Vec<Arc<str>> {
@@ -248,7 +248,7 @@ fn meta_keys_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::Nati
     } else {
         ctx.map_for_each(recv, &mut |k, _| keys.push(k));
     }
-    Ok(ctx.alloc_array(keys))
+    Ok(ctx.alloc_array(vn_core::ArrayStorage::Boxed, keys))
 }
 
 fn meta_values_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::NativeFnResult {
@@ -264,7 +264,7 @@ fn meta_values_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::Na
     } else {
         ctx.map_for_each(recv, &mut |_, v| values.push(v));
     }
-    Ok(ctx.alloc_array(values))
+    Ok(ctx.alloc_array_inferred(values))
 }
 
 fn meta_entries_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::NativeFnResult {
@@ -292,7 +292,7 @@ fn meta_entries_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::N
         };
         entries.push(ctx.alloc_tuple(vec![key, value]));
     }
-    Ok(ctx.alloc_array(entries))
+    Ok(ctx.alloc_array(vn_core::ArrayStorage::Ref, entries))
 }
 
 fn meta_has_own_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::NativeFnResult {

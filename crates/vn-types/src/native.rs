@@ -154,7 +154,10 @@ impl NativeCtx for NullCtx {
     fn is_array(&self, _v: VmValue) -> bool {
         false
     }
-    fn alloc_array(&mut self, _items: Vec<VmValue>) -> VmValue {
+    fn alloc_array(&mut self, _storage: vn_core::ArrayStorage, _items: Vec<VmValue>) -> VmValue {
+        VmValue::null()
+    }
+    fn alloc_array_inferred(&mut self, _items: Vec<VmValue>) -> VmValue {
         VmValue::null()
     }
     fn alloc_tuple(&mut self, _items: Vec<VmValue>) -> VmValue {

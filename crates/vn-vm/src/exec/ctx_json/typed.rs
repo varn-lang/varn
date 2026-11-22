@@ -76,7 +76,7 @@ impl FastJsonParser<'_, '_> {
             self.skip_whitespace();
             if self.peek_raw()? == b']' {
                 self.advance(1);
-                return Some(self.ctx.alloc_array(items));
+                return Some(self.ctx.alloc_array_inferred(items));
             }
             items.push(self.parse_typed(inner)?);
             self.skip_whitespace();
@@ -84,7 +84,7 @@ impl FastJsonParser<'_, '_> {
                 b',' => self.advance(1),
                 b']' => {
                     self.advance(1);
-                    return Some(self.ctx.alloc_array(items));
+                    return Some(self.ctx.alloc_array_inferred(items));
                 }
                 _ => return None,
             }

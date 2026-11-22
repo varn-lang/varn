@@ -4,8 +4,16 @@ use std::rc::Rc;
 use vn_types::vm_value::ArrayRepr;
 
 impl HeapInner {
-    pub(crate) fn alloc_array_vm(&mut self, items: Vec<VmValue>) -> VmValue {
-        self.alloc_array_repr(false, ArrayRepr::from_items(items))
+    pub(crate) fn alloc_array_vm(
+        &mut self,
+        storage: vn_core::ArrayStorage,
+        items: Vec<VmValue>,
+    ) -> VmValue {
+        self.alloc_array_repr(false, ArrayRepr::from_storage_owned(storage, items))
+    }
+
+    pub(crate) fn alloc_array_inferred_vm(&mut self, items: Vec<VmValue>) -> VmValue {
+        self.alloc_array_repr(false, ArrayRepr::inferred(items))
     }
 
     pub(crate) fn alloc_array_slice_vm(
@@ -17,7 +25,7 @@ impl HeapInner {
     }
 
     pub(crate) fn alloc_tuple_vm(&mut self, items: Vec<VmValue>) -> VmValue {
-        self.alloc_array_repr(true, ArrayRepr::from_items(items))
+        self.alloc_array_repr(true, ArrayRepr::inferred(items))
     }
 
     pub(crate) fn alloc_object(&mut self) -> VmValue {

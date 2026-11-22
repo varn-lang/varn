@@ -35,7 +35,7 @@ pub(crate) fn object_keys(obj: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
                 .keys()
                 .map(|k| heap.alloc_str_interned(&k))
                 .collect();
-            return Ok(heap.alloc_array_vm(keys));
+            return Ok(heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, keys));
         }
         let maybe_map = match heap.get(heap_idx) {
             Some(HeapObj::Map(m)) => Some(*m),
@@ -65,7 +65,7 @@ pub(crate) fn object_keys(obj: VmValue, heap: &mut Heap) -> VmResult<VmValue> {
         };
         if let Some(m) = maybe_map {
             let keys: Vec<VmValue> = m.read().keys().map(|k| k.0).collect();
-            return Ok(heap.alloc_array_vm(keys));
+            return Ok(heap.alloc_array_vm(vn_core::ArrayStorage::Boxed, keys));
         }
     }
     Err(RuntimeError::new("OpObjectKeys: not an object"))
