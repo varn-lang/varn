@@ -34,13 +34,19 @@ implementa (Ley 10).
 - P1. Tablas totales: `CheckerTyTable::get` y `AtomInterner::resolve`
   a tipos que no puedan panicar (diseño de propiedad de tablas;
   cientos de sitios: migración por bordes). Puerta: suite + corpus.
-- P2. Enum `RuntimeOp`: las cadenas wire (`@decodes`, ops) a IDs
-  tipados; `op_id(&str)` solo para constantes internas hoy. Puerta:
-  compatibilidad byte a byte + suite.
+- [x] P2. Enum `RuntimeOp` como única fuente (`name`/`id`/`parse`;
+  tabla VM indexada por discriminante, `op_id`/`try_op` eliminados,
+  TIR conserva `u64` = sin cambio de formato). Puerta: build +
+  clippy + suite + corpus.
 - P3. Enforcement de capabilities por paquete (+ manifiesto).
   Requiere DECISIÓN previa (roadmap item 3: primero decidir si los
   contratos pasan a `@capability` y cómo se cierra la frontera).
   Puerta: paquete que toca red sin declarar es rechazado; suite verde.
+  Hallazgo: un pre-chequeo de `required_caps` antes de ejecutar es una
+  segunda ruta sobre la denegación del runtime (Ley 8) y no ve nada:
+  `required_caps` vive en el proto de cada función, no en el del módulo.
+  Solo cabe como parte de P3, con grafo de llamadas alcanzable desde el
+  entry y unidad de paquete; no antes.
 - P4. Inlining ADR-0028 restante: métodos/clases, estado de módulo no
   constante, `NativeOp` sin args en paquetes, `import *`, enlace std-std
   en imagen. Puerta: ratio + `xtask compare`.
