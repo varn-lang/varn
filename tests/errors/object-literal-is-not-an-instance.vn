@@ -1,0 +1,5 @@
+// expect: error[VN3001]
+class Account {
+    owner: str = ""
+}
+const a: Account = { owner: "ana" }

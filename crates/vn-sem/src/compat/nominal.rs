@@ -176,7 +176,13 @@ pub(super) fn nominal_arms(
         ) => Some(
             if let (Some(bind), Some(dn_s)) = (bind, resolve_atom(bind, dn)) {
                 let origin_d_s = origin_d.and_then(|o| resolve_atom(Some(bind), o));
-                if let Some(decl_members) = named_members(bind, &dn_s, origin_d_s.as_deref()) {
+                let instance_class =
+                    crate::types::TypeContext::class_entry(bind, &dn_s, origin_d_s.as_deref())
+                        .is_some_and(|entry| !entry.is_struct);
+                if instance_class {
+                    false
+                } else if let Some(decl_members) = named_members(bind, &dn_s, origin_d_s.as_deref())
+                {
                     class_members_match_object(
                         &decl_members,
                         table.get_object_members(inf_fields),
