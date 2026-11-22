@@ -29,8 +29,14 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   (`ArrayStorage` en `vn-core`, decidido en `from_tir`, viaja por `InstKind`,
   `SsaOp`, el segundo byte del opcode y el helper JIT; `ArrayRepr::from_slice`
   eliminado). Medido: array literal que escapa 333 a 318 ms (10M); suite 6165
-  verde. Pendiente: los natives siguen usando `ArrayRepr::from_items`
-  (escaneo dinamico) en `object_ops`, `ctx_csv`, `decode` e `isolates`.
+  verde. Los natives tambien declaran el almacenamiento: `NativeCtx::alloc_array`
+  lo recibe, `IntoVm::STORAGE` lo fija por tipo y la inferencia por escaneo queda
+  confinada a `alloc_array_inferred` (sin regresion en json, csv, str_ops).
+- A2c. Los natives genericos (`map`, `filter`, JSON, `decode`, tuplas) siguen
+  infiriendo con `alloc_array_inferred`: no reciben el tipo estatico del
+  resultado. Cerrarlo exige que el compilador pase el almacenamiento como
+  metadato de `CallNativeOp` y que las tuplas sean siempre `Boxed`.
+  Puerta: cero usos de `ArrayRepr::inferred` y sin regresion en `compare.ps1`.
 - A2b. Vivero con copia (sustituye a A2 inline y A4). Hallazgos que lo condicionan:
   el JIT lee `elems_ptr_off`/`elems_len_off` de `JitArrayLayout`, por lo que un
   `SmallVec` rompe el codigo inline; `malloc`/`free` de `mimalloc` suman solo
