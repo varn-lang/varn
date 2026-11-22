@@ -5,6 +5,7 @@ use crate::register_meta::{SlotClass, SlotKind};
 mod op;
 mod operands;
 mod operators;
+mod uses;
 
 pub use op::SsaOp;
 pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, UPVALUE_LOCAL};
