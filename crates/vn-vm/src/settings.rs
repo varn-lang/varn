@@ -13,6 +13,8 @@ pub struct ExecSettings {
     pub gc_stress: Option<usize>,
 
     pub gc_verify: bool,
+
+    pub jit_syms: Option<&'static std::path::Path>,
 }
 
 impl ExecSettings {
@@ -43,6 +45,10 @@ impl ExecSettings {
             tier_straight: settings.jit_tier_straight.unwrap_or(Self::TIER_STRAIGHT),
             gc_stress: settings.gc_stress,
             gc_verify: settings.gc_verify,
+            jit_syms: settings
+                .jit_syms
+                .as_ref()
+                .map(|path| &*Box::leak(path.clone().into_boxed_path())),
         }
     }
 }

@@ -72,6 +72,23 @@ impl VmClosure {
                 self.proto.jit_native.set(compiled.native);
                 self.proto.jit_host.set(compiled.host);
                 crate::clif_link::register_compiled(&self.proto, previous);
+                if let Some(path) = &settings.jit_syms {
+                    use std::io::Write;
+                    if let Ok(mut file) = std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(path)
+                    {
+                        let _ = writeln!(
+                            file,
+                            "{:x} {:x} {:x} {}",
+                            entry_usize,
+                            compiled.native,
+                            compiled.host,
+                            self.proto.name.as_deref().unwrap_or("<main>")
+                        );
+                    }
+                }
             }
             Err(_) => {
                 self.proto.jit_failed.set(true);

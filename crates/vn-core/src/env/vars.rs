@@ -53,6 +53,7 @@ env_vars! {
     JitTier => "VN_JIT_TIER", Debug, "llamadas antes de compilar una función con bucles (entero)";
     JitTierStraight => "VN_JIT_TIER_STRAIGHT", Debug, "llamadas antes de compilar una función sin bucles (entero)";
     JitOsr => "VN_JIT_OSR", Debug, "retrocesos de bucle antes de entrar por OSR (entero)";
+    JitSyms => "VN_JIT_SYMS", Debug, "fichero donde se anota la dirección de cada función JIT compilada";
     ClifTrace => "VN_CLIF_TRACE", Debug, "bandera: traza cada función compilada por Cranelift";
     ClifVerify => "VN_CLIF_VERIFY", Debug, "bandera: verifica el IR de Cranelift (siempre activa en debug)";
     ClifPrintIr => "VN_CLIF_PRINT_IR", Debug, "bandera: imprime el IR de Cranelift";
