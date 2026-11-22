@@ -97,6 +97,19 @@ pub(super) fn lower_block(
     let old_elide = ctx.elide.replace(elide_flag);
     let mut fwd: std::collections::BTreeMap<(u32, u16), u32> = Default::default();
     let canon = |o: u32| -> u32 { global_src.get(&o).map(|s| 0x8000_0000u32 | s).unwrap_or(o) };
+    let polls = |target: u32| {
+        rpo_pos[target as usize] <= rpo_pos[ssa_idx]
+            && cfg::loop_may_collect(ssa, preds, target as usize, ssa_idx)
+    };
+    *ctx.pending_cmp.borrow_mut() = None;
+    ctx.fuse_ok.set(
+        !skip_term
+            && matches!(
+                &blk.term,
+                vn_types::ssa::SsaTerm::Branch { then_blk, else_blk, .. }
+                    if !polls(*then_blk) && !polls(*else_blk)
+            ),
+    );
     for inst in &blk.insts {
         if let vn_types::ssa::SsaOp::GetFixedField { object, slot, .. } = &inst.op {
             let k = (canon(*object), *slot);
@@ -286,6 +299,7 @@ pub(super) fn lower_block(
         }
     }
     ctx.elide.set(old_elide);
+    ctx.fuse_ok.set(false);
 
     if !is_clone
         && let Some(hh) = hoist_at.get(&ssa_idx)
@@ -300,10 +314,6 @@ pub(super) fn lower_block(
         }
     }
 
-    let polls = |target: u32| {
-        rpo_pos[target as usize] <= rpo_pos[ssa_idx]
-            && cfg::loop_may_collect(ssa, preds, target as usize, ssa_idx)
-    };
     if do_prefill && let Some(objects) = pins.get(&ssa_idx) {
         arrays::prefill(b, ctx, values, objects)?;
     }

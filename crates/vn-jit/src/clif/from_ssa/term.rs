@@ -116,12 +116,29 @@ pub(super) fn emit_term(
             else_blk,
             else_args,
         } => {
-            let c = truthy(b, ctx, values, *cond)?;
+            let pending = ctx
+                .pending_cmp
+                .borrow_mut()
+                .take()
+                .filter(|p| p.dest == *cond);
             let t: Vec<BlockArg> = resolve_args(b, ctx, values, then_args)?;
             let e: Vec<BlockArg> = resolve_args(b, ctx, values, else_args)?;
             let tb = block_of(blocks, *then_blk)?;
             let eb = block_of(blocks, *else_blk)?;
-            b.ins().brif(c, tb, &t, eb, &e);
+            match pending {
+                Some(p) => super::super::generic::str_compare_branch(
+                    b,
+                    ctx.cc,
+                    ctx.exec_ctx,
+                    &p,
+                    (tb, &t),
+                    (eb, &e),
+                ),
+                None => {
+                    let c = truthy(b, ctx, values, *cond)?;
+                    b.ins().brif(c, tb, &t, eb, &e);
+                }
+            }
         }
         SsaTerm::Unreachable => {
             b.ins().trap(TrapCode::user(1).unwrap());

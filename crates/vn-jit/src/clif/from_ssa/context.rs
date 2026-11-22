@@ -31,6 +31,12 @@ pub(super) struct Ctx<'a> {
 
     pub constants: &'a [VmValue],
 
+    pub fusable_cmp: FxHashSet<u32>,
+
+    pub fuse_ok: std::cell::Cell<bool>,
+
+    pub pending_cmp: std::cell::RefCell<Option<super::super::generic::PendingStrCmp>>,
+
     pub sso_consts: FxHashMap<u32, super::super::generic::SsoConst>,
     pub self_ref: FuncRef,
 

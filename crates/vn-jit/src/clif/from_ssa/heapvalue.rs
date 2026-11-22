@@ -1,4 +1,4 @@
-use cranelift_codegen::ir::{InstBuilder, Value};
+use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 use vn_types::ssa::SsaOp;
 
@@ -214,6 +214,21 @@ pub(super) fn emit(
             let a = heap::boxed_parts(b, ctx, values, *lhs)?;
             let c = heap::boxed_parts(b, ctx, values, *rhs)?;
             let constant = sso_operand(ctx, *lhs, *rhs);
+            if let Some(d) = dest
+                && ctx.fuse_ok.get()
+                && ctx.fusable_cmp.contains(&d)
+                && !ctx.try_live.contains(&d)
+            {
+                *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
+                    dest: d,
+                    is_eq: true,
+                    helper: ctx.helpers.eq,
+                    a,
+                    c,
+                    constant,
+                });
+                return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
+            }
             let cond = super::super::generic::str_compare(
                 b,
                 ctx.cc,
@@ -234,6 +249,21 @@ pub(super) fn emit(
             let a = heap::boxed_parts(b, ctx, values, *lhs)?;
             let c = heap::boxed_parts(b, ctx, values, *rhs)?;
             let constant = sso_operand(ctx, *lhs, *rhs);
+            if let Some(d) = dest
+                && ctx.fuse_ok.get()
+                && ctx.fusable_cmp.contains(&d)
+                && !ctx.try_live.contains(&d)
+            {
+                *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
+                    dest: d,
+                    is_eq: false,
+                    helper: ctx.helpers.neq,
+                    a,
+                    c,
+                    constant,
+                });
+                return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
+            }
             let cond = super::super::generic::str_compare(
                 b,
                 ctx.cc,

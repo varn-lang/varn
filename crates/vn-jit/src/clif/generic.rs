@@ -130,7 +130,7 @@ pub(crate) struct SsoConst {
     pub on_rhs: bool,
 }
 
-type Parts = (cranelift_codegen::ir::Value, cranelift_codegen::ir::Value);
+pub(crate) type Parts = (cranelift_codegen::ir::Value, cranelift_codegen::ir::Value);
 
 pub(crate) fn str_compare(
     b: &mut FunctionBuilder,
@@ -184,4 +184,70 @@ pub(crate) fn str_compare(
 
     b.switch_to_block(merge_blk);
     b.block_params(merge_blk)[0]
+}
+
+pub(crate) struct PendingStrCmp {
+    pub dest: u32,
+    pub is_eq: bool,
+    pub helper: usize,
+    pub a: Parts,
+    pub c: Parts,
+    pub constant: Option<SsoConst>,
+}
+
+pub(crate) fn str_compare_branch(
+    b: &mut FunctionBuilder,
+    cc: CallConv,
+    exec_ctx: cranelift_codegen::ir::Value,
+    p: &PendingStrCmp,
+    then_edge: (cranelift_codegen::ir::Block, &[cranelift_codegen::ir::BlockArg]),
+    else_edge: (cranelift_codegen::ir::Block, &[cranelift_codegen::ir::BlockArg]),
+) {
+    let sso = vn_types::vm_value::KIND_SSO as i64;
+    let (can_inline, matched) = match &p.constant {
+        Some(k) => {
+            let (var_tag, var_payload) = if k.on_rhs { p.a } else { p.c };
+            let kind = b.ins().band_imm_u(var_tag, 0xFF);
+            let is_sso = b.ins().icmp_imm_u(IntCC::Equal, kind, sso);
+            let tag_eq = b.ins().icmp_imm_u(IntCC::Equal, var_tag, k.tag as i64);
+            let pay_eq = b
+                .ins()
+                .icmp_imm_u(IntCC::Equal, var_payload, k.payload as i64);
+            (is_sso, b.ins().band(tag_eq, pay_eq))
+        }
+        None => {
+            let tag_eq = b.ins().icmp(IntCC::Equal, p.a.0, p.c.0);
+            let pay_eq = b.ins().icmp(IntCC::Equal, p.a.1, p.c.1);
+            let bits_eq = b.ins().band(tag_eq, pay_eq);
+            let a_kind = b.ins().band_imm_u(p.a.0, 0xFF);
+            let b_kind = b.ins().band_imm_u(p.c.0, 0xFF);
+            let a_sso = b.ins().icmp_imm_u(IntCC::Equal, a_kind, sso);
+            let b_sso = b.ins().icmp_imm_u(IntCC::Equal, b_kind, sso);
+            let both_sso = b.ins().band(a_sso, b_sso);
+            (b.ins().bor(bits_eq, both_sso), bits_eq)
+        }
+    };
+    let fast_blk = b.create_block();
+    let slow_blk = b.create_block();
+    b.set_cold_block(slow_blk);
+    b.ins().brif(can_inline, fast_blk, &[], slow_blk, &[]);
+
+    b.switch_to_block(fast_blk);
+    let (when_matched, when_differs) = if p.is_eq {
+        (then_edge, else_edge)
+    } else {
+        (else_edge, then_edge)
+    };
+    b.ins().brif(
+        matched,
+        when_matched.0,
+        when_matched.1,
+        when_differs.0,
+        when_differs.1,
+    );
+
+    b.switch_to_block(slow_blk);
+    let res = call_helper(b, cc, p.helper, &[exec_ctx, p.a.0, p.a.1, p.c.0, p.c.1]);
+    b.ins()
+        .brif(res, then_edge.0, then_edge.1, else_edge.0, else_edge.1);
 }

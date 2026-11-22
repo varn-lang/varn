@@ -142,6 +142,9 @@ pub(in crate::clif) fn try_lower(
         ssa,
         proto,
         constants,
+        fusable_cmp: super::fusion::fusable_compares(ssa),
+        fuse_ok: std::cell::Cell::new(false),
+        pending_cmp: Default::default(),
         sso_consts: ssa
             .blocks
             .iter()

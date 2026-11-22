@@ -15,6 +15,7 @@ mod dynop;
 mod exceptions;
 mod extra;
 mod frame_policy;
+mod fusion;
 mod globals;
 mod heap;
 mod heapvalue;
