@@ -159,7 +159,7 @@ pub(super) fn emit(
             let boxed = b.ins().iconcat(tag, payload);
             Out::Boxed(boxed)
         }
-        SsaOp::ConstStr(s) => Out::Boxed(pool::literal(
+        SsaOp::ConstStr(s) => Out::Trusted(pool::literal(
             b,
             ctx,
             "string",
