@@ -5,7 +5,7 @@ enum R { A(int), B(str) }
 await describe("29 Option Destructuring", async () => {
     await it("enum match", () => {
         let x = R.A(42);
-        let v = match x {
+        let v = match (x) {
             A(n) => n,
             B(_) => -1,
         };
@@ -14,7 +14,7 @@ await describe("29 Option Destructuring", async () => {
         }
         expect(v).toBe(42);
         let y = R.B("boom");
-        let v2 = match y {
+        let v2 = match (y) {
             A(n) => n,
             B(_) => -1,
         };

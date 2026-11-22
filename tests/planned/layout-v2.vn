@@ -17,7 +17,7 @@ await describe("layout v2 (planned)", async () => {
         ed.text = "kept";
         const tree = Column([
             Field(ed, hint: "name"),
-            Responsive((cls: WindowClass, c: Constraints): Widget => match cls {
+            Responsive((cls: WindowClass, c: Constraints): Widget => match (cls) {
                 compact => Text("a"),
                 medium => Text("b"),
                 expanded => Column([Text("c"), Text("d")]),

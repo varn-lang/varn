@@ -8,12 +8,28 @@ pub(super) fn parse_match_expr(s: &mut TokenStream) -> PResult<ExprId> {
     let range = s.range();
     s.advance();
 
-    let subject = if s.eat(TokenKind::LParen) {
-        let e = super::super::parse_expr(s)?;
+    if !s.check(TokenKind::LParen) {
+        return Err(ParseError::invalid(
+            vn_core::ForeignForm::MatchWithoutParens.message(),
+        ));
+    }
+    let open = s.range();
+    s.advance();
+    let first = super::super::parse_expr(s)?;
+    let subject = if s.check(TokenKind::Comma) {
+        let mut elements = vec![first];
+        while s.eat(TokenKind::Comma) {
+            if s.check(TokenKind::RParen) {
+                break;
+            }
+            elements.push(super::super::parse_expr(s)?);
+        }
         s.expect(TokenKind::RParen)?;
-        e
+        let tuple_range = s.span_from(open);
+        s.expr(tuple_range, vn_core::ast::ExprKind::Tuple { elements })
     } else {
-        super::super::parse_binary_expr(s, super::super::Prec::None)?
+        s.expect(TokenKind::RParen)?;
+        first
     };
 
     s.expect(TokenKind::LBrace)?;

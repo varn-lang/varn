@@ -86,7 +86,7 @@ await describe("51 opt unsupported phase4", async () => {
         // 3. Named function expressions
         expect(namedExpr(10)).toBe(11);
         let pt = VariantRecord.Point(3, 4);
-        let ptArea = match pt {
+        let ptArea = match (pt) {
             Point { x, y } => x * y,
             _ => 0
         };

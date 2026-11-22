@@ -125,7 +125,7 @@ function spEnumUnderPressure(n: int): int {
   for (let i = 0; i < n; i = i + 1) {
     junk = `e${i}`
     const v = i % 2 == 0 ? SpTag.A(i) : SpTag.B(i)
-    total = total + match v {
+    total = total + match (v) {
       A(x) => 1,
       B(x) => 2,
     }

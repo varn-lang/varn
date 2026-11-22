@@ -30,6 +30,7 @@ pub enum ForeignForm {
     WithStatement,
     ExportDefault,
     DefaultImport,
+    MatchWithoutParens,
 }
 
 impl ForeignForm {
@@ -85,6 +86,7 @@ impl ForeignForm {
             Self::WithStatement => "with (obj) { ... }",
             Self::ExportDefault => "export default",
             Self::DefaultImport => "import name from \"module\"",
+            Self::MatchWithoutParens => "match x { ... }",
             Self::NumberType
             | Self::StringType
             | Self::BooleanType
@@ -149,6 +151,7 @@ impl ForeignForm {
             Self::DefaultImport => {
                 "import by name, as `import { f } from \"module\"`, or the whole module with `import * as m`"
             }
+            Self::MatchWithoutParens => "write the subject in parentheses: `match (x) { ... }`",
         }
     }
 
