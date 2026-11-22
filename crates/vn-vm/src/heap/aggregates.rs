@@ -1,4 +1,5 @@
-use super::cells::INLINE_ARRAY_MAX;
+use super::cells::{INLINE_ARRAY_MAX, MAP_INLINE_MAX};
+use super::obj::HeapObj;
 use super::structs::HeapInner;
 use crate::value::VmValue;
 use std::rc::Rc;
@@ -77,9 +78,26 @@ impl HeapInner {
         self.alloc_object_cell(Rc::clone(shape), values.len(), values)
     }
 
-    #[inline(always)]
-    pub(crate) fn alloc_empty_map_vm(&mut self) -> VmValue {
-        self.alloc_map_vm(vn_types::value::ValueMap::default())
+    pub(crate) fn alloc_map_sized(&mut self, hint: usize) -> VmValue {
+        if hint > MAP_INLINE_MAX {
+            return self.alloc_map_vm(vn_types::value::ValueMap::with_capacity(hint));
+        }
+        if let Some(h) = &self.hotspot {
+            h.borrow_mut()
+                .record_alloc(vn_core::RuntimeKind::Map.name());
+        }
+        let entries = hint.max(super::cells::MIN_INLINE_MAP_ENTRIES);
+        let r = self
+            .cells
+            .alloc_map_inline(entries, super::cells::SlotState::Young);
+        self.young.born.push(r);
+        VmValue::from_heap(r)
+    }
+
+    pub(crate) fn map_put(&mut self, map: VmValue, key: vn_types::value::MapKey, val: VmValue) {
+        if let Some(HeapObj::Map(m)) = self.get(map.as_heap()) {
+            m.write().insert(key, val);
+        }
     }
 
     #[inline(always)]

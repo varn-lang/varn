@@ -100,12 +100,12 @@ impl ExecCtx {
         }
     }
     pub(super) fn host_alloc_map(&mut self, entries: Vec<(VmValue, VmValue)>) -> VmValue {
-        let mut map = vn_types::value::ValueMap::default();
+        let map = self.heap.alloc_map_sized(entries.len());
         for (key, value) in entries {
             let key = self.map_key(key).unwrap_or(vn_types::value::MapKey(key));
-            map.insert(key, value);
+            self.heap.map_put(map, key, value);
         }
-        self.heap.alloc_map_vm(map)
+        map
     }
     pub(super) fn host_alloc_set(&mut self, items: Vec<VmValue>) -> VmValue {
         let mut set = vn_types::value::ValueSet::default();

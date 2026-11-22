@@ -7,7 +7,7 @@ mod stats;
 mod sweep;
 mod typed;
 
-pub(crate) use typed::INLINE_ARRAY_MAX;
+pub(crate) use typed::{INLINE_ARRAY_MAX, MAP_INLINE_MAX, MIN_INLINE_MAP_ENTRIES};
 
 use super::obj::HeapObj;
 use blocks::{block_of, cells_span, large_layout, Block, SizeClass};

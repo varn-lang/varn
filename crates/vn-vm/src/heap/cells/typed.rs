@@ -5,6 +5,8 @@ use vn_types::value::{InstanceData, InstanceRef, ObjData, Shape};
 use vn_types::HeapRef;
 
 pub(crate) const INLINE_ARRAY_MAX: usize = 32;
+pub(crate) const MAP_INLINE_MAX: usize = 8;
+pub(crate) const MIN_INLINE_MAP_ENTRIES: usize = 2;
 const MIN_INLINE_ELEMS: usize = 4;
 
 impl CellSpace {
@@ -105,6 +107,23 @@ impl CellSpace {
                 HeapObj::Array(arr)
             },
         );
+        r
+    }
+
+    #[inline(always)]
+    pub(crate) fn alloc_map_inline(&mut self, entries: usize, state: SlotState) -> HeapRef {
+        use vn_types::cell::{CELL_CLASSES, HEADER_BYTES};
+        use vn_types::value::{MapRef, ValueMap};
+        const _: () = assert!(std::mem::align_of::<(vn_types::value::MapKey, vn_types::VmValue)>() <= 8);
+        let tail = std::mem::size_of::<HeapObj>();
+        let table_off = tail + std::mem::size_of::<ValueMap>();
+        let entry = ValueMap::entry_bytes();
+        let r = self.take_cell(table_off + entries * entry, 0, state);
+        let span = CELL_CLASSES[header(r).class as usize] - HEADER_BYTES;
+        let cap = (span - table_off) / entry;
+        let table = unsafe { ValueMap::inline(body::<u8>(r).add(table_off), cap) };
+        let map = unsafe { MapRef::init_at(body::<u8>(r).add(tail).cast(), table) };
+        Self::place(r, HeapObj::Map(map));
         r
     }
 

@@ -58,17 +58,13 @@ pub(crate) extern "C" fn jit_build_map_window(
 ) {
     unsafe {
         let ctx_ref = &mut *ctx;
-        if count == 0 {
-            ctx_ref.jit_native_result = ctx_ref.heap.alloc_empty_map_vm();
-            return;
-        }
         let parts = std::slice::from_raw_parts(pairs_ptr, count * 2);
-        let mut map = vn_types::value::ValueMap::with_capacity(count);
+        let map = ctx_ref.heap.alloc_map_sized(count);
         for i in 0..count {
             let key = ctx_ref.heap.canonical_map_key(parts[i * 2]);
-            map.insert(key, parts[i * 2 + 1]);
+            ctx_ref.heap.map_put(map, key, parts[i * 2 + 1]);
         }
-        ctx_ref.jit_native_result = ctx_ref.heap.alloc_map_vm(map);
+        ctx_ref.jit_native_result = map;
     }
 }
 

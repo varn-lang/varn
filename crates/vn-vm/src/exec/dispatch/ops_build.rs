@@ -50,20 +50,14 @@ impl ExecCtx {
                 *ip += 1;
                 let (dest, start_reg) = (hi(w1), lo(w1));
                 let count = hi(w2);
-                if count == 0 {
-                    self.stack
-                        .unbox_into_reg(base, dest, self.heap.alloc_empty_map_vm())?;
-                    return Ok(Some(ObjectFlow::ContinueInstruction));
-                }
-                let mut map = vn_types::value::ValueMap::with_capacity(count);
+                let map = self.heap.alloc_map_sized(count);
                 for i in 0..count {
                     let k_nv = self.stack.box_reg(base, start_reg + i * 2);
                     let v_nv = self.stack.box_reg(base, start_reg + i * 2 + 1);
                     let key = self.heap.canonical_map_key(k_nv);
-                    map.insert(key, v_nv);
+                    self.heap.map_put(map, key, v_nv);
                 }
-                self.stack
-                    .unbox_into_reg(base, dest, self.heap.alloc_map_vm(map))?;
+                self.stack.unbox_into_reg(base, dest, map)?;
                 Ok(Some(ObjectFlow::ContinueInstruction))
             }
             OpCode::BuildObject => {

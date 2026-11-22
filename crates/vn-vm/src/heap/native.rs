@@ -41,12 +41,12 @@ impl NativeCtx for Heap {
     }
 
     fn alloc_map(&mut self, entries: Vec<(VmValue, VmValue)>) -> VmValue {
-        let mut map = vn_types::value::ValueMap::default();
+        let map = self.deref_mut().alloc_map_sized(entries.len());
         for (key, value) in entries {
             let key = self.deref_mut().canonical_map_key(key);
-            map.insert(key, value);
+            self.deref_mut().map_put(map, key, value);
         }
-        self.deref_mut().alloc_map_vm(map)
+        map
     }
 
     fn alloc_set(&mut self, items: Vec<VmValue>) -> VmValue {

@@ -1,6 +1,6 @@
 use super::map::MapKey;
 use crate::memory::ExternalLedger;
-use crate::vm_value::VmValue;
+use crate::vm_value::{CellVec, VmValue};
 use rustc_hash::FxHashMap;
 
 const LINEAR_MAX: usize = 8;
@@ -11,32 +11,45 @@ fn index_bytes(capacity: usize) -> usize {
 }
 
 #[derive(Clone, Debug)]
-pub struct OrderedTable<V> {
-    entries: Vec<(MapKey, V)>,
+pub struct OrderedTable<V: Copy> {
+    entries: CellVec<(MapKey, V)>,
     index: Option<FxHashMap<MapKey, u32>>,
     live: u32,
 }
 
-impl<V> Default for OrderedTable<V> {
+impl<V: Copy> Default for OrderedTable<V> {
     #[inline(always)]
     fn default() -> Self {
         Self {
-            entries: Vec::new(),
+            entries: CellVec::new(),
             index: None,
             live: 0,
         }
     }
 }
 
-impl<V> OrderedTable<V> {
+impl<V: Copy> OrderedTable<V> {
     #[inline(always)]
     pub fn new() -> Self {
         Self::default()
     }
 
+    pub const fn entry_bytes() -> usize {
+        std::mem::size_of::<(MapKey, V)>()
+    }
+
+    #[inline(always)]
+    pub unsafe fn inline(data: *mut u8, cap: usize) -> Self {
+        Self {
+            entries: unsafe { CellVec::inline(data as *mut (MapKey, V), 0, cap) },
+            index: None,
+            live: 0,
+        }
+    }
+
     pub fn with_capacity(cap: usize) -> Self {
         let mut t = Self {
-            entries: Vec::with_capacity(cap),
+            entries: CellVec::from_vec(Vec::with_capacity(cap)),
             index: None,
             live: 0,
         };
@@ -83,8 +96,7 @@ impl<V> OrderedTable<V> {
         if let Some(p) = self.position(&key) {
             return Some(std::mem::replace(&mut self.entries[p].1, val));
         }
-        let cap_before = self.entries.capacity();
-        let grows = self.entries.len() == cap_before;
+        let heap_before = self.entries.heap_capacity();
         let index_before = self.index.as_ref().map_or(0, |i| i.capacity());
         let pos = self.entries.len() as u32;
         self.entries.push((key, val));
@@ -96,10 +108,9 @@ impl<V> OrderedTable<V> {
             None if self.entries.len() > LINEAR_MAX => self.rebuild_index(),
             None => {}
         }
-        if grows {
-            ExternalLedger::grow(
-                (self.entries.capacity() - cap_before) * std::mem::size_of::<(MapKey, V)>(),
-            );
+        let heap_after = self.entries.heap_capacity();
+        if heap_after > heap_before {
+            ExternalLedger::grow((heap_after - heap_before) * std::mem::size_of::<(MapKey, V)>());
         }
         ExternalLedger::grow(
             index_bytes(self.index.as_ref().map_or(0, |i| i.capacity()))
@@ -109,14 +120,11 @@ impl<V> OrderedTable<V> {
     }
 
     pub fn heap_bytes(&self) -> u64 {
-        (self.entries.capacity() * std::mem::size_of::<(MapKey, V)>()
+        (self.entries.heap_capacity() * std::mem::size_of::<(MapKey, V)>()
             + index_bytes(self.index.as_ref().map_or(0, |i| i.capacity()))) as u64
     }
 
-    pub fn remove(&mut self, key: &MapKey) -> Option<V>
-    where
-        V: Copy,
-    {
+    pub fn remove(&mut self, key: &MapKey) -> Option<V> {
         let p = self.position(key)?;
         if let Some(index) = &mut self.index {
             index.remove(key);
@@ -138,7 +146,7 @@ impl<V> OrderedTable<V> {
     }
 
     fn compact(&mut self) {
-        self.entries.retain(|e| e.0 != TOMBSTONE);
+        self.entries.edit(|entries| entries.retain(|e| e.0 != TOMBSTONE));
         if self.index.is_some() || self.entries.len() > LINEAR_MAX {
             self.rebuild_index();
         }
@@ -184,16 +192,18 @@ impl<V> OrderedTable<V> {
     pub fn drain(&mut self) -> impl Iterator<Item = (MapKey, V)> + '_ {
         self.index = None;
         self.live = 0;
-        self.entries.drain(..).filter(|e| e.0 != TOMBSTONE)
+        let all = self.entries.as_slice().to_vec();
+        self.entries.clear();
+        all.into_iter().filter(|e| e.0 != TOMBSTONE)
     }
 }
 
-struct Live<'a, V> {
+struct Live<'a, V: Copy> {
     inner: std::slice::Iter<'a, (MapKey, V)>,
     left: usize,
 }
 
-impl<'a, V> Iterator for Live<'a, V> {
+impl<'a, V: Copy> Iterator for Live<'a, V> {
     type Item = &'a (MapKey, V);
 
     #[inline]
@@ -209,12 +219,12 @@ impl<'a, V> Iterator for Live<'a, V> {
     }
 }
 
-impl<'a, V> ExactSizeIterator for Live<'a, V> {}
+impl<'a, V: Copy> ExactSizeIterator for Live<'a, V> {}
 
-impl<V: PartialEq> PartialEq for OrderedTable<V> {
+impl<V: Copy + PartialEq> PartialEq for OrderedTable<V> {
     fn eq(&self, other: &Self) -> bool {
         self.len() == other.len() && self.iter().all(|(k, v)| other.get(k) == Some(v))
     }
 }
 
-impl<V: Eq> Eq for OrderedTable<V> {}
+impl<V: Copy + Eq> Eq for OrderedTable<V> {}
