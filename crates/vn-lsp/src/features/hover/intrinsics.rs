@@ -190,9 +190,6 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => None,
     }
 }

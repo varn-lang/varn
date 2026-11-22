@@ -226,9 +226,6 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => {
             if s.check(TokenKind::Yield) {
                 return crate::expressions::yield_expr::parse_yield_stmt(s);

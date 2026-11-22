@@ -374,9 +374,6 @@ pub(super) fn parse_call_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => break,
         }
     }

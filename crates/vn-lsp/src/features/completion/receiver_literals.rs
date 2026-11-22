@@ -161,9 +161,6 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         | TokenKind::Whitespace
         | TokenKind::DocComment
         | TokenKind::Placeholder
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => return None,
     };
     Some(ReceiverInfo {

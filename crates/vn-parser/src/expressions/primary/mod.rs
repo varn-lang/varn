@@ -304,10 +304,7 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start => {
+        | TokenKind::DocComment => {
             let kind = s.kind();
             if kind.can_be_identifier() {
                 let name = s.consume_lexeme();

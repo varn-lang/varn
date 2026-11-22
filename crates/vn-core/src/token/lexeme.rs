@@ -164,10 +164,7 @@ impl TokenKind {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start => crate::UNKNOWN,
+            | TokenKind::DocComment => crate::UNKNOWN,
         }
     }
 }

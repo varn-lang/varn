@@ -250,9 +250,6 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                     | TokenKind::DocComment
                     | TokenKind::Placeholder
                     | TokenKind::DecimalLiteral
-                    | TokenKind::Spawn
-                    | TokenKind::Parallel
-                    | TokenKind::Start
                     | TokenKind::RawStr => {
                         let parsed_ty = crate::types::parse_type(s)?;
                         (parsed_ty, None)

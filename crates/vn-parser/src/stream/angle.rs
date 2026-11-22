@@ -186,9 +186,6 @@ impl TokenStream {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => false,
         }
     }

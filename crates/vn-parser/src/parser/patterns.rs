@@ -179,9 +179,6 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::Whitespace
         | TokenKind::DocComment
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => {
             let name = s.consume_lexeme();
             let full_range = s.span_from(range);

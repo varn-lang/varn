@@ -328,9 +328,6 @@ pub(super) fn try_parse_decl_stmt_mode(
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => return None,
     };
 

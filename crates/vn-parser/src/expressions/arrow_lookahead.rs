@@ -191,9 +191,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::DocComment
                                 | TokenKind::Placeholder
                                 | TokenKind::DecimalLiteral
-                                | TokenKind::Spawn
-                                | TokenKind::Parallel
-                                | TokenKind::Start
                                 | TokenKind::RawStr => {}
                             }
                             next_off += 1;
@@ -355,9 +352,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => {}
         }
         off += 1;

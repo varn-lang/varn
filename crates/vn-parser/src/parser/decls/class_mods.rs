@@ -208,9 +208,6 @@ pub(super) fn parse_member_mods(s: &mut TokenStream) -> Modifiers {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => break,
         }
     }

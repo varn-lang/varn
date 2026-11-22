@@ -208,9 +208,6 @@ fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::P
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => None,
     }
 }

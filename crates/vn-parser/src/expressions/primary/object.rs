@@ -316,9 +316,6 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => Err(ParseError::expected(format!(
             "expected a property key, found {}",
             s.describe_current()

@@ -158,9 +158,6 @@ pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinaryOp> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => None,
     }
 }

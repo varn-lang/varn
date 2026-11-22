@@ -212,9 +212,6 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => {
                 if !decorators.is_empty() {
                     return Err(ParseError::invalid(

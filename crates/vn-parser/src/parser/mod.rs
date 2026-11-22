@@ -316,9 +316,6 @@ impl Parser {
                 | TokenKind::DocComment
                 | TokenKind::Placeholder
                 | TokenKind::DecimalLiteral
-                | TokenKind::Spawn
-                | TokenKind::Parallel
-                | TokenKind::Start
                 | TokenKind::RawStr => {
                     self.stream.advance();
                 }

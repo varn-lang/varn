@@ -199,9 +199,6 @@ fn parse_param(s: &mut TokenStream) -> PResult<Param> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => break,
         }
     }

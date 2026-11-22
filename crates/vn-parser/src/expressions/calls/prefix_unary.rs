@@ -262,9 +262,6 @@ pub fn parse_unary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => parse_postfix_expr(s),
     }
 }

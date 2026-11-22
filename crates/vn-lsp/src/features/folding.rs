@@ -228,9 +228,6 @@ pub fn fold_tokens(tokens: &[TokenRecord]) -> Vec<FoldingRange> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => {}
         }
     }

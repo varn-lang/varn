@@ -245,9 +245,6 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => {
                 return Err(ParseError::invalid(String::from(
                     "Expected `let` or `const`",

@@ -160,9 +160,6 @@ pub(crate) fn token_to_assign_op(kind: TokenKind) -> Option<AssignOp> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => None,
     }
 }

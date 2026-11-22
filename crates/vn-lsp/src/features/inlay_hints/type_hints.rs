@@ -264,9 +264,6 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::DocComment
             | vn_core::TokenKind::Placeholder
             | vn_core::TokenKind::DecimalLiteral
-            | vn_core::TokenKind::Spawn
-            | vn_core::TokenKind::Parallel
-            | vn_core::TokenKind::Start
             | vn_core::TokenKind::RawStr => {}
         }
     }

@@ -202,9 +202,6 @@ pub(super) fn parse_var_decl_with_declare(
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => {
             return Err(ParseError::invalid("Expected `let` or `const`".to_owned()))
         }

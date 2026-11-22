@@ -171,9 +171,6 @@ pub(crate) fn binary_prec(kind: TokenKind) -> Option<(Prec, bool)> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => return None,
     };
     Some((p, r))

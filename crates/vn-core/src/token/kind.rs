@@ -160,22 +160,16 @@ pub enum TokenKind {
 
     DecimalLiteral = 154,
 
-    Spawn = 155,
+    RawStr = 155,
 
-    Parallel = 156,
+    Mut = 156,
 
-    Start = 157,
-
-    RawStr = 158,
-
-    Mut = 159,
-
-    Out = 160,
+    Out = 157,
 }
 
 impl TokenKind {
     pub fn from_u32(v: u32) -> Self {
-        if v <= 160 {
+        if v <= TokenKind::Out as u32 {
             unsafe { std::mem::transmute::<u32, TokenKind>(v) }
         } else {
             TokenKind::Dynamic

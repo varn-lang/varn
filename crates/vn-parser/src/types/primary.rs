@@ -365,10 +365,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::Whitespace
         | TokenKind::DocComment
         | TokenKind::Placeholder
-        | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start => Err(ParseError::unexpected(format!(
+        | TokenKind::DecimalLiteral => Err(ParseError::unexpected(format!(
             "unexpected {} in a type",
             s.describe_current()
         ))),

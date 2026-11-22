@@ -195,9 +195,6 @@ pub fn parse_new_callee_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => break,
         }
     }

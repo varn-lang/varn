@@ -183,9 +183,6 @@ pub fn parse_block(s: &mut TokenStream) -> PResult<StmtId> {
                         | TokenKind::DocComment
                         | TokenKind::Placeholder
                         | TokenKind::DecimalLiteral
-                        | TokenKind::Spawn
-                        | TokenKind::Parallel
-                        | TokenKind::Start
                         | TokenKind::RawStr => {
                             s.advance();
                         }

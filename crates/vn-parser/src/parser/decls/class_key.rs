@@ -174,9 +174,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
-        | TokenKind::Spawn
-        | TokenKind::Parallel
-        | TokenKind::Start
         | TokenKind::RawStr => Err(ParseError::expected(format!(
             "expected a class member name, found {}",
             s.describe_current()

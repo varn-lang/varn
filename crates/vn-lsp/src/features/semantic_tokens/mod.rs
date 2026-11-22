@@ -299,9 +299,6 @@ pub fn build_semantic_tokens(state: &DocumentState) -> Vec<u32> {
             | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
-            | TokenKind::Spawn
-            | TokenKind::Parallel
-            | TokenKind::Start
             | TokenKind::RawStr => (tok.col, tok.length),
         };
         let byte_start = tok.offset as usize + (emit_col - tok.col) as usize;
