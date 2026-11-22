@@ -62,7 +62,8 @@ impl HeapInner {
 
         let marked = mark_started.elapsed();
         let sweep_started = std::time::Instant::now();
-        self.sweep_young();
+        let (born, survived) = self.sweep_young();
+        self.adapt_nursery(born, survived);
 
         self.young_cells = cells
             .into_iter()
@@ -169,7 +170,7 @@ impl HeapInner {
         young
     }
 
-    fn sweep_young(&mut self) {
+    fn sweep_young(&mut self) -> (usize, usize) {
         let mut born = std::mem::take(&mut self.young.born);
         let mut bytes = 0u64;
         let mut survivors = std::mem::take(&mut self.young.survivors);
@@ -214,13 +215,16 @@ impl HeapInner {
                 self.cells.release(r);
             }
         }
+        let survived = next_survivors.len();
         survivors.clear();
         survivors.extend_from_slice(&next_survivors);
         self.young.survivors = survivors;
         self.young.retired += born.len() as u64;
         self.young.bytes = bytes;
+        let counts = (born.len(), survived);
         born.clear();
         self.young.born = born;
+        counts
     }
 }
 

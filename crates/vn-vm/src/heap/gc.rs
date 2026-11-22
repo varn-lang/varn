@@ -76,6 +76,25 @@ impl HeapInner {
         self.cells.old_bytes >= self.gc_threshold
     }
 
+    pub(crate) fn adapt_nursery(&mut self, born: usize, survived: usize) {
+        const FLOOR_BYTES: u64 = 1 << 20;
+        const SHRINK_BELOW_PERMILLE: usize = 20;
+        const GROW_ABOVE_PERMILLE: usize = 100;
+        if born == 0 {
+            return;
+        }
+        let ceiling = self.nursery_bytes;
+        let floor = FLOOR_BYTES.min(ceiling);
+        let permille = survived * 1000 / born;
+        self.nursery_target = if permille <= SHRINK_BELOW_PERMILLE {
+            (self.nursery_target / 2).max(floor)
+        } else if permille >= GROW_ABOVE_PERMILLE {
+            (self.nursery_target * 2).min(ceiling)
+        } else {
+            self.nursery_target
+        };
+    }
+
     pub(crate) fn recompute_young_limit(&mut self) {
         const MIN_LIMIT: u64 = 1024;
         const UNKNOWN_CELL_BYTES: u64 = 24;
@@ -84,7 +103,7 @@ impl HeapInner {
         } else {
             (self.young.bytes / self.young.len() as u64).max(1)
         };
-        let limit = (self.nursery_bytes / avg).max(MIN_LIMIT);
+        let limit = (self.nursery_target / avg).max(MIN_LIMIT);
         self.young.limit_cells = self.stress_cells.map_or(limit, |cells| limit.min(cells));
     }
 
