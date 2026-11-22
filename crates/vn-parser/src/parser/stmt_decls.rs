@@ -106,7 +106,7 @@ pub(super) fn try_parse_decl_stmt_mode(
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Enum(decl)))))
         }
-        TokenKind::Namespace | TokenKind::Module => {
+        TokenKind::Namespace => {
             if !decorators.is_empty() {
                 return Some(Err(ParseError::invalid(
                     "decorators are not supported on namespaces".to_owned(),

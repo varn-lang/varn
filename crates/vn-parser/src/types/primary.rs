@@ -319,7 +319,6 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::If
         | TokenKind::Else

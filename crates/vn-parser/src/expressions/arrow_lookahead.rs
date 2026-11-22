@@ -125,7 +125,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::Type
                                 | TokenKind::Enum
                                 | TokenKind::Namespace
-                                | TokenKind::Module
                                 | TokenKind::Extension
                                 | TokenKind::On
                                 | TokenKind::If
@@ -286,7 +285,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

@@ -250,7 +250,6 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::On
         | TokenKind::If

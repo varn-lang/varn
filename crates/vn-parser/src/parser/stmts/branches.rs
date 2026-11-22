@@ -179,7 +179,6 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

@@ -208,7 +208,6 @@ fn soft_as_identifier(
             | TokenKind::Set
             | TokenKind::Out
             | TokenKind::Mut
-            | TokenKind::Module
             | TokenKind::Type
             | TokenKind::Declare
             | TokenKind::Native

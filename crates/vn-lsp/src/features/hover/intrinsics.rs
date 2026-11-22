@@ -133,7 +133,6 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::On
         | TokenKind::If

@@ -109,7 +109,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::On
         | TokenKind::If

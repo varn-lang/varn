@@ -94,7 +94,6 @@ pub(crate) fn token_to_logical_op(kind: TokenKind) -> Option<LogicalOp> {
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::On
         | TokenKind::If

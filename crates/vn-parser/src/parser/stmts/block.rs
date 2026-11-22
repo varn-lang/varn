@@ -122,7 +122,6 @@ pub fn parse_block(s: &mut TokenStream) -> PResult<StmtId> {
                         | TokenKind::Type
                         | TokenKind::Enum
                         | TokenKind::Namespace
-                        | TokenKind::Module
                         | TokenKind::Extension
                         | TokenKind::On
                         | TokenKind::Else

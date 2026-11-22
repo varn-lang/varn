@@ -198,7 +198,6 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::Type
             | vn_core::TokenKind::Enum
             | vn_core::TokenKind::Namespace
-            | vn_core::TokenKind::Module
             | vn_core::TokenKind::Extension
             | vn_core::TokenKind::On
             | vn_core::TokenKind::If

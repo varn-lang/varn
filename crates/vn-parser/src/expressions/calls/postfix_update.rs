@@ -129,7 +129,6 @@ pub(super) fn parse_postfix_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

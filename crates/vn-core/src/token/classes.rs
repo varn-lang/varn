@@ -92,7 +92,6 @@ impl TokenKind {
                 | TokenKind::Is
                 | TokenKind::On
                 | TokenKind::Namespace
-                | TokenKind::Module
                 | TokenKind::Extension
                 | TokenKind::Constructor
                 | TokenKind::Destructor

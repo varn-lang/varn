@@ -233,7 +233,6 @@ pub fn build_semantic_tokens(state: &DocumentState) -> Vec<u32> {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

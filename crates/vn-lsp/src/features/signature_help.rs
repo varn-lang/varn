@@ -126,7 +126,6 @@ pub fn build_signature_help(state: &DocumentState, line: u32, col: u32) -> Optio
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

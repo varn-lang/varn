@@ -27,7 +27,6 @@ keywords! {
     Type => "type",
     Enum => "enum",
     Namespace => "namespace",
-    Module => "module",
     Extension => "extension",
     On => "on",
     If => "if",

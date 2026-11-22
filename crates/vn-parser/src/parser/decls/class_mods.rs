@@ -151,7 +151,6 @@ pub(super) fn parse_member_mods(s: &mut TokenStream) -> Modifiers {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

@@ -137,7 +137,6 @@ fn parse_param(s: &mut TokenStream) -> PResult<Param> {
             | TokenKind::Type
             | TokenKind::Enum
             | TokenKind::Namespace
-            | TokenKind::Module
             | TokenKind::Extension
             | TokenKind::On
             | TokenKind::If

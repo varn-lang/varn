@@ -186,7 +186,6 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                     | TokenKind::Type
                     | TokenKind::Enum
                     | TokenKind::Namespace
-                    | TokenKind::Module
                     | TokenKind::Extension
                     | TokenKind::On
                     | TokenKind::If

@@ -136,7 +136,6 @@ pub(super) fn parse_var_decl_with_declare(
         | TokenKind::Type
         | TokenKind::Enum
         | TokenKind::Namespace
-        | TokenKind::Module
         | TokenKind::Extension
         | TokenKind::On
         | TokenKind::If

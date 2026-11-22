@@ -32,13 +32,13 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         | AmpEq | AmpAmpEq | Pipe | PipePipe | PipeEq | PipePipeEq | Caret | CaretEq | Tilde
         | LtLt | LtLtEq | GtGt | GtGtEq | GtGtGt | GtGtGtEq | Eq | EqEq | EqEqEq | Bang
         | BangEq | BangEqEq | Lt | LtEq | Gt | GtEq | Let | Const | Var | Function | Class
-        | Struct | Interface | Type | Enum | Namespace | Module | Extension | On | If | Else
-        | Switch | Case | Default | While | For | Do | Break | Continue | Return | Throw | Try
-        | Catch | Finally | Using | With | Import | Export | From | As | Async | Await | Yield
-        | New | Super | Delete | In | Of | Is | Public | Private | Protected | Static
-        | Abstract | Override | Readonly | Mut | Out | Declare | Native | Extends | Implements
-        | Get | Set | Constructor | Destructor | Match | At | Hash | Backslash | Dollar
-        | Backtick | Newline | Whitespace | DocComment | Placeholder | RawStr => {}
+        | Struct | Interface | Type | Enum | Namespace | Extension | On | If | Else | Switch
+        | Case | Default | While | For | Do | Break | Continue | Return | Throw | Try | Catch
+        | Finally | Using | With | Import | Export | From | As | Async | Await | Yield | New
+        | Super | Delete | In | Of | Is | Public | Private | Protected | Static | Abstract
+        | Override | Readonly | Mut | Out | Declare | Native | Extends | Implements | Get | Set
+        | Constructor | Destructor | Match | At | Hash | Backslash | Dollar | Backtick
+        | Newline | Whitespace | DocComment | Placeholder | RawStr => {}
     }
 
     if tok.kind == Identifier
