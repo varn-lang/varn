@@ -70,24 +70,21 @@ impl<'r> Checker<'r> {
         if res.is_none() && self.owner_lookup_depth == 0 {
             use crate::checker_expressions::check::members::resolve_extension;
             use vn_core::extension_names::ExtensionKind;
+            let receiver = *ty;
             let method = resolve_extension(self, ExtensionKind::Method, ty, key, bind);
             let getter = resolve_extension(self, ExtensionKind::Getter, ty, key, bind);
-            if let Some(mangled) = method {
-                if let Some(sym_ty) = {
-                    let receiver = *ty;
+            if let Some(mangled) = method
+                && let Some(sym_ty) =
                     super::member_util::extension_method_type(self, bind, &mangled, &receiver)
-                } {
-                    return Some((
-                        sym_ty,
-                        super::member_util::extension_method_auth(bind, &mangled),
-                    ));
-                }
+            {
+                return Some((
+                    sym_ty,
+                    super::member_util::extension_method_auth(bind, &mangled),
+                ));
             }
             if let Some(mangled) = getter.as_ref()
-                && let Some(sym_ty) = {
-                    let receiver = *ty;
+                && let Some(sym_ty) =
                     super::member_util::extension_getter_type(self, bind, mangled, &receiver)
-                }
             {
                 return Some((
                     sym_ty,
@@ -254,57 +251,54 @@ impl<'r> Checker<'r> {
         if res.is_none() && self.owner_lookup_depth == 0 {
             use crate::checker_expressions::check::members::resolve_extension;
             use vn_core::extension_names::ExtensionKind;
+            let receiver = *ty;
             let method = resolve_extension(self, ExtensionKind::Method, ty, key, bind);
             let getter = resolve_extension(self, ExtensionKind::Getter, ty, key, bind);
             let setter = resolve_extension(self, ExtensionKind::Setter, ty, key, bind);
-            if let Some(mangled) = method {
-                if let Some(sym) = {
-                    let receiver = *ty;
+            if let Some(mangled) = method
+                && let Some(sym) =
                     super::member_util::extension_method_type(self, bind, &mangled, &receiver)
-                } {
-                    let sym_kind = self.ty_table.get(sym.0);
-                    let (params, return_type, type_params) = match sym_kind {
-                        vn_core::TypeKind::Fn(fid) => {
-                            let ft = self.ty_table.get_function(fid).clone();
-                            (ft.params, ft.return_type, ft.type_params)
-                        }
-                        vn_core::TypeKind::Primitive(_)
-                        | vn_core::TypeKind::Literal(_)
-                        | vn_core::TypeKind::This
-                        | vn_core::TypeKind::Array(_)
-                        | vn_core::TypeKind::Union(_)
-                        | vn_core::TypeKind::Intersection(_)
-                        | vn_core::TypeKind::Tuple(_)
-                        | vn_core::TypeKind::Named(..)
-                        | vn_core::TypeKind::Generic(..)
-                        | vn_core::TypeKind::TemplateLiteral(_)
-                        | vn_core::TypeKind::Record(_)
-                        | vn_core::TypeKind::Interface(_)
-                        | vn_core::TypeKind::KeyOf(_)
-                        | vn_core::TypeKind::IndexedAccess { .. }
-                        | vn_core::TypeKind::Mapped { .. }
-                        | vn_core::TypeKind::Conditional { .. }
-                        | vn_core::TypeKind::Infer(_)
-                        | vn_core::TypeKind::EnumVariant { .. }
-                        | vn_core::TypeKind::TypePredicate { .. } => {
-                            (vec![], Type::Dynamic.0, Vec::new())
-                        }
-                    };
-                    return Some(ObjectTypeMember::Method {
-                        name: Arc::from(key),
-                        params,
-                        return_type,
-                        optional: false,
-                        is_arrow: false,
-                        type_params,
-                    });
-                }
+            {
+                let sym_kind = self.ty_table.get(sym.0);
+                let (params, return_type, type_params) = match sym_kind {
+                    vn_core::TypeKind::Fn(fid) => {
+                        let ft = self.ty_table.get_function(fid).clone();
+                        (ft.params, ft.return_type, ft.type_params)
+                    }
+                    vn_core::TypeKind::Primitive(_)
+                    | vn_core::TypeKind::Literal(_)
+                    | vn_core::TypeKind::This
+                    | vn_core::TypeKind::Array(_)
+                    | vn_core::TypeKind::Union(_)
+                    | vn_core::TypeKind::Intersection(_)
+                    | vn_core::TypeKind::Tuple(_)
+                    | vn_core::TypeKind::Named(..)
+                    | vn_core::TypeKind::Generic(..)
+                    | vn_core::TypeKind::TemplateLiteral(_)
+                    | vn_core::TypeKind::Record(_)
+                    | vn_core::TypeKind::Interface(_)
+                    | vn_core::TypeKind::KeyOf(_)
+                    | vn_core::TypeKind::IndexedAccess { .. }
+                    | vn_core::TypeKind::Mapped { .. }
+                    | vn_core::TypeKind::Conditional { .. }
+                    | vn_core::TypeKind::Infer(_)
+                    | vn_core::TypeKind::EnumVariant { .. }
+                    | vn_core::TypeKind::TypePredicate { .. } => {
+                        (vec![], Type::Dynamic.0, Vec::new())
+                    }
+                };
+                return Some(ObjectTypeMember::Method {
+                    name: Arc::from(key),
+                    params,
+                    return_type,
+                    optional: false,
+                    is_arrow: false,
+                    type_params,
+                });
             }
             if let Some(mangled) = getter.as_ref()
-                && let Some(sym) = {
-                    let receiver = *ty;
+                && let Some(sym) =
                     super::member_util::extension_getter_type(self, bind, mangled, &receiver)
-                }
             {
                 let has_setter = setter.is_some();
                 return Some(ObjectTypeMember::Property {
