@@ -213,14 +213,16 @@ pub(super) fn emit(
         } => {
             let a = heap::boxed_parts(b, ctx, values, *lhs)?;
             let c = heap::boxed_parts(b, ctx, values, *rhs)?;
-            let cond = super::super::generic::boxed_compare(
+            let constant = sso_operand(ctx, *lhs, *rhs);
+            let cond = super::super::generic::str_compare(
                 b,
                 ctx.cc,
                 ctx.helpers.eq,
                 ctx.exec_ctx,
-                Some(true),
+                true,
                 a,
                 c,
+                constant.as_ref(),
             );
             Out::Native(cond)
         }
@@ -231,14 +233,16 @@ pub(super) fn emit(
         } => {
             let a = heap::boxed_parts(b, ctx, values, *lhs)?;
             let c = heap::boxed_parts(b, ctx, values, *rhs)?;
-            let cond = super::super::generic::boxed_compare(
+            let constant = sso_operand(ctx, *lhs, *rhs);
+            let cond = super::super::generic::str_compare(
                 b,
                 ctx.cc,
                 ctx.helpers.neq,
                 ctx.exec_ctx,
-                Some(false),
+                false,
                 a,
                 c,
+                constant.as_ref(),
             );
             Out::Native(cond)
         }
@@ -412,4 +416,17 @@ pub(super) fn emit(
         | SsaOp::Dispose { .. } => return Ok(None),
     };
     Ok(Some(Some(v)))
+}
+
+fn sso_operand(ctx: &Ctx<'_>, lhs: u32, rhs: u32) -> Option<super::super::generic::SsoConst> {
+    let (k, on_rhs) = match (ctx.sso_consts.get(&rhs), ctx.sso_consts.get(&lhs)) {
+        (Some(k), _) => (k, true),
+        (None, Some(k)) => (k, false),
+        (None, None) => return None,
+    };
+    Some(super::super::generic::SsoConst {
+        tag: k.tag,
+        payload: k.payload,
+        on_rhs,
+    })
 }

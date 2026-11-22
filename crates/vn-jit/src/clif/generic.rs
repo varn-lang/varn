@@ -123,3 +123,65 @@ pub(crate) fn boxed_compare(
     b.switch_to_block(merge_blk);
     b.block_params(merge_blk)[0]
 }
+
+pub(crate) struct SsoConst {
+    pub tag: u64,
+    pub payload: u64,
+    pub on_rhs: bool,
+}
+
+type Parts = (cranelift_codegen::ir::Value, cranelift_codegen::ir::Value);
+
+pub(crate) fn str_compare(
+    b: &mut FunctionBuilder,
+    cc: CallConv,
+    helper: usize,
+    exec_ctx: cranelift_codegen::ir::Value,
+    is_eq: bool,
+    a: Parts,
+    c: Parts,
+    constant: Option<&SsoConst>,
+) -> cranelift_codegen::ir::Value {
+    let fast_blk = b.create_block();
+    let slow_blk = b.create_block();
+    let merge_blk = b.create_block();
+    b.append_block_param(merge_blk, types::I64);
+    let sso = vn_types::vm_value::KIND_SSO as i64;
+
+    let (can_inline, matched) = match constant {
+        Some(k) => {
+            let (var_tag, var_payload) = if k.on_rhs { a } else { c };
+            let kind = b.ins().band_imm_u(var_tag, 0xFF);
+            let is_sso = b.ins().icmp_imm_u(IntCC::Equal, kind, sso);
+            let tag_eq = b.ins().icmp_imm_u(IntCC::Equal, var_tag, k.tag as i64);
+            let pay_eq = b
+                .ins()
+                .icmp_imm_u(IntCC::Equal, var_payload, k.payload as i64);
+            (is_sso, b.ins().band(tag_eq, pay_eq))
+        }
+        None => {
+            let tag_eq = b.ins().icmp(IntCC::Equal, a.0, c.0);
+            let pay_eq = b.ins().icmp(IntCC::Equal, a.1, c.1);
+            let bits_eq = b.ins().band(tag_eq, pay_eq);
+            let a_kind = b.ins().band_imm_u(a.0, 0xFF);
+            let b_kind = b.ins().band_imm_u(c.0, 0xFF);
+            let a_sso = b.ins().icmp_imm_u(IntCC::Equal, a_kind, sso);
+            let b_sso = b.ins().icmp_imm_u(IntCC::Equal, b_kind, sso);
+            let both_sso = b.ins().band(a_sso, b_sso);
+            (b.ins().bor(bits_eq, both_sso), bits_eq)
+        }
+    };
+    b.ins().brif(can_inline, fast_blk, &[], slow_blk, &[]);
+
+    b.switch_to_block(fast_blk);
+    let eq = b.ins().uextend(types::I64, matched);
+    let fast_res = if is_eq { eq } else { b.ins().bxor_imm_u(eq, 1) };
+    b.ins().jump(merge_blk, &[fast_res.into()]);
+
+    b.switch_to_block(slow_blk);
+    let slow_res = call_helper(b, cc, helper, &[exec_ctx, a.0, a.1, c.0, c.1]);
+    b.ins().jump(merge_blk, &[slow_res.into()]);
+
+    b.switch_to_block(merge_blk);
+    b.block_params(merge_blk)[0]
+}

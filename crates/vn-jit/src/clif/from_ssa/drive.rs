@@ -142,6 +142,26 @@ pub(in crate::clif) fn try_lower(
         ssa,
         proto,
         constants,
+        sso_consts: ssa
+            .blocks
+            .iter()
+            .flat_map(|blk| &blk.insts)
+            .filter_map(|inst| match (inst.dest, &inst.op) {
+                (Some(d), vn_types::ssa::SsaOp::ConstStr(text)) => {
+                    VmValue::try_from_sso(text).map(|v| {
+                        (
+                            d,
+                            super::super::generic::SsoConst {
+                                tag: v.raw_tag(),
+                                payload: v.raw_payload(),
+                                on_rhs: false,
+                            },
+                        )
+                    })
+                }
+                (_, _) => None,
+            })
+            .collect(),
         self_ref,
         self_abi: est.self_abi,
         redundant_self_guards,

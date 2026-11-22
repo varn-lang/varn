@@ -30,6 +30,8 @@ pub(super) struct Ctx<'a> {
     pub proto: &'a FunctionProto,
 
     pub constants: &'a [VmValue],
+
+    pub sso_consts: FxHashMap<u32, super::super::generic::SsoConst>,
     pub self_ref: FuncRef,
 
     pub self_abi: Option<SelfAbi>,
