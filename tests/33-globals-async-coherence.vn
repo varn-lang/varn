@@ -5,13 +5,13 @@ import { sleep, parallel } from "std:task"
 
 let shared = 0
 
-async function writer(): int {
+async function writer(): Task<int> {
     //await sleep(1)
     shared = 7
     return shared
 }
 
-async function reader(): int {
+async function reader(): Task<int> {
     //await sleep(1)
     return shared
 }

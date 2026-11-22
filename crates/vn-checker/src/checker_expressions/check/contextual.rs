@@ -346,14 +346,9 @@ impl<'r> Checker<'r> {
                     ..
                 } => {
                     let saved_expected = self.expected_return_type.take();
-                    self.expected_return_type = return_type.as_ref().map(|rt| {
-                        let ty = self.resolve_type_node_cached(rt, bind);
-                        if *is_async {
-                            vn_sem::types::awaited(&ty, &self.ty_table)
-                        } else {
-                            ty
-                        }
-                    });
+                    self.expected_return_type = return_type
+                        .as_ref()
+                        .map(|rt| self.body_return_expectation(rt, *is_async, false, bind));
 
                     let saved_scope = self.current_scope;
                     if let Some(fn_scope) = self.next_child_scope(bind) {

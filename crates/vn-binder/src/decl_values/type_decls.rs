@@ -200,7 +200,7 @@ impl<'r> super::super::Binder<'r> {
         let mut members: Vec<ClassMemberInfo> = Vec::new();
 
         for member in &e.body {
-            self.collect_class_member(member, id_rc.as_ref(), &mut methods, &mut members);
+            self.collect_class_member(member, e.is_declare, &mut methods, &mut members);
         }
 
         for member in &e.body {

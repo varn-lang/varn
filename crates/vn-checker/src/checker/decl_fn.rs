@@ -26,12 +26,7 @@ impl<'r> Checker<'r> {
             injected_tps.push(tp_name);
         }
         self.expected_return_type = f.return_type.as_ref().map(|rt| {
-            let ty = self.resolve_type_node_cached(rt, bind);
-            if f.modifiers.is_async {
-                vn_sem::types::awaited(&ty, &self.ty_table)
-            } else {
-                ty
-            }
+            self.body_return_expectation(rt, f.modifiers.is_async, f.modifiers.is_generator, bind)
         });
 
         let is_gen = f.modifiers.is_generator;

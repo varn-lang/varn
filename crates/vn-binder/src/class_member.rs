@@ -11,12 +11,12 @@ impl<'r> Binder<'r> {
     pub(crate) fn collect_class_member(
         &mut self,
         member: &ClassMember,
-        _class_name: &str,
+        class_is_declare: bool,
         _methods: &mut FxHashMap<Arc<str>, Type>,
         members: &mut Vec<ClassMemberInfo>,
     ) {
         let first = members.len();
-        self.collect_member_entries(member, members);
+        self.collect_member_entries(member, class_is_declare, members);
         if let Some(doc) = member_doc(member)
             && let Some(entry) = members.get_mut(first)
         {
@@ -28,7 +28,12 @@ impl<'r> Binder<'r> {
         }
     }
 
-    fn collect_member_entries(&mut self, member: &ClassMember, members: &mut Vec<ClassMemberInfo>) {
+    fn collect_member_entries(
+        &mut self,
+        member: &ClassMember,
+        class_is_declare: bool,
+        members: &mut Vec<ClassMemberInfo>,
+    ) {
         match member {
             ClassMember::Constructor {
                 params,
@@ -186,6 +191,16 @@ impl<'r> Binder<'r> {
             } => {
                 let key_rc: Arc<str> = Arc::from(self.interner.resolve(*key));
                 let declared_ret = return_type.as_ref().map(|ann| self.resolve_type(ann));
+                if (class_is_declare || modifiers.is_declare || modifiers.is_abstract)
+                    && let Some(declared) = declared_ret
+                {
+                    self.require_task_signature(
+                        declared,
+                        return_type.as_ref(),
+                        modifiers.is_async,
+                        modifiers.is_generator,
+                    );
+                }
                 let ret = vn_sem::types::callable_return(
                     declared_ret,
                     modifiers.is_async,

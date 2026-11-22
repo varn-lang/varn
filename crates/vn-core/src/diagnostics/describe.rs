@@ -55,6 +55,7 @@ impl ErrorCode {
         ErrorCode::IsNeedsRuntimeType,
         ErrorCode::NotHashable,
         ErrorCode::InvalidWithReceiver,
+        ErrorCode::AsyncReturnNotTask,
         ErrorCode::TypeArgInferenceFailed,
         ErrorCode::ConstraintViolation,
         ErrorCode::WrongTypeArgCount,
@@ -155,6 +156,7 @@ impl ErrorCode {
             | ErrorCode::UnusedTask
             | ErrorCode::InvalidWithEntry
             | ErrorCode::InvalidWithReceiver
+            | ErrorCode::AsyncReturnNotTask
             | ErrorCode::DynamicNeedsCast
             | ErrorCode::TypeArgInferenceFailed
             | ErrorCode::ConstraintViolation
@@ -249,6 +251,7 @@ impl ErrorCode {
             ErrorCode::IsNeedsRuntimeType => "The `is` operator was given an interface or a record, which have no identity at run time to test.",
             ErrorCode::NotHashable => "A type that cannot be compared by value or by identity is used as the key of a Map or the element of a Set.",
             ErrorCode::InvalidWithReceiver => "A `with` expression copies a value whose fields are not a record: collections, primitives, tuples and functions have no fields to replace.",
+            ErrorCode::AsyncReturnNotTask => "An `async` function declares a return type that is not `Task<T>`: the annotation must name the task the caller receives.",
             ErrorCode::TypeArgInferenceFailed => "The type arguments of a call could not be inferred.",
             ErrorCode::ConstraintViolation => "A type argument does not satisfy the constraint of its type parameter.",
             ErrorCode::WrongTypeArgCount => "A generic is given more or fewer type arguments than it declares.",

@@ -55,6 +55,7 @@ pub enum ErrorCode {
     IsNeedsRuntimeType = 3036,
     NotHashable = 3037,
     InvalidWithReceiver = 3038,
+    AsyncReturnNotTask = 3039,
 
     TypeArgInferenceFailed = 3201,
     ConstraintViolation = 3202,
@@ -201,6 +202,7 @@ impl ErrorCode {
             ErrorCode::IsNeedsRuntimeType => "is-needs-runtime-type",
             ErrorCode::NotHashable => "not-hashable",
             ErrorCode::InvalidWithReceiver => "invalid-with-receiver",
+            ErrorCode::AsyncReturnNotTask => "async-return-not-task",
             ErrorCode::NotIterable => "not-iterable",
         }
     }

@@ -1,10 +1,10 @@
 import { describe, it, expect } from "std:test";
 
-async function asInt(d: dynamic): int { return d as int }
+async function asInt(d: dynamic): Task<int> { return d as int }
 async function asInts(d: dynamic): Task<int[]> { return d as int[] }
-const asStr = async (d: dynamic): str => d as str
+const asStr = async (d: dynamic): Task<str> => d as str
 class Reader {
-    async flag(d: dynamic): bool { return d as bool }
+    async flag(d: dynamic): Task<bool> { return d as bool }
 }
 function* numbers(d: dynamic): int {
     yield 1
@@ -15,7 +15,7 @@ async function* words(d: dynamic): str {
     yield d as str
 }
 
-async function outcome(f: () => Task<dynamic>): str {
+async function outcome(f: () => Task<dynamic>): Task<str> {
     try {
         const r = await f()
         return `ok ${r}`
@@ -35,7 +35,7 @@ function sum(d: dynamic): str {
     }
 }
 
-async function join(d: dynamic): str {
+async function join(d: dynamic): Task<str> {
     try {
         let text = ""
         for await (const w in words(d)) { text = text + w }

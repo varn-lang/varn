@@ -9,25 +9,25 @@ export class ImportedAsyncBox<T = int> {
         this.items = [];
     }
 
-    async method(): int {
+    async method(): Task<int> {
         return 9;
     }
 
-    async all(): Array<int> {
+    async all(): Task<Array<int>> {
         return [10];
     }
 }
 
-export async function importedAsyncFn(): int {
+export async function importedAsyncFn(): Task<int> {
     return 11;
 }
 
 export namespace AsyncNs {
-    export async function fn(): int {
+    export async function fn(): Task<int> {
         return 12;
     }
 }
 
-export async function asyncImportedMethod(): int {
+export async function asyncImportedMethod(): Task<int> {
     return 13;
 }

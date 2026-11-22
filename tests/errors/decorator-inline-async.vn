@@ -1,5 +1,5 @@
 // expect: error[VN4401]
 @inline
-async function f(): int {
+async function f(): Task<int> {
     return 1;
 }

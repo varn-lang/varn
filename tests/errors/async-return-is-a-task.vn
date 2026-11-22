@@ -1,0 +1,4 @@
+// expect: error[VN3039]
+async function load(): int {
+    return 1
+}

@@ -22,14 +22,15 @@ impl<'r> Checker<'r> {
         let body = body.clone();
         let saved_expected = self.expected_return_type.take();
 
-        let resolved_ret = return_type
-            .as_ref()
-            .map(|rt| self.resolve_type_node_cached(rt, bind))
-            .or_else(|| self.expected_return_from_fn_type());
-        self.expected_return_type = if is_async {
-            resolved_ret.map(|t| vn_sem::types::awaited(&t, &self.ty_table))
-        } else {
-            resolved_ret
+        self.expected_return_type = match return_type.as_ref() {
+            Some(rt) => Some(self.body_return_expectation(rt, is_async, false, bind)),
+            None => self.expected_return_from_fn_type().map(|t| {
+                if is_async {
+                    vn_sem::types::awaited(&t, &self.ty_table)
+                } else {
+                    t
+                }
+            }),
         };
 
         let saved_scope = self.current_scope;
@@ -91,14 +92,9 @@ impl<'r> Checker<'r> {
     ) {
         let return_type = return_type.clone();
         let saved_expected = self.expected_return_type.take();
-        self.expected_return_type = return_type.as_ref().map(|rt| {
-            let ty = self.resolve_type_node_cached(rt, bind);
-            if is_async {
-                vn_sem::types::awaited(&ty, &self.ty_table)
-            } else {
-                ty
-            }
-        });
+        self.expected_return_type = return_type
+            .as_ref()
+            .map(|rt| self.body_return_expectation(rt, is_async, is_generator, bind));
 
         let saved_scope = self.current_scope;
         if let Some(fn_scope) = self.next_child_scope(bind) {

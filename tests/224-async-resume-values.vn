@@ -1,17 +1,17 @@
 import { describe, it, expect } from "std:test";
 
-async function countDown(n: int): int {
+async function countDown(n: int): Task<int> {
     if (n == 0) { return 0 }
     const r = await countDown(n - 1)
     return r + 1
 }
 
-async function fromTen(n: int): int {
+async function fromTen(n: int): Task<int> {
     if (n == 0) { return 10 }
     return (await fromTen(n - 1)) + 1
 }
 
-async function scaled(n: int): int {
+async function scaled(n: int): Task<int> {
     if (n == 0) { return 1 }
     return 2 * (await scaled(n - 1))
 }

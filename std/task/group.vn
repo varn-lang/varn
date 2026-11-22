@@ -7,7 +7,7 @@ async function timeoutJoin<T>(ms: int): Task<T> {
     throw new TimeoutError("TaskGroup.join timed out");
 }
 
-async function wrapTask<T>(task: Task<T>, group: TaskGroup<T>): T {
+async function wrapTask<T>(task: Task<T>, group: TaskGroup<T>): Task<T> {
     try {
         let res = await task;
         if (group.isCancelled) {

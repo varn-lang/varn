@@ -9,7 +9,7 @@ class AsyncCounter {
     constructor() {
         this.i = 0;
     }
-    async next(): int? {
+    async next(): Task<int?> {
         if (this.i < 3) {
             let val = this.i;
             this.i = this.i + 1;
@@ -27,7 +27,7 @@ class AsyncCounterSource {
 
 const myAsyncIterable = new AsyncCounterSource();
 
-async function testForAwait(): int {
+async function testForAwait(): Task<int> {
     let sum = 0;
     for await (let x in myAsyncIterable) {
         sum = sum + x;
@@ -104,7 +104,7 @@ function testLocalNamespace(): void {
 }
 
 // Execution block
-async function runAll(): void {
+async function runAll(): Task<void> {
     let sum = await testForAwait();
     expect(sum).toBe(3);
 

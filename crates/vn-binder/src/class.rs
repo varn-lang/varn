@@ -51,7 +51,7 @@ impl<'r> super::Binder<'r> {
         let mut members: Vec<ClassMemberInfo> = Vec::new();
 
         for member in &c.body {
-            self.collect_class_member(member, name.as_ref(), &mut methods, &mut members);
+            self.collect_class_member(member, c.modifiers.is_declare, &mut methods, &mut members);
         }
 
         self.bind_class_bodies(c, name_atom);

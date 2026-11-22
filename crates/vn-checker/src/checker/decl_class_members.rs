@@ -116,12 +116,12 @@ impl<'r> Checker<'r> {
                         std::mem::replace(&mut self.declared_yield, declared_yield);
                     let saved_expected = self.expected_return_type.take();
                     self.expected_return_type = return_type.as_ref().map(|rt| {
-                        let ty = self.resolve_type_node_cached(rt, bind);
-                        if modifiers.is_async {
-                            vn_sem::types::awaited(&ty, &self.ty_table)
-                        } else {
-                            ty
-                        }
+                        self.body_return_expectation(
+                            rt,
+                            modifiers.is_async,
+                            modifiers.is_generator,
+                            bind,
+                        )
                     });
                     let saved_caps = self
                         .enclosing_caps

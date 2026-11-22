@@ -86,6 +86,16 @@ impl<'r> super::super::Binder<'r> {
             .collect();
 
         let declared_ret = f.return_type.as_ref().map(|ann| self.resolve_type(ann));
+        if f.modifiers.is_declare
+            && let Some(declared) = declared_ret
+        {
+            self.require_task_signature(
+                declared,
+                f.return_type.as_ref(),
+                f.modifiers.is_async,
+                f.modifiers.is_generator,
+            );
+        }
 
         let ret = vn_sem::types::callable_return(
             declared_ret,

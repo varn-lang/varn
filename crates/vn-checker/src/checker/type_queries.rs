@@ -200,6 +200,31 @@ impl<'r> Checker<'r> {
         }
     }
 
+    pub(crate) fn body_return_expectation(
+        &mut self,
+        annotation: &vn_core::ast::TypeNode,
+        is_async: bool,
+        is_generator: bool,
+        bind: &BindResult,
+    ) -> Type {
+        let declared = self.resolve_type_node_cached(annotation, bind);
+        if !is_async || is_generator {
+            return declared;
+        }
+        if !declared.is_unresolved() && !vn_sem::types::is_awaitable(&declared, &self.ty_table) {
+            let shown = declared.display(&self.ty_table, &bind.interner);
+            self.emit(
+                vn_core::Diagnostic::error(
+                    vn_core::ErrorCode::AsyncReturnNotTask,
+                    format!("an `async` function returns a task: write `Task<{shown}>`"),
+                )
+                .with_range(annotation.range),
+            );
+            return declared;
+        }
+        vn_sem::types::awaited(&declared, &self.ty_table)
+    }
+
     pub(crate) fn resolve_type_node_cached(
         &mut self,
         node: &vn_core::ast::TypeNode,

@@ -44,7 +44,7 @@ function builtinSum(): void {
 }
 
 @test
-async function builtinAsync(): void {
+async function builtinAsync(): Task<void> {
     let v = pureMul(6, 7);
     if (v != 42) {
         throw new Error("builtin async broke");

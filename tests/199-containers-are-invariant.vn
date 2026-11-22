@@ -19,7 +19,7 @@ function count(value: Json): int {
 function widest(values: (int | str)[]): int {
     return values.length
 }
-async function later(): int { return 4 }
+async function later(): Task<int> { return 4 }
 function* numbers(): int { yield 1; yield 2 }
 
 await describe("199 containers are invariant", async () => {

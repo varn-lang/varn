@@ -3,7 +3,7 @@ import { channel, ChannelClosed, spawnIsolate, Sender, Receiver } from "std:task
 import { echoWorker } from "./helpers/isolate-workers.vn";
 
 
-async function testBasics(): void {
+async function testBasics(): Task<void> {
     const ch = channel<int>(2)
     await ch.tx.send(1)
     await ch.tx.send(2)
@@ -11,7 +11,7 @@ async function testBasics(): void {
     expect(await ch.rx.receive()).toBe(2)
 }
 
-async function testTypedClose(): void {
+async function testTypedClose(): Task<void> {
     const ch = channel<str>(1)
     ch.tx.close()
     let typed = false
@@ -30,7 +30,7 @@ async function testTypedClose(): void {
     expect(sendClosed).toBeTruthy()
 }
 
-async function testForAwait(): void {
+async function testForAwait(): Task<void> {
     const ch = channel<int>(4)
     await ch.tx.send(10)
     await ch.tx.send(20)
@@ -42,7 +42,7 @@ async function testForAwait(): void {
     expect(sum).toBe(30)
 }
 
-async function testUsingDispose(): void {
+async function testUsingDispose(): Task<void> {
     const ch = channel<int>(1)
     {
         using tx = ch.tx
@@ -55,7 +55,7 @@ async function testUsingDispose(): void {
     expect(closed).toBeTruthy()
 }
 
-async function testCrossIsolate(): void {
+async function testCrossIsolate(): Task<void> {
     const a = channel<int>(4)
     const b = channel<int>(4)
     const handle = await spawnIsolate(echoWorker, (a.rx, b.tx))
@@ -68,7 +68,7 @@ async function testCrossIsolate(): void {
     expect(done).toBeTruthy()
 }
 
-async function main(): void {
+async function main(): Task<void> {
     await testBasics()
     await testTypedClose()
     await testForAwait()

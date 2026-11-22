@@ -130,6 +130,7 @@ impl<'r> super::Binder<'r> {
                         Type::Error
                     }
                 };
+                self.require_task_signature(declared, return_type.as_ref(), *is_async, false);
                 let ret = vn_sem::types::async_fn_return(
                     declared,
                     *is_async,
