@@ -7,6 +7,7 @@ pub struct ModuleSpec {
     pub vn_source: &'static str,
     pub embedded: Option<&'static str>,
     pub exports: &'static [&'static str],
+    pub code_exports: &'static [&'static str],
     pub pure: bool,
 
     pub has_code: bool,
@@ -20,6 +21,7 @@ impl ModuleSpec {
             vn_source,
             embedded: None,
             exports: &[],
+            code_exports: &[],
             pure: false,
             has_code: false,
         }
@@ -32,6 +34,11 @@ impl ModuleSpec {
 
     pub const fn with_code(mut self) -> Self {
         self.has_code = true;
+        self
+    }
+
+    pub const fn with_code_exports(mut self, exports: &'static [&'static str]) -> Self {
+        self.code_exports = exports;
         self
     }
 
@@ -51,6 +58,7 @@ impl ModuleSpec {
             vn_source,
             embedded: None,
             exports: &[],
+            code_exports: &[],
             pure,
             has_code: false,
         }

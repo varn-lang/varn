@@ -70,7 +70,7 @@ pub(super) fn prelude_imports(
             source: Arc::from(spec.id),
             is_type_only: false,
             specs: spec
-                .exports
+                .code_exports
                 .iter()
                 .filter(|name| used.contains(**name) && !declared.contains(**name))
                 .map(|name| TirImportSpec {

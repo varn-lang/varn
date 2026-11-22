@@ -44,6 +44,7 @@ pub struct ModuleContract {
     pub enums: BTreeSet<String>,
     pub functions: Vec<Member>,
     pub exports: Vec<String>,
+    pub code_exports: Vec<String>,
     pub has_code: bool,
 }
 

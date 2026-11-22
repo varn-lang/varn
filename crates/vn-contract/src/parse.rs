@@ -34,13 +34,16 @@ pub fn parse(source: &str, name: &str) -> Result<ModuleContract, ContractError> 
             | Decl::Import(_)
             | Decl::Extension(_) => (decl.as_ref(), false),
         };
-        let declared = declare(declaration, &mut contract, &arena, &interner)?;
-        if exported {
-            contract.has_code |= !declared;
+        let (names, declared) = declare(declaration, &mut contract, &arena, &interner)?;
+        if exported && !declared {
+            contract.has_code = true;
+            contract.code_exports.extend(names);
         }
     }
     contract.exports.sort();
     contract.exports.dedup();
+    contract.code_exports.sort();
+    contract.code_exports.dedup();
     Ok(contract)
 }
 
@@ -49,7 +52,7 @@ fn declare(
     out: &mut ModuleContract,
     arena: &AstArena,
     interner: &AtomInterner,
-) -> Result<bool, ContractError> {
+) -> Result<(Vec<String>, bool), ContractError> {
     let name = |a: vn_core::Atom| interner.resolve(a).to_string();
     let (names, declared) = match decl {
         Decl::Function(f) => {
@@ -98,8 +101,8 @@ fn declare(
         ),
         Decl::Import(_) | Decl::Export(_) => (Vec::new(), false),
     };
-    out.exports.extend(names);
-    Ok(declared)
+    out.exports.extend(names.iter().cloned());
+    Ok((names, declared))
 }
 
 fn identifier(expr: ExprId, arena: &AstArena, interner: &AtomInterner) -> Option<String> {

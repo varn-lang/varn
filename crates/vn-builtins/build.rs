@@ -84,10 +84,15 @@ fn emit_template_entries(out: &mut impl Write, layer: &str, kind_expr: &str, tem
             .iter()
             .map(|e| format!(r#""{e}","#))
             .collect();
+        let code_exports: String = surface
+            .code_exports
+            .iter()
+            .map(|e| format!(r#""{e}","#))
+            .collect();
         let code = if surface.has_code { ".with_code()" } else { "" };
         writeln!(
             out,
-            r#"    ModuleSpec::new("{layer}:types/{id}", {kind_expr}, "crates/vn-builtins/{shown}").with_source({source:?}).with_exports(&[{exports}]){code},"#,
+            r#"    ModuleSpec::new("{layer}:types/{id}", {kind_expr}, "crates/vn-builtins/{shown}").with_source({source:?}).with_exports(&[{exports}]).with_code_exports(&[{code_exports}]){code},"#,
             id = kind.name(),
         )
         .unwrap();
@@ -105,10 +110,15 @@ fn emit_spec_entry(out: &mut impl Write, id: &str, kind_expr: &str, contract: &P
         .iter()
         .map(|e| format!(r#""{e}","#))
         .collect();
+    let code_exports: String = surface
+        .code_exports
+        .iter()
+        .map(|e| format!(r#""{e}","#))
+        .collect();
     let code = if surface.has_code { ".with_code()" } else { "" };
     writeln!(
         out,
-        r#"    ModuleSpec::new("{id}", {kind_expr}, "crates/vn-builtins/{include_path}").with_source(include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/{include_path}"))).with_exports(&[{exports}]){code},"#,
+        r#"    ModuleSpec::new("{id}", {kind_expr}, "crates/vn-builtins/{include_path}").with_source(include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/{include_path}"))).with_exports(&[{exports}]).with_code_exports(&[{code_exports}]){code},"#,
     )
     .unwrap();
 }
