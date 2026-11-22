@@ -36,6 +36,30 @@ pub(super) fn to_sendable(
         {
             return Ok(error);
         }
+        if let Some(inst) = ctx.heap.instance_of(val)
+            && let Some(cls) = vn_types::ClassObj::find_by_id(inst.class_id)
+            && cls.is_native
+        {
+            let layout = cls.layout();
+            if let Some(end) = vn_types::value::ChannelEndpoint::of_class(&cls) {
+                let id = layout
+                    .get_field(vn_types::value::ENDPOINT_ID_FIELD)
+                    .and_then(|f| inst.read_field(f))
+                    .filter(|v| v.is_int())
+                    .map(|v| v.as_int() as u64)
+                    .ok_or_else(|| {
+                        format!("{}: endpoint without a channel id", end.class_name())
+                    })?;
+                return Ok(vn_types::value::SendValue::Endpoint(end, id));
+            }
+            let mut fields = Vec::with_capacity(layout.fields.len());
+            for f in &layout.fields {
+                if let Some(v) = inst.read_field(f) {
+                    fields.push((f.name.to_string(), ctx.to_sendable(v)?));
+                }
+            }
+            return Ok(vn_types::value::SendValue::Object(fields));
+        }
         match ctx.heap.get(val.as_heap()) {
             Some(HeapObj::Str(s)) => Ok(vn_types::value::SendValue::Str(s.to_string())),
             Some(HeapObj::Array(arr)) => {
@@ -56,19 +80,6 @@ pub(super) fn to_sendable(
                     return Ok(error);
                 }
 
-                if let Some(end) = borrow
-                    .class()
-                    .and_then(|cls| vn_types::value::ChannelEndpoint::of_class(&cls))
-                {
-                    let id = borrow
-                        .get(vn_types::value::ENDPOINT_ID_FIELD)
-                        .filter(|v| v.is_int())
-                        .map(|v| v.as_int() as u64)
-                        .ok_or_else(|| {
-                            format!("{}: endpoint without a channel id", end.class_name())
-                        })?;
-                    return Ok(vn_types::value::SendValue::Endpoint(end, id));
-                }
                 let mut map = Vec::new();
                 for (k, nv) in borrow.iter() {
                     map.push((k.to_string(), ctx.to_sendable(nv)?));

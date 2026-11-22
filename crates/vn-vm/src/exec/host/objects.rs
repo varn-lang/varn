@@ -117,11 +117,9 @@ impl ExecCtx {
     }
     pub(super) fn host_alloc_instance(&mut self, class_name: &str) -> Option<VmValue> {
         let class_obj = self.get_class(class_name)?;
-        let (shape, slots) = class_obj.instance_shape();
-        let instance_nv = self.heap.alloc_object_cell(shape, slots, &[]);
-        if let Some(crate::heap::HeapObj::Object(o)) = self.heap.get_mut(instance_nv.as_heap()) {
-            o.set_class(class_obj);
-        }
-        Some(instance_nv)
+        let instance = std::ops::DerefMut::deref_mut(&mut self.heap)
+            .alloc_instance(&class_obj)
+            .0;
+        Some(VmValue::from_heap(instance))
     }
 }

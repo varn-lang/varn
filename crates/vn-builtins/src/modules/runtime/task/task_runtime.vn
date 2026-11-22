@@ -16,12 +16,14 @@ export declare function spawnIsolate$(fn: dynamic, args: dynamic): TaskHandle<Is
 export declare class ChannelClosed extends Error {}
 
 export declare class Sender<in T> {
+    private _chan: int;
     send(msg: T): TaskHandle<void>;
     close(): void;
     dispose(): void;
 }
 
 export declare class Receiver<out T> {
+    private _chan: int;
     receive(): TaskHandle<T>;
     @throws(Error) next(): TaskHandle<T?>;
     dispose(): void;
