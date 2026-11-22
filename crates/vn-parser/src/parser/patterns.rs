@@ -201,13 +201,6 @@ impl Sequence {
             Self::Tuple => TokenKind::RParen,
         }
     }
-
-    fn noun(self) -> &'static str {
-        match self {
-            Self::Array => "array",
-            Self::Tuple => "tuple",
-        }
-    }
 }
 
 fn parse_sequence_pattern(s: &mut TokenStream, kind: Sequence) -> PResult<Pattern> {
@@ -218,12 +211,9 @@ fn parse_sequence_pattern(s: &mut TokenStream, kind: Sequence) -> PResult<Patter
 
     while !s.check(kind.closing()) && !s.is_eof() {
         if s.check(TokenKind::Comma) {
-            return Err(ParseError::invalid(format!(
-                "{} destructuring holes are not allowed at {}:{}; use `_` to discard a position",
-                kind.noun(),
-                s.range().start.line,
-                s.range().start.column
-            )));
+            return Err(ParseError::invalid(
+                vn_core::ForeignForm::ArrayHole.message(),
+            ));
         }
         if s.check(TokenKind::DotDotDot) {
             s.advance();

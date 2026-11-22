@@ -64,7 +64,15 @@ impl Checker<'_> {
                                 Type::array(shape.element, Arc::make_mut(&mut self.ty_table));
                             self.check_destructure_target(rec, *e, rest, bind);
                         }
-                        ArrayEl::Hole => {}
+                        ArrayEl::Hole => {
+                            self.emit(
+                                vn_core::Diagnostic::error(
+                                    vn_core::ErrorCode::InvalidStatement,
+                                    vn_core::ForeignForm::ArrayHole.message(),
+                                )
+                                .with_range(range),
+                            );
+                        }
                     }
                 }
             }

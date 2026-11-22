@@ -63,9 +63,9 @@ await describe("337 destructuring assignment", async () => {
         expect(rest.length).toBe(2);
     });
 
-    await it("skips holes and the placeholder", async () => {
+    await it("discards positions with the placeholder", async () => {
         let b = 0;
-        ;[, b] = [1, 2];
+        ;[_, b] = [1, 2];
         expect(b).toBe(2);
         let a = 0;
         ;(a, _) = (5, 6);

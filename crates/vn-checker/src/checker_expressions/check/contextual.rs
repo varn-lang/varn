@@ -159,7 +159,15 @@ impl<'r> Checker<'r> {
                         );
                     }
                 }
-                ArrayEl::Hole => {}
+                ArrayEl::Hole => {
+                    self.emit(
+                        Diagnostic::error(
+                            ErrorCode::InvalidStatement,
+                            vn_core::ForeignForm::ArrayHole.message(),
+                        )
+                        .with_range(self.ast_arena.expr(expr).range),
+                    );
+                }
             }
         }
     }
