@@ -56,20 +56,25 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   menor y uno mayor en `http_routing`, que retiene el 76%), corregido en A2b
   escalando vivero y presupuesto por 1/(1 - supervivencia) y midiendo el tamano
   medio de celda (antes caia siempre a 24 B).
-- A2e. Coste de la celda. Perfil nativo y ensamblador de `new Map`: el 50% propio
-  de `alloc_map_vm` es la escritura en una celda de 128 B (dos lineas) obtenida de
-  una lista libre enlazada. Hecho: `take` precarga la siguiente celda libre
-  (`new Map` 700 a ~640 ms, 30M). Pendiente, por orden de ganancia esperada:
-  (1) `HeapObj` mide 48 B porque su variante mayor (`Str`) fija el `tail` de TODA
-  celda; con cabecera de 8 B un `Map` ocupa 8+48+64 = 120 B y un array 8+48+32 +
-  datos. Reducir `HeapObj` a un puntero con etiqueta (variantes grandes fuera de
-  la celda o en celdas propias) llevaria `Map` a una linea de cache y ahorraria
-  32 B por celda en todo el heap; (2) boxear el indice hash de `OrderedTable`
-  (solo existe en mapas grandes) para que el `ValueMap` pase de 64 a ~40 B;
-  (3) reinicio en bloque de bloques jovenes sin supervivientes, que sustituye la
-  lista libre por bump; (4) entradas de `Map`/`Set` pequenos inline con `CellVec`.
-  Puerta: `new Map` por debajo de 12 ns y GC menor por debajo del 5% en
-  `http_routing`.
+- [x] A2e. Coste de la celda y de la construccion. (1) `take` precarga la siguiente
+  celda libre. (2) Las celdas se escriben en sitio: `alloc_map_vm` copiaba el
+  `ValueMap` por valor con `movups` justo tras stores de 8 B (fallo de reenvio de
+  store, ~12 ns por Map); `new Map` 700 a ~540 ms (30M). (3) Entradas de `Map`/`Set`
+  de hasta 8 elementos dentro de la celda (`OrderedTable` sobre `CellVec`,
+  `alloc_map_sized` + `map_put`): `Map.set` con alloc 239 a 153 ms (5M). (4) El
+  pacing no vuelve a recolectar hasta asignar 2x lo sobrevivido (tipo GOGC).
+  Perfil de `http_routing` tras esto: JIT 34%, construccion de Map 14.6%, GC menor
+  10.7%, `mimalloc` 8%, `split` 7.4%, `json.stringify` 6.7%, concatenacion 4.2%.
+- A2f. GC por bitmaps con barrido perezoso (marcas fuera de la celda, bloques sin
+  vivos reiniciados por bump, sin lista libre ni `born`). Medido: el coste de
+  recoleccion por objeto es ~4 ns de ~21 en `new Map`, de modo que su techo es
+  ~10 a 20% en bucles de asignacion y menos en `http_routing`. Es buena
+  arquitectura pero no la raiz de la brecha; va despues de A5.
+- A5. Calidad del codigo JIT (34% de `http_routing`): valores boxeados (tag+payload
+  en i128 partidos y recompuestos), volcado de argumentos a slots de pila en el
+  prologo, un helper de 4-5 argumentos por operacion de cadena, comprobaciones de
+  nulo sobre tipos no anulables. Requiere inspeccionar el CLIF de `Router.dispatch`
+  y `Route.match`.
 - A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
   asignacion en region de frame para arrays y `Map` que no escapan.
