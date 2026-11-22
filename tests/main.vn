@@ -349,6 +349,7 @@ import "./357-nullable-scalar-fields.vn"
 import "./358-bool-and-reference-arrays.vn"
 import "./359-fixed-width-numbers.vn"
 import "./360-qualified-variant-patterns.vn"
+import "./361-struct-literals.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

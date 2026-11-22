@@ -136,7 +136,7 @@ impl<'a> FnEmitter<'a> {
         })
     }
 
-    pub(super) fn as_declared(&self, arg: TirExpr, param: BackendTy) -> TirExpr {
+    pub(super) fn as_declared(&mut self, arg: TirExpr, param: BackendTy) -> TirExpr {
         let boxed_already = matches!(arg.ty, BackendTy::Nullable(_) | BackendTy::Dynamic(_));
         match param {
             BackendTy::Nullable(_) | BackendTy::Dynamic(_) if boxed_already => arg,

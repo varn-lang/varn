@@ -69,7 +69,7 @@ impl<'a> FnEmitter<'a> {
         Some(vn_tir::SigId(at as u32))
     }
 
-    pub(super) fn widened(&self, arg: TirExpr, param: BackendTy) -> TirExpr {
+    pub(super) fn widened(&mut self, arg: TirExpr, param: BackendTy) -> TirExpr {
         let target = param.non_nullable(self.tt);
         let wider = matches!(
             target,

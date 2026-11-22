@@ -272,7 +272,12 @@ impl<'a> FnEmitter<'a> {
         }
     }
 
-    pub(super) fn as_assigned(&self, op: AssignOp, value: TirExpr, place: BackendTy) -> TirExpr {
+    pub(super) fn as_assigned(
+        &mut self,
+        op: AssignOp,
+        value: TirExpr,
+        place: BackendTy,
+    ) -> TirExpr {
         match assign_bin_op(op) {
             Ok(Some(_)) => value,
             Ok(None) | Err(()) => self.widened(value, place),

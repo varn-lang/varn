@@ -117,6 +117,7 @@ impl<'r> Binder<'r> {
                             is_abstract: false,
                             is_readonly: p.modifiers.is_readonly,
                             is_override: false,
+                            has_init: p.default.is_some(),
                             symbol_id: Some(symbol_id),
                             ..Default::default()
                         });

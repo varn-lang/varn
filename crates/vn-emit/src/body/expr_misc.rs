@@ -60,7 +60,11 @@ impl<'a> FnEmitter<'a> {
         }
     }
 
-    pub(super) fn assert_type(&self, e: TirExpr, ty: BackendTy) -> TirExpr {
+    pub(super) fn assert_type(&mut self, e: TirExpr, ty: BackendTy) -> TirExpr {
+        let e = match self.struct_from_literal(e, ty) {
+            Ok(built) => return built,
+            Err(unchanged) => unchanged,
+        };
         let numeric = matches!(ty.non_nullable(self.tt), BackendTy::Num(_));
         if !numeric && self.crosses_dynamic_boundary(&e, ty) {
             self.guard_dynamic(e, ty)
@@ -127,15 +131,23 @@ impl<'a> FnEmitter<'a> {
         }
     }
 
-    pub(super) fn guard_dynamic(&self, e: TirExpr, ty: BackendTy) -> TirExpr {
+    pub(super) fn guard_dynamic(&mut self, e: TirExpr, ty: BackendTy) -> TirExpr {
         self.guard_with(e, ty, CheckKind::Conform)
     }
 
-    pub(super) fn decode_dynamic(&self, e: TirExpr, ty: BackendTy) -> TirExpr {
+    pub(super) fn decode_dynamic(&mut self, e: TirExpr, ty: BackendTy) -> TirExpr {
         self.guard_with(e, ty, CheckKind::Decode)
     }
 
-    fn guard_with(&self, e: TirExpr, ty: BackendTy, kind: CheckKind) -> TirExpr {
+    fn guard_with(&mut self, e: TirExpr, ty: BackendTy, kind: CheckKind) -> TirExpr {
+        let e = if kind == CheckKind::Conform {
+            match self.struct_from_literal(e, ty) {
+                Ok(built) => return built,
+                Err(unchanged) => unchanged,
+            }
+        } else {
+            e
+        };
         let decodes_shape = kind == CheckKind::Decode
             && matches!(
                 ty.non_nullable(self.tt),
@@ -157,10 +169,14 @@ impl<'a> FnEmitter<'a> {
         }
     }
 
-    pub(super) fn cast_to(&self, e: TirExpr, ty: BackendTy) -> TirExpr {
+    pub(super) fn cast_to(&mut self, e: TirExpr, ty: BackendTy) -> TirExpr {
         if e.ty == ty {
             return e;
         }
+        let e = match self.struct_from_literal(e, ty) {
+            Ok(built) => return built,
+            Err(unchanged) => unchanged,
+        };
         let span = e.span;
         TirExpr {
             kind: TirExprKind::Cast {
@@ -170,6 +186,84 @@ impl<'a> FnEmitter<'a> {
             res: vn_tir::Resolution::None,
             span,
         }
+    }
+
+    fn struct_from_literal(&mut self, e: TirExpr, ty: BackendTy) -> Result<TirExpr, TirExpr> {
+        let BackendTy::Class(class) = ty else {
+            return Err(e);
+        };
+        let Some(info) = self.m.classes.get(class.0 as usize) else {
+            return Err(e);
+        };
+        if !info.layout.is_value {
+            return Err(e);
+        }
+        let field_names: Vec<Arc<str>> = info.fields.iter().map(|f| f.name.clone()).collect();
+        let field_tys: Vec<BackendTy> = info.fields.iter().map(|f| f.ty).collect();
+        let TirExpr {
+            kind,
+            span,
+            ty: lit_ty,
+            res,
+        } = e;
+        let TirExprKind::ObjectLit { entries } = kind else {
+            return Err(TirExpr {
+                kind,
+                span,
+                ty: lit_ty,
+                res,
+            });
+        };
+        let mut named: Vec<(Arc<str>, TirExpr)> = Vec::with_capacity(entries.len());
+        for entry in entries {
+            match entry {
+                vn_tir::TirObjectEntry::Field { name, value } => named.push((name, value)),
+                vn_tir::TirObjectEntry::Spread(spread) => {
+                    let mut back: Vec<vn_tir::TirObjectEntry> = named
+                        .into_iter()
+                        .map(|(name, value)| vn_tir::TirObjectEntry::Field { name, value })
+                        .collect();
+                    back.push(vn_tir::TirObjectEntry::Spread(spread));
+                    return Err(TirExpr {
+                        kind: TirExprKind::ObjectLit { entries: back },
+                        span,
+                        ty: lit_ty,
+                        res,
+                    });
+                }
+            }
+        }
+        let in_order = named.iter().map(|(n, _)| n).eq(field_names
+            .iter()
+            .filter(|f| named.iter().any(|(n, _)| n == *f)));
+        if !in_order {
+            named = named
+                .into_iter()
+                .map(|(name, value)| (name, self.pin(value)))
+                .collect();
+        }
+        let args = field_names
+            .iter()
+            .zip(field_tys)
+            .map(|(field, field_ty)| {
+                let value = match named.iter().position(|(n, _)| n == field) {
+                    Some(at) => named.swap_remove(at).1,
+                    None => TirExpr {
+                        kind: TirExprKind::NullLit,
+                        ty: BackendTy::Nullable(self.tt.intern(field_ty)),
+                        res: vn_tir::Resolution::None,
+                        span,
+                    },
+                };
+                vn_tir::TirArg::Expr(value)
+            })
+            .collect();
+        Ok(TirExpr {
+            kind: TirExprKind::New { class, args },
+            ty,
+            res: vn_tir::Resolution::None,
+            span,
+        })
     }
 }
 

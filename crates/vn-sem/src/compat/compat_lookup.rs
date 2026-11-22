@@ -275,7 +275,7 @@ pub(super) fn class_members_match_object(
                             return false;
                         }
                     }
-                    None if !dm.is_optional => return false,
+                    None if !dm.is_optional && !dm.has_init => return false,
                     None => {}
                 }
             }

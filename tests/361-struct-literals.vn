@@ -1,0 +1,48 @@
+import { describe, it, expect } from "std:test";
+
+struct Point {
+    x: int;
+    y: int;
+}
+
+struct Settings {
+    retries: int = 3;
+    label: str = "default";
+    verbose: bool = false;
+}
+
+function sum(p: Point): int {
+    return p.x + p.y
+}
+
+let calls = 0
+function next(): int {
+    calls = calls + 1
+    return calls
+}
+
+await describe("361 struct literals", async () => {
+    await it("an object literal with a struct type builds the struct", () => {
+        const p: Point = { x: 1, y: 2 }
+        expect(p.x + p.y).toBe(3)
+        expect(p == new Point(1, 2)).toBe(true)
+    })
+    await it("a literal argument builds the parameter's struct", () => {
+        expect(sum({ x: 4, y: 5 })).toBe(9)
+    })
+    await it("omitted fields take their defaults", () => {
+        const s: Settings = { label: "x" }
+        expect(s.retries).toBe(3)
+        expect(s.label).toBe("x")
+        expect(s.verbose).toBe(false)
+    })
+    await it("fields are evaluated in the order they are written", () => {
+        const p: Point = { y: next(), x: next() }
+        expect(p.y).toBe(1)
+        expect(p.x).toBe(2)
+    })
+    await it("array elements build their structs", () => {
+        const ps: Point[] = [{ x: 1, y: 2 }, { x: 3, y: 4 }]
+        expect(ps[1].y).toBe(4)
+    })
+})
