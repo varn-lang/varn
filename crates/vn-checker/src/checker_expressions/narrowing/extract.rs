@@ -126,7 +126,6 @@ impl<'r> Checker<'r> {
             | ExprKind::Arrow { .. }
             | ExprKind::Sequence { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

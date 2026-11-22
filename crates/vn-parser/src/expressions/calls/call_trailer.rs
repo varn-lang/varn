@@ -106,7 +106,6 @@ pub(super) fn parse_call_expr(s: &mut TokenStream) -> PResult<ExprId> {
                     | ExprKind::Sequence { .. }
                     | ExprKind::Paren { .. }
                     | ExprKind::Await { .. }
-                    | ExprKind::Spawn { .. }
                     | ExprKind::Yield { .. }
                     | ExprKind::Spread { .. }
                     | ExprKind::Pipeline { .. }

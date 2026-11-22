@@ -219,7 +219,6 @@ fn calls_in(file: &DocumentState) -> impl Iterator<Item = (String, SourceRange)>
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
@@ -277,7 +276,6 @@ fn calls_in(file: &DocumentState) -> impl Iterator<Item = (String, SourceRange)>
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

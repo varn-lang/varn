@@ -226,7 +226,6 @@ pub fn infer_expr_type(
         | ExprKind::Assign { .. }
         | ExprKind::Conditional { .. }
         | ExprKind::Sequence { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::ClassExpr { .. }

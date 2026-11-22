@@ -339,10 +339,6 @@ impl<'a> FnEmitter<'a> {
 
             ExprKind::DecimalLiteral { raw } => self.lower_decimal_kind(*raw),
             ExprKind::BigIntLiteral { raw } => self.lower_bigint_kind(*raw),
-            ExprKind::Spawn { argument } => {
-                let inner = self.lower_expr(*argument);
-                return self.cast_to(inner, ty);
-            }
             ExprKind::Range {
                 start,
                 end,

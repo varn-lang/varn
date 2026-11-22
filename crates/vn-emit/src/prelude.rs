@@ -49,7 +49,6 @@ pub(super) fn prelude_imports(
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

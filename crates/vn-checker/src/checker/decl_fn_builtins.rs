@@ -69,7 +69,6 @@ impl<'r> Checker<'r> {
                             | vn_core::ast::ExprKind::Sequence { .. }
                             | vn_core::ast::ExprKind::Paren { .. }
                             | vn_core::ast::ExprKind::Await { .. }
-                            | vn_core::ast::ExprKind::Spawn { .. }
                             | vn_core::ast::ExprKind::Yield { .. }
                             | vn_core::ast::ExprKind::Spread { .. }
                             | vn_core::ast::ExprKind::Pipeline { .. }

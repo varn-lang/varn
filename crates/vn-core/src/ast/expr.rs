@@ -124,9 +124,6 @@ pub enum ExprKind {
     Await {
         argument: ExprId,
     },
-    Spawn {
-        argument: ExprId,
-    },
     Yield {
         argument: Option<ExprId>,
     },

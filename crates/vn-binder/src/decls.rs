@@ -171,9 +171,7 @@ impl<'r> super::Binder<'r> {
                 self.bind_expr(*expression)
             }
             ExprKind::MetaAccess { target, .. } => self.bind_expr(*target),
-            ExprKind::Await { argument } | ExprKind::Spawn { argument } => {
-                self.bind_expr(*argument)
-            }
+            ExprKind::Await { argument } => self.bind_expr(*argument),
             ExprKind::Try { expression } => self.bind_expr(*expression),
             ExprKind::Yield { argument, .. } => {
                 if let Some(arg) = argument {

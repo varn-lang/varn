@@ -215,7 +215,6 @@ fn collect_in_expr(a: &AstArena, expr: ExprId, line: u32, col: u32, ranges: &mut
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Range { .. }

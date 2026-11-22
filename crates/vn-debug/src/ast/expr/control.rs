@@ -60,12 +60,6 @@ pub(super) fn try_print(
             print_expr(argument, arena, child_indent, true, interner);
             true
         }
-        ExprKind::Spawn { argument } => {
-            let argument = *argument;
-            terminal::log(format!("{indent}{marker}{}", chalk("Spawn").bold()));
-            print_expr(argument, arena, child_indent, true, interner);
-            true
-        }
         ExprKind::Yield { argument } => {
             let argument = *argument;
             terminal::log(format!("{indent}{marker}{}", chalk("Yield").bold()));

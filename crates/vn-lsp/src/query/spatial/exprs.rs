@@ -52,7 +52,6 @@ pub(super) fn collect_expr(a: &AstArena, id: &ExprId, out: &mut Vec<SpatialEntry
             expression: operand,
         }
         | ExprKind::Await { argument: operand }
-        | ExprKind::Spawn { argument: operand }
         | ExprKind::Spread { argument: operand }
         | ExprKind::NonNull {
             expression: operand,

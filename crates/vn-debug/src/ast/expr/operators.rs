@@ -202,7 +202,6 @@ pub(super) fn try_print(
         | ExprKind::Function { .. }
         | ExprKind::Arrow { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::ClassExpr { .. }

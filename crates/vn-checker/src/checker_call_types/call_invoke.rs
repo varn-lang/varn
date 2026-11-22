@@ -51,7 +51,6 @@ pub(super) fn infer_invoke(
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }
@@ -97,7 +96,6 @@ pub(super) fn infer_invoke(
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

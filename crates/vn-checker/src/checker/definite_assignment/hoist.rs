@@ -54,7 +54,6 @@ fn hoist_decl(arena: &AstArena, decl: &Decl, out: &mut Vec<Hoisted>) {
                         | ExprKind::Sequence { .. }
                         | ExprKind::Paren { .. }
                         | ExprKind::Await { .. }
-                        | ExprKind::Spawn { .. }
                         | ExprKind::Yield { .. }
                         | ExprKind::Spread { .. }
                         | ExprKind::Pipeline { .. }

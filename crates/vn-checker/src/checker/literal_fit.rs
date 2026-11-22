@@ -101,7 +101,6 @@ impl Checker<'_> {
             | ExprKind::Arrow { .. }
             | ExprKind::Sequence { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }
@@ -414,7 +413,6 @@ impl Checker<'_> {
             | ExprKind::Arrow { .. }
             | ExprKind::Sequence { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

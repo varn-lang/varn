@@ -173,9 +173,6 @@ fn expr_uses_receiver(arena: &AstArena, id: ExprId) -> bool {
         | ExprKind::Await {
             argument: expression,
         }
-        | ExprKind::Spawn {
-            argument: expression,
-        }
         | ExprKind::Spread {
             argument: expression,
         }

@@ -121,7 +121,6 @@ impl<'r> Checker<'r> {
                 | ExprKind::Sequence { .. }
                 | ExprKind::Paren { .. }
                 | ExprKind::Await { .. }
-                | ExprKind::Spawn { .. }
                 | ExprKind::Yield { .. }
                 | ExprKind::Spread { .. }
                 | ExprKind::Pipeline { .. }
@@ -167,7 +166,6 @@ impl<'r> Checker<'r> {
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

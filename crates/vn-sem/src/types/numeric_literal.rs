@@ -53,7 +53,6 @@ pub fn const_int_literal(arena: &AstArena, expr: ExprId, nodes: &mut Vec<ExprId>
         | ExprKind::Arrow { .. }
         | ExprKind::Sequence { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
@@ -121,7 +120,6 @@ pub fn const_float_literal(arena: &AstArena, expr: ExprId, nodes: &mut Vec<ExprI
         | ExprKind::Arrow { .. }
         | ExprKind::Sequence { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

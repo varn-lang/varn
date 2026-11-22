@@ -38,7 +38,6 @@ pub(crate) fn walk_expr_children(e: ExprId, arena: &AstArena, f: &mut dyn FnMut(
             expression: operand,
         }
         | ExprKind::Await { argument: operand }
-        | ExprKind::Spawn { argument: operand }
         | ExprKind::NonNull {
             expression: operand,
         }

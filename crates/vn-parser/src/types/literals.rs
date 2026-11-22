@@ -51,7 +51,6 @@ pub(crate) fn parse_literal_type(
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }
@@ -100,7 +99,6 @@ pub(crate) fn parse_literal_type(
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

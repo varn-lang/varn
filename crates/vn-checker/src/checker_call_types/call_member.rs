@@ -45,7 +45,6 @@ pub(super) fn infer_member(c: &mut CallTypeCtx, object: ExprId, property: ExprId
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

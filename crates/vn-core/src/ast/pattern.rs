@@ -183,7 +183,6 @@ pub fn literal_variant_name(arena: &super::AstArena, expr: ExprId) -> Option<Ato
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }
@@ -229,7 +228,6 @@ pub fn literal_variant_name(arena: &super::AstArena, expr: ExprId) -> Option<Ato
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

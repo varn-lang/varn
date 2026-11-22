@@ -53,7 +53,6 @@ fn head_atom(arena: &AstArena, id: ExprId) -> Option<Atom> {
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
@@ -106,7 +105,6 @@ pub fn decorator_parts(arena: &AstArena, id: ExprId) -> Option<(Atom, Option<&[A
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
@@ -181,7 +179,6 @@ fn str_arg(arena: &AstArena, id: ExprId) -> Option<String> {
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

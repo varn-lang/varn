@@ -120,7 +120,6 @@ impl<'a> CallTypeCtx<'a> {
             | ExprKind::Assign { .. }
             | ExprKind::Member { .. }
             | ExprKind::Sequence { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Range { .. }

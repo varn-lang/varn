@@ -197,7 +197,6 @@ pub(crate) fn static_path_atoms(expr: ExprId, arena: &AstArena) -> Option<(Membe
             | ExprKind::Sequence { .. }
             | ExprKind::Paren { .. }
             | ExprKind::Await { .. }
-            | ExprKind::Spawn { .. }
             | ExprKind::Yield { .. }
             | ExprKind::Spread { .. }
             | ExprKind::Pipeline { .. }

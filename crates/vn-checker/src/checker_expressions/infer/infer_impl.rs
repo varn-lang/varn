@@ -280,9 +280,7 @@ impl<'r> Checker<'r> {
                 None => Type::Dynamic,
             },
             ExprKind::Yield { .. } => Type::Void,
-            ExprKind::Spawn { .. } | ExprKind::Spread { .. } | ExprKind::ClassExpr { .. } => {
-                Type::Dynamic
-            }
+            ExprKind::Spread { .. } | ExprKind::ClassExpr { .. } => Type::Dynamic,
         }
     }
 }

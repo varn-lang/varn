@@ -33,7 +33,6 @@ pub fn is_destructure_target(arena: &AstArena, target: ExprId) -> bool {
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
@@ -132,7 +131,6 @@ fn collect_parts(arena: &AstArena, target: ExprId, out: &mut DestructureParts) {
         | ExprKind::Sequence { .. }
         | ExprKind::Paren { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }

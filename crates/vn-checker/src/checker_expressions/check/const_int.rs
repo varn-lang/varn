@@ -134,7 +134,6 @@ pub(super) fn const_int_expr(e: ExprId, arena: &vn_core::ast::AstArena) -> Const
         | ExprKind::Arrow { .. }
         | ExprKind::Sequence { .. }
         | ExprKind::Await { .. }
-        | ExprKind::Spawn { .. }
         | ExprKind::Yield { .. }
         | ExprKind::Spread { .. }
         | ExprKind::Pipeline { .. }
