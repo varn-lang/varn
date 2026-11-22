@@ -1,0 +1,4 @@
+// expect: error[VN2007]
+export default function main(): int {
+    return 1
+}
