@@ -425,17 +425,30 @@ impl Heap {
             "Arc data tripwire"
         );
 
-        let mut ascii_off = None;
-        for off in 0..yes_bytes.len() {
-            if off >= arc_off && off < arc_off + 16 {
-                continue;
-            }
-            if yes_bytes[off] == ascii_flag::YES && no_bytes[off] == ascii_flag::NO {
-                assert!(ascii_off.is_none(), "Shared ascii flag probe is ambiguous");
-                ascii_off = Some(off);
-            }
-        }
-        let ascii_off = ascii_off.expect("Shared ascii flag probe failed");
+        let twins: Vec<(Vec<u8>, Vec<u8>)> = (0..8u8)
+            .map(|k| {
+                let yes = format!("probe-ascii-{k:02}-01234567");
+                let no = "é".repeat(11 + usize::from(k));
+                (
+                    bytes_of(&HeapStr::shared(Arc::from(yes.as_str()))),
+                    bytes_of(&HeapStr::shared(Arc::from(no.as_str()))),
+                )
+            })
+            .collect();
+        let flags_at = |off: usize| {
+            yes_bytes[off] == ascii_flag::YES
+                && no_bytes[off] == ascii_flag::NO
+                && twins
+                    .iter()
+                    .all(|(y, n)| y[off] == ascii_flag::YES && n[off] == ascii_flag::NO)
+        };
+        let mut candidates = (0..yes_bytes.len())
+            .filter(|&off| !(arc_off..arc_off + 16).contains(&off) && flags_at(off));
+        let ascii_off = candidates.next().expect("Shared ascii flag probe failed");
+        assert!(
+            candidates.next().is_none(),
+            "Shared ascii flag probe is ambiguous"
+        );
         assert_eq!(yes_bytes[ascii_off], ascii_flag::YES);
         assert_eq!(no_bytes[ascii_off], ascii_flag::NO);
 
