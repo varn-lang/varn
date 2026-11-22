@@ -15,6 +15,8 @@ impl<'r> super::super::Binder<'r> {
         explicit: bool,
     ) {
         match pattern {
+            Pattern::Identifier { name, .. }
+                if self.interner.resolve(*name) == vn_core::TokenKind::Placeholder.as_str() => {}
             Pattern::Identifier { name, range } => {
                 let mut sym = Symbol::new(kind, *name, line);
                 sym.doc = doc.map(|d| self.intern_local(&d));

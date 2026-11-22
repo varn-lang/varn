@@ -351,6 +351,7 @@ import "./359-fixed-width-numbers.vn"
 import "./360-qualified-variant-patterns.vn"
 import "./361-struct-literals.vn"
 import "./362-nullable-equality.vn"
+import "./363-discard-in-declarations.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

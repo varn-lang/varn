@@ -82,6 +82,11 @@ impl<'a> FnEmitter<'a> {
 
     pub(super) fn bind_pattern(&mut self, pat: &Pattern, src: TirExpr, out: &mut Vec<TirStmt>) {
         match pat {
+            Pattern::Identifier { name, .. }
+                if self.m.interner.resolve(*name) == vn_core::TokenKind::Placeholder.as_str() =>
+            {
+                out.push(TirStmt::Expr(src));
+            }
             Pattern::Identifier { name, range } => {
                 let ty = if src.ty == BackendTy::Dynamic(DynReason::Unrecorded) {
                     self.declared_ty(range.start.offset).unwrap_or(src.ty)
