@@ -232,7 +232,7 @@ impl<'r> Checker<'r> {
         self.unknown_type_names.insert(name);
         let message = vn_core::ForeignForm::of_type_name(&text).map_or_else(
             || format!("unknown type: {text}"),
-            vn_core::ForeignForm::message,
+            |form| form.message_as(&text),
         );
         self.emit(Diagnostic::error(ErrorCode::UnknownSymbol, message).with_range(node.range));
         false

@@ -33,6 +33,17 @@ pub enum ForeignForm {
     MatchWithoutParens,
     ArrayHole,
     HashPrivate,
+    ParseNumber,
+    JsonGlobal,
+    MathGlobal,
+    IsNaN,
+    BoxingCall,
+    HostGlobal,
+    TimerGlobal,
+    SymbolGlobal,
+    Require,
+    DateGlobal,
+    ObjectGlobal,
 }
 
 impl ForeignForm {
@@ -51,12 +62,30 @@ impl ForeignForm {
         ("Number", Self::BoxedNumberType),
     ];
 
-    const WORDS: [(&'static str, Self); 5] = [
+    const WORDS: [(&'static str, Self); 23] = [
         ("undefined", Self::Undefined),
         ("instanceof", Self::Instanceof),
         ("typeof", Self::Typeof),
         ("destructor", Self::Destructor),
         ("module", Self::ModuleBlock),
+        ("parseInt", Self::ParseNumber),
+        ("parseFloat", Self::ParseNumber),
+        ("JSON", Self::JsonGlobal),
+        ("Math", Self::MathGlobal),
+        ("isNaN", Self::IsNaN),
+        ("Boolean", Self::BoxingCall),
+        ("globalThis", Self::HostGlobal),
+        ("window", Self::HostGlobal),
+        ("process", Self::HostGlobal),
+        ("setTimeout", Self::TimerGlobal),
+        ("setInterval", Self::TimerGlobal),
+        ("Symbol", Self::SymbolGlobal),
+        ("require", Self::Require),
+        ("Date", Self::DateGlobal),
+        ("Object", Self::ObjectGlobal),
+        ("Array", Self::BoxingCall),
+        ("Number", Self::BoxingCall),
+        ("String", Self::BoxingCall),
     ];
 
     pub fn of_type_name(name: &str) -> Option<Self> {
@@ -110,7 +139,18 @@ impl ForeignForm {
             | Self::Instanceof
             | Self::Typeof
             | Self::Destructor
-            | Self::ModuleBlock => Self::WORDS
+            | Self::ModuleBlock
+            | Self::ParseNumber
+            | Self::JsonGlobal
+            | Self::MathGlobal
+            | Self::IsNaN
+            | Self::BoxingCall
+            | Self::HostGlobal
+            | Self::TimerGlobal
+            | Self::SymbolGlobal
+            | Self::Require
+            | Self::DateGlobal
+            | Self::ObjectGlobal => Self::WORDS
                 .iter()
                 .find(|(_, f)| *f == self)
                 .map_or("", |&(n, _)| n),
@@ -157,15 +197,26 @@ impl ForeignForm {
             }
             Self::MatchWithoutParens => "write the subject in parentheses: `match (x) { ... }`",
             Self::HashPrivate => "a member is private with `private name: T`, checked at compile time",
+            Self::ParseNumber => "parse with `int.parse(s)` or `float.parse(s)`, which reject trailing text",
+            Self::JsonGlobal => "import `Json` from \"std:encoding\" and decode into a declared type",
+            Self::MathGlobal => "import the functions from \"std:math\", such as `import { max } from \"std:math\"`",
+            Self::IsNaN => "ask the value: `x.isNaN()`",
+            Self::BoxingCall => "there are no boxing constructors: convert with `x.toString()`, `int.parse(s)` or a comparison",
+            Self::HostGlobal => "there is no global object: import what you need from \"std:sys\" or \"std:process\"",
+            Self::TimerGlobal => "wait with `await sleep(ms)` from \"std:task\"",
+            Self::SymbolGlobal => "use an `enum` for a closed set of keys",
+            Self::Require => "import the module with `import { name } from \"module\"`",
+            Self::DateGlobal => "read the clock with `now()` from \"std:time\"",
+            Self::ObjectGlobal => "a record has the fields of its declared type; keyed data is a `Map<K, V>`",
             Self::ArrayHole => "a sequence has no holes: write every element (or `null` in a `T?[]`) and discard a position with `_`",
         }
     }
 
     pub fn message(self) -> String {
-        format!(
-            "`{}` does not exist in Varn: {}",
-            self.spelling(),
-            self.replacement()
-        )
+        self.message_as(self.spelling())
+    }
+
+    pub fn message_as(self, written: &str) -> String {
+        format!("`{written}` does not exist in Varn: {}", self.replacement())
     }
 }

@@ -1,0 +1,2 @@
+// expect: error[VN3002]
+const n = parseInt("12px")

@@ -294,7 +294,7 @@ impl<'r> Checker<'r> {
         if scope.resolve(name, &bind.scopes).is_none() {
             let message = vn_core::ForeignForm::of_word(name_str).map_or_else(
                 || format!("undefined variable: {name_str}"),
-                vn_core::ForeignForm::message,
+                |form| form.message_as(name_str),
             );
             let mut diag = Diagnostic::error(ErrorCode::UnknownSymbol, message).with_range(range);
             if let Some(candidate) = closest_name(name_str, scope, &bind.scopes, &bind.interner) {
