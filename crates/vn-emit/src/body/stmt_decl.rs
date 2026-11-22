@@ -21,8 +21,7 @@ impl<'a> FnEmitter<'a> {
             | other @ Decl::Namespace(_)
             | other @ Decl::Import(_)
             | other @ Decl::Export(_)
-            | other @ Decl::Extension(_)
-            | other @ Decl::SumType(_) => other,
+            | other @ Decl::Extension(_) => other,
         };
 
         if let Decl::Function(f) = unwrapped {
@@ -131,8 +130,7 @@ impl<'a> FnEmitter<'a> {
                 | Decl::Namespace(_)
                 | Decl::Import(_)
                 | Decl::Export(_)
-                | Decl::Extension(_)
-                | Decl::SumType(_) => return vec![],
+                | Decl::Extension(_) => return vec![],
             },
             Decl::Function(_)
             | Decl::Class(_)
@@ -142,8 +140,7 @@ impl<'a> FnEmitter<'a> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => return vec![],
+            | Decl::Extension(_) => return vec![],
         };
         let mut out = Vec::new();
         for d in &v.declarators {

@@ -34,8 +34,7 @@ pub(super) fn top_level_extensions<'a>(
                         | Decl::Enum(_)
                         | Decl::Namespace(_)
                         | Decl::Import(_)
-                        | Decl::Export(_)
-                        | Decl::SumType(_) => None,
+                        | Decl::Export(_) => None,
                     }
                 }
                 Decl::Variable(_)
@@ -46,8 +45,7 @@ pub(super) fn top_level_extensions<'a>(
                 | Decl::Enum(_)
                 | Decl::Namespace(_)
                 | Decl::Import(_)
-                | Decl::Export(_)
-                | Decl::SumType(_) => None,
+                | Decl::Export(_) => None,
             }
         })
         .collect()

@@ -32,8 +32,7 @@ pub fn parse(source: &str, name: &str) -> Result<ModuleContract, ContractError> 
             | Decl::Enum(_)
             | Decl::Namespace(_)
             | Decl::Import(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => (decl.as_ref(), false),
+            | Decl::Extension(_) => (decl.as_ref(), false),
         };
         let declared = declare(declaration, &mut contract, &arena, &interner)?;
         if exported {
@@ -76,10 +75,6 @@ fn declare(
         Decl::Enum(e) => {
             out.enums.insert(name(e.id));
             (vec![name(e.id)], e.is_declare)
-        }
-        Decl::SumType(st) => {
-            out.enums.insert(name(st.id));
-            (vec![name(st.id)], false)
         }
         Decl::Variable(v) => (
             v.declarators

@@ -118,7 +118,7 @@ pub(super) fn collect_decl(a: &AstArena, decl: &Decl, out: &mut Vec<SpatialEntry
         Decl::Namespace(n) => collect_namespace_decl(a, n, out),
         Decl::Export(exp) => collect_export_decl(a, exp, out),
         Decl::Extension(ext) => collect_extension_decl(a, ext, out),
-        Decl::Interface(_) | Decl::TypeAlias(_) | Decl::Import(_) | Decl::SumType(_) => {}
+        Decl::Interface(_) | Decl::TypeAlias(_) | Decl::Import(_) => {}
     }
 }
 

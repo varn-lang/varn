@@ -184,7 +184,6 @@ pub struct NamespaceImport {
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
 )]
 pub enum DeclKind {
-    SumType,
     Enum,
     Class,
     Interface,

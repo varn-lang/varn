@@ -259,7 +259,7 @@ impl AstJson<'_> {
                 "class",
                 line,
             ),
-            Decl::Namespace(_) | Decl::SumType(_) => leaf("Decl".to_string(), "field", line),
+            Decl::Namespace(_) => leaf("Decl".to_string(), "field", line),
         }
     }
 

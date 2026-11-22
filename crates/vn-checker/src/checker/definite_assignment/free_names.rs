@@ -193,8 +193,7 @@ impl Collector<'_> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => {}
+            | Decl::Extension(_) => {}
         }
     }
 

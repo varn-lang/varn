@@ -50,8 +50,7 @@ pub(super) fn collect_free_functions<'a>(
                 | other @ vn_core::ast::Decl::Namespace(_)
                 | other @ vn_core::ast::Decl::Import(_)
                 | other @ vn_core::ast::Decl::Export(_)
-                | other @ vn_core::ast::Decl::Extension(_)
-                | other @ vn_core::ast::Decl::SumType(_) => other,
+                | other @ vn_core::ast::Decl::Extension(_) => other,
             };
             match inner {
                 vn_core::ast::Decl::Function(f) => out.push((f, Some(ns_name.clone()))),
@@ -65,8 +64,7 @@ pub(super) fn collect_free_functions<'a>(
                 | vn_core::ast::Decl::Enum(_)
                 | vn_core::ast::Decl::Import(_)
                 | vn_core::ast::Decl::Export(_)
-                | vn_core::ast::Decl::Extension(_)
-                | vn_core::ast::Decl::SumType(_) => {}
+                | vn_core::ast::Decl::Extension(_) => {}
             }
         }
     }

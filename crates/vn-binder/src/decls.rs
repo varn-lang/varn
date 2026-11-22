@@ -19,7 +19,6 @@ impl<'r> super::Binder<'r> {
             Decl::TypeAlias(t) => self.bind_type_alias(t),
             Decl::Enum(e) => self.bind_enum(e),
             Decl::Namespace(n) => self.bind_namespace(n),
-            Decl::SumType(t) => self.bind_sum_type(t),
             Decl::Extension(e) => self.bind_extension(e),
             Decl::Import(i) => self.bind_import(i),
             Decl::Export(e) => self.bind_export(e),

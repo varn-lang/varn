@@ -16,8 +16,7 @@ pub use program::Program;
 
 pub use decl::{
     ClassDecl, ClassMember, Decl, EnumDecl, EnumField, EnumMember, ExtensionDecl, ExtensionMember,
-    FunctionDecl, InterfaceDecl, InterfaceMember, NamespaceDecl, SumField, SumTypeDecl, SumVariant,
-    TypeAliasDecl,
+    FunctionDecl, InterfaceDecl, InterfaceMember, NamespaceDecl, TypeAliasDecl,
 };
 pub use expr::{
     Arg, ArrayEl, ArrowBody, AstId, ExprKind, MatchBody, MatchCase, MetaProperty, ObjectProp,

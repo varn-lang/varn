@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use vn_core::ast::{Pattern, SumTypeDecl};
+use vn_core::ast::Pattern;
 
 use vn_sem::symbol::{Symbol, SymbolKind};
 use vn_sem::types::Type;
@@ -157,86 +157,5 @@ impl<'r> super::super::Binder<'r> {
                 self.bind_pattern(argument, kind, line, doc, ty, false);
             }
         }
-    }
-
-    pub(crate) fn bind_sum_type(&mut self, t: &SumTypeDecl) {
-        let id_rc: Arc<str> = self.declared_type_name(t.id, t.ast_id);
-        let alias_ty = Type::named_with_origin(
-            id_rc.clone(),
-            Some(Arc::from(self.source_file.as_ref())),
-            &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-        );
-        let mut pe_sym =
-            Symbol::new(SymbolKind::TypeAlias, t.id, t.range.start.line).with_type(alias_ty);
-
-        pe_sym.type_params = t.type_params.iter().map(|tp| tp.name).collect();
-        self.define(t.id, pe_sym);
-
-        let mut variant_names = Vec::new();
-
-        for v in &t.variants {
-            let variant_rc: Arc<str> = Arc::from(self.interner.resolve(v.name));
-            variant_names.push(variant_rc.clone());
-
-            let fields: Vec<(Arc<str>, Type)> = v
-                .fields
-                .iter()
-                .map(|f| {
-                    let ty = self.resolve_type(&f.ty);
-                    (Arc::from(self.interner.resolve(f.name)), ty)
-                })
-                .collect();
-
-            self.sum_variant_parent
-                .insert(variant_rc.clone(), id_rc.clone());
-            self.sum_variant_fields
-                .insert(variant_rc.clone(), fields.clone());
-
-            if v.fields.is_empty() {
-                let variant_ty = Type::named_with_origin(
-                    id_rc.clone(),
-                    Some(Arc::from(self.source_file.as_ref())),
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                );
-                let sym = Symbol::new(SymbolKind::Const, v.name, v.range.start.line)
-                    .with_type(variant_ty);
-                self.define(v.name, sym);
-            } else {
-                let params: Vec<vn_sem::types::FunctionParam> = fields
-                    .iter()
-                    .map(|(fname, fty)| vn_sem::types::FunctionParam {
-                        name: Some(fname.clone()),
-                        ty: fty.0,
-                        optional: false,
-                        is_rest: false,
-                    })
-                    .collect();
-                let ret_ty = Type::named_with_origin(
-                    id_rc.clone(),
-                    Some(Arc::from(self.source_file.as_ref())),
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                );
-                let fn_ty = Type::fn_(
-                    vn_sem::types::FunctionType {
-                        params,
-                        return_type: ret_ty.0,
-                        is_arrow: false,
-                        type_params: t
-                            .type_params
-                            .iter()
-                            .map(|tp| Arc::from(self.interner.resolve(tp.name)))
-                            .collect(),
-                        type_param_defaults: Vec::new(),
-                    },
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                );
-                let sym =
-                    Symbol::new(SymbolKind::Function, v.name, v.range.start.line).with_type(fn_ty);
-                self.define(v.name, sym);
-            }
-        }
-
-        self.declare_kind(id_rc.clone(), vn_sem::bind::DeclKind::SumType);
-        self.sum_type_variants.insert(id_rc, variant_names);
     }
 }

@@ -110,7 +110,6 @@ pub(crate) fn unwrap_export(decl: &Decl) -> &Decl {
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => decl,
+        | Decl::Extension(_) => decl,
     }
 }

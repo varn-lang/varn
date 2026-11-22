@@ -26,10 +26,7 @@ impl Checker<'_> {
                 .or_else(|| self.resolver.stdlib_bind(&origin));
             let Some((owner, layout)) = owner.as_deref().and_then(|b| {
                 use vn_sem::bind::DeclKind;
-                if !matches!(
-                    b.classify_decl(name.as_ref()),
-                    Some(DeclKind::Enum) | Some(DeclKind::SumType)
-                ) {
+                if !matches!(b.classify_decl(name.as_ref()), Some(DeclKind::Enum)) {
                     return None;
                 }
                 Some((b, b.enum_layout(&name)?))

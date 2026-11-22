@@ -131,8 +131,7 @@ fn collect_in_stmt(a: &AstArena, stmt: StmtId, line: u32, col: u32, ranges: &mut
             | vn_core::ast::Decl::Namespace(_)
             | vn_core::ast::Decl::Import(_)
             | vn_core::ast::Decl::Export(_)
-            | vn_core::ast::Decl::Extension(_)
-            | vn_core::ast::Decl::SumType(_) => {}
+            | vn_core::ast::Decl::Extension(_) => {}
         },
         StmtKind::Return { argument: Some(e) } => collect_in_expr(a, *e, line, col, ranges),
         StmtKind::Return { argument: None, .. }

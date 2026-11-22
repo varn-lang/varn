@@ -27,8 +27,7 @@ pub(super) fn ns_nested_types(ns: &NamespaceDecl) -> Vec<&Decl> {
             | other @ Decl::Namespace(_)
             | other @ Decl::Import(_)
             | other @ Decl::Export(_)
-            | other @ Decl::Extension(_)
-            | other @ Decl::SumType(_) => other,
+            | other @ Decl::Extension(_) => other,
         };
         match inner {
             Decl::Class(_) | Decl::Enum(_) => out.push(inner),
@@ -39,8 +38,7 @@ pub(super) fn ns_nested_types(ns: &NamespaceDecl) -> Vec<&Decl> {
             | Decl::TypeAlias(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => {}
+            | Decl::Extension(_) => {}
         }
     }
     out
@@ -76,8 +74,7 @@ pub(super) fn emit_namespace_object(
             | other @ Decl::Namespace(_)
             | other @ Decl::Import(_)
             | other @ Decl::Export(_)
-            | other @ Decl::Extension(_)
-            | other @ Decl::SumType(_) => other,
+            | other @ Decl::Extension(_) => other,
         };
         if let Decl::Namespace(inner_ns) = inner {
             emit_namespace_object(
@@ -281,10 +278,6 @@ fn collect_scoped_names(
         Decl::Export(ExportDecl::Decl { declaration, .. }) => {
             collect_scoped_names(declaration, scope, ast_arena, out, interner)
         }
-        Decl::Interface(_)
-        | Decl::TypeAlias(_)
-        | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => {}
+        Decl::Interface(_) | Decl::TypeAlias(_) | Decl::Export(_) | Decl::Extension(_) => {}
     }
 }

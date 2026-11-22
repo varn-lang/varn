@@ -217,8 +217,7 @@ impl<'r> Checker<'r> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => {}
+            | Decl::Extension(_) => {}
         }
     }
 
@@ -270,8 +269,7 @@ impl<'r> Checker<'r> {
             | Decl::Enum(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => {}
+            | Decl::Extension(_) => {}
         }
     }
 

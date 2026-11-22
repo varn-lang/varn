@@ -130,16 +130,6 @@ pub(super) fn collect_exports(
                 if let Decl::Extension(ext) = declaration.as_ref() {
                     export_extension(bind, ext, abs_path, out);
                 }
-                if let Decl::SumType(st) = declaration.as_ref() {
-                    for variant in &st.variants {
-                        let variant_name = bind.interner.resolve(variant.name);
-                        if let Some(sym) = lookup_global(bind, variant_name) {
-                            let mut s = sym.clone();
-                            s.origin_module = Some(intern_origin(out, abs_path));
-                            out.insert(variant_name.to_string(), s);
-                        }
-                    }
-                }
             }
             ExportDecl::Named {
                 specifiers,
@@ -337,7 +327,6 @@ fn decl_export_names(decl: &Decl) -> Vec<Atom> {
         Decl::Interface(i) => vec![i.id],
         Decl::TypeAlias(t) => vec![t.id],
         Decl::Namespace(n) => vec![n.id],
-        Decl::SumType(s) => vec![s.id],
         Decl::Import(_) | Decl::Export(_) | Decl::Extension(_) => Vec::new(),
     }
 }

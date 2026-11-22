@@ -59,8 +59,7 @@ fn unwrapped(decl: &Decl) -> (&Decl, bool) {
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => (decl, false),
+        | Decl::Extension(_) => (decl, false),
     }
 }
 
@@ -107,8 +106,7 @@ fn walk(
             | Decl::TypeAlias(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => {}
+            | Decl::Extension(_) => {}
         }
     }
     scope.paths.insert(path);

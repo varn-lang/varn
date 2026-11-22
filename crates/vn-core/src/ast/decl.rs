@@ -19,7 +19,6 @@ pub enum Decl {
     Import(ImportDecl),
     Export(ExportDecl),
     Extension(ExtensionDecl),
-    SumType(SumTypeDecl),
 }
 
 impl Decl {
@@ -35,7 +34,6 @@ impl Decl {
             Decl::Import(d) => d.ast_id,
             Decl::Export(d) => d.id(),
             Decl::Extension(d) => d.ast_id,
-            Decl::SumType(d) => d.ast_id,
         }
     }
 
@@ -51,35 +49,11 @@ impl Decl {
             Decl::Import(d) => &d.range,
             Decl::Export(d) => d.range(),
             Decl::Extension(d) => &d.range,
-            Decl::SumType(d) => &d.range,
         }
     }
 }
 
 use crate::Atom;
-
-#[derive(Clone, Debug)]
-pub struct SumTypeDecl {
-    pub id: Atom,
-    pub ast_id: AstId,
-    pub type_params: Vec<TypeParam>,
-    pub variants: Vec<SumVariant>,
-    pub doc: Option<String>,
-    pub range: SourceRange,
-}
-
-#[derive(Clone, Debug)]
-pub struct SumVariant {
-    pub name: Atom,
-    pub fields: Vec<SumField>,
-    pub range: SourceRange,
-}
-
-#[derive(Clone, Debug)]
-pub struct SumField {
-    pub name: Atom,
-    pub ty: TypeNode,
-}
 
 #[derive(Clone, Debug)]
 pub struct FunctionDecl {

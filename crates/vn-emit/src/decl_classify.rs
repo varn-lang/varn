@@ -21,8 +21,7 @@ pub(super) fn free_function(decl: &Decl) -> Option<&FunctionDecl> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => None,
+            | Decl::Extension(_) => None,
         },
         Decl::Variable(_)
         | Decl::Class(_)
@@ -32,8 +31,7 @@ pub(super) fn free_function(decl: &Decl) -> Option<&FunctionDecl> {
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => None,
+        | Decl::Extension(_) => None,
     }
 }
 
@@ -50,8 +48,7 @@ pub(super) fn namespace_decl(decl: &Decl) -> Option<&vn_core::ast::NamespaceDecl
             | Decl::Enum(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => None,
+            | Decl::Extension(_) => None,
         },
         Decl::Variable(_)
         | Decl::Function(_)
@@ -61,8 +58,7 @@ pub(super) fn namespace_decl(decl: &Decl) -> Option<&vn_core::ast::NamespaceDecl
         | Decl::Enum(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => None,
+        | Decl::Extension(_) => None,
     }
 }
 
@@ -79,8 +75,7 @@ pub(super) fn variable_decl(decl: &Decl) -> Option<&vn_core::ast::VariableDecl> 
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => None,
+            | Decl::Extension(_) => None,
         },
         Decl::Function(_)
         | Decl::Class(_)
@@ -90,8 +85,7 @@ pub(super) fn variable_decl(decl: &Decl) -> Option<&vn_core::ast::VariableDecl> 
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => None,
+        | Decl::Extension(_) => None,
     }
 }
 
@@ -108,8 +102,7 @@ pub(super) fn class_decl(decl: &Decl) -> Option<&vn_core::ast::ClassDecl> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => None,
+            | Decl::Extension(_) => None,
         },
         Decl::Variable(_)
         | Decl::Function(_)
@@ -119,8 +112,7 @@ pub(super) fn class_decl(decl: &Decl) -> Option<&vn_core::ast::ClassDecl> {
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => None,
+        | Decl::Extension(_) => None,
     }
 }
 
@@ -137,8 +129,7 @@ pub(super) fn enum_decl(decl: &Decl) -> Option<&vn_core::ast::EnumDecl> {
             | Decl::Namespace(_)
             | Decl::Import(_)
             | Decl::Export(_)
-            | Decl::Extension(_)
-            | Decl::SumType(_) => None,
+            | Decl::Extension(_) => None,
         },
         Decl::Variable(_)
         | Decl::Function(_)
@@ -148,8 +139,7 @@ pub(super) fn enum_decl(decl: &Decl) -> Option<&vn_core::ast::EnumDecl> {
         | Decl::Namespace(_)
         | Decl::Import(_)
         | Decl::Export(_)
-        | Decl::Extension(_)
-        | Decl::SumType(_) => None,
+        | Decl::Extension(_) => None,
     }
 }
 

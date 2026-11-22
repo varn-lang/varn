@@ -24,8 +24,7 @@ pub fn collect(program: &Program, arena: &AstArena) -> Report {
                 | Decl::TypeAlias(_)
                 | Decl::Enum(_)
                 | Decl::Namespace(_)
-                | Decl::Extension(_)
-                | Decl::SumType(_) => {}
+                | Decl::Extension(_) => {}
             }
         }
     }

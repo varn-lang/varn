@@ -225,24 +225,5 @@ pub(super) fn print_decl(
                 chalk(name).blue()
             ));
         }
-        Decl::SumType(s) => {
-            terminal::log(format!(
-                "{indent}{marker}{} {}{}",
-                chalk("SumTypeDecl").bold(),
-                chalk(interner.resolve(s.id)).blue(),
-                type_params_suffix(&s.type_params, interner)
-            ));
-            for (idx, v) in s.variants.iter().enumerate() {
-                let mk = if idx == s.variants.len() - 1 {
-                    "└── "
-                } else {
-                    "├── "
-                };
-                terminal::log(format!(
-                    "{child_indent}{mk}{}",
-                    chalk(interner.resolve(v.name)).yellow()
-                ));
-            }
-        }
     }
 }
