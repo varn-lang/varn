@@ -253,7 +253,7 @@ fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> 
         let payload =
             VariantPayload::Positional(parse_match_list(s, TokenKind::LParen, TokenKind::RParen)?);
         return Ok(MatchPattern::EnumVariant {
-            enum_name: name,
+            enum_name: None,
             variant_name: name,
             payload,
         });
@@ -261,7 +261,7 @@ fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> 
     if s.check(TokenKind::LBrace) {
         let (fields, rest) = parse_match_fields(s)?;
         return Ok(MatchPattern::EnumVariant {
-            enum_name: name,
+            enum_name: None,
             variant_name: name,
             payload: VariantPayload::Named { fields, rest },
         });
@@ -272,6 +272,26 @@ fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> 
         s.advance();
         let prop_name = s.consume_lexeme();
         let prop_range = s.prev_range();
+        if s.check(TokenKind::LParen) {
+            let payload = VariantPayload::Positional(parse_match_list(
+                s,
+                TokenKind::LParen,
+                TokenKind::RParen,
+            )?);
+            return Ok(MatchPattern::EnumVariant {
+                enum_name: Some(name),
+                variant_name: prop_name,
+                payload,
+            });
+        }
+        if s.check(TokenKind::LBrace) {
+            let (fields, rest) = parse_match_fields(s)?;
+            return Ok(MatchPattern::EnumVariant {
+                enum_name: Some(name),
+                variant_name: prop_name,
+                payload: VariantPayload::Named { fields, rest },
+            });
+        }
         let prop_expr = s.expr(
             prop_range,
             vn_core::ast::ExprKind::Identifier { name: prop_name },

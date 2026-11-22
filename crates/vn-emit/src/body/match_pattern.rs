@@ -30,7 +30,7 @@ impl<'a> FnEmitter<'a> {
                 {
                     return self.match_enum_variant(
                         s,
-                        name_str,
+                        None,
                         name_str,
                         &VariantPayload::Positional(Vec::new()),
                     );
@@ -119,7 +119,7 @@ impl<'a> FnEmitter<'a> {
                 variant_name,
                 payload,
             } => {
-                let enum_name = self.m.interner.resolve(*enum_name);
+                let enum_name = enum_name.map(|n| self.m.interner.resolve(n));
                 let variant_name = self.m.interner.resolve(*variant_name);
                 self.match_enum_variant(s, enum_name, variant_name, payload)
             }
@@ -194,15 +194,12 @@ impl<'a> FnEmitter<'a> {
     pub(super) fn match_enum_variant(
         &mut self,
         s: &TirExpr,
-        enum_name: &str,
+        enum_name: Option<&str>,
         variant_name: &str,
         payload_pattern: &VariantPayload,
     ) -> (TirExpr, Vec<TirStmt>) {
-        let eid = self
-            .m
-            .names
-            .enum_id(enum_name)
-            .or_else(|| match s.ty.non_nullable(self.tt) {
+        let eid = enum_name.and_then(|n| self.m.names.enum_id(n)).or_else(|| {
+            match s.ty.non_nullable(self.tt) {
                 BackendTy::Enum(e) => Some(e),
                 BackendTy::Literal(_)
                 | BackendTy::Num(_)
@@ -222,7 +219,8 @@ impl<'a> FnEmitter<'a> {
                 | BackendTy::Void
                 | BackendTy::Never
                 | BackendTy::Dynamic(_) => None,
-            });
+            }
+        });
 
         let Some(eid) = eid else {
             return self.match_variant_by_name(s, variant_name, payload_pattern);

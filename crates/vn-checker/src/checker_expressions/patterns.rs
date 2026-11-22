@@ -232,11 +232,29 @@ impl<'r> Checker<'r> {
                 }
             }
             MatchPattern::EnumVariant {
+                enum_name,
                 variant_name,
                 payload,
-                ..
             } => {
                 let variant_name_str = bind.interner.resolve(*variant_name).to_string();
+                if let Some(qualifier) = enum_name
+                    && let TypeKind::Generic(actual, ..) | TypeKind::Named(actual, ..) =
+                        self.ty_table.get(value_ty.0)
+                    && bind.interner.resolve(actual) != bind.interner.resolve(*qualifier)
+                {
+                    self.emit(
+                        vn_core::Diagnostic::error(
+                            vn_core::ErrorCode::MatchPatternTypeMismatch,
+                            format!(
+                                "the pattern names `{}.{variant_name_str}`, but the value is a `{}`",
+                                bind.interner.resolve(*qualifier),
+                                bind.interner.resolve(actual)
+                            ),
+                        )
+                        .with_range(range),
+                    );
+                    return;
+                }
                 let Some((fields, mapping)) =
                     self.variant_fields_with_subst(&variant_name_str, value_ty, bind)
                 else {

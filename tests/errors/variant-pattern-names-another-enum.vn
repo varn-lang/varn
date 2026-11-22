@@ -1,0 +1,5 @@
+// expect: error[VN4015]
+enum Shape { Circle(r: float) }
+enum Other { Circle(r: float) }
+const s = Shape.Circle(1.0)
+const r = match (s) { Other.Circle(x) => x }

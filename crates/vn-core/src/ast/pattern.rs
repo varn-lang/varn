@@ -121,7 +121,7 @@ pub enum MatchPattern {
         rest: bool,
     },
     EnumVariant {
-        enum_name: Atom,
+        enum_name: Option<Atom>,
         variant_name: Atom,
         payload: VariantPayload,
     },

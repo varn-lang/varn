@@ -1,0 +1,41 @@
+import { describe, it, expect } from "std:test";
+
+enum Shape {
+    Circle(radius: float),
+    Rect(width: float, height: float),
+    Empty
+}
+
+function area(s: Shape): float {
+    return match (s) {
+        Shape.Circle(r) => r * r,
+        Shape.Rect { width, height } => width * height,
+        Shape.Empty => 0.0
+    }
+}
+
+function short(s: Shape): str {
+    return match (s) {
+        Circle(_) => "circle",
+        Rect(_, _) => "rect",
+        Empty => "empty"
+    }
+}
+
+await describe("360 qualified variant patterns", async () => {
+    await it("a pattern names its enum the way a construction does", () => {
+        expect(area(Shape.Circle(2.0))).toBe(4.0)
+        expect(area(Shape.Rect(2.0, 3.0))).toBe(6.0)
+        expect(area(Shape.Empty)).toBe(0.0)
+    })
+    await it("the short form still resolves against the matched type", () => {
+        expect(short(Shape.Circle(1.0))).toBe("circle")
+        expect(short(Shape.Rect(1.0, 1.0))).toBe("rect")
+        expect(short(Shape.Empty)).toBe("empty")
+    })
+    await it("a tuple subject matches tuple patterns", () => {
+        const a = 1
+        const b = 2
+        expect(match (a, b) { (1, 2) => "yes", _ => "no" }).toBe("yes")
+    })
+})
