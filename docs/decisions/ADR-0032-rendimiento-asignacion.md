@@ -56,9 +56,20 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   menor y uno mayor en `http_routing`, que retiene el 76%), corregido en A2b
   escalando vivero y presupuesto por 1/(1 - supervivencia) y midiendo el tamano
   medio de celda (antes caia siempre a 24 B).
-- A2e. Entradas de `Map`/`Set` pequenos inline con el mismo `CellVec`, y reinicio
-  en bloque de bloques jovenes sin supervivientes. `new Map` sigue en ~700 ms
-  (30M): su coste ya no es el almacenamiento sino la propia celda.
+- A2e. Coste de la celda. Perfil nativo y ensamblador de `new Map`: el 50% propio
+  de `alloc_map_vm` es la escritura en una celda de 128 B (dos lineas) obtenida de
+  una lista libre enlazada. Hecho: `take` precarga la siguiente celda libre
+  (`new Map` 700 a ~640 ms, 30M). Pendiente, por orden de ganancia esperada:
+  (1) `HeapObj` mide 48 B porque su variante mayor (`Str`) fija el `tail` de TODA
+  celda; con cabecera de 8 B un `Map` ocupa 8+48+64 = 120 B y un array 8+48+32 +
+  datos. Reducir `HeapObj` a un puntero con etiqueta (variantes grandes fuera de
+  la celda o en celdas propias) llevaria `Map` a una linea de cache y ahorraria
+  32 B por celda en todo el heap; (2) boxear el indice hash de `OrderedTable`
+  (solo existe en mapas grandes) para que el `ValueMap` pase de 64 a ~40 B;
+  (3) reinicio en bloque de bloques jovenes sin supervivientes, que sustituye la
+  lista libre por bump; (4) entradas de `Map`/`Set` pequenos inline con `CellVec`.
+  Puerta: `new Map` por debajo de 12 ns y GC menor por debajo del 5% en
+  `http_routing`.
 - A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
   asignacion en region de frame para arrays y `Map` que no escapan.
