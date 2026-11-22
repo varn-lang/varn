@@ -15,9 +15,11 @@ function badStep(): bool {
 }
 await describe("130 range generic", async () => {
         await it("group 1 part 1", async () => {
-        expect(ints.length == 5 && ints.end).toBe(5);
+        expect(ints.length == 5).toBe(true);
+        expect(ints.end).toBe(5);
         expect(letters.length).toBe(5);
-        expect(letters.start == 'a' && letters.end).toBe('e');
+        expect(letters.start == 'a').toBe(true);
+        expect(letters.end).toBe('e');
         expect(letters.contains('c') && !letters.contains('z')).toBeTruthy();
         expect(letters.toArray().join("")).toBe("abcde");
         for (const c in 'x'..='z') { word = `${word}${c}`}
@@ -25,7 +27,8 @@ await describe("130 range generic", async () => {
     });
 
     await it("group 1 part 2", async () => {
-        expect(evens.length == 5 && evens[4]).toBe(8);
+        expect(evens.length == 5).toBe(true);
+        expect(evens[4]).toBe(8);
         expect(evens.contains(4) && !evens.contains(5)).toBeTruthy();
         expect(evens.step(2).toArray().join(",")).toBe("0,4,8");
         for (const i in (1..=9).step(4)) { total = total + i }

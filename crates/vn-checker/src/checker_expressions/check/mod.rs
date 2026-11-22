@@ -142,7 +142,8 @@ impl<'r> Checker<'r> {
                 self.check_expr(rec, left, bind);
                 match op {
                     vn_core::ast::LogicalOp::And | vn_core::ast::LogicalOp::Or => {
-                        self.require_condition(rec, left, bind)
+                        self.require_condition(rec, left, bind);
+                        self.require_condition(rec, right, bind);
                     }
                     vn_core::ast::LogicalOp::Nullish => {
                         self.require_nullable(rec, left, "'??'", bind)

@@ -24,7 +24,8 @@ await describe("127 literal types", async () => {
 
     await it("group 1 part 2", async () => {
         expect(neg).toBe(-1);
-        expect(on && ch).toBe('y');
+        expect(on).toBe(true);
+        expect(ch).toBe('y');
         expect(status()).toBe(200);
     });
 

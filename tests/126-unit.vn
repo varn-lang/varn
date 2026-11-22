@@ -17,7 +17,8 @@ await describe("126 unit", async () => {
     });
 
     await it("group 1 part 2", async () => {
-        expect(pair[0] == 1 && pair[1]).toBe("a");
+        expect(pair[0] == 1).toBe(true);
+        expect(pair[1]).toBe("a");
         expect(`${pair}`).toBe('(1, "a")');
         expect(results.length).toBe(2);
     });

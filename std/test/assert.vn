@@ -81,7 +81,7 @@ export class Expectation<T> {
     }
 
     toBeTruthy(): void {
-        if (!this.actual) {
+        if (!(this.actual is bool) || !(this.actual as bool)) {
             failedCount = failedCount + 1;
             throw new AssertionError(`Expected truthy value but received ${this.actual}`);
         }
@@ -89,7 +89,7 @@ export class Expectation<T> {
     }
 
     toBeFalsy(): void {
-        if (this.actual) {
+        if (!(this.actual is bool) || (this.actual as bool)) {
             failedCount = failedCount + 1;
             throw new AssertionError(`Expected falsy value but received ${this.actual}`);
         }

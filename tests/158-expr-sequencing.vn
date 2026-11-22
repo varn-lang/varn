@@ -54,13 +54,15 @@ function optionalChainNullish(o: Inner?): int {
 
 function counted(): int { calls = calls + 1; return 20 }
 
+function flag(): bool { calls = calls + 1; return true }
+
 function orAssign(): int {
     calls = 0
-    let x: int? = 1
-    x ||= counted()
-    let y: int? = null
-    y ||= counted()
-    return calls * 1000 + x * 100 + y
+    let x = true
+    x ||= flag()
+    let y = false
+    y ||= flag()
+    return calls * 1000 + (x ? 100 : 0) + (y ? 10 : 0)
 }
 
 function nullishAssign(): int {
@@ -118,7 +120,7 @@ await describe("158 expr sequencing", async () => {
         expect(optionalChainNullish(new Inner())).toBe(11)
     })
     await it("7. ||= evaluates its rhs only when needed", async () => {
-        expect(orAssign()).toBe(1120)
+        expect(orAssign()).toBe(1110)
     })
     await it("8. ??= evaluates its rhs only when needed", async () => {
         expect(nullishAssign()).toBe(1320)

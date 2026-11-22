@@ -75,7 +75,7 @@ export function renderAst(node: MarkdownNode, options?: MarkdownOptions): str {
     if (node.kind == MarkdownNodeKind.ListItem) {
         let inner = "";
         if (node.checked != null) {
-            let chk = node.checked ? " checked=\"\"" : "";
+            let chk = node.checked == true ? " checked=\"\"" : "";
             let inputTag = optXhtml ? ("<input type=\"checkbox\"" + chk + " disabled=\"\" /> ") : ("<input type=\"checkbox\"" + chk + " disabled> ");
             inner = inputTag;
         }

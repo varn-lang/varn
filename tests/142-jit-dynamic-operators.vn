@@ -6,7 +6,7 @@ function strEquals(a: str, b: str): bool {
 }
 
 function intNot(a: int?): bool {
-    const r = !a
+    const r = a == null
     return r
 }
 

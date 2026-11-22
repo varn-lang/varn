@@ -7,7 +7,7 @@ class Node {
 }
 
 function filled(x: int?): int { x ??= 5; return x }
-function named(x: str?): str { x ||= "none"; return x }
+function named(x: str?): str { x ??= "none"; return x }
 function assigned(x: int?): int { x = 7; return x + 1 }
 function listed(m: Map<str, int[]>, k: str): int[] { let xs = m[k]; xs ??= []; return xs }
 function total(head: Node?): int {

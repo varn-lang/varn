@@ -13,19 +13,31 @@ impl<'r> Checker<'r> {
         bind: &BindResult,
     ) {
         let ty = self.infer_type(rec, expr, bind);
-        if !self.never_false(ty, bind) {
+        if self.is_condition(ty) {
             return;
         }
         let shown = ty.display(&self.ty_table, &bind.interner).to_string();
+        let hint = if ty.is_nullable(&self.ty_table) {
+            "test the absence with `!= null`"
+        } else {
+            "compare it explicitly"
+        };
         self.emit(
             Diagnostic::error(
                 ErrorCode::ConditionNeverFalse,
-                format!(
-                    "'{shown}' is never null or false, so it cannot be a condition: compare it explicitly"
-                ),
+                format!("a condition is a `bool`, and '{shown}' is not one: {hint}"),
             )
             .with_range(self.ast_arena.expr(expr).range),
         );
+    }
+
+    fn is_condition(&self, ty: Type) -> bool {
+        matches!(
+            self.ty_table.get(ty.0),
+            TypeKind::Primitive(LangPrimitive::Bool | LangPrimitive::Error | LangPrimitive::Never)
+                | TypeKind::Literal(TypeLiteral::Bool(_))
+                | TypeKind::TypePredicate { .. }
+        ) || ty.is_unresolved()
     }
 
     pub(crate) fn require_nullable(

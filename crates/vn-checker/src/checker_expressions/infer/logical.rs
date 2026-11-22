@@ -33,22 +33,7 @@ impl<'r> Checker<'r> {
             }
         };
         match op {
-            vn_core::ast::LogicalOp::And => {
-                let present =
-                    l_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
-                let always_truthy = self.never_false(present, bind);
-                let table = &mut *std::sync::Arc::make_mut(&mut self.ty_table);
-                if always_truthy && l_ty.is_nullable(table) {
-                    Type::make_nullable(r_ty, table)
-                } else if always_truthy || l_ty == r_ty {
-                    r_ty
-                } else {
-                    Type::union(
-                        vec![l_ty, r_ty],
-                        &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                    )
-                }
-            }
+            vn_core::ast::LogicalOp::And | vn_core::ast::LogicalOp::Or => Type::Bool,
             vn_core::ast::LogicalOp::Nullish => {
                 let l_non_null =
                     l_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
@@ -57,17 +42,6 @@ impl<'r> Checker<'r> {
                 } else {
                     Type::union(
                         vec![l_non_null, r_ty],
-                        &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                    )
-                }
-            }
-            vn_core::ast::LogicalOp::Or => {
-                let l_ty = l_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
-                if l_ty == r_ty {
-                    l_ty
-                } else {
-                    Type::union(
-                        vec![l_ty, r_ty],
                         &mut *std::sync::Arc::make_mut(&mut self.ty_table),
                     )
                 }

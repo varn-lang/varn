@@ -206,10 +206,10 @@ export class Response {
             } else {
                 cookieStr = cookieStr + "; Path=/";
             }
-            if (options.httpOnly) {
+            if (options.httpOnly == true) {
                 cookieStr = cookieStr + "; HttpOnly";
             }
-            if (options.secure) {
+            if (options.secure == true) {
                 cookieStr = cookieStr + "; Secure";
             }
             if (options.sameSite != null) {

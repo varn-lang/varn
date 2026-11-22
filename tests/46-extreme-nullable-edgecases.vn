@@ -64,7 +64,7 @@ await describe("46 extreme nullable edgecases", async () => {
         
         // c) Cast to nullable type followed by a ternary
         // Under lookahead, 'val as int? ? 300 : 400' must parse as (val as int?) ? 300 : 400
-        const ternary2 = val as int? ? 300 : 400
+        const ternary2 = (val as int?) != null ? 300 : 400
         expect(ternary2).toBe(300)
         
         // d) Cast to nullable type in ternary branch
@@ -73,7 +73,7 @@ await describe("46 extreme nullable edgecases", async () => {
         expect(ternary3).toBe(42)
         
         // e) Nested nullable cast and ternaries
-        const result = cond ? (val as int? ? "yes" : "no") : "never"
+        const result = cond ? ((val as int?) != null ? "yes" : "no") : "never"
         expect(result).toBe("yes")
         
         // 6. Generic Types with nullable arguments

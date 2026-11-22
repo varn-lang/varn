@@ -36,9 +36,7 @@ impl<'r> Checker<'r> {
                 narrowings.extend(self.extract_narrowings(rec, inner, bind, is_true_branch));
             }
 
-            ExprKind::Identifier { name } => {
-                self.narrow_identifier(rec, *name, bind, is_true_branch, &mut narrowings);
-            }
+            ExprKind::Identifier { .. } => {}
 
             ExprKind::Binary { left, right, op } => {
                 let (left, right, op) = (*left, *right, *op);
