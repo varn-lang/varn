@@ -32,6 +32,7 @@ pub enum ForeignForm {
     DefaultImport,
     MatchWithoutParens,
     ArrayHole,
+    HashPrivate,
 }
 
 impl ForeignForm {
@@ -89,6 +90,7 @@ impl ForeignForm {
             Self::DefaultImport => "import name from \"module\"",
             Self::MatchWithoutParens => "match x { ... }",
             Self::ArrayHole => "[a, , b]",
+            Self::HashPrivate => "#name",
             Self::NumberType
             | Self::StringType
             | Self::BooleanType
@@ -154,6 +156,7 @@ impl ForeignForm {
                 "import by name, as `import { f } from \"module\"`, or the whole module with `import * as m`"
             }
             Self::MatchWithoutParens => "write the subject in parentheses: `match (x) { ... }`",
+            Self::HashPrivate => "a member is private with `private name: T`, checked at compile time",
             Self::ArrayHole => "a sequence has no holes: write every element (or `null` in a `T?[]`) and discard a position with `_`",
         }
     }

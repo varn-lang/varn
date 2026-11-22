@@ -16,10 +16,9 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
             ))
         }
         TokenKind::IntegerLiteral => Ok(s.consume_str()),
-        TokenKind::Hash => {
-            s.advance();
-            Ok(format!("#{}", s.consume_str()))
-        }
+        TokenKind::Hash => Err(ParseError::invalid(
+            vn_core::ForeignForm::HashPrivate.message(),
+        )),
         _ if s.kind().can_be_identifier() || s.kind().is_keyword() => Ok(s.consume_str()),
         TokenKind::EOF
         | TokenKind::Dynamic
