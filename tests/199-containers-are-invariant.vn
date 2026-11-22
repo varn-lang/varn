@@ -9,7 +9,7 @@ interface Labelled {
 interface Sized {
     size: int | str
 }
-class Crate {
+class Crate implements Sized {
     size: int = 3
 }
 

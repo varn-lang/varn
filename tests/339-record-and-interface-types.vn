@@ -7,7 +7,7 @@ interface Place { city: str }
 type Options = { retries: int; verbose?: bool }
 type Pair = { left: int; right: int }
 
-class Person { name: str = "ana" }
+class Person implements Named { name: str = "ana" }
 
 function nameOf(n: Named): str { return n.name }
 function describe2(l: Located): str { return l.name }
@@ -54,7 +54,7 @@ class Animal { name: str = "animal" }
 class Dog extends Animal { constructor() { super(); this.name = "dog" } }
 interface Holder { pet: Animal }
 interface Slot { mut pet: Animal }
-class Kennel { pet: Animal = new Animal() }
+class Kennel implements Holder, Slot { pet: Animal = new Animal() }
 function petOf(h: Holder): str { return h.pet.name }
 function replace(s: Slot, a: Animal): void { s.pet = a }
 

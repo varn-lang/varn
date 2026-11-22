@@ -16,9 +16,9 @@ import {
     SeekOrigin
 } from "runtime:fs";
 
-import { Writer, AsyncReader, AsyncWriter } from "std:io";
+import { Reader, Writer, AsyncReader, AsyncWriter } from "std:io";
 
-export class File {
+export class File implements Reader, Writer {
     private _fd: int = -1;
     private _path: str;
     private _mode: FileMode;

@@ -65,7 +65,7 @@ class ViewBase {
         this.z = 1
     }
 }
-class ViewDerived extends ViewBase {
+class ViewDerived extends ViewBase implements HasZW {
     w: int
     constructor() {
         super()

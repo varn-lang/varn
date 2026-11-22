@@ -28,7 +28,7 @@ function marker(c: char = '*'): char { return c }
 interface Marked { mut mark: char }
 function readMark(m: Marked): char { return m.mark }
 function writeMark(m: Marked, c: char): void { m.mark = c }
-class Cell {
+class Cell implements Marked {
     mark: char = '?';
     flag: bool = false;
     code: int = 0;

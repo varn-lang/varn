@@ -4,7 +4,7 @@ interface Flagged { mut seen: bool?; mut mark: char? }
 function readSeen(f: Flagged): bool? { return f.seen }
 function writeMark(f: Flagged, c: char?): void { f.mark = c }
 
-class Probe {
+class Probe implements Flagged {
     seen: bool? = null;
     mark: char? = null;
     code: int = 0;

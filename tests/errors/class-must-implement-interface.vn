@@ -1,0 +1,4 @@
+// expect: error[VN3001]
+interface Named { name: str }
+class Person { name: str = "ana" }
+const n: Named = new Person()

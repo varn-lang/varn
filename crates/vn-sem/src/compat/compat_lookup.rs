@@ -85,6 +85,13 @@ pub(super) fn compatible_named(
         }
     }
 
+    if bind.get_interface_members(declared, origin_decl).is_some()
+        && bind.get_class_members(inferred, origin_inf).is_some()
+        && !class_declares(bind, inferred, origin_inf, declared)
+    {
+        return false;
+    }
+
     let decl_members = named_members(bind, declared, origin_decl);
     let inf_members = named_members(bind, inferred, origin_inf);
 
@@ -96,6 +103,32 @@ pub(super) fn compatible_named(
         }
         _ => false,
     }
+}
+
+pub(super) fn class_declares(
+    bind: &BindView,
+    class: &str,
+    origin: Option<&str>,
+    interface: &str,
+) -> bool {
+    let mut pending: Vec<(String, Option<String>)> =
+        vec![(class.to_owned(), origin.map(str::to_owned))];
+    let mut seen: FxHashSet<String> = FxHashSet::default();
+    while let Some((name, from)) = pending.pop() {
+        if name == interface {
+            return true;
+        }
+        if !seen.insert(name.clone()) {
+            continue;
+        }
+        for parent in bind.heritage(&name, from.as_deref()) {
+            pending.push((
+                parent.name.to_string(),
+                parent.origin.as_deref().map(str::to_owned),
+            ));
+        }
+    }
+    false
 }
 
 pub(super) fn class_value_satisfies(

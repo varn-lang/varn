@@ -1,6 +1,6 @@
 import { describe, it, expect } from "std:test";
 
-class Money {
+class Money implements Display, Debug {
     cents: int
     constructor(c: int) { this.cents = c }
     equals(other: Money): bool { return this.cents == other.cents }
