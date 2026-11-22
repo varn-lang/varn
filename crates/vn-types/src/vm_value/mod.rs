@@ -314,11 +314,13 @@ impl VmValue {
 }
 
 mod array;
+mod cell_vec;
 mod heap_ref;
 mod traits;
 mod vm_array;
 mod vm_array_access;
 
 pub use array::{ArrayRepr, BoxedElems};
+pub use cell_vec::CellVec;
 pub use heap_ref::HeapRef;
 pub use vm_array::VmArray;

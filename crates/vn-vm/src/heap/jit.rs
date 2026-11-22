@@ -55,21 +55,21 @@ impl Heap {
         let (slots_ptr_off, vec_len_off) = vec_word_offsets(&slots_probe);
 
         let (disc_off, elems_ptr_off, elems_len_off) = {
-            use vn_types::vm_value::ArrayRepr;
+            use vn_types::vm_value::{ArrayRepr, CellVec};
             let mut boxed_vec: Vec<VmValue> = Vec::with_capacity(7);
             for _ in 0..3 {
                 boxed_vec.push(VmValue::null());
             }
             let vec_ptr = boxed_vec.as_ptr() as usize;
-            let repr = ArrayRepr::Boxed(vn_types::BoxedElems::new(boxed_vec));
+            let repr = ArrayRepr::Boxed(vn_types::BoxedElems::new(CellVec::from_vec(boxed_vec)));
             let base = &repr as *const _ as *const u8;
             let disc = unsafe { *base.add(ArrayRepr::DISC_OFF) };
             assert_eq!(
                 disc, 0,
                 "ArrayRepr::Boxed discriminant must read 0 at DISC_OFF"
             );
-            let ptr_off = ArrayRepr::ELEMS_UNION_OFF + slots_ptr_off;
-            let len_off = ArrayRepr::ELEMS_UNION_OFF + vec_len_off;
+            let ptr_off = ArrayRepr::ELEMS_UNION_OFF + CellVec::<VmValue>::PTR_OFF;
+            let len_off = ArrayRepr::ELEMS_UNION_OFF + CellVec::<VmValue>::LEN_OFF;
             let probed_ptr = unsafe { *(base.add(ptr_off) as *const usize) };
             let probed_len = unsafe { *(base.add(len_off) as *const usize) };
             assert_eq!(
@@ -78,23 +78,23 @@ impl Heap {
             );
             assert_eq!(probed_len, 3, "elems tripwire: Boxed Vec len mismatch");
 
-            let i64_repr = ArrayRepr::I64(vec![0, 0, 0]);
+            let i64_repr = ArrayRepr::I64(CellVec::from_vec(vec![0, 0, 0]));
             let i64_disc =
                 unsafe { *(&i64_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(i64_disc, 1, "ArrayRepr::I64 discriminant must read 1");
-            let f64_repr = ArrayRepr::F64(vec![0.0, 0.0, 0.0]);
+            let f64_repr = ArrayRepr::F64(CellVec::from_vec(vec![0.0, 0.0, 0.0]));
             let f64_disc =
                 unsafe { *(&f64_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(f64_disc, 2, "ArrayRepr::F64 discriminant must read 2");
-            let char_repr = ArrayRepr::Char(vec!['a', 'b', 'c']);
+            let char_repr = ArrayRepr::Char(CellVec::from_vec(vec!['a', 'b', 'c']));
             let char_disc =
                 unsafe { *(&char_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(char_disc, 3, "ArrayRepr::Char discriminant must read 3");
-            let bool_repr = ArrayRepr::Bool(vec![true, false, true]);
+            let bool_repr = ArrayRepr::Bool(CellVec::from_vec(vec![true, false, true]));
             let bool_disc =
                 unsafe { *(&bool_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(bool_disc, 4, "ArrayRepr::Bool discriminant must read 4");
-            let ref_repr = ArrayRepr::Ref(Vec::new());
+            let ref_repr = ArrayRepr::Ref(CellVec::new());
             let ref_disc =
                 unsafe { *(&ref_repr as *const _ as *const u8).add(ArrayRepr::DISC_OFF) };
             assert_eq!(ref_disc, 5, "ArrayRepr::Ref discriminant must read 5");

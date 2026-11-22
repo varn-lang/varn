@@ -153,7 +153,7 @@ pub(super) fn write_json_vm(ctx: &ExecCtx, val: VmValue, out: &mut String, depth
                 out.push('[');
                 match a.repr() {
                     vn_types::ArrayRepr::Boxed(items) => {
-                        let items = items.as_vec();
+                        let items = items.as_slice();
                         for (i, &elem) in items.iter().enumerate() {
                             if i > 0 {
                                 out.push(',');

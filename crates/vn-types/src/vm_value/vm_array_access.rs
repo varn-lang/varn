@@ -1,13 +1,13 @@
-use super::{ArrayRepr, BoxedElems, HeapRef, VmArray, VmValue};
+use super::{ArrayRepr, BoxedElems, CellVec, HeapRef, VmArray, VmValue};
 use crate::memory::ExternalLedger;
 
 #[inline(always)]
-fn push_vec<T>(v: &mut Vec<T>, val: T) {
-    let cap_before = v.capacity();
-    let grows = v.len() == cap_before;
+fn push_vec<T: Copy>(v: &mut CellVec<T>, val: T) {
+    let heap_before = v.heap_capacity();
     v.push(val);
-    if grows {
-        ExternalLedger::grow((v.capacity() - cap_before) * std::mem::size_of::<T>());
+    let heap_after = v.heap_capacity();
+    if heap_after > heap_before {
+        ExternalLedger::grow((heap_after - heap_before) * std::mem::size_of::<T>());
     }
 }
 
@@ -138,19 +138,19 @@ impl VmArray {
         if matches!(self.repr(), ArrayRepr::Boxed(_)) {
             if val.is_int() {
                 ExternalLedger::grow(std::mem::size_of::<i64>());
-                *self.repr_mut() = ArrayRepr::I64(vec![val.as_int()]);
+                *self.repr_mut() = ArrayRepr::I64(CellVec::from_vec(vec![val.as_int()]));
             } else if val.is_f64() {
                 ExternalLedger::grow(std::mem::size_of::<f64>());
-                *self.repr_mut() = ArrayRepr::F64(vec![val.as_f64()]);
+                *self.repr_mut() = ArrayRepr::F64(CellVec::from_vec(vec![val.as_f64()]));
             } else if let Some(c) = val.as_char() {
                 ExternalLedger::grow(std::mem::size_of::<char>());
-                *self.repr_mut() = ArrayRepr::Char(vec![c]);
+                *self.repr_mut() = ArrayRepr::Char(CellVec::from_vec(vec![c]));
             } else if val.is_bool() {
                 ExternalLedger::grow(std::mem::size_of::<bool>());
-                *self.repr_mut() = ArrayRepr::Bool(vec![val.as_bool()]);
+                *self.repr_mut() = ArrayRepr::Bool(CellVec::from_vec(vec![val.as_bool()]));
             } else if val.is_heap() {
                 ExternalLedger::grow(std::mem::size_of::<HeapRef>());
-                *self.repr_mut() = ArrayRepr::Ref(vec![val.as_heap()]);
+                *self.repr_mut() = ArrayRepr::Ref(CellVec::from_vec(vec![val.as_heap()]));
             } else {
                 match self.repr_mut() {
                     ArrayRepr::Boxed(v) => v.items.push(val),
@@ -182,7 +182,7 @@ impl VmArray {
 
     #[cold]
     #[allow(clippy::mut_from_ref)]
-    fn migrate_to_boxed(&self) -> &mut Vec<VmValue> {
+    fn migrate_to_boxed(&self) -> &mut CellVec<VmValue> {
         {
             let repr = self.repr_mut();
             if !matches!(repr, ArrayRepr::Boxed(_)) {
@@ -195,7 +195,7 @@ impl VmArray {
                     ArrayRepr::Boxed(_) => unreachable!(),
                 };
                 ExternalLedger::grow(boxed.capacity() * std::mem::size_of::<VmValue>());
-                *repr = ArrayRepr::Boxed(BoxedElems::new(boxed));
+                *repr = ArrayRepr::Boxed(BoxedElems::new(CellVec::from_vec(boxed)));
             }
         }
         match self.repr_mut() {

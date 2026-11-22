@@ -1,44 +1,44 @@
-use super::{HeapRef, VmValue};
+use super::{CellVec, HeapRef, VmValue};
 
 #[repr(C, u8)]
 #[derive(Debug)]
 pub enum ArrayRepr {
     Boxed(BoxedElems) = 0,
 
-    I64(Vec<i64>) = 1,
+    I64(CellVec<i64>) = 1,
 
-    F64(Vec<f64>) = 2,
+    F64(CellVec<f64>) = 2,
 
-    Char(Vec<char>) = 3,
+    Char(CellVec<char>) = 3,
 
-    Bool(Vec<bool>) = 4,
+    Bool(CellVec<bool>) = 4,
 
-    Ref(Vec<HeapRef>) = 5,
+    Ref(CellVec<HeapRef>) = 5,
 }
 
 #[repr(C)]
 #[derive(Debug)]
 pub struct BoxedElems {
-    pub(super) items: Vec<VmValue>,
+    pub(super) items: CellVec<VmValue>,
 }
 
 impl BoxedElems {
     #[inline(always)]
-    pub fn new(items: Vec<VmValue>) -> Self {
+    pub fn new(items: CellVec<VmValue>) -> Self {
         Self { items }
     }
 
     #[inline(always)]
-    pub fn as_vec(&self) -> &Vec<VmValue> {
+    pub fn as_slice(&self) -> &[VmValue] {
         &self.items
     }
 }
 
 impl std::ops::Deref for BoxedElems {
-    type Target = Vec<VmValue>;
+    type Target = CellVec<VmValue>;
 
     #[inline(always)]
-    fn deref(&self) -> &Vec<VmValue> {
+    fn deref(&self) -> &CellVec<VmValue> {
         &self.items
     }
 }
@@ -79,12 +79,12 @@ impl ArrayRepr {
 
     pub fn heap_bytes(&self) -> u64 {
         match self {
-            ArrayRepr::Boxed(v) => (v.items.capacity() * std::mem::size_of::<VmValue>()) as u64,
-            ArrayRepr::I64(v) => (v.capacity() * std::mem::size_of::<i64>()) as u64,
-            ArrayRepr::F64(v) => (v.capacity() * std::mem::size_of::<f64>()) as u64,
-            ArrayRepr::Char(v) => (v.capacity() * std::mem::size_of::<char>()) as u64,
-            ArrayRepr::Bool(v) => (v.capacity() * std::mem::size_of::<bool>()) as u64,
-            ArrayRepr::Ref(v) => (v.capacity() * std::mem::size_of::<HeapRef>()) as u64,
+            ArrayRepr::Boxed(v) => (v.items.heap_capacity() * std::mem::size_of::<VmValue>()) as u64,
+            ArrayRepr::I64(v) => (v.heap_capacity() * std::mem::size_of::<i64>()) as u64,
+            ArrayRepr::F64(v) => (v.heap_capacity() * std::mem::size_of::<f64>()) as u64,
+            ArrayRepr::Char(v) => (v.heap_capacity() * std::mem::size_of::<char>()) as u64,
+            ArrayRepr::Bool(v) => (v.heap_capacity() * std::mem::size_of::<bool>()) as u64,
+            ArrayRepr::Ref(v) => (v.heap_capacity() * std::mem::size_of::<HeapRef>()) as u64,
         }
     }
 }

@@ -113,7 +113,7 @@ pub(crate) fn stringify_csv(
                         if let Some(HeapObj::Array(row_arr)) = ctx.heap.get(item.as_heap()) {
                             match row_arr.repr() {
                                 vn_types::ArrayRepr::Boxed(row_items) => {
-                                    let row_items = row_items.as_vec();
+                                    let row_items = row_items.as_slice();
                                     for (i, &cell) in row_items.iter().enumerate() {
                                         if i > 0 {
                                             out.push(delim_char);

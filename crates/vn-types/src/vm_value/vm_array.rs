@@ -1,7 +1,7 @@
 use std::cell::UnsafeCell;
 use std::ptr::NonNull;
 
-use super::{ArrayRepr, BoxedElems, VmValue};
+use super::{ArrayRepr, BoxedElems, CellVec, VmValue};
 use crate::register_meta::SlotKind;
 
 #[derive(Clone, Copy, Debug)]
@@ -10,7 +10,7 @@ pub struct VmArray(NonNull<UnsafeCell<ArrayRepr>>);
 impl ArrayRepr {
     #[inline(always)]
     pub fn boxed(items: Vec<VmValue>) -> Self {
-        ArrayRepr::Boxed(BoxedElems::new(items))
+        ArrayRepr::Boxed(BoxedElems::new(CellVec::from_vec(items)))
     }
 
     pub fn inferred(items: Vec<VmValue>) -> Self {
@@ -38,7 +38,10 @@ impl ArrayRepr {
                 .iter()
                 .map(|v| v.as_char())
                 .collect::<Option<Vec<char>>>()
-                .map_or_else(|| Self::boxed(items.to_vec()), ArrayRepr::Char),
+                .map_or_else(
+                    || Self::boxed(items.to_vec()),
+                    |chars| ArrayRepr::Char(CellVec::from_vec(chars)),
+                ),
             ArrayStorage::Bool => ArrayRepr::Bool(items.iter().map(|v| v.as_bool()).collect()),
             ArrayStorage::Ref if items.iter().all(|v| v.is_heap()) => {
                 ArrayRepr::Ref(items.iter().map(|v| v.as_heap()).collect())
@@ -60,7 +63,7 @@ impl ArrayRepr {
                 .iter()
                 .map(|v| v.as_char())
                 .collect::<Option<Vec<char>>>()
-                .map(ArrayRepr::Char);
+                .map(|chars| ArrayRepr::Char(CellVec::from_vec(chars)));
         }
         if first.is_bool() && items.iter().all(|v| v.is_bool()) {
             return Some(ArrayRepr::Bool(items.iter().map(|v| v.as_bool()).collect()));
