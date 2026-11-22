@@ -125,6 +125,22 @@ pub(super) fn next_free(r: u64) -> *mut u64 {
 }
 
 #[inline(always)]
+pub(super) fn prefetch_cell(addr: u64, cell: usize) {
+    #[cfg(target_arch = "x86_64")]
+    if addr != 0 {
+        use std::arch::x86_64::{_mm_prefetch, _MM_HINT_T0};
+        unsafe {
+            _mm_prefetch(addr as *const i8, _MM_HINT_T0);
+            if cell > 64 {
+                _mm_prefetch((addr + 64) as *const i8, _MM_HINT_T0);
+            }
+        }
+    }
+    #[cfg(not(target_arch = "x86_64"))]
+    let _ = (addr, cell);
+}
+
+#[inline(always)]
 pub(super) fn cells_span(cell: usize) -> u64 {
     (cells_per_block(cell) * cell) as u64
 }

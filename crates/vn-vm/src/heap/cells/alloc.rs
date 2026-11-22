@@ -78,7 +78,9 @@ impl CellSpace {
                 let lane = &mut self.classes[class].lane;
                 if lane.free != 0 {
                     let r = lane.free;
-                    lane.free = unsafe { *blocks::next_free(r) };
+                    let next = unsafe { *blocks::next_free(r) };
+                    lane.free = next;
+                    blocks::prefetch_cell(next, cell);
                     return unsafe { HeapRef::from_addr_unchecked(r) };
                 }
                 if lane.bump + cell as u64 <= lane.end {
