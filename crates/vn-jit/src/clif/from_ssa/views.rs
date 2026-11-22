@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use cranelift_codegen::ir::{types, InstBuilder};
 use cranelift_frontend::{FunctionBuilder, Variable};
@@ -15,19 +15,28 @@ pub(crate) struct Views {
     by_value: BTreeMap<u32, View>,
     instance_by_canon: BTreeMap<u32, Variable>,
     global_src: BTreeMap<u32, u32>,
+    this_values: BTreeSet<u32>,
 }
 
 pub(crate) const GLOBAL_CANON_BIT: u32 = 0x8000_0000;
+pub(crate) const THIS_CANON: u32 = 0x4000_0000;
 
 impl Views {
     pub(super) fn declare(b: &mut FunctionBuilder, ssa: &SsaProto) -> Self {
         let mut global_src = BTreeMap::new();
+        let mut this_values = BTreeSet::new();
         for inst in ssa.blocks.iter().flat_map(|blk| &blk.insts) {
             if let (Some(d), SsaOp::LoadGlobalIdx(slot)) = (inst.dest, &inst.op) {
                 global_src.insert(d, *slot);
             }
+            if let (Some(d), SsaOp::This) = (inst.dest, &inst.op) {
+                this_values.insert(d);
+            }
         }
         let canon = |o: u32| -> u32 {
+            if this_values.contains(&o) {
+                return THIS_CANON;
+            }
             global_src
                 .get(&o)
                 .map(|s| GLOBAL_CANON_BIT | s)
@@ -238,12 +247,16 @@ impl Views {
             by_value,
             instance_by_canon,
             global_src,
+            this_values,
         };
         views.clear(b);
         views
     }
 
     pub(crate) fn canon(&self, object: u32) -> u32 {
+        if self.this_values.contains(&object) {
+            return THIS_CANON;
+        }
         self.global_src
             .get(&object)
             .map(|s| GLOBAL_CANON_BIT | s)

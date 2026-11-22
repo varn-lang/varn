@@ -196,7 +196,7 @@ pub(super) fn emit(
         }
         SsaOp::This => {
             let boxed = props::emit_this(ctx)?;
-            Out::Boxed(boxed)
+            Out::Trusted(boxed)
         }
         SsaOp::Binary {
             op: vn_types::ssa::SsaBinOp::StrConcat,
