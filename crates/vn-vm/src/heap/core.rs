@@ -69,6 +69,24 @@ impl HeapInner {
         VmValue::from_heap(r)
     }
 
+    pub(crate) fn alloc_array_inline_vm(
+        &mut self,
+        tuple: bool,
+        storage: vn_core::ArrayStorage,
+        items: &[VmValue],
+    ) -> VmValue {
+        if let Some(h) = &self.hotspot {
+            h.borrow_mut()
+                .record_alloc(if tuple { "tuple" } else { "array" });
+        }
+        let r = self
+            .cells
+            .alloc_array_inline(tuple, storage, items, SlotState::Young);
+        self.young.born.push(r);
+        self.note_new_cell(r);
+        VmValue::from_heap(r)
+    }
+
     pub(crate) fn alloc_object_pairs<I>(&mut self, pairs: I) -> VmValue
     where
         I: IntoIterator<Item = (vn_types::RuntimeString, VmValue)>,

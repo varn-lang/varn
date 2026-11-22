@@ -7,6 +7,8 @@ mod stats;
 mod sweep;
 mod typed;
 
+pub(crate) use typed::INLINE_ARRAY_MAX;
+
 use super::obj::HeapObj;
 use blocks::{block_of, cells_span, large_layout, Block, SizeClass};
 use std::alloc::{alloc_zeroed, dealloc};

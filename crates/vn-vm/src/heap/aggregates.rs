@@ -1,3 +1,4 @@
+use super::cells::INLINE_ARRAY_MAX;
 use super::structs::HeapInner;
 use crate::value::VmValue;
 use std::rc::Rc;
@@ -9,11 +10,12 @@ impl HeapInner {
         storage: vn_core::ArrayStorage,
         items: Vec<VmValue>,
     ) -> VmValue {
-        self.alloc_array_repr(false, ArrayRepr::from_storage_owned(storage, items))
+        self.alloc_items(false, storage, items)
     }
 
     pub(crate) fn alloc_array_inferred_vm(&mut self, items: Vec<VmValue>) -> VmValue {
-        self.alloc_array_repr(false, ArrayRepr::inferred(items))
+        let storage = ArrayRepr::infer_storage(&items);
+        self.alloc_items(false, storage, items)
     }
 
     pub(crate) fn alloc_array_slice_vm(
@@ -21,11 +23,38 @@ impl HeapInner {
         storage: vn_core::ArrayStorage,
         items: &[VmValue],
     ) -> VmValue {
-        self.alloc_array_repr(false, ArrayRepr::from_storage(storage, items))
+        if items.len() <= INLINE_ARRAY_MAX {
+            self.alloc_array_inline_vm(false, storage, items)
+        } else {
+            self.alloc_items(false, storage, items.to_vec())
+        }
     }
 
     pub(crate) fn alloc_tuple_vm(&mut self, items: Vec<VmValue>) -> VmValue {
-        self.alloc_array_repr(true, ArrayRepr::inferred(items))
+        let storage = ArrayRepr::infer_storage(&items);
+        self.alloc_items(true, storage, items)
+    }
+
+    pub(crate) fn alloc_tuple_slice_vm(&mut self, items: &[VmValue]) -> VmValue {
+        let storage = ArrayRepr::infer_storage(items);
+        if items.len() <= INLINE_ARRAY_MAX {
+            self.alloc_array_inline_vm(true, storage, items)
+        } else {
+            self.alloc_items(true, storage, items.to_vec())
+        }
+    }
+
+    fn alloc_items(
+        &mut self,
+        tuple: bool,
+        storage: vn_core::ArrayStorage,
+        items: Vec<VmValue>,
+    ) -> VmValue {
+        if items.len() <= INLINE_ARRAY_MAX {
+            self.alloc_array_inline_vm(tuple, storage, &items)
+        } else {
+            self.alloc_array_repr(tuple, ArrayRepr::from_storage_owned(storage, items))
+        }
     }
 
     pub(crate) fn alloc_object(&mut self) -> VmValue {

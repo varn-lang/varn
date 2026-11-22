@@ -4,6 +4,9 @@ use std::rc::Rc;
 use vn_types::value::{InstanceData, InstanceRef, ObjData, Shape};
 use vn_types::HeapRef;
 
+pub(crate) const INLINE_ARRAY_MAX: usize = 32;
+const MIN_INLINE_ELEMS: usize = 4;
+
 impl CellSpace {
     #[inline]
     pub(crate) fn alloc(&mut self, obj: HeapObj, state: SlotState) -> HeapRef {
@@ -55,6 +58,44 @@ impl CellSpace {
         let tail = std::mem::size_of::<HeapObj>();
         let bytes = std::mem::size_of::<vn_types::vm_value::ArrayRepr>();
         let r = self.take_cell(tail + bytes, 0, state);
+        let arr = unsafe { vn_types::VmArray::init_at(body::<u8>(r).add(tail).cast(), repr) };
+        Self::place(
+            r,
+            if tuple {
+                HeapObj::Tuple(arr)
+            } else {
+                HeapObj::Array(arr)
+            },
+        );
+        r
+    }
+
+    #[inline]
+    pub(crate) fn alloc_array_inline(
+        &mut self,
+        tuple: bool,
+        storage: vn_core::ArrayStorage,
+        items: &[vn_types::VmValue],
+        state: SlotState,
+    ) -> HeapRef {
+        use vn_types::cell::{CELL_CLASSES, HEADER_BYTES};
+        use vn_types::vm_value::ArrayRepr;
+        const _: () = assert!(std::mem::align_of::<vn_types::VmValue>() <= 8);
+        let storage = ArrayRepr::effective_storage(storage, items);
+        let elem = ArrayRepr::elem_bytes(storage);
+        let tail = std::mem::size_of::<HeapObj>();
+        let data_off = tail + std::mem::size_of::<ArrayRepr>();
+        let wanted = if items.is_empty() {
+            MIN_INLINE_ELEMS
+        } else {
+            items.len()
+        };
+        let r = self.take_cell(data_off + wanted * elem, 0, state);
+        let span = CELL_CLASSES[header(r).class as usize] - HEADER_BYTES;
+        let cap = (span - data_off) / elem;
+        let repr = unsafe {
+            ArrayRepr::write_inline(storage, items, body::<u8>(r).add(data_off), cap)
+        };
         let arr = unsafe { vn_types::VmArray::init_at(body::<u8>(r).add(tail).cast(), repr) };
         Self::place(
             r,
