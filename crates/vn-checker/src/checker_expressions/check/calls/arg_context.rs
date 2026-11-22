@@ -54,6 +54,8 @@ impl<'r> Checker<'r> {
                 Arg::Positional(e) | Arg::Spread(e) => {
                     let e = *e;
                     self.with_expected(expected, |c| c.check_expr(rec, e, bind));
+                    let given = self.infer_type(rec, e, bind);
+                    self.reject_void_value(&given, self.ast_arena.expr(e).range);
                 }
                 Arg::Named { label, value } => {
                     let expected = params
@@ -61,6 +63,8 @@ impl<'r> Checker<'r> {
                         .find(|p| p.name.as_deref() == Some(label.as_str()))
                         .map(|p| Type::resolved(p.ty));
                     self.with_expected(expected, |c| c.check_expr(rec, *value, bind));
+                    let given = self.infer_type(rec, *value, bind);
+                    self.reject_void_value(&given, self.ast_arena.expr(*value).range);
                 }
             }
         }
