@@ -238,25 +238,16 @@ pub(crate) fn thrown_value_for(err: &RuntimeError, heap: &mut Heap) -> VmValue {
     };
     let name = heap.alloc_str_dynamic(class_name);
     let stack = heap.alloc_str_dynamic(format_stack(&err.frames));
-    let (shape, n) = cls.instance_shape();
-    let err_obj = heap.alloc_object_cell(shape, n, &[]);
-    if let Some(HeapObj::Object(oref)) = heap.get(err_obj.as_heap()) {
-        oref.set_field(
-            std::sync::Arc::from(vn_core::MemberKey::Message.as_str()),
-            msg,
-        );
-        oref.set_field(
-            std::sync::Arc::from(vn_core::MemberKey::Name.as_str()),
-            name,
-        );
-        oref.set_field(
-            std::sync::Arc::from(vn_core::MemberKey::Stack.as_str()),
-            stack,
-        );
-    }
+    let err_obj = VmValue::from_heap(heap.alloc_instance(&cls).0);
+    let layout = cls.layout();
+    let mut entries = vec![
+        (vn_core::MemberKey::Message.as_str(), msg),
+        (vn_core::MemberKey::Name.as_str(), name),
+        (vn_core::MemberKey::Stack.as_str(), stack),
+    ];
     if let Some(info) = std_class {
         let code = heap.alloc_str_dynamic(info.class.code());
-        let mut entries = vec![(vn_core::ErrorField::Code.name(), code)];
+        entries.push((vn_core::ErrorField::Code.name(), code));
         for (field, value) in &info.fields {
             let value = match value {
                 vn_types::ErrorValue::Str(text) => heap.alloc_str_dynamic(text),
@@ -264,10 +255,13 @@ pub(crate) fn thrown_value_for(err: &RuntimeError, heap: &mut Heap) -> VmValue {
             };
             entries.push((field.name(), value));
         }
-        if let Some(HeapObj::Object(oref)) = heap.get(err_obj.as_heap()) {
-            for (key, value) in entries {
-                oref.set_field(std::sync::Arc::from(key), value);
-            }
+    }
+    for (key, value) in entries {
+        if let Some(f) = layout.get_field(key)
+            && let Some(inst) = heap.instance(err_obj.as_heap())
+            && inst.write_field(f, value).is_ok()
+        {
+            heap.write_barrier(err_obj.as_heap(), value);
         }
     }
     err_obj

@@ -7,10 +7,8 @@ use vn_types::{HostOpen, NativeCtx, NativeError, VmValue};
 
 
 fn reject_with_message(ctx: &mut dyn NativeCtx, message: &str) -> VmValue {
-    let message_nv = ctx.alloc_str(message);
-    let obj = ctx.alloc_object();
-    ctx.set_field(obj, vn_core::MemberKey::Message.as_str(), message_nv);
-    ctx.task_rejected(obj)
+    let error = SendValue::error(StdErrorClass::Std.name(), message).to_value_ctx(ctx);
+    ctx.task_rejected(error)
 }
 
 fn reject_closed(ctx: &mut dyn NativeCtx) -> VmValue {
