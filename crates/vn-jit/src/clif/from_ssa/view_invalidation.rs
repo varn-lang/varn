@@ -2,6 +2,18 @@ use vn_core::intrinsic_ops::math::MathOp;
 use vn_types::register_meta::SlotKind;
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaUnOp};
 
+pub(super) fn may_collect(ssa: &SsaProto, op: &SsaOp) -> bool {
+    let allocation_free = matches!(
+        op,
+        SsaOp::ConstStr(_)
+            | SsaOp::ConstChar(_)
+            | SsaOp::ConstBigInt(_)
+            | SsaOp::ConstDecimal(_)
+            | SsaOp::This
+    );
+    !allocation_free && !keeps_views(ssa, op)
+}
+
 pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
     match op {
         SsaOp::ConstInt(_)

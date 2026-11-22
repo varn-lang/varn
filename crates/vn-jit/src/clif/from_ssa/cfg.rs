@@ -51,7 +51,7 @@ pub(super) fn loop_may_collect(
         ssa.blocks[b]
             .insts
             .iter()
-            .any(|i| !super::view_invalidation::keeps_views(ssa, &i.op))
+            .any(|i| super::view_invalidation::may_collect(ssa, &i.op))
     })
 }
 
