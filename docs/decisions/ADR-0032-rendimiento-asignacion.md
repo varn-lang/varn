@@ -23,17 +23,30 @@ Reducir el vivero acelera el bucle sintético 27% pero empeora `http_routing`
 ## Decisión
 Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por paso:
 
-- A1. `split` de un byte en una pasada, sin `Vec` intermedio de rangos ni `vals`.
-  Puerta: `split` en bucle puro por debajo de 45 ns; checksums intactos.
-- A2. Almacenamiento inline en celda para arrays y tuplas pequeñas (sin `malloc`
-  ni `drop_object`). Puerta: `http_routing` y `generator` mejoran en `compare.ps1`.
-- A3. Escape analysis interprocedural con resúmenes de parámetros no escapantes
+- A1. DESCARTADO tras medir: `split` sin `Vec` intermedio no cambia el tiempo
+  (655 vs 652 ms en 10M); el coste esta en el ciclo de vida del array resultado.
+- [x] A2a. El almacenamiento del array literal lo fija el compilador
+  (`ArrayStorage` en `vn-core`, decidido en `from_tir`, viaja por `InstKind`,
+  `SsaOp`, el segundo byte del opcode y el helper JIT; `ArrayRepr::from_slice`
+  eliminado). Medido: array literal que escapa 333 a 318 ms (10M); suite 6165
+  verde. Pendiente: los natives siguen usando `ArrayRepr::from_items`
+  (escaneo dinamico) en `object_ops`, `ctx_csv`, `decode` e `isolates`.
+- A2b. Vivero con copia (sustituye a A2 inline y A4). Hallazgos que lo condicionan:
+  el JIT lee `elems_ptr_off`/`elems_len_off` de `JitArrayLayout`, por lo que un
+  `SmallVec` rompe el codigo inline; `malloc`/`free` de `mimalloc` suman solo
+  ~6 ns de 33; el coste dominante es la muerte individual del objeto joven
+  (`forget_identity` + `release` + `drop_object`). El GC solo corre en
+  safepoints con raices precisas (`gc_backedge_safepoint`), nunca dentro de una
+  asignacion, de modo que mover objetos es viable. Requiere: raices mutables
+  (hoy `gc_roots()` devuelve una copia), reenvio en `for_each_child`, tablas por
+  direccion (`identity_index`, `young_cells`) actualizadas, y que ningun native
+  retenga un `HeapRef` joven a traves de un safepoint.
+  Puerta: array literal que escapa y `new Map` por debajo de 12 ns; GC menor
+  por debajo del 5% en `http_routing`.
+- A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
-  asignación en región de frame para arrays y `Map` que no escapan.
+  asignacion en region de frame para arrays y `Map` que no escapan.
   Puerta: `new Map`/`split` no escapantes por debajo de 10 ns.
-- A4. Si A2 deja el vivero sin celdas con destructor externo: barrido por bloque
-  (bloques jóvenes totalmente muertos se reinician en O(1)).
-  Puerta: GC menor por debajo del 5% en `http_routing`.
 
 Cada paso se mide con `compare.ps1` y se borra el código que sustituye (Ley 10).
 Comparación (Ley 21): JavaScriptCore y V8 usan vivero con bump allocation y
