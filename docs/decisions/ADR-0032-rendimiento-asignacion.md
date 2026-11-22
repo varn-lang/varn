@@ -70,11 +70,25 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   recoleccion por objeto es ~4 ns de ~21 en `new Map`, de modo que su techo es
   ~10 a 20% en bucles de asignacion y menos en `http_routing`. Es buena
   arquitectura pero no la raiz de la brecha; va despues de A5.
-- A5. Calidad del codigo JIT (34% de `http_routing`): valores boxeados (tag+payload
-  en i128 partidos y recompuestos), volcado de argumentos a slots de pila en el
-  prologo, un helper de 4-5 argumentos por operacion de cadena, comprobaciones de
-  nulo sobre tipos no anulables. Requiere inspeccionar el CLIF de `Router.dispatch`
-  y `Route.match`.
+- A5. Codigo JIT. Medido por fases en `http_routing` (100k peticiones): construir
+  las peticiones, Varn 28 ms contra Bun 33 ms (ganamos); autenticacion, 9 contra
+  8; handler (`jsonRes`, `stringify`, `Map`), 26 contra 28 (ganamos); **escaneo
+  de rutas, 53 contra 23 ms: toda la brecha esta ahi**. Aislado en un
+  microbenchmark (20 rutas, 6M iteraciones) Varn es 2.35 a 2.6x mas lento que Bun
+  incluso en la variante minima (comparar metodo y longitud), de modo que el coste
+  es el base por operacion y no una sola: la ruta rapida de `this.method != "*"`
+  son ~100 instrucciones (prologo con volcado de argumentos y de sp/fp al ctx,
+  comprobaciones de tag sobre una constante SSO que el JIT no reconoce, comparacion
+  de cadenas general). `VN_CLIF_OPT` none/speed/speed_and_size no cambia el tiempo
+  (120/119/119 ms): no es calidad de instrucciones sino el modelo de valores.
+  Hecho: lecturas de campo compactas no anulables sin revalidar tipo
+  (`Out::Trusted`, -11% de codigo). Descartado por no medirse: `startsWith` y
+  `endsWith` SSO inline. Dirección (Ley 17 y 20): el JIT debe especializar por el
+  tipo estatico que ya conoce (valores `str` y `Ref` no anulables sin tag
+  dinamico, constantes SSO comparadas por valor, `this` y receptores fijos sin
+  guarda de instancia, prologo sin volcados innecesarios), no por operaciones
+  sueltas. `VN_JIT_SYMS=<fichero>` anota la direccion de cada funcion JIT para
+  atribuir muestras de un perfilador (samply ahora exige administrador).
 - A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
   asignacion en region de frame para arrays y `Map` que no escapan.
