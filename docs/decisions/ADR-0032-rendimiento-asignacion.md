@@ -37,18 +37,22 @@ Atacar el ciclo de vida del objeto joven, en este orden y con una puerta por pas
   resultado. Cerrarlo exige que el compilador pase el almacenamiento como
   metadato de `CallNativeOp` y que las tuplas sean siempre `Boxed`.
   Puerta: cero usos de `ArrayRepr::inferred` y sin regresion en `compare.ps1`.
-- A2b. Vivero con copia (sustituye a A2 inline y A4). Hallazgos que lo condicionan:
-  el JIT lee `elems_ptr_off`/`elems_len_off` de `JitArrayLayout`, por lo que un
-  `SmallVec` rompe el codigo inline; `malloc`/`free` de `mimalloc` suman solo
-  ~6 ns de 33; el coste dominante es la muerte individual del objeto joven
-  (`forget_identity` + `release` + `drop_object`). El GC solo corre en
-  safepoints con raices precisas (`gc_backedge_safepoint`), nunca dentro de una
-  asignacion, de modo que mover objetos es viable. Requiere: raices mutables
-  (hoy `gc_roots()` devuelve una copia), reenvio en `for_each_child`, tablas por
-  direccion (`identity_index`, `young_cells`) actualizadas, y que ningun native
-  retenga un `HeapRef` joven a traves de un safepoint.
-  Puerta: array literal que escapa y `new Map` por debajo de 12 ns; GC menor
-  por debajo del 5% en `http_routing`.
+- [x] A2b. Politica adaptativa del vivero (`nursery_target`: mitad con 2% o menos
+  de supervivencia, doble con 10% o mas, suelo 1 MiB, techo 16 MiB). Medido:
+  `new Map` 879 a ~720 ms, array literal 318 a ~265 ms, `split` 655 a ~555 ms,
+  `http_routing` sin cambio; `compare.ps1` pasa de 5/3/7 a 8/1/6 frente a Bun.
+  DESCARTADO el vivero con copia: `MapKey` hashea los valores heap por direccion
+  (`tag`+`payload`), las cadenas internadas se identifican por direccion y `===`
+  compara direcciones; mover objetos rompe `Map`, `Set` e internado. Hacerlo
+  exigiria una identidad independiente de la direccion (handles con indireccion
+  en cada acceso), lo que penaliza el JIT.
+- A2d. Almacenamiento dentro de la celda sin mover objetos: un `CellVec<T>` con
+  capacidad inline en la propia celda para arrays, tuplas y entradas de `Map`
+  pequenos, con `NEEDS_DROP` solo cuando se desborda. Elimina `malloc`, `free` y
+  `drop_object` de los objetos pequenos y permite reiniciar en bloque los
+  bloques jovenes sin supervivientes. Debe conservar los offsets que lee el JIT
+  (`elems_ptr_off`, `elems_len_off`). Puerta: array literal y `new Map` por debajo
+  de 12 ns y GC menor por debajo del 5% en `http_routing`.
 - A3. Escape analysis interprocedural con resumenes de parametros no escapantes
   (hoy `passes/escape.rs` solo reemplaza instancias dentro de un bloque) y
   asignacion en region de frame para arrays y `Map` que no escapan.
