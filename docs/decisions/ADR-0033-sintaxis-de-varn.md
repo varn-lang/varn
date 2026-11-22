@@ -126,3 +126,28 @@ Los tipos condicionales, `infer`, los tipos mapeados, `keyof`, el acceso indexad
 8. D4: `match` exige paréntesis; migración de los 5 usos.
 9. D6: rechazo de `export default` con pista (cierra F2).
 10. D5: auditoría de que `dynamic` solo vuelve a un tipo estático mediante `as T`.
+
+## 8. Estado de la implementación (2026-11-22)
+
+| Punto | Estado | Commit |
+|---|---|---|
+| F4 `SumType` | Eliminado | `9c482a37` |
+| F5 tokens `Spawn`/`Parallel`/`Start` y `ExprKind::Spawn` | Eliminados | `c2f5d79f`, `2ecb8113` |
+| F6 `module` | Eliminado; queda libre como identificador | `6ef7caac` |
+| F1 `destructor` | Eliminado | `1230d5a3` |
+| F3 `typeof` en tipos | Era `TypeKind::Typeof` inerte desde `72a3f728`; eliminado | `d12d921b` |
+| F7 tabla de formas ajenas | `vn_core::ForeignForm`, 31 formas | `280c6658` |
+| F2 + D6 `export default` e importación por defecto | Rechazados con pista | `3a92e5be` |
+| D4 `match (x)` | Obligatorio; acepta una tupla como sujeto | `87596d8a` |
+| D2 `async` → `Task<T>` | VN3039 en cuerpos y en firmas sin cuerpo | `3341e7ee` |
+| F8 patrones cualificados | `Enum.Variant(...)`, validado contra el tipo del sujeto | `434c7d17` |
+| F9 literal de `struct` | Construye el valor | `a05fbe1d` |
+| — literal asignado a una clase | Era un fallo en runtime; ahora VN3001 | `6d3084a1` |
+| D5 `dynamic` | Pendiente: auditoría | — |
+
+### 8.1 Hallazgos nuevos
+
+- `match (a, b)` no compilaba aunque los patrones de tupla existen; se corrigió con D4.
+- Un literal de objeto asignado a una clase pasaba el checker y fallaba en runtime: la compatibilidad estructural de TS no vale para clases nominales.
+- El emisor resuelve variantes con `match_variant_by_name` cuando no conoce el enum del sujeto. Es una búsqueda por nombre en runtime (Ley 17) que hay que eliminar resolviendo el enum en compilación.
+- `vn-vm/src/exec/compare.rs` tiene tres comodines `_ =>` (líneas 81, 241 y 254): violan la Ley 7.
