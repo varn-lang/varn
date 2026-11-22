@@ -73,8 +73,14 @@ fn declare(
         Decl::Interface(i) => (vec![name(i.id)], true),
         Decl::TypeAlias(t) => (vec![name(t.id)], true),
         Decl::Namespace(n) => (vec![name(n.id)], n.is_declare),
-        Decl::Enum(e) => (vec![name(e.id)], e.is_declare),
-        Decl::SumType(st) => (vec![name(st.id)], false),
+        Decl::Enum(e) => {
+            out.enums.insert(name(e.id));
+            (vec![name(e.id)], e.is_declare)
+        }
+        Decl::SumType(st) => {
+            out.enums.insert(name(st.id));
+            (vec![name(st.id)], false)
+        }
         Decl::Variable(v) => (
             v.declarators
                 .iter()

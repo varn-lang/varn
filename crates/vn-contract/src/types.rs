@@ -1,6 +1,8 @@
 use vn_core::ast::TypeNode;
 use vn_core::kinds::TypeKind;
-use vn_core::{AtomInterner, LangPrimitive, NumKind};
+use vn_core::{AtomInterner, BuiltinType, FieldKind, IntKind, LangPrimitive, NumKind, RuntimeKind};
+
+use crate::ModuleContract;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ContractTy {
@@ -86,4 +88,89 @@ impl ContractTy {
             LangPrimitive::Dynamic | LangPrimitive::Error => Self::Dynamic,
         }
     }
+}
+
+impl ContractTy {
+    pub fn field_kind(&self, contract: &ModuleContract) -> Option<FieldKind> {
+        match self {
+            Self::Opt(inner) => inner.exact_field_kind(contract).map(FieldKind::nullable),
+            Self::Num(_)
+            | Self::Bool
+            | Self::Char
+            | Self::Str
+            | Self::Void
+            | Self::Null
+            | Self::Never
+            | Self::BigInt
+            | Self::Decimal
+            | Self::Dynamic
+            | Self::Array(_)
+            | Self::Tuple(_)
+            | Self::Union(_)
+            | Self::Generic(..)
+            | Self::Named(_)
+            | Self::Fn
+            | Self::Other => self.exact_field_kind(contract).map(FieldKind::exact),
+        }
+    }
+
+    fn exact_field_kind(&self, contract: &ModuleContract) -> Option<RuntimeKind> {
+        match self {
+            Self::Num(NumKind::Int(IntKind::U64)) => None,
+            Self::Num(kind) => Some(RuntimeKind::of_num(*kind)),
+            Self::Bool => Some(RuntimeKind::Bool),
+            Self::Char => Some(RuntimeKind::Char),
+            Self::Str => Some(RuntimeKind::Str),
+            Self::BigInt => Some(RuntimeKind::BigInt),
+            Self::Decimal => Some(RuntimeKind::Decimal),
+            Self::Array(_) => Some(RuntimeKind::Array),
+            Self::Tuple(_) => Some(RuntimeKind::Tuple),
+            Self::Fn => Some(RuntimeKind::Function),
+            Self::Generic(name, _) | Self::Named(name) if contract.enums.contains(name) => {
+                Some(RuntimeKind::Enum)
+            }
+            Self::Generic(name, _) | Self::Named(name) if contract.classes.contains_key(name) => {
+                Some(RuntimeKind::Class)
+            }
+            Self::Generic(name, args) => builtin(name).and_then(|b| generic_kind(b, args.len())),
+            Self::Named(name) => builtin(name).and_then(bare_kind),
+            Self::Opt(_)
+            | Self::Union(_)
+            | Self::Void
+            | Self::Null
+            | Self::Never
+            | Self::Dynamic
+            | Self::Other => None,
+        }
+    }
+}
+
+fn builtin(name: &str) -> Option<BuiltinType> {
+    BuiltinType::ALL.into_iter().find(|b| b.name() == name)
+}
+
+fn generic_kind(b: BuiltinType, arity: usize) -> Option<RuntimeKind> {
+    match (b, arity) {
+        (BuiltinType::Map | BuiltinType::ReadonlyMap, _) => Some(RuntimeKind::Map),
+        (BuiltinType::Set | BuiltinType::ReadonlySet, _) => Some(RuntimeKind::Set),
+        (BuiltinType::Array | BuiltinType::ReadonlyArray, 1) => Some(RuntimeKind::Array),
+        (BuiltinType::TaskHandle, 1) => Some(RuntimeKind::TaskHandle),
+        (BuiltinType::Range, 1) => Some(RuntimeKind::Range),
+        (BuiltinType::Bytes, _) => Some(RuntimeKind::Bytes),
+        (
+            BuiltinType::Array
+            | BuiltinType::ReadonlyArray
+            | BuiltinType::TaskHandle
+            | BuiltinType::Range
+            | BuiltinType::Task
+            | BuiltinType::Generator
+            | BuiltinType::AsyncGenerator
+            | BuiltinType::Class,
+            _,
+        ) => None,
+    }
+}
+
+fn bare_kind(b: BuiltinType) -> Option<RuntimeKind> {
+    generic_kind(b, 0)
 }

@@ -28,13 +28,17 @@ pub(crate) fn lookup(
         ContractError::BadDecorator(reason) => LookupFailure::BadDecorator(reason),
     })?;
     match class {
-        Some(class) => contract
-            .classes
-            .remove(class)
-            .map(|c| section(c.members, c.extends, c.is_struct))
-            .ok_or(LookupFailure::ClassNotFound),
+        Some(class) => {
+            let found = contract.classes.get(class).cloned();
+            found
+                .map(|c| section(c.members, c.extends, c.is_struct, &contract))
+                .ok_or(LookupFailure::ClassNotFound)
+        }
         None if contract.functions.is_empty() => Err(LookupFailure::NoFunctions),
-        None => Ok(section(contract.functions, None, false)),
+        None => {
+            let functions = std::mem::take(&mut contract.functions);
+            Ok(section(functions, None, false, &contract))
+        }
     }
 }
 
@@ -42,15 +46,16 @@ fn section(
     members: Vec<vn_contract::Member>,
     extends: Option<String>,
     is_struct: bool,
+    contract: &vn_contract::ModuleContract,
 ) -> ContractSection {
     ContractSection {
-        members: members.into_iter().map(member).collect(),
+        members: members.into_iter().map(|m| member(m, contract)).collect(),
         extends,
         is_struct,
     }
 }
 
-fn member(m: vn_contract::Member) -> Member {
+fn member(m: vn_contract::Member, contract: &vn_contract::ModuleContract) -> Member {
     let kind = match m.kind {
         vn_contract::Kind::Function => Kind::Function,
         vn_contract::Kind::Method => Kind::Method,
@@ -81,6 +86,7 @@ fn member(m: vn_contract::Member) -> Member {
                 is_rest: p.rest,
             })
             .collect(),
+        field: m.ret.field_kind(contract),
         ret: Mapped::of(&m.ret),
         fallible: !throws.is_empty(),
         throws,

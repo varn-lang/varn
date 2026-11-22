@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ContractTy;
 
@@ -41,6 +41,7 @@ pub struct ClassContract {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct ModuleContract {
     pub classes: BTreeMap<String, ClassContract>,
+    pub enums: BTreeSet<String>,
     pub functions: Vec<Member>,
     pub exports: Vec<String>,
     pub has_code: bool,

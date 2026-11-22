@@ -4,7 +4,7 @@ use syn::{Ident, Pat};
 
 use super::input::UserMember;
 use super::mapping::{
-    call_expr, mapped_tag_path, owned_ty, param_ty, receiver_mapped, ret_ty, Mapped,
+    call_expr, field_kind_tokens, owned_ty, param_ty, receiver_mapped, ret_ty, Mapped,
 };
 use super::sanitize;
 use crate::contract_members::{Kind, Member};
@@ -38,7 +38,7 @@ pub(super) fn expected_params(m: &Member) -> usize {
 
 pub(super) fn generate_layout(m: &Member, out: &mut Generated) {
     let sym = &m.symbol;
-    let tag = mapped_tag_path(&m.ret);
+    let tag = field_kind_tokens(m.field);
     out.setup_calls.push(quote! {
         if !cls.extend_layout(&[(::std::sync::Arc::from(#sym), #tag)]) {
             return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot extend frozen class"));

@@ -24,6 +24,8 @@ pub(crate) struct Member {
     pub(crate) params: Vec<ParamInfo>,
     pub(crate) ret: Mapped,
 
+    pub(crate) field: Option<vn_core::FieldKind>,
+
     pub(crate) fallible: bool,
 
     pub(crate) throws: Vec<String>,

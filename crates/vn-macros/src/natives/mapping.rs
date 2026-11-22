@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream as TS2;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::Ident;
 
 use crate::contract_members::{Kind, Member};
@@ -95,46 +95,6 @@ pub(super) fn rust_num(kind: vn_core::NumKind) -> TS2 {
         NumKind::Int(IntKind::U64) => quote!(u64),
         NumKind::Float(FloatKind::F32) => quote!(f32),
         NumKind::Float(FloatKind::F64) => quote!(f64),
-    }
-}
-
-fn mapped_kind(m: &Mapped) -> Option<TS2> {
-    match m {
-        Mapped::Int => Some(quote! { Int }),
-        Mapped::Float => Some(quote! { Float }),
-        Mapped::Bool => Some(quote! { Bool }),
-        Mapped::Char => Some(quote! { Char }),
-        Mapped::Str | Mapped::StrRecv => Some(quote! { Str }),
-        Mapped::Array => Some(quote! { Array }),
-        Mapped::Narrow(_) | Mapped::List(_) | Mapped::Dynamic | Mapped::Void | Mapped::Opt(_) => {
-            None
-        }
-    }
-}
-
-pub(super) fn mapped_tag_path(m: &Mapped) -> TS2 {
-    let (inner, nullable) = match m {
-        Mapped::Opt(inner) => (inner.as_ref(), true),
-        Mapped::Int
-        | Mapped::Float
-        | Mapped::Narrow(_)
-        | Mapped::Bool
-        | Mapped::Char
-        | Mapped::Str
-        | Mapped::StrRecv
-        | Mapped::Array
-        | Mapped::List(_)
-        | Mapped::Dynamic
-        | Mapped::Void => (m, false),
-    };
-    match (mapped_kind(inner), nullable) {
-        (Some(name), false) => {
-            quote! { Some(::vn_core::FieldKind::exact(::vn_core::RuntimeKind::#name)) }
-        }
-        (Some(name), true) => {
-            quote! { Some(::vn_core::FieldKind::nullable(::vn_core::RuntimeKind::#name)) }
-        }
-        (None, false | true) => quote! { None },
     }
 }
 
@@ -328,5 +288,20 @@ fn element_ty(m: &Mapped) -> TS2 {
         | Mapped::Dynamic
         | Mapped::Void
         | Mapped::Opt(_) => param_ty(m),
+    }
+}
+
+pub(super) fn field_kind_tokens(field: Option<vn_core::FieldKind>) -> TS2 {
+    match field {
+        Some(vn_core::FieldKind { kind, nullable }) => {
+            let variant = format_ident!("{}", format!("{kind:?}"));
+            quote! {
+                Some(::vn_core::FieldKind {
+                    kind: ::vn_core::RuntimeKind::#variant,
+                    nullable: #nullable,
+                })
+            }
+        }
+        None => quote! { None },
     }
 }
