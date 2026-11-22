@@ -30,8 +30,8 @@ await describe("170 dynamic boundary: arguments", async () => {
     await it("a rest parameter takes an explicitly converted argument", () => {
         expect(total("s", 1, 2)).toBe(3)
         expect(total("s", five as int)).toBe(5)
-        expect(outcome(() => { total("s", word as int) })).toBe("other: convert: value is not numeric")
-        expect(outcome(() => { total("s", 1, word as int) })).toBe("other: convert: value is not numeric")
+        expect(outcome(() => { total("s", word as int) })).toBe("type mismatch: a number conversion needs a number, got 'str'")
+        expect(outcome(() => { total("s", 1, word as int) })).toBe("type mismatch: a number conversion needs a number, got 'str'")
     })
 
     await it("a spread array is cast to its element type first", () => {

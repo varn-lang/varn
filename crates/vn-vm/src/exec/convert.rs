@@ -61,7 +61,10 @@ fn numeric_of(v: VmValue, heap: &Heap) -> VmResult<Numeric> {
             | HeapObj::Generator(_)
             | HeapObj::Spread(_),
         )
-        | None => Err(RuntimeError::new("convert: value is not numeric")),
+        | None => Err(RuntimeError::type_error(format!(
+            "type mismatch: a number conversion needs a number, got '{}'",
+            crate::exec::advanced::kind_of_val(v, heap)
+        ))),
     }
 }
 

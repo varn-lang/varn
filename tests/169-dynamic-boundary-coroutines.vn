@@ -48,7 +48,7 @@ async function join(d: dynamic): Task<str> {
 await describe("169 dynamic boundary: coroutines", async () => {
     await it("an async function checks what it returns", async () => {
         expect(await outcome(async () => await asInt(5))).toBe("ok 5")
-        expect(await outcome(async () => await asInt("x"))).toBe("other")
+        expect(await outcome(async () => await asInt("x"))).toBe("type mismatch: a number conversion needs a number, got 'str'")
         expect(await outcome(async () => (await asInts([1, 2])).length)).toBe("ok 2")
         expect(await outcome(async () => await asInts(["a"]))).toBe("type mismatch: expected 'int[]', got 'Array'")
     })
@@ -62,7 +62,7 @@ await describe("169 dynamic boundary: coroutines", async () => {
 
     await it("a generator checks what it yields", async () => {
         expect(sum(2)).toBe("sum 3")
-        expect(sum("x")).toBe("convert: value is not numeric")
+        expect(sum("x")).toBe("type mismatch: a number conversion needs a number, got 'str'")
         expect(await join("b")).toBe("text ab")
         expect(await join(7)).toBe("type mismatch: expected 'str', got 'int'")
     })
