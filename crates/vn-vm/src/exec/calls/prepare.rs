@@ -27,9 +27,10 @@ pub(crate) fn try_prepare_call_fast(
             }
             BoundMethodTarget::Vm { .. } => None,
         },
-        HeapObj::NativeFn(f, _name, mask) => {
-            Some((PreparedCall::RawNativeImmediate(*f, *mask, arg_count), false))
-        }
+        HeapObj::NativeFn(f, _name, mask) => Some((
+            PreparedCall::RawNativeImmediate(*f, *mask, arg_count),
+            false,
+        )),
         HeapObj::Str(_)
         | HeapObj::Array(_)
         | HeapObj::Tuple(_)
@@ -215,7 +216,12 @@ pub(crate) fn prepare_call(
                     if let Some((f, _, mask)) = heap.native_of(ctor) {
                         let take = staging.len().saturating_sub(full_arg_count);
                         let vm_args: Vec<VmValue> = staging.drain(take..).collect();
-                        return Ok(PreparedCall::NativeConstructor(f, mask, vm_args, instance_nv));
+                        return Ok(PreparedCall::NativeConstructor(
+                            f,
+                            mask,
+                            vm_args,
+                            instance_nv,
+                        ));
                     }
                 }
                 staging.clear();

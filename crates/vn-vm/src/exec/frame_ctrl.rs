@@ -154,7 +154,9 @@ impl ExecCtx {
             }
             PreparedCall::NativeConstructor(f, mask, args, instance_nv) => {
                 self.record_call_native(f, None);
-                let result = self.invoke_native(f, mask, &args).map_err(RuntimeError::from)?;
+                let result = self
+                    .invoke_native(f, mask, &args)
+                    .map_err(RuntimeError::from)?;
                 let nv = if result.is_null() {
                     instance_nv
                 } else {

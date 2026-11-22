@@ -5,8 +5,7 @@ pub(super) fn fusable_compares(ssa: &SsaProto) -> FxHashSet<u32> {
     let mut uses: FxHashMap<u32, u32> = FxHashMap::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            inst.op
-                .for_each_use(|v| *uses.entry(v).or_default() += 1);
+            inst.op.for_each_use(|v| *uses.entry(v).or_default() += 1);
         }
         blk.term.for_each_use(|v| *uses.entry(v).or_default() += 1);
     }

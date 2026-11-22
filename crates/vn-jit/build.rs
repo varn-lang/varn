@@ -27,7 +27,11 @@ fn main() {
     }
     let out = Path::new(&std::env::var("OUT_DIR").unwrap()).join("codegen_fingerprint.rs");
     let mut f = std::fs::File::create(&out).expect("cannot create codegen_fingerprint.rs");
-    writeln!(f, "pub const CODEGEN_SOURCE_FINGERPRINT: u64 = {hash:#018x};").unwrap();
+    writeln!(
+        f,
+        "pub const CODEGEN_SOURCE_FINGERPRINT: u64 = {hash:#018x};"
+    )
+    .unwrap();
 }
 
 fn hash_dir(dir: &Path, hash: &mut u64) {

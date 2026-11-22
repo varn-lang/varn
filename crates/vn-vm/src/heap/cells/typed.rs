@@ -95,9 +95,8 @@ impl CellSpace {
         let r = self.take_cell(data_off + wanted * elem, 0, state);
         let span = CELL_CLASSES[header(r).class as usize] - HEADER_BYTES;
         let cap = (span - data_off) / elem;
-        let repr = unsafe {
-            ArrayRepr::write_inline(storage, items, body::<u8>(r).add(data_off), cap)
-        };
+        let repr =
+            unsafe { ArrayRepr::write_inline(storage, items, body::<u8>(r).add(data_off), cap) };
         let arr = unsafe { vn_types::VmArray::init_at(body::<u8>(r).add(tail).cast(), repr) };
         Self::place(
             r,
@@ -114,7 +113,8 @@ impl CellSpace {
     pub(crate) fn alloc_map_inline(&mut self, entries: usize, state: SlotState) -> HeapRef {
         use vn_types::cell::{CELL_CLASSES, HEADER_BYTES};
         use vn_types::value::{MapRef, ValueMap};
-        const _: () = assert!(std::mem::align_of::<(vn_types::value::MapKey, vn_types::VmValue)>() <= 8);
+        const _: () =
+            assert!(std::mem::align_of::<(vn_types::value::MapKey, vn_types::VmValue)>() <= 8);
         let tail = std::mem::size_of::<HeapObj>();
         let table_off = tail + std::mem::size_of::<ValueMap>();
         let entry = ValueMap::entry_bytes();

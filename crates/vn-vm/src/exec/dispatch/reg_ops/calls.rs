@@ -48,13 +48,16 @@ impl ExecCtx {
             if let Some(bm) = bound_method {
                 let receiver = bm.receiver;
                 match &bm.target {
-                    vn_types::value::BoundMethodTarget::Native { func, name, mask, .. } => {
+                    vn_types::value::BoundMethodTarget::Native {
+                        func, name, mask, ..
+                    } => {
                         let f = *func;
                         let mask = *mask;
                         self.record_call_native(f, Some(name));
                         let result = if arg_count <= 16 {
                             let mut buf = [VmValue::null(); 16];
-                            self.stack.box_range_into(base, arg_start, &mut buf[..arg_count]);
+                            self.stack
+                                .box_range_into(base, arg_start, &mut buf[..arg_count]);
                             buf[0] = receiver;
                             self.invoke_native(f, mask, &buf[..arg_count.max(1)])
                         } else {
@@ -119,8 +122,13 @@ impl ExecCtx {
                         self.record_call_native(f, Some(name_str));
                         let result = if arg_count <= 16 {
                             let mut buf = [VmValue::null(); 16];
-                            self.stack.box_range_into(base, arg_start, &mut buf[..arg_count]);
-                            let slice = if arg_count > 1 { &buf[1..arg_count] } else { &buf[..0] };
+                            self.stack
+                                .box_range_into(base, arg_start, &mut buf[..arg_count]);
+                            let slice = if arg_count > 1 {
+                                &buf[1..arg_count]
+                            } else {
+                                &buf[..0]
+                            };
                             self.invoke_native(f, mask, slice)
                         } else {
                             let args = self.stack.box_range(base, arg_start, arg_count);

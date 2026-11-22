@@ -117,7 +117,11 @@ impl<T: Copy> CellVec<T> {
     pub fn extend_from_slice(&mut self, items: &[T]) {
         self.reserve(items.len());
         unsafe {
-            std::ptr::copy_nonoverlapping(items.as_ptr(), self.ptr.as_ptr().add(self.len), items.len());
+            std::ptr::copy_nonoverlapping(
+                items.as_ptr(),
+                self.ptr.as_ptr().add(self.len),
+                items.len(),
+            );
         }
         self.len += items.len();
     }

@@ -146,7 +146,8 @@ impl<V: Copy> OrderedTable<V> {
     }
 
     fn compact(&mut self) {
-        self.entries.edit(|entries| entries.retain(|e| e.0 != TOMBSTONE));
+        self.entries
+            .edit(|entries| entries.retain(|e| e.0 != TOMBSTONE));
         if self.index.is_some() || self.entries.len() > LINEAR_MAX {
             self.rebuild_index();
         }

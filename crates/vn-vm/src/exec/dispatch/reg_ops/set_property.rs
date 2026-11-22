@@ -345,7 +345,8 @@ impl ExecCtx {
                 self.heap.get(getter_nv.as_heap()),
                 Some(crate::heap::HeapObj::VmClosure(_) | crate::heap::HeapObj::BoundMethod(_))
             );
-        let result_opt: Option<VmValue> = if let Some((f, _, mask)) = self.heap.native_of(getter_nv) {
+        let result_opt: Option<VmValue> = if let Some((f, _, mask)) = self.heap.native_of(getter_nv)
+        {
             let args = [receiver];
             let nv = self
                 .invoke_native(f, mask, &args)

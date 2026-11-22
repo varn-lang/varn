@@ -63,10 +63,12 @@ fn registry() -> &'static Registry {
                 reg.by_id[id as usize] = Some(entry);
             }
             reg.by_name.insert(key, id);
-            reg.by_fn.entry(entry.func() as usize).or_insert_with(|| FnGate {
-                entry,
-                mask: entry.capability_mask,
-            });
+            reg.by_fn
+                .entry(entry.func() as usize)
+                .or_insert_with(|| FnGate {
+                    entry,
+                    mask: entry.capability_mask,
+                });
             reg.modules.insert(entry.module_id());
         }
         reg
@@ -93,7 +95,10 @@ pub fn native_op_fn(id: u64) -> Option<vn_types::NativeFn> {
 }
 
 pub fn native_op_name_by_fn(f: vn_types::NativeFn) -> Option<&'static str> {
-    registry().by_fn.get(&(f as usize)).map(|g| g.entry.symbol_name())
+    registry()
+        .by_fn
+        .get(&(f as usize))
+        .map(|g| g.entry.symbol_name())
 }
 
 pub fn native_capability_mask(f: vn_types::NativeFn) -> u64 {

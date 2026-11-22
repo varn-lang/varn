@@ -154,7 +154,5 @@ fn path_matches_any(path: &Path, allowed: &[PathBuf]) -> bool {
     let Ok(canonical) = path.canonicalize() else {
         return false;
     };
-    allowed
-        .iter()
-        .any(|prefix| canonical.starts_with(prefix))
+    allowed.iter().any(|prefix| canonical.starts_with(prefix))
 }

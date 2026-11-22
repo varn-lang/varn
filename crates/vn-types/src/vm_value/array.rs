@@ -79,7 +79,9 @@ impl ArrayRepr {
 
     pub fn heap_bytes(&self) -> u64 {
         match self {
-            ArrayRepr::Boxed(v) => (v.items.heap_capacity() * std::mem::size_of::<VmValue>()) as u64,
+            ArrayRepr::Boxed(v) => {
+                (v.items.heap_capacity() * std::mem::size_of::<VmValue>()) as u64
+            }
             ArrayRepr::I64(v) => (v.heap_capacity() * std::mem::size_of::<i64>()) as u64,
             ArrayRepr::F64(v) => (v.heap_capacity() * std::mem::size_of::<f64>()) as u64,
             ArrayRepr::Char(v) => (v.heap_capacity() * std::mem::size_of::<char>()) as u64,

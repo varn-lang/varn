@@ -74,7 +74,8 @@ impl SsaOp {
                 f(*index);
                 f(*value);
             }
-            SsaOp::IntrinsicCall { object, args, .. } | SsaOp::CallNativeOp { object, args, .. } => {
+            SsaOp::IntrinsicCall { object, args, .. }
+            | SsaOp::CallNativeOp { object, args, .. } => {
                 f(*object);
                 args.iter().for_each(|a| f(*a));
             }

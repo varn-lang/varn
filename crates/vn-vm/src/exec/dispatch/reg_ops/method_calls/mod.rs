@@ -170,7 +170,9 @@ impl ExecCtx {
         }
         if let Some((f, _, mask)) = self.heap.native_of(method_val) {
             ic::record(closure, site, Some(cls), name, ICKind::NATIVE_VTABLE_METHOD);
-            return self.call_native_method(f, mask, this_val, args, name).map(Some);
+            return self
+                .call_native_method(f, mask, this_val, args, name)
+                .map(Some);
         }
         Ok(None)
     }

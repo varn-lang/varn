@@ -200,8 +200,14 @@ pub(crate) fn str_compare_branch(
     cc: CallConv,
     exec_ctx: cranelift_codegen::ir::Value,
     p: &PendingStrCmp,
-    then_edge: (cranelift_codegen::ir::Block, &[cranelift_codegen::ir::BlockArg]),
-    else_edge: (cranelift_codegen::ir::Block, &[cranelift_codegen::ir::BlockArg]),
+    then_edge: (
+        cranelift_codegen::ir::Block,
+        &[cranelift_codegen::ir::BlockArg],
+    ),
+    else_edge: (
+        cranelift_codegen::ir::Block,
+        &[cranelift_codegen::ir::BlockArg],
+    ),
 ) {
     let sso = vn_types::vm_value::KIND_SSO as i64;
     let (can_inline, matched) = match &p.constant {
