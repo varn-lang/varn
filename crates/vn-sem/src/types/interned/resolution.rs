@@ -1,15 +1,24 @@
 use super::ids::{CheckerTyId, FunctionTypeId, InternedTypeKind, ObjectMembersId, TyListId};
 use super::table::CheckerTyTable;
 use crate::types::{FunctionType, ObjectTypeMember};
+use vn_core::{LangPrimitive, TypeKind};
+
+static ABSENT_FUNCTION: FunctionType = FunctionType {
+    params: Vec::new(),
+    return_type: CheckerTyId::ERROR,
+    is_arrow: false,
+    type_params: Vec::new(),
+    type_param_defaults: Vec::new(),
+};
 
 impl CheckerTyTable {
     pub fn get(&self, id: CheckerTyId) -> InternedTypeKind {
-        *self
-            .base
+        self.base
             .entries
             .get(&id)
             .or_else(|| self.delta_entries.get(&id))
-            .unwrap_or_else(|| panic!("CheckerTyId {id:?} is not present in this table"))
+            .copied()
+            .unwrap_or(TypeKind::Primitive(LangPrimitive::Error))
     }
 
     pub fn contains(&self, id: CheckerTyId) -> bool {
@@ -21,8 +30,7 @@ impl CheckerTyTable {
             .lists
             .get(&id)
             .or_else(|| self.delta_lists.get(&id))
-            .map(Vec::as_slice)
-            .unwrap_or_else(|| panic!("TyListId {id:?} is not present in this table"))
+            .map_or(&[], Vec::as_slice)
     }
 
     pub fn get_function(&self, id: FunctionTypeId) -> &FunctionType {
@@ -30,7 +38,7 @@ impl CheckerTyTable {
             .functions
             .get(&id)
             .or_else(|| self.delta_functions.get(&id))
-            .unwrap_or_else(|| panic!("FunctionTypeId {id:?} is not present in this table"))
+            .unwrap_or(&ABSENT_FUNCTION)
     }
 
     pub fn get_object_members(&self, id: ObjectMembersId) -> &[ObjectTypeMember] {
@@ -38,8 +46,7 @@ impl CheckerTyTable {
             .object_members
             .get(&id)
             .or_else(|| self.delta_object_members.get(&id))
-            .map(Vec::as_slice)
-            .unwrap_or_else(|| panic!("ObjectMembersId {id:?} is not present in this table"))
+            .map_or(&[], Vec::as_slice)
     }
 
     pub fn contains_object_members(&self, id: ObjectMembersId) -> bool {
