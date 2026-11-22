@@ -8,6 +8,8 @@ pub(super) enum Out {
     Native(Value),
 
     Boxed(Value),
+
+    Trusted(Value),
 }
 
 pub(super) fn land(
@@ -24,6 +26,7 @@ pub(super) fn land(
     let native = match out {
         Out::Native(v) => v,
         Out::Boxed(v) => heap::unbox_checked(b, ctx, kind, v)?,
+        Out::Trusted(v) => heap::unbox_dest(b, kind, v)?,
     };
     define(b, ctx, values, d, native);
     Ok(())

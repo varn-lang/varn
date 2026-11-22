@@ -156,7 +156,7 @@ pub(crate) fn emit_invoke_slot(
         .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
     let boxed = match landed {
         Out::Native(v) => heap::box_native(b, dest_kind, v),
-        Out::Boxed(v) => v,
+        Out::Boxed(v) | Out::Trusted(v) => v,
     };
     b.ins().jump(merge, &[boxed.into()]);
 
@@ -452,7 +452,7 @@ pub(crate) fn emit_method_call(
         .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
     let boxed = match landed {
         Out::Native(v) => heap::box_native(b, dest_kind, v),
-        Out::Boxed(v) => v,
+        Out::Boxed(v) | Out::Trusted(v) => v,
     };
     b.ins().jump(merge, &[boxed.into()]);
 

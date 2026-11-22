@@ -19,6 +19,41 @@ fn field_io<'a>(b: &mut FunctionBuilder, ctx: &'a Ctx<'_>) -> Result<FieldIo<'a>
         site: super::super::exceptions::site_store(ctx),
     })
 }
+fn field_trusts_dest(
+    field: Option<vn_core::FieldKind>,
+    dest: vn_types::register_meta::SlotKind,
+) -> bool {
+    use vn_core::RuntimeKind as K;
+    use vn_types::register_meta::SlotKind;
+    let Some(vn_core::FieldKind {
+        kind,
+        nullable: false,
+    }) = field
+    else {
+        return false;
+    };
+    match kind {
+        K::Str => dest == SlotKind::Str,
+        K::Array | K::Map | K::Set | K::Tuple | K::Object | K::Class | K::Function | K::Opaque => {
+            dest == SlotKind::Ref
+        }
+        K::Null
+        | K::Bool
+        | K::Int
+        | K::Float
+        | K::BigInt
+        | K::Decimal
+        | K::Char
+        | K::Generator
+        | K::Task
+        | K::Range
+        | K::Enum
+        | K::TaskHandle
+        | K::Bytes
+        | K::AsyncGenerator => false,
+    }
+}
+
 pub(crate) fn emit_get_fixed_field(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
@@ -57,15 +92,13 @@ pub(crate) fn emit_get_fixed_field(
     }
     if let vn_core::FieldAccess::Compact(kind) = access {
         let io = field_io(b, ctx)?;
-        return Ok(Out::Boxed(load_compact(
-            b,
-            &io,
-            ivar,
-            obj,
-            offset,
-            kind,
-            slot as usize,
-        )));
+        let loaded = load_compact(b, &io, ivar, obj, offset, kind, slot as usize);
+        let trusted = dest.is_some_and(|d| field_trusts_dest(kind, ctx.ssa.value_ty(d)));
+        return Ok(if trusted {
+            Out::Trusted(loaded)
+        } else {
+            Out::Boxed(loaded)
+        });
     }
     let (ot, op) = b.ins().isplit(obj);
     let ectx = exec_ctx(ctx);
