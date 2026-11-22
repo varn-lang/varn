@@ -106,6 +106,16 @@ pub(super) fn parse_binary_expr(s: &mut TokenStream, min_prec: Prec) -> PResult<
     loop {
         let kind = s.kind();
 
+        if kind == TokenKind::Identifier
+            && vn_core::ForeignForm::of_word(s.lexeme()) == Some(vn_core::ForeignForm::Instanceof)
+        {
+            let at = s.range();
+            s.push_error(vn_core::ForeignForm::Instanceof.message(), at);
+            s.advance();
+            parse_unary_expr(s)?;
+            continue;
+        }
+
         if let Some((prec, right_assoc)) = binary_prec(kind) {
             if prec <= min_prec {
                 break;
@@ -113,16 +123,10 @@ pub(super) fn parse_binary_expr(s: &mut TokenStream, min_prec: Prec) -> PResult<
             let op_kind = kind;
             if op_kind == TokenKind::EqEqEq {
                 let at = s.range();
-                s.push_error(
-                    "`===` does not exist: `==` compares by value, write `==`".to_owned(),
-                    at,
-                );
+                s.push_error(vn_core::ForeignForm::StrictEq.message(), at);
             } else if op_kind == TokenKind::BangEqEq {
                 let at = s.range();
-                s.push_error(
-                    "`!==` does not exist: `!=` compares by value, write `!=`".to_owned(),
-                    at,
-                );
+                s.push_error(vn_core::ForeignForm::StrictNe.message(), at);
             }
             s.advance();
             let next_min = if right_assoc {

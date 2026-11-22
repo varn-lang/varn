@@ -230,10 +230,11 @@ impl<'r> Checker<'r> {
             return true;
         }
         self.unknown_type_names.insert(name);
-        self.emit(
-            Diagnostic::error(ErrorCode::UnknownSymbol, format!("unknown type: {text}"))
-                .with_range(node.range),
+        let message = vn_core::ForeignForm::of_type_name(&text).map_or_else(
+            || format!("unknown type: {text}"),
+            vn_core::ForeignForm::message,
         );
+        self.emit(Diagnostic::error(ErrorCode::UnknownSymbol, message).with_range(node.range));
         false
     }
 

@@ -39,6 +39,15 @@ pub fn parse_class_member(
         });
     }
 
+    if s.kind() == TokenKind::Identifier
+        && vn_core::ForeignForm::of_word(s.lexeme()) == Some(vn_core::ForeignForm::Destructor)
+        && matches!(s.peek_kind(1), TokenKind::LBrace | TokenKind::LParen)
+    {
+        return Err(ParseError::invalid(
+            vn_core::ForeignForm::Destructor.message(),
+        ));
+    }
+
     let stray = matches!(
         s.peek_kind(0),
         TokenKind::Let | TokenKind::Const | TokenKind::Var | TokenKind::Function

@@ -51,11 +51,7 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         TokenKind::For => parse_for_stmt(s),
         TokenKind::Switch => {
             let start = s.range();
-            s.push_error(
-                "`switch` does not exist: write `match (x) { 1 => { ... }, _ => { ... } }`"
-                    .to_owned(),
-                start,
-            );
+            s.push_error(vn_core::ForeignForm::Switch.message(), start);
             s.advance();
             skip_group(s, TokenKind::LParen, TokenKind::RParen);
             skip_group(s, TokenKind::LBrace, TokenKind::RBrace);
@@ -69,9 +65,19 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         TokenKind::Try if s.peek_kind(1) == TokenKind::LBrace => parse_try_stmt(s),
         TokenKind::Using => parse_using_stmt(s, false),
         TokenKind::Await if next_kind == TokenKind::Using => parse_using_stmt(s, true),
-        TokenKind::With => Err(ParseError::invalid(String::from(
-            "`with` is not supported; use explicit variable bindings",
-        ))),
+        TokenKind::With => Err(ParseError::invalid(
+            vn_core::ForeignForm::WithStatement.message(),
+        )),
+        TokenKind::Identifier
+            if next_kind == TokenKind::Identifier
+                && s.peek_kind(2) == TokenKind::LBrace
+                && vn_core::ForeignForm::of_word(s.lexeme())
+                    == Some(vn_core::ForeignForm::ModuleBlock) =>
+        {
+            Err(ParseError::invalid(
+                vn_core::ForeignForm::ModuleBlock.message(),
+            ))
+        }
 
         TokenKind::Identifier if next_kind == TokenKind::Colon => {
             let start_range = s.range();

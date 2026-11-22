@@ -41,10 +41,7 @@ pub(super) fn parse_var_decl_with_declare(
         }
         TokenKind::Var => {
             let err_range = s.range();
-            s.push_error(
-                "`var` is not supported; use `let` or `const`".to_owned(),
-                err_range,
-            );
+            s.push_error(vn_core::ForeignForm::Var.message(), err_range);
             s.advance();
             VarKind::Let
         }
@@ -310,6 +307,10 @@ pub(super) fn parse_function_decl(
         }
         s.eat_semicolon();
         s.stmt(s.range(), vn_core::ast::StmtKind::Empty)
+    } else if s.check(TokenKind::Semicolon) {
+        return Err(ParseError::invalid(
+            vn_core::ForeignForm::Overload.message(),
+        ));
     } else {
         s.in_function_body(is_async_pre, super::stmts::parse_block)?
     };

@@ -33,6 +33,16 @@ pub fn parse_unary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         }};
     }
 
+    if s.kind() == TokenKind::Identifier
+        && vn_core::ForeignForm::of_word(s.lexeme()) == Some(vn_core::ForeignForm::Typeof)
+        && matches!(s.peek_kind(1), TokenKind::Identifier | TokenKind::This)
+        && s.peek_line(1) == s.line()
+    {
+        s.push_error(vn_core::ForeignForm::Typeof.message(), start_range);
+        s.advance();
+        return parse_unary_expr(s);
+    }
+
     match s.kind() {
         TokenKind::Bang => prefix_unary!(UnaryOp::Not),
         TokenKind::Tilde => prefix_unary!(UnaryOp::BitNot),
@@ -71,7 +81,7 @@ pub fn parse_unary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         TokenKind::Void => Err(ParseError::invalid(
             "`void` is not supported; use `_` to discard values".to_owned(),
         )),
-        TokenKind::Delete => Err(ParseError::invalid("`delete` is not supported".to_owned())),
+        TokenKind::Delete => Err(ParseError::invalid(vn_core::ForeignForm::Delete.message())),
         TokenKind::Await => {
             s.advance();
             let argument = parse_unary_expr(s)?;

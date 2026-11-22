@@ -355,7 +355,6 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::Match
         | TokenKind::At
         | TokenKind::Hash
-        | TokenKind::LBracket
         | TokenKind::Backslash
         | TokenKind::Dollar
         | TokenKind::Backtick
@@ -367,5 +366,8 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             "unexpected {} in a type",
             s.describe_current()
         ))),
+        TokenKind::LBracket => Err(ParseError::invalid(
+            vn_core::ForeignForm::TupleBrackets.message(),
+        )),
     }
 }

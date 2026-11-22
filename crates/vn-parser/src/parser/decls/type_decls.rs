@@ -97,8 +97,7 @@ pub fn parse_interface_member(
         reject_mut_on_callable_member(s, mutable, mem_range);
         s.push_diagnostic(
             ErrorCode::ForbiddenIndexSignature,
-            "an index signature does not exist: write `Map<K, V>` for a keyed collection"
-                .to_owned(),
+            vn_core::ForeignForm::IndexSignature.message(),
             full_range,
         );
         return Ok(InterfaceMember::Property {

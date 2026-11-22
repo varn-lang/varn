@@ -85,10 +85,7 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             TokenKind::Const => VarKind::Const,
             TokenKind::Var => {
                 let err_range = s.range();
-                s.push_error(
-                    "`var` is not supported; use `let` or `const`".to_owned(),
-                    err_range,
-                );
+                s.push_error(vn_core::ForeignForm::Var.message(), err_range);
                 VarKind::Let
             }
             TokenKind::EOF
@@ -271,9 +268,7 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             ));
         }
         if s.check(TokenKind::Of) {
-            return Err(ParseError::invalid(
-                "`of` is reserved: write `for (... in ...)`".to_owned(),
-            ));
+            return Err(ParseError::invalid(vn_core::ForeignForm::ForOf.message()));
         }
 
         let decl = super::super::decls::parse_var_decl_after_head(

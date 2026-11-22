@@ -25,7 +25,7 @@ impl<'r> Binder<'r> {
                     self.emit(
                         vn_core::Diagnostic::error(
                             vn_core::ErrorCode::ForbiddenRecordGeneric,
-                            "`Record<K, V>` is not a type: use `Map<K, V>` for a keyed collection or `{ [key: K]: V }` for an indexable object",
+                            vn_core::ForeignForm::RecordType.message(),
                         )
                         .with_range(node.range),
                     );

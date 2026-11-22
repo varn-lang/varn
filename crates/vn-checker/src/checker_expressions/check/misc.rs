@@ -292,11 +292,11 @@ impl<'r> Checker<'r> {
             self.warn_if_deprecated(sid, name_str, range, bind);
         }
         if scope.resolve(name, &bind.scopes).is_none() {
-            let mut diag = Diagnostic::error(
-                ErrorCode::UnknownSymbol,
-                format!("undefined variable: {name_str}"),
-            )
-            .with_range(range);
+            let message = vn_core::ForeignForm::of_word(name_str).map_or_else(
+                || format!("undefined variable: {name_str}"),
+                vn_core::ForeignForm::message,
+            );
+            let mut diag = Diagnostic::error(ErrorCode::UnknownSymbol, message).with_range(range);
             if let Some(candidate) = closest_name(name_str, scope, &bind.scopes, &bind.interner) {
                 diag = diag.with_suggestion(Suggestion::did_you_mean(&candidate, range));
             }

@@ -13,6 +13,7 @@ pub mod extension_names;
 pub mod ffi_kind;
 pub mod fingerprint;
 pub mod fmt;
+pub mod foreign_forms;
 pub mod intrinsic_ops;
 pub mod intrinsics;
 pub mod kinds;
@@ -48,6 +49,7 @@ pub use atom::{Atom, AtomInterner};
 pub use doc::DocComment;
 pub use errors::{ErrorClass, RuntimeErrorKind};
 pub use ffi_kind::FfiKind;
+pub use foreign_forms::ForeignForm;
 pub use std_errors::{ErrorField, StdErrorClass};
 
 pub use diagnostics::{
