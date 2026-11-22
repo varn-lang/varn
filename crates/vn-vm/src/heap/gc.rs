@@ -80,6 +80,7 @@ impl HeapInner {
         const FLOOR_BYTES: u64 = 1 << 20;
         const SHRINK_AT_OR_BELOW_PERMILLE: usize = 20;
         const MIN_DEAD_PERMILLE: usize = 125;
+        const GROWTH_FACTOR: u64 = 2;
         if born == 0 {
             return;
         }
@@ -94,11 +95,15 @@ impl HeapInner {
             let dead = (1000 - permille).max(MIN_DEAD_PERMILLE);
             self.nursery_scale_permille = (1_000_000 / dead) as u64;
         }
+        self.nursery_retained_floor = survived as u64 * self.young.avg_cell_bytes * GROWTH_FACTOR;
         vn_types::memory::ExternalLedger::set_budget(self.nursery_effective_bytes());
     }
 
     pub(crate) fn nursery_effective_bytes(&self) -> u64 {
-        self.nursery_target * self.nursery_scale_permille / 1000
+        const MAX_BYTES: u64 = 512 << 20;
+        (self.nursery_target * self.nursery_scale_permille / 1000)
+            .max(self.nursery_retained_floor)
+            .min(MAX_BYTES)
     }
 
     pub(crate) fn recompute_young_limit(&mut self) {
