@@ -22,6 +22,7 @@ pub struct CheckerTyTable {
     pub(super) delta_functions: FxHashMap<FunctionTypeId, FunctionType>,
     pub(super) delta_object_members: FxHashMap<ObjectMembersId, Vec<ObjectTypeMember>>,
     pub(super) names: vn_core::AtomInterner,
+    pub(super) misses: vn_core::miss_log::MissLog,
 }
 
 impl Default for CheckerTyTable {
@@ -77,6 +78,7 @@ impl CheckerTyTable {
             delta_functions: FxHashMap::default(),
             delta_object_members: FxHashMap::default(),
             names: vn_core::AtomInterner::new(),
+            misses: vn_core::miss_log::MissLog::default(),
         }
     }
 

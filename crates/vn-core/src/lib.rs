@@ -17,6 +17,7 @@ pub mod intrinsics;
 pub mod kinds;
 pub mod lang_type;
 pub mod layout;
+pub mod miss_log;
 pub mod module_id;
 pub mod num_kind;
 pub mod numeric;

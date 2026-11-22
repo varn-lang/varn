@@ -33,6 +33,7 @@ pub struct AtomInterner {
     base: Arc<FxHashMap<Atom, Box<str>>>,
     delta: FxHashMap<Atom, Box<str>>,
     collisions: Vec<(Box<str>, Box<str>)>,
+    misses: crate::miss_log::MissLog,
 }
 
 impl AtomInterner {
@@ -84,7 +85,14 @@ impl AtomInterner {
     }
 
     pub fn resolve(&self, atom: Atom) -> &str {
-        self.try_resolve(atom).unwrap_or_default()
+        self.try_resolve(atom).unwrap_or_else(|| {
+            self.misses.record();
+            ""
+        })
+    }
+
+    pub fn unresolved_count(&self) -> u32 {
+        self.misses.count()
     }
 
     pub fn try_resolve(&self, atom: Atom) -> Option<&str> {

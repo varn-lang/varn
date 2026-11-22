@@ -160,6 +160,20 @@ pub(super) fn assemble(
         ));
     }
 
+    let unresolved_types = checker.ty_table.unresolved_count();
+    let unresolved_names = bind
+        .interner
+        .unresolved_count()
+        .max(checker.ty_table.names().unresolved_count());
+    for (count, kind) in [(unresolved_types, "type"), (unresolved_names, "name")] {
+        if count > 0 {
+            final_diagnostics.push(vn_core::Diagnostic::error(
+                vn_core::ErrorCode::CompilationInternalError,
+                format!("{count} {kind} id lookups were not present in their table"),
+            ));
+        }
+    }
+
     let expr_table = std::mem::take(&mut rec.expr_table);
     let mut test_targets = Vec::new();
     for sym in bind.arena.all() {

@@ -18,7 +18,10 @@ impl CheckerTyTable {
             .get(&id)
             .or_else(|| self.delta_entries.get(&id))
             .copied()
-            .unwrap_or(TypeKind::Primitive(LangPrimitive::Error))
+            .unwrap_or_else(|| {
+                self.misses.record();
+                TypeKind::Primitive(LangPrimitive::Error)
+            })
     }
 
     pub fn contains(&self, id: CheckerTyId) -> bool {
@@ -30,7 +33,7 @@ impl CheckerTyTable {
             .lists
             .get(&id)
             .or_else(|| self.delta_lists.get(&id))
-            .map_or(&[], Vec::as_slice)
+            .map_or_else(|| self.absent(&[]), Vec::as_slice)
     }
 
     pub fn get_function(&self, id: FunctionTypeId) -> &FunctionType {
@@ -38,7 +41,7 @@ impl CheckerTyTable {
             .functions
             .get(&id)
             .or_else(|| self.delta_functions.get(&id))
-            .unwrap_or(&ABSENT_FUNCTION)
+            .unwrap_or_else(|| self.absent(&ABSENT_FUNCTION))
     }
 
     pub fn get_object_members(&self, id: ObjectMembersId) -> &[ObjectTypeMember] {
@@ -46,7 +49,16 @@ impl CheckerTyTable {
             .object_members
             .get(&id)
             .or_else(|| self.delta_object_members.get(&id))
-            .map_or(&[], Vec::as_slice)
+            .map_or_else(|| self.absent(&[]), Vec::as_slice)
+    }
+
+    pub fn unresolved_count(&self) -> u32 {
+        self.misses.count()
+    }
+
+    fn absent<'a, T: ?Sized>(&self, fallback: &'a T) -> &'a T {
+        self.misses.record();
+        fallback
     }
 
     pub fn contains_object_members(&self, id: ObjectMembersId) -> bool {
