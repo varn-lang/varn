@@ -203,7 +203,7 @@ pub fn emit_module(
                 .get(spec.local.as_ref())
                 .and_then(|slot| u16::try_from(*slot).ok());
             let binds_enum = match spec.kind {
-                vn_tir::TirImportKind::Default | vn_tir::TirImportKind::Named(_) => binds_values,
+                vn_tir::TirImportKind::Named(_) => binds_values,
                 vn_tir::TirImportKind::Namespace => false,
             };
             if binds_enum {

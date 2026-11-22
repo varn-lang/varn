@@ -1,6 +1,6 @@
 use std::path::Path;
 use std::sync::Arc;
-use vn_core::ast::{AstArena, Decl, ExportDecl, ExportDefaultDecl, Pattern, StmtId, StmtKind};
+use vn_core::ast::{AstArena, Decl, ExportDecl, Pattern, StmtId, StmtKind};
 use vn_core::Atom;
 use vn_sem::bind::BindResult;
 use vn_sem::exports::ExportMap;
@@ -278,31 +278,6 @@ pub(super) fn collect_exports(
                     out.insert(ns_str.to_string(), ns_sym);
                 }
             }
-            ExportDecl::Default { declaration, .. } => match declaration.as_ref() {
-                ExportDefaultDecl::Function(f) => {
-                    let fn_name = bind.interner.resolve(f.id);
-                    if let Some(sym) = lookup_global(bind, fn_name) {
-                        let mut s = sym.clone();
-                        s.name = intern_origin(out, "default");
-                        out.insert("default".into(), s);
-                    }
-                }
-                ExportDefaultDecl::Class(c) => {
-                    if let Some(id) = &c.id {
-                        let class_name = bind.interner.resolve(*id);
-                        if let Some(sym) = lookup_global(bind, class_name) {
-                            let mut s = sym.clone();
-                            s.name = intern_origin(out, "default");
-                            out.insert("default".into(), s);
-                        }
-                    }
-                }
-                ExportDefaultDecl::Expr(_expr) => {
-                    let mut s = Symbol::new(SymbolKind::Let, intern_origin(out, "default"), 0);
-                    s.origin_module = Some(intern_origin(out, abs_path));
-                    out.insert("default".into(), s);
-                }
-            },
         }
     }
 }

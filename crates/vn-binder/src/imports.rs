@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use vn_core::ast::{ExportDecl, ExportDefaultDecl, ImportDecl, ImportSpecifier};
+use vn_core::ast::{ExportDecl, ImportDecl, ImportSpecifier};
 use vn_core::{Diagnostic, ErrorCode};
 use vn_sem::symbol::{Symbol, SymbolKind};
 
@@ -156,9 +156,6 @@ impl<'r> super::Binder<'r> {
                     range.start.line,
                     *range,
                 ),
-                ImportSpecifier::Default { local, range, .. } => {
-                    (*local, "default".to_owned(), range.start.line, *range)
-                }
                 ImportSpecifier::Namespace { local, range, .. } => {
                     (*local, "*".to_owned(), range.start.line, *range)
                 }
@@ -301,11 +298,6 @@ impl<'r> super::Binder<'r> {
             ExportDecl::Decl { declaration, .. } => {
                 self.bind_decl(declaration);
             }
-            ExportDecl::Default { declaration, .. } => match declaration.as_ref() {
-                ExportDefaultDecl::Function(f) => self.bind_function(f),
-                ExportDefaultDecl::Class(c) => self.bind_class(c),
-                ExportDefaultDecl::Expr(_) => {}
-            },
 
             ExportDecl::Named { source, .. } => {
                 if let Some(source) = source

@@ -1,8 +1,8 @@
 use super::exprs::collect_expr;
 use super::index::SpatialEntry;
 use vn_core::ast::{
-    AstArena, ClassDecl, ClassMember, Decl, EnumDecl, ExportDecl, ExportDefaultDecl, ExtensionDecl,
-    ExtensionMember, ForInit, FunctionDecl, NamespaceDecl, StmtId, StmtKind, VarDeclarator,
+    AstArena, ClassDecl, ClassMember, Decl, EnumDecl, ExportDecl, ExtensionDecl, ExtensionMember,
+    ForInit, FunctionDecl, NamespaceDecl, StmtId, StmtKind, VarDeclarator,
 };
 
 pub(super) fn collect_stmt(a: &AstArena, stmt: &StmtId, out: &mut Vec<SpatialEntry>) {
@@ -209,11 +209,6 @@ pub(super) fn collect_namespace_decl(a: &AstArena, n: &NamespaceDecl, out: &mut 
 
 pub(super) fn collect_export_decl(a: &AstArena, exp: &ExportDecl, out: &mut Vec<SpatialEntry>) {
     match exp {
-        ExportDecl::Default { declaration, .. } => match declaration.as_ref() {
-            ExportDefaultDecl::Function(f) => collect_fn_decl(a, f, out),
-            ExportDefaultDecl::Class(c) => collect_class_decl(a, c, out),
-            ExportDefaultDecl::Expr(e) => collect_expr(a, e, out),
-        },
         ExportDecl::Decl { declaration, .. } => collect_decl(a, declaration, out),
         ExportDecl::Named { .. } | ExportDecl::All { .. } => {}
     }

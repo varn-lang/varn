@@ -56,7 +56,7 @@ impl<'a> ImportCollector<'a> {
                     self.imports
                         .insert(self.interner.resolve(*source).to_owned());
                 }
-                ExportDecl::Default { .. } | ExportDecl::Decl { .. } => {}
+                ExportDecl::Decl { .. } => {}
             },
             Decl::Namespace(ns) => {
                 for decl in &ns.body {

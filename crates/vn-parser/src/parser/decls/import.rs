@@ -1,5 +1,6 @@
 use crate::error::PResult;
 use crate::stream::TokenStream;
+use crate::ParseError;
 use vn_core::ast::ImportDecl;
 use vn_core::ast::ImportSpecifier;
 use vn_core::TokenKind;
@@ -37,14 +38,9 @@ pub fn parse_import_decl(s: &mut TokenStream) -> PResult<ImportDecl> {
             || s.peek_kind(1) == TokenKind::From
             || s.peek_kind(1) == TokenKind::LBrace)
     {
-        let spec_start = s.range();
-        let local = s.consume_lexeme();
-        let spec_range = s.span_from(spec_start);
-        specifiers.push(ImportSpecifier::Default {
-            local,
-            range: spec_range,
-        });
-        s.eat(TokenKind::Comma);
+        return Err(ParseError::invalid(
+            vn_core::ForeignForm::DefaultImport.message(),
+        ));
     }
 
     if s.eat(TokenKind::Star) {

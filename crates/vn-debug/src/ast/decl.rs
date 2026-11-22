@@ -1,6 +1,4 @@
-use vn_core::ast::{
-    AstArena, ClassMember, Decl, ExportDecl, ExportDefaultDecl, InterfaceMember, VarKind,
-};
+use vn_core::ast::{AstArena, ClassMember, Decl, ExportDecl, InterfaceMember, VarKind};
 use vn_core::term::chalk::chalk;
 use vn_core::term::terminal;
 use vn_core::AtomInterner;
@@ -176,28 +174,6 @@ pub(super) fn print_decl(
             ExportDecl::Decl { declaration, .. } => {
                 terminal::log(format!("{indent}{marker}{}", chalk("ExportDecl").bold()));
                 print_decl(declaration, arena, &child_indent, true, interner);
-            }
-            ExportDecl::Default { declaration, .. } => {
-                terminal::log(format!("{indent}{marker}{}", chalk("ExportDefault").bold()));
-                match &**declaration {
-                    ExportDefaultDecl::Class(c) => print_decl(
-                        &Decl::Class(c.clone()),
-                        arena,
-                        &child_indent,
-                        true,
-                        interner,
-                    ),
-                    ExportDefaultDecl::Function(f) => print_decl(
-                        &Decl::Function(f.clone()),
-                        arena,
-                        &child_indent,
-                        true,
-                        interner,
-                    ),
-                    ExportDefaultDecl::Expr(e) => {
-                        print_expr(*e, arena, &child_indent, true, interner)
-                    }
-                }
             }
             ExportDecl::Named { source, .. } => {
                 let s = source

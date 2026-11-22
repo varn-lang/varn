@@ -77,9 +77,6 @@ pub(super) fn collect_exports(
                     true,
                 );
             }
-            Decl::Export(ExportDecl::Default { .. }) => {
-                push(Arc::from("default"), Arc::from("default"), None, false);
-            }
             Decl::Variable(_)
             | Decl::Function(_)
             | Decl::Class(_)
@@ -114,10 +111,6 @@ pub(super) fn collect_imports(
             .iter()
             .map(|s| {
                 let (local, kind) = match s {
-                    IS::Default { local, .. } => (
-                        Arc::from(interner.resolve(*local)),
-                        vn_tir::TirImportKind::Default,
-                    ),
                     IS::Namespace { local, .. } => (
                         Arc::from(interner.resolve(*local)),
                         vn_tir::TirImportKind::Namespace,

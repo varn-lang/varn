@@ -56,7 +56,6 @@ impl<'m> Builder<'m> {
             for spec in &imp.specs {
                 let imported_name: Option<Arc<str>> = match &spec.kind {
                     vn_tir::TirImportKind::Namespace => None,
-                    vn_tir::TirImportKind::Default => Some(Arc::from("default")),
                     vn_tir::TirImportKind::Named(n) => Some(n.clone()),
                 };
                 let val = match (imported_name, spec.slot) {
@@ -74,7 +73,6 @@ impl<'m> Builder<'m> {
                                 self.emit_effect(store);
                                 continue;
                             }
-                            vn_tir::TirImportKind::Default => Arc::from("default"),
                             vn_tir::TirImportKind::Named(n) => n.clone(),
                         };
                         self.emit(

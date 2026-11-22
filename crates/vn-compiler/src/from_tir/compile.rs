@@ -153,7 +153,6 @@ pub fn compile_module(
                 .filter_map(|spec| {
                     let name: Arc<str> = match &spec.kind {
                         vn_tir::TirImportKind::Namespace => return None,
-                        vn_tir::TirImportKind::Default => Arc::from("default"),
                         vn_tir::TirImportKind::Named(name) => name.clone(),
                     };
                     Some((name, spec.slot?))

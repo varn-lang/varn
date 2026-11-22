@@ -127,7 +127,7 @@ pub fn link(module: &mut TirModule, source: &dyn TemplateSource) {
         for spec in &import.specs {
             let (package, constant) = match &spec.kind {
                 TirImportKind::Named(name) => (templates.package(name), templates.constant(name)),
-                TirImportKind::Default | TirImportKind::Namespace => (None, None),
+                TirImportKind::Namespace => (None, None),
             };
             let slot = module.global_names.iter().position(|n| *n == spec.local);
             match (package, constant, slot) {

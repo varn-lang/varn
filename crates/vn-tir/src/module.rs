@@ -89,7 +89,6 @@ pub struct TirVariantDef {
 
 #[derive(Debug, Clone)]
 pub enum TirImportKind {
-    Default,
     Named(Arc<str>),
     Namespace,
 }

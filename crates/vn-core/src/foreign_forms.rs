@@ -28,6 +28,8 @@ pub enum ForeignForm {
     Destructor,
     ModuleBlock,
     WithStatement,
+    ExportDefault,
+    DefaultImport,
 }
 
 impl ForeignForm {
@@ -81,6 +83,8 @@ impl ForeignForm {
             Self::TupleBrackets => "[A, B]",
             Self::Overload => "function f(...): T;",
             Self::WithStatement => "with (obj) { ... }",
+            Self::ExportDefault => "export default",
+            Self::DefaultImport => "import name from \"module\"",
             Self::NumberType
             | Self::StringType
             | Self::BooleanType
@@ -138,6 +142,12 @@ impl ForeignForm {
             Self::ModuleBlock => "write `namespace Name { ... }`",
             Self::WithStatement => {
                 "bind the values with `const`; `with` builds a copy as `value with { field: x }`"
+            }
+            Self::ExportDefault => {
+                "export by name, as `export function f`, and import it with `import { f }`"
+            }
+            Self::DefaultImport => {
+                "import by name, as `import { f } from \"module\"`, or the whole module with `import * as m`"
             }
         }
     }

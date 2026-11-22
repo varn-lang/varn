@@ -139,17 +139,6 @@ impl<'r> Checker<'r> {
             vn_core::ast::ExportDecl::Decl { declaration, .. } => {
                 self.check_decl(rec, declaration, bind);
             }
-            vn_core::ast::ExportDecl::Default { declaration, .. } => match declaration.as_ref() {
-                vn_core::ast::ExportDefaultDecl::Function(f) => {
-                    self.check_decl(rec, &vn_core::ast::Decl::Function(f.clone()), bind);
-                }
-                vn_core::ast::ExportDefaultDecl::Class(c) => {
-                    self.check_decl(rec, &vn_core::ast::Decl::Class(c.clone()), bind);
-                }
-                vn_core::ast::ExportDefaultDecl::Expr(expr) => {
-                    self.check_expr(rec, *expr, bind);
-                }
-            },
             vn_core::ast::ExportDecl::Named { .. } | vn_core::ast::ExportDecl::All { .. } => {}
         }
     }

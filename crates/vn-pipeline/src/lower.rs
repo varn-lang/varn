@@ -97,7 +97,6 @@ pub(crate) fn resolve_import_slots(
         for spec in imp.specs.iter_mut() {
             let name = match &spec.kind {
                 vn_tir::TirImportKind::Named(n) => n.clone(),
-                vn_tir::TirImportKind::Default => std::sync::Arc::from("default"),
                 vn_tir::TirImportKind::Namespace => continue,
             };
             if let Some(sym) = exports.get(name.as_ref())

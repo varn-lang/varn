@@ -22,9 +22,7 @@ pub use expr::{
     Arg, ArrayEl, ArrowBody, AstId, ExprKind, MatchBody, MatchCase, MetaProperty, ObjectProp,
     PropKey, TemplatePart,
 };
-pub use module_decl::{
-    ExportDecl, ExportDefaultDecl, ExportSpecifier, ImportDecl, ImportSpecifier,
-};
+pub use module_decl::{ExportDecl, ExportSpecifier, ImportDecl, ImportSpecifier};
 pub use operators::{
     AssignOp, BinaryOp, LogicalOp, Modifiers, UnaryOp, UpdateOp, VarKind, Visibility,
 };

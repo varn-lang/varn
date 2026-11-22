@@ -269,8 +269,7 @@ fn collect_scoped_names(
         }
         Decl::Import(i) => {
             for spec in &i.specifiers {
-                let (ImportSpecifier::Default { local, .. }
-                | ImportSpecifier::Named { local, .. }
+                let (ImportSpecifier::Named { local, .. }
                 | ImportSpecifier::Namespace { local, .. }) = spec;
                 out.insert(Arc::from(interner.resolve(*local)));
             }

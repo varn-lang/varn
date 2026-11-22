@@ -92,7 +92,7 @@ fn decl_uses_receiver(arena: &AstArena, d: &Decl) -> bool {
         }),
         Decl::Export(e) => match e {
             ExportDecl::Decl { declaration, .. } => decl_uses_receiver(arena, declaration),
-            ExportDecl::Named { .. } | ExportDecl::Default { .. } | ExportDecl::All { .. } => false,
+            ExportDecl::Named { .. } | ExportDecl::All { .. } => false,
         },
         Decl::Function(_)
         | Decl::Class(_)

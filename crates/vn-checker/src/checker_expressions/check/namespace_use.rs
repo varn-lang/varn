@@ -98,7 +98,7 @@ impl<'r> Checker<'r> {
                     );
                 }
             }
-            ExportDecl::Named { .. } | ExportDecl::All { .. } | ExportDecl::Default { .. } => {}
+            ExportDecl::Named { .. } | ExportDecl::All { .. } => {}
         }
     }
 }
