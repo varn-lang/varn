@@ -222,7 +222,6 @@ impl<'r> Checker<'r> {
             | TypeKind::This
             | TypeKind::Union(_)
             | TypeKind::Intersection(_)
-            | TypeKind::Typeof(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
             | TypeKind::Conditional { .. }

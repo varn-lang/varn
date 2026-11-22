@@ -190,7 +190,6 @@ fn lower_kind(
         TypeKind::TypePredicate { .. } => BackendTy::Bool,
 
         TypeKind::This
-        | TypeKind::Typeof(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
         | TypeKind::Conditional { .. }
@@ -297,7 +296,6 @@ fn lower_builtin(
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

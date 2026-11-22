@@ -180,11 +180,7 @@ fn walk(ctx: &mut Ctx, id: crate::types::CheckerTyId, pol: Pol, shadow: &[String
         TypeKind::TypePredicate { target_type, .. } => {
             walk_both(ctx, target_type, shadow);
         }
-        TypeKind::Primitive(_)
-        | TypeKind::Literal(_)
-        | TypeKind::This
-        | TypeKind::Typeof(_)
-        | TypeKind::Infer(_) => {}
+        TypeKind::Primitive(_) | TypeKind::Literal(_) | TypeKind::This | TypeKind::Infer(_) => {}
     }
 }
 
@@ -232,7 +228,6 @@ pub fn measure_params(
                     | TypeKind::TemplateLiteral(_)
                     | TypeKind::Record(_)
                     | TypeKind::Interface(_)
-                    | TypeKind::Typeof(_)
                     | TypeKind::KeyOf(_)
                     | TypeKind::IndexedAccess { .. }
                     | TypeKind::Mapped { .. }

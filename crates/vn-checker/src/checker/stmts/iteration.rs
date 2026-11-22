@@ -97,7 +97,6 @@ impl Checker<'_> {
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
             | TypeKind::Fn(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -204,7 +203,6 @@ impl Checker<'_> {
             | TypeKind::TemplateLiteral(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

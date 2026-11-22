@@ -60,7 +60,6 @@ impl Type {
             | TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::Named(..)
-            | TypeKind::Typeof(_)
             | TypeKind::Infer(_) => {}
         }
         ids.into_iter().map(Type::resolved).collect()

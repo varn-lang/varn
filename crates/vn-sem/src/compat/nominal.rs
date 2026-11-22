@@ -42,7 +42,6 @@ pub(super) fn class_value_arm(
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -79,7 +78,6 @@ pub(super) fn class_value_arm(
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

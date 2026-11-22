@@ -139,7 +139,6 @@ pub(super) fn extension_getter_type(
         | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

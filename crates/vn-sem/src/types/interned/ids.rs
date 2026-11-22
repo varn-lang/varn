@@ -21,7 +21,7 @@ pub struct FunctionTypeId(pub(super) u128);
 pub struct ObjectMembersId(pub(super) u128);
 
 pub type InternedTypeKind =
-    TypeKind<CheckerTyId, Atom, TyListId, FunctionTypeId, ObjectMembersId, ObjectMembersId, ()>;
+    TypeKind<CheckerTyId, Atom, TyListId, FunctionTypeId, ObjectMembersId, ObjectMembersId>;
 
 impl CheckerTyId {
     pub const INT: CheckerTyId = CheckerTyId(0);
@@ -99,7 +99,6 @@ pub(super) fn seeded_id(kind: &InternedTypeKind) -> Option<CheckerTyId> {
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

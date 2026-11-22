@@ -40,7 +40,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -180,7 +179,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

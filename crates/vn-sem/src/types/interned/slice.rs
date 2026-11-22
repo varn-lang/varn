@@ -84,7 +84,6 @@ impl Reach {
             | TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::Named(..)
-            | TypeKind::Typeof(())
             | TypeKind::Infer(_) => {}
             TypeKind::Array(t) | TypeKind::KeyOf(t) => self.pending.push(t),
             TypeKind::Union(c)
@@ -151,7 +150,6 @@ fn kind_atoms(kind: &InternedTypeKind, out: &mut Vec<Atom>) {
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(())
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Conditional { .. } => {}

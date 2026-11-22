@@ -110,7 +110,6 @@ fn extract_type_identifier(state: &DocumentState, ty: &vn_sem::types::Type) -> O
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

@@ -138,7 +138,6 @@ fn extension_key(ty: &Type, table: &CheckerTyTable, bind: &BindResult) -> Option
         | vn_core::TypeKind::Fn(_)
         | vn_core::TypeKind::Record(_)
         | vn_core::TypeKind::Interface(_)
-        | vn_core::TypeKind::Typeof(_)
         | vn_core::TypeKind::KeyOf(_)
         | vn_core::TypeKind::IndexedAccess { .. }
         | vn_core::TypeKind::Mapped { .. }

@@ -165,7 +165,6 @@ pub fn float_literal_adoption(target: &Type, value: f64, table: &CheckerTyTable)
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
@@ -229,7 +228,6 @@ pub fn int_literal_adoption(target: &Type, value: i64, table: &CheckerTyTable) -
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

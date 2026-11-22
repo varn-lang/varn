@@ -175,7 +175,6 @@ fn resolve_extends_with_infer(
         | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
@@ -273,7 +272,6 @@ fn pattern_is_deferrable(node: &TypeNode) -> bool {
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
@@ -324,7 +322,6 @@ fn resolve_pattern(
         | TypeKind::Fn(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
@@ -424,7 +421,6 @@ fn match_pattern(
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

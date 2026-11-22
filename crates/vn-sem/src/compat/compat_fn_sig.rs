@@ -48,7 +48,6 @@ pub(super) fn fn_signature_compatible_type(
         | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }
@@ -110,7 +109,6 @@ pub(super) fn types_compatible_with_fn_signature(
         | TypeKind::TemplateLiteral(_)
         | TypeKind::Record(_)
         | TypeKind::Interface(_)
-        | TypeKind::Typeof(_)
         | TypeKind::KeyOf(_)
         | TypeKind::IndexedAccess { .. }
         | TypeKind::Mapped { .. }

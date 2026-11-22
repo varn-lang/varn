@@ -68,7 +68,6 @@ impl fmt::Display for TypeDisplay<'_> {
                 | TypeKind::TemplateLiteral(_)
                 | TypeKind::Record(_)
                 | TypeKind::Interface(_)
-                | TypeKind::Typeof(_)
                 | TypeKind::KeyOf(_)
                 | TypeKind::IndexedAccess { .. }
                 | TypeKind::Mapped { .. }
@@ -233,7 +232,6 @@ impl fmt::Display for TypeDisplay<'_> {
                         | TypeKind::Fn(_)
                         | TypeKind::Record(_)
                         | TypeKind::Interface(_)
-                        | TypeKind::Typeof(_)
                         | TypeKind::KeyOf(_)
                         | TypeKind::IndexedAccess { .. }
                         | TypeKind::Mapped { .. }
@@ -260,7 +258,6 @@ impl fmt::Display for TypeDisplay<'_> {
                 }
                 write!(f, ")")
             }
-            TypeKind::Typeof(_) => write!(f, "typeof <expr>"),
             TypeKind::EnumVariant { .. } => write!(f, "enum variant"),
 
             TypeKind::KeyOf(t) => write!(f, "keyof {}", self.child(t)),

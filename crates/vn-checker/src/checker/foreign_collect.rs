@@ -115,7 +115,6 @@ impl Checker<'_> {
             | TypeKind::Literal(_)
             | TypeKind::This
             | TypeKind::TemplateLiteral(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

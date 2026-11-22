@@ -56,7 +56,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Tuple(_)
             | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -249,7 +248,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Tuple(_)
             | TypeKind::TemplateLiteral(_)
             | TypeKind::Fn(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -291,7 +289,6 @@ impl<'r> Checker<'r> {
                         | vn_core::TypeKind::TemplateLiteral(_)
                         | vn_core::TypeKind::Record(_)
                         | vn_core::TypeKind::Interface(_)
-                        | vn_core::TypeKind::Typeof(_)
                         | vn_core::TypeKind::KeyOf(_)
                         | vn_core::TypeKind::IndexedAccess { .. }
                         | vn_core::TypeKind::Mapped { .. }

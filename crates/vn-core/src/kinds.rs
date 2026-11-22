@@ -25,7 +25,7 @@ impl<N> TypeLiteral<N> {
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
 )]
 
-pub enum TypeKind<T, N, C, F, O, I, E = ()> {
+pub enum TypeKind<T, N, C, F, O, I> {
     Primitive(LangPrimitive),
     Literal(TypeLiteral<N>),
     This,
@@ -40,7 +40,6 @@ pub enum TypeKind<T, N, C, F, O, I, E = ()> {
     Fn(F),
     Record(O),
     Interface(I),
-    Typeof(E),
 
     KeyOf(T),
 
@@ -79,7 +78,7 @@ pub enum TypeKind<T, N, C, F, O, I, E = ()> {
     },
 }
 
-impl<T, N, C, F, O, I, E> TypeKind<T, N, C, F, O, I, E> {
+impl<T, N, C, F, O, I> TypeKind<T, N, C, F, O, I> {
     pub fn is_primitive(&self) -> bool {
         matches!(self, TypeKind::Primitive(_) | TypeKind::This)
     }
@@ -99,7 +98,6 @@ impl<T, N, C, F, O, I, E> TypeKind<T, N, C, F, O, I, E> {
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

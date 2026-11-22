@@ -89,7 +89,6 @@ impl<'r> Checker<'r> {
             TypeKind::Named(..) | TypeKind::Generic(..) => self.is_class_instance(ty, bind),
             TypeKind::This
             | TypeKind::Intersection(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

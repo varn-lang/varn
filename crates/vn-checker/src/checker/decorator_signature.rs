@@ -231,7 +231,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Intersection(_)
             | TypeKind::Tuple(_)
             | TypeKind::TemplateLiteral(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }

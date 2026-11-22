@@ -384,7 +384,6 @@ impl<'r> Checker<'r> {
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)
-            | TypeKind::Typeof(_)
             | TypeKind::KeyOf(_)
             | TypeKind::IndexedAccess { .. }
             | TypeKind::Mapped { .. }
@@ -490,7 +489,6 @@ impl Checker<'_> {
             | vn_core::TypeKind::Intersection(_)
             | vn_core::TypeKind::Tuple(_)
             | vn_core::TypeKind::TemplateLiteral(_)
-            | vn_core::TypeKind::Typeof(_)
             | vn_core::TypeKind::KeyOf(_)
             | vn_core::TypeKind::IndexedAccess { .. }
             | vn_core::TypeKind::Mapped { .. }

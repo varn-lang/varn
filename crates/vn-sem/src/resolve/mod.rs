@@ -64,10 +64,6 @@ pub fn resolve_type_node(
         }
         TypeKind::Interface(never) => match *never {},
         TypeKind::TemplateLiteral(parts) => resolve_template_literal_type(parts, ctx, table),
-        TypeKind::Typeof(expr) => match ctx.and_then(|c| c.ast_arena()) {
-            Some(arena) => crate::infer::infer_expr_type(*expr, arena, ctx, table),
-            None => Type::Dynamic,
-        },
         TypeKind::Intersection(members) => {
             intersections::resolve_intersection_type(members, ctx, table)
         }
