@@ -18,8 +18,9 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         InstKind::BuildStr { parts } => Some(SsaOp::BuildStr {
             parts: parts.iter().map(|v| v.0).collect(),
         }),
-        InstKind::BuildArray { elements } => Some(SsaOp::BuildArray {
+        InstKind::BuildArray { elements, storage } => Some(SsaOp::BuildArray {
             elements: elements.iter().map(|v| v.0).collect(),
+            storage: *storage,
         }),
         InstKind::BuildMap { pairs } => Some(SsaOp::BuildMap {
             pairs: pairs.iter().map(|(k, v)| (k.0, v.0)).collect(),

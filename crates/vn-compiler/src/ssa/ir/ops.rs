@@ -194,6 +194,7 @@ pub enum InstKind {
 
     BuildArray {
         elements: Vec<Value>,
+        storage: vn_core::ArrayStorage,
     },
 
     BuildTuple {

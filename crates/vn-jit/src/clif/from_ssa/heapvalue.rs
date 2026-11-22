@@ -265,8 +265,8 @@ pub(super) fn emit(
             let boxed = heap::emit_build_str(b, ctx, values, parts)?;
             Out::Boxed(boxed)
         }
-        SsaOp::BuildArray { elements } => {
-            let boxed = heap::emit_build_array(b, ctx, values, elements)?;
+        SsaOp::BuildArray { elements, storage } => {
+            let boxed = heap::emit_build_array(b, ctx, values, elements, *storage)?;
             Out::Boxed(boxed)
         }
         SsaOp::BuildMap { pairs } => {

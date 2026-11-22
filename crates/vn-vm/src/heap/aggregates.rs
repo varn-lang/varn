@@ -8,8 +8,12 @@ impl HeapInner {
         self.alloc_array_repr(false, ArrayRepr::from_items(items))
     }
 
-    pub(crate) fn alloc_array_slice_vm(&mut self, items: &[VmValue]) -> VmValue {
-        self.alloc_array_repr(false, ArrayRepr::from_slice(items))
+    pub(crate) fn alloc_array_slice_vm(
+        &mut self,
+        storage: vn_core::ArrayStorage,
+        items: &[VmValue],
+    ) -> VmValue {
+        self.alloc_array_repr(false, ArrayRepr::from_storage(storage, items))
     }
 
     pub(crate) fn alloc_tuple_vm(&mut self, items: Vec<VmValue>) -> VmValue {

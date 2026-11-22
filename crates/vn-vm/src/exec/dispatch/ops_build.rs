@@ -36,7 +36,9 @@ impl ExecCtx {
                 let built = if is_tuple {
                     self.heap.alloc_tuple_vm(elems)
                 } else {
-                    self.heap.alloc_array_vm(elems)
+                    let storage = vn_core::ArrayStorage::from_bits(lo(w2) as u8)
+                        .unwrap_or(vn_core::ArrayStorage::Boxed);
+                    self.heap.alloc_array_slice_vm(storage, &elems)
                 };
                 self.stack.unbox_into_reg(base, dest, built)?;
                 Ok(Some(ObjectFlow::ContinueInstruction))

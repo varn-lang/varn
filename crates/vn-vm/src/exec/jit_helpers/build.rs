@@ -18,11 +18,14 @@ pub(crate) extern "C" fn jit_build_array_window(
     ctx: *mut ExecCtx,
     parts_ptr: *const VmValue,
     count: usize,
+    storage: u64,
 ) {
     unsafe {
         let ctx_ref = &mut *ctx;
         let parts = std::slice::from_raw_parts(parts_ptr, count);
-        ctx_ref.jit_native_result = ctx_ref.heap.alloc_array_slice_vm(parts);
+        let storage =
+            vn_core::ArrayStorage::from_bits(storage as u8).unwrap_or(vn_core::ArrayStorage::Boxed);
+        ctx_ref.jit_native_result = ctx_ref.heap.alloc_array_slice_vm(storage, parts);
     }
 }
 

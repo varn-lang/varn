@@ -32,7 +32,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     InstKind::BuildTuple { elements } => {
                         tuple_literals.insert(d.0, elements.clone());
                     }
-                    InstKind::BuildArray { elements } => {
+                    InstKind::BuildArray { elements, .. } => {
                         array_literals.insert(d.0, elements.clone());
                     }
                     InstKind::ConstFloat(_)

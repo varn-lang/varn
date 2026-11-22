@@ -132,7 +132,7 @@ fn emit_array_spread(
         b,
         ctx,
         h.build_array_window,
-        &[ectx, addr, zero],
+        &[ectx, addr, zero, zero],
     )?;
     let fresh = |b: &mut FunctionBuilder| {
         b.ins().load(

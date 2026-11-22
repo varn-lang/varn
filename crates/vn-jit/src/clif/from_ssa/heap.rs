@@ -123,7 +123,7 @@ pub(super) fn emit_build_str(
         .iter()
         .map(|v| boxed_value(b, ctx, values, *v))
         .collect::<Result<_, _>>()?;
-    emit_window_boxed(b, ctx, ctx.helpers.build_str, &vals, vals.len())
+    emit_window_boxed(b, ctx, ctx.helpers.build_str, &vals, vals.len(), &[])
 }
 
 pub(super) fn emit_build_array(
@@ -131,12 +131,21 @@ pub(super) fn emit_build_array(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     elements: &[u32],
+    storage: vn_core::ArrayStorage,
 ) -> Result<Value, String> {
     let vals: Vec<Value> = elements
         .iter()
         .map(|v| boxed_value(b, ctx, values, *v))
         .collect::<Result<_, _>>()?;
-    emit_window_boxed(b, ctx, ctx.helpers.build_array_window, &vals, vals.len())
+    let storage_bits = b.ins().iconst(types::I64, storage.bits() as i64);
+    emit_window_boxed(
+        b,
+        ctx,
+        ctx.helpers.build_array_window,
+        &vals,
+        vals.len(),
+        &[storage_bits],
+    )
 }
 
 pub(super) fn emit_build_map(
@@ -150,7 +159,14 @@ pub(super) fn emit_build_map(
         vals.push(boxed_value(b, ctx, values, *k)?);
         vals.push(boxed_value(b, ctx, values, *v)?);
     }
-    emit_window_boxed(b, ctx, ctx.helpers.build_map_window, &vals, pairs.len())
+    emit_window_boxed(
+        b,
+        ctx,
+        ctx.helpers.build_map_window,
+        &vals,
+        pairs.len(),
+        &[],
+    )
 }
 
 fn emit_window_boxed(
@@ -159,6 +175,7 @@ fn emit_window_boxed(
     helper: usize,
     vals: &[Value],
     count: usize,
+    extra: &[Value],
 ) -> Result<Value, String> {
     let ectx = exec_ctx(ctx);
     let addr = super::call::scratch_addr(b, ctx, vals.len().max(1));
@@ -171,7 +188,9 @@ fn emit_window_boxed(
         );
     }
     let count_v = b.ins().iconst(types::I64, count as i64);
-    super::exceptions::call_checked(b, ctx, helper, &[ectx, addr, count_v])?;
+    let mut args = vec![ectx, addr, count_v];
+    args.extend_from_slice(extra);
+    super::exceptions::call_checked(b, ctx, helper, &args)?;
     Ok(b.ins().load(
         types::I128,
         cranelift_codegen::ir::MemFlagsData::trusted(),

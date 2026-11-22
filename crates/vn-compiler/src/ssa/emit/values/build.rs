@@ -10,6 +10,7 @@ pub(super) fn emit_build_array(
     chunk: &mut Chunk,
     d: u8,
     elements: &[Value],
+    storage: vn_core::ArrayStorage,
     reg: &[u8],
     call_base: u8,
     line: u32,
@@ -19,7 +20,7 @@ pub(super) fn emit_build_array(
     }
     chunk.emit(OpCode::BuildArray, line);
     chunk.write(Chunk::pack(d, call_base), line);
-    chunk.write(Chunk::pack(elements.len() as u8, 0), line);
+    chunk.write(Chunk::pack(elements.len() as u8, storage.bits()), line);
 }
 
 pub(super) fn emit_build_tuple(

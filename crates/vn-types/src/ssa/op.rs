@@ -172,6 +172,7 @@ pub enum SsaOp {
 
     BuildArray {
         elements: Vec<u32>,
+        storage: vn_core::ArrayStorage,
     },
 
     BuildMap {

@@ -112,8 +112,8 @@ pub(super) fn emit_value(
             scalars::emit_convert(chunk, d, *operand, reg, *conv, line);
         }
 
-        InstKind::BuildArray { elements } => {
-            build::emit_build_array(chunk, d, elements, reg, call_base, line);
+        InstKind::BuildArray { elements, storage } => {
+            build::emit_build_array(chunk, d, elements, *storage, reg, call_base, line);
         }
 
         InstKind::BuildTuple { elements } => {

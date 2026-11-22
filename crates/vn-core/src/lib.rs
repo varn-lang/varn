@@ -1,5 +1,6 @@
 pub mod abi;
 mod accessor;
+pub mod array_storage;
 pub mod ast;
 pub mod atom;
 pub mod capability;
@@ -41,6 +42,7 @@ pub mod trivia;
 pub mod type_desc;
 pub mod well_known;
 
+pub use array_storage::ArrayStorage;
 pub use ast::AstId;
 pub use atom::{Atom, AtomInterner};
 pub use doc::DocComment;

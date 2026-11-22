@@ -17,8 +17,23 @@ impl ArrayRepr {
         Self::unboxed(&items).unwrap_or_else(|| Self::boxed(items))
     }
 
-    pub fn from_slice(items: &[VmValue]) -> Self {
-        Self::unboxed(items).unwrap_or_else(|| Self::boxed(items.to_vec()))
+    pub fn from_storage(storage: vn_core::ArrayStorage, items: &[VmValue]) -> Self {
+        use vn_core::ArrayStorage;
+        match storage {
+            ArrayStorage::Boxed => Self::boxed(items.to_vec()),
+            ArrayStorage::Int => ArrayRepr::I64(items.iter().map(|v| v.as_int()).collect()),
+            ArrayStorage::Float => ArrayRepr::F64(items.iter().map(|v| v.as_f64()).collect()),
+            ArrayStorage::Char => items
+                .iter()
+                .map(|v| v.as_char())
+                .collect::<Option<Vec<char>>>()
+                .map_or_else(|| Self::boxed(items.to_vec()), ArrayRepr::Char),
+            ArrayStorage::Bool => ArrayRepr::Bool(items.iter().map(|v| v.as_bool()).collect()),
+            ArrayStorage::Ref if items.iter().all(|v| v.is_heap()) => {
+                ArrayRepr::Ref(items.iter().map(|v| v.as_heap()).collect())
+            }
+            ArrayStorage::Ref => Self::boxed(items.to_vec()),
+        }
     }
 
     fn unboxed(items: &[VmValue]) -> Option<Self> {

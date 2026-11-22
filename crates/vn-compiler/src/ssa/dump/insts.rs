@@ -155,7 +155,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         }
         InstKind::Cast { operand, ty } => format!("cast {} as {ty:?}", val(*operand)),
         InstKind::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
-        InstKind::BuildArray { elements } => format!("array{}", args_list(elements)),
+        InstKind::BuildArray { elements, .. } => format!("array{}", args_list(elements)),
         InstKind::BuildTuple { elements } => format!("tuple{}", args_list(elements)),
         InstKind::BuildObject { pairs } => {
             let inner = pairs

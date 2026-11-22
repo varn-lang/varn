@@ -68,7 +68,55 @@ impl<'m> Builder<'m> {
                 .iter()
                 .map(|el| self.array_element(el))
                 .collect::<Result<Vec<_>>>()?;
-            Ok(self.emit(InstKind::BuildArray { elements }, ty))
+            let storage = self.array_storage(ty, &elements);
+            Ok(self.emit(InstKind::BuildArray { elements, storage }, ty))
+        }
+    }
+
+    fn array_storage(&self, ty: BackendTy, elements: &[Value]) -> vn_core::ArrayStorage {
+        use vn_core::{ArrayStorage, IntKind, NumKind};
+        let BackendTy::Array(element_id) = ty else {
+            return ArrayStorage::Boxed;
+        };
+        if !self.tir.types.contains(element_id) {
+            return ArrayStorage::Boxed;
+        }
+        let element = self.tir.types.get(element_id);
+        let exact = elements.iter().all(|e| self.value_ty(*e) == element);
+        match element {
+            BackendTy::Num(NumKind::Int(IntKind::U64)) => ArrayStorage::Boxed,
+            BackendTy::Num(NumKind::Int(_)) if exact => ArrayStorage::Int,
+            BackendTy::Num(NumKind::Float(_)) if exact => ArrayStorage::Float,
+            BackendTy::Char if exact => ArrayStorage::Char,
+            BackendTy::Bool if exact => ArrayStorage::Bool,
+            BackendTy::Class(_)
+            | BackendTy::Array(_)
+            | BackendTy::Map(_, _)
+            | BackendTy::Set(_)
+            | BackendTy::Tuple(_)
+                if exact =>
+            {
+                ArrayStorage::Ref
+            }
+            BackendTy::Literal(_)
+            | BackendTy::Num(_)
+            | BackendTy::Bool
+            | BackendTy::Char
+            | BackendTy::Str
+            | BackendTy::Bytes
+            | BackendTy::Decimal
+            | BackendTy::BigInt
+            | BackendTy::Class(_)
+            | BackendTy::Array(_)
+            | BackendTy::Map(_, _)
+            | BackendTy::Set(_)
+            | BackendTy::Tuple(_)
+            | BackendTy::Enum(_)
+            | BackendTy::Fn(_)
+            | BackendTy::Nullable(_)
+            | BackendTy::Void
+            | BackendTy::Never
+            | BackendTy::Dynamic(_) => ArrayStorage::Boxed,
         }
     }
 

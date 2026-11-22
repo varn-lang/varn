@@ -46,7 +46,7 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
                 SsaOp::Dispose { .. } => 1,
                 SsaOp::IntrinsicCall { args, .. } => args.len() + 1,
                 SsaOp::BuildStr { parts } | SsaOp::BuildTuple { elements: parts } => parts.len(),
-                SsaOp::BuildArray { elements } => elements.len(),
+                SsaOp::BuildArray { elements, .. } => elements.len(),
                 SsaOp::BuildMap { pairs } => pairs.len() * 2,
                 SsaOp::ObjectRest { skip_keys, .. } => skip_keys.len(),
                 SsaOp::ConstInt(_)
