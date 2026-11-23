@@ -2,7 +2,8 @@ use proc_macro2::TokenStream as TS2;
 use quote::{format_ident, quote};
 use syn::Ident;
 
-use crate::contract_members::{Kind, Member};
+use crate::contract_members::Member;
+use vn_contract::Kind;
 
 #[derive(Clone)]
 pub(crate) enum Mapped {

@@ -6,7 +6,8 @@ use super::mapping::{
     signature_token,
 };
 use super::member::{BodyIdents, Cx};
-use crate::contract_members::{Kind, Member};
+use crate::contract_members::Member;
+use vn_contract::Kind;
 
 pub(super) fn fast_path(cx: &Cx, m: &Member, ids: &BodyIdents) -> (TS2, TS2, TS2) {
     let prefix = cx.prefix;

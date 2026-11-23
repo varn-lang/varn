@@ -1,17 +1,5 @@
 use crate::natives::Mapped;
 
-#[derive(Clone, Copy, PartialEq)]
-pub(crate) enum Kind {
-    Method,
-    Getter,
-    StaticMethod,
-    StaticGetter,
-    Constructor,
-    Property,
-
-    Function,
-}
-
 pub(crate) struct ParamInfo {
     pub(crate) name: String,
     pub(crate) mapped: Mapped,
@@ -20,7 +8,7 @@ pub(crate) struct ParamInfo {
 
 pub(crate) struct Member {
     pub(crate) symbol: String,
-    pub(crate) kind: Kind,
+    pub(crate) kind: vn_contract::Kind,
     pub(crate) params: Vec<ParamInfo>,
     pub(crate) ret: Mapped,
 

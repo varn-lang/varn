@@ -2,8 +2,9 @@ use vn_contract::{ContractError, ContractTy};
 use vn_core::ast::{Decl, ExportDecl, TypeNode};
 use vn_core::AtomInterner;
 
-use crate::contract_members::{Kind, Member, ParamInfo};
+use crate::contract_members::{Member, ParamInfo};
 use crate::natives::Mapped;
+use vn_contract::Kind;
 
 pub(crate) enum LookupFailure {
     Unparsable(String),
@@ -56,15 +57,7 @@ fn section(
 }
 
 fn member(m: vn_contract::Member, contract: &vn_contract::ModuleContract) -> Member {
-    let kind = match m.kind {
-        vn_contract::Kind::Function => Kind::Function,
-        vn_contract::Kind::Method => Kind::Method,
-        vn_contract::Kind::Getter => Kind::Getter,
-        vn_contract::Kind::StaticMethod => Kind::StaticMethod,
-        vn_contract::Kind::StaticGetter => Kind::StaticGetter,
-        vn_contract::Kind::Constructor => Kind::Constructor,
-        vn_contract::Kind::Property => Kind::Property,
-    };
+    let kind = m.kind;
     let throws = if kind == Kind::Function {
         Vec::new()
     } else {

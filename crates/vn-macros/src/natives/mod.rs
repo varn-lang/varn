@@ -8,9 +8,9 @@ use quote::{format_ident, quote};
 use std::path::{Path, PathBuf};
 use syn::LitStr;
 
-use crate::contract_members::Kind;
 use crate::contract_parse::LookupFailure;
 use input::{NativesInput, Section};
+use vn_contract::Kind;
 
 pub(crate) use mapping::Mapped;
 

@@ -7,7 +7,8 @@ use super::mapping::{
     call_expr, field_kind_tokens, owned_ty, param_ty, receiver_mapped, ret_ty, Mapped,
 };
 use super::sanitize;
-use crate::contract_members::{Kind, Member};
+use crate::contract_members::Member;
+use vn_contract::Kind;
 
 pub(super) struct Cx<'a> {
     pub(super) prefix: &'a str,
