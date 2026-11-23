@@ -75,28 +75,28 @@ pub fn build_core_members(resolver: &dyn ImportResolver) -> CoreMembers {
                 let mut v = v.clone();
                 v.backfill_effects(&rb.arena);
                 v.is_builtin_or_intrinsic = true;
-                members.class_members.insert(k.clone(), v);
+                members.types.classes.insert(k.clone(), v);
             }
             for (k, v) in &rb.type_members.interfaces {
                 let mut v = v.clone();
                 for m in v.iter_mut() {
                     m.backfill_effects(&rb.arena);
                 }
-                members.interface_members.insert(k.clone(), v);
+                members.types.interfaces.insert(k.clone(), v);
             }
             for (k, v) in &rb.type_members.enums {
                 let mut v = v.clone();
                 for m in v.iter_mut() {
                     m.backfill_effects(&rb.arena);
                 }
-                members.enum_members.insert(k.clone(), v);
+                members.types.enums.insert(k.clone(), v);
             }
             for (k, v) in &rb.type_members.namespaces {
                 let mut v = v.clone();
                 for m in v.iter_mut() {
                     m.backfill_effects(&rb.arena);
                 }
-                members.namespace_members.insert(k.clone(), v);
+                members.types.namespaces.insert(k.clone(), v);
             }
             for (k, v) in &rb.class_methods {
                 members.class_methods.insert(k.clone(), v.clone());
@@ -106,7 +106,7 @@ pub fn build_core_members(resolver: &dyn ImportResolver) -> CoreMembers {
                 for m in v.iter_mut() {
                     m.backfill_effects(&rb.arena);
                 }
-                members.flattened_members.insert(k.clone(), v);
+                members.types.flattened.insert(k.clone(), v);
             }
             for (k, v) in &rb.class_parents {
                 members.class_parents.insert(k.clone(), v.clone());

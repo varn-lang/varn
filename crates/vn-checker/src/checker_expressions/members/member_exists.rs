@@ -93,7 +93,7 @@ impl<'r> Checker<'r> {
                     return true;
                 }
                 if let Some(b) = &bind.core
-                    && let Some(members) = b.class_members.get(vn_core::LangPrimitive::Str.name())
+                    && let Some(members) = b.types.classes.get(vn_core::LangPrimitive::Str.name())
                     && members.members.iter().any(|m| m.name.as_ref() == key)
                 {
                     return true;
@@ -103,7 +103,7 @@ impl<'r> Checker<'r> {
             kind @ (TypeKind::Primitive(_) | TypeKind::Literal(_)) => {
                 let name = kind.lang_name().unwrap_or_default();
                 if let Some(b) = &bind.core
-                    && let Some(members) = b.class_members.get(name)
+                    && let Some(members) = b.types.classes.get(name)
                     && members.members.iter().any(|m| m.name.as_ref() == key)
                 {
                     return true;
@@ -227,12 +227,12 @@ impl<'r> Checker<'r> {
                     return true;
                 }
                 if let Some(b) = &bind.core {
-                    if let Some(members) = b.class_members.get(name.as_ref())
+                    if let Some(members) = b.types.classes.get(name.as_ref())
                         && members.members.iter().any(|m| m.name.as_ref() == key)
                     {
                         return true;
                     }
-                    if let Some(members) = b.interface_members.get(name.as_ref())
+                    if let Some(members) = b.types.interfaces.get(name.as_ref())
                         && members.iter().any(|m| m.name.as_ref() == key)
                     {
                         return true;
@@ -269,7 +269,7 @@ impl<'r> Checker<'r> {
             TypeKind::Array(_) => bind
                 .core
                 .as_ref()
-                .and_then(|b| b.class_members.get(vn_core::BuiltinType::Array.name()))
+                .and_then(|b| b.types.classes.get(vn_core::BuiltinType::Array.name()))
                 .is_some_and(|members| members.members.iter().any(|m| m.name.as_ref() == key)),
             TypeKind::Union(list) => {
                 let ids = self.ty_table.get_list(list).to_vec();

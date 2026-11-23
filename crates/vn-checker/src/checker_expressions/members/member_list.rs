@@ -305,14 +305,14 @@ fn list_declared(
     }
 
     if let Some(b) = &bind.core {
-        if let Some(entry) = b.class_members.get(cn.as_ref()) {
+        if let Some(entry) = b.types.classes.get(cn.as_ref()) {
             for m in &entry.members {
                 let kind = super::member_kind::map_class_member_kind(m.kind);
                 let mapped = map_ty(&m.ty, table);
                 add_declared(results, seen, &cn, m, mapped, kind);
             }
         }
-        if let Some(members) = b.flattened_members.get(cn.as_ref()) {
+        if let Some(members) = b.types.flattened.get(cn.as_ref()) {
             for m in members {
                 let kind = super::member_kind::map_class_member_kind(m.kind);
                 let mapped = map_ty(&m.ty, table);

@@ -391,14 +391,14 @@ impl BindResult {
         self.type_members
             .classes
             .get(name)
-            .or_else(|| self.core.as_ref().and_then(|b| b.class_members.get(name)))
+            .or_else(|| self.core.as_ref().and_then(|b| b.types.classes.get(name)))
     }
 
     pub fn get_interface_members_local(&self, name: &str) -> Option<&Vec<ClassMemberInfo>> {
         self.type_members.interfaces.get(name).or_else(|| {
             self.core
                 .as_ref()
-                .and_then(|b| b.interface_members.get(name))
+                .and_then(|b| b.types.interfaces.get(name))
         })
     }
 
@@ -406,7 +406,7 @@ impl BindResult {
         self.type_members.namespaces.get(name).or_else(|| {
             self.core
                 .as_ref()
-                .and_then(|b| b.namespace_members.get(name))
+                .and_then(|b| b.types.namespaces.get(name))
         })
     }
 
@@ -414,7 +414,7 @@ impl BindResult {
         self.type_members
             .enums
             .get(name)
-            .or_else(|| self.core.as_ref().and_then(|b| b.enum_members.get(name)))
+            .or_else(|| self.core.as_ref().and_then(|b| b.types.enums.get(name)))
     }
 
     pub fn get_class_methods_for(&self, name: &str) -> Option<&FxHashMap<Arc<str>, Type>> {
@@ -451,10 +451,10 @@ impl BindResult {
                 .core
                 .as_ref()
                 .map(|b| {
-                    b.class_members.contains_key(name)
-                        || b.interface_members.contains_key(name)
-                        || b.namespace_members.contains_key(name)
-                        || b.enum_members.contains_key(name)
+                    b.types.classes.contains_key(name)
+                        || b.types.interfaces.contains_key(name)
+                        || b.types.namespaces.contains_key(name)
+                        || b.types.enums.contains_key(name)
                 })
                 .unwrap_or(false)
     }

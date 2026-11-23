@@ -154,12 +154,12 @@ impl<'r> Checker<'r> {
             return Some((*ty, super::member_auth::MemberAuth::none()));
         }
         if let Some(b) = &bind.core {
-            if let Some(members) = b.class_members.get(name.as_ref())
+            if let Some(members) = b.types.classes.get(name.as_ref())
                 && let Some(m) = members.members.iter().find(|m| m.name.as_ref() == key)
             {
                 return Some((m.ty, super::member_auth::MemberAuth::of_info(m)));
             }
-            if let Some(members) = b.flattened_members.get(name.as_ref())
+            if let Some(members) = b.types.flattened.get(name.as_ref())
                 && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
             {
                 return Some((m.ty, super::member_auth::MemberAuth::of_info(m)));

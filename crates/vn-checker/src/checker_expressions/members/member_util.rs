@@ -307,7 +307,7 @@ pub(super) fn intrinsic_member_info(
 ) -> Option<(Type, super::member_auth::MemberAuth)> {
     bind.core
         .as_ref()
-        .and_then(|b| b.class_members.get(type_name))
+        .and_then(|b| b.types.classes.get(type_name))
         .and_then(|members| {
             members
                 .members

@@ -14,7 +14,7 @@ pub(crate) fn is_enum_type(
     if bind
         .core
         .as_ref()
-        .is_some_and(|b| b.enum_members.contains_key(name.as_ref()))
+        .is_some_and(|b| b.types.enums.contains_key(name.as_ref()))
     {
         return true;
     }
