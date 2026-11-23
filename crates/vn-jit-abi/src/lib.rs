@@ -259,7 +259,6 @@ pub struct JitHelpers {
     pub str_substring: usize,
     pub sub: usize,
     pub to_string: usize,
-    pub truthy: usize,
     pub kind_of_val: usize,
     pub ushr: usize,
     pub wrap_spread: usize,

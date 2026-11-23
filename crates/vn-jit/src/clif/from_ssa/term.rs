@@ -31,21 +31,21 @@ fn store_boxed_return(b: &mut FunctionBuilder, ctx: &Ctx<'_>, boxed: Value) -> R
     Ok(())
 }
 
-fn truthy(
+fn condition(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     v: u32,
 ) -> Result<Value, String> {
-    let x = load_value(b, ctx, values, v)?;
-    Ok(match ctx.ssa.value_ty(v) {
-        SlotKind::Bool => x,
-        SlotKind::Int | SlotKind::Float | SlotKind::Char => b.ins().iconst(types::I8, 1),
-        SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
-            let (tag, payload) = b.ins().isplit(x);
-            super::super::emit::call_helper(b, ctx.cc, ctx.helpers.truthy, &[tag, payload])
-        }
-    })
+    match ctx.ssa.value_ty(v) {
+        SlotKind::Bool => load_value(b, ctx, values, v),
+        kind @ (SlotKind::Int
+        | SlotKind::Float
+        | SlotKind::Char
+        | SlotKind::Str
+        | SlotKind::Ref
+        | SlotKind::Dynamic) => Err(format!("a branch condition is a bool, got {kind:?}")),
+    }
 }
 
 pub(super) fn emit_term(
@@ -135,7 +135,7 @@ pub(super) fn emit_term(
                     (eb, &e),
                 ),
                 None => {
-                    let c = truthy(b, ctx, values, *cond)?;
+                    let c = condition(b, ctx, values, *cond)?;
                     b.ins().brif(c, tb, &t, eb, &e);
                 }
             }

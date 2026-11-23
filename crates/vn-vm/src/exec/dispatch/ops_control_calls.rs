@@ -98,7 +98,7 @@ impl ExecCtx {
                     as usize;
                 *ip += 2;
                 let cond = self.stack.box_reg(base, first_reg);
-                if !cond.is_truthy() {
+                if !cond.as_bool() {
                     *ip += offset;
                 }
                 Ok(Some(ControlCallFlow::ContinueInstruction))
@@ -109,7 +109,7 @@ impl ExecCtx {
                     as usize;
                 *ip += 2;
                 let cond = self.stack.box_reg(base, first_reg);
-                if cond.is_truthy() {
+                if cond.as_bool() {
                     *ip += offset;
                 }
                 Ok(Some(ControlCallFlow::ContinueInstruction))

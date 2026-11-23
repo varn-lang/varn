@@ -17,11 +17,7 @@ pub(crate) extern "C" fn jit_negate(ctx: *mut ExecCtx, v_tag: u64, v_payload: u6
 #[vn_macros::jit_slow(field = "logical_not")]
 pub(crate) extern "C" fn jit_logical_not(_ctx: *mut ExecCtx, v_tag: u64, v_payload: u64) -> u64 {
     let v = VmValue::from_raw_parts(v_tag, v_payload);
-    if crate::exec::compare::logical_not(v).is_truthy() {
-        1
-    } else {
-        0
-    }
+    u64::from(!v.as_bool())
 }
 
 #[vn_macros::jit_slow(field = "div")]

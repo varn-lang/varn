@@ -45,11 +45,6 @@ pub(crate) extern "C" fn jit_get_enum_tag(ctx: *mut ExecCtx, val_tag: u64, val_p
     }
 }
 
-#[vn_macros::jit_slow(field = "truthy")]
-pub(crate) extern "C" fn jit_truthy(tag: u64, payload: u64) -> u64 {
-    u64::from(VmValue::from_raw_parts(tag, payload).is_truthy())
-}
-
 #[vn_macros::jit_slow(field = "is_array")]
 pub(crate) extern "C" fn jit_is_array(ctx: *mut ExecCtx, val_tag: u64, val_payload: u64) -> u64 {
     unsafe {

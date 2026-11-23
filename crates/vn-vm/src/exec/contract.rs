@@ -89,7 +89,7 @@ fn inherited_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult
         return Ok(VmValue::null());
     };
     let name = ctx.str_repr(*name);
-    let accessor = accessor.is_truthy();
+    let accessor = accessor.as_bool();
     match ctx.boundary_mut() {
         Some(boundary) => boundary.inherited(*home, *receiver, &name, accessor),
         None => Ok(VmValue::null()),

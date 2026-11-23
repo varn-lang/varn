@@ -218,7 +218,7 @@ natives! {
             let mut out = Vec::new();
             for i in 0..len {
                 let v = this.get(ctx, i).unwrap_or_else(VmValue::null);
-                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.is_truthy() {
+                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.as_bool() {
                     out.push(v);
                 }
             }
@@ -229,7 +229,7 @@ natives! {
             let len = this.len(ctx);
             for i in 0..len {
                 let v = this.get(ctx, i).unwrap_or_else(VmValue::null);
-                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.is_truthy() {
+                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.as_bool() {
                     return Ok(Some(v));
                 }
             }
@@ -240,7 +240,7 @@ natives! {
             let len = this.len(ctx);
             for i in 0..len {
                 let v = this.get(ctx, i).unwrap_or_else(VmValue::null);
-                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.is_truthy() {
+                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.as_bool() {
                     return Ok(Some(i as i64));
                 }
             }
@@ -334,7 +334,7 @@ natives! {
             let len = this.len(ctx);
             for i in 0..len {
                 let v = this.get(ctx, i).unwrap_or_else(VmValue::null);
-                if !ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.is_truthy() {
+                if !ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.as_bool() {
                     return Ok(false);
                 }
             }
@@ -345,7 +345,7 @@ natives! {
             let len = this.len(ctx);
             for i in 0..len {
                 let v = this.get(ctx, i).unwrap_or_else(VmValue::null);
-                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.is_truthy() {
+                if ctx.call_vm(predicate, &[v, VmValue::from_int(i as i64), arr])?.as_bool() {
                     return Ok(true);
                 }
             }

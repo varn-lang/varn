@@ -268,17 +268,6 @@ impl VmValue {
     }
 
     #[inline(always)]
-    pub fn is_truthy(self) -> bool {
-        if self.is_null() {
-            return false;
-        }
-        if self.is_bool() {
-            return self.as_bool();
-        }
-        true
-    }
-
-    #[inline(always)]
     pub fn to_f64(self) -> f64 {
         if self.is_f64() {
             self.as_f64()
