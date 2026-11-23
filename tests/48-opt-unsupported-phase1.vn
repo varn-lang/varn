@@ -9,7 +9,8 @@ class Flags {
     a: bool = true
     b: bool = false
     c: dynamic = null
-    arr: dynamic[] = [true, false, null]
+    arr: bool[] = [true, false]
+    maybe: bool?[] = [null]
 }
 
 
@@ -80,8 +81,8 @@ await describe("48 opt unsupported phase1", async () => {
         obj2.arr[1] ||= true;
         expect(obj2.arr[1]).toBe(true);
         
-        obj2.arr[2] ??= true;
-        expect(obj2.arr[2]).toBe(true);
+        obj2.maybe[0] ??= true;
+        expect(obj2.maybe[0]).toBe(true);
         
         // 5. Module-slot reads and assignments
         let topLevelVar = 100;

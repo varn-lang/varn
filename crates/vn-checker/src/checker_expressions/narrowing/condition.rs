@@ -17,7 +17,9 @@ impl<'r> Checker<'r> {
             return;
         }
         let shown = ty.display(&self.ty_table, &bind.interner).to_string();
-        let hint = if ty.is_nullable(&self.ty_table) {
+        let hint = if ty.is_dynamic() {
+            "convert it with `as bool`, which fails if the value is not one"
+        } else if ty.is_nullable(&self.ty_table) {
             "test the absence with `!= null`"
         } else {
             "compare it explicitly"
@@ -37,7 +39,7 @@ impl<'r> Checker<'r> {
             TypeKind::Primitive(LangPrimitive::Bool | LangPrimitive::Error | LangPrimitive::Never)
                 | TypeKind::Literal(TypeLiteral::Bool(_))
                 | TypeKind::TypePredicate { .. }
-        ) || ty.is_unresolved()
+        ) || ty.is_error()
     }
 
     pub(crate) fn require_nullable(

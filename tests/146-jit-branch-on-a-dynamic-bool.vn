@@ -1,0 +1,41 @@
+import { describe, it, expect } from "std:test";
+
+function fromDynamic(v: dynamic): int {
+    let n = 0
+    if (v as bool) { n = 1 }
+    return n
+}
+
+function isArray(v: dynamic): int {
+    let n = 10
+    if (v is int[]) { n = 100 }
+    return n
+}
+
+function isBoolTrue(v: dynamic): int {
+    let n = 0
+    if (v is bool && (v as bool)) { n = 1 }
+    return n
+}
+
+let trues = 0
+let arrays = 0
+let checked = 0
+const flags: dynamic[] = [true, false, false, true, true]
+const probes: dynamic[] = ["1", "", [1, 2], 0, 7, 0.0, 2.5, null, false, true, { a: 1 }]
+
+await describe("146 a compiled branch on a dynamic value branches on its bool", async () => {
+    await it("branches past the tiering threshold", async () => {
+        for (let i = 0; i < 2200; i = i + 1) {
+            trues = trues + fromDynamic(flags[i % 5])
+            arrays = arrays + isArray(probes[i % 11])
+            checked = checked + isBoolTrue(probes[i % 11])
+        }
+    });
+
+    await it("counts what each branch took", async () => {
+        expect(trues).toBe(440 * 3);
+        expect(arrays).toBe(200 * (100 + 10 * 10));
+        expect(checked).toBe(200);
+    });
+});

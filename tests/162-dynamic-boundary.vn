@@ -311,10 +311,10 @@ await describe("162 dynamic boundary", async () => {
         expect(rejected).toBe(5000)
     })
 
-    await it("truthiness, interpolation and concatenation still take any value", () => {
+    await it("a dynamic value is tested explicitly, and interpolation takes any value", () => {
         const d: dynamic = { a: 1 }
         let seen = false
-        if (d) { seen = true }
+        if (d != null) { seen = true }
         expect(seen).toBe(true)
         const xs: dynamic[] = [1, "x", null]
         expect(`${xs[0]}-${xs[1]}-${xs[2]}`).toBe("1-x-null")
