@@ -40,7 +40,7 @@ impl<'r> Checker<'r> {
         bind: &BindResult,
     ) -> Type {
         let target_ty = self.infer_type(rec, target, bind);
-        match vn_core::MetaKey::from_str(bind.interner.resolve(property)) {
+        match vn_core::MetaKey::of(bind.interner.resolve(property)) {
             Some(vn_core::MetaKey::Name) | Some(vn_core::MetaKey::Type) => Type::Str,
             Some(vn_core::MetaKey::Class) => Type::builtin(
                 vn_core::BuiltinType::Class,

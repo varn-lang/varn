@@ -235,10 +235,10 @@ impl<'r> Checker<'r> {
         if let vn_core::ast::ExprKind::MetaAccess { property, .. } = &self.ast_arena.expr(expr).kind
         {
             let name = bind.interner.resolve(*property);
-            if vn_core::MetaKey::from_str(name).is_none() {
+            if vn_core::MetaKey::of(name).is_none() {
                 let known: Vec<String> = vn_core::MetaKey::ALL
                     .iter()
-                    .map(|key| format!("::{}", key.as_str()))
+                    .map(|key| format!("::{}", key.name()))
                     .collect();
                 self.emit(
                     Diagnostic::error(

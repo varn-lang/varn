@@ -8,10 +8,10 @@ pub(super) fn parse_import_meta(s: &mut TokenStream) -> PResult<ExprId> {
     s.expect(TokenKind::Import)?;
     s.expect(TokenKind::Dot)?;
     let meta = s.expect_id()?;
-    if s.interner.resolve(meta) != ContextualKeyword::Meta.as_str() {
+    if s.interner.resolve(meta) != ContextualKeyword::Meta.name() {
         return Err(ParseError::invalid(format!(
             "expected `import.{}`",
-            ContextualKeyword::Meta.as_str()
+            ContextualKeyword::Meta.name()
         )));
     }
     s.expect(TokenKind::Dot)?;
@@ -20,7 +20,7 @@ pub(super) fn parse_import_meta(s: &mut TokenStream) -> PResult<ExprId> {
     let property = MetaProperty::of(text).ok_or_else(|| {
         ParseError::invalid(format!(
             "unknown import.{} property `{text}`",
-            ContextualKeyword::Meta.as_str()
+            ContextualKeyword::Meta.name()
         ))
     })?;
     let range = s.span_from(start);

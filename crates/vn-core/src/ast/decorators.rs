@@ -276,7 +276,7 @@ pub fn match_builtin(
                             break;
                         };
                         let name = interner.resolve(name).to_string();
-                        if crate::ErrorClass::of_name(&name).is_none() {
+                        if crate::ErrorClass::of(&name).is_none() {
                             unknown = Some(name);
                             break;
                         }
@@ -299,12 +299,14 @@ pub fn match_builtin(
             K::Decodes => match args {
                 Some([single]) => match single {
                     Arg::Positional(e) => match str_arg(arena, *e) {
-                        Some(op) if crate::runtime_ops::RuntimeOp::parse(&op).is_some() => {
+                        Some(op) if crate::runtime_ops::RuntimeOp::of(&op).is_some() => {
                             Ok(BuiltinDecorator::Decodes { op })
                         }
                         Some(op) => Err(format!(
                             "`@decodes` unknown op `{op}`; expected one of: {}",
-                            crate::runtime_ops::RuntimeOp::NAMES.join(", ")
+                            crate::runtime_ops::RuntimeOp::ALL
+                                .map(crate::runtime_ops::RuntimeOp::name)
+                                .join(", ")
                         )),
                         None => Err("`@decodes` takes exactly one string op".to_string()),
                     },

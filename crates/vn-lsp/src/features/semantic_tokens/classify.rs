@@ -176,7 +176,7 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         return Some(symbol_tt(state, kind, None, false));
     }
 
-    if LangPrimitive::from_str(state.lexeme(tok)).is_some() {
+    if LangPrimitive::of(state.lexeme(tok)).is_some() {
         return Some(TT_TYPE);
     }
 

@@ -134,13 +134,13 @@ pub(crate) fn infer_member(
                 };
                 let origin_str = origin.and_then(|o| ctx_resolve_text(Some(ctx), o));
                 if let Some(variants) = ctx.get_enum_members(&name_str, origin_str.as_deref()) {
-                    if prop_name == vn_core::MemberKey::RawValue.as_str()
-                        || prop_name == vn_core::MemberKey::Tag.as_str()
+                    if prop_name == vn_core::MemberKey::RawValue.name()
+                        || prop_name == vn_core::MemberKey::Tag.name()
                     {
                         return Type::Int;
                     }
-                    if prop_name == vn_core::MemberKey::Name.as_str()
-                        || prop_name == vn_core::MemberKey::VariantName.as_str()
+                    if prop_name == vn_core::MemberKey::Name.name()
+                        || prop_name == vn_core::MemberKey::VariantName.name()
                     {
                         return Type::Str;
                     }
@@ -187,10 +187,10 @@ pub(crate) fn infer_member(
                 }
             }
             TypeKind::Array(inner) => {
-                if prop_name == vn_core::MemberKey::Length.as_str() {
+                if prop_name == vn_core::MemberKey::Length.name() {
                     return Type::Int;
                 }
-                if prop_name == vn_core::MemberKey::Push.as_str() {
+                if prop_name == vn_core::MemberKey::Push.name() {
                     return Type::fn_(
                         crate::types::FunctionType {
                             params: vec![crate::types::FunctionParam {

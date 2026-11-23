@@ -103,7 +103,7 @@ impl Type {
     }
 
     pub fn core_error(kind: RuntimeErrorKind, table: &mut CheckerTyTable) -> Self {
-        let name = table.intern_name(kind.class_name());
+        let name = table.intern_name(kind.name());
         let origin = Some(table.intern_name(RuntimeErrorKind::MODULE));
         Type::named_with_origin_atom(name, origin, table)
     }

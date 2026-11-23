@@ -141,7 +141,7 @@ impl<'a> FnEmitter<'a> {
     }
 
     pub(super) fn no_match_arm(&mut self, span: vn_tir::Span) -> TirStmt {
-        let class_name = vn_core::RuntimeErrorKind::MatchError.class_name();
+        let class_name = vn_core::RuntimeErrorKind::MatchError.name();
         let callee = TirExpr {
             kind: TirExprKind::Var,
             ty: BackendTy::Dynamic(DynReason::Runtime),

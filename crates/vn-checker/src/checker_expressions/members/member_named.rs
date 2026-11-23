@@ -11,12 +11,10 @@ impl<'r> Checker<'r> {
         key: &str,
         bind: &BindResult,
     ) -> Option<(Type, super::member_auth::MemberAuth)> {
-        if key == vn_core::MemberKey::Name.as_str()
-            || key == vn_core::MemberKey::VariantName.as_str()
-        {
+        if key == vn_core::MemberKey::Name.name() || key == vn_core::MemberKey::VariantName.name() {
             return Some((Type::Str, super::member_auth::MemberAuth::none()));
         }
-        if key == vn_core::MemberKey::Tag.as_str() || key == vn_core::MemberKey::RawValue.as_str() {
+        if key == vn_core::MemberKey::Tag.name() || key == vn_core::MemberKey::RawValue.name() {
             return Some((Type::Int, super::member_auth::MemberAuth::none()));
         }
         if let Some(res) = self.find_member_info_uncached(&Type::resolved(payload_ty), key, bind) {
@@ -75,13 +73,11 @@ impl<'r> Checker<'r> {
         let is_enum = super::is_enum_type(self.resolver, bind, &name, &origin_modules);
 
         if is_enum {
-            if key == vn_core::MemberKey::RawValue.as_str()
-                || key == vn_core::MemberKey::Tag.as_str()
-            {
+            if key == vn_core::MemberKey::RawValue.name() || key == vn_core::MemberKey::Tag.name() {
                 return Some((Type::Int, super::member_auth::MemberAuth::none()));
             }
-            if key == vn_core::MemberKey::Name.as_str()
-                || key == vn_core::MemberKey::VariantName.as_str()
+            if key == vn_core::MemberKey::Name.name()
+                || key == vn_core::MemberKey::VariantName.name()
             {
                 return Some((Type::Str, super::member_auth::MemberAuth::none()));
             }

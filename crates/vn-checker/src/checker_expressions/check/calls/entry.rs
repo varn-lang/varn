@@ -25,7 +25,7 @@ impl<'r> Checker<'r> {
         let arena = self.ast_arena;
         if let ExprKind::Identifier { name } = &arena.expr(callee).kind {
             let name = bind.interner.resolve(*name);
-            if vn_core::LangPrimitive::from_str(name).is_some() {
+            if vn_core::LangPrimitive::of(name).is_some() {
                 self.emit(
                     Diagnostic::error(
                         ErrorCode::NotCallable,
@@ -378,7 +378,7 @@ impl Checker<'_> {
         match view.get_class_members(&name, origin.as_deref()) {
             Some(members) => members
                 .iter()
-                .any(|m| m.name.as_ref() == vn_core::MemberKey::Callable.as_str()),
+                .any(|m| m.name.as_ref() == vn_core::MemberKey::Callable.name()),
             None => {
                 let origin_modules: Vec<String> = origin.iter().map(|o| o.to_string()).collect();
                 let interface = bind
@@ -392,7 +392,7 @@ impl Checker<'_> {
                 interface.is_none_or(|members| {
                     members
                         .iter()
-                        .any(|m| m.name.as_ref() == vn_core::MemberKey::Callable.as_str())
+                        .any(|m| m.name.as_ref() == vn_core::MemberKey::Callable.name())
                 })
             }
         }

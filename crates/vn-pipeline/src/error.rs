@@ -118,7 +118,7 @@ const FRAMES_SHOWN_LAST: usize = 6;
 
 impl RuntimeFailure {
     fn write_chain(&self, f: &mut fmt::Formatter<'_>, label: &str) -> fmt::Result {
-        let class = if self.class == vn_core::RuntimeErrorKind::Error.class_name() {
+        let class = if self.class == vn_core::RuntimeErrorKind::Error.name() {
             String::new()
         } else {
             format!("{}: ", self.class)

@@ -90,7 +90,7 @@ pub(crate) fn throws(
                 return Err(bad());
             };
             let class = interner.resolve(*name).to_string();
-            if vn_core::ErrorClass::of_name(&class).is_none() {
+            if vn_core::ErrorClass::of(&class).is_none() {
                 return Err(ContractError::BadDecorator(format!(
                     "`@throws({class})`: `{class}` is not an error class of the canonical tables"
                 )));
@@ -131,7 +131,7 @@ pub(crate) fn capability(
             let ExprKind::StrLiteral { value } = &arena.expr(*arg).kind else {
                 return Err(bad());
             };
-            if vn_core::sandbox::Capability::parse(value).is_none() {
+            if vn_core::sandbox::Capability::of(value).is_none() {
                 return Err(ContractError::BadDecorator(format!(
                     "unknown capability `{value}`"
                 )));

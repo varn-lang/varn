@@ -137,7 +137,7 @@ pub fn check_native_mask(
     ] {
         if (mask & cap.bit()) != 0 && !ctx.has_capability(cap) {
             return Err(vn_types::NativeError::capability(
-                cap.as_str(),
+                cap.name(),
                 format!("{module}:{symbol}"),
             ));
         }

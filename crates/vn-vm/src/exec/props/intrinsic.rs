@@ -46,7 +46,7 @@ pub(super) fn resolve_intrinsic_method_property(
 ) -> Option<VmValue> {
     if obj.is_heap() {
         match heap.get(obj.as_heap()) {
-            Some(HeapObj::EnumVariant(_)) if key == MemberKey::Name.as_str() => return None,
+            Some(HeapObj::EnumVariant(_)) if key == MemberKey::Name.name() => return None,
             Some(
                 HeapObj::Str(_)
                 | HeapObj::Array(_)
@@ -77,7 +77,7 @@ pub(super) fn resolve_intrinsic_method_property(
     if let Some((method, owner)) = find_method_with_owner(&cls, key) {
         return Some(bind_method_to_receiver(heap, obj, method, Some(owner)));
     }
-    if key == MemberKey::Name.as_str() {
+    if key == MemberKey::Name.name() {
         return Some(HeapInner::alloc_str(heap, cls.name.as_str()));
     }
     None

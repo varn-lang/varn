@@ -1,80 +1,32 @@
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum StdErrorClass {
-    Std,
-    Io,
-    Fs,
-    FsNotFound,
-    FsPermission,
-    FsExists,
-    FsEncoding,
-    BadDescriptor,
-    Closed,
-    Net,
-    Resolve,
-    Connect,
-    Tls,
-    Protocol,
-    Capability,
-    Timeout,
-    Cancelled,
-    Parse,
-    Decode,
-    Sql,
-    SqlConstraint,
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    pub enum StdErrorClass {
+        Std => "StdError",
+        Io => "IoError",
+        Fs => "FsError",
+        FsNotFound => "FsNotFoundError",
+        FsPermission => "FsPermissionError",
+        FsExists => "FsExistsError",
+        FsEncoding => "FsEncodingError",
+        BadDescriptor => "BadDescriptorError",
+        Closed => "ClosedError",
+        Net => "NetError",
+        Resolve => "ResolveError",
+        Connect => "ConnectError",
+        Tls => "TlsError",
+        Protocol => "ProtocolError",
+        Capability => "CapabilityError",
+        Timeout => "TimeoutError",
+        Cancelled => "CancelledError",
+        Parse => "ParseError",
+        Decode => "DecodeError",
+        Sql => "SqlError",
+        SqlConstraint => "SqlConstraintError",
+    }
 }
 
 impl StdErrorClass {
     pub const MODULE: &'static str = "std:error";
-
-    pub const ALL: [Self; 21] = [
-        Self::Std,
-        Self::Io,
-        Self::Fs,
-        Self::FsNotFound,
-        Self::FsPermission,
-        Self::FsExists,
-        Self::FsEncoding,
-        Self::BadDescriptor,
-        Self::Closed,
-        Self::Net,
-        Self::Resolve,
-        Self::Connect,
-        Self::Tls,
-        Self::Protocol,
-        Self::Capability,
-        Self::Timeout,
-        Self::Cancelled,
-        Self::Parse,
-        Self::Decode,
-        Self::Sql,
-        Self::SqlConstraint,
-    ];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Std => "StdError",
-            Self::Io => "IoError",
-            Self::Fs => "FsError",
-            Self::FsNotFound => "FsNotFoundError",
-            Self::FsPermission => "FsPermissionError",
-            Self::FsExists => "FsExistsError",
-            Self::FsEncoding => "FsEncodingError",
-            Self::BadDescriptor => "BadDescriptorError",
-            Self::Closed => "ClosedError",
-            Self::Net => "NetError",
-            Self::Resolve => "ResolveError",
-            Self::Connect => "ConnectError",
-            Self::Tls => "TlsError",
-            Self::Protocol => "ProtocolError",
-            Self::Capability => "CapabilityError",
-            Self::Timeout => "TimeoutError",
-            Self::Cancelled => "CancelledError",
-            Self::Parse => "ParseError",
-            Self::Decode => "DecodeError",
-            Self::Sql => "SqlError",
-            Self::SqlConstraint => "SqlConstraintError",
-        }
-    }
 
     pub const fn code(self) -> &'static str {
         match self {
@@ -120,35 +72,18 @@ impl StdErrorClass {
             Self::SqlConstraint => Some(Self::Sql),
         }
     }
-
-    pub fn of_name(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|class| class.name() == name)
-    }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum ErrorField {
-    Code,
-    Path,
-    Host,
-    Port,
-    Capability,
-    Target,
-    Position,
-    Sql,
-}
-
-impl ErrorField {
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Code => "code",
-            Self::Path => "path",
-            Self::Host => "host",
-            Self::Port => "port",
-            Self::Capability => "capability",
-            Self::Target => "target",
-            Self::Position => "position",
-            Self::Sql => "sql",
-        }
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+    pub enum ErrorField {
+        Code => "code",
+        Path => "path",
+        Host => "host",
+        Port => "port",
+        Capability => "capability",
+        Target => "target",
+        Position => "position",
+        Sql => "sql",
     }
 }

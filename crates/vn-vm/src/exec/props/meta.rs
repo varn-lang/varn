@@ -232,7 +232,7 @@ fn bound_meta(
         (Some(c), _, true) => class_snapshot(c, heap),
         _ => obj,
     };
-    heap.alloc_bound_native(receiver, native, key.as_str())
+    heap.alloc_bound_native(receiver, native, key.name())
 }
 
 fn meta_keys_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> vn_types::NativeFnResult {

@@ -73,7 +73,7 @@ impl Mapped {
 
 fn primitive_mapped(name: &str) -> Option<Mapped> {
     use vn_core::LangPrimitive as P;
-    match P::from_str(name)? {
+    match P::of(name)? {
         P::Num(kind) => Some(Mapped::num(kind)),
         P::Bool => Some(Mapped::Bool),
         P::Char => Some(Mapped::Char),

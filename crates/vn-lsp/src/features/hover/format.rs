@@ -111,7 +111,7 @@ fn format_enum_member_sym(sym: SymbolView<'_>) -> String {
 }
 
 fn is_primitive_class_name(name: &str) -> bool {
-    vn_core::LangPrimitive::from_str(name).is_some()
+    vn_core::LangPrimitive::of(name).is_some()
 }
 
 fn format_class(state: &DocumentState, sym: SymbolView<'_>) -> String {

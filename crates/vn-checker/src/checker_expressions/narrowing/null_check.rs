@@ -41,7 +41,7 @@ impl<'r> Checker<'r> {
                 } else {
                     let name_str = bind.interner.resolve(name);
                     if name_str != vn_core::TokenKind::Placeholder.as_str()
-                        && name_str != vn_core::MemberKey::Variant.as_str()
+                        && name_str != vn_core::MemberKey::Variant.name()
                     {
                         out.push((id, Type::Null));
                     }

@@ -77,6 +77,6 @@ impl<T, N, C, F, O, I> TypeKind<T, N, C, F, O, I> {
     }
 
     pub fn of_primitive_name(name: &str) -> Option<Self> {
-        LangPrimitive::from_str(name).map(TypeKind::Primitive)
+        LangPrimitive::of(name).map(TypeKind::Primitive)
     }
 }

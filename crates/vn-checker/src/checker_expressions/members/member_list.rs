@@ -115,7 +115,7 @@ pub fn get_members_of_type(
             add_member(
                 &mut results,
                 &mut seen,
-                Arc::from(vn_core::MemberKey::Length.as_str()),
+                Arc::from(vn_core::MemberKey::Length.name()),
                 Type::Int,
                 vn_sem::semantic_info::ResolvedMemberKind::Property,
                 false,
@@ -168,7 +168,7 @@ pub fn get_members_of_type(
                     add_member(
                         &mut results,
                         &mut seen,
-                        Arc::from(key.as_str()),
+                        Arc::from(key.name()),
                         ty,
                         vn_sem::semantic_info::ResolvedMemberKind::Property,
                         false,
@@ -182,7 +182,7 @@ pub fn get_members_of_type(
             add_member(
                 &mut results,
                 &mut seen,
-                Arc::from(vn_core::MemberKey::Length.as_str()),
+                Arc::from(vn_core::MemberKey::Length.name()),
                 Type::Int,
                 vn_sem::semantic_info::ResolvedMemberKind::Property,
                 false,

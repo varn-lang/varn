@@ -46,7 +46,7 @@ pub fn process() -> &'static Settings {
 pub fn unknown_vars() -> Vec<String> {
     let mut unknown: Vec<String> = std::env::vars()
         .map(|(name, _)| name)
-        .filter(|name| name.starts_with(VN_PREFIX) && EnvVar::from_name(name).is_none())
+        .filter(|name| name.starts_with(VN_PREFIX) && EnvVar::of(name).is_none())
         .collect();
     unknown.sort();
     unknown

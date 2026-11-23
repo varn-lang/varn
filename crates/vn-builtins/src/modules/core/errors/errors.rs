@@ -13,14 +13,14 @@ fn init_error(
         Some(m) => ctx.alloc_str(m),
         None => VmValue::null(),
     };
-    ctx.set_field(this, vn_core::MemberKey::Message.as_str(), msg);
+    ctx.set_field(this, vn_core::MemberKey::Message.name(), msg);
     let name = ctx.alloc_str(class_name);
-    ctx.set_field(this, vn_core::MemberKey::Name.as_str(), name);
+    ctx.set_field(this, vn_core::MemberKey::Name.name(), name);
     let stack = ctx.alloc_str("");
-    ctx.set_field(this, vn_core::MemberKey::Stack.as_str(), stack);
+    ctx.set_field(this, vn_core::MemberKey::Stack.name(), stack);
     ctx.set_field(
         this,
-        vn_core::MemberKey::Cause.as_str(),
+        vn_core::MemberKey::Cause.name(),
         cause.unwrap_or_else(VmValue::null),
     );
 }
@@ -34,16 +34,16 @@ fn init_error(
 natives! {
     class Error {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::Error.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::Error.name());
             this
         },
         toString(ctx, this) => {
             let name = ctx
-                .get_field(this, vn_core::MemberKey::Name.as_str())
+                .get_field(this, vn_core::MemberKey::Name.name())
                 .and_then(|v| ctx.str_owned(v))
-                .unwrap_or_else(|| RuntimeErrorKind::Error.class_name().to_owned());
+                .unwrap_or_else(|| RuntimeErrorKind::Error.name().to_owned());
             let message = ctx
-                .get_field(this, vn_core::MemberKey::Message.as_str())
+                .get_field(this, vn_core::MemberKey::Message.name())
                 .and_then(|v| ctx.str_owned(v))
                 .unwrap_or_default();
             if message.is_empty() {
@@ -55,31 +55,31 @@ natives! {
     }
     class TypeError {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::TypeError.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::TypeError.name());
             this
         },
     }
     class RangeError {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::RangeError.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::RangeError.name());
             this
         },
     }
     class IntegerOverflow {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::IntegerOverflow.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::IntegerOverflow.name());
             this
         },
     }
     class DivisionByZero {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::DivisionByZero.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::DivisionByZero.name());
             this
         },
     }
     class MatchError {
         constructor(ctx, this, message, cause) => {
-            init_error(ctx, this, message, cause, RuntimeErrorKind::MatchError.class_name());
+            init_error(ctx, this, message, cause, RuntimeErrorKind::MatchError.name());
             this
         },
     }

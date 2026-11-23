@@ -35,10 +35,10 @@ fn allow_path(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
         return Ok(());
     }
     if !ctx.check_fs_read(path) {
-        return Err(NativeError::capability(Capability::FsRead.as_str(), path));
+        return Err(NativeError::capability(Capability::FsRead.name(), path));
     }
     if !ctx.check_fs_write(path) {
-        return Err(NativeError::capability(Capability::FsWrite.as_str(), path));
+        return Err(NativeError::capability(Capability::FsWrite.name(), path));
     }
     Ok(())
 }

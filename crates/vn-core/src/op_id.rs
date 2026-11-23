@@ -41,23 +41,23 @@ impl KnownOp {
     ];
 
     pub const fn id(self) -> u64 {
-        crate::runtime_ops::RuntimeOp::COUNT + self as u64
+        crate::runtime_ops::RuntimeOp::COUNT as u64 + self as u64
     }
 
     pub fn names(self) -> (RuntimeKind, &'static str) {
         match self {
-            KnownOp::ArrayPush => (RuntimeKind::Array, crate::MemberKey::Push.as_str()),
-            KnownOp::IntToString => (RuntimeKind::Int, crate::MemberKey::ToString.as_str()),
-            KnownOp::StrStartsWith => (RuntimeKind::Str, crate::MemberKey::StartsWith.as_str()),
-            KnownOp::StrEndsWith => (RuntimeKind::Str, crate::MemberKey::EndsWith.as_str()),
-            KnownOp::StrSlice => (RuntimeKind::Str, crate::MemberKey::Slice.as_str()),
-            KnownOp::StrIndexOf => (RuntimeKind::Str, crate::MemberKey::IndexOf.as_str()),
-            KnownOp::StrIncludes => (RuntimeKind::Str, crate::MemberKey::Includes.as_str()),
-            KnownOp::StrSplit => (RuntimeKind::Str, crate::MemberKey::Split.as_str()),
-            KnownOp::StrSubstring => (RuntimeKind::Str, crate::MemberKey::Substring.as_str()),
-            KnownOp::StrCharCodeAt => (RuntimeKind::Str, crate::MemberKey::CharCodeAt.as_str()),
-            KnownOp::StrCodePointAt => (RuntimeKind::Str, crate::MemberKey::CodePointAt.as_str()),
-            KnownOp::GeneratorNext => (RuntimeKind::Generator, crate::MemberKey::IterNext.as_str()),
+            KnownOp::ArrayPush => (RuntimeKind::Array, crate::MemberKey::Push.name()),
+            KnownOp::IntToString => (RuntimeKind::Int, crate::MemberKey::ToString.name()),
+            KnownOp::StrStartsWith => (RuntimeKind::Str, crate::MemberKey::StartsWith.name()),
+            KnownOp::StrEndsWith => (RuntimeKind::Str, crate::MemberKey::EndsWith.name()),
+            KnownOp::StrSlice => (RuntimeKind::Str, crate::MemberKey::Slice.name()),
+            KnownOp::StrIndexOf => (RuntimeKind::Str, crate::MemberKey::IndexOf.name()),
+            KnownOp::StrIncludes => (RuntimeKind::Str, crate::MemberKey::Includes.name()),
+            KnownOp::StrSplit => (RuntimeKind::Str, crate::MemberKey::Split.name()),
+            KnownOp::StrSubstring => (RuntimeKind::Str, crate::MemberKey::Substring.name()),
+            KnownOp::StrCharCodeAt => (RuntimeKind::Str, crate::MemberKey::CharCodeAt.name()),
+            KnownOp::StrCodePointAt => (RuntimeKind::Str, crate::MemberKey::CodePointAt.name()),
+            KnownOp::GeneratorNext => (RuntimeKind::Generator, crate::MemberKey::IterNext.name()),
             KnownOp::ArrayNew => (RuntimeKind::Array, crate::TokenKind::Constructor.as_str()),
             KnownOp::MapNew => (RuntimeKind::Map, crate::TokenKind::Constructor.as_str()),
             KnownOp::SetNew => (RuntimeKind::Set, crate::TokenKind::Constructor.as_str()),
@@ -72,7 +72,8 @@ impl KnownOp {
     }
 }
 
-pub const FIRST_REGISTRY_ID: u64 = crate::runtime_ops::RuntimeOp::COUNT + KnownOp::ALL.len() as u64;
+pub const FIRST_REGISTRY_ID: u64 =
+    crate::runtime_ops::RuntimeOp::COUNT as u64 + KnownOp::ALL.len() as u64;
 
 pub const CORE_CLASSES: [RuntimeKind; 14] = [
     RuntimeKind::Array,

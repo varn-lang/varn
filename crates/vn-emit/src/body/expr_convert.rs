@@ -14,7 +14,7 @@ impl<'a> FnEmitter<'a> {
         if matches!(inner.ty, BackendTy::Enum(_)) && matches!(ty, BackendTy::INT) {
             return self.field_access(
                 inner,
-                Arc::from(vn_core::MemberKey::RawValue.as_str()),
+                Arc::from(vn_core::MemberKey::RawValue.name()),
                 ty,
                 span,
             );

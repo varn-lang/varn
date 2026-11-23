@@ -224,7 +224,7 @@ pub(super) fn native_targets(
                     op,
                     max_args: Some(forward.args),
                     typed: forward.typed.as_deref().and_then(|name| {
-                        vn_core::runtime_ops::RuntimeOp::parse(name).map(|op| op.id())
+                        vn_core::runtime_ops::RuntimeOp::of(name).map(|op| op.id())
                     }),
                 },
             );

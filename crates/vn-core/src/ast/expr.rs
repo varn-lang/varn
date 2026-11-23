@@ -256,20 +256,14 @@ pub enum MatchBody {
     Expr(ExprId),
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum MetaProperty {
-    Main,
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub enum MetaProperty {
+        Main => "main",
+    }
 }
 
 impl MetaProperty {
-    pub const ALL: [Self; 1] = [Self::Main];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Main => "main",
-        }
-    }
-
     pub const fn slot(self) -> u32 {
         match self {
             Self::Main => crate::well_known::MAIN_SLOT,
@@ -280,9 +274,5 @@ impl MetaProperty {
         match self {
             Self::Main => "import.meta.main",
         }
-    }
-
-    pub fn of(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|p| p.name() == name)
     }
 }

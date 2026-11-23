@@ -28,7 +28,7 @@ impl FnEmitter<'_> {
         let dyn_ty = BackendTy::Dynamic(DynReason::Runtime);
         let close_call = self.member_call(
             local_var(it, it_ty),
-            Arc::from(MemberKey::IterClose.as_str()),
+            Arc::from(MemberKey::IterClose.name()),
             vec![],
             awaited_close.unwrap_or(BackendTy::Void),
             None,
@@ -79,7 +79,7 @@ impl FnEmitter<'_> {
                 let ty = self.lower_checked(ty);
                 self.member_call(
                     source,
-                    Arc::from(MemberKey::Iter.as_str()),
+                    Arc::from(MemberKey::Iter.name()),
                     vec![],
                     ty,
                     None,
@@ -100,7 +100,7 @@ impl FnEmitter<'_> {
         let next_ty = self.lower_checked(&plan.next);
         let mut next_call = self.member_call(
             local_var(it, it_ty),
-            Arc::from(MemberKey::IterNext.as_str()),
+            Arc::from(MemberKey::IterNext.name()),
             vec![],
             next_ty,
             None,

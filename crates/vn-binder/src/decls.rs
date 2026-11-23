@@ -44,7 +44,7 @@ impl<'r> super::Binder<'r> {
                 | vn_sem::symbol::SymbolKind::Enum
         );
         let reserved = if declares_type {
-            vn_core::LangPrimitive::from_str(text).is_some()
+            vn_core::LangPrimitive::of(text).is_some()
         } else {
             matches!(
                 sym.kind,

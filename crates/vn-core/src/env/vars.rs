@@ -32,7 +32,7 @@ macro_rules! env_vars {
                 }
             }
 
-            pub fn from_name(name: &str) -> Option<Self> {
+            pub fn of(name: &str) -> Option<Self> {
                 match name {
                     $($name => Some(Self::$variant),)*
                     _ => None,

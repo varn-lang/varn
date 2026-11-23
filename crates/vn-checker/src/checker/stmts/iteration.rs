@@ -160,9 +160,9 @@ impl Checker<'_> {
                 | BuiltinType::Class => {}
             }
         }
-        let iter_result = self.method_return(&source, MemberKey::Iter.as_str(), bind);
+        let iter_result = self.method_return(&source, MemberKey::Iter.name(), bind);
         let iterator = iter_result.unwrap_or(source);
-        let next = self.method_return(&iterator, MemberKey::IterNext.as_str(), bind)?;
+        let next = self.method_return(&iterator, MemberKey::IterNext.name(), bind)?;
         let step = if is_await {
             vn_sem::types::awaited(&next, &self.ty_table)
         } else {

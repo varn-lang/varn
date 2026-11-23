@@ -169,7 +169,7 @@ impl<'a> FnEmitter<'a> {
             return Some(name);
         }
         if let vn_core::TypeKind::Named(n, _) = &type_ann.kind
-            && let Some(primitive) = vn_core::LangPrimitive::from_str(self.m.interner.resolve(*n))
+            && let Some(primitive) = vn_core::LangPrimitive::of(self.m.interner.resolve(*n))
         {
             return Some(primitive.name());
         }

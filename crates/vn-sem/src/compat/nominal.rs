@@ -133,7 +133,7 @@ pub(super) fn nominal_arms(
             if let Some(members) = named_members(bind, &dn_s, origin_d_s.as_deref())
                 && let Some(callable) = members
                     .iter()
-                    .find(|m| m.name.as_ref() == MemberKey::Callable.as_str())
+                    .find(|m| m.name.as_ref() == MemberKey::Callable.name())
             {
                 return Some(types_compatible_impl(
                     &m_ty(callable),
@@ -149,9 +149,8 @@ pub(super) fn nominal_arms(
                     !members.is_empty()
                         && members.iter().all(|m| {
                             m.is_optional
-                                || (m.name.as_ref() == MemberKey::Name.as_str()
-                                    && m.ty == Type::Str)
-                                || (m.name.as_ref() == MemberKey::Length.as_str()
+                                || (m.name.as_ref() == MemberKey::Name.name() && m.ty == Type::Str)
+                                || (m.name.as_ref() == MemberKey::Length.name()
                                     && m.ty == Type::Int)
                         })
                 }),

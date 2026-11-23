@@ -1,25 +1,29 @@
-#[derive(
+crate::named_enum! {
+    #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
-)]
-#[repr(u8)]
-pub enum IntKind {
-    I8,
-    I16,
-    I32,
-    I64,
-    U8,
-    U16,
-    U32,
-    U64,
+    )]
+    #[repr(u8)]
+    pub enum IntKind {
+        I8 => "i8",
+        I16 => "i16",
+        I32 => "i32",
+        I64 => "int",
+        U8 => "u8",
+        U16 => "u16",
+        U32 => "u32",
+        U64 => "u64",
+    }
 }
 
-#[derive(
+crate::named_enum! {
+    #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
-)]
-#[repr(u8)]
-pub enum FloatKind {
-    F32,
-    F64,
+    )]
+    #[repr(u8)]
+    pub enum FloatKind {
+        F32 => "f32",
+        F64 => "float",
+    }
 }
 
 #[derive(
@@ -31,17 +35,6 @@ pub enum NumKind {
 }
 
 impl IntKind {
-    pub const ALL: [Self; 8] = [
-        Self::I8,
-        Self::I16,
-        Self::I32,
-        Self::I64,
-        Self::U8,
-        Self::U16,
-        Self::U32,
-        Self::U64,
-    ];
-
     pub const fn bits(self) -> u32 {
         match self {
             Self::I8 | Self::U8 => 8,
@@ -59,19 +52,6 @@ impl IntKind {
         match self {
             Self::I8 | Self::I16 | Self::I32 | Self::I64 => true,
             Self::U8 | Self::U16 | Self::U32 | Self::U64 => false,
-        }
-    }
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::I8 => "i8",
-            Self::I16 => "i16",
-            Self::I32 => "i32",
-            Self::I64 => "int",
-            Self::U8 => "u8",
-            Self::U16 => "u16",
-            Self::U32 => "u32",
-            Self::U64 => "u64",
         }
     }
 
@@ -97,8 +77,6 @@ impl IntKind {
 }
 
 impl FloatKind {
-    pub const ALL: [Self; 2] = [Self::F32, Self::F64];
-
     pub const fn bits(self) -> u32 {
         match self {
             Self::F32 => 32,
@@ -108,13 +86,6 @@ impl FloatKind {
 
     pub const fn bytes(self) -> u32 {
         self.bits() / 8
-    }
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::F32 => "f32",
-            Self::F64 => "float",
-        }
     }
 
     pub const fn round(self, value: f64) -> f64 {
@@ -214,16 +185,9 @@ impl NumKind {
         }
     }
 
-    pub fn from_name(name: &str) -> Option<Self> {
-        IntKind::ALL
-            .into_iter()
-            .find(|k| k.name() == name)
+    pub fn of(name: &str) -> Option<Self> {
+        IntKind::of(name)
             .map(Self::Int)
-            .or_else(|| {
-                FloatKind::ALL
-                    .into_iter()
-                    .find(|k| k.name() == name)
-                    .map(Self::Float)
-            })
+            .or_else(|| FloatKind::of(name).map(Self::Float))
     }
 }

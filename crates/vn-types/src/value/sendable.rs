@@ -46,7 +46,7 @@ impl SendValue {
 
     pub fn from_native_error(e: &crate::NativeError) -> Self {
         let Some(info) = e.std.as_ref() else {
-            return Self::error(e.kind.class_name(), e.message.clone());
+            return Self::error(e.kind.name(), e.message.clone());
         };
         let mut fields = vec![(
             vn_core::ErrorField::Code.name().to_string(),
@@ -82,13 +82,13 @@ impl SendValue {
                 let message_nv = ctx.alloc_str(message);
                 let instance = ctx
                     .alloc_instance(class)
-                    .or_else(|| ctx.alloc_instance(vn_core::RuntimeErrorKind::Error.class_name()));
+                    .or_else(|| ctx.alloc_instance(vn_core::RuntimeErrorKind::Error.name()));
                 let Some(inst) = instance else {
                     return message_nv;
                 };
-                ctx.set_field(inst, vn_core::MemberKey::Message.as_str(), message_nv);
+                ctx.set_field(inst, vn_core::MemberKey::Message.name(), message_nv);
                 let name_nv = ctx.alloc_str(class);
-                ctx.set_field(inst, vn_core::MemberKey::Name.as_str(), name_nv);
+                ctx.set_field(inst, vn_core::MemberKey::Name.name(), name_nv);
                 for (key, value) in fields {
                     let value_nv = value.to_value_ctx(ctx);
                     ctx.set_field(inst, key, value_nv);

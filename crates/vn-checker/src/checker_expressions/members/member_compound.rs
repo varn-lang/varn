@@ -173,13 +173,13 @@ impl<'r> Checker<'r> {
     ) -> Option<(Type, super::member_auth::MemberAuth)> {
         match kind {
             TypeKind::Primitive(vn_core::LangPrimitive::Str) => {
-                if key == vn_core::MemberKey::Length.as_str() {
+                if key == vn_core::MemberKey::Length.name() {
                     Some((Type::Int, super::member_auth::MemberAuth::none()))
                 } else {
                     intrinsic_member_info(bind, vn_core::LangPrimitive::Str.name(), key)
                 }
             }
-            TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.as_str() => {
+            TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.name() => {
                 Some((Type::Int, super::member_auth::MemberAuth::none()))
             }
             kind @ (TypeKind::Primitive(_) | TypeKind::Literal(_)) => {

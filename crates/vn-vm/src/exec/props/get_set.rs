@@ -217,19 +217,19 @@ pub(super) fn resolve_own_data_property(obj: VmValue, key: &str, heap: &Heap) ->
     }
     match heap.get(obj.as_heap()).cloned() {
         Some(HeapObj::Object(o)) => o.get(key),
-        Some(HeapObj::Array(a)) | Some(HeapObj::Tuple(a)) if key == MemberKey::Length.as_str() => {
+        Some(HeapObj::Array(a)) | Some(HeapObj::Tuple(a)) if key == MemberKey::Length.name() => {
             Some(VmValue::from_int(a.len() as i64))
         }
-        Some(HeapObj::Buffer(b)) if key == MemberKey::Length.as_str() => {
+        Some(HeapObj::Buffer(b)) if key == MemberKey::Length.name() => {
             Some(VmValue::from_int(b.len() as i64))
         }
         Some(HeapObj::Range(r)) => {
             let int_bounds = r.elem == vn_types::value::RangeElem::Int;
-            if int_bounds && key == MemberKey::Start.as_str() {
+            if int_bounds && key == MemberKey::Start.name() {
                 Some(VmValue::from_int(r.start))
-            } else if int_bounds && key == MemberKey::End.as_str() {
+            } else if int_bounds && key == MemberKey::End.name() {
                 Some(VmValue::from_int(r.end))
-            } else if key == MemberKey::Length.as_str() {
+            } else if key == MemberKey::Length.name() {
                 r.len().map(VmValue::from_int)
             } else {
                 None

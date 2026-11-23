@@ -223,7 +223,7 @@ impl<'r> super::Binder<'r> {
                     &mut *std::sync::Arc::make_mut(&mut self.ty_table),
                 );
                 members.push(ClassMemberInfo {
-                    name: Arc::from(vn_core::MemberKey::Callable.as_str()),
+                    name: Arc::from(vn_core::MemberKey::Callable.name()),
                     kind: ClassMemberKind::Method,
                     is_async: false,
                     is_generator: false,

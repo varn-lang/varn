@@ -15,7 +15,7 @@ use vn_types::value::BoundMethodTarget;
 use vn_types::{Boundary, ClassObj, NativeCtx, NativeError, NativeFn, NativeFnResult};
 
 const RUNTIME_OPS: [(vn_core::runtime_ops::RuntimeOp, NativeFn);
-    vn_core::runtime_ops::RuntimeOp::COUNT as usize] = [
+    vn_core::runtime_ops::RuntimeOp::COUNT] = [
     (
         vn_core::runtime_ops::RuntimeOp::Conform,
         crate::exec::conform::conform_native,
@@ -116,7 +116,7 @@ fn str_index_native(ctx: &mut dyn NativeCtx, args: &[VmValue]) -> NativeFnResult
 }
 
 pub(crate) fn runtime_op(op_id: u64) -> Option<NativeFn> {
-    static BY_ID: std::sync::OnceLock<[NativeFn; vn_core::runtime_ops::RuntimeOp::COUNT as usize]> =
+    static BY_ID: std::sync::OnceLock<[NativeFn; vn_core::runtime_ops::RuntimeOp::COUNT]> =
         std::sync::OnceLock::new();
     let by_id = BY_ID.get_or_init(|| RUNTIME_OPS.map(|(_, native)| native));
     by_id.get(usize::try_from(op_id).ok()?).copied()

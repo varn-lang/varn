@@ -224,11 +224,11 @@ impl<'a> FnEmitter<'a> {
         TirExpr {
             kind: TirExprKind::MethodCall {
                 recv: Box::new(src.clone()),
-                name: Arc::from(vn_core::MemberKey::Slice.as_str()),
+                name: Arc::from(vn_core::MemberKey::Slice.name()),
                 args: vec![TirArg::Expr(int_lit(from as i64))],
             },
             ty: src.ty,
-            res: self.by_name(Arc::from(vn_core::MemberKey::Slice.as_str()), src.ty),
+            res: self.by_name(Arc::from(vn_core::MemberKey::Slice.name()), src.ty),
             span: src.span,
         }
     }
@@ -308,7 +308,7 @@ impl<'a> FnEmitter<'a> {
         };
         let len = self.field_access(
             arr,
-            Arc::from(vn_core::MemberKey::Length.as_str()),
+            Arc::from(vn_core::MemberKey::Length.name()),
             BackendTy::INT,
             span,
         );

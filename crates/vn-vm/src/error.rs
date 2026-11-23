@@ -49,7 +49,7 @@ impl RuntimeError {
 
     fn of_kind(kind: vn_core::RuntimeErrorKind, message: impl Into<String>) -> Self {
         Self {
-            class: kind.class_name().to_owned(),
+            class: kind.name().to_owned(),
             message: message.into(),
             frames: Vec::new(),
             cause: None,
@@ -65,7 +65,7 @@ impl From<vn_types::NativeError> for RuntimeError {
         let class = e
             .std
             .as_ref()
-            .map_or_else(|| e.kind.class_name(), |info| info.class.name())
+            .map_or_else(|| e.kind.name(), |info| info.class.name())
             .to_owned();
         Self {
             class,

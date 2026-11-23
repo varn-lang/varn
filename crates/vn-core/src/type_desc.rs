@@ -174,7 +174,7 @@ fn decode_one(rest: &mut &str) -> Option<TypeDesc> {
     Some(match tag {
         '*' => TypeDesc::Any,
         'L' => TypeDesc::Literal(literal::decode(rest)?),
-        'N' => TypeDesc::Num(crate::NumKind::from_name(take_until(rest, ';')?)?),
+        'N' => TypeDesc::Num(crate::NumKind::of(take_until(rest, ';')?)?),
         'b' => TypeDesc::Bool,
         'c' => TypeDesc::Char,
         's' => TypeDesc::Str,

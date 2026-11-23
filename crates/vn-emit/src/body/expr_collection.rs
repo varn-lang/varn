@@ -49,7 +49,7 @@ impl<'a> FnEmitter<'a> {
             | BackendTy::Dynamic(_) => return source,
         };
         let ty = BackendTy::Array(self.tt.intern(elem));
-        self.member_call(source, Arc::from(key.as_str()), vec![], ty, None, span)
+        self.member_call(source, Arc::from(key.name()), vec![], ty, None, span)
     }
 
     pub(super) fn lower_array(

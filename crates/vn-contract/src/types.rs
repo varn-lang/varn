@@ -31,7 +31,7 @@ impl ContractTy {
         match &node.kind {
             TypeKind::Named(name, _) => {
                 let name = interner.resolve(*name);
-                LangPrimitive::from_str(name)
+                LangPrimitive::of(name)
                     .map(Self::of_primitive)
                     .unwrap_or_else(|| Self::Named(name.to_string()))
             }
@@ -125,8 +125,10 @@ impl ContractTy {
             Self::Generic(name, _) | Self::Named(name) if contract.classes.contains_key(name) => {
                 Some(RuntimeKind::Class)
             }
-            Self::Generic(name, args) => builtin(name).and_then(|b| generic_kind(b, args.len())),
-            Self::Named(name) => builtin(name).and_then(bare_kind),
+            Self::Generic(name, args) => {
+                BuiltinType::of(name).and_then(|b| generic_kind(b, args.len()))
+            }
+            Self::Named(name) => BuiltinType::of(name).and_then(bare_kind),
             Self::Opt(_)
             | Self::Union(_)
             | Self::Void
@@ -136,10 +138,6 @@ impl ContractTy {
             | Self::Other => None,
         }
     }
-}
-
-fn builtin(name: &str) -> Option<BuiltinType> {
-    BuiltinType::ALL.into_iter().find(|b| b.name() == name)
 }
 
 fn generic_kind(b: BuiltinType, arity: usize) -> Option<RuntimeKind> {

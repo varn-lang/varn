@@ -48,7 +48,7 @@ impl<'r> Checker<'r> {
             kind @ (TypeKind::Primitive(_) | TypeKind::Literal(_)) => {
                 self.member_scalar(&kind, key, bind)
             }
-            TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.as_str() => {
+            TypeKind::Tuple(_) if key == vn_core::MemberKey::Length.name() => {
                 Some((Type::Int, super::member_auth::MemberAuth::none()))
             }
             TypeKind::This
@@ -104,7 +104,7 @@ impl<'r> Checker<'r> {
                 type_args: _,
                 payload_ty,
             } => {
-                if key == vn_core::MemberKey::Name.as_str() {
+                if key == vn_core::MemberKey::Name.name() {
                     return Some(ObjectTypeMember::Property {
                         name: Arc::from(key),
                         ty: Type::Str.0,
@@ -112,7 +112,7 @@ impl<'r> Checker<'r> {
                         readonly: true,
                     });
                 }
-                if key == vn_core::MemberKey::Tag.as_str() {
+                if key == vn_core::MemberKey::Tag.name() {
                     return Some(ObjectTypeMember::Property {
                         name: Arc::from(key),
                         ty: Type::Int.0,

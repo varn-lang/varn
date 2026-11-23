@@ -1,50 +1,18 @@
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Verb {
-    Complete,
-    Hover,
-    Definition,
-    Declaration,
-    Highlight,
-    Signature,
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub enum Verb {
+        Complete => "complete",
+        Hover => "hover",
+        Definition => "definition",
+        Declaration => "declaration",
+        Highlight => "highlight",
+        Signature => "signature",
+    }
 }
 
 impl Verb {
-    pub fn parse(s: &str) -> Option<Self> {
-        match s {
-            "complete" => Some(Verb::Complete),
-            "hover" => Some(Verb::Hover),
-            "definition" => Some(Verb::Definition),
-            "declaration" => Some(Verb::Declaration),
-            "highlight" => Some(Verb::Highlight),
-            "signature" => Some(Verb::Signature),
-            _ => None,
-        }
-    }
-
-    pub fn name(self) -> &'static str {
-        match self {
-            Verb::Complete => "complete",
-            Verb::Hover => "hover",
-            Verb::Definition => "definition",
-            Verb::Declaration => "declaration",
-            Verb::Highlight => "highlight",
-            Verb::Signature => "signature",
-        }
-    }
-
-    pub fn all() -> Vec<Verb> {
-        vec![
-            Verb::Complete,
-            Verb::Hover,
-            Verb::Definition,
-            Verb::Declaration,
-            Verb::Highlight,
-            Verb::Signature,
-        ]
-    }
-
-    pub fn list() -> &'static str {
-        "complete,hover,definition,declaration,highlight,signature"
+    pub fn list() -> String {
+        Self::ALL.map(Self::name).join(",")
     }
 }
 
@@ -131,7 +99,7 @@ impl Default for Step {
             line: 0,
             col: 0,
             typed: None,
-            ask: Verb::all(),
+            ask: Verb::ALL.to_vec(),
             expects: Vec::new(),
         }
     }
@@ -207,7 +175,7 @@ pub fn parse_step(text: &str) -> Result<Step, String> {
                     return Err("ask= needs at least one verb".to_string());
                 }
                 step.ask.push(
-                    Verb::parse(value).ok_or_else(|| {
+                    Verb::of(value).ok_or_else(|| {
                         format!("unknown verb {value:?} (verbs: {})", Verb::list())
                     })?,
                 );

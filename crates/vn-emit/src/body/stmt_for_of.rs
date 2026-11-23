@@ -86,7 +86,7 @@ impl<'a> FnEmitter<'a> {
                         let ty = BackendTy::Array(self.tt.intern(elem));
                         self.member_call(
                             source,
-                            Arc::from(key.as_str()),
+                            Arc::from(key.name()),
                             vec![],
                             ty,
                             None,
@@ -104,7 +104,7 @@ impl<'a> FnEmitter<'a> {
                 let field = |me: &mut Self, key: MemberKey| {
                     me.field_access(
                         range.clone(),
-                        Arc::from(key.as_str()),
+                        Arc::from(key.name()),
                         BackendTy::INT,
                         Span::EMPTY,
                     )
@@ -216,7 +216,7 @@ impl<'a> FnEmitter<'a> {
         let idx_var = || local_var(idx, BackendTy::INT);
         let len = self.field_access(
             sized,
-            Arc::from(MemberKey::Length.as_str()),
+            Arc::from(MemberKey::Length.name()),
             BackendTy::INT,
             Span::EMPTY,
         );

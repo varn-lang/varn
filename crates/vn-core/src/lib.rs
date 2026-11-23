@@ -21,6 +21,7 @@ pub mod lang_type;
 pub mod layout;
 pub mod miss_log;
 pub mod module_id;
+mod named_enum;
 pub mod num_kind;
 pub mod numeric;
 pub mod numeric_big;

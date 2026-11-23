@@ -356,8 +356,7 @@ impl<'a> FnEmitter<'a> {
 
             ExprKind::MetaAccess { target, property } => {
                 let obj = self.lower_expr(*target);
-                let Some(key) = vn_core::MetaKey::from_str(self.m.interner.resolve(*property))
-                else {
+                let Some(key) = vn_core::MetaKey::of(self.m.interner.resolve(*property)) else {
                     return TirExpr {
                         kind: TirExprKind::NullLit,
                         ty,
@@ -387,7 +386,7 @@ impl<'a> FnEmitter<'a> {
                 return TirExpr {
                     kind: TirExprKind::MethodCall {
                         recv: Box::new(obj),
-                        name: Arc::from(key.as_str()),
+                        name: Arc::from(key.name()),
                         args: vec![vn_tir::TirArg::Expr(TirExpr {
                             kind: TirExprKind::IntLit(key.index()),
                             ty: BackendTy::INT,

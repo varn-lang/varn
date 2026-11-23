@@ -91,7 +91,7 @@ impl<'a> FnEmitter<'a> {
             }
         }
         if read
-            && name.as_ref() == vn_core::MemberKey::RawValue.as_str()
+            && name.as_ref() == vn_core::MemberKey::RawValue.name()
             && matches!(obj.ty.non_nullable(self.tt), BackendTy::Enum(_))
         {
             return TirExpr {
@@ -104,7 +104,7 @@ impl<'a> FnEmitter<'a> {
             };
         }
         if read
-            && name.as_ref() == vn_core::MemberKey::Length.as_str()
+            && name.as_ref() == vn_core::MemberKey::Length.name()
             && matches!(
                 obj.ty.non_nullable(self.tt),
                 BackendTy::Array(_) | BackendTy::Tuple(_) | BackendTy::Str | BackendTy::Bytes

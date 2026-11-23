@@ -100,7 +100,7 @@ pub(super) fn idents(prefix: &str, sym: &str) -> BodyIdents {
 fn capability_mask(domains: &[String]) -> u64 {
     domains
         .iter()
-        .filter_map(|d| vn_core::sandbox::Capability::parse(d).map(|c| c.bit()))
+        .filter_map(|d| vn_core::sandbox::Capability::of(d).map(|c| c.bit()))
         .fold(0, |acc, b| acc | b)
 }
 

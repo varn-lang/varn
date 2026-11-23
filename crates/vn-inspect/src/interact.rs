@@ -69,7 +69,7 @@ fn auto_cursors(analysis: &vn_lsp::document::DocumentAnalysis) -> Vec<Step> {
             line: t.line,
             col: t.col + t.length,
             typed: None,
-            ask: Verb::all(),
+            ask: Verb::ALL.to_vec(),
             expects: Vec::new(),
         })
         .collect()

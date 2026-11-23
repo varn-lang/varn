@@ -178,7 +178,7 @@ impl ExecCtx {
             }
         }
 
-        if name == vn_core::MemberKey::Length.as_str()
+        if name == vn_core::MemberKey::Length.name()
             && let Some(v) = crate::exec::strings::fast_length(obj, &self.heap)
         {
             if cs_idx < cache_len && !is_megamorphic {

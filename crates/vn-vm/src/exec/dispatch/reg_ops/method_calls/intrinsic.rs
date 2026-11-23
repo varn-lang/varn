@@ -29,23 +29,23 @@ impl ExecCtx {
         if this_val.is_heap()
             && let Some(HeapObj::Array(arr)) = self.heap.get(this_val.as_heap())
         {
-            if name == MemberKey::Push.as_str() && arg_count == 1 {
+            if name == MemberKey::Push.name() && arg_count == 1 {
                 let val = args.get(&self.stack, 0);
                 arr.push_vm(val);
                 self.heap.write_barrier(this_val.as_heap(), val);
                 self.record_ic_hit_callmethod();
                 self.record_call_native(
                     |_, _| Ok(VmValue::null()),
-                    Some(vn_core::MemberKey::Push.as_str()),
+                    Some(vn_core::MemberKey::Push.name()),
                 );
                 return Some(VmValue::null());
             }
-            if name == MemberKey::Pop.as_str() && arg_count == 0 {
+            if name == MemberKey::Pop.name() && arg_count == 0 {
                 let val = arr.pop_vm().unwrap_or(VmValue::null());
                 self.record_ic_hit_callmethod();
                 self.record_call_native(
                     |_, _| Ok(VmValue::null()),
-                    Some(vn_core::MemberKey::Pop.as_str()),
+                    Some(vn_core::MemberKey::Pop.name()),
                 );
                 return Some(val);
             }

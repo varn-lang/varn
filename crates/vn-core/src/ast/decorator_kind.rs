@@ -1,43 +1,19 @@
 use super::decorators::BuiltinDecorator;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum BuiltinDecoratorKind {
-    Deprecated,
-    Pure,
-    Inline,
-    Capability,
-    Test,
-    Throws,
-    Decodes,
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub enum BuiltinDecoratorKind {
+        Deprecated => "deprecated",
+        Pure => "pure",
+        Inline => "inline",
+        Capability => "capability",
+        Test => "test",
+        Throws => "throws",
+        Decodes => "decodes",
+    }
 }
 
 impl BuiltinDecoratorKind {
-    const ALL: [Self; 7] = [
-        Self::Deprecated,
-        Self::Pure,
-        Self::Inline,
-        Self::Capability,
-        Self::Test,
-        Self::Throws,
-        Self::Decodes,
-    ];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Deprecated => "deprecated",
-            Self::Pure => "pure",
-            Self::Inline => "inline",
-            Self::Capability => "capability",
-            Self::Test => "test",
-            Self::Throws => "throws",
-            Self::Decodes => "decodes",
-        }
-    }
-
-    pub fn of(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|k| k.name() == name)
-    }
-
     pub const fn supports(self, target: DecoratorTarget) -> bool {
         match self {
             Self::Deprecated => true,
@@ -85,30 +61,20 @@ impl BuiltinDecorator {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DecoratorTarget {
-    Function,
-    Method,
-    Class,
-    Getter,
-    Setter,
-    Constructor,
-    Property,
+crate::named_enum! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub enum DecoratorTarget {
+        Function => crate::TokenKind::Function.as_str(),
+        Method => "method",
+        Class => crate::TokenKind::Class.as_str(),
+        Getter => "getter",
+        Setter => "setter",
+        Constructor => crate::TokenKind::Constructor.as_str(),
+        Property => "property",
+    }
 }
 
 impl DecoratorTarget {
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Function => crate::TokenKind::Function.as_str(),
-            Self::Method => "method",
-            Self::Class => crate::TokenKind::Class.as_str(),
-            Self::Getter => "getter",
-            Self::Setter => "setter",
-            Self::Constructor => crate::TokenKind::Constructor.as_str(),
-            Self::Property => "property",
-        }
-    }
-
     pub const fn arity(self) -> usize {
         match self {
             Self::Function | Self::Class => 1,

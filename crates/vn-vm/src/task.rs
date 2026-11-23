@@ -407,7 +407,7 @@ fn plain_field(heap: &HeapInner, value: VmValue) -> Option<vn_types::value::Send
 }
 
 pub(crate) fn derives_from_error(class: &Rc<ClassObj>) -> bool {
-    let root = vn_core::RuntimeErrorKind::Error.class_name();
+    let root = vn_core::RuntimeErrorKind::Error.name();
     let mut current = Rc::clone(class);
     loop {
         if current.name.as_str() == root {
@@ -427,9 +427,9 @@ pub(crate) fn error_value(heap: &HeapInner, thrown: VmValue) -> Option<vn_types:
         return None;
     }
     let carried = [
-        MemberKey::Message.as_str(),
-        MemberKey::Name.as_str(),
-        MemberKey::Stack.as_str(),
+        MemberKey::Message.name(),
+        MemberKey::Name.name(),
+        MemberKey::Stack.name(),
     ];
     if let Some(inst) = heap.instance(thrown.as_heap())
         && let Some(class) = ClassObj::find_by_id(inst.class_id)
@@ -441,7 +441,7 @@ pub(crate) fn error_value(heap: &HeapInner, thrown: VmValue) -> Option<vn_types:
             let Some(value) = inst.read_field(field) else {
                 continue;
             };
-            if field.name.as_ref() == MemberKey::Message.as_str() {
+            if field.name.as_ref() == MemberKey::Message.name() {
                 message = heap.str_repr(value);
             } else if !carried.contains(&field.name.as_ref())
                 && let Some(plain) = plain_field(heap, value)
@@ -457,10 +457,10 @@ pub(crate) fn error_value(heap: &HeapInner, thrown: VmValue) -> Option<vn_types:
     }
     let entries = crate::exec::value_views::object_entries(heap, thrown)?;
     let named = |name: &str| entries.iter().find(|(key, _)| key == name).map(|(_, v)| *v);
-    let message = heap.str_repr(named(MemberKey::Message.as_str())?);
-    let class = named(MemberKey::Name.as_str())
+    let message = heap.str_repr(named(MemberKey::Message.name())?);
+    let class = named(MemberKey::Name.name())
         .map(|v| heap.str_repr(v))
-        .unwrap_or_else(|| vn_core::RuntimeErrorKind::Error.class_name().to_owned());
+        .unwrap_or_else(|| vn_core::RuntimeErrorKind::Error.name().to_owned());
     let fields = entries
         .iter()
         .filter(|(key, _)| !carried.contains(&key.as_str()))

@@ -9,7 +9,7 @@ fn range_error(message: String) -> NativeError {
 
 natives! {
     errorCode(className) => {
-        StdErrorClass::of_name(className)
+        StdErrorClass::of(className)
             .map(|class| class.code().to_owned())
             .ok_or_else(|| range_error(format!("'{className}' is not a std error class")))
     },
@@ -20,13 +20,13 @@ natives! {
             let cls = ctx
                 .class_from_value(value)
                 .ok_or_else(|| range_error(format!("registerErrorClasses: item {index} is not a class")))?;
-            let class = StdErrorClass::of_name(&cls.name).ok_or_else(|| {
+            let class = StdErrorClass::of(&cls.name).ok_or_else(|| {
                 range_error(format!("'{}' is not in the std error table", cls.name))
             })?;
             let parent = cls.superclass.borrow().as_ref().map(|p| p.name.clone());
             let expected = class
                 .parent()
-                .map_or(RuntimeErrorKind::Error.class_name(), StdErrorClass::name);
+                .map_or(RuntimeErrorKind::Error.name(), StdErrorClass::name);
             if parent.as_deref() != Some(expected) {
                 return Err(range_error(format!(
                     "'{}' must extend '{expected}', it extends '{}'",

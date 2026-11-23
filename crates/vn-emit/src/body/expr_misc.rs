@@ -34,14 +34,14 @@ impl<'a> FnEmitter<'a> {
         }
         if let BackendTy::Class(id) = e.ty
             && self.m.classes.get(id.0 as usize).is_some_and(|info| {
-                info.method_slot(vn_core::MemberKey::ToString.as_str())
+                info.method_slot(vn_core::MemberKey::ToString.name())
                     .is_some()
             })
         {
             let span = e.span;
             return self.method_call(
                 e,
-                Arc::from(vn_core::MemberKey::ToString.as_str()),
+                Arc::from(vn_core::MemberKey::ToString.name()),
                 Vec::new(),
                 BackendTy::Str,
                 None,

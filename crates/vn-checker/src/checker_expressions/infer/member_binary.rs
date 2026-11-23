@@ -47,7 +47,7 @@ pub(super) fn infer_member_type(
     let obj_kind = checker.ty_table.get(obj_ty.0);
     match obj_kind {
         TypeKind::Array(_elem) => {
-            if prop_name_str == vn_core::MemberKey::Length.as_str() {
+            if prop_name_str == vn_core::MemberKey::Length.name() {
                 return Type::primitive(
                     vn_core::LangPrimitive::INT,
                     &mut *std::sync::Arc::make_mut(&mut checker.ty_table),

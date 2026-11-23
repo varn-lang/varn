@@ -124,15 +124,15 @@ pub(super) fn to_sendable(
             Some(HeapObj::Range(r)) => {
                 let fields = vec![
                     (
-                        vn_core::MemberKey::Start.as_str().to_string(),
+                        vn_core::MemberKey::Start.name().to_string(),
                         vn_types::value::SendValue::Int(r.start),
                     ),
                     (
-                        vn_core::MemberKey::End.as_str().to_string(),
+                        vn_core::MemberKey::End.name().to_string(),
                         vn_types::value::SendValue::Int(r.end),
                     ),
                     (
-                        vn_core::MemberKey::Inclusive.as_str().to_string(),
+                        vn_core::MemberKey::Inclusive.name().to_string(),
                         vn_types::value::SendValue::Bool(r.inclusive),
                     ),
                     ("step".to_string(), vn_types::value::SendValue::Int(r.step)),

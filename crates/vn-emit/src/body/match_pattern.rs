@@ -63,7 +63,7 @@ impl<'a> FnEmitter<'a> {
                 let mut cond = self.present_guard(s);
                 let length = self.field_access(
                     s.clone(),
-                    Arc::from(vn_core::MemberKey::Length.as_str()),
+                    Arc::from(vn_core::MemberKey::Length.name()),
                     BackendTy::INT,
                     s.span,
                 );

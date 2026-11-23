@@ -67,7 +67,7 @@ impl LangPrimitive {
         }
     }
 
-    pub fn from_str(name: &str) -> Option<Self> {
+    pub fn of(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|p| p.name() == name)
     }
 
@@ -117,61 +117,29 @@ impl std::fmt::Display for LangPrimitive {
     }
 }
 
-#[derive(
+crate::named_enum! {
+    #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
-)]
-#[repr(u8)]
-pub enum BuiltinType {
-    Array,
-    Map,
-    Set,
-    Range,
-    Bytes,
-    Task,
-    TaskHandle,
-    Generator,
-    AsyncGenerator,
-    Class,
-    ReadonlyArray,
-    ReadonlyMap,
-    ReadonlySet,
+    )]
+    #[repr(u8)]
+    pub enum BuiltinType {
+        Array => "Array",
+        Map => "Map",
+        Set => "Set",
+        Range => "Range",
+        Bytes => "Bytes",
+        Task => "Task",
+        TaskHandle => "TaskHandle",
+        Generator => "Generator",
+        AsyncGenerator => "AsyncGenerator",
+        Class => "Class",
+        ReadonlyArray => "ReadonlyArray",
+        ReadonlyMap => "ReadonlyMap",
+        ReadonlySet => "ReadonlySet",
+    }
 }
 
 impl BuiltinType {
-    pub const ALL: [Self; 13] = [
-        Self::Array,
-        Self::Map,
-        Self::Set,
-        Self::ReadonlyArray,
-        Self::ReadonlyMap,
-        Self::ReadonlySet,
-        Self::Range,
-        Self::Bytes,
-        Self::Task,
-        Self::TaskHandle,
-        Self::Generator,
-        Self::AsyncGenerator,
-        Self::Class,
-    ];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Array => "Array",
-            Self::Map => "Map",
-            Self::Set => "Set",
-            Self::Range => "Range",
-            Self::Bytes => "Bytes",
-            Self::Task => "Task",
-            Self::TaskHandle => "TaskHandle",
-            Self::Generator => "Generator",
-            Self::AsyncGenerator => "AsyncGenerator",
-            Self::Class => "Class",
-            Self::ReadonlyArray => "ReadonlyArray",
-            Self::ReadonlyMap => "ReadonlyMap",
-            Self::ReadonlySet => "ReadonlySet",
-        }
-    }
-
     const IDENTITY: [(Atom, Atom, Self); 13] = {
         let mut out = [(Atom::of_const(""), Atom::of_const(""), Self::Array); 13];
         let mut i = 0;
@@ -249,20 +217,14 @@ impl std::fmt::Display for BuiltinType {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum CoreSum {
-    Result,
+crate::named_enum! {
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum CoreSum {
+        Result => "Result",
+    }
 }
 
 impl CoreSum {
-    pub const ALL: [Self; 1] = [Self::Result];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Result => "Result",
-        }
-    }
-
     pub const fn module(self) -> &'static str {
         match self {
             Self::Result => "core:types/result",
@@ -295,20 +257,14 @@ impl CoreSum {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum LangConstraint {
-    Hashable,
+crate::named_enum! {
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum LangConstraint {
+        Hashable => "Hashable",
+    }
 }
 
 impl LangConstraint {
-    pub const ALL: [Self; 1] = [Self::Hashable];
-
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Hashable => "Hashable",
-        }
-    }
-
     pub const fn module(self) -> &'static str {
         match self {
             Self::Hashable => "core:types/hashable",

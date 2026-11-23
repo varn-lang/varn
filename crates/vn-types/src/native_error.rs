@@ -45,7 +45,7 @@ impl NativeError {
         let raised = self.class();
         let allowed = declared
             .iter()
-            .filter_map(|name| vn_core::ErrorClass::of_name(name))
+            .filter_map(|name| vn_core::ErrorClass::of(name))
             .any(|class| raised.is_a(class));
         if allowed {
             self

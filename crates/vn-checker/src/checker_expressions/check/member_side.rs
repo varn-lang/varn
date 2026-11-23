@@ -162,7 +162,7 @@ impl<'r> Checker<'r> {
             TypeKind::Array(_)
             | TypeKind::Tuple(_)
             | TypeKind::Primitive(vn_core::LangPrimitive::Str) => {
-                return member == vn_core::MemberKey::Length.as_str();
+                return member == vn_core::MemberKey::Length.name();
             }
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)

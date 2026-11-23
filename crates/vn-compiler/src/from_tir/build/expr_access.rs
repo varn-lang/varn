@@ -113,7 +113,7 @@ impl<'m> Builder<'m> {
             | BackendTy::Class(_)
             | BackendTy::Nullable(_) => InstKind::GetProperty {
                 object: obj,
-                name: std::sync::Arc::from(vn_core::MemberKey::Length.as_str()),
+                name: std::sync::Arc::from(vn_core::MemberKey::Length.name()),
             },
         };
         Ok(self.emit(kind, ty))

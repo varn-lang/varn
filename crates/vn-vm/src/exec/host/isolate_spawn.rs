@@ -9,7 +9,7 @@ pub(super) fn spawn_isolate(
     args: Vec<vn_types::value::SendValue>,
 ) -> Result<vn_types::HostPromise, String> {
     fn worker_error(msg: &str) -> vn_types::value::SendValue {
-        vn_types::value::SendValue::error(vn_core::RuntimeErrorKind::Error.class_name(), msg)
+        vn_types::value::SendValue::error(vn_core::RuntimeErrorKind::Error.name(), msg)
     }
 
     let loader = ctx.loader.clone();
@@ -112,7 +112,7 @@ pub(super) fn spawn_isolate(
                             let error = crate::task::error_value(&machine.ctx.heap, thrown)
                                 .unwrap_or_else(|| {
                                     vn_types::value::SendValue::error(
-                                        vn_core::RuntimeErrorKind::Error.class_name(),
+                                        vn_core::RuntimeErrorKind::Error.name(),
                                         machine.ctx.str_repr(thrown),
                                     )
                                 });

@@ -9,7 +9,7 @@ pub(super) fn resolve_specialized_property(
     heap: &mut Heap,
 ) -> Option<Result<VmValue, String>> {
     if obj.is_sso() {
-        if key == MemberKey::Length.as_str() {
+        if key == MemberKey::Length.name() {
             return Some(Ok(VmValue::from_int(heap.str_repr(obj).len() as i64)));
         }
         return None;
@@ -20,7 +20,7 @@ pub(super) fn resolve_specialized_property(
     match heap.get(obj.as_heap()).cloned() {
         Some(HeapObj::Class(cls)) => cls.get_static(key).or_else(|| cls.find_method(key)).map(Ok),
         Some(HeapObj::Array(arr)) => {
-            if key == MemberKey::Length.as_str() {
+            if key == MemberKey::Length.name() {
                 return Some(Ok(VmValue::from_int(arr.len() as i64)));
             }
             let n = key.parse::<usize>().ok()?;
@@ -30,13 +30,13 @@ pub(super) fn resolve_specialized_property(
             )
         }
         Some(HeapObj::Str(_)) => {
-            if key == MemberKey::Length.as_str() {
+            if key == MemberKey::Length.name() {
                 return Some(Ok(VmValue::from_int(heap.str_repr(obj).len() as i64)));
             }
             None
         }
         Some(HeapObj::Buffer(b)) => {
-            if key == MemberKey::Length.as_str() {
+            if key == MemberKey::Length.name() {
                 return Some(Ok(VmValue::from_int(b.len() as i64)));
             }
             None
@@ -77,7 +77,7 @@ fn enum_variant_property(
     if let Some(f) = ev.field(key) {
         return Some(Ok(f));
     }
-    match MemberKey::from_str(key) {
+    match MemberKey::of(key) {
         Some(MemberKey::Tag) | Some(MemberKey::RawValue) => Some(Ok(VmValue::from_int(ev.tag()))),
         Some(MemberKey::VariantName) | Some(MemberKey::Name) => {
             Some(Ok(HeapInner::alloc_str(heap, &*ev.def.variant_name)))

@@ -1,36 +1,17 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum RuntimeErrorKind {
-    #[default]
-    Error,
-    IntegerOverflow,
-    DivisionByZero,
-
-    MatchError,
-    TypeError,
-    RangeError,
+crate::named_enum! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+    pub enum RuntimeErrorKind {
+        #[default]
+        Error => "Error",
+        IntegerOverflow => "IntegerOverflow",
+        DivisionByZero => "DivisionByZero",
+        MatchError => "MatchError",
+        TypeError => "TypeError",
+        RangeError => "RangeError",
+    }
 }
 
 impl RuntimeErrorKind {
-    pub const ALL: [Self; 6] = [
-        Self::Error,
-        Self::IntegerOverflow,
-        Self::DivisionByZero,
-        Self::MatchError,
-        Self::TypeError,
-        Self::RangeError,
-    ];
-
-    pub const fn class_name(self) -> &'static str {
-        match self {
-            Self::Error => "Error",
-            Self::IntegerOverflow => "IntegerOverflow",
-            Self::DivisionByZero => "DivisionByZero",
-            Self::MatchError => "MatchError",
-            Self::TypeError => "TypeError",
-            Self::RangeError => "RangeError",
-        }
-    }
-
     pub const MODULE: &'static str = "core:errors";
 
     pub fn identify(name: crate::Atom, origin: Option<crate::Atom>) -> Option<Self> {
@@ -40,7 +21,7 @@ impl RuntimeErrorKind {
         }
         Self::ALL
             .into_iter()
-            .find(|k| crate::Atom::of_const(k.class_name()) == name)
+            .find(|k| crate::Atom::of_const(k.name()) == name)
     }
 }
 
@@ -51,17 +32,15 @@ pub enum ErrorClass {
 }
 
 impl ErrorClass {
-    pub fn of_name(name: &str) -> Option<Self> {
-        RuntimeErrorKind::ALL
-            .into_iter()
-            .find(|kind| kind.class_name() == name)
+    pub fn of(name: &str) -> Option<Self> {
+        RuntimeErrorKind::of(name)
             .map(Self::Runtime)
-            .or_else(|| crate::StdErrorClass::of_name(name).map(Self::Std))
+            .or_else(|| crate::StdErrorClass::of(name).map(Self::Std))
     }
 
     pub fn name(self) -> &'static str {
         match self {
-            Self::Runtime(kind) => kind.class_name(),
+            Self::Runtime(kind) => kind.name(),
             Self::Std(class) => class.name(),
         }
     }

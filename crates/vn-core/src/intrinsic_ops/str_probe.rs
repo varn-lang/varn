@@ -26,6 +26,6 @@ impl StrProbe {
     }
 
     pub fn of(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|p| p.key().as_str() == name)
+        Self::ALL.into_iter().find(|p| p.key().name() == name)
     }
 }

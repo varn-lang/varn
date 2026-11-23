@@ -76,7 +76,7 @@ impl<'r> Checker<'r> {
         let resolved = self.member_input(*ty, bind);
         let ty = &resolved;
         if ty.builtin_of(&self.ty_table) == Some(vn_core::BuiltinType::Class) {
-            if key == vn_core::MemberKey::Name.as_str() {
+            if key == vn_core::MemberKey::Name.name() {
                 return true;
             }
             let instance = ty.builtin_arg(0, &self.ty_table);
@@ -89,7 +89,7 @@ impl<'r> Checker<'r> {
             ) => true,
             TypeKind::Primitive(vn_core::LangPrimitive::Never) => false,
             TypeKind::Primitive(vn_core::LangPrimitive::Str) => {
-                if key == vn_core::MemberKey::Length.as_str() {
+                if key == vn_core::MemberKey::Length.name() {
                     return true;
                 }
                 if let Some(b) = &bind.core
@@ -116,10 +116,10 @@ impl<'r> Checker<'r> {
                 type_args: _,
                 payload_ty,
             } => {
-                if key == vn_core::MemberKey::RawValue.as_str()
-                    || key == vn_core::MemberKey::Tag.as_str()
-                    || key == vn_core::MemberKey::Name.as_str()
-                    || key == vn_core::MemberKey::VariantName.as_str()
+                if key == vn_core::MemberKey::RawValue.name()
+                    || key == vn_core::MemberKey::Tag.name()
+                    || key == vn_core::MemberKey::Name.name()
+                    || key == vn_core::MemberKey::VariantName.name()
                 {
                     return true;
                 }
@@ -163,10 +163,10 @@ impl<'r> Checker<'r> {
                 let is_enum = super::is_enum_type(self.resolver, bind, &name, &origin_modules);
 
                 if is_enum {
-                    if key == vn_core::MemberKey::RawValue.as_str()
-                        || key == vn_core::MemberKey::Tag.as_str()
-                        || key == vn_core::MemberKey::Name.as_str()
-                        || key == vn_core::MemberKey::VariantName.as_str()
+                    if key == vn_core::MemberKey::RawValue.name()
+                        || key == vn_core::MemberKey::Tag.name()
+                        || key == vn_core::MemberKey::Name.name()
+                        || key == vn_core::MemberKey::VariantName.name()
                     {
                         return true;
                     }
@@ -265,7 +265,7 @@ impl<'r> Checker<'r> {
                 .iter()
                 .any(|m| m.name() == key),
 
-            TypeKind::Tuple(_) => key == vn_core::MemberKey::Length.as_str(),
+            TypeKind::Tuple(_) => key == vn_core::MemberKey::Length.name(),
             TypeKind::Array(_) => bind
                 .core
                 .as_ref()

@@ -26,7 +26,7 @@ fn allow_read(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
     if ctx.check_fs_read(path) {
         Ok(())
     } else {
-        Err(capability_denied(Capability::FsRead.as_str(), path))
+        Err(capability_denied(Capability::FsRead.name(), path))
     }
 }
 
@@ -34,13 +34,13 @@ fn allow_write(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
     if ctx.check_fs_write(path) {
         Ok(())
     } else {
-        Err(capability_denied(Capability::FsWrite.as_str(), path))
+        Err(capability_denied(Capability::FsWrite.name(), path))
     }
 }
 
 fn allow_copy(ctx: &mut dyn NativeCtx, from: &str, to: &str) -> Result<(), NativeError> {
     if !ctx.check_fs_read(from) {
-        return Err(capability_denied(Capability::FsRead.as_str(), from));
+        return Err(capability_denied(Capability::FsRead.name(), from));
     }
     allow_write(ctx, to)
 }
@@ -81,7 +81,7 @@ natives! {
     class RawStats {}
     openRead(ctx, path) => {
         if !ctx.check_fs_read(path) {
-            return Err(capability_denied(Capability::FsRead.as_str(), path));
+            return Err(capability_denied(Capability::FsRead.name(), path));
         }
         let file = std::fs::OpenOptions::new()
             .read(true)
@@ -91,7 +91,7 @@ natives! {
     },
     openWrite(ctx, path, append) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.as_str(), path));
+            return Err(capability_denied(Capability::FsWrite.name(), path));
         }
         let file = if append {
             std::fs::OpenOptions::new()
@@ -165,7 +165,7 @@ natives! {
     },
     stat(ctx, path) => {
         if !ctx.check_fs_read(path) {
-            return Err(capability_denied(Capability::FsRead.as_str(), path));
+            return Err(capability_denied(Capability::FsRead.name(), path));
         }
         let meta = fs::metadata(path).map_err(|e| fs_error(e, path))?;
         let mtime = meta
@@ -184,13 +184,13 @@ natives! {
     },
     mkdir(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.as_str(), path));
+            return Err(capability_denied(Capability::FsWrite.name(), path));
         }
         fs::create_dir(path).map_err(|e| fs_error(e, path))
     },
     mkdirAll(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.as_str(), path));
+            return Err(capability_denied(Capability::FsWrite.name(), path));
         }
         fs::create_dir_all(path).map_err(|e| fs_error(e, path))
     },
@@ -205,7 +205,7 @@ natives! {
     },
     remove(ctx, path) => {
         if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.as_str(), path));
+            return Err(capability_denied(Capability::FsWrite.name(), path));
         }
         let p = std::path::Path::new(path);
         if p.is_dir() {
@@ -225,7 +225,7 @@ natives! {
     },
     rename(ctx, from, to) => {
         if !ctx.check_fs_read(from) || !ctx.check_fs_write(to) {
-            return Err(capability_denied(Capability::FsWrite.as_str(), to));
+            return Err(capability_denied(Capability::FsWrite.name(), to));
         }
         fs::rename(from, to).map_err(|e| fs_error(e, from))
     },

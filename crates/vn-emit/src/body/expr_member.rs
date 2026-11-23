@@ -132,7 +132,7 @@ impl<'a> FnEmitter<'a> {
                         span,
                     };
                 }
-                let name: Arc<str> = Arc::from(vn_core::MemberKey::Slice.as_str());
+                let name: Arc<str> = Arc::from(vn_core::MemberKey::Slice.name());
                 let res = match self
                     .core_class_name(obj.ty)
                     .and_then(|cls| self.m.core_ops.get(&(Arc::from(cls), Arc::clone(&name))))

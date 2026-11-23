@@ -21,7 +21,7 @@ fn permit(ctx: &mut dyn NativeCtx) -> Result<(), NativeError> {
     if ctx.has_capability(Capability::SysFfi) {
         Ok(())
     } else {
-        Err(NativeError::capability(Capability::SysFfi.as_str(), "runtime:ffi"))
+        Err(NativeError::capability(Capability::SysFfi.name(), "runtime:ffi"))
     }
 }
 

@@ -20,9 +20,9 @@ impl<'m> Builder<'m> {
         let ctx = self.emit(
             InstKind::BuildObject {
                 pairs: vec![
-                    (Arc::from(vn_core::MemberKey::Name.as_str()), n),
-                    (Arc::from(vn_core::MemberKey::IsStatic.as_str()), st),
-                    (Arc::from(vn_core::MemberKey::IsPrivate.as_str()), pv),
+                    (Arc::from(vn_core::MemberKey::Name.name()), n),
+                    (Arc::from(vn_core::MemberKey::IsStatic.name()), st),
+                    (Arc::from(vn_core::MemberKey::IsPrivate.name()), pv),
                 ],
             },
             BackendTy::Dynamic(DynReason::Runtime),
@@ -129,9 +129,9 @@ impl<'m> Builder<'m> {
                 let ctx = self.emit(
                     InstKind::BuildObject {
                         pairs: vec![
-                            (Arc::from(vn_core::MemberKey::Name.as_str()), n),
-                            (Arc::from(vn_core::MemberKey::IsStatic.as_str()), st),
-                            (Arc::from(vn_core::MemberKey::IsPrivate.as_str()), pv),
+                            (Arc::from(vn_core::MemberKey::Name.name()), n),
+                            (Arc::from(vn_core::MemberKey::IsStatic.name()), st),
+                            (Arc::from(vn_core::MemberKey::IsPrivate.name()), pv),
                         ],
                     },
                     BackendTy::Dynamic(DynReason::Runtime),

@@ -64,7 +64,7 @@ struct ThrownParts {
 
 fn describe_thrown(val: VmValue, heap: &Heap) -> ThrownParts {
     let plain = |message: String| ThrownParts {
-        class: vn_core::RuntimeErrorKind::Error.class_name().to_owned(),
+        class: vn_core::RuntimeErrorKind::Error.name().to_owned(),
         message,
         cause: None,
         stack: String::new(),
@@ -78,7 +78,7 @@ fn describe_thrown(val: VmValue, heap: &Heap) -> ThrownParts {
         let layout = cls.layout();
         let field = |key: vn_core::MemberKey| {
             layout
-                .get_field(key.as_str())
+                .get_field(key.name())
                 .and_then(|f| inst.read_field(f))
         };
         return ThrownParts {
@@ -95,14 +95,14 @@ fn describe_thrown(val: VmValue, heap: &Heap) -> ThrownParts {
     if let Some(HeapObj::Object(obj_ref)) = heap.get(val.as_heap()) {
         let obj = obj_ref.borrow();
         let message = obj
-            .get_field(vn_core::MemberKey::Message.as_str())
+            .get_field(vn_core::MemberKey::Message.name())
             .map(|nv| heap.str_repr(nv));
         let stack = obj
-            .get_field(vn_core::MemberKey::Stack.as_str())
+            .get_field(vn_core::MemberKey::Stack.name())
             .map(|nv| heap.str_repr(nv))
             .unwrap_or_default();
         let named = obj
-            .get_field(vn_core::MemberKey::Name.as_str())
+            .get_field(vn_core::MemberKey::Name.name())
             .map(|nv| heap.str_repr(nv))
             .filter(|name| !name.is_empty() && name != RuntimeKind::Null.name());
         return match (message, named) {
@@ -172,7 +172,7 @@ fn stamp_stack(heap: &mut Heap, val: VmValue, frames: &[FrameInfo]) {
         return;
     };
     let layout = cls.layout();
-    let Some(field) = layout.get_field(vn_core::MemberKey::Stack.as_str()) else {
+    let Some(field) = layout.get_field(vn_core::MemberKey::Stack.name()) else {
         return;
     };
     let unset = heap
@@ -232,7 +232,7 @@ pub(crate) fn thrown_value_for(err: &RuntimeError, heap: &mut Heap) -> VmValue {
         .filter(|info| heap.get_intrinsic_class(info.class.name()).is_some());
     let class_name = std_class
         .map(|info| info.class.name())
-        .unwrap_or_else(|| err.kind.class_name());
+        .unwrap_or_else(|| err.kind.name());
     let Some(cls) = heap.get_intrinsic_class(class_name) else {
         return msg;
     };
@@ -241,9 +241,9 @@ pub(crate) fn thrown_value_for(err: &RuntimeError, heap: &mut Heap) -> VmValue {
     let err_obj = VmValue::from_heap(heap.alloc_instance(&cls).0);
     let layout = cls.layout();
     let mut entries = vec![
-        (vn_core::MemberKey::Message.as_str(), msg),
-        (vn_core::MemberKey::Name.as_str(), name),
-        (vn_core::MemberKey::Stack.as_str(), stack),
+        (vn_core::MemberKey::Message.name(), msg),
+        (vn_core::MemberKey::Name.name(), name),
+        (vn_core::MemberKey::Stack.name(), stack),
     ];
     if let Some(info) = std_class {
         let code = heap.alloc_str_dynamic(info.class.code());
