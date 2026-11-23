@@ -28,16 +28,6 @@ impl VmUpvalue {
         }
     }
 
-    pub(crate) fn closed(value: VmValue) -> Self {
-        Self {
-            inner: Rc::new(RefCell::new(VmUpvalueInner {
-                value,
-                stack_slot: None,
-                owner: std::cell::Cell::new(0),
-            })),
-        }
-    }
-
     pub(crate) fn set_owner(&self, owner: vn_types::HeapRef) {
         self.inner.borrow().owner.set(owner.addr());
     }

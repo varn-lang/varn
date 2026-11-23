@@ -108,7 +108,7 @@ fn for_each_heap_child(
                 value(*slot);
             }
         }
-        HeapObj::Task(task) => task.trace_cells(&mut |c| value(c.get())),
+        HeapObj::Task(task) => task.trace_values(&mut |v| value(v)),
         HeapObj::TaskHandle(cell) => cell.trace_cells(&mut |c| value(c.get())),
         HeapObj::Generator(generator) => generator.trace(&mut value),
     }

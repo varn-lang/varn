@@ -59,19 +59,17 @@ fn describe_generator(
     staging: &mut Vec<VmValue>,
     heap: &mut Heap,
     settings: crate::settings::ExecSettings,
-    store: &FrameStore,
 ) -> PreparedCall {
     let args_start = staging.len() - arg_count;
     let args: Vec<VmValue> = staging.drain(args_start..).collect();
     let constants = resolve_constants(&nc.proto, heap);
 
-    let upvalues = nc
-        .upvalues
-        .iter()
-        .map(|uv| VmUpvalue::closed(uv.read(store)))
-        .collect();
-    let mut gen_closure =
-        VmClosure::with_upvalues(nc.proto.clone(), upvalues, Rc::new(constants), settings);
+    let mut gen_closure = VmClosure::with_upvalues(
+        nc.proto.clone(),
+        nc.upvalues.clone(),
+        Rc::new(constants),
+        settings,
+    );
     gen_closure.module_base = nc.module_base;
     PreparedCall::Generator {
         closure: Rc::new(gen_closure),
@@ -97,14 +95,14 @@ pub(crate) fn prepare_call(
                 bundle_rest_args(&nc.proto, &mut arg_count, staging, heap);
                 if nc.proto.is_generator {
                     return Ok(describe_generator(
-                        &nc, arg_count, None, staging, heap, settings, store,
+                        &nc, arg_count, None, staging, heap, settings,
                     ));
                 }
                 if nc.proto.is_async {
                     let args_start = staging.len().saturating_sub(arg_count);
                     return Ok(PreparedCall::Async(super::LazyParts {
                         proto: nc.proto.clone(),
-                        upvalues: nc.upvalues.iter().map(|uv| uv.read(store)).collect(),
+                        upvalues: nc.upvalues.clone(),
                         module_base: nc.module_base,
                         args: staging.drain(args_start..).collect(),
                         current_class: None,
@@ -164,14 +162,13 @@ pub(crate) fn prepare_call(
                                 staging,
                                 heap,
                                 settings,
-                                store,
                             ));
                         }
                         if nc.proto.is_async {
                             let args_start = staging.len().saturating_sub(full_arg_count);
                             return Ok(PreparedCall::Async(super::LazyParts {
                                 proto: nc.proto.clone(),
-                                upvalues: nc.upvalues.iter().map(|uv| uv.read(store)).collect(),
+                                upvalues: nc.upvalues.clone(),
                                 module_base: nc.module_base,
                                 args: staging.drain(args_start..).collect(),
                                 current_class: owner_class,

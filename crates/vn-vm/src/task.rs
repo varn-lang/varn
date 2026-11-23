@@ -46,7 +46,7 @@ impl TaskArgs {
 
 pub struct LazyTask {
     pub(crate) proto: Rc<FunctionProto>,
-    pub(crate) upvalues: Vec<Cell<VmValue>>,
+    pub(crate) upvalues: Vec<crate::closure::VmUpvalue>,
     pub(crate) module_base: u32,
     pub(crate) args: TaskArgs,
     pub(crate) current_class: Option<Rc<ClassObj>>,
@@ -63,18 +63,20 @@ impl std::fmt::Debug for LazyTask {
 }
 
 impl LazyTask {
-    pub(crate) fn trace_cells(&self, f: &mut dyn FnMut(&Cell<VmValue>)) {
+    pub(crate) fn trace_values(&self, f: &mut dyn FnMut(VmValue)) {
         for cell in self.args.cells() {
-            f(cell);
+            f(cell.get());
         }
-        for cell in &self.upvalues {
-            f(cell);
+        for uv in &self.upvalues {
+            if let Ok(inner) = uv.inner.try_borrow() {
+                f(inner.value);
+            }
         }
     }
 
     fn holds_young_ref(&self, heap: &HeapInner) -> bool {
         let mut found = false;
-        self.trace_cells(&mut |cell| found |= heap.is_young(cell.get()));
+        self.trace_values(&mut |v| found |= heap.is_young(v));
         found
     }
 }
@@ -376,7 +378,7 @@ pub(crate) fn gather_one(
 pub(crate) fn new_lazy(heap: &mut HeapInner, parts: crate::exec::calls::LazyParts) -> VmValue {
     let lazy = Rc::new(LazyTask {
         proto: parts.proto,
-        upvalues: parts.upvalues.into_iter().map(Cell::new).collect(),
+        upvalues: parts.upvalues,
         module_base: parts.module_base,
         args: TaskArgs::collect(parts.args.into_iter()),
         current_class: parts.current_class,

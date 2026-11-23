@@ -12,7 +12,7 @@ const INLINE_ARGS: usize = 4;
 fn closure_for(
     ctx: &mut ExecCtx,
     proto: &Rc<vn_types::FunctionProto>,
-    upvalues: &[VmValue],
+    upvalues: &[VmUpvalue],
     module_base: u32,
 ) -> Rc<VmClosure> {
     let key = Rc::as_ptr(proto) as usize;
@@ -28,8 +28,8 @@ fn closure_for(
         }
     }
     let constants = ctx.shared_constants(proto);
-    let upvalues = upvalues.iter().map(|&v| VmUpvalue::closed(v)).collect();
-    let mut closure = VmClosure::with_upvalues(Rc::clone(proto), upvalues, constants, ctx.settings);
+    let mut closure =
+        VmClosure::with_upvalues(Rc::clone(proto), upvalues.to_vec(), constants, ctx.settings);
     closure.module_base = module_base;
     let closure = Rc::new(closure);
     if shareable {
@@ -40,7 +40,6 @@ fn closure_for(
 }
 
 pub(crate) fn mount(ctx: &mut ExecCtx, task: &LazyTask, return_reg: u16) {
-    let upvalues: Vec<VmValue> = task.upvalues.iter().map(|cell| cell.get()).collect();
     let mut buf = [VmValue::null(); INLINE_ARGS];
     let cells = task.args.cells();
     let heap_args: Vec<VmValue>;
@@ -56,7 +55,7 @@ pub(crate) fn mount(ctx: &mut ExecCtx, task: &LazyTask, return_reg: u16) {
     mount_parts(
         ctx,
         &task.proto,
-        &upvalues,
+        &task.upvalues,
         task.module_base,
         args,
         task.current_class.clone(),
@@ -67,7 +66,7 @@ pub(crate) fn mount(ctx: &mut ExecCtx, task: &LazyTask, return_reg: u16) {
 pub(crate) fn mount_parts(
     ctx: &mut ExecCtx,
     proto: &Rc<vn_types::FunctionProto>,
-    upvalues: &[VmValue],
+    upvalues: &[VmUpvalue],
     module_base: u32,
     args: &[VmValue],
     current_class: Option<Rc<vn_types::ClassObj>>,

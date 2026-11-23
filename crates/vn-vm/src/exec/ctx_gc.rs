@@ -82,7 +82,7 @@ impl ExecCtx {
             cell.trace_cells(&mut |c| value(&mut roots, c.get()));
         }
         for lazy in &scope.lazies {
-            lazy.trace_cells(&mut |c| value(&mut roots, c.get()));
+            lazy.trace_values(&mut |v| value(&mut roots, v));
         }
         for state in &scope.gens {
             state.trace(&mut |v| value(&mut roots, v));

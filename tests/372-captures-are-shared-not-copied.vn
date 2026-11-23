@@ -1,0 +1,53 @@
+import { describe, it, expect } from "std:test";
+import { spawn, delay } from "std:task";
+
+class Counter { bump: (() => Task<void>)? = null }
+
+async function bumpLater(counter: Counter): Task<void> {
+    await delay(5);
+    const bump = counter.bump;
+    if (bump != null) { await bump() }
+}
+
+async function fromAnotherTask(): Task<int> {
+    const counter = new Counter();
+    let count = 1;
+    counter.bump = async () => { count = count + 10 };
+    spawn(bumpLater(counter));
+    await delay(40);
+    return count
+}
+
+async function sameTask(): Task<int> {
+    let count = 1;
+    const bump = async () => { count = count + 10 };
+    const read = async () => count;
+    await bump();
+    const seen = await read();
+    return seen * 1000 + count
+}
+
+function throughGenerator(): int {
+    let count = 1;
+    const gen = function* (): Generator<int> {
+        count = count + 10;
+        yield count
+    };
+    let last = 0;
+    for (const v in gen()) { last = v }
+    return last * 1000 + count
+}
+
+await describe("372 a capture is shared, not copied, by async closures and generators", async () => {
+    await it("an async closure writes the variable its owner reads", async () => {
+        expect(await sameTask()).toBe(11011);
+    });
+
+    await it("a generator writes the variable its owner reads", () => {
+        expect(throughGenerator()).toBe(11011);
+    });
+
+    await it("a write from another task reaches the owner after it resumes", async () => {
+        expect(await fromAnotherTask()).toBe(11);
+    });
+});

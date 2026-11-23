@@ -52,7 +52,7 @@ impl HeapInner {
         }
         let lazies = std::mem::take(&mut self.young_lazies);
         for lazy in &lazies {
-            lazy.trace_cells(&mut |c| mark_young_value(c.get(), &mut work));
+            lazy.trace_values(&mut |v| mark_young_value(v, &mut work));
         }
 
         while let Some(r) = work.pop() {
@@ -77,7 +77,7 @@ impl HeapInner {
             .into_iter()
             .filter(|lazy| {
                 let mut young = false;
-                lazy.trace_cells(&mut |c| young |= self.is_young(c.get()));
+                lazy.trace_values(&mut |v| young |= self.is_young(v));
                 young
             })
             .collect();

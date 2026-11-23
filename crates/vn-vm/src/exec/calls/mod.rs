@@ -71,7 +71,7 @@ pub(crate) fn materialize_frame(
 
 pub struct LazyParts {
     pub proto: Rc<FunctionProto>,
-    pub upvalues: Vec<VmValue>,
+    pub upvalues: Vec<VmUpvalue>,
     pub module_base: u32,
     pub args: Vec<VmValue>,
     pub current_class: Option<Rc<vn_types::ClassObj>>,
