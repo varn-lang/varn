@@ -5,8 +5,6 @@ use vn_core::TypeKind;
 use vn_sem::bind::BindResult;
 use vn_sem::types::Type;
 
-use super::super::expr_labels::base_type;
-
 pub(super) fn infer_member_type(
     checker: &mut Checker<'_>,
     rec: &mut Recorder,
@@ -121,8 +119,8 @@ pub(super) fn infer_binary_type(
         | BinOp::Shl
         | BinOp::Shr
         | BinOp::Ushr => {
-            let l_raw = base_type(&checker.infer_type(rec, left, bind));
-            let r_raw = base_type(&checker.infer_type(rec, right, bind));
+            let l_raw = checker.infer_type(rec, left, bind);
+            let r_raw = checker.infer_type(rec, right, bind);
             let l = l_raw.apparent(&checker.ty_table);
             let r = r_raw.apparent(&checker.ty_table);
             if l_raw.is_error() || r_raw.is_error() {

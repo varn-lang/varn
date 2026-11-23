@@ -1,4 +1,3 @@
-use super::super::expr_labels::base_type;
 use crate::checker::recorder::Recorder;
 use crate::checker::Checker;
 use vn_core::ast::ExprId;
@@ -45,8 +44,8 @@ impl<'r> Checker<'r> {
             }
         }
 
-        let l_base_raw = base_type(&l_ty);
-        let r_base_raw = base_type(&r_ty);
+        let l_base_raw = l_ty;
+        let r_base_raw = r_ty;
         let l_base = l_base_raw.apparent(&self.ty_table);
         let r_base = r_base_raw.apparent(&self.ty_table);
         let is_type_param_b = |t: &Type, checker: &Checker| matches!(checker.ty_table.get(t.0), vn_core::TypeKind::Named(n, _) if checker.active_type_params.contains(bind.interner.resolve(n)));
