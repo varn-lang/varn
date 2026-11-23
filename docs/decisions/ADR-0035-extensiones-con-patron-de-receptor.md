@@ -1,6 +1,6 @@
 # ADR-0035 — Extensiones con patrón de receptor en lugar de tipos calculados
 
-Estado: aceptada. Pasos 1, 2, 4 y 5 implementados; el paso 3 depende de una capacidad que falta (sección 5).
+Estado: aceptada e implementada.
 Fecha: 2026-11-22
 
 ## 1. Problema
@@ -36,13 +36,12 @@ Distancia con TypeScript (Ley 23): la sintaxis de la extensión es la misma. La 
 - El preludio importaba todos los exports de un módulo `core:` con código, incluidas sus `declare class`. Bastaba una extensión con cuerpo en `array.vn` para que `new Array<int>()` construyera una instancia vacía. Ahora el contrato separa `code_exports` (`8fdc7b56`).
 - `TokenStream::restore` retrocedía la posición pero no los diagnósticos: un intento especulativo abandonado (`a < b[0]` leído como argumentos de tipo) dejaba errores sobre código correcto (`0b477048`).
 
-## 5. Pendiente: restricciones en las extensiones
+## 5. Restricciones en las extensiones
 
-`extension<T extends Sized> on T[]` debe existir solo para los arrays cuyo elemento cumple `Sized`, y dentro del cuerpo `x.size()` debe resolverse por la restricción. Hoy ninguna de las dos cosas funciona. La causa no está en las extensiones: la búsqueda de miembros sobre un parámetro de tipo nunca consulta su restricción (solo lo hace la comprobación de `Hashable`), así que `function g<T extends Sized>(x: T) { return x.size() }` también es VN3004.
+`extension<T extends Sized> on T[]` existe solo para los arrays cuyo elemento cumple `Sized`, y dentro del cuerpo `x.size()` se resuelve por la restricción.
 
-Orden:
-1. Acceso a miembros a través de la restricción de un parámetro de tipo, con despacho estático en el emisor.
-2. Selección de candidatos de extensión filtrada por restricciones: de más a menos específico, gana el primero cuyas restricciones se cumplen con los tipos ligados.
+1. **Miembros a través de la restricción.** La búsqueda de miembros no consultaba la restricción de un parámetro de tipo, así que tampoco funcionaba `function g<T extends Sized>(x: T) { return x.size() }`. `member_input` resuelve ahora un parámetro acotado a su restricción, y las cachés de miembros usan como clave el receptor resuelto, porque dos funciones con `T` distintos comparten el mismo `Named("T")`.
+2. **Selección por restricciones.** `Extensions::matching` devuelve los candidatos que encajan, del más específico al menos, y gana el primero cuyas restricciones se cumplen con los tipos ligados. Una clase con la forma de la restricción pero sin `implements` no la cumple (ADR-0034 D8). Dos candidatos igual de específicos siguen siendo VN4002 aunque sus restricciones difieran, como la coherencia de Rust sin especialización.
 
 ## 6. Commits
 
@@ -55,3 +54,5 @@ Orden:
 | `restore` descarta diagnósticos especulativos | `0b477048` |
 | Limpieza de `member_type.rs` | `24c2cbeb` |
 | D9: retirada de la maquinaria de tipos | `9fbf3b68` |
+| Miembros a través de la restricción | `778a47ab` |
+| Selección de extensiones por restricciones | `922060d5` |
