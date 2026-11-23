@@ -96,3 +96,12 @@ pub fn split_ranges(text: &str, separator: Option<&str>, out: &mut Vec<(usize, u
         }
     }
 }
+
+#[inline]
+pub fn normalize_index(idx: i64, len: i64) -> usize {
+    if idx < 0 {
+        (len + idx).max(0) as usize
+    } else {
+        idx as usize
+    }
+}

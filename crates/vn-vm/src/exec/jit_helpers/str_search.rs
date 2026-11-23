@@ -336,28 +336,19 @@ pub(crate) extern "C" fn jit_str_slice_range(
         };
         let (bs, be) = if ascii {
             let len = text.len() as i64;
-            let si = normalize_idx(start, len).min(text.len());
-            let ei = normalize_idx(end.unwrap_or(len), len)
+            let si = vn_types::str_util::normalize_index(start, len).min(text.len());
+            let ei = vn_types::str_util::normalize_index(end.unwrap_or(len), len)
                 .min(text.len())
                 .max(si);
             (si, ei)
         } else {
             let len = char_len(&text, false);
-            let si = normalize_idx(start, len as i64).min(len);
-            let ei = normalize_idx(end.unwrap_or(len as i64), len as i64)
+            let si = vn_types::str_util::normalize_index(start, len as i64).min(len);
+            let ei = vn_types::str_util::normalize_index(end.unwrap_or(len as i64), len as i64)
                 .min(len)
                 .max(si);
             char_range_to_bytes(&text, false, si, ei)
         };
         ctx_ref.jit_native_result = ctx_ref.heap.alloc_str_view_of(s_val, bs, be - bs);
-    }
-}
-
-#[inline]
-pub(super) fn normalize_idx(idx: i64, len: i64) -> usize {
-    if idx < 0 {
-        (len + idx).max(0) as usize
-    } else {
-        idx as usize
     }
 }

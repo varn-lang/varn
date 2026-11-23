@@ -6,13 +6,6 @@ use crate::modules::types::regex::regex_argument;
 use vn_types::{NativeCtx, NativeFnResult, VmValue};
 
 
-fn normalize_idx(idx: i64, len: i64) -> usize {
-    if idx < 0 {
-        (len + idx).max(0) as usize
-    } else {
-        idx as usize
-    }
-}
 
 natives! {
     class str {
@@ -99,13 +92,13 @@ natives! {
             let b = this.as_bytes();
             if this.is_ascii() {
                 let len = b.len() as i64;
-                let si = normalize_idx(start, len).min(b.len());
-                let ei = normalize_idx(end.unwrap_or(len), len).min(b.len()).max(si);
+                let si = vn_types::str_util::normalize_index(start, len).min(b.len());
+                let ei = vn_types::str_util::normalize_index(end.unwrap_or(len), len).min(b.len()).max(si);
                 return ctx.str_sub(this, si, ei - si);
             }
             let len = char_len(this, false);
-            let si = normalize_idx(start, len as i64).min(len);
-            let ei = normalize_idx(end.unwrap_or(len as i64), len as i64).min(len).max(si);
+            let si = vn_types::str_util::normalize_index(start, len as i64).min(len);
+            let ei = vn_types::str_util::normalize_index(end.unwrap_or(len as i64), len as i64).min(len).max(si);
             let (bs, be) = char_range_to_bytes(this, false, si, ei);
             ctx.str_sub(this, bs, be - bs)
         },
