@@ -47,7 +47,7 @@ function offences(text: str): int {
 
 await describe("298 std errors are typed", async () => {
     await it("no std module encodes an error type in the message text", async () => {
-        const files = sources("std");
+        const files = sources(`${import.meta.dirname}/../std`);
         expect(files.length > 100).toBeTruthy();
         let total = 0;
         for (const file in files) {
@@ -58,7 +58,7 @@ await describe("298 std errors are typed", async () => {
 
     await it("no std module still imports the old coded-error helpers", async () => {
         let total = 0;
-        for (const file in sources("std")) {
+        for (const file in sources(`${import.meta.dirname}/../std`)) {
             const text = readText(file);
             if (text.indexOf("toStdError") != null || text.indexOf("stdError(") != null) {
                 total = total + 1;
