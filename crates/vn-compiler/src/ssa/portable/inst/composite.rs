@@ -33,22 +33,10 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
             elements: elements.iter().map(|v| v.0).collect(),
         }),
         InstKind::BuildArraySpread { elements } => Some(SsaOp::BuildArraySpread {
-            elements: elements
-                .iter()
-                .map(|(v, s)| vn_types::ssa::SsaSpread {
-                    value: v.0,
-                    spread: *s,
-                })
-                .collect(),
+            elements: elements.iter().map(|e| e.map(|v| v.0)).collect(),
         }),
         InstKind::BuildObjectSpread { parts } => Some(SsaOp::BuildObjectSpread {
-            parts: parts
-                .iter()
-                .map(|(k, v)| vn_types::ssa::SsaObjectSpreadPart {
-                    key: k.as_ref().map(|s| s.clone()),
-                    value: v.0,
-                })
-                .collect(),
+            parts: parts.iter().map(|p| p.map(|v| v.0)).collect(),
             cs_base: u16::from(site.ic_slot?),
         }),
         InstKind::GetProperty { object, name } => Some(SsaOp::GetProperty {

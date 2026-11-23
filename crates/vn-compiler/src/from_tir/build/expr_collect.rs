@@ -1,6 +1,5 @@
 use super::context::{Builder, Result};
 use crate::ssa::ir::{InstKind, Value};
-use std::sync::Arc;
 use vn_tir::TirExpr;
 use vn_tir::{BackendTy, DynReason};
 
@@ -20,7 +19,10 @@ impl<'m> Builder<'m> {
         let mut array = self.build_array_chunk(first, ty, any_spread)?;
         for chunk in chunks {
             if any_spread {
-                let mut parts = vec![(array, true)];
+                let mut parts = vec![vn_types::ssa::SsaSpread {
+                    value: array,
+                    spread: true,
+                }];
                 parts.extend(self.array_chunk_parts(chunk)?);
                 array = self.emit(InstKind::BuildArraySpread { elements: parts }, ty);
             } else {
@@ -42,14 +44,17 @@ impl<'m> Builder<'m> {
         }
     }
 
-    fn array_chunk_parts(&mut self, chunk: &[vn_tir::TirArrayEl]) -> Result<Vec<(Value, bool)>> {
+    fn array_chunk_parts(
+        &mut self,
+        chunk: &[vn_tir::TirArrayEl],
+    ) -> Result<Vec<vn_types::ssa::SsaSpread<Value>>> {
         chunk
             .iter()
             .map(|el| {
-                Ok((
-                    self.array_element(el)?,
-                    matches!(el, vn_tir::TirArrayEl::Spread(_)),
-                ))
+                Ok(vn_types::ssa::SsaSpread {
+                    value: self.array_element(el)?,
+                    spread: matches!(el, vn_tir::TirArrayEl::Spread(_)),
+                })
             })
             .collect()
     }
@@ -142,16 +147,23 @@ impl<'m> Builder<'m> {
             .iter()
             .any(|e| matches!(e, vn_tir::TirObjectEntry::Spread(_)));
         if any_spread {
-            let mut parts: Vec<(Option<Arc<str>>, Value)> = Vec::with_capacity(entries.len());
+            let mut parts: Vec<vn_types::ssa::SsaObjectSpreadPart<Value>> =
+                Vec::with_capacity(entries.len());
             for entry in entries {
                 match entry {
                     vn_tir::TirObjectEntry::Field { name, value } => {
                         let v = self.lower_expr(value)?;
-                        parts.push((Some(name.clone()), v));
+                        parts.push(vn_types::ssa::SsaObjectSpreadPart {
+                            key: Some(name.clone()),
+                            value: v,
+                        });
                     }
                     vn_tir::TirObjectEntry::Spread(x) => {
                         let v = self.lower_expr(x)?;
-                        parts.push((None, v));
+                        parts.push(vn_types::ssa::SsaObjectSpreadPart {
+                            key: None,
+                            value: v,
+                        });
                     }
                 }
             }

@@ -107,7 +107,7 @@ fn sites(kind: &InstKind, has_dest: bool) -> u16 {
             u16::from(has_dest || crate::passes::dce::dest_droppable(kind))
         }
         InstKind::BuildObjectSpread { parts } if has_dest => {
-            parts.iter().filter(|(key, _)| key.is_some()).count() as u16
+            parts.iter().filter(|p| p.key.is_some()).count() as u16
         }
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

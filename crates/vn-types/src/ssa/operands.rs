@@ -1,15 +1,15 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SsaSpread {
-    pub value: u32,
+pub struct SsaSpread<V = u32> {
+    pub value: V,
     pub spread: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SsaObjectSpreadPart {
+pub struct SsaObjectSpreadPart<V = u32> {
     pub key: Option<std::sync::Arc<str>>,
-    pub value: u32,
+    pub value: V,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -17,4 +17,22 @@ pub enum SsaUpvalue {
     Captured(u32),
 
     Inherited(u32),
+}
+
+impl<V: Copy> SsaSpread<V> {
+    pub fn map<W>(&self, f: impl Fn(V) -> W) -> SsaSpread<W> {
+        SsaSpread {
+            value: f(self.value),
+            spread: self.spread,
+        }
+    }
+}
+
+impl<V: Copy> SsaObjectSpreadPart<V> {
+    pub fn map<W>(&self, f: impl Fn(V) -> W) -> SsaObjectSpreadPart<W> {
+        SsaObjectSpreadPart {
+            key: self.key.clone(),
+            value: f(self.value),
+        }
+    }
 }

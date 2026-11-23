@@ -54,16 +54,25 @@ impl<'m> Builder<'m> {
     }
 
     pub(super) fn lower_effects(&mut self, args: &[vn_tir::TirArg]) -> Result<()> {
-        let mut vals: Vec<(Value, bool)> = Vec::with_capacity(args.len());
+        let mut vals: Vec<vn_types::ssa::SsaSpread<Value>> = Vec::with_capacity(args.len());
         let mut any_spread = false;
         for a in args {
             match a {
-                vn_tir::TirArg::Expr(e) => vals.push((self.lower_expr(e)?, false)),
+                vn_tir::TirArg::Expr(e) => vals.push(vn_types::ssa::SsaSpread {
+                    value: self.lower_expr(e)?,
+                    spread: false,
+                }),
                 vn_tir::TirArg::Spread(e) => {
                     any_spread = true;
-                    vals.push((self.lower_expr(e)?, true));
+                    vals.push(vn_types::ssa::SsaSpread {
+                        value: self.lower_expr(e)?,
+                        spread: true,
+                    });
                 }
-                vn_tir::TirArg::Named { value, .. } => vals.push((self.lower_expr(value)?, false)),
+                vn_tir::TirArg::Named { value, .. } => vals.push(vn_types::ssa::SsaSpread {
+                    value: self.lower_expr(value)?,
+                    spread: false,
+                }),
             }
         }
         if any_spread {
@@ -91,22 +100,31 @@ impl<'m> Builder<'m> {
         ty: BackendTy,
         callee_ty: Option<BackendTy>,
     ) -> Result<Value> {
-        let mut vals: Vec<(Value, bool)> = Vec::with_capacity(args.len());
+        let mut vals: Vec<vn_types::ssa::SsaSpread<Value>> = Vec::with_capacity(args.len());
         let mut any_spread = false;
         for a in args {
             match a {
-                vn_tir::TirArg::Expr(e) => vals.push((self.lower_expr(e)?, false)),
+                vn_tir::TirArg::Expr(e) => vals.push(vn_types::ssa::SsaSpread {
+                    value: self.lower_expr(e)?,
+                    spread: false,
+                }),
                 vn_tir::TirArg::Spread(e) => {
                     any_spread = true;
-                    vals.push((self.lower_expr(e)?, true));
+                    vals.push(vn_types::ssa::SsaSpread {
+                        value: self.lower_expr(e)?,
+                        spread: true,
+                    });
                 }
-                vn_tir::TirArg::Named { value, .. } => vals.push((self.lower_expr(value)?, false)),
+                vn_tir::TirArg::Named { value, .. } => vals.push(vn_types::ssa::SsaSpread {
+                    value: self.lower_expr(value)?,
+                    spread: false,
+                }),
             }
         }
         if any_spread {
             Ok(self.emit(InstKind::CallSpread { callee, args: vals }, ty))
         } else {
-            let mut plain: Vec<Value> = vals.into_iter().map(|(v, _)| v).collect();
+            let mut plain: Vec<Value> = vals.into_iter().map(|a| a.value).collect();
             let shape =
                 callee_ty.and_then(|callee_ty| self.declared_call_shape(callee_ty, &mut plain));
             Ok(self.emit(

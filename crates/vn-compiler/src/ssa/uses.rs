@@ -186,10 +186,13 @@ macro_rules! inst_uses {
             }),
             CallSpread { callee, args } => {
                 $use!($f, callee);
-                $iter!(args).for_each(|(a, _)| $use!($f, a));
+                $iter!(args).for_each(|vn_types::ssa::SsaSpread { value, .. }| $use!($f, value));
             }
-            BuildArraySpread { elements } => $iter!(elements).for_each(|(e, _)| $use!($f, e)),
-            BuildObjectSpread { parts } => $iter!(parts).for_each(|(_, v)| $use!($f, v)),
+            BuildArraySpread { elements } => {
+                $iter!(elements).for_each(|vn_types::ssa::SsaSpread { value, .. }| $use!($f, value))
+            }
+            BuildObjectSpread { parts } => $iter!(parts)
+                .for_each(|vn_types::ssa::SsaObjectSpreadPart { value, .. }| $use!($f, value)),
         }
     }};
 }

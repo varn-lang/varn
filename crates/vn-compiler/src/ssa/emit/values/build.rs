@@ -111,7 +111,7 @@ pub(super) fn emit_build_str(chunk: &mut Chunk, d: u8, parts: &[Value], reg: &[u
 pub(super) fn emit_build_array_spread(
     chunk: &mut Chunk,
     d: u8,
-    elements: &[(Value, bool)],
+    elements: &[vn_types::ssa::SsaSpread<Value>],
     reg: &[u8],
     call_base: u8,
     line: u32,
@@ -119,20 +119,20 @@ pub(super) fn emit_build_array_spread(
     chunk.emit(OpCode::BuildArray, line);
     chunk.write(Chunk::pack(d, call_base), line);
     chunk.write(Chunk::pack(0, 0), line);
-    for (v, spread) in elements {
-        let op = if *spread {
+    for element in elements {
+        let op = if element.spread {
             OpCode::ArrayExtend
         } else {
             OpCode::ArrayPush
         };
-        chunk.emit_rr(op, d, reg[v.0 as usize], line);
+        chunk.emit_rr(op, d, reg[element.value.0 as usize], line);
     }
 }
 
 pub(super) fn emit_build_object_spread(
     chunk: &mut Chunk,
     d: u8,
-    parts: &[(Option<Arc<str>>, Value)],
+    parts: &[vn_types::ssa::SsaObjectSpreadPart<Value>],
     reg: &[u8],
     ic_slot: Option<u8>,
     line: u32,
@@ -140,8 +140,9 @@ pub(super) fn emit_build_object_spread(
     chunk.emit(OpCode::BuildObject, line);
     chunk.write(Chunk::pack(d, 0), line);
     let mut next_slot = ic_slot;
-    for (key, v) in parts {
-        match key {
+    for part in parts {
+        let v = part.value;
+        match &part.key {
             Some(k) => {
                 let idx = chunk.add_str(k);
                 let cs = next_slot

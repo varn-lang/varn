@@ -374,15 +374,15 @@ pub enum InstKind {
 
     CallSpread {
         callee: Value,
-        args: Vec<(Value, bool)>,
+        args: Vec<vn_types::ssa::SsaSpread<Value>>,
     },
 
     BuildArraySpread {
-        elements: Vec<(Value, bool)>,
+        elements: Vec<vn_types::ssa::SsaSpread<Value>>,
     },
 
     BuildObjectSpread {
-        parts: Vec<(Option<Arc<str>>, Value)>,
+        parts: Vec<vn_types::ssa::SsaObjectSpreadPart<Value>>,
     },
 }
 

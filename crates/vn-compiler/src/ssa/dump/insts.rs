@@ -237,11 +237,11 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::CallSpread { callee, args } => {
             let a = args
                 .iter()
-                .map(|(v, s)| {
-                    if *s {
-                        format!("...{}", val(*v))
+                .map(|a| {
+                    if a.spread {
+                        format!("...{}", val(a.value))
                     } else {
-                        val(*v)
+                        val(a.value)
                     }
                 })
                 .collect::<Vec<_>>()
@@ -251,11 +251,11 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::BuildArraySpread { elements } => {
             let a = elements
                 .iter()
-                .map(|(v, s)| {
-                    if *s {
-                        format!("...{}", val(*v))
+                .map(|a| {
+                    if a.spread {
+                        format!("...{}", val(a.value))
                     } else {
-                        val(*v)
+                        val(a.value)
                     }
                 })
                 .collect::<Vec<_>>()
@@ -265,9 +265,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::BuildObjectSpread { parts } => {
             let a = parts
                 .iter()
-                .map(|(k, v)| match k {
-                    Some(k) => format!("{k}: {}", val(*v)),
-                    None => format!("...{}", val(*v)),
+                .map(|p| match &p.key {
+                    Some(k) => format!("{k}: {}", val(p.value)),
+                    None => format!("...{}", val(p.value)),
                 })
                 .collect::<Vec<_>>()
                 .join(", ");

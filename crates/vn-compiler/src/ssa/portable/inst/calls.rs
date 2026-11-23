@@ -84,13 +84,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         }),
         InstKind::CallSpread { callee, args } => Some(SsaOp::CallSpread {
             callee: callee.0,
-            args: args
-                .iter()
-                .map(|(v, s)| vn_types::ssa::SsaSpread {
-                    value: v.0,
-                    spread: *s,
-                })
-                .collect(),
+            args: args.iter().map(|a| a.map(|v| v.0)).collect(),
         }),
         InstKind::MakeClosure { upvalues_src, .. } => Some(SsaOp::MakeClosure {
             proto: u32::from(site.closure_const?),

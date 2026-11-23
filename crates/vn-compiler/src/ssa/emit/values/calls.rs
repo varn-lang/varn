@@ -217,14 +217,15 @@ pub(super) fn emit_call_spread(
     chunk: &mut Chunk,
     d: u8,
     callee: Value,
-    args: &[(Value, bool)],
+    args: &[vn_types::ssa::SsaSpread<Value>],
     reg: &[u8],
     call_base: u8,
     line: u32,
 ) {
     chunk.emit_rr(OpCode::LoadNull, call_base, 0, line);
-    for (i, (a, spread)) in args.iter().enumerate() {
-        let op = if *spread {
+    for (i, arg) in args.iter().enumerate() {
+        let a = arg.value;
+        let op = if arg.spread {
             OpCode::WrapSpread
         } else {
             OpCode::Move
