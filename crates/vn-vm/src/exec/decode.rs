@@ -2,7 +2,7 @@ use crate::exec::value_views::{elements, object_entries, object_layout, ObjectLa
 use crate::heap::{Heap, HeapObj};
 use crate::value::VmValue;
 use std::sync::Arc;
-use vn_core::TypeDesc;
+use vn_core::{NumKind, TypeDesc};
 use vn_types::value::ValueMap;
 
 struct Scope<'a> {
@@ -51,14 +51,15 @@ pub(crate) fn aligned_with(
 
 fn inner_changes(desc: &TypeDesc) -> bool {
     match desc {
-        TypeDesc::Float | TypeDesc::Map(..) | TypeDesc::Object(_) | TypeDesc::Enclosing { .. } => {
-            true
-        }
+        TypeDesc::Num(NumKind::Float(_))
+        | TypeDesc::Map(..)
+        | TypeDesc::Object(_)
+        | TypeDesc::Enclosing { .. } => true,
         TypeDesc::Nullable(inner) | TypeDesc::Array(inner) => inner_changes(inner),
         TypeDesc::Tuple(slots) => slots.iter().any(inner_changes),
         TypeDesc::Any
         | TypeDesc::Literal(_)
-        | TypeDesc::Int
+        | TypeDesc::Num(NumKind::Int(_))
         | TypeDesc::Bool
         | TypeDesc::Char
         | TypeDesc::Str
@@ -77,13 +78,12 @@ fn walk_needed(desc: &TypeDesc) -> bool {
     match desc {
         TypeDesc::Array(_) | TypeDesc::Tuple(_) => true,
         TypeDesc::Nullable(inner) => walk_needed(inner),
-        TypeDesc::Float
+        TypeDesc::Num(_)
         | TypeDesc::Map(..)
         | TypeDesc::Object(_)
         | TypeDesc::Enclosing { .. }
         | TypeDesc::Any
         | TypeDesc::Literal(_)
-        | TypeDesc::Int
         | TypeDesc::Bool
         | TypeDesc::Char
         | TypeDesc::Str
@@ -189,7 +189,7 @@ fn walk(
     match desc {
         TypeDesc::Any
         | TypeDesc::Literal(_)
-        | TypeDesc::Int
+        | TypeDesc::Num(NumKind::Int(_))
         | TypeDesc::Bool
         | TypeDesc::Char
         | TypeDesc::Str
@@ -201,8 +201,13 @@ fn walk(
         | TypeDesc::Enum { .. }
         | TypeDesc::Set(_)
         | TypeDesc::Args { .. } => v,
-        TypeDesc::Float if v.is_int() => VmValue::from_f64(v.as_int() as f64),
-        TypeDesc::Float => v,
+        TypeDesc::Num(NumKind::Float(width)) if v.is_int() => {
+            VmValue::from_f64(width.round(v.as_int() as f64))
+        }
+        TypeDesc::Num(NumKind::Float(width)) if v.is_f64() => {
+            VmValue::from_f64(width.round(v.as_f64()))
+        }
+        TypeDesc::Num(NumKind::Float(_)) => v,
         TypeDesc::Nullable(inner) => {
             if v.is_null() {
                 v

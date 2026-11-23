@@ -18,16 +18,20 @@ impl FastJsonParser<'_, '_> {
     fn parse_typed(&mut self, desc: &TypeDesc) -> Option<VmValue> {
         match desc {
             TypeDesc::Any => self.parse_value(),
-            TypeDesc::Int => self.parse_scalar_number().filter(|v| v.is_int()),
-            TypeDesc::Float => self.parse_scalar_number().and_then(|v| {
-                if v.is_f64() {
-                    Some(v)
-                } else if v.is_int() {
-                    Some(VmValue::from_f64(v.as_int() as f64))
-                } else {
-                    None
-                }
-            }),
+            TypeDesc::Num(vn_core::NumKind::Int(width)) => self
+                .parse_scalar_number()
+                .filter(|v| v.is_int() && width.contains(i128::from(v.as_int()))),
+            TypeDesc::Num(vn_core::NumKind::Float(width)) => {
+                self.parse_scalar_number().and_then(|v| {
+                    if v.is_f64() {
+                        Some(VmValue::from_f64(width.round(v.as_f64())))
+                    } else if v.is_int() {
+                        Some(VmValue::from_f64(width.round(v.as_int() as f64)))
+                    } else {
+                        None
+                    }
+                })
+            }
             TypeDesc::Bool => match self.peek()? {
                 b't' => self.parse_true(),
                 b'f' => self.parse_false(),

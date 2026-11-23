@@ -1,0 +1,45 @@
+import { describe, it, expect } from "std:test";
+import { Json } from "std:encoding";
+
+function outcome(f: () => void): str {
+    try {
+        f()
+        return "ok"
+    } catch (e) {
+        return "rejected"
+    }
+}
+
+await describe("370 decoding keeps the width of the target type", async () => {
+    await it("an array element outside the width is rejected", () => {
+        expect(outcome(() => { Json.parse<u8[]>("[300]") })).toBe("rejected")
+        expect(outcome(() => { Json.parse<u8[]>("[-5]") })).toBe("rejected")
+        expect(outcome(() => { Json.parse<i8[]>("[1000]") })).toBe("rejected")
+        expect(outcome(() => { Json.parse<u16[]>("[65536]") })).toBe("rejected")
+    })
+
+    await it("a scalar outside the width is rejected", () => {
+        expect(outcome(() => { Json.parse<u8>("300") })).toBe("rejected")
+        expect(outcome(() => { Json.parse<u64>("-1") })).toBe("rejected")
+        expect(outcome(() => { Json.parse<i32>("3000000000") })).toBe("rejected")
+    })
+
+    await it("a nullable narrow scalar checks its width", () => {
+        expect(outcome(() => { Json.parse<u8?>("256") })).toBe("rejected")
+        expect(Json.parse<u8?>("null")).toBe(null)
+        expect(Json.parse<u8?>("7")).toBe(7)
+    })
+
+    await it("values inside the width are kept", () => {
+        const xs = Json.parse<u8[]>("[0, 255]")
+        expect(xs[0]).toBe(0)
+        expect(xs[1]).toBe(255)
+        expect(Json.parse<i8>("-128")).toBe(-128)
+        expect(Json.parse<u64>("5")).toBe(5)
+    })
+
+    await it("an object field checks its width", () => {
+        expect(outcome(() => { Json.parse<{ level: u8 }>("{\"level\": 999}") })).toBe("rejected")
+        expect(Json.parse<{ level: u8 }>("{\"level\": 9}").level).toBe(9)
+    })
+})

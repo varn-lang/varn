@@ -6,8 +6,7 @@ mod literal;
 pub enum TypeDesc {
     Any,
     Literal(crate::TypeLiteral<String>),
-    Int,
-    Float,
+    Num(crate::NumKind),
     Bool,
     Char,
     Str,
@@ -62,8 +61,11 @@ impl TypeDesc {
         match self {
             TypeDesc::Any => out.push('*'),
             TypeDesc::Literal(value) => literal::encode(value, out),
-            TypeDesc::Int => out.push('i'),
-            TypeDesc::Float => out.push('f'),
+            TypeDesc::Num(kind) => {
+                out.push('N');
+                out.push_str(kind.name());
+                out.push(';');
+            }
             TypeDesc::Bool => out.push('b'),
             TypeDesc::Char => out.push('c'),
             TypeDesc::Str => out.push('s'),
@@ -172,8 +174,7 @@ fn decode_one(rest: &mut &str) -> Option<TypeDesc> {
     Some(match tag {
         '*' => TypeDesc::Any,
         'L' => TypeDesc::Literal(literal::decode(rest)?),
-        'i' => TypeDesc::Int,
-        'f' => TypeDesc::Float,
+        'N' => TypeDesc::Num(crate::NumKind::from_name(take_until(rest, ';')?)?),
         'b' => TypeDesc::Bool,
         'c' => TypeDesc::Char,
         's' => TypeDesc::Str,
@@ -259,8 +260,7 @@ impl fmt::Display for TypeDesc {
         match self {
             TypeDesc::Any => f.write_str("dynamic"),
             TypeDesc::Literal(value) => literal::display(value, f),
-            TypeDesc::Int => f.write_str("int"),
-            TypeDesc::Float => f.write_str("float"),
+            TypeDesc::Num(kind) => f.write_str(kind.name()),
             TypeDesc::Bool => f.write_str("bool"),
             TypeDesc::Char => f.write_str("char"),
             TypeDesc::Str => f.write_str("str"),

@@ -234,8 +234,8 @@ fn check_args(
         let Some(expected) = fixed.get(i).or(rest) else {
             break;
         };
-        let scalar_float = matches!(expected, TypeDesc::Float)
-            || matches!(expected, TypeDesc::Nullable(inner) if matches!(**inner, TypeDesc::Float));
+        let scalar_float = matches!(expected, TypeDesc::Num(vn_core::NumKind::Float(_)))
+            || matches!(expected, TypeDesc::Nullable(inner) if matches!(**inner, TypeDesc::Num(vn_core::NumKind::Float(_))));
         if !(scalar_float && arg.is_int())
             && fit(heap, stack_floor, *arg, expected, witnesses).is_none()
         {

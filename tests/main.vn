@@ -358,6 +358,7 @@ import "./366-extension-constraints.vn"
 import "./367-homonymous-variants.vn"
 import "./368-qualified-variants-on-open-subjects.vn"
 import "./369-generic-interfaces-are-declared.vn"
+import "./370-decoding-keeps-the-width.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

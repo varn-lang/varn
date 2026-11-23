@@ -2,7 +2,7 @@ use crate::exec::advanced::{kind_of_val, type_test};
 use crate::heap::{Heap, HeapObj};
 use crate::value::VmValue;
 use std::cell::RefCell;
-use vn_core::{RuntimeErrorKind, RuntimeKind, TypeDesc};
+use vn_core::{IntKind, NumKind, RuntimeErrorKind, RuntimeKind, TypeDesc};
 use vn_types::vm_value::ArrayRepr;
 use vn_types::{NativeCtx, NativeError, NativeFnResult, VmArray};
 
@@ -130,6 +130,24 @@ fn conform_to(
     }
 }
 
+pub(crate) fn num_fits(heap: &Heap, v: VmValue, kind: NumKind) -> bool {
+    match kind {
+        NumKind::Int(IntKind::U64) => {
+            (v.is_int() && v.as_int() >= 0)
+                || heap
+                    .bigint_of(v)
+                    .is_some_and(|b| num_traits::ToPrimitive::to_u64(&b).is_some())
+        }
+        NumKind::Int(width) => v.is_int() && width.contains(i128::from(v.as_int())),
+        NumKind::Float(width) => {
+            v.is_f64() && {
+                let x = v.as_f64();
+                x.is_nan() || width.round(x) == x
+            }
+        }
+    }
+}
+
 fn exact(holds: bool) -> Option<()> {
     holds.then_some(())
 }
@@ -182,8 +200,7 @@ fn fit_in(cx: &Cx, v: VmValue, desc: &TypeDesc, scope: Option<&Scope>) -> Option
                 heap.is_string(v) && heap.str_repr_borrowed(v).as_ref() == s
             }
         }),
-        TypeDesc::Int => exact(v.is_int()),
-        TypeDesc::Float => exact(v.is_f64()),
+        TypeDesc::Num(kind) => exact(num_fits(heap, v, *kind)),
         TypeDesc::Bool => exact(v.is_bool()),
         TypeDesc::Str => exact(heap.is_string(v)),
         TypeDesc::Char => exact(kind_is(heap, v, RuntimeKind::Char)),
@@ -342,8 +359,8 @@ fn fit_in(cx: &Cx, v: VmValue, desc: &TypeDesc, scope: Option<&Scope>) -> Option
 
 fn fit_elements(cx: &Cx, arr: &VmArray, el: &TypeDesc, scope: Option<&Scope>) -> bool {
     let unboxed_fits = match arr.repr() {
-        ArrayRepr::I64(_) => matches!(el, TypeDesc::Int),
-        ArrayRepr::F64(_) => matches!(el, TypeDesc::Float),
+        ArrayRepr::I64(_) => matches!(el, TypeDesc::Num(vn_core::NumKind::INT)),
+        ArrayRepr::F64(_) => matches!(el, TypeDesc::Num(vn_core::NumKind::FLOAT)),
         ArrayRepr::Char(_) => matches!(el, TypeDesc::Char),
         ArrayRepr::Bool(_) => matches!(el, TypeDesc::Bool),
         ArrayRepr::Ref(_) => false,

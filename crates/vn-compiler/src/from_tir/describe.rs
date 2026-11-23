@@ -59,8 +59,7 @@ impl<'m> Describer<'m> {
                         .to_owned(),
                 ),
             }),
-            BackendTy::Num(vn_core::NumKind::Int(_)) => TypeDesc::Int,
-            BackendTy::Num(vn_core::NumKind::Float(_)) => TypeDesc::Float,
+            BackendTy::Num(kind) => TypeDesc::Num(kind),
             BackendTy::Bool => TypeDesc::Bool,
             BackendTy::Char => TypeDesc::Char,
             BackendTy::Str => TypeDesc::Str,
@@ -186,8 +185,7 @@ pub(crate) fn param_contract(tir: &TirModule, f: &TirFunction) -> Result<Option<
             Ok(match desc {
                 TypeDesc::Any | TypeDesc::Nullable(_) => desc,
                 required @ TypeDesc::Literal(_)
-                | required @ TypeDesc::Int
-                | required @ TypeDesc::Float
+                | required @ TypeDesc::Num(_)
                 | required @ TypeDesc::Bool
                 | required @ TypeDesc::Char
                 | required @ TypeDesc::Str
@@ -209,8 +207,7 @@ pub(crate) fn param_contract(tir: &TirModule, f: &TirFunction) -> Result<Option<
                     TypeDesc::Nullable(Box::new(required))
                 }
                 required @ TypeDesc::Literal(_)
-                | required @ TypeDesc::Int
-                | required @ TypeDesc::Float
+                | required @ TypeDesc::Num(_)
                 | required @ TypeDesc::Bool
                 | required @ TypeDesc::Char
                 | required @ TypeDesc::Str

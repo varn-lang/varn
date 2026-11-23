@@ -112,6 +112,14 @@ impl ValueConv {
         }
     }
 
+    pub const fn expect_num(kind: crate::NumKind) -> Self {
+        match Self::narrow(kind) {
+            Some(conv) => conv,
+            None if kind.is_int() => Self::ExpectInt,
+            None => Self::ExpectFloat,
+        }
+    }
+
     pub const fn narrowed(self) -> Option<crate::NumKind> {
         use crate::{FloatKind, IntKind, NumKind};
         match self {
