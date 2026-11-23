@@ -19,7 +19,71 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         TokenKind::Hash => Err(ParseError::invalid(
             vn_core::ForeignForm::HashPrivate.message(),
         )),
-        _ if s.kind().can_be_identifier() || s.kind().is_keyword() => Ok(s.consume_str()),
+        TokenKind::Let
+        | TokenKind::Const
+        | TokenKind::Var
+        | TokenKind::Function
+        | TokenKind::Class
+        | TokenKind::Struct
+        | TokenKind::Interface
+        | TokenKind::Type
+        | TokenKind::Enum
+        | TokenKind::Namespace
+        | TokenKind::Extension
+        | TokenKind::On
+        | TokenKind::If
+        | TokenKind::Else
+        | TokenKind::Switch
+        | TokenKind::Case
+        | TokenKind::Default
+        | TokenKind::While
+        | TokenKind::For
+        | TokenKind::Do
+        | TokenKind::Break
+        | TokenKind::Continue
+        | TokenKind::Return
+        | TokenKind::Throw
+        | TokenKind::Try
+        | TokenKind::Catch
+        | TokenKind::Finally
+        | TokenKind::Using
+        | TokenKind::With
+        | TokenKind::Import
+        | TokenKind::Export
+        | TokenKind::From
+        | TokenKind::As
+        | TokenKind::Async
+        | TokenKind::Await
+        | TokenKind::Yield
+        | TokenKind::New
+        | TokenKind::This
+        | TokenKind::Super
+        | TokenKind::Delete
+        | TokenKind::In
+        | TokenKind::Of
+        | TokenKind::Void
+        | TokenKind::Is
+        | TokenKind::True
+        | TokenKind::False
+        | TokenKind::Null
+        | TokenKind::Public
+        | TokenKind::Private
+        | TokenKind::Protected
+        | TokenKind::Static
+        | TokenKind::Abstract
+        | TokenKind::Override
+        | TokenKind::Readonly
+        | TokenKind::Mut
+        | TokenKind::Out
+        | TokenKind::Declare
+        | TokenKind::Native
+        | TokenKind::Extends
+        | TokenKind::Implements
+        | TokenKind::Get
+        | TokenKind::Set
+        | TokenKind::Constructor
+        | TokenKind::Match
+        | TokenKind::Placeholder => Ok(s.consume_str()),
         TokenKind::EOF
         | TokenKind::Dynamic
         | TokenKind::FloatLiteral
@@ -98,70 +162,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow
-        | TokenKind::Let
-        | TokenKind::Const
-        | TokenKind::Var
-        | TokenKind::Function
-        | TokenKind::Class
-        | TokenKind::Struct
-        | TokenKind::Interface
-        | TokenKind::Type
-        | TokenKind::Enum
-        | TokenKind::Namespace
-        | TokenKind::Extension
-        | TokenKind::On
-        | TokenKind::If
-        | TokenKind::Else
-        | TokenKind::Switch
-        | TokenKind::Case
-        | TokenKind::Default
-        | TokenKind::While
-        | TokenKind::For
-        | TokenKind::Do
-        | TokenKind::Break
-        | TokenKind::Continue
-        | TokenKind::Return
-        | TokenKind::Throw
-        | TokenKind::Try
-        | TokenKind::Catch
-        | TokenKind::Finally
-        | TokenKind::Using
-        | TokenKind::With
-        | TokenKind::Import
-        | TokenKind::Export
-        | TokenKind::From
-        | TokenKind::As
-        | TokenKind::Async
-        | TokenKind::Await
-        | TokenKind::Yield
-        | TokenKind::New
-        | TokenKind::This
-        | TokenKind::Super
-        | TokenKind::Delete
-        | TokenKind::In
-        | TokenKind::Of
-        | TokenKind::Void
-        | TokenKind::Is
-        | TokenKind::True
-        | TokenKind::False
-        | TokenKind::Null
-        | TokenKind::Public
-        | TokenKind::Private
-        | TokenKind::Protected
-        | TokenKind::Static
-        | TokenKind::Abstract
-        | TokenKind::Override
-        | TokenKind::Readonly
-        | TokenKind::Mut
-        | TokenKind::Out
-        | TokenKind::Declare
-        | TokenKind::Native
-        | TokenKind::Extends
-        | TokenKind::Implements
-        | TokenKind::Get
-        | TokenKind::Set
-        | TokenKind::Constructor
-        | TokenKind::Match
         | TokenKind::At
         | TokenKind::Backslash
         | TokenKind::Dollar
@@ -169,7 +169,6 @@ pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::Newline
         | TokenKind::Whitespace
         | TokenKind::DocComment
-        | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => Err(ParseError::expected(format!(
             "expected a class member name, found {}",

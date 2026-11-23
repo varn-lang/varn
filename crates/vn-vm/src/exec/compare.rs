@@ -59,27 +59,33 @@ pub(crate) fn eq(a: VmValue, b: VmValue, heap: &Heap) -> bool {
         if is_value_instance(a, heap) && is_value_instance(b, heap) {
             return composite_eq(a, b, heap);
         }
-        match (heap.get(ai), heap.get(bi)) {
-            (Some(HeapObj::Str(sa)), Some(HeapObj::Str(sb))) => {
-                if sa.byte_len() != sb.byte_len() {
-                    return false;
-                }
-                return sa.as_str() == sb.as_str();
+        let (Some(x), Some(y)) = (heap.get(ai), heap.get(bi)) else {
+            return false;
+        };
+        return match x {
+            HeapObj::Str(sa) => matches!(y, HeapObj::Str(sb)
+                if sa.byte_len() == sb.byte_len() && sa.as_str() == sb.as_str()),
+            HeapObj::BigInt(p) => matches!(y, HeapObj::BigInt(q) if p == q),
+            HeapObj::Decimal(p) => matches!(y, HeapObj::Decimal(q) if p == q),
+            HeapObj::EnumVariant(_) | HeapObj::Object(_) | HeapObj::Tuple(_) => {
+                std::mem::discriminant(x) == std::mem::discriminant(y) && composite_eq(a, b, heap)
             }
-            (Some(HeapObj::BigInt(a)), Some(HeapObj::BigInt(b))) => return a == b,
-            (Some(HeapObj::Decimal(da)), Some(HeapObj::Decimal(db))) => return da == db,
-            (Some(HeapObj::EnumVariant(_)), Some(HeapObj::EnumVariant(_))) => {
-                return composite_eq(a, b, heap);
-            }
-            (Some(HeapObj::Array(_)), Some(HeapObj::Array(_))) => return false,
-            (Some(HeapObj::Object(_)), Some(HeapObj::Object(_))) => {
-                return composite_eq(a, b, heap);
-            }
-            (Some(HeapObj::Tuple(_)), Some(HeapObj::Tuple(_))) => {
-                return composite_eq(a, b, heap);
-            }
-            _ => return false,
-        }
+            HeapObj::Array(_)
+            | HeapObj::Buffer(_)
+            | HeapObj::Module(_)
+            | HeapObj::FrozenModule(_)
+            | HeapObj::VmClosure(_)
+            | HeapObj::Class(_)
+            | HeapObj::NativeFn(..)
+            | HeapObj::BoundMethod(_)
+            | HeapObj::Map(_)
+            | HeapObj::Set(_)
+            | HeapObj::Task(_)
+            | HeapObj::TaskHandle(_)
+            | HeapObj::Range(_)
+            | HeapObj::Generator(_)
+            | HeapObj::Spread(_) => false,
+        };
     }
 
     if a.is_heap() && heap.is_int(b) {
@@ -216,9 +222,18 @@ fn expand(
         return Some(decided);
     }
     let null = VmValue::null();
-    match (heap.get(a.as_heap())?, heap.get(b.as_heap())?) {
-        (HeapObj::Tuple(x), HeapObj::Tuple(y)) => Some(push_elements(x, y, pending, null)),
-        (HeapObj::Object(x), HeapObj::Object(y)) => {
+    let (x, y) = (heap.get(a.as_heap())?, heap.get(b.as_heap())?);
+    match x {
+        HeapObj::Tuple(x) => {
+            let HeapObj::Tuple(y) = y else {
+                return None;
+            };
+            Some(push_elements(x, y, pending, null))
+        }
+        HeapObj::Object(x) => {
+            let HeapObj::Object(y) = y else {
+                return None;
+            };
             let (x, y) = (x.borrow(), y.borrow());
             let names = x.shape().ordered_names();
             if names.len() != y.shape().ordered_names().len() {
@@ -232,13 +247,21 @@ fn expand(
             }
             Some(true)
         }
-        (HeapObj::Array(x), HeapObj::Array(y)) if member => {
+        HeapObj::Array(x) => {
+            let (true, HeapObj::Array(y)) = (member, y) else {
+                return None;
+            };
             Some(push_elements(x, y, pending, null))
         }
-        (HeapObj::EnumVariant(x), HeapObj::EnumVariant(y)) => {
+        HeapObj::EnumVariant(x) => {
+            let HeapObj::EnumVariant(y) = y else {
+                return None;
+            };
             let same_enum = match (x.enum_class_id, y.enum_class_id) {
                 (Some(p), Some(q)) => p == q,
-                _ => x.def.enum_name == y.def.enum_name,
+                (Some(_), None) | (None, Some(_)) | (None, None) => {
+                    x.def.enum_name == y.def.enum_name
+                }
             };
             if !(same_enum && x.tag() == y.tag() && x.slots.len() == y.slots.len()) {
                 return Some(false);
@@ -251,7 +274,23 @@ fn expand(
             );
             Some(true)
         }
-        _ => None,
+        HeapObj::Str(_)
+        | HeapObj::Buffer(_)
+        | HeapObj::Module(_)
+        | HeapObj::FrozenModule(_)
+        | HeapObj::VmClosure(_)
+        | HeapObj::Class(_)
+        | HeapObj::NativeFn(..)
+        | HeapObj::BoundMethod(_)
+        | HeapObj::Map(_)
+        | HeapObj::Set(_)
+        | HeapObj::Task(_)
+        | HeapObj::TaskHandle(_)
+        | HeapObj::Range(_)
+        | HeapObj::BigInt(_)
+        | HeapObj::Decimal(_)
+        | HeapObj::Generator(_)
+        | HeapObj::Spread(_) => None,
     }
 }
 
@@ -351,10 +390,14 @@ pub(crate) fn lt_heap(a: VmValue, b: VmValue, heap: &Heap) -> bool {
     if a.is_heap() && b.is_heap() {
         let ai = a.as_heap();
         let bi = b.as_heap();
-        match (heap.get(ai), heap.get(bi)) {
-            (Some(HeapObj::BigInt(ba)), Some(HeapObj::BigInt(bb))) => return ba < bb,
-            (Some(HeapObj::Decimal(da)), Some(HeapObj::Decimal(db))) => return da < db,
-            _ => {}
+        if let (Some(HeapObj::BigInt(ba)), Some(HeapObj::BigInt(bb))) = (heap.get(ai), heap.get(bi))
+        {
+            return ba < bb;
+        }
+        if let (Some(HeapObj::Decimal(da)), Some(HeapObj::Decimal(db))) =
+            (heap.get(ai), heap.get(bi))
+        {
+            return da < db;
         }
     }
     if a.is_heap()
