@@ -117,7 +117,7 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 | B4 `#privado` | Rechazado | `ef9f887e` |
 | B5 `as` fallido | `TypeError` con el tipo recibido | `2f2c72f7` |
 | B6 globales de JS | Pista de `ForeignForm` | `be49ddaf` |
-| D7 condiciones `bool` | Hecho; migración del corpus y de la std | `f8737870` |
+| D7 condiciones `bool` | Hecho; `dynamic` tampoco es condición y el runtime ya no tiene veracidad | `f8737870`, `194018ec`, `dc8bf09f` |
 | D8 clases por `implements` | Hecho para interfaces con nombre | `a0610203` |
 | D10 asignación como sentencia | Hecho | `fc63e2a8` |
 | D9 maquinaria de tipos | Hecho, tras las extensiones con patrón de receptor (ADR-0035) | `9fbf3b68` |
@@ -125,7 +125,6 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 ### 6.1 Bloqueos y pendientes
 
 - **D8.** Una interfaz genérica instanciada se expande a una forma anónima antes de compararse y sigue siendo estructural. Hacerla nominal exige que el tipo conserve su interfaz de origen.
-- **D7.** El runtime conserva la veracidad dinámica (`truthy` en el JIT y en la VM) aunque el checker ya no produce condiciones que no sean `bool`; hay que retirarla.
 - **Heredado del ADR-0033 (D5).** Auditoría de `dynamic`: cada uso debe estar en una frontera con el host o desaparecer.
 - **Heredado del ADR-0033.** El emisor resuelve variantes con `match_variant_by_name` cuando no conoce el enum del sujeto: es una búsqueda por nombre en runtime (Ley 17) que se elimina resolviendo el enum en compilación.
 - **Heredado del ADR-0033.** `vn-vm/src/exec/compare.rs` tiene comodines `_ =>` (Ley 7), y `class_key.rs` un `_ if` con guarda.
