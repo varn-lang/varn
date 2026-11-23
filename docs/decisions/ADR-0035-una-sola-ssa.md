@@ -54,12 +54,12 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
 - [x] F4a. La ranura de cache y el punto de continuacion (`ip` + conjunto vivo) van
   en `SsaInst` (`cache`, `resume`), no en la operacion (f1cf5a87). Tras esto, 65
   de los 81 brazos de la proyeccion son copia.
-- F4b. Variables capturadas: el compilador usa `VarId` y la SSA portable un indice
-  de captura (`LoadCaptured`, `StoreCaptured`, `CloseUpvalues`, `Dispose`,
-  `MakeClosure`). `VarId` baja a `vn-types` y la tabla de capturas del
-  `SsaProto` resuelve su registro.
-- F4c. Una sola forma para `BuildObject` (pares o claves y valores) y
-  `ConstDecimal`.
+- [x] F4b. Variables capturadas: `vn_types::ssa::SsaVar` (parametro o local) nombra
+  la variable en compilador y JIT; `SsaProto::captured` es la tabla
+  (variable, registro). `ir::VarId` se borra (65e9174c, f690e4ec). `Dispose`, que
+  ningun constructor emitia, se borra (d2971db0).
+- [x] F4c. `BuildObject` lleva pares en ambos lados y `ConstDecimal` el
+  `BigDecimal` (7b8d611a, 90fbf8e7).
 - F5. La eleccion del operador por tipo (`binary_opcode`) baja a `vn-types` como
   funcion pura de los tipos, y la usan la emision de bytecode y el JIT; `SsaBinOp` y
   `SsaUnOp` se derivan de ella. Se borra `ssa/portable/`.
