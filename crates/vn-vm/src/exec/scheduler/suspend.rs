@@ -259,11 +259,7 @@ pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
             class,
             idx: bases[class.index()] + rel,
         };
-        {
-            let mut cell = uv.inner.borrow_mut();
-            let _ = ctx.stack.set_addr(slot, cell.value);
-            cell.stack_slot = Some(slot);
-        }
+        uv.reopen(slot, &mut ctx.stack);
         ctx.open_upvalues.push((slot, uv));
     }
     let mut frame = CallFrame::new_owned(sf.closure, id);

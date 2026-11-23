@@ -71,6 +71,12 @@ impl VmUpvalue {
             g.value = store.get_addr(slot);
         }
     }
+
+    pub(crate) fn reopen(&self, slot: SlotAddr, store: &mut FrameStore) {
+        let mut g = self.inner.borrow_mut();
+        let _ = store.set_addr(slot, g.value);
+        g.stack_slot = Some(slot);
+    }
 }
 
 #[derive(Debug, Clone)]

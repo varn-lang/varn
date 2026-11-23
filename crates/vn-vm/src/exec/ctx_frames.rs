@@ -149,6 +149,21 @@ impl ExecCtx {
         up
     }
 
+    pub(crate) fn detach_upvalues(&mut self) -> Vec<(SlotAddr, VmUpvalue)> {
+        let detached = std::mem::take(&mut self.open_upvalues);
+        for (_, uv) in &detached {
+            uv.close(&self.stack);
+        }
+        detached
+    }
+
+    pub(crate) fn reattach_upvalues(&mut self, detached: Vec<(SlotAddr, VmUpvalue)>) {
+        for (slot, uv) in &detached {
+            uv.reopen(*slot, &mut self.stack);
+        }
+        self.open_upvalues = detached;
+    }
+
     pub(crate) fn drop_frame_storage(&mut self, alloc: usize) {
         if alloc == crate::frame::CallFrame::NO_ACTIVATION {
             return;

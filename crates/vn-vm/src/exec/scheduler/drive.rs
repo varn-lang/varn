@@ -163,6 +163,12 @@ impl ExecCtx {
     }
 
     pub fn pump_until(&mut self, target: &Rc<TaskCell>) {
+        let detached = self.detach_upvalues();
+        self.pump_detached(target);
+        self.reattach_upvalues(detached);
+    }
+
+    fn pump_detached(&mut self, target: &Rc<TaskCell>) {
         let _guard = PumpGuard::enter(self, target);
         let queue: *const TaskQueue = self.queue();
         let queue = unsafe { &*queue };

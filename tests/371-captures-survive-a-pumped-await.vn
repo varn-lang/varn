@@ -1,0 +1,29 @@
+import { describe, it, expect } from "std:test";
+import { spawn, delay } from "std:task";
+
+class Box { n: int = 7 }
+class Holder { read: (() => Task<int>)? = null }
+
+async function useHolder(holder: Holder, seen: int[]): Task<void> {
+    await delay(5);
+    const read = holder.read;
+    if (read != null) { seen.push(await read()) }
+}
+
+async function owner(seen: int[]): Task<void> {
+    const holder = new Holder();
+    const box = new Box();
+    const count = 1;
+    holder.read = async () => box.n + count;
+    spawn(useHolder(holder, seen));
+    await delay(40);
+}
+
+await describe("371 a capture keeps its owner while another task runs", async () => {
+    await it("a closure called from another task reads the captured locals", async () => {
+        const seen: int[] = [];
+        await owner(seen);
+        expect(seen.length).toBe(1);
+        expect(seen[0]).toBe(8);
+    });
+});
