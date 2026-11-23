@@ -30,20 +30,19 @@ pub(super) fn emit_make_closure(
         chunk.write(Chunk::pack(d, uv_count), line);
         chunk.write(idx, line);
         for uv_src in upvalues_src {
-            let is_local = match uv_src {
-                vn_tir::TirUpvalue::ParentLocal(_) | vn_tir::TirUpvalue::ParentParam(_) => 1u8,
-                vn_tir::TirUpvalue::ParentUpvalue(_) => 0u8,
+            let source = match uv_src {
+                vn_tir::TirUpvalue::ParentLocal(id) => vn_types::UpvalueSource::Local(u32::from(
+                    super::super::regs::var_reg(VarId::Local(vn_tir::LocalId(*id)), nparams),
+                )),
+                vn_tir::TirUpvalue::ParentParam(i) => vn_types::UpvalueSource::Local(u32::from(
+                    super::super::regs::var_reg(VarId::Param(*i), nparams),
+                )),
+                vn_tir::TirUpvalue::ParentUpvalue(idx) => vn_types::UpvalueSource::Inherited(*idx),
             };
-            let index = match uv_src {
-                vn_tir::TirUpvalue::ParentLocal(id) => {
-                    super::super::regs::var_reg(VarId::Local(vn_tir::LocalId(*id)), nparams)
-                }
-                vn_tir::TirUpvalue::ParentParam(i) => {
-                    super::super::regs::var_reg(VarId::Param(*i), nparams)
-                }
-                vn_tir::TirUpvalue::ParentUpvalue(idx) => *idx as u8,
-            };
-            chunk.write(Chunk::pack(is_local, index), line);
+            let word = source.to_bytecode().ok_or(OptError::Unsupported(
+                "ssa-emit: closure upvalue index exceeds u8",
+            ))?;
+            chunk.write(word, line);
         }
     }
     Ok(())

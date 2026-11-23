@@ -16,6 +16,7 @@ pub mod resource;
 pub mod ssa;
 pub mod str_util;
 pub mod task;
+pub mod upvalue;
 pub mod value;
 pub mod vm_value;
 pub mod wake;
@@ -35,6 +36,7 @@ pub use native_ctx::NativeFnResult;
 pub use native_error::{ErrorValue, NativeError, StdErrorInfo};
 pub use resource::ResourceStore;
 pub use task::{Completion, HostOpen, HostPromise};
+pub use upvalue::UpvalueSource;
 pub use value::{
     find_method_with_owner, root_shape, ClassObj, ModuleObj, ObjData, RuntimeString, Shape,
     VmBuffer, INST_CLASS_ID_OFF, INST_PAYLOAD_OFF, OBJ_INLINE_LEN_OFF, OBJ_SHAPE_OFF,

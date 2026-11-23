@@ -1,8 +1,8 @@
 use crate::closure::VmClosure;
 use crate::error::VmResult;
-use crate::exec::closures::UpvalueSrc;
 use crate::exec::ctx::ExecCtx;
 use vn_core::OpCode;
+use vn_types::UpvalueSource;
 
 use super::{hi, lo};
 
@@ -30,7 +30,7 @@ impl ExecCtx {
                 let (dest, uv_count) = (hi(w1), lo(w1));
                 let descs = unsafe { code.get_unchecked(*ip + 2..*ip + 2 + uv_count) };
                 *ip += 2 + uv_count;
-                let upvalues = descs.iter().map(|&w| UpvalueSrc::from_bytecode(w));
+                let upvalues = descs.iter().map(|&w| UpvalueSource::from_bytecode(w));
                 let val = self.make_closure(closure, proto_idx, base, upvalues)?;
                 self.stack.unbox_into_reg(base, dest, val)?;
                 Ok(Some(ObjectFlow::ContinueInstruction))

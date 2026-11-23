@@ -1,6 +1,6 @@
-use crate::exec::closures::UpvalueSrc;
 use crate::exec::ctx::ExecCtx;
 use crate::value::VmValue;
+use vn_types::UpvalueSource;
 
 #[vn_macros::jit_slow(field = "eq")]
 pub(crate) extern "C" fn jit_eq(
@@ -239,7 +239,7 @@ pub(crate) extern "C" fn jit_make_closure_window(
         } else {
             std::slice::from_raw_parts(descs, count)
         };
-        let upvalues = words.iter().map(|&w| UpvalueSrc::from_word(w));
+        let upvalues = words.iter().map(|&w| UpvalueSource::from_word(w));
         match ctx_ref.make_closure(closure_ref, proto_idx, base, upvalues) {
             Ok(val) => ctx_ref.jit_native_result = val,
             Err(e) => super::construct::jit_propagate_error(ctx_ref, e),

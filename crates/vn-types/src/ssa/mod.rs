@@ -8,7 +8,7 @@ mod operators;
 mod uses;
 
 pub use op::SsaOp;
-pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, UPVALUE_LOCAL};
+pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue};
 pub use operators::{DynBinOp, DynUnOp, SsaBinOp, SsaUnOp};
 
 pub type SsaTy = SlotKind;

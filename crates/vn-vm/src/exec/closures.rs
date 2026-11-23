@@ -3,34 +3,7 @@ use crate::error::{RuntimeError, VmResult};
 use crate::exec::ctx::ExecCtx;
 use crate::value::VmValue;
 use std::rc::Rc;
-use vn_types::FunctionProto;
-
-#[derive(Clone, Copy)]
-pub(crate) enum UpvalueSrc {
-    Local(usize),
-
-    Inherited(usize),
-}
-
-impl UpvalueSrc {
-    pub(crate) fn from_bytecode(word: u16) -> Self {
-        let index = (word & 0xFF) as usize;
-        if word >> 8 != 0 {
-            UpvalueSrc::Local(index)
-        } else {
-            UpvalueSrc::Inherited(index)
-        }
-    }
-
-    pub(crate) fn from_word(word: u64) -> Self {
-        let index = (word & 0xFFFF_FFFF) as usize;
-        if word & vn_types::ssa::UPVALUE_LOCAL != 0 {
-            UpvalueSrc::Local(index)
-        } else {
-            UpvalueSrc::Inherited(index)
-        }
-    }
-}
+use vn_types::{FunctionProto, UpvalueSource};
 
 impl ExecCtx {
     pub(crate) fn shared_constants(&mut self, proto: &Rc<FunctionProto>) -> Rc<Vec<VmValue>> {
@@ -52,7 +25,7 @@ impl ExecCtx {
         parent: &VmClosure,
         proto_idx: usize,
         base: usize,
-        upvalues: impl ExactSizeIterator<Item = UpvalueSrc>,
+        upvalues: impl ExactSizeIterator<Item = UpvalueSource>,
     ) -> VmResult<VmValue> {
         let proto = match parent.proto.chunk.constants.get(proto_idx) {
             Some(vn_types::PoolEntry::Function(p)) => p.clone(),
@@ -77,8 +50,10 @@ impl ExecCtx {
         }
         let captured = upvalues
             .map(|src| match src {
-                UpvalueSrc::Local(reg) => self.capture_upvalue(self.stack.addr_of(base, reg)),
-                UpvalueSrc::Inherited(idx) => parent.upvalues[idx].clone(),
+                UpvalueSource::Local(reg) => {
+                    self.capture_upvalue(self.stack.addr_of(base, reg as usize))
+                }
+                UpvalueSource::Inherited(idx) => parent.upvalues[idx as usize].clone(),
             })
             .collect();
         let constants = self.shared_constants(&proto);

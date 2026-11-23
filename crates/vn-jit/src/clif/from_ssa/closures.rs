@@ -1,6 +1,7 @@
 use cranelift_codegen::ir::{types, InstBuilder, StackSlotData, StackSlotKind, Value};
 use cranelift_frontend::FunctionBuilder;
-use vn_types::ssa::{SsaUpvalue, UPVALUE_LOCAL};
+use vn_types::ssa::SsaUpvalue;
+use vn_types::UpvalueSource;
 
 use super::{heap, home_load, home_store, Ctx, FrameIo};
 
@@ -37,8 +38,10 @@ pub(super) fn emit_make_closure(
         .iter()
         .map(|src| {
             Ok(match src {
-                SsaUpvalue::Captured(var) => UPVALUE_LOCAL | u64::from(captured_reg(ctx, *var)?),
-                SsaUpvalue::Inherited(idx) => u64::from(*idx),
+                SsaUpvalue::Captured(var) => {
+                    UpvalueSource::Local(captured_reg(ctx, *var)?).to_word()
+                }
+                SsaUpvalue::Inherited(idx) => UpvalueSource::Inherited(*idx).to_word(),
             })
         })
         .collect::<Result<Vec<u64>, String>>()?;

@@ -18,5 +18,3 @@ pub enum SsaUpvalue {
 
     Inherited(u32),
 }
-
-pub const UPVALUE_LOCAL: u64 = 1 << 32;
