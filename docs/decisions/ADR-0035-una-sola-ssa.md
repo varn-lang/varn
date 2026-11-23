@@ -40,15 +40,29 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   `term_uses!` se borran; `for_each_use`, `for_each_use_mut` y `map_ids` se
   escriben una vez (3159abfa).
 - [x] F2. Cadenas `Arc<str>` tambien en la SSA portable (b07acd0c).
-- F1b. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}` sustituyen a
-  `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm` (1500
-  referencias en 29 ficheros del JIT).
+- [x] F1b. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}`
+  sustituyen a `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm`
+  (2e0a98d0; JIT en 4 lotes, 62 ficheros).
 - F3. Un solo enum de instrucciones, por el mismo camino que F1a: `SsaOp`
   generico sobre el id de valor, con las cargas de las 26 variantes que difieren
   (operador tipado, ranuras IC, registros capturados) en tipos asociados a un
   parametro de nivel. `InstKind` pasa a ser `vn_types::ssa::Op`; los
   pases del compilador hacen match sobre el. `uses.rs` del compilador se borra en
   favor de `Op::for_each_use`/`for_each_use_mut`.
+  Hecho como limpieza previa (cada paso con puerta `-Min` en verde):
+  - `CloseUpvalues` nombra `vars` en ambos lados (957481c8).
+  - `MapGetIndex`/`MapSetIndex` se borran; el compilador usa `GetIndex`/`SetIndex`
+    tambien para mapas (8715602b; se borra ademas `emit_map_get_index`, que emitia
+    un RRR sin opcode).
+  - `KindOf` es variante propia en `InstKind` como en `SsaOp` (ade6cefc).
+  - `ArrayExtend`, `BindMethod` y `WrapSpread` se borran de `SsaOp`: nunca los
+    construia la proyeccion (3f5c3236; se borran sus brazos en el JIT y sus
+    constructores muertos en `extra/props`).
+  Tras esto ambos enums tienen 88 variantes. Queda: `Binary`/`Unary` (guardar el
+  `SsaBinOp`/`SsaUnOp` ya elegido en `from_tir`), `MakeClosure` (`func` +
+  `Vec<SsaUpvalue>` en ambos, con la tabla `closure_consts` como anotacion),
+  `CallDirect` (`shape` a la tabla `call_sites`), y fundir los enums con el
+  parametro de nivel.
 - [x] F3a. `SsaSpread` y `SsaObjectSpreadPart` son genericos sobre el id y el
   compilador los usa en lugar de tuplas (f00e0f21).
 - [x] F4a. La ranura de cache y el punto de continuacion (`ip` + conjunto vivo) van
@@ -67,23 +81,29 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   modulo `lower` (8d7732c1).
 
 ## Pendientes
-Orden de trabajo: F5, F1b y F3, de menor a mayor alcance.
+Orden de trabajo hecho: F5, F1b y limpieza previa de F3, de menor a mayor alcance.
 
-- F5 primero: es la fase mas pequena y la que borra la proyeccion.
-- F1b: `ValueId`/`BlockId` compartidos (unas 1500 referencias en el JIT).
-- F3: fundir `InstKind` y `SsaOp` (unas 2700 referencias en el compilador). Las
-  diferencias que quedan entre los dos enums, medidas tras F4c:
+- [x] F5: operador tipado en `vn-types`; se borran `portable/ops.rs` y `lower`.
+- [x] F1b: `ValueId`/`BlockId` compartidos (62 ficheros entre `vn-types`,
+  compilador y JIT).
+- F3 restante: fundir `InstKind` y `SsaOp` (unas 2700 referencias en el
+  compilador). Tras la limpieza previa, resueltas:
+  - `CloseUpvalues`: `vars` en ambos (957481c8).
+  - `MapGetIndex`/`MapSetIndex`: borrados, `GetIndex`/`SetIndex` para mapas
+    (8715602b).
+  - `KindOf`: variante propia en ambos (ade6cefc).
+  - `ArrayExtend`, `BindMethod`, `WrapSpread`: borrados de `SsaOp`, nunca
+    construidos (3f5c3236).
+  Quedan, medidas tras la limpieza:
   - `Binary`/`Unary`: `vn_core::BinOp`/`UnOp` + `BackendTy` frente a
-    `SsaBinOp`/`SsaUnOp` (lo resuelve F5).
-  - `MakeClosure`: `func` + `Vec<vn_tir::TirUpvalue>` frente a `proto` (constante del
-    chunk) + `Vec<SsaUpvalue>`.
-  - `CallDirect`: el compilador lleva ademas `shape`.
-  - `CloseUpvalues`: mismo tipo, distinto nombre de campo (`targets` frente a
-    `vars`).
-  - Solo en `InstKind`: `MapGetIndex`, `MapSetIndex`.
-  - Solo en `SsaOp`: `ArrayExtend`, `BindMethod`, `KindOf`, `WrapSpread`.
+    `SsaBinOp`/`SsaUnOp` (seleccion ya compartida por F5; falta guardar el
+    elegido en `from_tir`).
+  - `MakeClosure`: `func` + `Vec<vn_tir::TirUpvalue>` frente a `proto` (constante
+    del chunk) + `Vec<SsaUpvalue>`.
+  - `CallDirect`: el compilador lleva ademas `shape` (a `call_sites`).
 - Medir `vn bench` sobre `tests/benchmarks/vn` contra el binario previo para F4b y
-  F4c, que pasaron la matriz completa sin esa medicion.
+  F4c, que pasaron la matriz completa sin esa medicion, y para F5, F1b y la
+  limpieza de F3.
 
 Defectos encontrados durante F4b, fuera de esta decision:
 
