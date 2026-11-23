@@ -39,20 +39,22 @@ struct Captured {
 }
 
 impl Captured {
-    fn index(&mut self, var: VarId) -> u32 {
-        match self.vars.iter().position(|v| *v == var) {
-            Some(i) => i as u32,
-            None => {
-                self.vars.push(var);
-                (self.vars.len() - 1) as u32
-            }
+    fn var(&mut self, var: VarId) -> vn_types::ssa::SsaVar {
+        if !self.vars.contains(&var) {
+            self.vars.push(var);
         }
+        var.portable()
     }
 
-    fn regs(&self) -> Vec<u32> {
+    fn table(&self) -> Vec<(vn_types::ssa::SsaVar, u32)> {
         self.vars
             .iter()
-            .map(|v| u32::from(crate::ssa::emit::var_reg(*v, self.nparams)))
+            .map(|v| {
+                (
+                    v.portable(),
+                    u32::from(crate::ssa::emit::var_reg(*v, self.nparams)),
+                )
+            })
             .collect()
     }
 }
@@ -336,7 +338,7 @@ pub(crate) fn project(
         regs: emitted.reg.iter().map(|&r| r as u32).collect(),
         register_count: emitted.register_count,
         has_this,
-        captured: captured.regs(),
+        captured: captured.table(),
         secondary_entries: entries::secondary_entries(ssa, &emitted),
         call_shapes: ssa.call_shapes.clone(),
         call_sites,

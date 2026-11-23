@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue};
+use super::operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, SsaVar};
 use super::operators::{SsaBinOp, SsaUnOp};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -106,11 +106,11 @@ pub enum SsaOp {
     },
 
     LoadCaptured {
-        var: u32,
+        var: SsaVar,
     },
 
     StoreCaptured {
-        var: u32,
+        var: SsaVar,
         value: u32,
     },
 
@@ -122,7 +122,7 @@ pub enum SsaOp {
     },
 
     CloseUpvalues {
-        vars: Vec<u32>,
+        vars: Vec<SsaVar>,
     },
 
     Cast {
@@ -399,7 +399,7 @@ pub enum SsaOp {
     },
 
     Dispose {
-        var: u32,
+        var: SsaVar,
         is_await: bool,
     },
 }

@@ -12,9 +12,15 @@ pub struct SsaObjectSpreadPart<V = u32> {
     pub value: V,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum SsaVar {
+    Param(u32),
+    Local(u32),
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SsaUpvalue {
-    Captured(u32),
+    Captured(SsaVar),
 
     Inherited(u32),
 }

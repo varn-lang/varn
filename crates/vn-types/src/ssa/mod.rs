@@ -8,7 +8,7 @@ mod operators;
 mod uses;
 
 pub use op::SsaOp;
-pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue};
+pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, SsaVar};
 pub use operators::{DynBinOp, DynUnOp, SsaBinOp, SsaUnOp};
 
 pub type SsaTy = SlotKind;
@@ -105,7 +105,7 @@ pub struct SsaProto {
     pub register_count: u16,
     pub has_this: bool,
 
-    pub captured: Vec<u32>,
+    pub captured: Vec<(SsaVar, u32)>,
 
     pub secondary_entries: Vec<SsaSecondaryEntry>,
 
@@ -196,12 +196,18 @@ impl SsaProto {
     }
 
     #[inline]
-    pub fn captured_reg(&self, var: u32) -> Option<u32> {
-        self.captured.get(var as usize).copied()
+    pub fn captured_reg(&self, var: SsaVar) -> Option<u32> {
+        self.captured
+            .iter()
+            .find_map(|(v, reg)| (*v == var).then_some(*reg))
     }
 
     pub fn map_registers(&mut self, f: impl Fn(u32) -> u32) {
-        for r in self.regs.iter_mut().chain(self.captured.iter_mut()) {
+        for r in self
+            .regs
+            .iter_mut()
+            .chain(self.captured.iter_mut().map(|(_, reg)| reg))
+        {
             *r = f(*r);
         }
     }

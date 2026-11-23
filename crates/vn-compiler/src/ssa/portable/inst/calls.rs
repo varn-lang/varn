@@ -89,20 +89,20 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
                 .iter()
                 .map(|src| match src {
                     vn_tir::TirUpvalue::ParentLocal(id) => {
-                        SsaUpvalue::Captured(captured.index(VarId::Local(vn_tir::LocalId(*id))))
+                        SsaUpvalue::Captured(captured.var(VarId::Local(vn_tir::LocalId(*id))))
                     }
                     vn_tir::TirUpvalue::ParentParam(i) => {
-                        SsaUpvalue::Captured(captured.index(VarId::Param(*i)))
+                        SsaUpvalue::Captured(captured.var(VarId::Param(*i)))
                     }
                     vn_tir::TirUpvalue::ParentUpvalue(idx) => SsaUpvalue::Inherited(*idx),
                 })
                 .collect(),
         }),
         InstKind::LoadCaptured { var } => Some(SsaOp::LoadCaptured {
-            var: captured.index(*var),
+            var: captured.var(*var),
         }),
         InstKind::StoreCaptured { var, value } => Some(SsaOp::StoreCaptured {
-            var: captured.index(*var),
+            var: captured.var(*var),
             value: value.0,
         }),
         InstKind::LoadUpvalue(index) => Some(SsaOp::LoadUpvalue(*index)),
@@ -111,7 +111,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             value: value.0,
         }),
         InstKind::CloseUpvalues { targets } => Some(SsaOp::CloseUpvalues {
-            vars: targets.iter().map(|t| captured.index(*t)).collect(),
+            vars: targets.iter().map(|t| captured.var(*t)).collect(),
         }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

@@ -7,6 +7,15 @@ pub enum VarId {
     Local(LocalId),
 }
 
+impl VarId {
+    pub fn portable(self) -> vn_types::ssa::SsaVar {
+        match self {
+            VarId::Param(i) => vn_types::ssa::SsaVar::Param(i),
+            VarId::Local(LocalId(i)) => vn_types::ssa::SsaVar::Local(i),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Value(pub u32);
 

@@ -1,17 +1,17 @@
 use cranelift_codegen::ir::{types, InstBuilder, StackSlotData, StackSlotKind, Value};
 use cranelift_frontend::FunctionBuilder;
-use vn_types::ssa::SsaUpvalue;
+use vn_types::ssa::{SsaUpvalue, SsaVar};
 use vn_types::UpvalueSource;
 
 use super::{heap, home_load, home_store, Ctx};
 
-fn captured_reg(ctx: &Ctx<'_>, var: u32) -> Result<u32, String> {
+fn captured_reg(ctx: &Ctx<'_>, var: SsaVar) -> Result<u32, String> {
     ctx.frame_for("closure op")?
         .base
         .ok_or(super::NEEDS_ACTIVATION)?;
     ctx.ssa
         .captured_reg(var)
-        .ok_or_else(|| format!("from_ssa: captured variable {var} has no register"))
+        .ok_or_else(|| format!("from_ssa: captured variable {var:?} has no register"))
 }
 
 pub(super) fn emit_make_closure(
@@ -74,7 +74,7 @@ pub(super) fn emit_make_closure(
 pub(super) fn emit_load_captured(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
-    var: u32,
+    var: SsaVar,
 ) -> Result<Value, String> {
     home_load(b, ctx, captured_reg(ctx, var)?)
 }
@@ -83,7 +83,7 @@ pub(super) fn emit_store_captured(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    var: u32,
+    var: SsaVar,
     value: u32,
 ) -> Result<(), String> {
     let boxed = heap::boxed_value(b, ctx, values, value)?;
@@ -132,7 +132,7 @@ pub(super) fn emit_store_upvalue(
 pub(super) fn emit_close_upvalues(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
-    vars: &[u32],
+    vars: &[SsaVar],
 ) -> Result<(), String> {
     let frame = ctx.frame_for("closure op")?;
     let lowest = vars

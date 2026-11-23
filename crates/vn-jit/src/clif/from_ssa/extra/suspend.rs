@@ -130,7 +130,7 @@ pub(super) fn dispose(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    var: u32,
+    var: vn_types::ssa::SsaVar,
     is_await: bool,
     cs: u16,
 ) -> Result<Option<Option<Out>>, String> {

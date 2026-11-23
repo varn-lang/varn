@@ -87,7 +87,7 @@ impl SsaOp {
             | SsaOp::StoreGlobal { value, .. }
             | SsaOp::StoreModuleSlot { value, .. } => f(*value),
             SsaOp::MakeClosure { .. } => {}
-            SsaOp::CloseUpvalues { vars } => vars.iter().for_each(|a| f(*a)),
+            SsaOp::CloseUpvalues { .. } => {}
             SsaOp::TypeTest { value, class } => {
                 f(*value);
                 f(*class);
@@ -151,7 +151,7 @@ impl SsaOp {
             }
             SsaOp::LoadModule { .. } => {}
             SsaOp::Await { operand } | SsaOp::Yield { operand } => f(*operand),
-            SsaOp::Dispose { var, .. } => f(*var),
+            SsaOp::Dispose { .. } => {}
         }
     }
 }
