@@ -201,35 +201,7 @@ pub(in crate::clif::from_ssa) fn emit_is_str(
     b.ins().brif(is_str, yes, &[], no, &[]);
 }
 
-#[derive(Clone, Copy)]
-enum StrProbe {
-    StartsWith,
-    EndsWith,
-    Includes,
-    IndexOf,
-}
-
-impl StrProbe {
-    const ALL: [Self; 4] = [
-        Self::StartsWith,
-        Self::EndsWith,
-        Self::Includes,
-        Self::IndexOf,
-    ];
-
-    const fn key(self) -> vn_core::MemberKey {
-        match self {
-            Self::StartsWith => vn_core::MemberKey::StartsWith,
-            Self::EndsWith => vn_core::MemberKey::EndsWith,
-            Self::Includes => vn_core::MemberKey::Includes,
-            Self::IndexOf => vn_core::MemberKey::IndexOf,
-        }
-    }
-
-    fn of(name: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|p| p.key().as_str() == name)
-    }
-}
+use vn_core::intrinsic_ops::StrProbe;
 
 pub(crate) fn emit_method_call(
     b: &mut FunctionBuilder,

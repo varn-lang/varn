@@ -2,14 +2,9 @@ use crate::exec::ctx::ExecCtx;
 use crate::exec::method_args::MethodArgs;
 use crate::heap::{Heap, HeapObj};
 use crate::value::VmValue;
+use vn_core::intrinsic_ops::StrProbe;
 use vn_core::MemberKey;
 use vn_types::vm_value::SSO_MAX_LEN;
-
-enum StrOp {
-    StartsWith,
-    EndsWith,
-    IndexOf,
-}
 
 fn str_of<'a>(v: VmValue, heap: &'a Heap, buf: &'a mut [u8; SSO_MAX_LEN]) -> Option<&'a str> {
     if v.is_sso() {
@@ -59,23 +54,18 @@ impl ExecCtx {
         if arg_count != 1 {
             return None;
         }
-        let op = if name == MemberKey::StartsWith.as_str() {
-            StrOp::StartsWith
-        } else if name == MemberKey::EndsWith.as_str() {
-            StrOp::EndsWith
-        } else if name == MemberKey::IndexOf.as_str() {
-            StrOp::IndexOf
-        } else {
-            return None;
-        };
+        let op = StrProbe::of(name)?;
         let arg = args.get(&self.stack, 0);
         let (mut buf_s, mut buf_p) = ([0u8; SSO_MAX_LEN], [0u8; SSO_MAX_LEN]);
         let s = str_of(this_val, &self.heap, &mut buf_s)?;
         let p = str_of(arg, &self.heap, &mut buf_p)?;
         let result = match op {
-            StrOp::StartsWith => VmValue::from_bool(s.starts_with(p)),
-            StrOp::EndsWith => VmValue::from_bool(s.ends_with(p)),
-            StrOp::IndexOf => vn_types::str_util::char_index_of(s, p)
+            StrProbe::StartsWith => VmValue::from_bool(s.starts_with(p)),
+            StrProbe::EndsWith => VmValue::from_bool(s.ends_with(p)),
+            StrProbe::Includes => {
+                VmValue::from_bool(vn_types::str_util::find_bytes(s, p).is_some())
+            }
+            StrProbe::IndexOf => vn_types::str_util::char_index_of(s, p)
                 .map_or_else(VmValue::null, |at| VmValue::from_int(at as i64)),
         };
         self.record_ic_hit_callmethod();
