@@ -10,11 +10,11 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
         }),
         InstKind::ObjectRest { object, skip_keys } => Some(SsaOp::ObjectRest {
             object: object.0,
-            skip_keys: skip_keys.iter().map(|k| k.as_ref().into()).collect(),
+            skip_keys: skip_keys.to_vec(),
         }),
         InstKind::GetPropertyMaybe { object, name } => Some(SsaOp::GetPropertyMaybe {
             object: object.0,
-            name: name.as_ref().into(),
+            name: name.clone(),
         }),
         InstKind::ArrayLength { operand } => Some(SsaOp::ArrayLength { operand: operand.0 }),
         InstKind::BytesLength { operand } => Some(SsaOp::BytesLength { operand: operand.0 }),

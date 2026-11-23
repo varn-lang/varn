@@ -16,7 +16,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             ..
         } => match site.direct_slot {
             Some(direct) => Some(SsaOp::CallDirect {
-                target: target.as_ref().into(),
+                target: target.clone(),
                 slot: *slot,
                 callee: callee.0,
                 args: args.iter().map(|v| v.0).collect(),
@@ -32,7 +32,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         }),
         InstKind::MethodCall { recv, name, args } => Some(SsaOp::MethodCall {
             recv: recv.0,
-            name: name.as_ref().into(),
+            name: name.clone(),
             args: args.iter().map(|v| v.0).collect(),
             cs: u16::from(site.ic_slot?),
         }),
@@ -64,7 +64,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             args: args.iter().map(|v| v.0).collect(),
         }),
         InstKind::SuperMethodCall { name, args } => Some(SsaOp::SuperMethodCall {
-            name: name.as_ref().into(),
+            name: name.clone(),
             args: args.iter().map(|v| v.0).collect(),
         }),
         InstKind::SuperInvokeSlot { slot, args } => Some(SsaOp::SuperInvokeSlot {
@@ -77,7 +77,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             recv,
             args,
         } => Some(SsaOp::ExtensionCall {
-            func: func.as_ref().into(),
+            func: func.clone(),
             slot: *slot,
             recv: recv.0,
             args: args.iter().map(|v| v.0).collect(),

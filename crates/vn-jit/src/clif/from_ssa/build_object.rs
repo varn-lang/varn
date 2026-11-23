@@ -9,7 +9,7 @@ pub(super) fn emit_build_object(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     ids: &[u32],
-    keys: &[Box<str>],
+    keys: &[std::sync::Arc<str>],
 ) -> Result<Value, String> {
     let idx = ctx
         .proto
@@ -43,7 +43,7 @@ fn emit_build_object_inline(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     ids: &[u32],
-    keys: &[Box<str>],
+    keys: &[std::sync::Arc<str>],
     shape_idx: usize,
     count: usize,
     class_idx: usize,
@@ -255,7 +255,7 @@ fn emit_build_object_slow(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     ids: &[u32],
-    keys: &[Box<str>],
+    keys: &[std::sync::Arc<str>],
 ) -> Result<Value, String> {
     let idx = ctx
         .proto

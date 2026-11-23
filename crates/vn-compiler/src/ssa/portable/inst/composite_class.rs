@@ -28,7 +28,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             kind: *tag,
         }),
         InstKind::MakeClass { name, super_class } => Some(SsaOp::MakeClass {
-            name: name.as_ref().into(),
+            name: name.clone(),
             super_class: super_class.map(|v| v.0),
         }),
         InstKind::FreezeClass { class } => Some(SsaOp::FreezeClass { class: class.0 }),
@@ -43,13 +43,11 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             kind,
         } => Some(SsaOp::DefineMember {
             class: class.0,
-            name: name.as_ref().into(),
+            name: name.clone(),
             member: value.0,
             kind: *kind,
         }),
-        InstKind::GetSuper { name } => Some(SsaOp::GetSuper {
-            name: name.as_ref().into(),
-        }),
+        InstKind::GetSuper { name } => Some(SsaOp::GetSuper { name: name.clone() }),
         InstKind::GetSuperSlot { slot } => Some(SsaOp::GetSuperSlot { slot: *slot }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

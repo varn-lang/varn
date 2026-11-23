@@ -60,7 +60,7 @@ pub enum SsaTerm<V = u32, B = u32> {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SsaProto {
-    pub name: Box<str>,
+    pub name: std::sync::Arc<str>,
     pub nparams: u32,
     pub entry: u32,
     pub blocks: Vec<SsaBlock>,

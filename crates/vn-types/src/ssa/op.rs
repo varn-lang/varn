@@ -9,7 +9,7 @@ pub enum SsaOp {
     ConstFloat(f64),
     ConstBool(bool),
     ConstNull,
-    ConstStr(Box<str>),
+    ConstStr(std::sync::Arc<str>),
 
     Binary {
         op: SsaBinOp,
@@ -32,7 +32,7 @@ pub enum SsaOp {
     },
 
     CallDirect {
-        target: Box<str>,
+        target: std::sync::Arc<str>,
         slot: Option<u32>,
         callee: u32,
         args: Vec<u32>,
@@ -70,9 +70,9 @@ pub enum SsaOp {
 
     ConstChar(char),
 
-    ConstBigInt(Box<str>),
+    ConstBigInt(std::sync::Arc<str>),
 
-    ConstDecimal(Box<str>),
+    ConstDecimal(std::sync::Arc<str>),
 
     MakeEnumVariant {
         def: std::sync::Arc<crate::value::VariantDef>,
@@ -180,13 +180,13 @@ pub enum SsaOp {
     },
 
     BuildObject {
-        keys: Vec<Box<str>>,
+        keys: Vec<std::sync::Arc<str>>,
         values: Vec<u32>,
     },
 
     GetProperty {
         object: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         cs: u16,
     },
 
@@ -198,7 +198,7 @@ pub enum SsaOp {
     SetProperty {
         object: u32,
         value: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         cs: u16,
     },
 
@@ -227,7 +227,7 @@ pub enum SsaOp {
 
     MethodCall {
         recv: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         args: Vec<u32>,
         cs: u16,
     },
@@ -268,7 +268,7 @@ pub enum SsaOp {
     },
 
     MakeClass {
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         super_class: Option<u32>,
     },
 
@@ -283,23 +283,23 @@ pub enum SsaOp {
 
     DefineMember {
         class: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         member: u32,
         kind: vn_core::MemberDef,
     },
 
     GetSuper {
-        name: Box<str>,
+        name: std::sync::Arc<str>,
     },
 
     GetSuperSlot {
         slot: u16,
     },
 
-    LoadGlobal(Box<str>),
+    LoadGlobal(std::sync::Arc<str>),
 
     StoreGlobal {
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         value: u32,
     },
 
@@ -323,12 +323,12 @@ pub enum SsaOp {
 
     ObjectRest {
         object: u32,
-        skip_keys: Vec<Box<str>>,
+        skip_keys: Vec<std::sync::Arc<str>>,
     },
 
     GetPropertyMaybe {
         object: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
     },
 
     AssertNotNull {
@@ -337,7 +337,7 @@ pub enum SsaOp {
 
     BindMethod {
         object: u32,
-        name: Box<str>,
+        name: std::sync::Arc<str>,
     },
 
     ArrayExtend {
@@ -360,7 +360,7 @@ pub enum SsaOp {
     },
 
     SuperMethodCall {
-        name: Box<str>,
+        name: std::sync::Arc<str>,
         args: Vec<u32>,
     },
 
@@ -370,7 +370,7 @@ pub enum SsaOp {
     },
 
     ExtensionCall {
-        func: Box<str>,
+        func: std::sync::Arc<str>,
         slot: Option<u32>,
         recv: u32,
         args: Vec<u32>,
@@ -382,7 +382,7 @@ pub enum SsaOp {
     },
 
     LoadModule {
-        source: Box<str>,
+        source: std::sync::Arc<str>,
         own_ip: u32,
         live: Vec<u32>,
     },

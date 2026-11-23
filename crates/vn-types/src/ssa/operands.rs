@@ -8,7 +8,7 @@ pub struct SsaSpread {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SsaObjectSpreadPart {
-    pub key: Option<Box<str>>,
+    pub key: Option<std::sync::Arc<str>>,
     pub value: u32,
 }
 

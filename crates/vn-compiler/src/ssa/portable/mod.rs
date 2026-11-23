@@ -324,7 +324,7 @@ pub(crate) fn project(
 
     call_sites.sort_unstable();
     Ok(SsaProto {
-        name: name.as_ref().into(),
+        name: name.clone(),
         nparams: ssa
             .blocks
             .get(ssa.entry.0 as usize)

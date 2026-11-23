@@ -26,7 +26,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
             pairs: pairs.iter().map(|(k, v)| (k.0, v.0)).collect(),
         }),
         InstKind::BuildObject { pairs } => Some(SsaOp::BuildObject {
-            keys: pairs.iter().map(|(k, _)| k.as_ref().into()).collect(),
+            keys: pairs.iter().map(|(k, _)| k.clone()).collect(),
             values: pairs.iter().map(|(_, v)| v.0).collect(),
         }),
         InstKind::BuildTuple { elements } => Some(SsaOp::BuildTuple {
@@ -45,7 +45,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
             parts: parts
                 .iter()
                 .map(|(k, v)| vn_types::ssa::SsaObjectSpreadPart {
-                    key: k.as_ref().map(|s| s.as_ref().into()),
+                    key: k.as_ref().map(|s| s.clone()),
                     value: v.0,
                 })
                 .collect(),
@@ -53,7 +53,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         }),
         InstKind::GetProperty { object, name } => Some(SsaOp::GetProperty {
             object: object.0,
-            name: name.as_ref().into(),
+            name: name.clone(),
             cs: u16::from(site.ic_slot?),
         }),
         InstKind::GetSlotMethod { object, slot } => Some(SsaOp::GetSlotMethod {
@@ -67,7 +67,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         } => Some(SsaOp::SetProperty {
             object: object.0,
             value: value.0,
-            name: name.as_ref().into(),
+            name: name.clone(),
             cs: u16::from(site.ic_slot?),
         }),
         InstKind::ConstInt(_)

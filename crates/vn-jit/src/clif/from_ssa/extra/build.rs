@@ -71,7 +71,7 @@ pub(super) fn object_rest(
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
     object: u32,
-    skip_keys: &[Box<str>],
+    skip_keys: &[std::sync::Arc<str>],
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
