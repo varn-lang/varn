@@ -1,5 +1,6 @@
 use std::sync::OnceLock;
 
+use vn_core::env::JitCacheMode;
 use vn_types::{FunctionProto, VmValue};
 
 pub trait CodeStore: Send + Sync {
@@ -13,26 +14,14 @@ pub fn register_code_store(store: &'static dyn CodeStore) {
     let _ = STORE.set(store);
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Mode {
-    On,
-    Verify,
-    Off,
+static MODE: OnceLock<JitCacheMode> = OnceLock::new();
+
+pub fn configure(mode: JitCacheMode) -> bool {
+    MODE.set(mode).is_ok()
 }
 
-static MODE: OnceLock<Mode> = OnceLock::new();
-
-pub fn configure(mode: vn_core::env::JitCacheMode) -> bool {
-    MODE.set(match mode {
-        vn_core::env::JitCacheMode::Off => Mode::Off,
-        vn_core::env::JitCacheMode::Verify => Mode::Verify,
-        vn_core::env::JitCacheMode::On => Mode::On,
-    })
-    .is_ok()
-}
-
-fn mode() -> Mode {
-    *MODE.get_or_init(|| Mode::On)
+fn mode() -> JitCacheMode {
+    *MODE.get_or_init(JitCacheMode::default)
 }
 
 fn key(
@@ -58,8 +47,8 @@ pub(crate) fn compile(
 ) -> Result<vn_jit::Compiled, String> {
     let _compiling = crate::cpu_profile::Activity::compiling();
     let store = match (STORE.get(), mode()) {
-        (Some(store), Mode::On | Mode::Verify) => *store,
-        (None, _) | (_, Mode::Off) => {
+        (Some(store), JitCacheMode::On | JitCacheMode::Verify) => *store,
+        (None, _) | (_, JitCacheMode::Off) => {
             return vn_jit::compile(proto, constants, helpers, linker, osr)
         }
     };
@@ -68,7 +57,7 @@ pub(crate) fn compile(
         .and_then(|k| store.load(k))
         .and_then(|bytes| postcard::from_bytes::<vn_jit::CodeImage>(&bytes).ok());
     if let Some(image) = cached {
-        if mode() == Mode::Verify {
+        if mode() == JitCacheMode::Verify {
             verify(proto, constants, helpers, osr, &image);
         }
         if let Ok(compiled) = vn_jit::install(&image, proto, constants, helpers, linker) {
