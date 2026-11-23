@@ -149,7 +149,7 @@ pub(super) fn try_emit(
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
         | SsaOp::FreezeClass { .. }
-        | SsaOp::DefineMethod { .. }
+        | SsaOp::DefineMember { .. }
         | SsaOp::GetSuper { .. } => Ok(None),
     }
 }

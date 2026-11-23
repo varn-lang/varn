@@ -36,22 +36,24 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             class: class.0,
             layout: layout.clone(),
         }),
-        InstKind::DefineStatic { class, name, value } => Some(SsaOp::DefineMethod {
+        InstKind::DefineStatic { class, name, value } => Some(SsaOp::DefineMember {
             class: class.0,
             name: name.as_ref().into(),
             member: value.0,
-            kind: 1,
+            kind: vn_core::MemberDef::Method { is_static: true },
         }),
         InstKind::DefineMethod {
             class,
             name,
             method,
             is_static,
-        } => Some(SsaOp::DefineMethod {
+        } => Some(SsaOp::DefineMember {
             class: class.0,
             name: name.as_ref().into(),
             member: method.0,
-            kind: if *is_static { 1 } else { 0 },
+            kind: vn_core::MemberDef::Method {
+                is_static: *is_static,
+            },
         }),
         InstKind::DefineAccessor {
             class,
@@ -59,11 +61,18 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             accessor,
             is_getter,
             is_static,
-        } => Some(SsaOp::DefineMethod {
+        } => Some(SsaOp::DefineMember {
             class: class.0,
             name: name.as_ref().into(),
             member: accessor.0,
-            kind: 2 + if *is_static { 2 } else { 0 } + if *is_getter { 0 } else { 1 },
+            kind: vn_core::MemberDef::Accessor {
+                kind: if *is_getter {
+                    vn_core::AccessorKind::Get
+                } else {
+                    vn_core::AccessorKind::Set
+                },
+                is_static: *is_static,
+            },
         }),
         InstKind::GetSuper { name } => Some(SsaOp::GetSuper {
             name: name.as_ref().into(),

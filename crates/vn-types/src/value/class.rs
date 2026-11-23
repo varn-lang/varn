@@ -28,8 +28,7 @@ pub struct ClassObj {
     pub vtable_version: AtomicU32,
     pub frozen: AtomicBool,
     pub root_shape: RefCell<Rc<super::shape::Shape>>,
-    pub static_getter_map: RefCell<HashMap<RuntimeString, VmValue>>,
-    pub static_setter_map: RefCell<HashMap<RuntimeString, VmValue>>,
+    pub static_accessors: [RefCell<HashMap<RuntimeString, VmValue>>; 2],
 
     pub ctor_cache: RefCell<Option<(u32, Option<VmValue>)>>,
 
@@ -56,8 +55,10 @@ impl ClassObj {
             statics: RefCell::new(HashMap::default()),
             static_fields: RefCell::new(Vec::new()),
             root_shape: RefCell::new(super::shape::root_shape()),
-            static_getter_map: RefCell::new(HashMap::default()),
-            static_setter_map: RefCell::new(HashMap::default()),
+            static_accessors: [
+                RefCell::new(HashMap::default()),
+                RefCell::new(HashMap::default()),
+            ],
             ctor_cache: RefCell::new(None),
             ctor_rt_cache: RefCell::new(None),
             instance_shape_cache: RefCell::new(None),
@@ -161,10 +162,10 @@ impl ClassObj {
         for v in self.statics.borrow_mut().values_mut() {
             f(v);
         }
-        for v in self.static_getter_map.borrow_mut().values_mut() {
+        for v in self.static_accessors[0].borrow_mut().values_mut() {
             f(v);
         }
-        for v in self.static_setter_map.borrow_mut().values_mut() {
+        for v in self.static_accessors[1].borrow_mut().values_mut() {
             f(v);
         }
         *self.ctor_cache.borrow_mut() = None;
@@ -232,43 +233,75 @@ impl ClassObj {
             .collect()
     }
 
-    pub fn add_static_getter(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
+    fn register_static_field(&self, name: impl Into<Arc<str>>) -> Option<Arc<str>> {
         if self.is_frozen() {
-            return false;
+            return None;
         }
-        let name_rc = name.into();
+        let name: Arc<str> = name.into();
         let mut fields = self.static_fields.borrow_mut();
-        if !fields.contains(&name_rc) {
-            fields.push(name_rc.clone());
+        if !fields.contains(&name) {
+            fields.push(name.clone());
         }
-        self.static_getter_map.borrow_mut().insert(name_rc, value);
-        true
+        Some(name)
     }
 
-    pub fn add_static_setter(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
-        if self.is_frozen() {
-            return false;
-        }
-        let name_rc = name.into();
-        let mut fields = self.static_fields.borrow_mut();
-        if !fields.contains(&name_rc) {
-            fields.push(name_rc.clone());
-        }
-        self.static_setter_map.borrow_mut().insert(name_rc, value);
-        true
+    fn static_accessor_map(&self, kind: AccessorKind) -> &RefCell<HashMap<RuntimeString, VmValue>> {
+        &self.static_accessors[kind as usize]
     }
 
     pub fn add_static(&self, name: impl Into<Arc<str>>, value: VmValue) -> bool {
-        if self.is_frozen() {
+        let Some(name) = self.register_static_field(name) else {
             return false;
-        }
-        let name_rc = name.into();
-        let mut fields = self.static_fields.borrow_mut();
-        if !fields.contains(&name_rc) {
-            fields.push(name_rc.clone());
-        }
-        self.statics.borrow_mut().insert(name_rc, value);
+        };
+        self.statics.borrow_mut().insert(name, value);
         true
+    }
+
+    pub fn add_static_accessor(
+        &self,
+        kind: AccessorKind,
+        name: impl Into<Arc<str>>,
+        value: VmValue,
+    ) -> bool {
+        let Some(name) = self.register_static_field(name) else {
+            return false;
+        };
+        self.static_accessor_map(kind)
+            .borrow_mut()
+            .insert(name, value);
+        true
+    }
+
+    pub fn find_static_accessor(&self, kind: AccessorKind, name: &str) -> Option<VmValue> {
+        if let Some(v) = self.static_accessor_map(kind).borrow().get(name) {
+            return Some(*v);
+        }
+        self.superclass
+            .borrow()
+            .as_ref()?
+            .find_static_accessor(kind, name)
+    }
+
+    pub fn define_member(
+        self: &Rc<Self>,
+        def: vn_core::MemberDef,
+        name: &str,
+        value: VmValue,
+    ) -> bool {
+        match def {
+            vn_core::MemberDef::Method { is_static: false } => {
+                self.add_method_with_owner(name, value, Some(Rc::clone(self)))
+            }
+            vn_core::MemberDef::Method { is_static: true } => self.add_static(name, value),
+            vn_core::MemberDef::Accessor {
+                kind,
+                is_static: false,
+            } => self.add_accessor_with_owner(kind, name, value, Some(Rc::clone(self))),
+            vn_core::MemberDef::Accessor {
+                kind,
+                is_static: true,
+            } => self.add_static_accessor(kind, name, value),
+        }
     }
 
     pub fn get_static(&self, name: &str) -> Option<VmValue> {
@@ -277,20 +310,6 @@ impl ClassObj {
 
     pub fn find_accessor(&self, kind: AccessorKind, name: &str) -> Option<VmValue> {
         kind.with_key(name, |key| self.find_method(key))
-    }
-
-    pub fn find_static_getter(&self, name: &str) -> Option<VmValue> {
-        if let Some(v) = self.static_getter_map.borrow().get(name) {
-            return Some(*v);
-        }
-        self.superclass.borrow().as_ref()?.find_static_getter(name)
-    }
-
-    pub fn find_static_setter(&self, name: &str) -> Option<VmValue> {
-        if let Some(v) = self.static_setter_map.borrow().get(name) {
-            return Some(*v);
-        }
-        self.superclass.borrow().as_ref()?.find_static_setter(name)
     }
 
     pub fn find_method(&self, name: &str) -> Option<VmValue> {

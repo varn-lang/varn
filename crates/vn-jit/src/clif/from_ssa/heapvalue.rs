@@ -54,13 +54,21 @@ pub(super) fn emit(
             classops::emit_freeze_class(b, ctx, values, *class)?;
             return Ok(Some(None));
         }
-        SsaOp::DefineMethod {
+        SsaOp::DefineMember {
             class,
             name,
             member,
             kind,
         } => {
-            classops::emit_define_member(b, ctx, values, *class, name, *member, *kind as i64)?;
+            classops::emit_define_member(
+                b,
+                ctx,
+                values,
+                *class,
+                name,
+                *member,
+                i64::from(kind.wire()),
+            )?;
             return Ok(Some(None));
         }
         SsaOp::ConstInt(_)
@@ -416,7 +424,7 @@ pub(super) fn emit(
         | SsaOp::SetFixedField { .. }
         | SsaOp::DeclareLayout { .. }
         | SsaOp::FreezeClass { .. }
-        | SsaOp::DefineMethod { .. }
+        | SsaOp::DefineMember { .. }
         | SsaOp::LoadGlobal(_)
         | SsaOp::StoreGlobal { .. }
         | SsaOp::BuildTuple { .. }

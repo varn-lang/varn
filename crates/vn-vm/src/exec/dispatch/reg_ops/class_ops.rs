@@ -42,7 +42,14 @@ impl ExecCtx {
                 let super_nv = self.stack.box_reg(base, super_reg);
                 crate::exec::class::op_inherit(class_nv, super_nv, &mut self.heap)?;
             }
-            OpCode::Method => {
+            OpCode::Method
+            | OpCode::DefineStatic
+            | OpCode::DefineGetter
+            | OpCode::DefineSetter
+            | OpCode::DefineStaticGetter
+            | OpCode::DefineStaticSetter => {
+                let def = vn_core::MemberDef::of_opcode(op)
+                    .ok_or_else(|| RuntimeError::new("member definition: unknown opcode"))?;
                 let w1 = unsafe { *code.get_unchecked(*ip) };
                 *ip += 1;
                 let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
@@ -51,86 +58,10 @@ impl ExecCtx {
                 let class_nv = self.stack.box_reg(base, class_reg);
                 let fn_nv = self.stack.box_reg(base, fn_reg);
                 let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("Method: non-string const"))?;
-                crate::exec::class::op_method(class_nv, &key, fn_nv, &mut self.heap)?;
-            }
-            OpCode::DefineStatic => {
-                let w1 = unsafe { *code.get_unchecked(*ip) };
-                *ip += 1;
-                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
-                *ip += 1;
-                let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
-                let class_nv = self.stack.box_reg(base, class_reg);
-                let fn_nv = self.stack.box_reg(base, fn_reg);
-                let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("DefineStatic: non-string const"))?;
-                crate::exec::class::op_define_static(class_nv, &key, fn_nv, &mut self.heap)?;
-            }
-            OpCode::DefineGetter => {
-                let w1 = unsafe { *code.get_unchecked(*ip) };
-                *ip += 1;
-                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
-                *ip += 1;
-                let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
-                let class_nv = self.stack.box_reg(base, class_reg);
-                let fn_nv = self.stack.box_reg(base, fn_reg);
-                let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("DefineGetter: non-string const"))?;
-                crate::exec::class::op_define_getter(class_nv, &key, fn_nv, &mut self.heap)?;
-            }
-            OpCode::DefineSetter => {
-                let w1 = unsafe { *code.get_unchecked(*ip) };
-                *ip += 1;
-                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
-                *ip += 1;
-                let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
-                let class_nv = self.stack.box_reg(base, class_reg);
-                let fn_nv = self.stack.box_reg(base, fn_reg);
-                let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("DefineSetter: non-string const"))?;
-                crate::exec::class::op_define_setter(class_nv, &key, fn_nv, &mut self.heap)?;
-            }
-            OpCode::DefineStaticGetter => {
-                let w1 = unsafe { *code.get_unchecked(*ip) };
-                *ip += 1;
-                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
-                *ip += 1;
-                let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
-                let class_nv = self.stack.box_reg(base, class_reg);
-                let fn_nv = self.stack.box_reg(base, fn_reg);
-                let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("DefineStaticGetter: non-string const"))?;
-                crate::exec::class::op_define_static_getter(class_nv, &key, fn_nv, &mut self.heap)?;
-            }
-            OpCode::DefineStaticSetter => {
-                let w1 = unsafe { *code.get_unchecked(*ip) };
-                *ip += 1;
-                let key_idx = unsafe { *code.get_unchecked(*ip) } as usize;
-                *ip += 1;
-                let (class_reg, fn_reg) = ((w1 >> 8) as usize, (w1 & 0xFF) as usize);
-                let class_nv = self.stack.box_reg(base, class_reg);
-                let fn_nv = self.stack.box_reg(base, fn_reg);
-                let key_nv = closure.constants[key_idx];
-                let key = self
-                    .heap
-                    .str_val(key_nv)
-                    .ok_or_else(|| RuntimeError::new("DefineStaticSetter: non-string const"))?;
-                crate::exec::class::op_define_static_setter(class_nv, &key, fn_nv, &mut self.heap)?;
+                let key = self.heap.str_val(key_nv).ok_or_else(|| {
+                    RuntimeError::new(format!("define {}: non-string const", def.label()))
+                })?;
+                crate::exec::class::op_define_member(class_nv, &key, fn_nv, def, &mut self.heap)?;
             }
             OpCode::BindMethod => {
                 let w1 = unsafe { *code.get_unchecked(*ip) };

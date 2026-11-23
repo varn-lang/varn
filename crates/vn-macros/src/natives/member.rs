@@ -313,9 +313,11 @@ pub(super) fn generate(cx: &Cx, m: &Member, user: &UserMember, out: &mut Generat
             Kind::StaticMethod => quote!(if !cls.add_static(#sym, #native) {
                 return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define static on frozen class"));
             }),
-            Kind::StaticGetter => quote!(if !cls.add_static_getter(#sym, #native) {
-                return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define static getter on frozen class"));
-            }),
+            Kind::StaticGetter => {
+                quote!(if !cls.add_static_accessor(::vn_core::AccessorKind::Get, #sym, #native) {
+                    return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define static getter on frozen class"));
+                })
+            }
             Kind::Constructor => {
                 quote!(if !cls.add_method(::vn_core::TokenKind::Constructor.as_str(), ctx.alloc_fn(#wrap_ident, ::vn_core::TokenKind::Constructor.as_str())) {
                     return ::core::result::Result::Err(::vn_types::NativeError::failure("cannot define constructor on frozen class"));

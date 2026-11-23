@@ -161,41 +161,15 @@ pub(crate) extern "C" fn jit_class_member_op(
         let key_nv = closure_ref.constants[args.name_idx];
         let key = ctx_ref.heap.str_val(key_nv).expect("non-string const");
 
-        let res = match args.kind {
-            0 => {
-                crate::exec::class::op_method(args.class_val, &key, args.fn_val, &mut ctx_ref.heap)
-            }
-            1 => crate::exec::class::op_define_static(
+        let res = match vn_core::MemberDef::of_wire(args.kind) {
+            Some(def) => crate::exec::class::op_define_member(
                 args.class_val,
                 &key,
                 args.fn_val,
+                def,
                 &mut ctx_ref.heap,
             ),
-            2 => crate::exec::class::op_define_getter(
-                args.class_val,
-                &key,
-                args.fn_val,
-                &mut ctx_ref.heap,
-            ),
-            3 => crate::exec::class::op_define_setter(
-                args.class_val,
-                &key,
-                args.fn_val,
-                &mut ctx_ref.heap,
-            ),
-            4 => crate::exec::class::op_define_static_getter(
-                args.class_val,
-                &key,
-                args.fn_val,
-                &mut ctx_ref.heap,
-            ),
-            5 => crate::exec::class::op_define_static_setter(
-                args.class_val,
-                &key,
-                args.fn_val,
-                &mut ctx_ref.heap,
-            ),
-            _ => Err(crate::error::RuntimeError::new(format!(
+            None => Err(crate::error::RuntimeError::new(format!(
                 "Unknown class member op kind: {}",
                 args.kind
             ))),

@@ -16,7 +16,7 @@ pub(crate) fn find_getter(obj: VmValue, key: &str, heap: &Heap) -> Option<VmValu
             .borrow()
             .class()?
             .find_accessor(vn_core::AccessorKind::Get, key),
-        Some(HeapObj::Class(cls)) => cls.find_static_getter(key),
+        Some(HeapObj::Class(cls)) => cls.find_static_accessor(vn_core::AccessorKind::Get, key),
         Some(
             HeapObj::Str(_)
             | HeapObj::Array(_)
@@ -51,7 +51,7 @@ pub(crate) fn find_setter(obj: VmValue, key: &str, heap: &Heap) -> Option<VmValu
             .borrow()
             .class()?
             .find_accessor(vn_core::AccessorKind::Set, key),
-        Some(HeapObj::Class(cls)) => cls.find_static_setter(key),
+        Some(HeapObj::Class(cls)) => cls.find_static_accessor(vn_core::AccessorKind::Set, key),
         Some(
             HeapObj::Str(_)
             | HeapObj::Array(_)

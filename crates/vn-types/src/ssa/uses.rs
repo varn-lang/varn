@@ -135,7 +135,7 @@ impl SsaOp {
             }
             SsaOp::FreezeClass { class }
             | SsaOp::DeclareLayout { class, .. }
-            | SsaOp::DefineMethod { class, .. } => f(*class),
+            | SsaOp::DefineMember { class, .. } => f(*class),
             SsaOp::BuildArraySpread { elements } => elements.iter().for_each(|e| f(e.value)),
             SsaOp::BuildObjectSpread { parts, .. } => parts.iter().for_each(|p| f(p.value)),
             SsaOp::ObjectMerge { target, source } => {

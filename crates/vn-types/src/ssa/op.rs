@@ -281,11 +281,11 @@ pub enum SsaOp {
         layout: std::sync::Arc<vn_core::layout::ClassLayout>,
     },
 
-    DefineMethod {
+    DefineMember {
         class: u32,
         name: Box<str>,
         member: u32,
-        kind: u8,
+        kind: vn_core::MemberDef,
     },
 
     GetSuper {

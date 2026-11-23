@@ -1,6 +1,6 @@
-use crate::types::DeclKind;
 use super::BindResult;
 use crate::scope::ScopeId;
+use crate::types::DeclKind;
 use crate::types::TypeContext;
 use crate::types::{ClassMemberInfo, Type};
 use std::sync::Arc;

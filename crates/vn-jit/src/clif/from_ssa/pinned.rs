@@ -139,7 +139,7 @@ pub(super) fn compute(
                         | SsaOp::MakeClass { .. }
                         | SsaOp::DeclareLayout { .. }
                         | SsaOp::FreezeClass { .. }
-                        | SsaOp::DefineMethod { .. }
+                        | SsaOp::DefineMember { .. }
                         | SsaOp::GetSuper { .. }
                         | SsaOp::GetSuperSlot { .. }
                         | SsaOp::LoadGlobal(_)

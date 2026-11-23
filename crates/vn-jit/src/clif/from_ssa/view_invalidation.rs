@@ -127,7 +127,7 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::MakeClass { .. }
         | SsaOp::DeclareLayout { .. }
         | SsaOp::FreezeClass { .. }
-        | SsaOp::DefineMethod { .. }
+        | SsaOp::DefineMember { .. }
         | SsaOp::GetSuper { .. }
         | SsaOp::GetSuperSlot { .. }
         | SsaOp::BuildTuple { .. }

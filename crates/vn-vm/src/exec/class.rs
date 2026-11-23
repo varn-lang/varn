@@ -10,46 +10,29 @@ pub(crate) fn op_class(name: &str, heap: &mut Heap) -> VmValue {
     VmValue::from_heap(heap.alloc(HeapObj::Class(cls)))
 }
 
-pub(crate) fn op_method(
+pub(crate) fn op_define_member(
     class_nv: VmValue,
     name: &str,
-    method_nv: VmValue,
+    value_nv: VmValue,
+    def: vn_core::MemberDef,
     heap: &mut Heap,
 ) -> VmResult<()> {
     let cls = get_class_arc(class_nv, heap)?;
-    if !cls.add_method_with_owner(name, method_nv, Some(cls.clone())) {
-        return Err(RuntimeError::new(format!(
-            "cannot define method '{name}': class '{}' is frozen",
-            cls.name
-        )));
-    }
-    if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), method_nv);
-    }
-    Ok(())
-}
-
-pub(crate) fn op_define_static(
-    class_nv: VmValue,
-    name: &str,
-    val_nv: VmValue,
-    heap: &mut Heap,
-) -> VmResult<()> {
-    let cls = get_class_arc(class_nv, heap)?;
-
-    if val_nv.is_heap()
-        && let Some(HeapObj::EnumVariant(ev)) = heap.get_mut(val_nv.as_heap())
+    if def == (vn_core::MemberDef::Method { is_static: true })
+        && value_nv.is_heap()
+        && let Some(HeapObj::EnumVariant(ev)) = heap.get_mut(value_nv.as_heap())
     {
         ev.enum_class_id = Some(cls.id);
     }
-    if !cls.add_static(name, val_nv) {
+    if !cls.define_member(def, name, value_nv) {
         return Err(RuntimeError::new(format!(
-            "cannot define static '{name}': class '{}' is frozen",
+            "cannot define {} '{name}': class '{}' is frozen",
+            def.label(),
             cls.name
         )));
     }
     if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), val_nv);
+        heap.write_barrier(class_nv.as_heap(), value_nv);
     }
     Ok(())
 }
@@ -137,92 +120,6 @@ pub(crate) fn pool_layout(
         )
         | None => Err(RuntimeError::new("DeclareLayout: not a layout constant")),
     }
-}
-
-pub(crate) fn op_define_getter(
-    class_nv: VmValue,
-    name: &str,
-    closure_nv: VmValue,
-    heap: &mut Heap,
-) -> VmResult<()> {
-    let cls = get_class_arc(class_nv, heap)?;
-    if !cls.add_accessor_with_owner(
-        vn_core::AccessorKind::Get,
-        name,
-        closure_nv,
-        Some(cls.clone()),
-    ) {
-        return Err(RuntimeError::new(format!(
-            "cannot define getter '{name}': class '{}' is frozen",
-            cls.name
-        )));
-    }
-    if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), closure_nv);
-    }
-    Ok(())
-}
-
-pub(crate) fn op_define_setter(
-    class_nv: VmValue,
-    name: &str,
-    closure_nv: VmValue,
-    heap: &mut Heap,
-) -> VmResult<()> {
-    let cls = get_class_arc(class_nv, heap)?;
-    if !cls.add_accessor_with_owner(
-        vn_core::AccessorKind::Set,
-        name,
-        closure_nv,
-        Some(cls.clone()),
-    ) {
-        return Err(RuntimeError::new(format!(
-            "cannot define setter '{name}': class '{}' is frozen",
-            cls.name
-        )));
-    }
-    if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), closure_nv);
-    }
-    Ok(())
-}
-
-pub(crate) fn op_define_static_getter(
-    class_nv: VmValue,
-    name: &str,
-    closure_nv: VmValue,
-    heap: &mut Heap,
-) -> VmResult<()> {
-    let cls = get_class_arc(class_nv, heap)?;
-    if !cls.add_static_getter(name, closure_nv) {
-        return Err(RuntimeError::new(format!(
-            "cannot define static getter '{name}': class '{}' is frozen",
-            cls.name
-        )));
-    }
-    if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), closure_nv);
-    }
-    Ok(())
-}
-
-pub(crate) fn op_define_static_setter(
-    class_nv: VmValue,
-    name: &str,
-    closure_nv: VmValue,
-    heap: &mut Heap,
-) -> VmResult<()> {
-    let cls = get_class_arc(class_nv, heap)?;
-    if !cls.add_static_setter(name, closure_nv) {
-        return Err(RuntimeError::new(format!(
-            "cannot define static setter '{name}': class '{}' is frozen",
-            cls.name
-        )));
-    }
-    if class_nv.is_heap() {
-        heap.write_barrier(class_nv.as_heap(), closure_nv);
-    }
-    Ok(())
 }
 
 pub(crate) fn home_class(

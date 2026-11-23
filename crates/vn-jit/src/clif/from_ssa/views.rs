@@ -113,7 +113,7 @@ impl Views {
                 | SsaOp::MakeClass { .. }
                 | SsaOp::DeclareLayout { .. }
                 | SsaOp::FreezeClass { .. }
-                | SsaOp::DefineMethod { .. }
+                | SsaOp::DefineMember { .. }
                 | SsaOp::GetSuper { .. }
                 | SsaOp::GetSuperSlot { .. }
                 | SsaOp::LoadGlobal(_)
@@ -208,7 +208,7 @@ impl Views {
                 | SsaOp::MakeClass { .. }
                 | SsaOp::DeclareLayout { .. }
                 | SsaOp::FreezeClass { .. }
-                | SsaOp::DefineMethod { .. }
+                | SsaOp::DefineMember { .. }
                 | SsaOp::GetSuper { .. }
                 | SsaOp::GetSuperSlot { .. }
                 | SsaOp::LoadGlobal(_)

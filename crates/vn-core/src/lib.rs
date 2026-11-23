@@ -19,6 +19,7 @@ pub mod intrinsics;
 pub mod kinds;
 pub mod lang_type;
 pub mod layout;
+mod member_def;
 pub mod miss_log;
 pub mod module_id;
 mod named_enum;
@@ -66,6 +67,7 @@ pub use source::{SourceLocation, SourceRange};
 
 pub use accessor::AccessorKind;
 pub use intrinsics::{MemberKey, MetaKey};
+pub use member_def::MemberDef;
 pub use module_id::{ImportSpecifier, ModuleId, ModuleKind};
 pub use num_kind::{FloatKind, IntKind, NumKind};
 pub use numeric::{
