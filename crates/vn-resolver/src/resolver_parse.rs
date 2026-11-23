@@ -106,7 +106,7 @@ impl ModuleResolver {
             visiting,
             &mut exports,
         );
-        super::exports::assign_slots(&mut exports);
+        exports.assign_slots();
         exports
     }
 }

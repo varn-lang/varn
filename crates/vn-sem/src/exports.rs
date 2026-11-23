@@ -31,6 +31,16 @@ impl ExportMap {
         }
     }
 
+    pub fn assign_slots(&mut self) {
+        let mut keys: Vec<String> = self.symbols.keys().cloned().collect();
+        keys.sort();
+        for (idx, key) in keys.iter().enumerate() {
+            if let Some(sym) = self.symbols.get_mut(key) {
+                sym.slot_idx = Some(idx);
+            }
+        }
+    }
+
     pub fn record_collision(&mut self, name: String, kept_from: String, dropped_from: String) {
         if self
             .collisions
@@ -66,15 +76,5 @@ impl Deref for ExportMap {
 impl DerefMut for ExportMap {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.symbols
-    }
-}
-
-pub(crate) fn assign_slots(exports: &mut ExportMap) {
-    let mut keys: Vec<String> = exports.keys().cloned().collect();
-    keys.sort();
-    for (idx, key) in keys.iter().enumerate() {
-        if let Some(sym) = exports.get_mut(key) {
-            sym.slot_idx = Some(idx);
-        }
     }
 }

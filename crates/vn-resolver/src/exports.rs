@@ -102,16 +102,6 @@ fn origin_text(bind: &BindResult, out: &ExportMap, atom: Option<Atom>, fallback:
     .unwrap_or_else(|| fallback.to_owned())
 }
 
-pub(super) fn assign_slots(exports: &mut ExportMap) {
-    let mut keys: Vec<String> = exports.keys().cloned().collect();
-    keys.sort();
-    for (idx, key) in keys.iter().enumerate() {
-        if let Some(sym) = exports.get_mut(key) {
-            sym.slot_idx = Some(idx);
-        }
-    }
-}
-
 pub(super) fn collect_exports(
     resolver: &dyn vn_sem::resolver::ImportResolver,
     stmts: &[StmtId],

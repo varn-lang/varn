@@ -25,6 +25,6 @@ pub fn deserialize_module_interface(bytes: &[u8]) -> Result<(ExportMap, BindResu
     let cached: PortableModule = postcard::from_bytes(bytes).map_err(|e| e.to_string())?;
     let (mut exports, bind) =
         cached.into_live(&mut AtomInterner::new(), Arc::new(CheckerTyTable::new()));
-    crate::exports::assign_slots(&mut exports);
+    exports.assign_slots();
     Ok((exports, bind))
 }
