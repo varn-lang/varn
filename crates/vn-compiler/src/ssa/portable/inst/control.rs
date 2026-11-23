@@ -118,9 +118,7 @@ pub(super) fn try_project(
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::CloseUpvalues { .. }

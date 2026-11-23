@@ -36,43 +36,16 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             class: class.0,
             layout: layout.clone(),
         }),
-        InstKind::DefineStatic { class, name, value } => Some(SsaOp::DefineMember {
+        InstKind::DefineMember {
+            class,
+            name,
+            value,
+            kind,
+        } => Some(SsaOp::DefineMember {
             class: class.0,
             name: name.as_ref().into(),
             member: value.0,
-            kind: vn_core::MemberDef::Method { is_static: true },
-        }),
-        InstKind::DefineMethod {
-            class,
-            name,
-            method,
-            is_static,
-        } => Some(SsaOp::DefineMember {
-            class: class.0,
-            name: name.as_ref().into(),
-            member: method.0,
-            kind: vn_core::MemberDef::Method {
-                is_static: *is_static,
-            },
-        }),
-        InstKind::DefineAccessor {
-            class,
-            name,
-            accessor,
-            is_getter,
-            is_static,
-        } => Some(SsaOp::DefineMember {
-            class: class.0,
-            name: name.as_ref().into(),
-            member: accessor.0,
-            kind: vn_core::MemberDef::Accessor {
-                kind: if *is_getter {
-                    vn_core::AccessorKind::Get
-                } else {
-                    vn_core::AccessorKind::Set
-                },
-                is_static: *is_static,
-            },
+            kind: *kind,
         }),
         InstKind::GetSuper { name } => Some(SsaOp::GetSuper {
             name: name.as_ref().into(),

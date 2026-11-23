@@ -116,9 +116,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry
@@ -268,9 +266,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry

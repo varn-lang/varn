@@ -222,9 +222,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry

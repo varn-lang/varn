@@ -35,10 +35,11 @@ impl<'m> Builder<'m> {
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );
-            self.emit_effect(InstKind::DefineStatic {
+            self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: v.name.clone(),
                 value: variant_v,
+                kind: vn_core::MemberDef::Method { is_static: true },
             });
             if let Some(slot) = enum_info
                 .and_then(|ei| ei.variant_global(&v.name))
@@ -60,10 +61,11 @@ impl<'m> Builder<'m> {
 
         for (sname, _) in &def.statics {
             let reserved = self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Runtime));
-            self.emit_effect(InstKind::DefineStatic {
+            self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: sname.clone(),
                 value: reserved,
+                kind: vn_core::MemberDef::Method { is_static: true },
             });
         }
 

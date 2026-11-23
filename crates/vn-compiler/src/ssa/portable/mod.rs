@@ -160,9 +160,7 @@ pub(crate) fn project(
                     | InstKind::MakeClass { .. }
                     | InstKind::DeclareLayout { .. }
                     | InstKind::FreezeClass { .. }
-                    | InstKind::DefineStatic { .. }
-                    | InstKind::DefineMethod { .. }
-                    | InstKind::DefineAccessor { .. }
+                    | InstKind::DefineMember { .. }
                     | InstKind::MakeEnumVariant { .. }
                     | InstKind::PopTry
                     | InstKind::CatchParam { .. }
@@ -262,9 +260,7 @@ pub(crate) fn project(
                     | InstKind::MakeClass { .. }
                     | InstKind::DeclareLayout { .. }
                     | InstKind::FreezeClass { .. }
-                    | InstKind::DefineStatic { .. }
-                    | InstKind::DefineMethod { .. }
-                    | InstKind::DefineAccessor { .. }
+                    | InstKind::DefineMember { .. }
                     | InstKind::MakeEnumVariant { .. }
                     | InstKind::Try { .. }
                     | InstKind::PopTry

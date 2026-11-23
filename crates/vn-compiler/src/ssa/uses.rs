@@ -123,19 +123,9 @@ macro_rules! inst_uses {
                 $use!($f, start);
                 $use!($f, end);
             }
-            DefineStatic { class, value, .. } => {
+            DefineMember { class, value, .. } => {
                 $use!($f, class);
                 $use!($f, value);
-            }
-            DefineMethod { class, method, .. } => {
-                $use!($f, class);
-                $use!($f, method);
-            }
-            DefineAccessor {
-                class, accessor, ..
-            } => {
-                $use!($f, class);
-                $use!($f, accessor);
             }
 
             SetIndex {

@@ -51,11 +51,13 @@ impl<'m> Builder<'m> {
             for deco in m.decorators.iter().rev() {
                 mv = self.apply_member_decorator(mv, deco, &m.key, m.is_static, m.is_private)?;
             }
-            self.emit_effect(InstKind::DefineMethod {
+            self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: m.key.clone(),
-                method: mv,
-                is_static: m.is_static,
+                value: mv,
+                kind: vn_core::MemberDef::Method {
+                    is_static: m.is_static,
+                },
             });
         }
         Ok(())
@@ -104,12 +106,18 @@ impl<'m> Builder<'m> {
             for deco in a.decorators.iter().rev() {
                 av = self.apply_member_decorator(av, deco, &a.key, a.is_static, false)?;
             }
-            self.emit_effect(InstKind::DefineAccessor {
+            self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: a.key.clone(),
-                accessor: av,
-                is_getter: a.is_getter,
-                is_static: a.is_static,
+                value: av,
+                kind: vn_core::MemberDef::Accessor {
+                    kind: if a.is_getter {
+                        vn_core::AccessorKind::Get
+                    } else {
+                        vn_core::AccessorKind::Set
+                    },
+                    is_static: a.is_static,
+                },
             });
         }
         Ok(())

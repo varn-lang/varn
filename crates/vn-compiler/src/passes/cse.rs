@@ -212,9 +212,7 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry

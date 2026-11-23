@@ -138,12 +138,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | MapSetIndex { .. }
         | ObjectMerge { .. } => false,
 
-        MakeClass { .. }
-        | DeclareLayout { .. }
-        | FreezeClass { .. }
-        | DefineStatic { .. }
-        | DefineMethod { .. }
-        | DefineAccessor { .. } => false,
+        MakeClass { .. } | DeclareLayout { .. } | FreezeClass { .. } | DefineMember { .. } => false,
 
         Try { .. }
         | PopTry

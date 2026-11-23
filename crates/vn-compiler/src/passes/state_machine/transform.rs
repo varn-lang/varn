@@ -133,9 +133,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry

@@ -71,9 +71,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry
@@ -184,9 +182,7 @@ pub fn suspend_live_regs(
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry
@@ -341,9 +337,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry

@@ -211,52 +211,17 @@ pub(super) fn emit_effect(
             chunk.write(Chunk::pack(class_reg, 0), line);
             return Ok(true);
         }
-        InstKind::DefineStatic { class, name, value } => {
-            let class_reg = reg[class.0 as usize];
-            let val_reg = reg[value.0 as usize];
-            let key_idx = chunk.add_str(name);
-            chunk.emit(OpCode::DefineStatic, line);
-            chunk.write(Chunk::pack(class_reg, val_reg), line);
-            chunk.write(key_idx, line);
-            return Ok(true);
-        }
-        InstKind::DefineMethod {
+        InstKind::DefineMember {
             class,
             name,
-            method,
-            is_static,
+            value,
+            kind,
         } => {
             let class_reg = reg[class.0 as usize];
-            let method_reg = reg[method.0 as usize];
+            let value_reg = reg[value.0 as usize];
             let key_idx = chunk.add_str(name);
-            let op = if *is_static {
-                OpCode::DefineStatic
-            } else {
-                OpCode::Method
-            };
-            chunk.emit(op, line);
-            chunk.write(Chunk::pack(class_reg, method_reg), line);
-            chunk.write(key_idx, line);
-            return Ok(true);
-        }
-        InstKind::DefineAccessor {
-            class,
-            name,
-            accessor,
-            is_getter,
-            is_static,
-        } => {
-            let class_reg = reg[class.0 as usize];
-            let acc_reg = reg[accessor.0 as usize];
-            let key_idx = chunk.add_str(name);
-            let op = match (is_getter, is_static) {
-                (true, true) => OpCode::DefineStaticGetter,
-                (true, false) => OpCode::DefineGetter,
-                (false, true) => OpCode::DefineStaticSetter,
-                (false, false) => OpCode::DefineSetter,
-            };
-            chunk.emit(op, line);
-            chunk.write(Chunk::pack(class_reg, acc_reg), line);
+            chunk.emit(kind.opcode(), line);
+            chunk.write(Chunk::pack(class_reg, value_reg), line);
             chunk.write(key_idx, line);
             return Ok(true);
         }

@@ -149,9 +149,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry
@@ -237,9 +235,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::MakeClass { .. }
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry

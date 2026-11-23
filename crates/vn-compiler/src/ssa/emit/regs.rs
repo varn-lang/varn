@@ -204,9 +204,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
         | InstKind::AllocInstance { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. }
+        | InstKind::DefineMember { .. }
         | InstKind::MakeEnumVariant { .. }
         | InstKind::Try { .. }
         | InstKind::PopTry

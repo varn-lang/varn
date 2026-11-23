@@ -67,9 +67,7 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::MakeClass { .. }
         | other @ InstKind::DeclareLayout { .. }
         | other @ InstKind::FreezeClass { .. }
-        | other @ InstKind::DefineStatic { .. }
-        | other @ InstKind::DefineMethod { .. }
-        | other @ InstKind::DefineAccessor { .. }
+        | other @ InstKind::DefineMember { .. }
         | other @ InstKind::MakeEnumVariant { .. }
         | other @ InstKind::Try { .. }
         | other @ InstKind::PopTry

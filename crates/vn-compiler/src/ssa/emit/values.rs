@@ -308,9 +308,7 @@ pub(super) fn emit_value(
         | InstKind::PopTry
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }
-        | InstKind::DefineStatic { .. }
-        | InstKind::DefineMethod { .. }
-        | InstKind::DefineAccessor { .. } => {
+        | InstKind::DefineMember { .. } => {
             return Err(OptError::Internal(
                 "ssa-emit: effect op has no value to define".to_owned(),
             ))

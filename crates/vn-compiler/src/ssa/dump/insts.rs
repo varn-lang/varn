@@ -295,29 +295,16 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::FreezeClass { class } => {
             format!("freezeclass {}", val(*class))
         }
-        InstKind::DefineStatic { class, name, value } => {
-            format!("definestatic {}.{name} = {}", val(*class), val(*value))
-        }
-        InstKind::DefineMethod {
+        InstKind::DefineMember {
             class,
             name,
-            method,
-            is_static,
+            value,
+            kind,
         } => format!(
-            "definemethod {}.{name} = {} (static={is_static})",
+            "define {} {}.{name} = {}",
+            kind.label(),
             val(*class),
-            val(*method)
-        ),
-        InstKind::DefineAccessor {
-            class,
-            name,
-            accessor,
-            is_getter,
-            is_static,
-        } => format!(
-            "defineaccessor {}.{name} = {} (getter={is_getter}, static={is_static})",
-            val(*class),
-            val(*accessor)
+            val(*value)
         ),
         InstKind::MakeEnumVariant { def } => format!(
             "makeenumvariant {}.{} tag={}",

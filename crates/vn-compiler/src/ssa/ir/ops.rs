@@ -244,23 +244,11 @@ pub enum InstKind {
     FreezeClass {
         class: Value,
     },
-    DefineStatic {
+    DefineMember {
         class: Value,
         name: Arc<str>,
         value: Value,
-    },
-    DefineMethod {
-        class: Value,
-        name: Arc<str>,
-        method: Value,
-        is_static: bool,
-    },
-    DefineAccessor {
-        class: Value,
-        name: Arc<str>,
-        accessor: Value,
-        is_getter: bool,
-        is_static: bool,
+        kind: vn_core::MemberDef,
     },
     MakeEnumVariant {
         def: Arc<vn_types::value::VariantDef>,
@@ -458,9 +446,7 @@ impl InstKind {
             | InstKind::MakeClass { .. }
             | InstKind::DeclareLayout { .. }
             | InstKind::FreezeClass { .. }
-            | InstKind::DefineStatic { .. }
-            | InstKind::DefineMethod { .. }
-            | InstKind::DefineAccessor { .. }
+            | InstKind::DefineMember { .. }
             | InstKind::MakeEnumVariant { .. }
             | InstKind::Try { .. }
             | InstKind::PopTry

@@ -127,9 +127,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                 | InstKind::MakeClass { .. }
                 | InstKind::DeclareLayout { .. }
                 | InstKind::FreezeClass { .. }
-                | InstKind::DefineStatic { .. }
-                | InstKind::DefineMethod { .. }
-                | InstKind::DefineAccessor { .. }
+                | InstKind::DefineMember { .. }
                 | InstKind::MakeEnumVariant { .. }
                 | InstKind::Try { .. }
                 | InstKind::PopTry
