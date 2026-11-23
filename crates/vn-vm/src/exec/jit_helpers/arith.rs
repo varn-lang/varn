@@ -29,13 +29,14 @@ pub(crate) extern "C" fn jit_div(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::div(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::div,
+        )
     }
 }
 
@@ -48,13 +49,14 @@ pub(crate) extern "C" fn jit_modulo(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::modulo(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::modulo,
+        )
     }
 }
 
@@ -67,13 +69,14 @@ pub(crate) extern "C" fn jit_pow(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::pow(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::pow,
+        )
     }
 }
 
@@ -86,9 +89,14 @@ pub(crate) extern "C" fn jit_bitand(
     b_payload: u64,
 ) {
     unsafe {
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        (*ctx).jit_native_result = crate::exec::arith::bit_and(a, b, &mut (*ctx).heap);
+        super::shape::binary(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::bit_and,
+        )
     }
 }
 
@@ -101,9 +109,14 @@ pub(crate) extern "C" fn jit_bitor(
     b_payload: u64,
 ) {
     unsafe {
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        (*ctx).jit_native_result = crate::exec::arith::bit_or(a, b, &mut (*ctx).heap);
+        super::shape::binary(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::bit_or,
+        )
     }
 }
 
@@ -116,9 +129,14 @@ pub(crate) extern "C" fn jit_bitxor(
     b_payload: u64,
 ) {
     unsafe {
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        (*ctx).jit_native_result = crate::exec::arith::bit_xor(a, b, &mut (*ctx).heap);
+        super::shape::binary(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::bit_xor,
+        )
     }
 }
 
@@ -131,13 +149,14 @@ pub(crate) extern "C" fn jit_shl(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::shl(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::shl,
+        )
     }
 }
 
@@ -150,13 +169,14 @@ pub(crate) extern "C" fn jit_shr(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::shr(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::shr,
+        )
     }
 }
 
@@ -169,12 +189,13 @@ pub(crate) extern "C" fn jit_ushr(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::ushr(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::ushr,
+        )
     }
 }

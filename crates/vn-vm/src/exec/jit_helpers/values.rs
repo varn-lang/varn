@@ -11,14 +11,14 @@ pub(crate) extern "C" fn jit_eq(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::eq(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::eq,
+        )
     }
 }
 
@@ -31,14 +31,14 @@ pub(crate) extern "C" fn jit_neq(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::neq(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::neq,
+        )
     }
 }
 
@@ -51,14 +51,14 @@ pub(crate) extern "C" fn jit_lt(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::lt_heap(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::lt_heap,
+        )
     }
 }
 
@@ -71,14 +71,14 @@ pub(crate) extern "C" fn jit_lte(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::lte_heap(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::lte_heap,
+        )
     }
 }
 
@@ -91,14 +91,14 @@ pub(crate) extern "C" fn jit_gt(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::gt_heap(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::gt_heap,
+        )
     }
 }
 
@@ -111,14 +111,14 @@ pub(crate) extern "C" fn jit_gte(
     b_payload: u64,
 ) -> u64 {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        if crate::exec::compare::gte_heap(a, b, &ctx_ref.heap) {
-            1
-        } else {
-            0
-        }
+        super::shape::compare(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::compare::gte_heap,
+        )
     }
 }
 
@@ -131,13 +131,14 @@ pub(crate) extern "C" fn jit_add(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::add(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => super::construct::jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::add,
+        )
     }
 }
 
@@ -150,13 +151,14 @@ pub(crate) extern "C" fn jit_sub(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::sub(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => super::construct::jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::sub,
+        )
     }
 }
 
@@ -169,13 +171,14 @@ pub(crate) extern "C" fn jit_mul(
     b_payload: u64,
 ) {
     unsafe {
-        let ctx_ref = &mut *ctx;
-        let a = VmValue::from_raw_parts(a_tag, a_payload);
-        let b = VmValue::from_raw_parts(b_tag, b_payload);
-        match crate::exec::arith::mul(a, b, &mut ctx_ref.heap) {
-            Ok(v) => ctx_ref.jit_native_result = v,
-            Err(e) => super::construct::jit_propagate_error(ctx_ref, e),
-        }
+        super::shape::binary_fallible(
+            ctx,
+            a_tag,
+            a_payload,
+            b_tag,
+            b_payload,
+            crate::exec::arith::mul,
+        )
     }
 }
 
