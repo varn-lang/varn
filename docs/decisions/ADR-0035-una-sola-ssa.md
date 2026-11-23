@@ -60,9 +60,11 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   ningun constructor emitia, se borra (d2971db0).
 - [x] F4c. `BuildObject` lleva pares en ambos lados y `ConstDecimal` el
   `BigDecimal` (7b8d611a, 90fbf8e7).
-- F5. La eleccion del operador por tipo (`binary_opcode`) baja a `vn-types` como
-  funcion pura de los tipos, y la usan la emision de bytecode y el JIT; `SsaBinOp` y
-  `SsaUnOp` se derivan de ella. Se borra `ssa/portable/`.
+- [x] F5. La eleccion del operador por tipo baja a `vn-types` como funcion pura de
+  los tipos (`select_bin`/`select_un` sobre `SlotKind`, `opcode_of_bin` para el
+  backend). La emision de bytecode y la proyeccion llaman a la misma funcion;
+  `SsaBinOp`/`SsaUnOp` se derivan de ella. Se borran `ssa/portable/ops.rs` y el
+  modulo `lower` (8d7732c1).
 
 ## Pendientes
 Orden de trabajo: F5, F1b y F3, de menor a mayor alcance.
