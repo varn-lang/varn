@@ -1,4 +1,5 @@
 use super::context::FnEmitter;
+use super::small_utils::int_lit;
 use std::collections::BTreeSet;
 use vn_core::ast::{StmtId, StmtKind};
 use vn_core::Atom;
@@ -14,15 +15,6 @@ pub(super) struct LoopFrame {
     crossed_by: BTreeSet<usize>,
 }
 
-fn int(value: i64) -> TirExpr {
-    TirExpr {
-        kind: TirExprKind::IntLit(value),
-        ty: BackendTy::INT,
-        res: Resolution::None,
-        span: Span::EMPTY,
-    }
-}
-
 fn flag_var(flag: LocalId) -> TirExpr {
     TirExpr {
         kind: TirExprKind::Var,
@@ -36,7 +28,7 @@ fn set_flag(flag: LocalId, value: i64) -> TirStmt {
     TirStmt::Expr(TirExpr {
         kind: TirExprKind::Assign {
             target: Box::new(flag_var(flag)),
-            value: Box::new(int(value)),
+            value: Box::new(int_lit(value)),
         },
         ty: BackendTy::Void,
         res: Resolution::None,
@@ -49,7 +41,7 @@ fn flag_is(flag: LocalId, op: BinOp, value: i64) -> TirExpr {
         kind: TirExprKind::Binary {
             op,
             lhs: Box::new(flag_var(flag)),
-            rhs: Box::new(int(value)),
+            rhs: Box::new(int_lit(value)),
         },
         ty: BackendTy::Bool,
         res: Resolution::None,
@@ -104,7 +96,7 @@ impl<'a> FnEmitter<'a> {
                 TirStmt::Let {
                     local: flag,
                     ty: BackendTy::INT,
-                    init: Some(int(0)),
+                    init: Some(int_lit(0)),
                 },
             );
         }
