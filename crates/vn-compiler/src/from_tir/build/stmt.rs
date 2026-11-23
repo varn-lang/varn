@@ -1,7 +1,6 @@
 use super::context::{Builder, LoopCtx, Result};
-use crate::ssa::ir::{InstKind, Terminator, VarId};
+use crate::ssa::ir::{InstKind, SsaVar, Terminator};
 use crate::OptError;
-use vn_tir::LocalId;
 use vn_tir::TirStmt;
 use vn_tir::{BackendTy, DynReason};
 
@@ -294,7 +293,7 @@ impl<'m> Builder<'m> {
                     InstKind::CatchParam { try_val },
                     BackendTy::Dynamic(DynReason::Boxed),
                 );
-                self.store_var(VarId::Local(LocalId(catch_local.0)), err);
+                self.store_var(SsaVar::Local(catch_local.0), err);
                 self.lower_block(catch_body)?;
                 if self.is_open() {
                     let from = self.current;

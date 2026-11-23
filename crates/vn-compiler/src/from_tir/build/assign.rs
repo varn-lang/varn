@@ -1,5 +1,5 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Terminator, Value, VarId};
+use crate::ssa::ir::{InstKind, SsaVar, Terminator, Value};
 use crate::OptError;
 use vn_tir::{BackendTy, DynReason};
 use vn_tir::{Resolution, TirExpr, TirExprKind};
@@ -17,7 +17,7 @@ impl<'m> Builder<'m> {
                     self.store_var(var, value);
                 }
                 Resolution::Param(i) => {
-                    let var = self.inlined_param_var(*i).unwrap_or(VarId::Param(*i));
+                    let var = self.inlined_param_var(*i).unwrap_or(SsaVar::Param(*i));
                     self.store_var(var, value);
                 }
                 Resolution::Upvalue(uv) => {
@@ -166,7 +166,7 @@ impl<'m> Builder<'m> {
         Ok(())
     }
 
-    pub(super) fn store_var(&mut self, var: VarId, value: Value) {
+    pub(super) fn store_var(&mut self, var: SsaVar, value: Value) {
         if self.pinned.contains(&var) {
             self.var_ty.insert(var, self.value_ty(value));
             self.emit_effect(InstKind::StoreCaptured { var, value });
@@ -176,7 +176,7 @@ impl<'m> Builder<'m> {
         }
     }
 
-    pub(super) fn load_var(&mut self, var: VarId, ty: BackendTy) -> Result<Value> {
+    pub(super) fn load_var(&mut self, var: SsaVar, ty: BackendTy) -> Result<Value> {
         if self.pinned.contains(&var) {
             let ty = self.var_ty.get(&var).copied().unwrap_or(ty);
             Ok(self.emit(InstKind::LoadCaptured { var }, ty))
@@ -197,7 +197,7 @@ impl<'m> Builder<'m> {
                 {
                     return Ok(arg_v);
                 }
-                self.load_var(VarId::Param(*i), ty)
+                self.load_var(SsaVar::Param(*i), ty)
             }
             Resolution::Upvalue(uv) => Ok(self.emit(InstKind::LoadUpvalue(*uv), ty)),
             Resolution::GlobalSlot(n) => Ok(self.emit(InstKind::LoadGlobalIdx(*n), ty)),

@@ -1,5 +1,5 @@
 use super::super::{Captured, Site};
-use crate::ssa::ir::{InstKind, VarId};
+use crate::ssa::ir::{InstKind, SsaVar};
 use vn_types::ssa::{SsaOp, SsaUpvalue};
 
 pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured) -> Option<SsaOp> {
@@ -89,10 +89,10 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
                 .iter()
                 .map(|src| match src {
                     vn_tir::TirUpvalue::ParentLocal(id) => {
-                        SsaUpvalue::Captured(captured.var(VarId::Local(vn_tir::LocalId(*id))))
+                        SsaUpvalue::Captured(captured.var(SsaVar::Local(*id)))
                     }
                     vn_tir::TirUpvalue::ParentParam(i) => {
-                        SsaUpvalue::Captured(captured.var(VarId::Param(*i)))
+                        SsaUpvalue::Captured(captured.var(SsaVar::Param(*i)))
                     }
                     vn_tir::TirUpvalue::ParentUpvalue(idx) => SsaUpvalue::Inherited(*idx),
                 })

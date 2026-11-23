@@ -1,7 +1,6 @@
-use crate::ssa::ir::{Block, BlockId, Value, ValueDef, VarId};
+use crate::ssa::ir::{Block, BlockId, SsaVar, Value, ValueDef};
 use crate::OptError;
 use rustc_hash::{FxHashMap, FxHashSet};
-use vn_tir::LocalId;
 use vn_tir::{BackendTy, TirModule, TirStmt};
 
 pub(crate) type Result<T> = std::result::Result<T, OptError>;
@@ -24,12 +23,12 @@ pub(crate) struct Builder<'m> {
     pub(super) values: Vec<ValueDef>,
     pub(super) sealed: Vec<bool>,
     pub(super) terminated: Vec<bool>,
-    pub(super) defs: FxHashMap<(VarId, BlockId), Value>,
-    pub(super) var_ty: FxHashMap<VarId, BackendTy>,
-    pub(super) incomplete_phis: FxHashMap<BlockId, Vec<(VarId, Value)>>,
+    pub(super) defs: FxHashMap<(SsaVar, BlockId), Value>,
+    pub(super) var_ty: FxHashMap<SsaVar, BackendTy>,
+    pub(super) incomplete_phis: FxHashMap<BlockId, Vec<(SsaVar, Value)>>,
     pub(super) loops: Vec<LoopCtx>,
     pub(super) try_depth: usize,
-    pub(super) pinned: FxHashSet<VarId>,
+    pub(super) pinned: FxHashSet<SsaVar>,
     pub(super) next_synthetic: u32,
     pub(super) current: BlockId,
     pub(super) inlining: Vec<InlineFrame>,
@@ -50,12 +49,16 @@ pub(super) struct InlineBody {
     pub(super) base: u32,
     pub(super) param_base: u32,
     pub(super) exit: BlockId,
-    pub(super) result: VarId,
+    pub(super) result: SsaVar,
     pub(super) ret_ty: BackendTy,
 }
 
 impl<'m> Builder<'m> {
-    pub(super) fn with_pinned(tir: &'m TirModule, pinned: FxHashSet<VarId>, lines: &[u32]) -> Self {
+    pub(super) fn with_pinned(
+        tir: &'m TirModule,
+        pinned: FxHashSet<SsaVar>,
+        lines: &[u32],
+    ) -> Self {
         let mut b = Builder {
             tir,
             self_fn: None,
@@ -120,15 +123,15 @@ impl<'m> Builder<'m> {
         self.cur_line = self.line_of(offset);
     }
 
-    pub(super) fn loop_body_pinned(&self, body: &[TirStmt]) -> Vec<VarId> {
-        fn walk(stmts: &[TirStmt], pinned: &FxHashSet<VarId>, base: u32, out: &mut Vec<VarId>) {
+    pub(super) fn loop_body_pinned(&self, body: &[TirStmt]) -> Vec<SsaVar> {
+        fn walk(stmts: &[TirStmt], pinned: &FxHashSet<SsaVar>, base: u32, out: &mut Vec<SsaVar>) {
             for s in stmts {
                 for nested in vn_tir::children::seq_bodies(s) {
                     walk(nested, pinned, base, out);
                 }
                 match s {
                     TirStmt::Let { local, .. } => {
-                        let v = VarId::Local(LocalId(local.0 + base));
+                        let v = SsaVar::Local(local.0 + base);
                         if pinned.contains(&v) && !out.contains(&v) {
                             out.push(v);
                         }

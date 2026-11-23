@@ -1,4 +1,4 @@
-use super::ids::{BlockId, Value, VarId};
+use super::ids::{BlockId, SsaVar, Value};
 use bigdecimal::BigDecimal as Decimal;
 use std::sync::Arc;
 use vn_tir::LocalId;
@@ -227,10 +227,10 @@ pub enum InstKind {
         upvalues_src: Vec<vn_tir::TirUpvalue>,
     },
     LoadCaptured {
-        var: VarId,
+        var: SsaVar,
     },
     StoreCaptured {
-        var: VarId,
+        var: SsaVar,
         value: Value,
     },
     MakeClass {
@@ -261,7 +261,7 @@ pub enum InstKind {
         try_val: Value,
     },
     CloseUpvalues {
-        targets: Vec<VarId>,
+        targets: Vec<SsaVar>,
     },
     Dispose {
         target: LocalId,

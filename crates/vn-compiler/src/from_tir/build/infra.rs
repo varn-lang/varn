@@ -1,5 +1,5 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{Block, BlockId, Inst, InstKind, Terminator, Value, ValueDef, VarId};
+use crate::ssa::ir::{Block, BlockId, Inst, InstKind, SsaVar, Terminator, Value, ValueDef};
 use vn_tir::BackendTy;
 
 impl<'m> Builder<'m> {
@@ -92,19 +92,19 @@ impl<'m> Builder<'m> {
         });
     }
 
-    pub(super) fn write_var(&mut self, var: VarId, block: BlockId, value: Value) {
+    pub(super) fn write_var(&mut self, var: SsaVar, block: BlockId, value: Value) {
         self.var_ty.insert(var, self.values[value.0 as usize].ty);
         self.defs.insert((var, block), value);
     }
 
-    pub(super) fn read_var(&mut self, var: VarId, block: BlockId) -> Result<Value> {
+    pub(super) fn read_var(&mut self, var: SsaVar, block: BlockId) -> Result<Value> {
         if let Some(v) = self.defs.get(&(var, block)) {
             return Ok(*v);
         }
         self.read_var_recursive(var, block)
     }
 
-    pub(super) fn read_var_recursive(&mut self, var: VarId, block: BlockId) -> Result<Value> {
+    pub(super) fn read_var_recursive(&mut self, var: SsaVar, block: BlockId) -> Result<Value> {
         let ty = *self.var_ty.get(&var).ok_or(crate::OptError::Unsupported(
             "from_tir: read of undefined variable",
         ))?;
@@ -138,7 +138,7 @@ impl<'m> Builder<'m> {
 
     pub(super) fn add_phi_operands(
         &mut self,
-        var: VarId,
+        var: SsaVar,
         block: BlockId,
         phi: Value,
     ) -> Result<()> {

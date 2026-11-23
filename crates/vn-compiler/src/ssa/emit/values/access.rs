@@ -1,4 +1,4 @@
-use crate::ssa::ir::{Value, VarId};
+use crate::ssa::ir::{SsaVar, Value};
 use crate::OptError;
 use std::sync::Arc;
 use vn_core::OpCode;
@@ -35,7 +35,7 @@ pub(super) fn emit_load_upvalue(chunk: &mut Chunk, d: u8, uv: u32, line: u32) {
     chunk.write(Chunk::pack(d, uv as u8), line);
 }
 
-pub(super) fn emit_load_captured(chunk: &mut Chunk, d: u8, var: VarId, nparams: usize, line: u32) {
+pub(super) fn emit_load_captured(chunk: &mut Chunk, d: u8, var: SsaVar, nparams: usize, line: u32) {
     let src = super::super::regs::var_reg(var, nparams);
     chunk.emit_rr(OpCode::Move, d, src, line);
 }

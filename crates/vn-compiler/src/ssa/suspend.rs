@@ -1,5 +1,5 @@
 use super::emit::var_reg;
-use super::ir::{InstKind, SsaFunc, Value, VarId};
+use super::ir::{InstKind, SsaFunc, SsaVar, Value};
 use super::liveness::Liveness;
 
 #[derive(Debug, Clone)]
@@ -268,8 +268,8 @@ pub fn try_handlers(ssa: &SsaFunc) -> Vec<usize> {
 }
 
 fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
-    let mut vars: Vec<VarId> = Vec::new();
-    let mut note = |v: VarId| {
+    let mut vars: Vec<SsaVar> = Vec::new();
+    let mut note = |v: SsaVar| {
         if !vars.contains(&v) {
             vars.push(v);
         }
@@ -283,7 +283,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                         note(*v);
                     }
                 }
-                InstKind::Dispose { target, .. } => note(VarId::Local(*target)),
+                InstKind::Dispose { target, .. } => note(SsaVar::Local(target.0)),
                 InstKind::ConstInt(_)
                 | InstKind::ConstFloat(_)
                 | InstKind::ConstBool(_)

@@ -57,7 +57,7 @@ pub(super) fn try_project(
         InstKind::Spawn { operand } => Some(SsaOp::Spawn { operand: operand.0 }),
         InstKind::Yield { operand } => Some(SsaOp::Yield { operand: operand.0 }),
         InstKind::Dispose { target, is_await } => Some(SsaOp::Dispose {
-            var: captured.var(crate::ssa::ir::VarId::Local(*target)),
+            var: captured.var(crate::ssa::ir::SsaVar::Local(target.0)),
             is_await: *is_await,
         }),
         InstKind::ConstInt(_)

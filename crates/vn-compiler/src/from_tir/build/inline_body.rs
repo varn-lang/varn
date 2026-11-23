@@ -1,7 +1,6 @@
 use super::context::{Builder, InlineBody, InlineFrame, Result};
-use crate::ssa::ir::{InstKind, Terminator, Value, VarId};
+use crate::ssa::ir::{InstKind, SsaVar, Terminator, Value};
 use crate::OptError;
-use vn_tir::LocalId;
 use vn_tir::{BackendTy, FnId, TirArg, TirFunction};
 
 const LOCAL_SPAN: u32 = 1024;
@@ -17,14 +16,14 @@ impl<'m> Builder<'m> {
         self.inlining.last().and_then(|frame| frame.body.as_ref())
     }
 
-    pub(super) fn local_var(&self, id: u32) -> VarId {
+    pub(super) fn local_var(&self, id: u32) -> SsaVar {
         let base = self.inline_body().map_or(0, |body| body.base);
-        VarId::Local(LocalId(base + id))
+        SsaVar::Local(base + id)
     }
 
-    pub(super) fn inlined_param_var(&self, index: u32) -> Option<VarId> {
+    pub(super) fn inlined_param_var(&self, index: u32) -> Option<SsaVar> {
         let body = self.inline_body()?;
-        Some(VarId::Local(LocalId(body.param_base + index)))
+        Some(SsaVar::Local(body.param_base + index))
     }
 
     pub(super) fn try_inline_body_call(
@@ -64,7 +63,7 @@ impl<'m> Builder<'m> {
         let base = self.inline_serial * LOCAL_SPAN;
         let param_base = base + tf.locals.len() as u32;
         for (i, v) in argv.iter().enumerate() {
-            self.store_var(VarId::Local(LocalId(param_base + i as u32)), *v);
+            self.store_var(SsaVar::Local(param_base + i as u32), *v);
         }
         let exit = self.new_block();
         self.push_inline(InlineFrame {
@@ -75,7 +74,7 @@ impl<'m> Builder<'m> {
                 base,
                 param_base,
                 exit,
-                result: VarId::Local(LocalId(base + RESULT_SLOT)),
+                result: SsaVar::Local(base + RESULT_SLOT),
                 ret_ty: tf.return_ty,
             }),
         });

@@ -1,4 +1,4 @@
-use crate::ssa::ir::{BlockId, Value, VarId};
+use crate::ssa::ir::{BlockId, SsaVar, Value};
 use crate::OptError;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -32,10 +32,10 @@ pub(super) fn emit_make_closure(
         for uv_src in upvalues_src {
             let source = match uv_src {
                 vn_tir::TirUpvalue::ParentLocal(id) => vn_types::UpvalueSource::Local(u32::from(
-                    super::super::regs::var_reg(VarId::Local(vn_tir::LocalId(*id)), nparams),
+                    super::super::regs::var_reg(SsaVar::Local(*id), nparams),
                 )),
                 vn_tir::TirUpvalue::ParentParam(i) => vn_types::UpvalueSource::Local(u32::from(
-                    super::super::regs::var_reg(VarId::Param(*i), nparams),
+                    super::super::regs::var_reg(SsaVar::Param(*i), nparams),
                 )),
                 vn_tir::TirUpvalue::ParentUpvalue(idx) => vn_types::UpvalueSource::Inherited(*idx),
             };

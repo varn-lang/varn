@@ -1,4 +1,4 @@
-use super::super::ir::{InstKind, SsaFunc, VarId};
+use super::super::ir::{InstKind, SsaFunc, SsaVar};
 use super::slot_kind_of;
 use crate::OptError;
 
@@ -271,10 +271,10 @@ fn coalesce_window_args(ssa: &SsaFunc, reg: &mut [u8], call_base: u8) {
     }
 }
 
-pub(crate) fn var_reg(var: VarId, nparams: usize) -> u8 {
+pub(crate) fn var_reg(var: SsaVar, nparams: usize) -> u8 {
     match var {
-        VarId::Param(i) => (1 + i) as u8,
-        VarId::Local(id) => (1 + nparams + id.0 as usize) as u8,
+        SsaVar::Param(i) => (1 + i) as u8,
+        SsaVar::Local(id) => (1 + nparams + id as usize) as u8,
     }
 }
 

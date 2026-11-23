@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use vn_tir::BackendTy;
 
-use crate::ssa::ir::{InstKind, SsaFunc, Terminator, VarId};
+use crate::ssa::ir::{InstKind, SsaFunc, SsaVar, Terminator};
 use crate::ssa::liveness::Liveness;
 use rustc_hash::FxHashSet;
 use vn_types::ssa::{SsaBlock, SsaProto, SsaTerm, SsaValue};
@@ -34,27 +34,22 @@ pub(crate) struct Emitted<'a> {
 }
 
 struct Captured {
-    vars: Vec<VarId>,
+    vars: Vec<SsaVar>,
     nparams: usize,
 }
 
 impl Captured {
-    fn var(&mut self, var: VarId) -> vn_types::ssa::SsaVar {
+    fn var(&mut self, var: SsaVar) -> vn_types::ssa::SsaVar {
         if !self.vars.contains(&var) {
             self.vars.push(var);
         }
-        var.portable()
+        var
     }
 
     fn table(&self) -> Vec<(vn_types::ssa::SsaVar, u32)> {
         self.vars
             .iter()
-            .map(|v| {
-                (
-                    v.portable(),
-                    u32::from(crate::ssa::emit::var_reg(*v, self.nparams)),
-                )
-            })
+            .map(|v| (*v, u32::from(crate::ssa::emit::var_reg(*v, self.nparams))))
             .collect()
     }
 }

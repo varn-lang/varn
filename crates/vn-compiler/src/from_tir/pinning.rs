@@ -1,22 +1,21 @@
 use rustc_hash::FxHashSet;
 use vn_tir::{Resolution, TirExpr, TirExprKind, TirStmt};
 
-use crate::ssa::ir::VarId;
+use crate::ssa::ir::SsaVar;
 use vn_tir::children::{child_exprs, seq_bodies};
 
-pub(super) fn captured_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
-    use vn_tir::LocalId;
+pub(super) fn captured_vars(func: &vn_tir::TirFunction) -> FxHashSet<SsaVar> {
     use vn_tir::TirUpvalue;
     let mut out = FxHashSet::default();
-    fn walk_expr(e: &TirExpr, out: &mut FxHashSet<VarId>) {
+    fn walk_expr(e: &TirExpr, out: &mut FxHashSet<SsaVar>) {
         if let TirExprKind::Closure { upvalues, .. } = &e.kind {
             for u in upvalues {
                 match u {
                     TirUpvalue::ParentLocal(i) => {
-                        out.insert(VarId::Local(LocalId(*i)));
+                        out.insert(SsaVar::Local(*i));
                     }
                     TirUpvalue::ParentParam(i) => {
-                        out.insert(VarId::Param(*i));
+                        out.insert(SsaVar::Param(*i));
                     }
                     TirUpvalue::ParentUpvalue(_) => {}
                 }
@@ -29,7 +28,7 @@ pub(super) fn captured_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
             walk_expr(c, out);
         }
     }
-    fn walk_body(body: &[TirStmt], out: &mut FxHashSet<VarId>) {
+    fn walk_body(body: &[TirStmt], out: &mut FxHashSet<SsaVar>) {
         for stmt in body {
             match stmt {
                 TirStmt::Expr(e) | TirStmt::Throw(e) => walk_expr(e, out),
@@ -65,16 +64,16 @@ pub(super) fn captured_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
     out
 }
 
-pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
+pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<SsaVar> {
     let mut out = FxHashSet::default();
-    fn note_target(e: &TirExpr, out: &mut FxHashSet<VarId>) {
+    fn note_target(e: &TirExpr, out: &mut FxHashSet<SsaVar>) {
         if let TirExprKind::Var = &e.kind {
             match &e.res {
                 Resolution::Local(id) => {
-                    out.insert(VarId::Local(*id));
+                    out.insert(SsaVar::Local(id.0));
                 }
                 Resolution::Param(i) => {
-                    out.insert(VarId::Param(*i));
+                    out.insert(SsaVar::Param(*i));
                 }
                 Resolution::None
                 | Resolution::Upvalue(_)
@@ -93,14 +92,14 @@ pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
             }
         }
     }
-    fn scan_assigns(body: &[TirStmt], out: &mut FxHashSet<VarId>) {
+    fn scan_assigns(body: &[TirStmt], out: &mut FxHashSet<SsaVar>) {
         for stmt in body {
             match stmt {
                 TirStmt::Expr(e) | TirStmt::Throw(e) | TirStmt::Return(Some(e)) => {
                     scan_expr_assigns(e, out)
                 }
                 TirStmt::Let { local, .. } => {
-                    out.insert(VarId::Local(*local));
+                    out.insert(SsaVar::Local(local.0));
                 }
                 TirStmt::If {
                     then_body,
@@ -124,7 +123,7 @@ pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
             }
         }
     }
-    fn scan_expr_assigns(e: &TirExpr, out: &mut FxHashSet<VarId>) {
+    fn scan_expr_assigns(e: &TirExpr, out: &mut FxHashSet<SsaVar>) {
         if let TirExprKind::Assign { target, value } = &e.kind {
             note_target(target, out);
             scan_expr_assigns(value, out);
@@ -136,7 +135,7 @@ pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
             scan_expr_assigns(c, out);
         }
     }
-    fn walk(body: &[TirStmt], out: &mut FxHashSet<VarId>) {
+    fn walk(body: &[TirStmt], out: &mut FxHashSet<SsaVar>) {
         for stmt in body {
             for nested in seq_bodies(stmt) {
                 walk(nested, out);

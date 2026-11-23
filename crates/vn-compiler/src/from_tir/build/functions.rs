@@ -1,5 +1,5 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, SsaFunc, Terminator, VarId};
+use crate::ssa::ir::{InstKind, SsaFunc, SsaVar, Terminator};
 use std::sync::Arc;
 use vn_tir::DynReason;
 use vn_tir::{BackendTy, TirExpr, TirFunction, TirModule, TirStmt};
@@ -64,7 +64,7 @@ fn build_inner(
         };
         let v = b.new_value(t);
         b.block_mut(entry).params.push(v);
-        b.write_var(VarId::Param(i as u32), entry, v);
+        b.write_var(SsaVar::Param(i as u32), entry, v);
     }
 
     if register_module_fns {
@@ -123,7 +123,7 @@ impl<'m> Builder<'m> {
         if !self.is_open() || !matches!(self.defaulted.get(i as usize), Some(Some(_))) {
             return Ok(None);
         }
-        let filled = self.read_var(VarId::Param(i), self.current)?;
+        let filled = self.read_var(SsaVar::Param(i), self.current)?;
         Ok(Some(self.value_ty(filled)))
     }
 
@@ -142,7 +142,7 @@ impl<'m> Builder<'m> {
         if filled != Some(ty) {
             return Ok(());
         }
-        let var = VarId::Param(i);
+        let var = SsaVar::Param(i);
         let supplied = self.read_var(var, self.current)?;
         let conv = match ty {
             BackendTy::Num(width) => Some(vn_core::ValueConv::expect_num(width)),
