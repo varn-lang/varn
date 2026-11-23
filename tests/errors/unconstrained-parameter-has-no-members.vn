@@ -1,0 +1,2 @@
+// expect: error[VN3004]
+function measure<T>(x: T): int { return x.size() }

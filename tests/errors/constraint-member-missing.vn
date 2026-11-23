@@ -1,0 +1,3 @@
+// expect: error[VN3004]
+interface Sized { size(): int }
+function measure<T extends Sized>(x: T): int { return x.length() }

@@ -62,7 +62,7 @@ fn check_origin_module(
 
 impl<'r> Checker<'r> {
     pub(crate) fn member_exists_cached(&mut self, ty: &Type, key: &str, bind: &BindResult) -> bool {
-        let ty_key = (*ty, Arc::from(key));
+        let ty_key = (self.member_input(*ty, bind), Arc::from(key));
         if let Some(exists) = self.member_exists_cache.get(&ty_key) {
             return *exists;
         }

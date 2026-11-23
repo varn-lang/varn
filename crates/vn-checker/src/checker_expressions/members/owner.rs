@@ -14,7 +14,21 @@ impl Checker<'_> {
         } else {
             view
         };
-        vn_sem::resolve::expand_alias(ty, Some(&view), &self.ty_table)
+        let mut current = vn_sem::resolve::expand_alias(ty, Some(&view), &self.ty_table);
+        let mut seen = Vec::new();
+        while let vn_core::TypeKind::Named(name, None) = self.ty_table.get(current.0)
+            && !seen.contains(&current)
+        {
+            seen.push(current);
+            let text = self.resolve_bind_atom(bind, name);
+            let Some(bound) =
+                vn_sem::types::TypeContext::type_param_constraint(&view, text.as_ref())
+            else {
+                break;
+            };
+            current = vn_sem::resolve::expand_alias(bound, Some(&view), &self.ty_table);
+        }
+        current
     }
 
     pub(crate) fn parent_type(

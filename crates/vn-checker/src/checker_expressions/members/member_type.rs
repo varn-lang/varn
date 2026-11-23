@@ -11,7 +11,7 @@ impl<'r> Checker<'r> {
         key: &str,
         bind: &BindResult,
     ) -> Option<(Type, super::member_auth::MemberAuth)> {
-        let ty_key = (*ty, Arc::from(key));
+        let ty_key = (self.member_input(*ty, bind), Arc::from(key));
         if let Some(res) = self.member_type_cache.get(&ty_key) {
             return res.clone();
         }
