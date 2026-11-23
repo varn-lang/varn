@@ -20,6 +20,11 @@ impl<'r> Checker<'r> {
         self.check_expr(rec, operand, bind);
         if op == UnaryOp::Not {
             self.require_condition(rec, operand, bind);
+        } else {
+            let operand_ty = self.infer_type(rec, operand, bind);
+            if self.reject_dynamic_operand(&operand_ty, "operate on", arena.expr(expr).range) {
+                return;
+            }
         }
         let overloaded = self.check_unary_capability(rec, expr, op, operand, bind);
         match op {

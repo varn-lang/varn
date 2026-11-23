@@ -1,0 +1,4 @@
+// expect: error[VN3033]
+function f(d: dynamic) {
+    for (const it in d) { print(it) }
+}

@@ -4,7 +4,7 @@ use vn_core::{Diagnostic, ErrorCode};
 use vn_sem::types::Type;
 
 impl<'r> Checker<'r> {
-    pub(super) fn reject_dynamic_operand(
+    pub(crate) fn reject_dynamic_operand(
         &mut self,
         ty: &Type,
         action: &str,

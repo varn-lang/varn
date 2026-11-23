@@ -103,6 +103,7 @@ impl<'r> Checker<'r> {
     ) {
         self.check_expr(rec, right, bind);
         let right_ty = self.infer_type(rec, right, bind);
+        self.reject_dynamic_operand(&right_ty, "iterate over", self.ast_arena.expr(right).range);
         if !right_ty.is_unresolved() && right_ty.is_nullable(&self.ty_table) {
             let shown = right_ty.display(&self.ty_table, &bind.interner);
             self.emit(
