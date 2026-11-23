@@ -186,13 +186,11 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         | InstKind::GetProperty { .. }
         | InstKind::GetSlotMethod { .. }
         | InstKind::GetIndex { .. }
-        | InstKind::MapGetIndex { .. }
         | InstKind::SetProperty { .. }
         | InstKind::SetFixedField { .. }
         | InstKind::SetIndex { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }

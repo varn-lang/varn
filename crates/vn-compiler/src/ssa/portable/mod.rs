@@ -128,13 +128,11 @@ pub(crate) fn project(
                     | InstKind::GetIndex { .. }
                     | InstKind::ArrayGetIndex { .. }
                     | InstKind::BytesGetIndex { .. }
-                    | InstKind::MapGetIndex { .. }
                     | InstKind::SetProperty { .. }
                     | InstKind::SetFixedField { .. }
                     | InstKind::SetIndex { .. }
                     | InstKind::ArraySetIndex { .. }
                     | InstKind::BytesSetIndex { .. }
-                    | InstKind::MapSetIndex { .. }
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }
@@ -224,13 +222,11 @@ pub(crate) fn project(
                     | InstKind::GetIndex { .. }
                     | InstKind::ArrayGetIndex { .. }
                     | InstKind::BytesGetIndex { .. }
-                    | InstKind::MapGetIndex { .. }
                     | InstKind::SetProperty { .. }
                     | InstKind::SetFixedField { .. }
                     | InstKind::SetIndex { .. }
                     | InstKind::ArraySetIndex { .. }
                     | InstKind::BytesSetIndex { .. }
-                    | InstKind::MapSetIndex { .. }
                     | InstKind::ArrayPush { .. }
                     | InstKind::ObjectMerge { .. }
                     | InstKind::MethodCall { .. }

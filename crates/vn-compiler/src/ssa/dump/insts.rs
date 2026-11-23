@@ -69,9 +69,6 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::BytesGetIndex { object, index } => {
             format!("bytesgetindex {}[{}]", val(*object), val(*index))
         }
-        InstKind::MapGetIndex { object, index } => {
-            format!("mapgetindex {}[{}]", val(*object), val(*index))
-        }
         InstKind::SetProperty {
             object,
             name,
@@ -121,18 +118,6 @@ pub fn inst_kind(kind: &InstKind) -> String {
         } => {
             format!(
                 "bytessetindex {}[{}] = {}",
-                val(*object),
-                val(*index),
-                val(*value)
-            )
-        }
-        InstKind::MapSetIndex {
-            object,
-            index,
-            value,
-        } => {
-            format!(
-                "mapsetindex {}[{}] = {}",
                 val(*object),
                 val(*index),
                 val(*value)

@@ -105,11 +105,6 @@ pub enum InstKind {
         index: Value,
     },
 
-    MapGetIndex {
-        object: Value,
-        index: Value,
-    },
-
     SetProperty {
         object: Value,
         name: Arc<str>,
@@ -133,12 +128,6 @@ pub enum InstKind {
     },
 
     ArraySetIndex {
-        object: Value,
-        index: Value,
-        value: Value,
-    },
-
-    MapSetIndex {
         object: Value,
         index: Value,
         value: Value,
@@ -413,13 +402,11 @@ impl InstKind {
             | InstKind::GetIndex { .. }
             | InstKind::ArrayGetIndex { .. }
             | InstKind::BytesGetIndex { .. }
-            | InstKind::MapGetIndex { .. }
             | InstKind::SetProperty { .. }
             | InstKind::SetFixedField { .. }
             | InstKind::SetIndex { .. }
             | InstKind::ArraySetIndex { .. }
             | InstKind::BytesSetIndex { .. }
-            | InstKind::MapSetIndex { .. }
             | InstKind::ArrayPush { .. }
             | InstKind::ObjectMerge { .. }
             | InstKind::MethodCall { .. }

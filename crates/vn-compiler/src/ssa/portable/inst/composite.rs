@@ -77,12 +77,10 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. }
-        | InstKind::MapGetIndex { .. }
         | InstKind::SetFixedField { .. }
         | InstKind::SetIndex { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
@@ -169,8 +167,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         }),
         InstKind::GetIndex { object, index }
         | InstKind::ArrayGetIndex { object, index }
-        | InstKind::BytesGetIndex { object, index }
-        | InstKind::MapGetIndex { object, index } => Some(SsaOp::GetIndex {
+        | InstKind::BytesGetIndex { object, index } => Some(SsaOp::GetIndex {
             object: *object,
             index: *index,
         }),
@@ -185,11 +182,6 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
             value,
         }
         | InstKind::BytesSetIndex {
-            object,
-            index,
-            value,
-        }
-        | InstKind::MapSetIndex {
             object,
             index,
             value,

@@ -121,13 +121,11 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
                 | InstKind::BytesGetIndex { .. }
-                | InstKind::MapGetIndex { .. }
                 | InstKind::SetProperty { .. }
                 | InstKind::SetFixedField { .. }
                 | InstKind::SetIndex { .. }
                 | InstKind::ArraySetIndex { .. }
                 | InstKind::BytesSetIndex { .. }
-                | InstKind::MapSetIndex { .. }
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
@@ -209,13 +207,11 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. }
-        | InstKind::MapGetIndex { .. }
         | InstKind::SetProperty { .. }
         | InstKind::SetFixedField { .. }
         | InstKind::SetIndex { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }

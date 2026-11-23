@@ -90,9 +90,6 @@ pub(super) fn emit_value(
         InstKind::BytesGetIndex { object, index } => {
             access::emit_bytes_get_index(chunk, d, *object, *index, reg, line);
         }
-        InstKind::MapGetIndex { object, index } => {
-            access::emit_map_get_index(chunk, d, *object, *index, reg, line);
-        }
 
         InstKind::MethodCall { recv, name, args } => {
             calls::emit_method_call(
@@ -295,7 +292,6 @@ pub(super) fn emit_value(
         | InstKind::ArrayPush { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::AssertNotNull { .. }
         | InstKind::StoreGlobal { .. }

@@ -96,20 +96,6 @@ pub(super) fn emit_effect(
             );
             return Ok(true);
         }
-        InstKind::MapSetIndex {
-            object,
-            index,
-            value,
-        } => {
-            chunk.emit_rrr(
-                OpCode::MapSetIndex,
-                reg[object.0 as usize],
-                reg[index.0 as usize],
-                reg[value.0 as usize],
-                line,
-            );
-            return Ok(true);
-        }
         InstKind::ArrayPush { array, value } => {
             chunk.emit_rr(
                 OpCode::ArrayPush,
@@ -234,7 +220,6 @@ pub(super) fn emit_effect(
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. }
-        | InstKind::MapGetIndex { .. }
         | InstKind::MethodCall { .. }
         | InstKind::IsNull { .. }
         | InstKind::TypeTest { .. }

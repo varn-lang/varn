@@ -46,13 +46,11 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::GetIndex { .. }
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. }
-        | InstKind::MapGetIndex { .. }
         | InstKind::SetProperty { .. }
         | InstKind::SetFixedField { .. }
         | InstKind::SetIndex { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::MethodCall { .. }
         | InstKind::InvokeSlot { .. }

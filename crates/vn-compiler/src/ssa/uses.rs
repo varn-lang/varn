@@ -101,8 +101,7 @@ macro_rules! inst_uses {
             }
             GetIndex { object, index }
             | ArrayGetIndex { object, index }
-            | BytesGetIndex { object, index }
-            | MapGetIndex { object, index } => {
+            | BytesGetIndex { object, index } => {
                 $use!($f, object);
                 $use!($f, index);
             }
@@ -138,11 +137,6 @@ macro_rules! inst_uses {
                 value,
             }
             | BytesSetIndex {
-                object,
-                index,
-                value,
-            }
-            | MapSetIndex {
                 object,
                 index,
                 value,

@@ -5,13 +5,10 @@ use vn_tir::BackendTy;
 pub fn run(func: &mut SsaFunc) -> bool {
     let mut changed = false;
     let mut array_values: FxHashSet<u32> = FxHashSet::default();
-    let mut map_values: FxHashSet<u32> = FxHashSet::default();
 
     for (i, vdef) in func.values.iter().enumerate() {
         if matches!(vdef.ty, BackendTy::Array(_)) {
             array_values.insert(i as u32);
-        } else if matches!(vdef.ty, BackendTy::Map(..)) {
-            map_values.insert(i as u32);
         }
     }
 
@@ -20,14 +17,12 @@ pub fn run(func: &mut SsaFunc) -> bool {
             if let Some(d) = inst.dest {
                 if matches!(inst.kind, InstKind::BuildArray { .. }) {
                     array_values.insert(d.0);
-                } else if matches!(inst.kind, InstKind::BuildMap { .. }) {
-                    map_values.insert(d.0);
                 }
             }
         }
     }
 
-    if array_values.is_empty() && map_values.is_empty() {
+    if array_values.is_empty() {
         return false;
     }
 
@@ -47,25 +42,6 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     value,
                 } if array_values.contains(&object.0) => {
                     inst.kind = InstKind::ArraySetIndex {
-                        object: *object,
-                        index: *index,
-                        value: *value,
-                    };
-                    changed = true;
-                }
-                InstKind::GetIndex { object, index } if map_values.contains(&object.0) => {
-                    inst.kind = InstKind::MapGetIndex {
-                        object: *object,
-                        index: *index,
-                    };
-                    changed = true;
-                }
-                InstKind::SetIndex {
-                    object,
-                    index,
-                    value,
-                } if map_values.contains(&object.0) => {
-                    inst.kind = InstKind::MapSetIndex {
                         object: *object,
                         index: *index,
                         value: *value,
@@ -99,13 +75,11 @@ pub fn run(func: &mut SsaFunc) -> bool {
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
                 | InstKind::BytesGetIndex { .. }
-                | InstKind::MapGetIndex { .. }
                 | InstKind::SetProperty { .. }
                 | InstKind::SetFixedField { .. }
                 | InstKind::SetIndex { .. }
                 | InstKind::ArraySetIndex { .. }
                 | InstKind::BytesSetIndex { .. }
-                | InstKind::MapSetIndex { .. }
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }

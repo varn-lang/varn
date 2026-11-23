@@ -154,23 +154,6 @@ pub(super) fn emit_bytes_get_index(
         line,
     );
 }
-pub(super) fn emit_map_get_index(
-    chunk: &mut Chunk,
-    d: u8,
-    object: Value,
-    index: Value,
-    reg: &[u8],
-    line: u32,
-) {
-    chunk.emit_rrr(
-        OpCode::MapGetIndex,
-        d,
-        reg[object.0 as usize],
-        reg[index.0 as usize],
-        line,
-    );
-}
-
 pub(super) fn emit_get_property_maybe(
     chunk: &mut Chunk,
     d: u8,

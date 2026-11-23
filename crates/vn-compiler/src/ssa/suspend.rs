@@ -43,13 +43,11 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
                 | InstKind::BytesGetIndex { .. }
-                | InstKind::MapGetIndex { .. }
                 | InstKind::SetProperty { .. }
                 | InstKind::SetFixedField { .. }
                 | InstKind::SetIndex { .. }
                 | InstKind::ArraySetIndex { .. }
                 | InstKind::BytesSetIndex { .. }
-                | InstKind::MapSetIndex { .. }
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
@@ -153,13 +151,11 @@ pub fn suspend_live_regs(
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
                 | InstKind::BytesGetIndex { .. }
-                | InstKind::MapGetIndex { .. }
                 | InstKind::SetProperty { .. }
                 | InstKind::SetFixedField { .. }
                 | InstKind::SetIndex { .. }
                 | InstKind::ArraySetIndex { .. }
                 | InstKind::BytesSetIndex { .. }
-                | InstKind::MapSetIndex { .. }
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }
@@ -308,13 +304,11 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::GetIndex { .. }
                 | InstKind::ArrayGetIndex { .. }
                 | InstKind::BytesGetIndex { .. }
-                | InstKind::MapGetIndex { .. }
                 | InstKind::SetProperty { .. }
                 | InstKind::SetFixedField { .. }
                 | InstKind::SetIndex { .. }
                 | InstKind::ArraySetIndex { .. }
                 | InstKind::BytesSetIndex { .. }
-                | InstKind::MapSetIndex { .. }
                 | InstKind::ArrayPush { .. }
                 | InstKind::ObjectMerge { .. }
                 | InstKind::MethodCall { .. }

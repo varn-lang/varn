@@ -109,7 +109,7 @@ impl<'m> Builder<'m> {
                         value,
                     }
                 } else if matches!(self.value_ty(obj), BackendTy::Map(..)) {
-                    InstKind::MapSetIndex {
+                    InstKind::SetIndex {
                         object: obj,
                         index: idx,
                         value,

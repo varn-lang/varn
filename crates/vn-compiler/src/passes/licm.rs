@@ -134,8 +134,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
     match kind {
         InstKind::GetFixedField { .. }
         | InstKind::ArrayGetIndex { .. }
-        | InstKind::BytesGetIndex { .. }
-        | InstKind::MapGetIndex { .. } => facts.memory_stable,
+        | InstKind::BytesGetIndex { .. } => facts.memory_stable,
 
         InstKind::Binary { op, ty, .. } => {
             let typed = matches!(ty, BackendTy::Num(_));
@@ -191,7 +190,6 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::SetIndex { .. }
         | InstKind::ArraySetIndex { .. }
         | InstKind::BytesSetIndex { .. }
-        | InstKind::MapSetIndex { .. }
         | InstKind::ArrayPush { .. }
         | InstKind::ObjectMerge { .. }
         | InstKind::MethodCall { .. }
@@ -266,8 +264,6 @@ fn is_transparent(kind: &InstKind) -> bool {
             | InstKind::ArrayGetIndex { .. }
             | InstKind::ArraySetIndex { .. }
             | InstKind::BytesSetIndex { .. }
-            | InstKind::MapGetIndex { .. }
-            | InstKind::MapSetIndex { .. }
             | InstKind::IsNull { .. }
             | InstKind::TypeTest { .. }
             | InstKind::IsArray { .. }

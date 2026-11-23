@@ -34,9 +34,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | This
         | CatchParam { .. } => true,
 
-        GetFixedField { .. } | ArrayGetIndex { .. } | BytesGetIndex { .. } | MapGetIndex { .. } => {
-            true
-        }
+        GetFixedField { .. } | ArrayGetIndex { .. } | BytesGetIndex { .. } => true,
 
         IsNull { .. }
         | TypeTest { .. }
@@ -135,7 +133,6 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | SetIndex { .. }
         | ArraySetIndex { .. }
         | BytesSetIndex { .. }
-        | MapSetIndex { .. }
         | ObjectMerge { .. } => false,
 
         MakeClass { .. } | DeclareLayout { .. } | FreezeClass { .. } | DefineMember { .. } => false,

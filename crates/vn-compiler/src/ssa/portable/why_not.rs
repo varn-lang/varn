@@ -39,13 +39,11 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::GetIndex { .. }
         | other @ InstKind::ArrayGetIndex { .. }
         | other @ InstKind::BytesGetIndex { .. }
-        | other @ InstKind::MapGetIndex { .. }
         | other @ InstKind::SetProperty { .. }
         | other @ InstKind::SetFixedField { .. }
         | other @ InstKind::SetIndex { .. }
         | other @ InstKind::ArraySetIndex { .. }
         | other @ InstKind::BytesSetIndex { .. }
-        | other @ InstKind::MapSetIndex { .. }
         | other @ InstKind::ArrayPush { .. }
         | other @ InstKind::ObjectMerge { .. }
         | other @ InstKind::MethodCall { .. }
