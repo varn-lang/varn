@@ -295,6 +295,15 @@ impl IoDriver {
         }
     }
 
+    pub fn local_port(&self, socket_id: i64) -> Option<i64> {
+        let reg = self.registry.lock().unwrap_or_else(|e| e.into_inner());
+        let addr = match reg.listeners.get(&socket_id) {
+            Some(state) => state.listener.local_addr(),
+            None => reg.udps.get(&socket_id)?.socket.local_addr(),
+        };
+        addr.ok().map(|addr| i64::from(addr.port()))
+    }
+
     pub fn close_listener(&self, listener_id: i64) {
         let mut reg = self.registry.lock().unwrap_or_else(|e| e.into_inner());
         if let Some(mut listener_state) = reg.listeners.remove(&listener_id) {

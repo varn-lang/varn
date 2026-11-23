@@ -1,4 +1,4 @@
-import { tcpListen$, tcpListenTls$, tcpAccept$, tcpWrite$, tcpClose$, tcpCloseListener$, sendHttpResponse$, sendHttpHead$, httpMethodName$, HttpMethod } from "runtime:net";
+import { tcpListen$, tcpListenTls$, tcpAccept$, tcpWrite$, tcpClose$, tcpCloseListener$, socketLocalPort$, sendHttpResponse$, sendHttpHead$, httpMethodName$, HttpMethod } from "runtime:net";
 import { spawn, Task } from "std:task";
 import { TimeoutError } from "std:error";
 
@@ -132,8 +132,8 @@ export class HttpServer {
     @capability("net.server")
     listen(port: int, host: str = "127.0.0.1"): void {
         if (this._isListening) return;
-        this._port = port;
         this._listenerId = tcpListen$(port, host);
+        this._port = socketLocalPort$(this._listenerId);
         this._isListening = true;
 
         spawn(this._acceptLoop());
@@ -142,8 +142,8 @@ export class HttpServer {
     @capability("net.server")
     listenTls(port: int, cert: str, key: str, host: str = "127.0.0.1", clientCa?: str): void {
         if (this._isListening) return;
-        this._port = port;
         this._listenerId = tcpListenTls$(port, host, cert, key, clientCa);
+        this._port = socketLocalPort$(this._listenerId);
         this._isListening = true;
 
         spawn(this._acceptLoop());

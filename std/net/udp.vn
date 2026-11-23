@@ -1,5 +1,5 @@
 import { ClosedError } from "std:error";
-import { udpBind$, udpSendTo$, udpRecvFrom$, udpClose$ } from "runtime:net";
+import { udpBind$, udpSendTo$, udpRecvFrom$, udpClose$, socketLocalPort$ } from "runtime:net";
 
 export struct UdpPacket {
     data: Bytes;
@@ -22,7 +22,8 @@ export class UdpSocket {
     @capability("net.server")
     static bind(port: int, host?: str): UdpSocket {
         let bindHost = host ?? "0.0.0.0";
-        return new UdpSocket(udpBind$(bindHost, port), bindHost, port);
+        const id = udpBind$(bindHost, port);
+        return new UdpSocket(id, bindHost, socketLocalPort$(id));
     }
 
     send(host: str, port: int, data: Bytes | str): int {

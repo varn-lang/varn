@@ -80,6 +80,9 @@ natives! {
         driver().close(conn_id);
         Ok(())
     },
+    socketLocalPort(socket_id) => driver()
+        .local_port(socket_id)
+        .ok_or_else(|| NativeError::std(StdErrorClass::Net, format!("socket {socket_id} is closed"))),
     tcpCloseListener(listener_id) => {
         driver().close_listener(listener_id);
         Ok(())

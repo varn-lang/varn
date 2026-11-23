@@ -30,6 +30,7 @@ export declare function tcpListenTls$(port: int, host: str, cert: str, key: str,
 export declare function tcpRead$(connId: int, len: int): TaskHandle<Bytes?>;
 export declare function tcpWrite$(connId: int, data: Bytes | str): TaskHandle<int>;
 export declare function tcpClose$(connId: int): void;
+export declare function socketLocalPort$(socketId: int): int;
 export declare function tcpCloseListener$(listenerId: int): void;
 export struct HttpRequestHead {
     method: HttpMethod?;

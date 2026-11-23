@@ -1,5 +1,6 @@
 import {
     tcpListen$,
+    socketLocalPort$,
     tcpAccept$,
     tcpWrite$,
     tcpClose$,
@@ -15,16 +16,15 @@ export class WsServer {
     private _port: int;
     private _isListening: bool = false;
 
-    constructor(port: int) {
-        this._port = port;
+    constructor(listener: int) {
+        this._listener = listener;
+        this._port = socketLocalPort$(listener);
+        this._isListening = true;
     }
 
     @capability("net.server")
     static listen(port: int, host: str = "127.0.0.1"): WsServer {
-        let server = new WsServer(port);
-        server._listener = tcpListen$(port, host);
-        server._isListening = true;
-        return server;
+        return new WsServer(tcpListen$(port, host));
     }
 
     get port(): int {

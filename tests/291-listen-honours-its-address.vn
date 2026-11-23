@@ -22,7 +22,7 @@ function netFailure(run: () => dynamic): NetError? {
 
 await describe("291 listen honours its address", async () => {
     await it("a name that is not an IP address is rejected", async () => {
-        expect(failure(() => TcpListener.listen(19900, "not-an-ip")).indexOf("not an IP address") != null).toBeTruthy();
+        expect(failure(() => TcpListener.listen(0, "not-an-ip")).indexOf("not an IP address") != null).toBeTruthy();
     });
 
     await it("a port outside 0..65535 is rejected", async () => {
@@ -31,17 +31,17 @@ await describe("291 listen honours its address", async () => {
     });
 
     await it("a second listener cannot take a port that is in use", async () => {
-        const first = TcpListener.listen(19901);
-        const second = netFailure(() => TcpListener.listen(19901));
+        const first = TcpListener.listen(0);
+        const second = netFailure(() => TcpListener.listen(first.port));
         expect(second != null).toBeTruthy();
-        expect((second as NetError).port).toBe(19901);
+        expect((second as NetError).port).toBe(first.port);
         expect((second as NetError).host).toBe("127.0.0.1");
         first.close();
     });
 
     await it("an explicit address is the one that is bound", async () => {
-        const wide = TcpListener.listen(19902, "0.0.0.0");
-        const client = await TcpStream.connect("127.0.0.1", 19902, 1);
+        const wide = TcpListener.listen(0, "0.0.0.0");
+        const client = await TcpStream.connect("127.0.0.1", wide.port, 1);
         client.close();
         wide.close();
     });
