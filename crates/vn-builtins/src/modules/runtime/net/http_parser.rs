@@ -1,4 +1,4 @@
-use vn_types::{NativeCtx, NativeError, VmValue};
+use vn_types::{NativeCtx, VmValue};
 
 vn_macros::vn_enum! {
     module: super::MODULE_ID,

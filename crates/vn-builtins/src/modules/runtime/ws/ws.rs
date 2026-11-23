@@ -4,7 +4,6 @@ use sha1::Digest;
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
-use vn_types::VmValue;
 
 
 const WS_GUID: &str = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
