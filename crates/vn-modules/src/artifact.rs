@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use vn_core::fingerprint::fingerprint;
 use vn_core::ModuleId;
 
-pub const CACHE_DIR_NAME: &str = "cache";
 pub const BYTECODE_DIR_NAME: &str = "bytecode";
 pub const TYPES_DIR_NAME: &str = "types";
 

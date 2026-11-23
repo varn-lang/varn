@@ -164,10 +164,6 @@ impl Driver {
         self.machine.as_ref()
     }
 
-    pub fn is_launched(&self) -> bool {
-        self.machine.is_some()
-    }
-
     pub fn is_finished(&self) -> bool {
         self.finished
     }

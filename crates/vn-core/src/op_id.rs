@@ -109,13 +109,3 @@ pub fn core_class_names() -> impl Iterator<Item = &'static str> {
 pub fn core_class_name(tag: RuntimeKind) -> Option<&'static str> {
     is_core_class(tag).then(|| tag.name())
 }
-
-pub fn core_class_tag(name: &str) -> Option<RuntimeKind> {
-    CORE_CLASSES
-        .into_iter()
-        .find(|&tag| core_class_name(tag) == Some(name))
-}
-
-pub fn core_class(name: &str) -> Option<&'static str> {
-    core_class_tag(name).and_then(core_class_name)
-}

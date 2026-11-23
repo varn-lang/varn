@@ -435,21 +435,6 @@ impl BindResult {
             .map_or(&[][..], Vec::as_slice)
     }
 
-    pub fn get_flattened_members(&self, name: &str) -> Option<&Vec<ClassMemberInfo>> {
-        self.type_members.flattened.get(name).or_else(|| {
-            self.core
-                .as_ref()
-                .and_then(|b| b.flattened_members.get(name))
-        })
-    }
-
-    pub fn intrinsic_import_wire(&self, name: &str) -> Option<u8> {
-        let scope = self.scopes.get(self.global_scope);
-        let atom = self.interner.get(name)?;
-        let id = scope.resolve(atom, &self.scopes)?;
-        self.arena.get(id).intrinsic_wire
-    }
-
     pub fn get_alias_node_local(&self, name: &str) -> Option<(Vec<String>, TypeNode)> {
         let scope = self.scopes.get(self.global_scope);
         let atom = self.interner.get(name)?;

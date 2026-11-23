@@ -31,12 +31,4 @@ impl Capability {
         out.sort();
         Ok(out)
     }
-
-    pub fn split_joined(joined: &str) -> Vec<&str> {
-        joined
-            .split(',')
-            .map(str::trim)
-            .filter(|s| !s.is_empty())
-            .collect()
-    }
 }

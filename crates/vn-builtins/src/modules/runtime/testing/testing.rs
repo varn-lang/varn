@@ -12,14 +12,6 @@ pub fn reset_testing_counters() {
     FAILED.store(0, Ordering::Relaxed);
 }
 
-pub fn inc_passed() {
-    PASSED.fetch_add(1, Ordering::Relaxed);
-}
-
-pub fn inc_failed() {
-    FAILED.fetch_add(1, Ordering::Relaxed);
-}
-
 pub fn print_summary() {
     let passed = PASSED.load(Ordering::Relaxed);
     let failed = FAILED.load(Ordering::Relaxed);

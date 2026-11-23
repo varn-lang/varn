@@ -41,32 +41,6 @@ impl ClassMemberInfo {
             | TypeKind::TypePredicate { .. } => String::new(),
         }
     }
-
-    pub fn return_type_str(
-        &self,
-        table: &CheckerTyTable,
-        interner: &vn_core::AtomInterner,
-    ) -> String {
-        match table.get(self.ty.0) {
-            TypeKind::Fn(fid) => {
-                let ret = table.get_function(fid).return_type;
-                Type::resolved(ret).display(table, interner).to_string()
-            }
-            TypeKind::Primitive(_)
-            | TypeKind::Literal(_)
-            | TypeKind::This
-            | TypeKind::Array(_)
-            | TypeKind::Union(_)
-            | TypeKind::Intersection(_)
-            | TypeKind::Tuple(_)
-            | TypeKind::Named(..)
-            | TypeKind::Generic(..)
-            | TypeKind::Record(_)
-            | TypeKind::Interface(_)
-            | TypeKind::EnumVariant { .. }
-            | TypeKind::TypePredicate { .. } => self.ty.display(table, interner).to_string(),
-        }
-    }
 }
 
 fn format_fn_params(

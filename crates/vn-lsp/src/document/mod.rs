@@ -197,10 +197,6 @@ impl DocumentState {
         self.db.expr_table.get(&ast_id)
     }
 
-    pub fn expr_type_at_offset(&self, offset: u32) -> Option<&vn_sem::types::Type> {
-        self.expr_entry_at_offset(offset).map(|e| &e.ty)
-    }
-
     pub fn resolve_symbol_id_at_offset(&self, offset: u32) -> Option<vn_sem::symbol::SymbolId> {
         if let Some(entry) = self.expr_entry_at_offset(offset)
             && let Some(sid) = entry.symbol_id

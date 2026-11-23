@@ -101,11 +101,6 @@ impl TokenStream {
     }
 
     #[inline(always)]
-    pub fn stmt_range(&self, id: StmtId) -> SourceRange {
-        self.arena.stmt(id).range
-    }
-
-    #[inline(always)]
     pub fn type_node(&mut self, range: SourceRange, kind: AstTypeKind) -> TypeNode {
         TypeNode {
             id: self.next_ast_id(),
@@ -224,13 +219,6 @@ impl TokenStream {
         let s = self.lexeme().to_owned();
         self.advance();
         s
-    }
-
-    #[inline]
-    pub fn consume(&mut self) -> Token {
-        let tok = self.token().clone();
-        self.advance();
-        tok
     }
 
     #[inline]
@@ -368,37 +356,8 @@ impl TokenStream {
         while self.eat(TokenKind::Semicolon) {}
     }
 
-    pub fn expect_semicolon(&mut self) -> PResult<()> {
-        if self.eat(TokenKind::Semicolon) {
-            while self.eat(TokenKind::Semicolon) {}
-            return Ok(());
-        }
-        if self.is_eof() || self.check(TokenKind::RBrace) {
-            return Ok(());
-        }
-        let tok = self.token();
-        let prev = if self.pos > 0 {
-            Some(&self.tokens[self.pos - 1])
-        } else {
-            None
-        };
-        if let Some(prev) = prev
-            && prev.range.end.line < tok.range.start.line
-        {
-            return Ok(());
-        }
-        Err(ParseError::expected(format!(
-            "expected `;`, found {}",
-            self.describe_current()
-        )))
-    }
-
     pub fn store_pending_doc(&mut self, doc: Arc<str>) {
         self.pending_doc = Some(doc);
-    }
-
-    pub fn take_pending_doc(&mut self) -> Option<Arc<str>> {
-        self.pending_doc.take()
     }
 
     pub fn current_doc(&mut self) -> Option<String> {

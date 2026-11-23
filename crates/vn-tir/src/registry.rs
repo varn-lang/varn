@@ -17,21 +17,6 @@ pub struct ClassRegistryBuilder {
 }
 
 impl ClassRegistryBuilder {
-    pub fn push_class(
-        &mut self,
-        defining_module: &str,
-        name: &str,
-        is_local_def: bool,
-        info: ClassInfo,
-    ) {
-        self.entries.push((
-            Arc::from(defining_module),
-            Arc::from(name),
-            is_local_def,
-            info,
-        ));
-    }
-
     pub fn build(mut self) -> ClassRegistry {
         self.entries.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
         let mut registry = ClassRegistry::default();
@@ -51,12 +36,6 @@ impl ClassRegistryBuilder {
 }
 
 impl ClassRegistry {
-    pub fn global_id(&self, defining_module: &str, name: &str) -> Option<GlobalClassId> {
-        self.ids
-            .get(&(Arc::from(defining_module), Arc::from(name)))
-            .copied()
-    }
-
     pub fn class(&self, id: GlobalClassId) -> Option<&ClassInfo> {
         self.classes.get(id.0 as usize)
     }

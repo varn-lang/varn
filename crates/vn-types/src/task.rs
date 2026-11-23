@@ -112,10 +112,6 @@ impl HostPromise {
         Self::alloc(Some(Err(v)))
     }
 
-    pub fn rejected_msg(msg: impl Into<String>) -> Self {
-        Self::rejected(SendValue::Str(msg.into()))
-    }
-
     #[inline]
     pub fn is_pending(&self) -> bool {
         self.slot().done.is_none()

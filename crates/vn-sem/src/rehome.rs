@@ -1,4 +1,3 @@
-use crate::symbol::Symbol;
 use crate::types::{CheckerTyTable, Type};
 
 pub fn rehome_ty(ty: Type, from: &CheckerTyTable, to: &mut CheckerTyTable) -> Type {
@@ -25,20 +24,4 @@ pub fn rehome_ty_with_origin(
         },
         to,
     )
-}
-
-pub fn rehome_symbol(sym: &Symbol, from: &CheckerTyTable, to: &mut CheckerTyTable) -> Symbol {
-    let mut out = sym.clone();
-    if let Some(ty) = out.ty {
-        out.ty = Some(rehome_ty(ty, from, to));
-    }
-    for slot in out
-        .type_param_constraints
-        .iter_mut()
-        .chain(out.type_param_defaults.iter_mut())
-        .flatten()
-    {
-        *slot = rehome_ty(*slot, from, to);
-    }
-    out
 }

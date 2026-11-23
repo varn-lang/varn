@@ -86,14 +86,6 @@ impl JitStatsSnapshot {
         self.compile_success + self.compile_fail + self.gate_rejected
     }
 
-    pub fn fn_compilation_rate(&self) -> f64 {
-        let seen = self.functions_seen();
-        if seen == 0 {
-            return 1.0;
-        }
-        self.compile_success as f64 / seen as f64
-    }
-
     pub fn ns_per_routed_fn(&self) -> Option<f64> {
         if self.compile_success == 0 {
             return None;

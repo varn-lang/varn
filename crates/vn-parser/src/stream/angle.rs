@@ -3,15 +3,6 @@ use crate::error::{PResult, ParseError};
 use vn_core::TokenKind;
 
 impl TokenStream {
-    #[inline]
-    pub fn check_rangle(&self) -> bool {
-        self.split_count > 0
-            || matches!(
-                self.token().kind,
-                TokenKind::RAngle | TokenKind::GtGt | TokenKind::GtGtGt
-            )
-    }
-
     pub fn eat_rangle(&mut self) -> bool {
         if self.split_count > 0 {
             self.split_count -= 1;

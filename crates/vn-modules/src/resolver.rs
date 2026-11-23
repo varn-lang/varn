@@ -130,8 +130,6 @@ pub fn is_known_module(specifier: &str) -> bool {
     super::is_known_stdlib_module(specifier)
 }
 
-pub const DOCS_BASE_URL: &str = "https://varn-lang.dev/errors";
-
 pub fn forge_tarball_url(host: &str, user: &str, repo: &str, version: &str) -> String {
     format!("https://{host}/{user}/{repo}/archive/refs/tags/v{version}.tar.gz")
 }
@@ -146,10 +144,4 @@ pub fn forge_tags_api_url(host: &str, user: &str, repo: &str) -> String {
 
 pub fn is_vn_file(path: &str) -> bool {
     path.ends_with(".vn")
-}
-
-pub fn ensure_vn_extension(path: &mut std::path::PathBuf) {
-    if path.extension().is_none() {
-        path.set_extension(super::VN_FILE_EXTENSION);
-    }
 }

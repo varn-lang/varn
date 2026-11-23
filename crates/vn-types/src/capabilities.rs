@@ -143,11 +143,6 @@ impl CapabilitySet {
     pub fn check_exec(&self) -> bool {
         self.has_mask(CAP_SYS_EXEC)
     }
-
-    #[inline(always)]
-    pub fn check_ui(&self) -> bool {
-        self.has_mask(CAP_UI)
-    }
 }
 
 fn path_matches_any(path: &Path, allowed: &[PathBuf]) -> bool {

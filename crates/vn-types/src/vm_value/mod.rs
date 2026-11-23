@@ -46,14 +46,6 @@ impl VmValue {
     }
 
     #[inline(always)]
-    pub const fn ic_miss() -> Self {
-        Self {
-            tag: u64::MAX,
-            payload: 0,
-        }
-    }
-
-    #[inline(always)]
     pub const fn is_ic_miss(self) -> bool {
         self.tag == u64::MAX
     }

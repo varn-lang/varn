@@ -99,17 +99,6 @@ impl ClassObj {
         }
     }
 
-    pub fn instance_shape(&self) -> (Rc<super::shape::Shape>, usize) {
-        if let Some(ref cached) = *self.instance_shape_cache.borrow() {
-            return (Rc::clone(&cached.0), cached.1);
-        }
-        let root = self.root_shape.borrow();
-        let n = root.property_names.len();
-        let shape = Rc::clone(&*root);
-        *self.instance_shape_cache.borrow_mut() = Some((Rc::clone(&shape), n));
-        (shape, n)
-    }
-
     pub fn layout(&self) -> Rc<vn_core::layout::ClassLayout> {
         Rc::clone(&self.layout.borrow())
     }
@@ -228,10 +217,6 @@ impl ClassObj {
 
     pub fn add_getter(&self, name: &str, value: VmValue) -> bool {
         self.add_accessor(AccessorKind::Get, name, value)
-    }
-
-    pub fn add_setter(&self, name: &str, value: VmValue) -> bool {
-        self.add_accessor(AccessorKind::Set, name, value)
     }
 
     pub fn accessor_slot(&self, kind: AccessorKind, name: &str) -> Option<usize> {

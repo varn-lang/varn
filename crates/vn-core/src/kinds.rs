@@ -53,10 +53,6 @@ pub enum TypeKind<T, N, C, F, O, I> {
 }
 
 impl<T, N, C, F, O, I> TypeKind<T, N, C, F, O, I> {
-    pub fn is_primitive(&self) -> bool {
-        matches!(self, TypeKind::Primitive(_) | TypeKind::This)
-    }
-
     pub fn lang_name(&self) -> Option<&'static str> {
         match self {
             TypeKind::Primitive(p) => Some(p.name()),

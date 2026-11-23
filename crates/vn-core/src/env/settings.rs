@@ -143,15 +143,6 @@ fn windows_home(lookup: &dyn Fn(&str) -> Option<String>) -> Option<PathBuf> {
 }
 
 impl Settings {
-    pub fn from_lookup(lookup: &dyn Fn(&str) -> Option<String>) -> Result<Settings, Vec<EnvError>> {
-        let (settings, errors) = Self::read(lookup);
-        if errors.is_empty() {
-            Ok(settings)
-        } else {
-            Err(errors)
-        }
-    }
-
     pub fn read(lookup: &dyn Fn(&str) -> Option<String>) -> (Settings, Vec<EnvError>) {
         let mut r = Reader {
             lookup,

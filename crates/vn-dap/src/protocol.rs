@@ -94,21 +94,3 @@ pub struct SetBreakpointsArgs {
 pub struct SourceBreakpoint {
     pub line: u32,
 }
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ThreadIdArgs {
-    pub thread_id: i64,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FrameIdArgs {
-    pub frame_id: i64,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct VariablesArgs {
-    pub variables_reference: i64,
-}

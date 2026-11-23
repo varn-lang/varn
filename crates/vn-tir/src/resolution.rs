@@ -33,14 +33,6 @@ pub enum Resolution {
 }
 
 impl Resolution {
-    pub fn is_static_dispatch(&self) -> bool {
-        !matches!(self, Resolution::None | Resolution::ByName { .. })
-    }
-
-    pub fn is_dynamic_dispatch(&self) -> bool {
-        matches!(self, Resolution::ByName { .. })
-    }
-
     pub fn native_op(&self) -> Option<u64> {
         match self {
             Resolution::NativeOp(id) => Some(*id),
@@ -60,33 +52,5 @@ impl Resolution {
             | Resolution::EnumVariant { .. }
             | Resolution::ByName { .. } => None,
         }
-    }
-
-    pub fn dyn_reason(&self) -> Option<DynReason> {
-        match self {
-            Resolution::ByName { why, .. } => Some(*why),
-            Resolution::None
-            | Resolution::Local(_)
-            | Resolution::Param(_)
-            | Resolution::Upvalue(_)
-            | Resolution::GlobalSlot(_)
-            | Resolution::NativeGlobal(_)
-            | Resolution::ModuleSlot { .. }
-            | Resolution::FieldSlot(_)
-            | Resolution::StaticField(_)
-            | Resolution::VtableSlot(_)
-            | Resolution::DirectFn(_)
-            | Resolution::Intrinsic(_)
-            | Resolution::NativeOp(_)
-            | Resolution::NativeDecode { .. }
-            | Resolution::EnumVariant { .. } => None,
-        }
-    }
-
-    pub fn requires_class_receiver(&self) -> bool {
-        matches!(
-            self,
-            Resolution::FieldSlot(_) | Resolution::StaticField(_) | Resolution::VtableSlot(_)
-        )
     }
 }

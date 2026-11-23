@@ -27,7 +27,6 @@ pub mod numeric;
 pub mod numeric_big;
 pub mod numeric_conv;
 pub mod op_id;
-pub mod op_meta;
 pub mod opcode;
 pub mod ops;
 pub mod paths;
@@ -86,5 +85,3 @@ pub use type_desc::TypeDesc;
 pub const HOST_API_VERSION: u32 = 3;
 
 pub const UNKNOWN: &str = "unknown";
-
-pub fn clear_interner() {}

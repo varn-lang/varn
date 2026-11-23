@@ -55,20 +55,7 @@ pub enum ControlKind {
     Area,
 }
 
-impl ControlKind {
-    pub fn from_code(code: i64) -> Option<Self> {
-        match code {
-            0 => Some(Self::Button),
-            1 => Some(Self::Switch),
-            2 => Some(Self::Slider),
-            3 => Some(Self::Scroll),
-            4 => Some(Self::Surface),
-            5 => Some(Self::Field),
-            6 => Some(Self::Area),
-            _ => None,
-        }
-    }
-}
+impl ControlKind {}
 
 #[derive(Clone)]
 pub struct Control {

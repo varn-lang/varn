@@ -11,15 +11,8 @@ pub const MAGENTA: &str = "\x1b[35m";
 pub const CYAN: &str = "\x1b[36m";
 
 pub const C_ERRORS: &str = RED;
-pub const C_TOKENS: &str = MAGENTA;
-pub const C_AST: &str = CYAN;
-pub const C_SYMBOLS: &str = GREEN;
 pub const C_TYPES: &str = BLUE;
-pub const C_BYTECODE: &str = YELLOW;
-pub const C_SCOPE: &str = MAGENTA;
 pub const C_MODULES: &str = CYAN;
-pub const C_BINDS: &str = BLUE;
-pub const C_CONSTS: &str = YELLOW;
 
 pub const R: &str = RESET;
 

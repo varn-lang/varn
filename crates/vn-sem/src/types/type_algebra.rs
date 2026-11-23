@@ -76,48 +76,6 @@ impl Type {
         }
     }
 
-    pub fn minus_nominal(
-        &self,
-        name: vn_core::Atom,
-        origin: Option<vn_core::Atom>,
-        table: &mut CheckerTyTable,
-    ) -> Type {
-        let is_class = |kind: InternedTypeKind| matches!(kind, TypeKind::Named(n, o) | TypeKind::Generic(n, _, o) if n == name && o == origin);
-        match table.get(self.0) {
-            kind if is_class(kind) => Type::Never,
-            TypeKind::Union(list) => {
-                let members: Vec<CheckerTyId> = table.get_list(list).to_vec();
-                let mut kept: Vec<CheckerTyId> = Vec::with_capacity(members.len());
-                for id in members {
-                    if !is_class(table.get(id)) {
-                        kept.push(id);
-                    }
-                }
-                if kept.is_empty() {
-                    Type::Never
-                } else if kept.len() == 1 {
-                    Type::resolved(kept[0])
-                } else {
-                    let new_list = table.intern_list(&kept);
-                    Type::resolved(table.intern(TypeKind::Union(new_list)))
-                }
-            }
-            TypeKind::Primitive(_)
-            | TypeKind::Literal(_)
-            | TypeKind::This
-            | TypeKind::Array(_)
-            | TypeKind::Intersection(_)
-            | TypeKind::Tuple(_)
-            | TypeKind::Named(..)
-            | TypeKind::Generic(..)
-            | TypeKind::Fn(_)
-            | TypeKind::Record(_)
-            | TypeKind::Interface(_)
-            | TypeKind::EnumVariant { .. }
-            | TypeKind::TypePredicate { .. } => *self,
-        }
-    }
-
     pub fn minus(&self, other: &Type, table: &mut CheckerTyTable) -> Type {
         if self == other {
             return Type::Never;

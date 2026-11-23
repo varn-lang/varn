@@ -70,14 +70,6 @@ impl Coverage {
         c
     }
 
-    pub fn dynamic_by_reason(&self, r: DynReason) -> u32 {
-        self.dynamics[reason_index(r)]
-    }
-
-    pub fn by_name_by_reason(&self, r: DynReason) -> u32 {
-        self.by_name[reason_index(r)]
-    }
-
     pub fn static_ratio(&self) -> f64 {
         let total = self.static_dispatch + self.name_dispatch;
         if total == 0 {

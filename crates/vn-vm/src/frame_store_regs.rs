@@ -12,13 +12,6 @@ impl FrameStore {
     }
 
     #[inline(always)]
-    pub fn set_g(&mut self, id: usize, reg: usize, v: i64) {
-        let (class, i) = self.slot(id, reg);
-        debug_assert_eq!(class, SlotClass::Gpr);
-        self.gpr[i] = v;
-    }
-
-    #[inline(always)]
     pub fn f(&self, id: usize, reg: usize) -> f64 {
         let (class, i) = self.slot(id, reg);
         debug_assert_eq!(class, SlotClass::Fpr);
@@ -26,24 +19,10 @@ impl FrameStore {
     }
 
     #[inline(always)]
-    pub fn set_f(&mut self, id: usize, reg: usize, v: f64) {
-        let (class, i) = self.slot(id, reg);
-        debug_assert_eq!(class, SlotClass::Fpr);
-        self.fpr[i] = v;
-    }
-
-    #[inline(always)]
     pub fn d(&self, id: usize, reg: usize) -> VmValue {
         let (class, i) = self.slot(id, reg);
         debug_assert_eq!(class, SlotClass::Dyn);
         self.dyn_[i]
-    }
-
-    #[inline(always)]
-    pub fn set_d(&mut self, id: usize, reg: usize, v: VmValue) {
-        let (class, i) = self.slot(id, reg);
-        debug_assert_eq!(class, SlotClass::Dyn);
-        self.dyn_[i] = v;
     }
 
     #[inline(always)]

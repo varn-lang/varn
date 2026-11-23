@@ -18,10 +18,6 @@ impl SemanticDB {
         ty.kind(&self.types.borrow())
     }
 
-    pub fn id_kind(&self, id: CheckerTyId) -> InternedTypeKind {
-        self.ty_kind(&Type::resolved(id))
-    }
-
     pub fn ty_list(&self, list: TyListId) -> Vec<Type> {
         let types = self.types.borrow();
         types

@@ -91,10 +91,6 @@ impl Type {
         Type::resolved(table.intern(TypeKind::Literal(l)))
     }
 
-    pub fn sanitize_foreign(self) -> Type {
-        self
-    }
-
     pub fn get_array_element_type(&self, table: &CheckerTyTable) -> Type {
         self.sequence_element(table).unwrap_or(Type::Dynamic)
     }
@@ -107,10 +103,6 @@ impl Type {
     pub fn named(name: impl Into<Arc<str>>, table: &mut CheckerTyTable) -> Self {
         let atom = table.intern_name(&name.into());
         Type::resolved(table.intern(TypeKind::Named(atom, None)))
-    }
-
-    pub fn named_atom(name: vn_core::Atom, table: &mut CheckerTyTable) -> Self {
-        Type::resolved(table.intern(TypeKind::Named(name, None)))
     }
 
     pub fn named_with_origin_atom(
@@ -305,31 +297,6 @@ impl Type {
             | TypeKind::Tuple(_)
             | TypeKind::Named(..)
             | TypeKind::Generic(..)
-            | TypeKind::Fn(_)
-            | TypeKind::Record(_)
-            | TypeKind::Interface(_)
-            | TypeKind::EnumVariant { .. }
-            | TypeKind::TypePredicate { .. } => None,
-        }
-    }
-
-    pub fn descriptor_key<'t>(
-        &self,
-        table: &'t CheckerTyTable,
-        interner: &'t vn_core::AtomInterner,
-    ) -> Option<&'t str> {
-        if let Some(k) = self.stdlib_key(table) {
-            return Some(k);
-        }
-        match table.get(self.0) {
-            TypeKind::Named(n, _) | TypeKind::Generic(n, _, _) => Some(interner.resolve(n)),
-            TypeKind::Primitive(_)
-            | TypeKind::Literal(_)
-            | TypeKind::This
-            | TypeKind::Array(_)
-            | TypeKind::Union(_)
-            | TypeKind::Intersection(_)
-            | TypeKind::Tuple(_)
             | TypeKind::Fn(_)
             | TypeKind::Record(_)
             | TypeKind::Interface(_)

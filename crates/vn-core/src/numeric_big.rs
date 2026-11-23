@@ -55,13 +55,6 @@ pub fn div_decimal(a: &BigDecimal, b: &BigDecimal) -> Result<BigDecimal, IntDivF
         .normalized_if_exact(a, b))
 }
 
-pub fn rem_decimal(a: &BigDecimal, b: &BigDecimal) -> Result<BigDecimal, IntDivFault> {
-    if b.is_zero() {
-        return Err(IntDivFault::DivisionByZero);
-    }
-    Ok(a % b)
-}
-
 pub const DECIMAL_POW_MAX_DIGITS: u64 = 1 << 22;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

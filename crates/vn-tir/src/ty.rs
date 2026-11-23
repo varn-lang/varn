@@ -229,13 +229,6 @@ impl BackendTy {
             | other @ BackendTy::Dynamic(_) => other,
         }
     }
-
-    pub fn is_unboxed_scalar(self) -> bool {
-        matches!(
-            self.representation(),
-            BackendTy::Num(_) | BackendTy::Bool | BackendTy::Char
-        )
-    }
 }
 
 #[derive(Debug, Default, Clone)]

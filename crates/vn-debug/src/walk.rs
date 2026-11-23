@@ -21,16 +21,3 @@ pub fn constants_for_inspect(proto: &FunctionProto) -> Vec<VmValue> {
         })
         .collect()
 }
-
-pub fn for_each_fn(root: &FunctionProto, f: &mut impl FnMut(usize, &FunctionProto)) {
-    visit(root, 0, f);
-}
-
-fn visit(proto: &FunctionProto, depth: usize, f: &mut impl FnMut(usize, &FunctionProto)) {
-    f(depth, proto);
-    for entry in &proto.chunk.constants {
-        if let PoolEntry::Function(inner) = entry {
-            visit(inner, depth + 1, f);
-        }
-    }
-}

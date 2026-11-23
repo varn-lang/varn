@@ -224,8 +224,6 @@ impl crate::Buffers for NullCtx {
     }
 }
 
-pub type DummyCtx = NullCtx;
-
 pub fn call_static_with(f: NativeFn) -> VmValue {
     (f)(&mut NullCtx, &[]).unwrap_or(VmValue::null())
 }
