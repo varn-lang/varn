@@ -30,12 +30,7 @@ pub(crate) fn emit_array_length(
         ctx.helpers.array_length,
         &[ectx, tag, payload],
     )?;
-    let boxed = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    );
+    let boxed = crate::clif::emit::load_native_result(b, ctx.helpers, ectx);
     let back = unbox_int(b, boxed);
     b.ins().jump(merge, &[back.into()]);
 
@@ -80,10 +75,5 @@ pub(crate) fn emit_bytes_length(
         ctx.helpers.bytes_length,
         &[ectx, tag, payload],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }

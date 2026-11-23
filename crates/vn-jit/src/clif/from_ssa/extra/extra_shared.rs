@@ -23,10 +23,5 @@ pub(super) fn frame<'a>(ctx: &'a Ctx<'a>) -> Result<&'a super::super::FrameIo, S
 }
 
 pub(super) fn native(b: &mut FunctionBuilder, ectx: Value, h: &JitHelpers) -> Value {
-    b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        h.jit_native_result_offset as i32,
-    )
+    crate::clif::emit::load_native_result(b, h, ectx)
 }

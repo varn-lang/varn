@@ -304,10 +304,5 @@ fn emit_build_object_slow(
         ctx.helpers.build_object_window,
         &[ectx, addr, count_v, shape_v],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }

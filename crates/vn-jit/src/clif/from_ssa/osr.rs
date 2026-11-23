@@ -114,12 +114,7 @@ pub(super) fn emit_entry(
                 let rej = b.create_block();
                 b.ins().brif(flag, rej, &[], resume, &[]);
                 b.switch_to_block(rej);
-                let boxed = b.ins().load(
-                    types::I128,
-                    MemFlagsData::trusted(),
-                    ctx.exec_ctx,
-                    ctx.helpers.jit_native_result_offset as i32,
-                );
+                let boxed = crate::clif::emit::load_native_result(b, ctx.helpers, ctx.exec_ctx);
                 b.declare_value_needs_stack_map(boxed);
                 let zero = b.ins().iconst(types::I64, 0);
                 b.ins().store(

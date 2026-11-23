@@ -18,15 +18,6 @@ fn captured_reg(ctx: &Ctx<'_>, var: u32) -> Result<u32, String> {
         .ok_or_else(|| format!("from_ssa: captured variable {var} has no register"))
 }
 
-fn native_result(b: &mut FunctionBuilder, ctx: &Ctx<'_>, exec_ctx: Value) -> Value {
-    b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
-    )
-}
-
 pub(super) fn emit_make_closure(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
@@ -77,7 +68,11 @@ pub(super) fn emit_make_closure(
         ctx.helpers.make_closure_window,
         &[frame.exec_ctx, frame.closure, base, proto_v, descs, count],
     )?;
-    Ok(native_result(b, ctx, frame.exec_ctx))
+    Ok(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
+        frame.exec_ctx,
+    ))
 }
 
 pub(super) fn emit_load_captured(
@@ -112,7 +107,11 @@ pub(super) fn emit_load_upvalue(
         ctx.helpers.load_upvalue,
         &[frame.exec_ctx, frame.closure, idx],
     )?;
-    Ok(native_result(b, ctx, frame.exec_ctx))
+    Ok(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
+        frame.exec_ctx,
+    ))
 }
 
 pub(super) fn emit_store_upvalue(

@@ -183,3 +183,16 @@ pub(super) fn box_null(b: &mut FunctionBuilder) -> cranelift_codegen::ir::Value 
     let zero = b.ins().iconst(types::I64, 0);
     b.ins().iconcat(tag, zero)
 }
+
+pub(in crate::clif) fn load_native_result(
+    b: &mut FunctionBuilder,
+    helpers: &crate::JitHelpers,
+    exec_ctx: cranelift_codegen::ir::Value,
+) -> cranelift_codegen::ir::Value {
+    b.ins().load(
+        types::I128,
+        cranelift_codegen::ir::MemFlagsData::trusted(),
+        exec_ctx,
+        helpers.jit_native_result_offset as i32,
+    )
+}

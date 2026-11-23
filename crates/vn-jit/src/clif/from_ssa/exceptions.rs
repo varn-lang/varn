@@ -182,12 +182,7 @@ pub(super) fn check_error_branch(b: &mut FunctionBuilder, ctx: &Ctx<'_>) -> Resu
             let err_blk = b.create_block();
             b.ins().brif(flag, err_blk, &[], cont, &[]);
             b.switch_to_block(err_blk);
-            let boxed = b.ins().load(
-                types::I128,
-                MemFlagsData::trusted(),
-                ectx,
-                ctx.helpers.jit_native_result_offset as i32,
-            );
+            let boxed = crate::clif::emit::load_native_result(b, ctx.helpers, ectx);
             b.declare_value_needs_stack_map(boxed);
             let zero = b.ins().iconst(types::I64, 0);
             b.ins().store(

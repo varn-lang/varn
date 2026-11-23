@@ -222,12 +222,9 @@ pub(super) fn build_wrapper(
                     let raw_res = b.inst_results(call)[0];
                     retag_raw_return(&mut b, raw_res, proto.return_kind)
                 }
-                SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => b.ins().load(
-                    types::I128,
-                    MemFlagsData::trusted(),
-                    exec_ctx,
-                    helpers.jit_native_result_offset as i32,
-                ),
+                SlotKind::Str | SlotKind::Ref | SlotKind::Dynamic => {
+                    crate::clif::emit::load_native_result(&mut b, helpers, exec_ctx)
+                }
             }
         }
     };

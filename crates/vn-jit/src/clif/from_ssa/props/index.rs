@@ -1,4 +1,4 @@
-use cranelift_codegen::ir::{types, InstBuilder, Value};
+use cranelift_codegen::ir::Value;
 use cranelift_frontend::FunctionBuilder;
 
 use super::super::heap::{boxed_parts, exec_ctx};
@@ -39,12 +39,7 @@ pub(crate) fn emit_get_index(
         ctx.helpers.jit_array_get_fast,
         &[ectx, ot, op, kt, kp],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(crate) fn emit_set_index(

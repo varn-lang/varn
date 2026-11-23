@@ -12,15 +12,6 @@ fn exec_ctx(ctx: &Ctx<'_>) -> Value {
     heap::exec_ctx(ctx)
 }
 
-fn native_result(b: &mut FunctionBuilder, ctx: &Ctx<'_>, ectx: Value) -> Value {
-    b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    )
-}
-
 fn float_instruction(b: &mut FunctionBuilder, ctx: &Ctx<'_>, wire: u8, x: Value) -> Option<Value> {
     Some(match wire {
         w if w == MathOp::Abs as u8 => b.ins().fabs(x),
@@ -64,7 +55,11 @@ pub(super) fn emit_intrinsic(
         ctx.helpers.intrinsic_window,
         &[ectx, wire_v, window, count],
     )?;
-    Ok(Out::Boxed(native_result(b, ctx, ectx)))
+    Ok(Out::Boxed(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
+        ectx,
+    )))
 }
 
 pub(super) fn is_inline_convert(ssa: &SsaProto, operand: u32, conv: ValueConv) -> bool {
@@ -102,7 +97,7 @@ pub(super) fn convert_boxed(
             ctx.helpers.convert,
             &[ectx, conv_v, tag, payload],
         )?;
-        return Ok(native_result(b, ctx, ectx));
+        return Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx));
     };
 
     let pass = b.create_block();
@@ -149,7 +144,7 @@ pub(super) fn convert_boxed(
     b.switch_to_block(slow);
     let conv_v = b.ins().iconst(types::I64, conv as i64);
     super::exceptions::call_checked(b, ctx, ctx.helpers.convert, &[ectx, conv_v, tag, payload])?;
-    let converted = native_result(b, ctx, ectx);
+    let converted = crate::clif::emit::load_native_result(b, ctx.helpers, ectx);
     b.ins().jump(merge, &[converted.into()]);
 
     b.switch_to_block(merge);

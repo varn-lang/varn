@@ -1,4 +1,4 @@
-use cranelift_codegen::ir::{types, InstBuilder, Value};
+use cranelift_codegen::ir::{InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 use vn_types::ssa::SsaBinOp;
 
@@ -32,12 +32,7 @@ pub(super) fn emit_bin(
     let (b_tag, b_payload) = box_native(b, c, operand_float);
     let live = ctx.exec_ctx;
     super::exceptions::call_checked(b, ctx, helper, &[live, a_tag, a_payload, b_tag, b_payload])?;
-    let boxed = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        live,
-        helpers.jit_native_result_offset as i32,
-    );
+    let boxed = crate::clif::emit::load_native_result(b, helpers, live);
     Ok(if dest_float {
         unbox_f64_coerce(b, boxed)
     } else {

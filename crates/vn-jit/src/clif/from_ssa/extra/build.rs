@@ -105,12 +105,7 @@ fn window_result(
     let ectx = exec_ctx(ctx);
     let (addr, n) = stage(b, ctx, vals);
     crate::clif::from_ssa::exceptions::call_checked(b, ctx, helper, &[ectx, addr, n])?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 fn emit_array_spread(
@@ -134,14 +129,7 @@ fn emit_array_spread(
         h.build_array_window,
         &[ectx, addr, zero, zero],
     )?;
-    let fresh = |b: &mut FunctionBuilder| {
-        b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
-            ectx,
-            h.jit_native_result_offset as i32,
-        )
-    };
+    let fresh = |b: &mut FunctionBuilder| crate::clif::emit::load_native_result(b, h, ectx);
     for s in elements {
         let arr = fresh(b);
         let (at, ap) = b.ins().isplit(arr);
@@ -180,14 +168,7 @@ fn emit_object_spread(
         .as_ref()
         .ok_or("from_ssa: spread without a frame")?;
     crate::clif::from_ssa::exceptions::call_checked(b, ctx, h.build_empty_object, &[ectx])?;
-    let fresh = |b: &mut FunctionBuilder| {
-        b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
-            ectx,
-            h.jit_native_result_offset as i32,
-        )
-    };
+    let fresh = |b: &mut FunctionBuilder| crate::clif::emit::load_native_result(b, h, ectx);
     let mut keyed = 0u32;
     for p in parts {
         match &p.key {

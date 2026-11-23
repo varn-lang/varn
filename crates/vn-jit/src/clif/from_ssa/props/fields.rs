@@ -115,11 +115,10 @@ pub(crate) fn emit_get_fixed_field(
         ctx.helpers.get_fixed_field,
         &[ectx, ot, op, slot_v],
     )?;
-    Ok(Out::Boxed(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
+    Ok(Out::Boxed(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
         ectx,
-        ctx.helpers.jit_native_result_offset as i32,
     )))
 }
 
@@ -179,12 +178,7 @@ fn emit_get_fixed_field_native(
         h.get_fixed_field,
         &[ectx, ot, op, slot_v],
     )?;
-    let boxed = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        h.jit_native_result_offset as i32,
-    );
+    let boxed = crate::clif::emit::load_native_result(b, h, ectx);
     let back = unbox_dest(b, dest, boxed)?;
     b.ins().jump(cont, &[back.into()]);
     b.switch_to_block(cont);

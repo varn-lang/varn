@@ -34,12 +34,7 @@ pub(super) fn emit_make_class(
         ctx.helpers.make_class,
         &[ectx, frame.closure, st, sp, name_v],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(super) fn emit_freeze_class(
@@ -154,12 +149,7 @@ pub(super) fn emit_get_super(
         ctx.helpers.get_super,
         &[ectx, name_v],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(super) fn emit_make_enum_variant(
@@ -185,10 +175,9 @@ pub(super) fn emit_make_enum_variant(
         ctx.helpers.make_enum_variant_const,
         &[frame.exec_ctx, frame.closure, def_v],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
+    Ok(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
         frame.exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
     ))
 }

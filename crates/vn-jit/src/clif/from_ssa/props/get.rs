@@ -122,12 +122,7 @@ pub(crate) fn emit_get_property(
         &[ectx, frame.closure, ot, op, name_v, cs_v, ip_v],
     )?;
     drop_home_addrs(ctx);
-    let slow_val = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    );
+    let slow_val = crate::clif::emit::load_native_result(b, ctx.helpers, ectx);
     b.ins().jump(merge, &[slow_val.into()]);
 
     b.switch_to_block(merge);

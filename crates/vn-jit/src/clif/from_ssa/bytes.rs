@@ -76,12 +76,7 @@ pub(super) fn emit_get(
         ctx.helpers.jit_array_get_fast,
         &[exec_ctx, ot, op, kt, kp],
     )?;
-    let r = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
-    );
+    let r = crate::clif::emit::load_native_result(b, ctx.helpers, exec_ctx);
     let r = unbox_int(b, r);
     super::store::drop_home_addrs(ctx);
     b.ins().jump(merge, &[r.into()]);

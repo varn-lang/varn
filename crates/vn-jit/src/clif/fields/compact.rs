@@ -46,12 +46,7 @@ fn call_checked_void(b: &mut FunctionBuilder, io: &FieldIo, helper: usize, args:
             let err_blk = b.create_block();
             b.ins().brif(flag, err_blk, &[], cont, &[]);
             b.switch_to_block(err_blk);
-            let boxed = b.ins().load(
-                types::I128,
-                MemFlagsData::trusted(),
-                io.exec_ctx,
-                io.helpers.jit_native_result_offset as i32,
-            );
+            let boxed = crate::clif::emit::load_native_result(b, io.helpers, io.exec_ctx);
             b.declare_value_needs_stack_map(boxed);
             b.ins().store(
                 MemFlagsData::trusted(),
@@ -164,12 +159,7 @@ pub(crate) fn load_compact(
         io.helpers.get_fixed_field,
         &[io.exec_ctx, obj_tag, obj_payload, slot_v],
     );
-    let res = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        io.exec_ctx,
-        io.helpers.jit_native_result_offset as i32,
-    );
+    let res = crate::clif::emit::load_native_result(b, io.helpers, io.exec_ctx);
     b.ins().jump(cont, &[res.into()]);
 
     b.switch_to_block(cont);

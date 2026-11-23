@@ -32,12 +32,7 @@ pub(crate) fn run_entered_or(
 
     b.switch_to_block(declined);
     crate::clif::from_ssa::exceptions::check_error_branch(b, ctx)?;
-    let fallback = b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ctx.exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
-    );
+    let fallback = crate::clif::emit::load_native_result(b, ctx.helpers, ctx.exec_ctx);
     store::drop_home_addrs(ctx);
     b.ins().jump(merge, &[fallback.into()]);
 

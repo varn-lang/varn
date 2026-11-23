@@ -231,10 +231,5 @@ pub(super) fn emit_alloc_instance_slow(
         ctx.helpers.alloc_instance,
         &[ectx, ct, cp],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }

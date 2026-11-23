@@ -41,11 +41,10 @@ pub(crate) fn emit_call_native_op(
             ctx.helpers.str_char_at,
             &[frame.exec_ctx, recv_tag, recv_payload, pos_tag, pos_payload],
         )?;
-        return Ok(b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
+        return Ok(crate::clif::emit::load_native_result(
+            b,
+            ctx.helpers,
             frame.exec_ctx,
-            ctx.helpers.jit_native_result_offset as i32,
         ));
     }
     if args.len() == 1 {
@@ -109,11 +108,10 @@ pub(crate) fn emit_call_native_op(
                 sep_payload,
             ],
         )?;
-        return Ok(b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
+        return Ok(crate::clif::emit::load_native_result(
+            b,
+            ctx.helpers,
             frame.exec_ctx,
-            ctx.helpers.jit_native_result_offset as i32,
         ));
     }
     if op_id == vn_core::op_id::KnownOp::StrSubstring.id() && (args.len() == 1 || args.len() == 2) {
@@ -140,11 +138,10 @@ pub(crate) fn emit_call_native_op(
                 end_payload,
             ],
         )?;
-        return Ok(b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
+        return Ok(crate::clif::emit::load_native_result(
+            b,
+            ctx.helpers,
             frame.exec_ctx,
-            ctx.helpers.jit_native_result_offset as i32,
         ));
     }
     if op_id == vn_core::op_id::KnownOp::StrSlice.id() && (args.len() == 1 || args.len() == 2) {
@@ -171,11 +168,10 @@ pub(crate) fn emit_call_native_op(
                 end_payload,
             ],
         )?;
-        return Ok(b.ins().load(
-            types::I128,
-            cranelift_codegen::ir::MemFlagsData::trusted(),
+        return Ok(crate::clif::emit::load_native_result(
+            b,
+            ctx.helpers,
             frame.exec_ctx,
-            ctx.helpers.jit_native_result_offset as i32,
         ));
     }
     let window = boxed_window(b, ctx, values, receiver, args)?;
@@ -193,11 +189,10 @@ pub(crate) fn emit_call_native_op(
         ctx.helpers.jit_call_native_window,
         &[frame.exec_ctx, fn_v, op_v, window, total],
     )?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
+    Ok(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
         frame.exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
     ))
 }
 
@@ -383,10 +378,9 @@ fn emit_generator_next(
     b.switch_to_block(merge);
     super::super::store::drop_home_addrs(ctx);
     crate::clif::from_ssa::exceptions::check_error_branch(b, ctx)?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
+    Ok(crate::clif::emit::load_native_result(
+        b,
+        ctx.helpers,
         exec_ctx,
-        ctx.helpers.jit_native_result_offset as i32,
     ))
 }

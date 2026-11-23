@@ -86,12 +86,7 @@ pub(super) fn emit_unary_boxed(
     let (tag, payload) = boxed_parts(b, ctx, values, operand)?;
     let ectx = exec_ctx(ctx);
     super::exceptions::call_checked(b, ctx, helper, &[ectx, tag, payload])?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(super) fn emit_str_concat(
@@ -105,12 +100,7 @@ pub(super) fn emit_str_concat(
     let (bt, bp) = boxed_parts(b, ctx, values, rhs)?;
     let ectx = exec_ctx(ctx);
     super::exceptions::call_checked(b, ctx, ctx.helpers.str_concat, &[ectx, at, ap, bt, bp])?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(super) fn emit_build_str(
@@ -191,12 +181,7 @@ fn emit_window_boxed(
     let mut args = vec![ectx, addr, count_v];
     args.extend_from_slice(extra);
     super::exceptions::call_checked(b, ctx, helper, &args)?;
-    Ok(b.ins().load(
-        types::I128,
-        cranelift_codegen::ir::MemFlagsData::trusted(),
-        ectx,
-        ctx.helpers.jit_native_result_offset as i32,
-    ))
+    Ok(crate::clif::emit::load_native_result(b, ctx.helpers, ectx))
 }
 
 pub(super) fn unbox_checked(
