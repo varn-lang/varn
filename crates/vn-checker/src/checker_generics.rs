@@ -211,6 +211,7 @@ pub(crate) fn infer_mapping_from_args(
             Arg::Named { value, .. } => checker.infer_type(rec, *value, bind),
             Arg::Spread(_) => continue,
         };
+        let arg_ty = checker.declared_instance(Type::resolved(param.ty), arg_ty, bind);
         collect_type_inferences(
             &Type::resolved(param.ty),
             &arg_ty,

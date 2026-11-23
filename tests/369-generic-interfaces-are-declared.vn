@@ -1,0 +1,23 @@
+import { describe, it, expect } from "std:test";
+
+interface Source<T> { next(): T }
+class Counter implements Source<int> {
+    n: int = 0
+    next(): int { this.n += 1; return this.n }
+}
+class FastCounter extends Counter {}
+
+function take<T>(s: Source<T>): T { return s.next() }
+
+await describe("369 a class fits a generic interface it declares", async () => {
+    await it("the declared instantiation is accepted", () => {
+        const s: Source<int> = new Counter()
+        expect(s.next()).toBe(1)
+        expect(take(new Counter())).toBe(1)
+    })
+
+    await it("a subclass inherits what its parent implements", () => {
+        const s: Source<int> = new FastCounter()
+        expect(s.next()).toBe(1)
+    })
+})

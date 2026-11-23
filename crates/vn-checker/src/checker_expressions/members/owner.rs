@@ -52,6 +52,40 @@ impl Checker<'_> {
         }
     }
 
+    pub(crate) fn declared_instance(
+        &mut self,
+        expected: vn_sem::types::Type,
+        actual: vn_sem::types::Type,
+        bind: &BindResult,
+    ) -> vn_sem::types::Type {
+        let vn_core::TypeKind::Generic(wanted, _, _) = self.ty_table.get(expected.0) else {
+            return actual;
+        };
+        let vn_core::TypeKind::Named(class, origin) = self.ty_table.get(actual.0) else {
+            return actual;
+        };
+        let wanted = self.resolve_bind_atom(bind, wanted);
+        let view = vn_sem::bind::BindView::new(bind, self.resolver);
+        let mut pending: Vec<(Arc<str>, Option<Arc<str>>)> = vec![(
+            self.resolve_bind_atom(bind, class),
+            origin.map(|o| self.resolve_bind_atom(bind, o)),
+        )];
+        let mut seen: Vec<Arc<str>> = Vec::new();
+        while let Some((name, from)) = pending.pop() {
+            if seen.contains(&name) {
+                continue;
+            }
+            seen.push(name.clone());
+            for parent in view.heritage(&name, from.as_deref()) {
+                if parent.name == wanted && !parent.args.is_empty() {
+                    return self.parent_type(&parent);
+                }
+                pending.push((parent.name.clone(), parent.origin.clone()));
+            }
+        }
+        actual
+    }
+
     pub(super) fn foreign_owner(
         &self,
         bind: &BindResult,
