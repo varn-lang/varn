@@ -15,6 +15,18 @@ pub enum SlotKind {
 }
 
 impl SlotKind {
+    pub const fn array_storage(self) -> vn_core::ArrayStorage {
+        use vn_core::ArrayStorage;
+        match self {
+            SlotKind::Int => ArrayStorage::Int,
+            SlotKind::Float => ArrayStorage::Float,
+            SlotKind::Char => ArrayStorage::Char,
+            SlotKind::Bool => ArrayStorage::Bool,
+            SlotKind::Ref => ArrayStorage::Ref,
+            SlotKind::Str | SlotKind::Dynamic => ArrayStorage::Boxed,
+        }
+    }
+
     pub fn checked_conversion(self) -> Option<vn_core::ValueConv> {
         use vn_core::ValueConv;
         match self {

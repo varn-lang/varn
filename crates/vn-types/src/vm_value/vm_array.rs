@@ -2,7 +2,6 @@ use std::cell::UnsafeCell;
 use std::ptr::NonNull;
 
 use super::{ArrayRepr, BoxedElems, CellVec, HeapRef, VmValue};
-use crate::register_meta::SlotKind;
 use vn_core::ArrayStorage;
 
 #[derive(Clone, Copy, Debug)]
@@ -135,18 +134,6 @@ impl VmArray {
     #[inline(always)]
     pub fn discriminant(&self) -> u8 {
         self.repr().discriminant()
-    }
-
-    #[inline(always)]
-    pub fn element_slotkind(&self) -> SlotKind {
-        match self.repr() {
-            ArrayRepr::Boxed(_) => SlotKind::Dynamic,
-            ArrayRepr::I64(_) => SlotKind::Int,
-            ArrayRepr::F64(_) => SlotKind::Float,
-            ArrayRepr::Char(_) => SlotKind::Char,
-            ArrayRepr::Bool(_) => SlotKind::Bool,
-            ArrayRepr::Ref(_) => SlotKind::Ref,
-        }
     }
 
     #[inline(always)]

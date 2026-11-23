@@ -1,5 +1,6 @@
 use cranelift_codegen::ir::{condcodes::IntCC, types, Block, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_core::ArrayStorage;
 use vn_types::register_meta::SlotKind;
 
 use super::super::emit::{
@@ -9,80 +10,51 @@ use super::super::emit::{
 use super::{heap, load_value, Ctx, Out};
 use vn_types::vm_value::KIND_HEAP;
 
-#[derive(Clone, Copy, PartialEq)]
-enum Elem {
-    Int,
-    Float,
-    Char,
-    Bool,
-    Ref,
-
-    Boxed,
+trait ElemCodegen {
+    fn scale(self) -> i64;
+    fn load(self, b: &mut FunctionBuilder, addr: Value) -> Value;
+    fn store(self, b: &mut FunctionBuilder, v: Value, addr: Value);
+    fn clif_ty(self) -> types::Type;
+    fn unbox_elem(self, b: &mut FunctionBuilder, v: Value) -> Value;
+    fn box_elem(self, b: &mut FunctionBuilder, v: Value) -> Value;
 }
 
-impl Elem {
-    fn of(kind: SlotKind) -> Self {
-        match kind {
-            SlotKind::Int => Elem::Int,
-            SlotKind::Float => Elem::Float,
-            SlotKind::Char => Elem::Char,
-            SlotKind::Bool => Elem::Bool,
-            SlotKind::Ref => Elem::Ref,
-            SlotKind::Str | SlotKind::Dynamic => Elem::Boxed,
-        }
-    }
-
-    fn stores_without_barrier(self) -> bool {
-        match self {
-            Elem::Int | Elem::Float | Elem::Char | Elem::Bool => true,
-            Elem::Ref | Elem::Boxed => false,
-        }
-    }
-
-    fn disc(self) -> i64 {
-        match self {
-            Elem::Boxed => 0,
-            Elem::Int => 1,
-            Elem::Float => 2,
-            Elem::Char => 3,
-            Elem::Bool => 4,
-            Elem::Ref => 5,
-        }
-    }
-
+impl ElemCodegen for ArrayStorage {
     fn scale(self) -> i64 {
         match self {
-            Elem::Bool => 0,
-            Elem::Char => 2,
-            Elem::Int | Elem::Float | Elem::Ref => 3,
-            Elem::Boxed => 4,
+            ArrayStorage::Bool => 0,
+            ArrayStorage::Char => 2,
+            ArrayStorage::Int | ArrayStorage::Float | ArrayStorage::Ref => 3,
+            ArrayStorage::Boxed => 4,
         }
     }
 
     fn load(self, b: &mut FunctionBuilder, addr: Value) -> Value {
         let m = cranelift_codegen::ir::MemFlagsData::trusted();
         match self {
-            Elem::Bool => b.ins().uload8(types::I64, m, addr, 0),
-            Elem::Char => b.ins().uload32(m, addr, 0),
-            Elem::Ref => {
+            ArrayStorage::Bool => b.ins().uload8(types::I64, m, addr, 0),
+            ArrayStorage::Char => b.ins().uload32(m, addr, 0),
+            ArrayStorage::Ref => {
                 let raw = b.ins().load(types::I64, m, addr, 0);
                 let tag = b.ins().iconst(types::I64, KIND_HEAP as i64);
                 b.ins().iconcat(tag, raw)
             }
-            Elem::Int | Elem::Float | Elem::Boxed => b.ins().load(self.clif_ty(), m, addr, 0),
+            ArrayStorage::Int | ArrayStorage::Float | ArrayStorage::Boxed => {
+                b.ins().load(self.clif_ty(), m, addr, 0)
+            }
         }
     }
 
     fn store(self, b: &mut FunctionBuilder, v: Value, addr: Value) {
         let m = cranelift_codegen::ir::MemFlagsData::trusted();
         match self {
-            Elem::Bool => {
+            ArrayStorage::Bool => {
                 b.ins().istore8(m, v, addr, 0);
             }
-            Elem::Char => {
+            ArrayStorage::Char => {
                 b.ins().istore32(m, v, addr, 0);
             }
-            Elem::Ref => {
+            ArrayStorage::Ref => {
                 let raw = if b.func.dfg.value_type(v) == types::I128 {
                     b.ins().isplit(v).1
                 } else {
@@ -90,7 +62,7 @@ impl Elem {
                 };
                 b.ins().store(m, raw, addr, 0);
             }
-            Elem::Int | Elem::Float | Elem::Boxed => {
+            ArrayStorage::Int | ArrayStorage::Float | ArrayStorage::Boxed => {
                 b.ins().store(m, v, addr, 0);
             }
         }
@@ -98,29 +70,29 @@ impl Elem {
 
     fn clif_ty(self) -> types::Type {
         match self {
-            Elem::Int | Elem::Char | Elem::Bool => types::I64,
-            Elem::Float => types::F64,
-            Elem::Ref | Elem::Boxed => types::I128,
+            ArrayStorage::Int | ArrayStorage::Char | ArrayStorage::Bool => types::I64,
+            ArrayStorage::Float => types::F64,
+            ArrayStorage::Ref | ArrayStorage::Boxed => types::I128,
         }
     }
 
     fn unbox_elem(self, b: &mut FunctionBuilder, v: Value) -> Value {
         match self {
-            Elem::Int => unbox_int(b, v),
-            Elem::Float => unbox_f64_coerce(b, v),
-            Elem::Char => unbox_char(b, v),
-            Elem::Bool => unbox_bool(b, v),
-            Elem::Ref | Elem::Boxed => v,
+            ArrayStorage::Int => unbox_int(b, v),
+            ArrayStorage::Float => unbox_f64_coerce(b, v),
+            ArrayStorage::Char => unbox_char(b, v),
+            ArrayStorage::Bool => unbox_bool(b, v),
+            ArrayStorage::Ref | ArrayStorage::Boxed => v,
         }
     }
 
     fn box_elem(self, b: &mut FunctionBuilder, v: Value) -> Value {
         match self {
-            Elem::Int => box_int(b, v),
-            Elem::Float => box_f64(b, v),
-            Elem::Char => box_char(b, v),
-            Elem::Bool => box_bool(b, v),
-            Elem::Ref => {
+            ArrayStorage::Int => box_int(b, v),
+            ArrayStorage::Float => box_f64(b, v),
+            ArrayStorage::Char => box_char(b, v),
+            ArrayStorage::Bool => box_bool(b, v),
+            ArrayStorage::Ref => {
                 if b.func.dfg.value_type(v) == types::I128 {
                     v
                 } else {
@@ -128,7 +100,7 @@ impl Elem {
                     b.ins().iconcat(tag, v)
                 }
             }
-            Elem::Boxed => v,
+            ArrayStorage::Boxed => v,
         }
     }
 }
@@ -221,7 +193,7 @@ pub(super) fn emit_get(
     dest: Option<u32>,
 ) -> Result<Out, String> {
     let exec_ctx = heap::exec_ctx(ctx);
-    let want = Elem::of(dest.map_or(SlotKind::Dynamic, |d| ctx.ssa.value_ty(d)));
+    let want = SlotKind::array_storage(dest.map_or(SlotKind::Dynamic, |d| ctx.ssa.value_ty(d)));
     let key = load_value(b, ctx, values, index)?;
 
     let slow = b.create_block();
@@ -236,7 +208,9 @@ pub(super) fn emit_get(
 
     let matched = b.create_block();
     let other = b.create_block();
-    let is_match = b.ins().icmp_imm_u(IntCC::Equal, disc, want.disc());
+    let is_match = b
+        .ins()
+        .icmp_imm_u(IntCC::Equal, disc, i64::from(want.bits()));
     b.ins().brif(is_match, matched, &[], other, &[]);
 
     b.switch_to_block(matched);
@@ -246,14 +220,16 @@ pub(super) fn emit_get(
     b.ins().jump(merge, &[v.into()]);
 
     b.switch_to_block(other);
-    if want == Elem::Boxed {
-        let is_ref = b.ins().icmp_imm_u(IntCC::Equal, disc, Elem::Ref.disc());
+    if want == ArrayStorage::Boxed {
+        let is_ref = b
+            .ins()
+            .icmp_imm_u(IntCC::Equal, disc, i64::from(ArrayStorage::Ref.bits()));
         let ref_arm = b.create_block();
         b.ins().brif(is_ref, ref_arm, &[], slow, &[]);
         b.switch_to_block(ref_arm);
-        let off = b.ins().ishl_imm_u(key, Elem::Ref.scale());
+        let off = b.ins().ishl_imm_u(key, ArrayStorage::Ref.scale());
         let addr = b.ins().iadd(data, off);
-        let v = Elem::Ref.load(b, addr);
+        let v = ArrayStorage::Ref.load(b, addr);
         b.ins().jump(merge, &[v.into()]);
     } else {
         let is_boxed = b.ins().icmp_imm_u(IntCC::Equal, disc, 0);
@@ -297,9 +273,11 @@ pub(super) fn emit_get(
     b.switch_to_block(merge);
     let res = b.block_params(merge)[0];
     Ok(match want {
-        Elem::Int | Elem::Float | Elem::Char | Elem::Bool => Out::Native(res),
-        Elem::Ref => Out::Boxed(res),
-        Elem::Boxed => Out::Boxed(res),
+        ArrayStorage::Int | ArrayStorage::Float | ArrayStorage::Char | ArrayStorage::Bool => {
+            Out::Native(res)
+        }
+        ArrayStorage::Ref => Out::Boxed(res),
+        ArrayStorage::Boxed => Out::Boxed(res),
     })
 }
 
@@ -312,7 +290,7 @@ pub(super) fn emit_set(
     value: u32,
 ) -> Result<(), String> {
     let exec_ctx = heap::exec_ctx(ctx);
-    let src = Elem::of(ctx.ssa.value_ty(value));
+    let src = SlotKind::array_storage(ctx.ssa.value_ty(value));
     let key = load_value(b, ctx, values, index)?;
 
     let slow = b.create_block();
@@ -328,7 +306,9 @@ pub(super) fn emit_set(
 
         let matched = b.create_block();
         let other = b.create_block();
-        let is_match = b.ins().icmp_imm_u(IntCC::Equal, disc, src.disc());
+        let is_match = b
+            .ins()
+            .icmp_imm_u(IntCC::Equal, disc, i64::from(src.bits()));
         b.ins().brif(is_match, matched, &[], other, &[]);
 
         b.switch_to_block(matched);

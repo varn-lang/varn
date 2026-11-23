@@ -3,17 +3,17 @@ use super::{CellVec, HeapRef, VmValue};
 #[repr(C, u8)]
 #[derive(Debug)]
 pub enum ArrayRepr {
-    Boxed(BoxedElems) = 0,
+    Boxed(BoxedElems) = vn_core::ArrayStorage::Boxed as u8,
 
-    I64(CellVec<i64>) = 1,
+    I64(CellVec<i64>) = vn_core::ArrayStorage::Int as u8,
 
-    F64(CellVec<f64>) = 2,
+    F64(CellVec<f64>) = vn_core::ArrayStorage::Float as u8,
 
-    Char(CellVec<char>) = 3,
+    Char(CellVec<char>) = vn_core::ArrayStorage::Char as u8,
 
-    Bool(CellVec<bool>) = 4,
+    Bool(CellVec<bool>) = vn_core::ArrayStorage::Bool as u8,
 
-    Ref(CellVec<HeapRef>) = 5,
+    Ref(CellVec<HeapRef>) = vn_core::ArrayStorage::Ref as u8,
 }
 
 #[repr(C)]
