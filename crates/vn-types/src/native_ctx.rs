@@ -23,21 +23,11 @@ pub trait NativeCtx: crate::Buffers {
     }
 
     fn as_int(&self, v: VmValue) -> i64 {
-        if v.is_int() {
-            v.as_int()
-        } else {
-            0
-        }
+        v.int_or_zero()
     }
 
     fn to_f64(&self, v: VmValue) -> f64 {
-        if v.is_f64() {
-            v.as_f64()
-        } else if v.is_int() {
-            v.as_int() as f64
-        } else {
-            0.0
-        }
+        v.widened_f64()
     }
 
     fn alloc_str(&mut self, s: &str) -> VmValue;

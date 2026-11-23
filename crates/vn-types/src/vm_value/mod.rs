@@ -252,6 +252,26 @@ impl VmValue {
     }
 
     #[inline(always)]
+    pub fn int_or_zero(self) -> i64 {
+        if self.is_int() {
+            self.as_int()
+        } else {
+            0
+        }
+    }
+
+    #[inline(always)]
+    pub fn widened_f64(self) -> f64 {
+        if self.is_f64() {
+            self.as_f64()
+        } else if self.is_int() {
+            self.as_int() as f64
+        } else {
+            0.0
+        }
+    }
+
+    #[inline(always)]
     pub fn as_i32(self) -> i32 {
         self.as_int() as i32
     }

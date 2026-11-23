@@ -151,22 +151,12 @@ impl HeapInner {
 
     #[inline(always)]
     pub(crate) fn as_int(&self, v: VmValue) -> i64 {
-        if v.is_int() {
-            v.as_int()
-        } else {
-            0
-        }
+        v.int_or_zero()
     }
 
     #[inline(always)]
     pub(crate) fn to_f64_val(&self, v: VmValue) -> f64 {
-        if v.is_f64() {
-            v.as_f64()
-        } else if v.is_int() {
-            v.as_int() as f64
-        } else {
-            0.0
-        }
+        v.widened_f64()
     }
 
     pub(crate) fn set_intrinsic_class(&mut self, name: &str, cls: Rc<ClassObj>) {

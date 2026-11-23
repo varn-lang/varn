@@ -11,18 +11,6 @@ impl NativeCtx for Heap {
         self.deref_mut().make_int(n)
     }
 
-    fn is_int(&self, v: VmValue) -> bool {
-        self.deref().is_int(v)
-    }
-
-    fn as_int(&self, v: VmValue) -> i64 {
-        self.deref().as_int(v)
-    }
-
-    fn to_f64(&self, v: VmValue) -> f64 {
-        self.deref().to_f64_val(v)
-    }
-
     fn alloc_str(&mut self, s: &str) -> VmValue {
         self.deref_mut().alloc_str_dynamic(s)
     }
