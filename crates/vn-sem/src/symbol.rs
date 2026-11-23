@@ -128,6 +128,21 @@ pub struct Symbol {
 }
 
 impl Symbol {
+    pub fn alias_signature(
+        &self,
+        interner: &vn_core::AtomInterner,
+    ) -> Option<(Vec<String>, TypeNode)> {
+        let node = self.alias_node.as_ref()?;
+        let params = self
+            .type_params
+            .iter()
+            .map(|s| interner.resolve(*s).to_string())
+            .collect();
+        Some((params, (**node).clone()))
+    }
+}
+
+impl Symbol {
     pub fn new(kind: SymbolKind, name: Atom, line: u32) -> Self {
         Self {
             kind,

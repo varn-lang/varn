@@ -144,14 +144,6 @@ impl TypeContext for Binder<'_> {
         let scope = self.scopes.get(self.current);
         let atom = self.interner.get(name)?;
         let id = scope.resolve(atom, &self.scopes)?;
-        let sym = self.arena.get(id);
-        let node = sym.alias_node.as_ref()?;
-        Some((
-            sym.type_params
-                .iter()
-                .map(|s| self.interner.resolve(*s).to_string())
-                .collect(),
-            *node.clone(),
-        ))
+        self.arena.get(id).alias_signature(&self.interner)
     }
 }
