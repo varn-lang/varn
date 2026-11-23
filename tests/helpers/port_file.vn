@@ -1,0 +1,29 @@
+import { writeText, readText, rename, exists, remove, tempDir } from "std:fs";
+import { Uuid } from "std:crypto";
+import { delay } from "std:task";
+
+export function freshPortFile(): str {
+    return tempDir() + "/vn-port-" + Uuid.v4() + ".txt";
+}
+
+@capability("fs.read", "fs.write")
+export function announcePort(path: str, port: int): void {
+    const staging = path + ".tmp";
+    writeText(staging, port.toString());
+    rename(staging, path);
+}
+
+@capability("fs.read", "fs.write")
+export async function awaitPort(path: str): Task<int> {
+    let attempts = 0;
+    while (!exists(path)) {
+        attempts = attempts + 1;
+        if (attempts > 200) {
+            throw new Error("helper never announced its port at " + path);
+        }
+        await delay(25);
+    }
+    const port = int.parse(readText(path).trim());
+    remove(path);
+    return port;
+}

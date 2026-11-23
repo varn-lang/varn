@@ -129,9 +129,9 @@ async function runComprehensiveTest(): Task<void> {
     // 12. std:http
     let httpServer = new HttpServer();
     httpServer.get("/", async (req: Request) => new Response("hello from 42", 200));
-    httpServer.listen(19882);
+    httpServer.listen(0);
     await delay(150);
-    let clientRes = await fetch("http://127.0.0.1:19882/");
+    let clientRes = await fetch(`http://127.0.0.1:${httpServer.port}/`);
     expect(clientRes.status).toBe(200);
     expect(clientRes.body).toBe("hello from 42");
     httpServer.close();

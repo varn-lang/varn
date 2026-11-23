@@ -43,7 +43,7 @@ async function serve(listener: TcpListener, seen: Seen, script: (conn: TcpStream
 
 await describe("290 http client framing", async () => {
     await it("a chunked body is decoded and a character split across chunks survives", async () => {
-        const listener = TcpListener.listen(19894);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             const body = Bytes.fromString("héllo wörld");
@@ -56,7 +56,7 @@ await describe("290 http client framing", async () => {
             await conn.write(body.slice(2));
             await conn.write("\r\n0\r\n\r\n");
         }));
-        const res = await fetch("http://127.0.0.1:19894/");
+        const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.status).toBe(200);
         expect(res.text()).toBe("héllo wörld");
         expect(res.bytes().length).toBe(13);
@@ -64,7 +64,7 @@ await describe("290 http client framing", async () => {
     });
 
     await it("a body with no length runs until the server closes", async () => {
-        const listener = TcpListener.listen(19895);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 200 OK\r\n\r\n");
@@ -73,13 +73,13 @@ await describe("290 http client framing", async () => {
                 await delay(30);
             }
         }));
-        const res = await fetch("http://127.0.0.1:19895/");
+        const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.text().length).toBe(15000);
         listener.close();
     });
 
     await it("Content-Length counts bytes, not characters", async () => {
-        const listener = TcpListener.listen(19896);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             let text = "";
@@ -94,33 +94,33 @@ await describe("290 http client framing", async () => {
             await delay(30);
             await conn.write(body.slice(4001));
         }));
-        const res = await fetch("http://127.0.0.1:19896/");
+        const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.bytes().length).toBe(6000);
         expect(res.text().length).toBe(3000);
         listener.close();
     });
 
     await it("a response without a body does not wait for the connection to close", async () => {
-        const listener = TcpListener.listen(19897);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 204 No Content\r\n\r\n");
             await delay(1500);
         }));
         const started = now();
-        const res = await fetch("http://127.0.0.1:19897/");
+        const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.status).toBe(204);
         expect(now() - started < 1200).toBeTruthy();
         listener.close();
     });
 
     await it("repeated headers are combined and cookies are kept apart", async () => {
-        const listener = TcpListener.listen(19898);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 404 Not Found\r\nSet-Cookie: a=1\r\nSet-Cookie: b=2\r\nX-Multi: one\r\nX-Multi: two\r\nContent-Length: 0\r\n\r\n");
         }));
-        const res = await fetch("http://127.0.0.1:19898/");
+        const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.status).toBe(404);
         expect(res.statusText).toBe("Not Found");
         expect(res.cookies.length).toBe(2);
@@ -129,14 +129,14 @@ await describe("290 http client framing", async () => {
     });
 
     await it("the request carries a byte length, the port in Host and Connection: close", async () => {
-        const listener = TcpListener.listen(19899);
+        const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
         }));
-        await fetch("http://127.0.0.1:19899/echo", new RequestInit(method: HttpMethod.POST, body: "é"));
+        await fetch(`http://127.0.0.1:${listener.port}/echo`, new RequestInit(method: HttpMethod.POST, body: "é"));
         expect(seen.request.indexOf("Content-Length: 2\r\n") != null).toBeTruthy();
-        expect(seen.request.indexOf("Host: 127.0.0.1:19899\r\n") != null).toBeTruthy();
+        expect(seen.request.indexOf(`Host: 127.0.0.1:${listener.port}\r\n`) != null).toBeTruthy();
         expect(seen.request.indexOf("Connection: close\r\n") != null).toBeTruthy();
         listener.close();
     });

@@ -9,16 +9,16 @@ async function runHttpVerification() {
     let live = new HttpServer();
     live.get("/", async (req: Request) => json({ ok: true }));
     live.post("/api", async (req: Request) => new Response(req.text(), 200));
-    live.listen(19881);
+    live.listen(0);
     await delay(150);
 
     // 1. Test Client: Fetch GET
-    let getRes = await fetch("http://127.0.0.1:19881/");
+    let getRes = await fetch(`http://127.0.0.1:${live.port}/`);
     expect(getRes.status).toBe(200);
     expect(getRes.text().indexOf('"ok":true') != null).toBeTruthy();
 
     // 2. Test Client: Fetch POST with body & headers
-    let postRes = await fetch("http://127.0.0.1:19881/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([("Content-Type", "application/json")]), body: '{"message":"hello"}'));
+    let postRes = await fetch(`http://127.0.0.1:${live.port}/api`, new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([("Content-Type", "application/json")]), body: '{"message":"hello"}'));
     expect(postRes.status).toBe(200);
     expect(postRes.text()).toBe('{"message":"hello"}');
     live.close();

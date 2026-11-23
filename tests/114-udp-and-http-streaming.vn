@@ -36,10 +36,10 @@ function testHttpResponseStreamShape(): void {
     expect(res.bodyStream != null).toBeTruthy();
 }
 
-let srvPort = 19881;
-let cliPort = 19882;
-let server = UdpSocket.bind(srvPort, "127.0.0.1");
-let client = UdpSocket.bind(cliPort, "127.0.0.1");
+let server = UdpSocket.bind(0, "127.0.0.1");
+let client = UdpSocket.bind(0, "127.0.0.1");
+let srvPort = server.localPort;
+let cliPort = client.localPort;
 
 await describe("114 udp and http streaming", async () => {
     await it("udp socket setup", async () => {

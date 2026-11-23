@@ -53,11 +53,11 @@ await describe("288 network failures carry their cause", async () => {
             throw new Error("handler failed")
         });
         server.get("/ok", async (req: Request) => new Response("fine", 200));
-        server.listen(19883);
+        server.listen(0);
         await delay(150);
-        const boom = await fetch("http://127.0.0.1:19883/boom");
+        const boom = await fetch(`http://127.0.0.1:${server.port}/boom`);
         expect(boom.status).toBe(500);
-        const ok = await fetch("http://127.0.0.1:19883/ok");
+        const ok = await fetch(`http://127.0.0.1:${server.port}/ok`);
         expect(ok.status).toBe(200);
         server.close();
     });

@@ -5,6 +5,7 @@ import { Process } from "std:process";
 import { delay, Task } from "std:task";
 import { describe, it, expect } from "std:test";
 import { JsonValue } from "std:encoding";
+import { freshPortFile, awaitPort } from "./helpers/port_file.vn";
 
 
 
@@ -77,9 +78,9 @@ function testWebSocket(): void {
         expect(WebSocket::type).toBe("WebSocket");
 
 }
-let testPort = 19876;
+let portFile = freshPortFile();
 let vnBin = Process.currentExe();
-let proc = Process.spawn(vnBin, ["run", "tests/helpers/tcp_echo_server.vn"]);
+let proc = Process.spawn(vnBin, ["run", "tests/helpers/tcp_echo_server.vn", "--", portFile]);
 
 async function main(): Task<void> {
     testNetIpUtils();
@@ -90,6 +91,7 @@ async function main(): Task<void> {
 await describe("111 network apis overhaul", async () => {
 
     await it("Give child process a small moment to start listening", async () => {
+        let testPort = await awaitPort(portFile);
         let attempts = 0;
         let ok = false;
         while (!ok && attempts < 25) {

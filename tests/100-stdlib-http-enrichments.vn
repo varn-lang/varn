@@ -50,9 +50,9 @@ await describe("100 stdlib http enrichments", async () => {
     });
 
     await it("middleware executes on live request", async () => {
-        server.listen(19878);
+        server.listen(0);
         await delay(150);
-        let res = await fetch("http://127.0.0.1:19878/test");
+        let res = await fetch(`http://127.0.0.1:${server.port}/test`);
         expect(res.status).toBe(200);
         server.close();
         expect(middlewareLog.length).toBe(5);

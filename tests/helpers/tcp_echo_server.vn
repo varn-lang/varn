@@ -1,8 +1,12 @@
 import { TcpListener } from "std:net";
+import { args } from "std:sys";
+import { announcePort } from "./port_file.vn";
 
-@capability("net.server")
+@capability("net.server", "fs.read", "fs.write")
 async function main() {
-    let listener = TcpListener.listen(19876);
+    const argv = args();
+    let listener = TcpListener.listen(0);
+    announcePort(argv[argv.length - 1], listener.port);
     while (true) {
         let client = await listener.accept();
         let msg = await client.readText();

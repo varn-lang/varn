@@ -36,9 +36,9 @@ async function failureOf(run: () => Task<dynamic>): Task<str> {
 
 await describe("289 tls", async () => {
     await it("a client trusting the CA exchanges data with a TLS listener", async () => {
-        const listener = TcpListener.listenTls(19890, cert, key);
+        const listener = TcpListener.listenTls(0, cert, key);
         spawn(echoOnce(listener));
-        const client = await TcpStream.connectTls("localhost", 19890, ca, null, 1);
+        const client = await TcpStream.connectTls("localhost", listener.port, ca, null, 1);
         await client.write("hello tls");
         const reply = await client.read(64);
         expect((reply as Bytes).toString()).toBe("hello tls");
@@ -47,9 +47,9 @@ await describe("289 tls", async () => {
     });
 
     await it("large payloads cross the record boundary intact", async () => {
-        const listener = TcpListener.listenTls(19891, cert, key);
+        const listener = TcpListener.listenTls(0, cert, key);
         spawn(echoOnce(listener));
-        const client = await TcpStream.connectTls("127.0.0.1", 19891, ca, null, 1);
+        const client = await TcpStream.connectTls("127.0.0.1", listener.port, ca, null, 1);
         const size = 300000;
         const payload = Bytes.alloc(size);
         for (let i = 0; i < size; i = i + 1) {
@@ -83,9 +83,9 @@ await describe("289 tls", async () => {
     });
 
     await it("a certificate from an unknown CA is rejected with its cause", async () => {
-        const listener = TcpListener.listenTls(19892, cert, key);
+        const listener = TcpListener.listenTls(0, cert, key);
         spawn(echoOnce(listener));
-        const message = await failureOf(() => TcpStream.connectTls("localhost", 19892, null, null, 1));
+        const message = await failureOf(() => TcpStream.connectTls("localhost", listener.port, null, null, 1));
         expect(message.indexOf("UnknownIssuer") != null).toBeTruthy();
         listener.close();
     });
@@ -93,19 +93,19 @@ await describe("289 tls", async () => {
     await it("fetch speaks https to an HttpServer over TLS", async () => {
         const server = new HttpServer();
         server.get("/secure", async (req: Request) => new Response("over tls", 200));
-        server.listenTls(19893, cert, key);
+        server.listenTls(0, cert, key);
         await delay(150);
-        const res = await fetch("https://localhost:19893/secure", new RequestInit(ca: ca));
+        const res = await fetch(`https://localhost:${server.port}/secure`, new RequestInit(ca: ca));
         expect(res.status).toBe(200);
         expect(res.text()).toBe("over tls");
-        const message = await failureOf(() => fetch("https://localhost:19893/secure"));
+        const message = await failureOf(() => fetch(`https://localhost:${server.port}/secure`));
         expect(message.indexOf("UnknownIssuer") != null).toBeTruthy();
         server.close();
     });
     await it("a listener requiring client certificates accepts a client that presents one", async () => {
-        const listener = TcpListener.listenTls(19894, cert, key, "127.0.0.1", clientCa);
+        const listener = TcpListener.listenTls(0, cert, key, "127.0.0.1", clientCa);
         spawn(echoOnce(listener));
-        const client = await TcpStream.connectTls("localhost", 19894, ca, identity, 1);
+        const client = await TcpStream.connectTls("localhost", listener.port, ca, identity, 1);
         await client.write("with identity");
         const reply = await client.read(64);
         expect((reply as Bytes).toString()).toBe("with identity");
@@ -114,11 +114,11 @@ await describe("289 tls", async () => {
     });
 
     await it("a listener requiring client certificates rejects a client that presents none", async () => {
-        const listener = TcpListener.listenTls(19895, cert, key, "127.0.0.1", clientCa);
+        const listener = TcpListener.listenTls(0, cert, key, "127.0.0.1", clientCa);
         spawn(echoOnce(listener));
         let echoed = "";
         try {
-            const client = await TcpStream.connectTls("localhost", 19895, ca, null, 1);
+            const client = await TcpStream.connectTls("localhost", listener.port, ca, null, 1);
             await client.write("anonymous");
             const reply = await client.read(64);
             if (reply != null) {
@@ -133,13 +133,13 @@ await describe("289 tls", async () => {
     await it("fetch presents its identity to an HttpServer that requires one", async () => {
         const server = new HttpServer();
         server.get("/mutual", async (req: Request) => new Response("mutual", 200));
-        server.listenTls(19896, cert, key, "127.0.0.1", clientCa);
+        server.listenTls(0, cert, key, "127.0.0.1", clientCa);
         await delay(150);
-        const res = await fetch("https://localhost:19896/mutual", new RequestInit(ca: ca, identity: identity));
+        const res = await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca, identity: identity));
         expect(res.text()).toBe("mutual");
         let anonymous = "";
         try {
-            anonymous = (await fetch("https://localhost:19896/mutual", new RequestInit(ca: ca))).text();
+            anonymous = (await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca))).text();
         } catch (e) {
         }
         expect(anonymous).toBe("");

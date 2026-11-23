@@ -23,17 +23,17 @@ await describe("295 the http server sends the response headers it was given", as
     const server = new HttpServer();
     server.get("/custom", async (req: Request) => new Response("x", 200, new Map<str, str>([("X-Test", "1"), ("Location", "/z")])));
     server.get("/json", async (req: Request) => json({ ok: true }));
-    server.listen(19940);
+    server.listen(0);
     await delay(150);
 
     await it("custom headers reach the wire", async () => {
-        const raw = await rawGet(19940, "/custom");
+        const raw = await rawGet(server.port, "/custom");
         expect(raw.indexOf("x-test: 1") != null).toBeTruthy();
         expect(raw.indexOf("location: /z") != null).toBeTruthy();
     });
 
     await it("json() declares application/json and not text/plain", async () => {
-        const raw = await rawGet(19940, "/json");
+        const raw = await rawGet(server.port, "/json");
         expect(raw.indexOf("content-type: application/json") != null).toBeTruthy();
         expect(raw.indexOf("text/plain") == null).toBeTruthy();
     });

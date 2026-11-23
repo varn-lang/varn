@@ -1,25 +1,12 @@
 import { TcpListener } from "std:net";
-import { delay } from "std:task";
+import { args } from "std:sys";
+import { announcePort } from "./port_file.vn";
 
-@capability("net.server")
-async function listenWithRetry(port: int): Task<TcpListener> {
-    let attempt = 0;
-    while (true) {
-        try {
-            return TcpListener.listen(port);
-        } catch (e) {
-            attempt = attempt + 1;
-            if (attempt >= 25) {
-                throw e;
-            }
-            await delay(100 + attempt * 20);
-        }
-    }
-}
-
-@capability("net.server")
+@capability("net.server", "fs.read", "fs.write")
 async function main() {
-    let listener = await listenWithRetry(19877);
+    const argv = args();
+    let listener = TcpListener.listen(0);
+    announcePort(argv[argv.length - 1], listener.port);
     let client = await listener.accept();
     let data = await client.read(1024);
     if (data != null) {

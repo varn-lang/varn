@@ -25,52 +25,52 @@ await describe("294 fetch follows redirects", async () => {
     origin.post("/keep", async (req: Request) => redirect("/echo-body", 307));
     origin.post("/echo-body", async (req: Request) => new Response("body=" + req.text(), 200));
     origin.get("/loop", async (req: Request) => redirect("/loop", 302));
-    origin.get("/to-other", async (req: Request) => redirect("http://127.0.0.1:19921/who", 302));
+    origin.get("/to-other", async (req: Request) => redirect(`http://127.0.0.1:${other.port}/who`, 302));
     other.get("/who", async (req: Request) => new Response("auth=" + (req.headers.get("authorization") ?? "none"), 200));
     origin.get("/who", async (req: Request) => new Response("auth=" + (req.headers.get("authorization") ?? "none"), 200));
     origin.get("/same", async (req: Request) => redirect("/who", 302));
 
-    origin.listen(19920);
-    other.listen(19921);
+    origin.listen(0);
+    other.listen(0);
     await delay(150);
 
     await it("a 302 is followed and the final url is reported", async () => {
-        const res = await fetch("http://127.0.0.1:19920/start");
+        const res = await fetch(`http://127.0.0.1:${origin.port}/start`);
         expect(res.status).toBe(200);
         expect(res.text()).toBe("arrived");
-        expect(res.url).toBe("http://127.0.0.1:19920/two");
+        expect(res.url).toBe(`http://127.0.0.1:${origin.port}/two`);
     });
 
     await it("relative locations resolve against the current path", async () => {
-        const sibling = await fetch("http://127.0.0.1:19920/dir/start");
+        const sibling = await fetch(`http://127.0.0.1:${origin.port}/dir/start`);
         expect(sibling.text()).toBe("relative 1");
-        const parent = await fetch("http://127.0.0.1:19920/up/start");
+        const parent = await fetch(`http://127.0.0.1:${origin.port}/up/start`);
         expect(parent.text()).toBe("arrived");
     });
 
     await it("a POST becomes a GET on 302 but keeps its method and body on 307", async () => {
-        const turned = await fetch("http://127.0.0.1:19920/post-redirect", new RequestInit(method: HttpMethod.POST, body: "payload"));
+        const turned = await fetch(`http://127.0.0.1:${origin.port}/post-redirect`, new RequestInit(method: HttpMethod.POST, body: "payload"));
         expect(turned.text()).toBe("GET");
-        const kept = await fetch("http://127.0.0.1:19920/keep", new RequestInit(method: HttpMethod.POST, body: "payload"));
+        const kept = await fetch(`http://127.0.0.1:${origin.port}/keep`, new RequestInit(method: HttpMethod.POST, body: "payload"));
         expect(kept.text()).toBe("body=payload");
     });
 
     await it("credentials are sent to the same origin but dropped across origins", async () => {
         const headers = new Map<str, str>([("Authorization", "Bearer secret")]);
-        const same = await fetch("http://127.0.0.1:19920/same", new RequestInit(headers: headers));
+        const same = await fetch(`http://127.0.0.1:${origin.port}/same`, new RequestInit(headers: headers));
         expect(same.text()).toBe("auth=Bearer secret");
-        const cross = await fetch("http://127.0.0.1:19920/to-other", new RequestInit(headers: headers));
+        const cross = await fetch(`http://127.0.0.1:${origin.port}/to-other`, new RequestInit(headers: headers));
         expect(cross.text()).toBe("auth=none");
     });
 
     await it("followRedirects: false returns the redirect itself", async () => {
-        const res = await fetch("http://127.0.0.1:19920/start", new RequestInit(followRedirects: false));
+        const res = await fetch(`http://127.0.0.1:${origin.port}/start`, new RequestInit(followRedirects: false));
         expect(res.status).toBe(302);
         expect(res.headers.get("location")).toBe("/two");
     });
 
     await it("a redirect loop stops at the limit", async () => {
-        const message = await failureOf(() => fetch("http://127.0.0.1:19920/loop", new RequestInit(maxRedirects: 3)));
+        const message = await failureOf(() => fetch(`http://127.0.0.1:${origin.port}/loop`, new RequestInit(maxRedirects: 3)));
         expect(message.indexOf("more than 3 redirects") != null).toBeTruthy();
     });
 
