@@ -8,12 +8,8 @@ use vn_sem::types::Type;
 impl<'r> Checker<'r> {
     #[inline]
     pub(crate) fn emit(&mut self, diag: Diagnostic) {
-        let diag = if diag.file.is_empty() {
-            diag.with_file(self.source_file.clone())
-        } else {
-            diag
-        };
-        self.diagnostics.push(diag);
+        self.diagnostics
+            .push(diag.or_file(self.source_file.clone()));
     }
 
     pub(crate) fn diagnostics_mark(&self) -> usize {

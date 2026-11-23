@@ -68,6 +68,14 @@ impl Diagnostic {
         self
     }
 
+    pub fn or_file(self, file: impl Into<Arc<str>>) -> Self {
+        if self.file.is_empty() {
+            self.with_file(file)
+        } else {
+            self
+        }
+    }
+
     pub fn with_range(mut self, range: SourceRange) -> Self {
         self.range = range;
         self

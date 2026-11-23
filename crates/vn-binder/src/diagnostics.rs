@@ -2,12 +2,8 @@ use vn_core::Diagnostic;
 
 impl super::Binder<'_> {
     pub(super) fn emit(&mut self, diag: Diagnostic) {
-        let diag = if diag.file.is_empty() {
-            diag.with_file(self.source_file.clone())
-        } else {
-            diag
-        };
-        self.diagnostics.push(diag);
+        self.diagnostics
+            .push(diag.or_file(self.source_file.clone()));
     }
 
     pub(super) fn require_task_signature(
