@@ -216,7 +216,6 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

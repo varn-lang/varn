@@ -282,8 +282,7 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
             | vn_types::ssa::SsaOp::Await { .. }
             | vn_types::ssa::SsaOp::Spawn { .. }
-            | vn_types::ssa::SsaOp::Yield { .. }
-            | vn_types::ssa::SsaOp::Dispose { .. } => {
+            | vn_types::ssa::SsaOp::Yield { .. } => {
                 if !super::view_invalidation::keeps_views(ssa, &inst.op) {
                     fwd.clear();
                     ctx.views.clear_instances(b);

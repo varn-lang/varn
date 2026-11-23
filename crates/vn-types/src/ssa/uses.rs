@@ -151,7 +151,6 @@ impl SsaOp {
             }
             SsaOp::LoadModule { .. } => {}
             SsaOp::Await { operand } | SsaOp::Yield { operand } => f(*operand),
-            SsaOp::Dispose { .. } => {}
         }
     }
 }

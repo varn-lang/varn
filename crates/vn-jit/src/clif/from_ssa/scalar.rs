@@ -305,8 +305,7 @@ pub(super) fn emit_inst(
         | SsaOp::StoreModuleSlot { .. }
         | SsaOp::Await { .. }
         | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. }
-        | SsaOp::Dispose { .. } => return Err("from_ssa: heap/extra ops are emitted above".into()),
+        | SsaOp::Yield { .. } => return Err("from_ssa: heap/extra ops are emitted above".into()),
     };
     Ok(Some(Out::Native(v)))
 }

@@ -138,8 +138,7 @@ pub(super) fn plan_hoists(
                     | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
                     | vn_types::ssa::SsaOp::Await { .. }
                     | vn_types::ssa::SsaOp::Spawn { .. }
-                    | vn_types::ssa::SsaOp::Yield { .. }
-                    | vn_types::ssa::SsaOp::Dispose { .. }) => {
+                    | vn_types::ssa::SsaOp::Yield { .. }) => {
                         if !super::range_versioning::version_op_ok(ssa, op) {
                             pure = false;
                         }

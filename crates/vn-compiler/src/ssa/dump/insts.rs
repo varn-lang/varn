@@ -314,7 +314,6 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::PopTry => "poptry".to_owned(),
         InstKind::CatchParam { try_val } => format!("catchparam {}", val(*try_val)),
         InstKind::CloseUpvalues { targets } => format!("closeupvalues {:?}", targets),
-        InstKind::Dispose { target, is_await } => format!("dispose {target:?} await={is_await}"),
         InstKind::LoadModule { source } => format!("loadmodule {source}"),
         InstKind::StoreModuleSlot { value, slot } => {
             format!("storemoduleslot {slot} = {}", val(*value))

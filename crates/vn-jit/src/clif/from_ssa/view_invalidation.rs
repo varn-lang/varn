@@ -149,7 +149,6 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::StoreModuleSlot { .. }
         | SsaOp::Await { .. }
         | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. }
-        | SsaOp::Dispose { .. } => false,
+        | SsaOp::Yield { .. } => false,
     }
 }

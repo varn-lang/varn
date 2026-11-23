@@ -105,7 +105,6 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }
@@ -255,7 +254,6 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

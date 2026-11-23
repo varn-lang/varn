@@ -304,7 +304,6 @@ pub(super) fn emit_value(
         | InstKind::StoreCaptured { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::PopTry
         | InstKind::DeclareLayout { .. }
         | InstKind::FreezeClass { .. }

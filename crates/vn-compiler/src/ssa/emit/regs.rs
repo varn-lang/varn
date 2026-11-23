@@ -210,7 +210,6 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

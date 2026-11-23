@@ -397,9 +397,4 @@ pub enum SsaOp {
     Yield {
         operand: u32,
     },
-
-    Dispose {
-        var: SsaVar,
-        is_await: bool,
-    },
 }

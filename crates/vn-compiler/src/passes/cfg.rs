@@ -257,7 +257,6 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::PopTry
                         | InstKind::CatchParam { .. }
                         | InstKind::CloseUpvalues { .. }
-                        | InstKind::Dispose { .. }
                         | InstKind::LoadModule { .. }
                         | InstKind::StoreModuleSlot { .. }
                         | InstKind::Await { .. }

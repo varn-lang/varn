@@ -1,7 +1,6 @@
 use super::ids::{BlockId, SsaVar, Value};
 use bigdecimal::BigDecimal as Decimal;
 use std::sync::Arc;
-use vn_tir::LocalId;
 use vn_tir::{BackendTy, DynReason};
 
 #[derive(Debug, Clone)]
@@ -263,10 +262,6 @@ pub enum InstKind {
     CloseUpvalues {
         targets: Vec<SsaVar>,
     },
-    Dispose {
-        target: LocalId,
-        is_await: bool,
-    },
     LoadModule {
         source: Arc<str>,
     },
@@ -452,7 +447,6 @@ impl InstKind {
             | InstKind::PopTry
             | InstKind::CatchParam { .. }
             | InstKind::CloseUpvalues { .. }
-            | InstKind::Dispose { .. }
             | InstKind::LoadModule { .. }
             | InstKind::StoreModuleSlot { .. }
             | InstKind::Await { .. }

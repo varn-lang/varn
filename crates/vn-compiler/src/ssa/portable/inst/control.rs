@@ -1,13 +1,8 @@
-use super::super::Captured;
 use crate::ssa::ir::InstKind;
 use vn_tir::BackendTy;
 use vn_types::ssa::SsaOp;
 
-pub(super) fn try_project(
-    kind: &InstKind,
-    value_tys: &[BackendTy],
-    captured: &mut Captured,
-) -> Option<SsaOp> {
+pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
     match kind {
         InstKind::Binary { op, lhs, rhs, ty } => {
             let lhs_ty = value_tys.get(lhs.0 as usize).copied();
@@ -56,10 +51,6 @@ pub(super) fn try_project(
         InstKind::Await { operand } => Some(SsaOp::Await { operand: operand.0 }),
         InstKind::Spawn { operand } => Some(SsaOp::Spawn { operand: operand.0 }),
         InstKind::Yield { operand } => Some(SsaOp::Yield { operand: operand.0 }),
-        InstKind::Dispose { target, is_await } => Some(SsaOp::Dispose {
-            var: captured.var(crate::ssa::ir::SsaVar::Local(target.0)),
-            is_await: *is_await,
-        }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)
         | InstKind::ConstBool(_)

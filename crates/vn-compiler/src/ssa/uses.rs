@@ -48,7 +48,6 @@ macro_rules! inst_uses {
             | Try { .. }
             | PopTry
             | CloseUpvalues { .. }
-            | Dispose { .. }
             | LoadModule { .. }
             | This
             | GetSuper { .. }

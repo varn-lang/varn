@@ -126,39 +126,6 @@ pub(super) fn yield_(
     Ok(Some(Some(Out::Boxed(home_load(b, ctx, ctx.ssa.reg(d))?))))
 }
 
-pub(super) fn dispose(
-    b: &mut FunctionBuilder,
-    ctx: &Ctx<'_>,
-    values: &[Option<Value>],
-    var: vn_types::ssa::SsaVar,
-    is_await: bool,
-    cs: u16,
-) -> Result<Option<Option<Out>>, String> {
-    let ectx = exec_ctx(ctx);
-    ctx.frame_for("extra op")?;
-    let reg = ctx
-        .ssa
-        .captured_reg(var)
-        .ok_or("from_ssa: dispose unknown var")?;
-    let recv = super::super::store::home_load(b, ctx, reg)?;
-    let name = if is_await { "disposeAsync" } else { "dispose" };
-    let niv = b
-        .ins()
-        .iconst(types::I64, super::super::props::str_idx(ctx, name)? as i64);
-    let csv = b.ins().iconst(types::I64, i64::from(cs));
-    let w = super::super::call::boxed_window(b, ctx, values, recv, &[])?;
-    let total = b.ins().iconst(types::I64, 1);
-    let out = super::super::call::entry_out_slot(b);
-    let entry = call_helper(
-        b,
-        ctx.cc,
-        ctx.helpers.jit_call_method_window,
-        &[ectx, niv, csv, w, total, out],
-    );
-    super::super::call::run_entered_or(b, ctx, entry, out)?;
-    Ok(Some(None))
-}
-
 pub(super) fn spill(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,

@@ -155,7 +155,6 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::PopTry
                 | InstKind::CatchParam { .. }
                 | InstKind::CloseUpvalues { .. }
-                | InstKind::Dispose { .. }
                 | InstKind::LoadModule { .. }
                 | InstKind::StoreModuleSlot { .. }
                 | InstKind::Await { .. }
@@ -241,7 +240,6 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

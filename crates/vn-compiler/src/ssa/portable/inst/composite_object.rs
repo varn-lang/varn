@@ -78,7 +78,6 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

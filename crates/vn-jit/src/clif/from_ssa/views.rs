@@ -139,8 +139,7 @@ impl Views {
                 | SsaOp::StoreModuleSlot { .. }
                 | SsaOp::Await { .. }
                 | SsaOp::Spawn { .. }
-                | SsaOp::Yield { .. }
-                | SsaOp::Dispose { .. } => {}
+                | SsaOp::Yield { .. } => {}
             }
         }
         for inst in ssa.blocks.iter().flat_map(|blk| &blk.insts) {
@@ -234,8 +233,7 @@ impl Views {
                 | SsaOp::StoreModuleSlot { .. }
                 | SsaOp::Await { .. }
                 | SsaOp::Spawn { .. }
-                | SsaOp::Yield { .. }
-                | SsaOp::Dispose { .. } => continue,
+                | SsaOp::Yield { .. } => continue,
             };
             by_value.entry(object).or_insert_with(|| View {
                 data: b.declare_var(types::I64),

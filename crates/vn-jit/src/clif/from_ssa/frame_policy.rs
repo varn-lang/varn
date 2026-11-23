@@ -14,7 +14,6 @@ pub(super) fn may_push_frame(ctx: &Ctx<'_>, op: &SsaOp) -> bool {
         | SsaOp::SuperInvokeSlot { .. }
         | SsaOp::ExtensionCall { .. }
         | SsaOp::CallSpread { .. }
-        | SsaOp::Dispose { .. }
         | SsaOp::GetProperty { .. }
         | SsaOp::SetProperty { .. }
         | SsaOp::GetIndex { .. }
@@ -149,7 +148,6 @@ pub(super) fn needs_frame(ssa: &SsaProto, op: &SsaOp) -> bool {
             | SsaOp::Await { .. }
             | SsaOp::Spawn { .. }
             | SsaOp::Yield { .. }
-            | SsaOp::Dispose { .. }
     ) || matches!(op, SsaOp::Convert { operand, conv }
         if !numeric::is_inline_convert(ssa, *operand, *conv))
 }

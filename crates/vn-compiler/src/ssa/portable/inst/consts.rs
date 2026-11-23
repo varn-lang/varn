@@ -81,7 +81,6 @@ pub(super) fn try_project(kind: &InstKind) -> Option<SsaOp> {
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
         | InstKind::CloseUpvalues { .. }
-        | InstKind::Dispose { .. }
         | InstKind::Await { .. }
         | InstKind::Spawn { .. }
         | InstKind::Yield { .. }

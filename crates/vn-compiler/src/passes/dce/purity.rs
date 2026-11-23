@@ -143,7 +143,6 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         Try { .. }
         | PopTry
         | CloseUpvalues { .. }
-        | Dispose { .. }
         | LoadModule { .. }
         | AssertNotNull { .. }
         | Await { .. }

@@ -164,8 +164,7 @@ pub(super) fn compute(
                         | SsaOp::StoreModuleSlot { .. }
                         | SsaOp::Await { .. }
                         | SsaOp::Spawn { .. }
-                        | SsaOp::Yield { .. }
-                        | SsaOp::Dispose { .. } => {}
+                        | SsaOp::Yield { .. } => {}
                     }
                 }
                 if !ok {

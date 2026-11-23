@@ -81,9 +81,6 @@ pub(super) fn try_emit(
             let resume = inst.resume_point()?;
             suspend::yield_(b, ctx, values, *operand, resume.ip, &resume.live, dest)
         }
-        SsaOp::Dispose { var, is_await } => {
-            suspend::dispose(b, ctx, values, *var, *is_await, inst.cache_slot()?)
-        }
         SsaOp::ConstInt(_)
         | SsaOp::ConstFloat(_)
         | SsaOp::ConstBool(_)

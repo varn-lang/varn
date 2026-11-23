@@ -294,8 +294,7 @@ pub(super) fn version_plans(
                     | SsaOp::StoreModuleSlot { .. }
                     | SsaOp::Await { .. }
                     | SsaOp::Spawn { .. }
-                    | SsaOp::Yield { .. }
-                    | SsaOp::Dispose { .. } => {}
+                    | SsaOp::Yield { .. } => {}
                 }
             }
             if !ok {

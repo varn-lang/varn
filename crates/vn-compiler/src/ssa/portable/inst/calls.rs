@@ -163,7 +163,6 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         | InstKind::Try { .. }
         | InstKind::PopTry
         | InstKind::CatchParam { .. }
-        | InstKind::Dispose { .. }
         | InstKind::LoadModule { .. }
         | InstKind::StoreModuleSlot { .. }
         | InstKind::Await { .. }

@@ -77,7 +77,6 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::PopTry
                 | InstKind::CatchParam { .. }
                 | InstKind::CloseUpvalues { .. }
-                | InstKind::Dispose { .. }
                 | InstKind::LoadModule { .. }
                 | InstKind::StoreModuleSlot { .. }
                 | InstKind::Spawn { .. }
@@ -188,7 +187,6 @@ pub fn suspend_live_regs(
                 | InstKind::PopTry
                 | InstKind::CatchParam { .. }
                 | InstKind::CloseUpvalues { .. }
-                | InstKind::Dispose { .. }
                 | InstKind::LoadModule { .. }
                 | InstKind::StoreModuleSlot { .. }
                 | InstKind::Spawn { .. }
@@ -283,7 +281,6 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                         note(*v);
                     }
                 }
-                InstKind::Dispose { target, .. } => note(SsaVar::Local(target.0)),
                 InstKind::ConstInt(_)
                 | InstKind::ConstFloat(_)
                 | InstKind::ConstBool(_)

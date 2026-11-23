@@ -43,7 +43,6 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
                 | SsaOp::SuperInvokeSlot { args, .. }
                 | SsaOp::ExtensionCall { args, .. } => args.len() + 1,
                 SsaOp::CallSpread { args, .. } => args.len(),
-                SsaOp::Dispose { .. } => 1,
                 SsaOp::IntrinsicCall { args, .. } => args.len() + 1,
                 SsaOp::BuildStr { parts } | SsaOp::BuildTuple { elements: parts } => parts.len(),
                 SsaOp::BuildArray { elements, .. } => elements.len(),

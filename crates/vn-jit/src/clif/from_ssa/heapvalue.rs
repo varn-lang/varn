@@ -152,8 +152,7 @@ pub(super) fn emit(
         | SsaOp::StoreModuleSlot { .. }
         | SsaOp::Await { .. }
         | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. }
-        | SsaOp::Dispose { .. } => {}
+        | SsaOp::Yield { .. } => {}
     }
 
     let v = match op {
@@ -454,8 +453,7 @@ pub(super) fn emit(
         | SsaOp::StoreModuleSlot { .. }
         | SsaOp::Await { .. }
         | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. }
-        | SsaOp::Dispose { .. } => return Ok(None),
+        | SsaOp::Yield { .. } => return Ok(None),
     };
     Ok(Some(Some(v)))
 }

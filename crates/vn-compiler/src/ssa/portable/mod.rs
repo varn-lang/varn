@@ -162,7 +162,6 @@ pub(crate) fn project(
                     | InstKind::PopTry
                     | InstKind::CatchParam { .. }
                     | InstKind::CloseUpvalues { .. }
-                    | InstKind::Dispose { .. }
                     | InstKind::LoadModule { .. }
                     | InstKind::StoreModuleSlot { .. }
                     | InstKind::Await { .. }
@@ -263,7 +262,6 @@ pub(crate) fn project(
                     | InstKind::PopTry
                     | InstKind::CatchParam { .. }
                     | InstKind::CloseUpvalues { .. }
-                    | InstKind::Dispose { .. }
                     | InstKind::StoreModuleSlot { .. }
                     | InstKind::Spawn { .. }
                     | InstKind::IntrinsicCall { .. }

@@ -139,7 +139,6 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::PopTry
                 | InstKind::CatchParam { .. }
                 | InstKind::CloseUpvalues { .. }
-                | InstKind::Dispose { .. }
                 | InstKind::LoadModule { .. }
                 | InstKind::StoreModuleSlot { .. }
                 | InstKind::Spawn { .. }

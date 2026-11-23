@@ -99,8 +99,7 @@ pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Ve
             | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
             | vn_types::ssa::SsaOp::Await { .. }
             | vn_types::ssa::SsaOp::Spawn { .. }
-            | vn_types::ssa::SsaOp::Yield { .. }
-            | vn_types::ssa::SsaOp::Dispose { .. } => {}
+            | vn_types::ssa::SsaOp::Yield { .. } => {}
         }
     }
     Some(stack)
@@ -212,8 +211,7 @@ pub(super) fn stack_before_try(
             | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
             | vn_types::ssa::SsaOp::Await { .. }
             | vn_types::ssa::SsaOp::Spawn { .. }
-            | vn_types::ssa::SsaOp::Yield { .. }
-            | vn_types::ssa::SsaOp::Dispose { .. } => {}
+            | vn_types::ssa::SsaOp::Yield { .. } => {}
         }
     }
     None

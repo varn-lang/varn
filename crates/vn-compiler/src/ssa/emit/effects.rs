@@ -1,4 +1,4 @@
-use super::super::ir::{Inst, InstKind, SsaVar};
+use super::super::ir::{Inst, InstKind};
 use super::regs::var_reg;
 use crate::OptError;
 use vn_core::OpCode;
@@ -180,17 +180,6 @@ pub(super) fn emit_effect(
                 .min()
                 .unwrap_or(0);
             chunk.emit1(OpCode::CloseUpvalue, lowest as u16, line);
-            return Ok(true);
-        }
-        InstKind::Dispose { target, is_await } => {
-            let r = var_reg(SsaVar::Local(target.0), nparams);
-            let method = if *is_await { "disposeAsync" } else { "dispose" };
-            let str_idx = chunk.add_str(method);
-            let cs = ic_slot.ok_or(OptError::Unsupported("ssa-emit: cache site without a slot"))?;
-            chunk.write(Chunk::pack_op(OpCode::CallMethod, cs), line);
-            chunk.write(Chunk::pack(r, r), line);
-            chunk.write(str_idx, line);
-            chunk.write(Chunk::pack(0u8, 0u8), line);
             return Ok(true);
         }
         InstKind::PopTry => {

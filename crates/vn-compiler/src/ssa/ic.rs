@@ -102,7 +102,7 @@ impl DirectSlots {
 
 fn sites(kind: &InstKind, has_dest: bool) -> u16 {
     match kind {
-        InstKind::SetProperty { .. } | InstKind::Dispose { .. } | InstKind::InvokeSlot { .. } => 1,
+        InstKind::SetProperty { .. } | InstKind::InvokeSlot { .. } => 1,
         InstKind::GetProperty { .. } | InstKind::MethodCall { .. } => {
             u16::from(has_dest || crate::passes::dce::dest_droppable(kind))
         }

@@ -83,7 +83,6 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::PopTry
                     | InstKind::CatchParam { .. }
                     | InstKind::CloseUpvalues { .. }
-                    | InstKind::Dispose { .. }
                     | InstKind::LoadModule { .. }
                     | InstKind::StoreModuleSlot { .. }
                     | InstKind::Await { .. }
@@ -253,7 +252,6 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     | InstKind::PopTry
                     | InstKind::CatchParam { .. }
                     | InstKind::CloseUpvalues { .. }
-                    | InstKind::Dispose { .. }
                     | InstKind::LoadModule { .. }
                     | InstKind::StoreModuleSlot { .. }
                     | InstKind::Await { .. }

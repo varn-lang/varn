@@ -34,7 +34,7 @@ pub(super) fn project_inst(
     let op = consts::try_project(kind)
         .or_else(|| calls::try_project(kind, &site, captured))
         .or_else(|| composite::try_project(kind, value_tys))
-        .or_else(|| control::try_project(kind, value_tys, captured))?;
+        .or_else(|| control::try_project(kind, value_tys))?;
     let (cache, resume) = annotate(&op, &site)?;
     Some(SsaInst {
         dest: inst.dest.map(|v| v.0),
@@ -56,7 +56,6 @@ fn annotate(op: &SsaOp, site: &Site) -> Option<(Option<u16>, Option<SsaResume>)>
         | SsaOp::SetProperty { .. }
         | SsaOp::MethodCall { .. }
         | SsaOp::InvokeSlot { .. }
-        | SsaOp::Dispose { .. }
         | SsaOp::BuildObjectSpread { .. } => (Some(u16::from(site.ic_slot?)), None),
         SsaOp::CallDirect { .. } => (Some(u16::from(site.direct_slot?)), None),
         SsaOp::Await { .. } | SsaOp::Yield { .. } => (None, Some(resume(site.next_ip))),

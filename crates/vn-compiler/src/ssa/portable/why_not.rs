@@ -73,7 +73,6 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         | other @ InstKind::PopTry
         | other @ InstKind::CatchParam { .. }
         | other @ InstKind::CloseUpvalues { .. }
-        | other @ InstKind::Dispose { .. }
         | other @ InstKind::LoadModule { .. }
         | other @ InstKind::StoreModuleSlot { .. }
         | other @ InstKind::Await { .. }
