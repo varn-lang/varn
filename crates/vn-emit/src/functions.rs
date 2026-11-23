@@ -1,5 +1,5 @@
 use super::body::FnEmitter;
-use super::module_ctx::MCtx;
+use super::body::ModuleCtx;
 use super::tables;
 use super::ty::lower_type;
 use rustc_hash::FxHashMap;
@@ -23,7 +23,7 @@ pub(super) fn emit_member_fn(
     this_enum: Option<vn_tir::EnumId>,
     sig: SigId,
     decorators: &[vn_core::ast::Decorator],
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -39,7 +39,7 @@ pub(super) fn emit_member_fn(
             ast_arena,
             expr_table,
             types,
-            ctx.as_module_ctx(),
+            *ctx,
             signatures,
             &mut mcls,
             base,
@@ -128,7 +128,7 @@ pub(super) fn fresh_sig(signatures: &mut Vec<Signature>, arity: usize) -> SigId 
 pub(super) fn lower_outer(
     e: ExprId,
     ast_arena: &AstArena,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -141,7 +141,7 @@ pub(super) fn lower_outer(
         ast_arena,
         expr_table,
         types,
-        ctx.as_module_ctx(),
+        *ctx,
         signatures,
         closures,
         base,
@@ -159,7 +159,7 @@ pub(super) fn static_method_sig(
     bind: &BindResult,
     class_name: &str,
     key: &str,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
 ) -> Option<SigId> {
@@ -192,7 +192,7 @@ pub(super) fn emit_function(
     bind: &BindResult,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     signatures: &mut Vec<Signature>,
     closures: &mut Vec<TirFunction>,
     closure_base: u32,
@@ -284,7 +284,7 @@ pub(super) fn emit_function(
             ast_arena,
             expr_table,
             types,
-            ctx.as_module_ctx(),
+            *ctx,
             signatures,
             closures,
             closure_base,

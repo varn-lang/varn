@@ -1,6 +1,6 @@
+use super::body::ModuleCtx;
 use super::decorators::lower_decorator_exprs;
 use super::functions::{emit_member_fn, fresh_sig, lower_outer};
-use super::module_ctx::MCtx;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::ast::{AstArena, AstId};
@@ -9,7 +9,7 @@ use vn_sem::output::TypeEntry;
 use vn_tir::{SigId, Signature, TirFunction, TyTable};
 
 pub(super) fn class_info_sig(
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     class_id: Option<vn_tir::ClassId>,
     key: &str,
     arity: usize,
@@ -31,7 +31,7 @@ pub(super) fn emit_class_members(
     def: &mut vn_tir::TirClassDef,
     ast_arena: &AstArena,
     bind: &BindResult,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,

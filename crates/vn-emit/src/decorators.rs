@@ -1,6 +1,6 @@
 use super::body::FnEmitter;
+use super::body::ModuleCtx;
 use super::functions::lower_outer;
-use super::module_ctx::MCtx;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::ast::FunctionDecl;
@@ -93,7 +93,7 @@ pub(super) fn emit_fn_decorator_app(
 pub(super) fn lower_decorator_exprs(
     decorators: &[vn_core::ast::Decorator],
     ast_arena: &vn_core::ast::AstArena,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<vn_core::ast::AstId, vn_sem::output::TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,

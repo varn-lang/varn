@@ -8,7 +8,6 @@ mod extensions;
 mod free_functions;
 mod functions;
 mod imports_exports;
-mod module_ctx;
 mod module_globals;
 mod module_locals;
 mod module_top;
@@ -21,9 +20,9 @@ mod ty;
 
 pub use ty::{lower_type, NameResolver, NoNames};
 
+use body::ModuleCtx;
 use extensions::emit_extensions;
 use imports_exports::{collect_exports, collect_imports, math_intrinsic_imports, native_targets};
-use module_ctx::MCtx;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::ast::{AstArena, AstId, Program};
@@ -94,7 +93,7 @@ pub fn emit_module(
         .filter_map(|symbol| symbol.ty.map(|ty| (symbol.offset, ty)))
         .collect();
 
-    let ctx = MCtx {
+    let ctx = ModuleCtx {
         names: &names,
         classes: &classes,
         enums: &enums,

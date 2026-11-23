@@ -1,7 +1,7 @@
 use super::body::FnEmitter;
+use super::body::ModuleCtx;
 use super::free_functions::param_name;
 use super::functions::fresh_sig;
-use super::module_ctx::MCtx;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::sync::Arc;
 use vn_core::ast::{AstArena, AstId, Decl, Program, StmtId, StmtKind};
@@ -174,7 +174,7 @@ pub(super) fn extension_imports(
 pub(super) fn emit_extensions(
     program: &Program,
     ast_arena: &AstArena,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -258,14 +258,7 @@ pub(super) fn emit_extensions(
             let mut mcls: Vec<TirFunction> = Vec::new();
             let (body_stmts, locals) = {
                 let mut em = FnEmitter::new(
-                    ast_arena,
-                    expr_table,
-                    types,
-                    ctx.as_module_ctx(),
-                    signatures,
-                    &mut mcls,
-                    base,
-                    params,
+                    ast_arena, expr_table, types, *ctx, signatures, &mut mcls, base, params,
                 );
                 if let Some(cid) = this_cid {
                     em = em.with_this(cid);

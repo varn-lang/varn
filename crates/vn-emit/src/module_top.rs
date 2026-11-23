@@ -1,9 +1,9 @@
 use super::body::FnEmitter;
+use super::body::ModuleCtx;
 use super::decl_classify::{
     anon_class_of, class_decl, enum_decl, free_function, namespace_decl, variable_decl,
 };
 use super::decorators::emit_fn_decorator_app;
-use super::module_ctx::MCtx;
 use super::namespaces::{emit_namespace_object, ns_nested_types};
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
@@ -13,7 +13,7 @@ use vn_tir::{BackendTy, Signature, TirFunction, TirStmt, TyTable};
 pub(super) fn lower_top_level(
     program: &Program,
     ast_arena: &AstArena,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     scoped_fns: &FxHashMap<Arc<str>, (u32, u32)>,
     global_slots: &FxHashMap<Arc<str>, u32>,
     interner: &AtomInterner,
@@ -28,7 +28,7 @@ pub(super) fn lower_top_level(
         ast_arena,
         expr_table,
         types,
-        ctx.as_module_ctx(),
+        *ctx,
         signatures,
         closures,
         base,

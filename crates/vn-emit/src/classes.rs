@@ -1,7 +1,7 @@
+use super::body::ModuleCtx;
 use super::class_members::emit_class_members;
 use super::decl_classify::{anon_class_of, class_decl, enum_decl, namespace_decl};
 use super::functions::{emit_member_fn, fresh_sig, lower_outer};
-use super::module_ctx::MCtx;
 use super::namespaces::ns_nested_types;
 use super::ty::NameResolver;
 use rustc_hash::FxHashMap;
@@ -32,7 +32,7 @@ pub(super) fn build_class_defs(
     program: &Program,
     ast_arena: &AstArena,
     bind: &BindResult,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, vn_sem::output::TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -90,7 +90,7 @@ pub(super) fn emit_class(
     class: &vn_core::ast::ClassDecl,
     ast_arena: &AstArena,
     bind: &BindResult,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -165,7 +165,7 @@ pub(super) fn emit_class(
             ast_arena,
             expr_table,
             types,
-            ctx.as_module_ctx(),
+            *ctx,
             signatures,
             &mut cls,
             base,

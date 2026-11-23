@@ -1,5 +1,5 @@
+use super::body::ModuleCtx;
 use super::functions::{emit_member_fn, fresh_sig, lower_outer};
-use super::module_ctx::MCtx;
 use super::ty::NameResolver;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
@@ -9,7 +9,7 @@ use vn_tir::{Signature, TirFunction, TyTable};
 pub(super) fn emit_enum(
     en: &vn_core::ast::EnumDecl,
     ast_arena: &AstArena,
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     expr_table: &FxHashMap<AstId, TypeEntry>,
     types: &mut TyTable,
     signatures: &mut Vec<Signature>,
@@ -346,7 +346,7 @@ pub(super) fn emit_enum(
 }
 
 fn enum_member_sig(
-    ctx: &MCtx,
+    ctx: &ModuleCtx<'_>,
     enum_id: Option<vn_tir::EnumId>,
     key: &str,
     arity: usize,
