@@ -361,6 +361,7 @@ import "./369-generic-interfaces-are-declared.vn"
 import "./370-decoding-keeps-the-width.vn"
 import "./371-captures-survive-a-pumped-await.vn"
 import "./372-captures-are-shared-not-copied.vn"
+import "./373-import-meta-dirname.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

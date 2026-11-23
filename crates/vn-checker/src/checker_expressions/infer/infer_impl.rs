@@ -42,7 +42,9 @@ impl<'r> Checker<'r> {
                     .resolve_symbol(name_str)
                     .unwrap_or(Type::Error)
             }
-            ExprKind::ImportMeta(vn_core::ast::MetaProperty::Main) => Type::Bool,
+            ExprKind::ImportMeta(property) => {
+                Type::resolved(vn_sem::types::CheckerTyId::primitive(property.value_type()))
+            }
             ExprKind::This => self
                 .extension_self
                 .or_else(|| {

@@ -1,0 +1,1 @@
+export const helperDir: str = import.meta.dirname;

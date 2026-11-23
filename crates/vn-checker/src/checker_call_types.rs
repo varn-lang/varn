@@ -38,7 +38,9 @@ impl<'a> CallTypeCtx<'a> {
             ExprKind::FloatLiteral { .. } => Some(Type::Float),
             ExprKind::StrLiteral { .. } => Some(Type::Str),
             ExprKind::BoolLiteral { .. } => Some(Type::Bool),
-            ExprKind::ImportMeta(vn_core::ast::MetaProperty::Main) => Some(Type::Bool),
+            ExprKind::ImportMeta(property) => Some(Type::resolved(
+                vn_sem::types::CheckerTyId::primitive(property.value_type()),
+            )),
             ExprKind::This => {
                 let current = self.current_class;
                 let origin = self.ctx.and_then(|c| c.source_file());

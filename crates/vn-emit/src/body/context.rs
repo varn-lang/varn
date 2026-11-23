@@ -45,6 +45,8 @@ pub(crate) struct ModuleCtx<'a> {
     pub nested_types: &'a NestedTypes,
 
     pub declared_types: &'a FxHashMap<u32, vn_sem::types::Type>,
+
+    pub source_dir: &'a Arc<str>,
 }
 
 pub(crate) struct FnEmitter<'a> {

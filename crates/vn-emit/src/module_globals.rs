@@ -171,9 +171,12 @@ pub(super) fn assign_global_slots(
     let mut global_slots: FxHashMap<Arc<str>, u32> = FxHashMap::default();
     let mut globals: Vec<BackendTy> = Vec::new();
     for property in MetaProperty::ALL {
-        debug_assert_eq!(property.slot() as usize, globals.len());
-        globals.push(BackendTy::Bool);
-        global_slots.insert(Arc::from(property.source_text()), property.slot());
+        let Some(slot) = property.global_slot() else {
+            continue;
+        };
+        debug_assert_eq!(slot as usize, globals.len());
+        globals.push(crate::ty::lower_primitive(property.value_type()));
+        global_slots.insert(Arc::from(property.source_text()), slot);
     }
     for sym in bind.global_symbols() {
         if !is_value_symbol(sym.kind) {

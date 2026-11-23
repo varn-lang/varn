@@ -3,7 +3,7 @@ use super::ops::{infer_binary, infer_new, infer_object_members};
 use super::signature::build_fn_type;
 use crate::types::{CheckerTyTable, Type};
 use vn_core::ast::operators::{LogicalOp, UnaryOp};
-use vn_core::ast::{ArrayEl, ArrowBody, AstArena, ExprId, ExprKind, MatchBody, MetaProperty};
+use vn_core::ast::{ArrayEl, ArrowBody, AstArena, ExprId, ExprKind, MatchBody};
 use vn_core::TypeKind;
 
 pub fn infer_expr_type(
@@ -20,7 +20,9 @@ pub fn infer_expr_type(
         ExprKind::StrLiteral { .. } => Type::Str,
         ExprKind::CharLiteral { .. } => Type::Char,
         ExprKind::BoolLiteral { .. } => Type::Bool,
-        ExprKind::ImportMeta(MetaProperty::Main) => Type::Bool,
+        ExprKind::ImportMeta(property) => {
+            Type::resolved(crate::types::CheckerTyId::primitive(property.value_type()))
+        }
         ExprKind::NullLiteral => Type::Null,
         ExprKind::Template { .. } => Type::Str,
         ExprKind::Paren { expression } => infer_expr_type(*expression, arena, ctx, table),

@@ -72,10 +72,10 @@ impl CheckerTyId {
     }
 }
 
-pub(super) fn seeded_id(kind: &InternedTypeKind) -> Option<CheckerTyId> {
-    match kind {
-        TypeKind::Primitive(p) => Some(match p {
-            LangPrimitive::Num(k) => CheckerTyId::num(*k),
+impl CheckerTyId {
+    pub const fn primitive(p: LangPrimitive) -> CheckerTyId {
+        match p {
+            LangPrimitive::Num(k) => CheckerTyId::num(k),
             LangPrimitive::Decimal => CheckerTyId::DECIMAL,
             LangPrimitive::BigInt => CheckerTyId::BIGINT,
             LangPrimitive::Str => CheckerTyId::STR,
@@ -86,7 +86,13 @@ pub(super) fn seeded_id(kind: &InternedTypeKind) -> Option<CheckerTyId> {
             LangPrimitive::Never => CheckerTyId::NEVER,
             LangPrimitive::Dynamic => CheckerTyId::DYNAMIC,
             LangPrimitive::Error => CheckerTyId::ERROR,
-        }),
+        }
+    }
+}
+
+pub(super) fn seeded_id(kind: &InternedTypeKind) -> Option<CheckerTyId> {
+    match kind {
+        TypeKind::Primitive(p) => Some(CheckerTyId::primitive(*p)),
         TypeKind::This => Some(CheckerTyId::THIS),
         TypeKind::Literal(_)
         | TypeKind::Array(_)

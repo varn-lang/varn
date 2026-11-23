@@ -93,6 +93,7 @@ pub fn emit_module(
         .filter_map(|symbol| symbol.ty.map(|ty| (symbol.offset, ty)))
         .collect();
 
+    let source_dir = module_dir(program.filename.as_ref());
     let ctx = ModuleCtx {
         names: &names,
         classes: &classes,
@@ -114,6 +115,7 @@ pub fn emit_module(
         type_names: &bind.declared_type_names,
         nested_types: &nested,
         declared_types: &declared_types,
+        source_dir: &source_dir,
     };
 
     let n_free = free_fns.len() as u32;
@@ -240,4 +242,12 @@ pub fn emit_module(
     };
     module_locals::promote(&mut module, program, ast_arena, interner);
     module
+}
+
+fn module_dir(filename: &str) -> Arc<str> {
+    let normalized = vn_core::paths::portable_path(filename);
+    match normalized.rfind('/') {
+        Some(at) => Arc::from(&normalized[..at]),
+        None => Arc::from("."),
+    }
 }

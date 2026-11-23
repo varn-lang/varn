@@ -248,7 +248,7 @@ fn lower_shape(
     BackendTy::Dynamic(shape_kind(tt.intern_shape(fields)))
 }
 
-fn lower_primitive(p: LangPrimitive) -> BackendTy {
+pub fn lower_primitive(p: LangPrimitive) -> BackendTy {
     match p {
         LangPrimitive::Num(k) => BackendTy::Num(k),
         LangPrimitive::Bool => BackendTy::Bool,

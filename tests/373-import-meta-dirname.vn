@@ -1,0 +1,14 @@
+import { describe, it, expect } from "std:test";
+import { exists } from "std:fs";
+import { helperDir } from "./helpers/meta_dir.vn";
+
+await describe("373 import.meta.dirname is the directory of the module", async () => {
+    await it("names the directory that holds this file", () => {
+        expect(import.meta.dirname.endsWith("/tests")).toBe(true);
+        expect(exists(`${import.meta.dirname}/373-import-meta-dirname.vn`)).toBe(true);
+    });
+
+    await it("each module sees its own directory", () => {
+        expect(helperDir).toBe(`${import.meta.dirname}/helpers`);
+    });
+});

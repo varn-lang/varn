@@ -260,19 +260,29 @@ crate::named_enum! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     pub enum MetaProperty {
         Main => "main",
+        Dirname => "dirname",
     }
 }
 
 impl MetaProperty {
-    pub const fn slot(self) -> u32 {
+    pub const fn global_slot(self) -> Option<u32> {
         match self {
-            Self::Main => crate::well_known::MAIN_SLOT,
+            Self::Main => Some(crate::well_known::MAIN_SLOT),
+            Self::Dirname => None,
+        }
+    }
+
+    pub const fn value_type(self) -> crate::LangPrimitive {
+        match self {
+            Self::Main => crate::LangPrimitive::Bool,
+            Self::Dirname => crate::LangPrimitive::Str,
         }
     }
 
     pub const fn source_text(self) -> &'static str {
         match self {
             Self::Main => "import.meta.main",
+            Self::Dirname => "import.meta.dirname",
         }
     }
 }

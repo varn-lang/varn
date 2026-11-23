@@ -91,12 +91,20 @@ impl<'a> FnEmitter<'a> {
 
             ExprKind::This => return self.this_var(span),
             ExprKind::ImportMeta(property) => {
-                return TirExpr {
-                    kind: TirExprKind::Var,
-                    ty,
-                    res: Resolution::GlobalSlot(property.slot()),
-                    span,
-                }
+                return match property.global_slot() {
+                    Some(slot) => TirExpr {
+                        kind: TirExprKind::Var,
+                        ty,
+                        res: Resolution::GlobalSlot(slot),
+                        span,
+                    },
+                    None => TirExpr {
+                        kind: TirExprKind::StrLit(Arc::clone(&self.m.source_dir)),
+                        ty,
+                        res: Resolution::None,
+                        span,
+                    },
+                };
             }
 
             ExprKind::Member {
