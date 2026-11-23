@@ -126,4 +126,3 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 
 - **D8.** Una interfaz genérica instanciada se expande a una forma anónima antes de compararse y sigue siendo estructural. Hacerla nominal exige que el tipo conserve su interfaz de origen.
 - **Heredado del ADR-0033 (D5).** Auditoría de `dynamic`: cada uso debe estar en una frontera con el host o desaparecer.
-- **Heredado del ADR-0033.** El emisor resuelve variantes con `match_variant_by_name` cuando no conoce el enum del sujeto: es una búsqueda por nombre en runtime (Ley 17) que se elimina resolviendo el enum en compilación.
