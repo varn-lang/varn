@@ -71,7 +71,7 @@ pub enum SsaOp {
 
     ConstBigInt(std::sync::Arc<str>),
 
-    ConstDecimal(std::sync::Arc<str>),
+    ConstDecimal(bigdecimal::BigDecimal),
 
     MakeEnumVariant {
         def: std::sync::Arc<crate::value::VariantDef>,

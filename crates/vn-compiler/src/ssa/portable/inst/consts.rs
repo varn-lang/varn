@@ -10,7 +10,7 @@ pub(super) fn try_project(kind: &InstKind) -> Option<SsaOp> {
         InstKind::ConstStr(s) => Some(SsaOp::ConstStr(s.clone())),
         InstKind::ConstChar(c) => Some(SsaOp::ConstChar(*c)),
         InstKind::ConstBigInt(digits) => Some(SsaOp::ConstBigInt(digits.clone())),
-        InstKind::ConstDecimal(d) => Some(SsaOp::ConstDecimal(d.to_string().into())),
+        InstKind::ConstDecimal(d) => Some(SsaOp::ConstDecimal(d.clone())),
         InstKind::MakeEnumVariant { def } => Some(SsaOp::MakeEnumVariant { def: def.clone() }),
         InstKind::LoadGlobalIdx(slot) => Some(SsaOp::LoadGlobalIdx(*slot)),
         InstKind::LoadNativeGlobalIdx(slot) => Some(SsaOp::LoadNativeGlobalIdx(*slot)),

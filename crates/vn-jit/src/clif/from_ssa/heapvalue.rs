@@ -184,11 +184,11 @@ pub(super) fn emit(
             "bigint",
             |l| matches!(l, Literal::BigInt(n) if n.to_string() == digits.as_ref()),
         )?),
-        SsaOp::ConstDecimal(text) => Out::Boxed(pool::literal(
+        SsaOp::ConstDecimal(value) => Out::Boxed(pool::literal(
             b,
             ctx,
             "decimal",
-            |l| matches!(l, Literal::Decimal(d) if d.to_string() == text.as_ref()),
+            |l| matches!(l, Literal::Decimal(d) if d.as_bigint_and_scale() == value.as_bigint_and_scale()),
         )?),
         SsaOp::MakeEnumVariant { def } => {
             Out::Boxed(classops::emit_make_enum_variant(b, ctx, def)?)
