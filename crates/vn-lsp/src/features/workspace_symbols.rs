@@ -1,5 +1,5 @@
 use crate::index::ProjectIndex;
-use crate::util::converters::to_lsp_symbol_kind;
+use crate::util::kinds::to_lsp_symbol_kind;
 use tower_lsp_f::lsp_types::{
     BaseSymbolInformation, Location, Position, Range, SymbolInformation, Uri,
 };

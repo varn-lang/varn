@@ -120,7 +120,7 @@ pub fn outgoing_calls(
     let mut outgoing = Vec::new();
 
     for (callee_name, call_range) in calls_in(&state).filter(|(_, r)| encloses(&target_range, r)) {
-        let call_range = to_lsp_range(&call_range);
+        let call_range = crate::util::converters::source_range(&call_range);
         let callee_item = CallHierarchyItem {
             name: callee_name,
             kind: LspSymbolKind::Function,
@@ -307,20 +307,11 @@ fn find_calls_to(file: &DocumentState, target_callee: &str) -> Vec<(String, Rang
                 .iter()
                 .filter(|(_, r)| encloses(r, &call))
                 .min_by_key(|(_, r)| r.end.offset - r.start.offset)?;
-            Some((name.clone(), to_lsp_range(range), to_lsp_range(&call)))
+            Some((
+                name.clone(),
+                crate::util::converters::source_range(range),
+                crate::util::converters::source_range(&call),
+            ))
         })
         .collect()
-}
-
-fn to_lsp_range(r: &vn_core::SourceRange) -> Range {
-    Range {
-        start: Position {
-            line: r.start.line.saturating_sub(1),
-            character: r.start.column,
-        },
-        end: Position {
-            line: r.end.line.saturating_sub(1),
-            character: r.end.column,
-        },
-    }
 }

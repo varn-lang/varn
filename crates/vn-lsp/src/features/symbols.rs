@@ -2,8 +2,9 @@ use tower_lsp_f::lsp_types::{DocumentSymbol, DocumentSymbolResponse, Range};
 use vn_sem::symbol::SymbolKind;
 
 use crate::document::{DocumentState, SymbolView};
-use crate::util::converters::{range_on_line, to_lsp_symbol_kind};
+use crate::util::converters::range_on_line;
 use crate::util::kinds::is_container_symbol_kind;
+use crate::util::kinds::to_lsp_symbol_kind;
 
 pub fn build_document_symbols(state: &DocumentState) -> DocumentSymbolResponse {
     let mut sorted: Vec<SymbolView<'_>> = state

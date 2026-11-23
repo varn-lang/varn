@@ -3,7 +3,7 @@ use tower_lsp_f::lsp_types::{CompletionItem, InsertTextFormat};
 use vn_sem::symbol::SymbolKind;
 
 use crate::document::DocumentState;
-use crate::util::converters::to_completion_kind;
+use crate::util::kinds::to_completion_kind;
 
 pub fn build_scope_completions(
     state: &DocumentState,

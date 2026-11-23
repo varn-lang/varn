@@ -21,15 +21,9 @@ pub fn zero_range(line: u32, col: u32) -> Range {
     range_on_line(line, col, col)
 }
 
-use tower_lsp_f::lsp_types::SymbolKind as LspSymbolKind;
-use vn_sem::symbol::SymbolKind;
-
-pub fn to_lsp_symbol_kind(kind: SymbolKind) -> LspSymbolKind {
-    crate::util::kinds::to_lsp_symbol_kind(kind)
-}
-
-use tower_lsp_f::lsp_types::CompletionItemKind;
-
-pub fn to_completion_kind(kind: SymbolKind) -> CompletionItemKind {
-    crate::util::kinds::to_completion_kind(kind)
+pub fn source_range(r: &vn_core::SourceRange) -> Range {
+    Range {
+        start: pos(r.start.line.saturating_sub(1), r.start.column),
+        end: pos(r.end.line.saturating_sub(1), r.end.column),
+    }
 }

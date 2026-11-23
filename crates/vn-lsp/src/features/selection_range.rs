@@ -150,7 +150,7 @@ fn collect_in_stmt(a: &AstArena, stmt: StmtId, line: u32, col: u32, ranges: &mut
         | StmtKind::Debugger => {}
     }
 
-    ranges.push(to_lsp_range(&stmt.range));
+    ranges.push(crate::util::converters::source_range(&stmt.range));
 }
 
 fn collect_in_expr(a: &AstArena, expr: ExprId, line: u32, col: u32, ranges: &mut Vec<Range>) {
@@ -182,7 +182,7 @@ fn collect_in_expr(a: &AstArena, expr: ExprId, line: u32, col: u32, ranges: &mut
             collect_in_expr(a, *subject, line, col, ranges);
             for case in cases {
                 if contains_pos(&case.range, line, col) {
-                    ranges.push(to_lsp_range(&case.range));
+                    ranges.push(crate::util::converters::source_range(&case.range));
                 }
             }
         }
@@ -228,7 +228,7 @@ fn collect_in_expr(a: &AstArena, expr: ExprId, line: u32, col: u32, ranges: &mut
         | ExprKind::MetaAccess { .. } => {}
     }
 
-    ranges.push(to_lsp_range(&expr.range));
+    ranges.push(crate::util::converters::source_range(&expr.range));
 }
 
 fn contains_pos(r: &SourceRange, line: u32, col: u32) -> bool {
@@ -244,17 +244,4 @@ fn contains_pos(r: &SourceRange, line: u32, col: u32) -> bool {
         return false;
     }
     true
-}
-
-fn to_lsp_range(r: &SourceRange) -> Range {
-    Range {
-        start: Position {
-            line: r.start.line.saturating_sub(1),
-            character: r.start.column,
-        },
-        end: Position {
-            line: r.end.line.saturating_sub(1),
-            character: r.end.column,
-        },
-    }
 }

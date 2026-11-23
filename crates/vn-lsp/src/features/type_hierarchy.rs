@@ -1,6 +1,7 @@
 use crate::document::DocumentState;
 use crate::index::ProjectIndex;
-use crate::util::converters::{to_lsp_symbol_kind, zero_range};
+use crate::util::converters::zero_range;
+use crate::util::kinds::to_lsp_symbol_kind;
 use tower_lsp_f::lsp_types::{Position, Range, SymbolKind as LspKind, TypeHierarchyItem, Uri};
 
 pub fn prepare(
