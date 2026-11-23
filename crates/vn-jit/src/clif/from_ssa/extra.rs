@@ -38,13 +38,8 @@ pub(super) fn try_emit(
             props::property_maybe(b, ctx, values, *object, name)
         }
         SsaOp::AssertNotNull { operand } => props::assert_not_null(b, ctx, values, *operand),
-        SsaOp::BindMethod { object, name } => props::bind_method(b, ctx, values, *object, name),
         SsaOp::GetSlotMethod { object, slot } => props::slot_method(b, ctx, values, *object, *slot),
         SsaOp::GetSuperSlot { slot } => props::super_slot(b, ctx, *slot),
-        SsaOp::ArrayExtend { array, source } => {
-            props::array_extend(b, ctx, values, *array, *source)
-        }
-        SsaOp::WrapSpread { operand } => props::wrap_spread(b, ctx, values, *operand),
         SsaOp::Range {
             start,
             end,

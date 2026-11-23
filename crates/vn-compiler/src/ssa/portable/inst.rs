@@ -134,9 +134,6 @@ fn annotate(op: &SsaOp, site: &Site) -> Option<(Option<u16>, Option<SsaResume>)>
         | SsaOp::ObjectRest { .. }
         | SsaOp::GetPropertyMaybe { .. }
         | SsaOp::AssertNotNull { .. }
-        | SsaOp::BindMethod { .. }
-        | SsaOp::ArrayExtend { .. }
-        | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }

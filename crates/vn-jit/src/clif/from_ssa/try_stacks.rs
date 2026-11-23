@@ -85,9 +85,6 @@ pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Ve
             | vn_types::ssa::SsaOp::ObjectRest { .. }
             | vn_types::ssa::SsaOp::GetPropertyMaybe { .. }
             | vn_types::ssa::SsaOp::AssertNotNull { .. }
-            | vn_types::ssa::SsaOp::BindMethod { .. }
-            | vn_types::ssa::SsaOp::ArrayExtend { .. }
-            | vn_types::ssa::SsaOp::WrapSpread { .. }
             | vn_types::ssa::SsaOp::Range { .. }
             | vn_types::ssa::SsaOp::SuperCall { .. }
             | vn_types::ssa::SsaOp::SuperMethodCall { .. }
@@ -197,9 +194,6 @@ pub(super) fn stack_before_try(
             | vn_types::ssa::SsaOp::ObjectRest { .. }
             | vn_types::ssa::SsaOp::GetPropertyMaybe { .. }
             | vn_types::ssa::SsaOp::AssertNotNull { .. }
-            | vn_types::ssa::SsaOp::BindMethod { .. }
-            | vn_types::ssa::SsaOp::ArrayExtend { .. }
-            | vn_types::ssa::SsaOp::WrapSpread { .. }
             | vn_types::ssa::SsaOp::Range { .. }
             | vn_types::ssa::SsaOp::SuperCall { .. }
             | vn_types::ssa::SsaOp::SuperMethodCall { .. }

@@ -136,9 +136,6 @@ pub(super) fn keeps_views(ssa: &SsaProto, op: &SsaOp) -> bool {
         | SsaOp::ObjectMerge { .. }
         | SsaOp::ObjectRest { .. }
         | SsaOp::GetPropertyMaybe { .. }
-        | SsaOp::BindMethod { .. }
-        | SsaOp::ArrayExtend { .. }
-        | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }

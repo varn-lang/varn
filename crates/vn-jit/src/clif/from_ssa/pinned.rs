@@ -72,8 +72,7 @@ pub(super) fn compute(
                     match &inst.op {
                         SsaOp::ArraySetIndex { object: o, .. }
                         | SsaOp::BytesSetIndex { object: o, .. }
-                        | SsaOp::ArrayPush { array: o, .. }
-                        | SsaOp::ArrayExtend { array: o, .. } => {
+                        | SsaOp::ArrayPush { array: o, .. } => {
                             if o == object {
                                 ok = false;
                                 break;
@@ -151,8 +150,6 @@ pub(super) fn compute(
                         | SsaOp::ObjectRest { .. }
                         | SsaOp::GetPropertyMaybe { .. }
                         | SsaOp::AssertNotNull { .. }
-                        | SsaOp::BindMethod { .. }
-                        | SsaOp::WrapSpread { .. }
                         | SsaOp::Range { .. }
                         | SsaOp::SuperCall { .. }
                         | SsaOp::SuperMethodCall { .. }

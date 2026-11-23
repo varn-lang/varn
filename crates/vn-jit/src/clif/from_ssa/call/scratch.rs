@@ -109,11 +109,8 @@ pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
                 | SsaOp::ObjectMerge { .. }
                 | SsaOp::GetPropertyMaybe { .. }
                 | SsaOp::AssertNotNull { .. }
-                | SsaOp::BindMethod { .. }
                 | SsaOp::GetSlotMethod { .. }
                 | SsaOp::GetSuperSlot { .. }
-                | SsaOp::ArrayExtend { .. }
-                | SsaOp::WrapSpread { .. }
                 | SsaOp::Range { .. }
                 | SsaOp::LoadModule { .. }
                 | SsaOp::ModuleSlot { .. }

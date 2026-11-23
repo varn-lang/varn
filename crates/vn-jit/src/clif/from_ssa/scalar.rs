@@ -291,9 +291,6 @@ pub(super) fn emit_inst(
         | SsaOp::ObjectRest { .. }
         | SsaOp::GetPropertyMaybe { .. }
         | SsaOp::AssertNotNull { .. }
-        | SsaOp::BindMethod { .. }
-        | SsaOp::ArrayExtend { .. }
-        | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }

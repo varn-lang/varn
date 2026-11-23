@@ -39,7 +39,6 @@ impl SsaOp {
             | SsaOp::StrLength { operand }
             | SsaOp::BytesLength { operand }
             | SsaOp::AssertNotNull { operand }
-            | SsaOp::WrapSpread { operand }
             | SsaOp::Spawn { operand } => f(*operand),
             SsaOp::SelfCall { args } | SsaOp::SuperCall { args } => args.iter().for_each(|a| f(*a)),
             SsaOp::SuperMethodCall { args, .. } | SsaOp::SuperInvokeSlot { args, .. } => {
@@ -106,7 +105,6 @@ impl SsaOp {
             | SsaOp::GetFixedField { object, .. }
             | SsaOp::ObjectRest { object, .. }
             | SsaOp::GetPropertyMaybe { object, .. }
-            | SsaOp::BindMethod { object, .. }
             | SsaOp::ModuleSlot { object, .. } => f(*object),
             SsaOp::SetProperty { object, value, .. }
             | SsaOp::SetFixedField { object, value, .. } => {
@@ -135,10 +133,6 @@ impl SsaOp {
             SsaOp::BuildObjectSpread { parts, .. } => parts.iter().for_each(|p| f(p.value)),
             SsaOp::ObjectMerge { target, source } => {
                 f(*target);
-                f(*source);
-            }
-            SsaOp::ArrayExtend { array, source } => {
-                f(*array);
                 f(*source);
             }
             SsaOp::Range { start, end, .. } => {

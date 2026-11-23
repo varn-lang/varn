@@ -125,9 +125,6 @@ impl Views {
                 | SsaOp::ObjectRest { .. }
                 | SsaOp::GetPropertyMaybe { .. }
                 | SsaOp::AssertNotNull { .. }
-                | SsaOp::BindMethod { .. }
-                | SsaOp::ArrayExtend { .. }
-                | SsaOp::WrapSpread { .. }
                 | SsaOp::Range { .. }
                 | SsaOp::SuperCall { .. }
                 | SsaOp::SuperMethodCall { .. }
@@ -219,9 +216,6 @@ impl Views {
                 | SsaOp::ObjectRest { .. }
                 | SsaOp::GetPropertyMaybe { .. }
                 | SsaOp::AssertNotNull { .. }
-                | SsaOp::BindMethod { .. }
-                | SsaOp::ArrayExtend { .. }
-                | SsaOp::WrapSpread { .. }
                 | SsaOp::Range { .. }
                 | SsaOp::SuperCall { .. }
                 | SsaOp::SuperMethodCall { .. }

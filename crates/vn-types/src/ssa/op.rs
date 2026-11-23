@@ -327,20 +327,6 @@ pub enum SsaOp {
         operand: ValueId,
     },
 
-    BindMethod {
-        object: ValueId,
-        name: std::sync::Arc<str>,
-    },
-
-    ArrayExtend {
-        array: ValueId,
-        source: ValueId,
-    },
-
-    WrapSpread {
-        operand: ValueId,
-    },
-
     Range {
         start: ValueId,
         end: ValueId,

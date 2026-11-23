@@ -139,9 +139,6 @@ pub(super) fn emit(
         | SsaOp::ObjectRest { .. }
         | SsaOp::GetPropertyMaybe { .. }
         | SsaOp::AssertNotNull { .. }
-        | SsaOp::BindMethod { .. }
-        | SsaOp::ArrayExtend { .. }
-        | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }
@@ -438,11 +435,8 @@ pub(super) fn emit(
         | SsaOp::ObjectRest { .. }
         | SsaOp::GetPropertyMaybe { .. }
         | SsaOp::AssertNotNull { .. }
-        | SsaOp::BindMethod { .. }
         | SsaOp::GetSlotMethod { .. }
         | SsaOp::GetSuperSlot { .. }
-        | SsaOp::ArrayExtend { .. }
-        | SsaOp::WrapSpread { .. }
         | SsaOp::Range { .. }
         | SsaOp::SuperCall { .. }
         | SsaOp::SuperMethodCall { .. }

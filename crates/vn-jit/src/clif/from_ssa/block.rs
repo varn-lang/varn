@@ -274,9 +274,6 @@ pub(super) fn lower_block(
             | vn_types::ssa::SsaOp::ObjectRest { .. }
             | vn_types::ssa::SsaOp::GetPropertyMaybe { .. }
             | vn_types::ssa::SsaOp::AssertNotNull { .. }
-            | vn_types::ssa::SsaOp::BindMethod { .. }
-            | vn_types::ssa::SsaOp::ArrayExtend { .. }
-            | vn_types::ssa::SsaOp::WrapSpread { .. }
             | vn_types::ssa::SsaOp::Range { .. }
             | vn_types::ssa::SsaOp::SuperCall { .. }
             | vn_types::ssa::SsaOp::SuperMethodCall { .. }
