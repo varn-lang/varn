@@ -51,9 +51,11 @@ impl<'r> Checker<'r> {
         if bind.interner.get(&name).and_then(kind_of) != Some(SymbolKind::Class) {
             return;
         }
-        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(&name, origin.as_deref())
-        else {
+        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver).type_members(
+            vn_sem::types::DeclKind::Class,
+            &name,
+            origin.as_deref(),
+        ) else {
             return;
         };
         let mut sides = members
@@ -90,9 +92,11 @@ impl<'r> Checker<'r> {
         else {
             return;
         };
-        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(&parent.name, parent.origin.as_deref())
-        else {
+        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver).type_members(
+            vn_sem::types::DeclKind::Class,
+            &parent.name,
+            parent.origin.as_deref(),
+        ) else {
             return;
         };
         let has = |kind: ClassMemberKind| {
@@ -124,9 +128,11 @@ impl<'r> Checker<'r> {
         };
         let name = self.resolve_bind_atom(bind, name);
         let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
-        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(&name, origin.as_deref())
-        else {
+        let Some(members) = vn_sem::bind::BindView::new(bind, self.resolver).type_members(
+            vn_sem::types::DeclKind::Class,
+            &name,
+            origin.as_deref(),
+        ) else {
             return;
         };
         let has = |kind: ClassMemberKind| {
@@ -176,7 +182,7 @@ impl<'r> Checker<'r> {
             | TypeKind::TypePredicate { .. } => return false,
         };
         let view = vn_sem::bind::BindView::new(bind, self.resolver);
-        view.get_interface_members(&name, origin.as_deref())
+        view.type_members(vn_sem::types::DeclKind::Interface, &name, origin.as_deref())
             .is_some_and(|members| {
                 members
                     .iter()

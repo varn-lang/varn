@@ -55,8 +55,12 @@ pub trait ImportResolver {
                 continue;
             };
             if bind.get_class_entry(type_name).is_some()
-                || bind.get_namespace_members_local(type_name).is_some()
-                || bind.get_interface_members_local(type_name).is_some()
+                || bind
+                    .members_local(crate::types::DeclKind::Namespace, type_name)
+                    .is_some()
+                || bind
+                    .members_local(crate::types::DeclKind::Interface, type_name)
+                    .is_some()
             {
                 return Some(bind);
             }

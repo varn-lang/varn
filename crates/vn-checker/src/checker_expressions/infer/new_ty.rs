@@ -164,7 +164,11 @@ impl<'r> Checker<'r> {
             return None;
         }
         let ctor = vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(class, origin.map(|o| o.as_ref()))
+            .type_members(
+                vn_sem::types::DeclKind::Class,
+                class,
+                origin.map(|o| o.as_ref()),
+            )
             .and_then(|members| {
                 members
                     .iter()

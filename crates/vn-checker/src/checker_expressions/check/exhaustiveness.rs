@@ -183,7 +183,9 @@ impl<'r> Checker<'r> {
             return;
         }
 
-        if let Some(variants) = owner.get_enum_members_local(type_name.as_ref()) {
+        if let Some(variants) =
+            owner.members_local(vn_sem::types::DeclKind::Enum, type_name.as_ref())
+        {
             let uncovered: Vec<String> = variants
                 .iter()
                 .filter(|v| {

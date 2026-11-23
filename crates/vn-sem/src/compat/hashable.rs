@@ -151,30 +151,33 @@ fn nominal_is_hashable(
         .as_ref()
         .map_or(table, |owning_bind| &*owning_bind.ty_table);
 
-    let member_types: Vec<Type> =
-        if let Some(variants) = member_view.get_enum_members(&name_str, origin_str) {
-            variants
-                .iter()
-                .filter(|variant| variant.kind == ClassMemberKind::Property)
-                .flat_map(|variant| variant_payload_types(variant, member_table))
-                .collect()
-        } else if let Some(members) = member_view.get_class_members(&name_str, origin_str) {
-            let is_struct = member_view
-                .class_entry(&name_str, origin_str)
-                .is_some_and(|entry| entry.is_struct);
-            if !is_struct {
-                return true;
-            }
-            members
-                .iter()
-                .filter(|member| !member.is_static && member.kind == ClassMemberKind::Property)
-                .map(|member| member.ty)
-                .collect()
-        } else {
-            return member_view
-                .get_interface_members(&name_str, origin_str)
-                .is_none();
-        };
+    let member_types: Vec<Type> = if let Some(variants) =
+        member_view.type_members(crate::types::DeclKind::Enum, &name_str, origin_str)
+    {
+        variants
+            .iter()
+            .filter(|variant| variant.kind == ClassMemberKind::Property)
+            .flat_map(|variant| variant_payload_types(variant, member_table))
+            .collect()
+    } else if let Some(members) =
+        member_view.type_members(crate::types::DeclKind::Class, &name_str, origin_str)
+    {
+        let is_struct = member_view
+            .class_entry(&name_str, origin_str)
+            .is_some_and(|entry| entry.is_struct);
+        if !is_struct {
+            return true;
+        }
+        members
+            .iter()
+            .filter(|member| !member.is_static && member.kind == ClassMemberKind::Property)
+            .map(|member| member.ty)
+            .collect()
+    } else {
+        return member_view
+            .type_members(crate::types::DeclKind::Interface, &name_str, origin_str)
+            .is_none();
+    };
     if !args
         .iter()
         .all(|arg| hashable_in(arg, Some(bind), visiting, table))

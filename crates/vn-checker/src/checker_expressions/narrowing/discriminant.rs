@@ -129,16 +129,21 @@ impl<'r> Checker<'r> {
                                         }),
                                     TypeKind::Named(cn, _) => {
                                         let cn_str = bind.interner.resolve(cn).to_string();
-                                        bind.get_interface_members_local(&cn_str)
-                                            .or_else(|| {
-                                                bind.get_class_entry(&cn_str).map(|e| &e.members)
-                                            })
-                                            .is_some_and(|ms| {
+                                        bind.members_local(
+                                            vn_sem::types::DeclKind::Interface,
+                                            &cn_str,
+                                        )
+                                        .or_else(|| {
+                                            bind.get_class_entry(&cn_str).map(|e| &e.members)
+                                        })
+                                        .is_some_and(
+                                            |ms| {
                                                 ms.iter().any(|cm| {
                                                     cm.name.as_ref() == prop_name_str
                                                         && cm.ty == disc_ty
                                                 })
-                                            })
+                                            },
+                                        )
                                     }
                                     TypeKind::Primitive(_)
                                     | TypeKind::Literal(_)
@@ -267,7 +272,7 @@ impl<'r> Checker<'r> {
                 }),
             TypeKind::Named(cn, _) => {
                 let cn_str = bind.interner.resolve(cn).to_string();
-                bind.get_interface_members_local(&cn_str)
+                bind.members_local(vn_sem::types::DeclKind::Interface, &cn_str)
                     .or_else(|| bind.get_class_entry(&cn_str).map(|e| &e.members))
                     .is_some_and(|ms| {
                         ms.iter()

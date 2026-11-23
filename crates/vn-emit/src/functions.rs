@@ -204,7 +204,10 @@ pub(super) fn emit_function(
         .and_then(|s| s.ty);
     let fn_ty: Option<vn_sem::types::Type> = match ns {
         Some(ns) => bind
-            .get_namespace_members_local(ns.rsplit("::").next().unwrap_or(ns))
+            .members_local(
+                vn_sem::types::DeclKind::Namespace,
+                ns.rsplit("::").next().unwrap_or(ns),
+            )
             .and_then(|members| {
                 members
                     .iter()

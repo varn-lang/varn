@@ -83,11 +83,13 @@ impl<'r> Checker<'r> {
             }
 
             let mut variants = Vec::new();
-            if let Some(members) = bind.get_enum_members_local(name.as_ref()) {
+            if let Some(members) = bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
+            {
                 variants.extend(members.iter().map(|m| m.name.clone()));
             }
             if let Some(ext_bind) = self.resolver.find_bind_for_type(&name, &origin_modules)
-                && let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
+                && let Some(members) =
+                    ext_bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
             {
                 variants.extend(members.iter().map(|m| m.name.clone()));
             }
@@ -141,7 +143,7 @@ impl<'r> Checker<'r> {
         {
             return Some((m.ty, super::member_auth::MemberAuth::of_member(bind, m)));
         }
-        if let Some(members) = bind.get_enum_members_local(name.as_ref())
+        if let Some(members) = bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
             return Some((m.ty, super::member_auth::MemberAuth::of_member(bind, m)));
@@ -237,7 +239,7 @@ impl<'r> Checker<'r> {
                 super::member_auth::MemberAuth::of_member(ext_bind, m),
             ));
         }
-        if let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
+        if let Some(members) = ext_bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
             && let Some(m) = members.iter().find(|m| m.name.as_ref() == key)
         {
             let ty = m.ty;

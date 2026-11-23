@@ -19,8 +19,9 @@ impl TypeContext for Binder<'_> {
         Some(self.ast_arena)
     }
 
-    fn get_interface_members(
+    fn type_members(
         &self,
+        kind: vn_sem::types::DeclKind,
         name: &str,
         origin: Option<&str>,
     ) -> Option<Vec<ClassMemberInfo>> {
@@ -31,55 +32,9 @@ impl TypeContext for Binder<'_> {
                 .module_bind(origin)
                 .or_else(|| self.resolver.stdlib_bind(origin))
         {
-            return rb.type_members.interfaces.get(name).cloned();
+            return rb.type_members.members(kind, name).cloned();
         }
-        self.type_members.interfaces.get(name).cloned()
-    }
-
-    fn get_class_members(&self, name: &str, origin: Option<&str>) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(origin) = origin
-            && origin != self.source_file.as_ref()
-            && let Some(rb) = self
-                .resolver
-                .module_bind(origin)
-                .or_else(|| self.resolver.stdlib_bind(origin))
-        {
-            return rb.type_members.classes.get(name).map(|e| e.members.clone());
-        }
-        self.type_members
-            .classes
-            .get(name)
-            .map(|e| e.members.clone())
-    }
-
-    fn get_namespace_members(
-        &self,
-        name: &str,
-        origin: Option<&str>,
-    ) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(origin) = origin
-            && origin != self.source_file.as_ref()
-            && let Some(rb) = self
-                .resolver
-                .module_bind(origin)
-                .or_else(|| self.resolver.stdlib_bind(origin))
-        {
-            return rb.type_members.namespaces.get(name).cloned();
-        }
-        self.type_members.namespaces.get(name).cloned()
-    }
-
-    fn get_enum_members(&self, name: &str, origin: Option<&str>) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(origin) = origin
-            && origin != self.source_file.as_ref()
-            && let Some(rb) = self
-                .resolver
-                .module_bind(origin)
-                .or_else(|| self.resolver.stdlib_bind(origin))
-        {
-            return rb.type_members.enums.get(name).cloned();
-        }
-        self.type_members.enums.get(name).cloned()
+        self.type_members.members(kind, name).cloned()
     }
 
     fn is_type_parameter(&self, name: &str) -> bool {

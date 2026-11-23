@@ -106,10 +106,18 @@ impl<'r> Checker<'r> {
         let class = self.resolve_bind_atom(bind, class);
         let class_origin = class_origin.map(|o| self.resolve_bind_atom(bind, o));
         use vn_sem::types::TypeContext;
-        view.get_interface_members(&interface, interface_origin.as_deref())
-            .is_some()
+        view.type_members(
+            vn_sem::types::DeclKind::Interface,
+            &interface,
+            interface_origin.as_deref(),
+        )
+        .is_some()
             && view
-                .get_class_members(&class, class_origin.as_deref())
+                .type_members(
+                    vn_sem::types::DeclKind::Class,
+                    &class,
+                    class_origin.as_deref(),
+                )
                 .is_some()
             && !vn_sem::compat::class_declares(&view, &class, class_origin.as_deref(), &interface)
     }
@@ -141,10 +149,14 @@ impl<'r> Checker<'r> {
         let name = self.resolve_bind_atom(bind, name_atom);
         let origin = origin_atom.map(|o| self.resolve_bind_atom(bind, o));
         let view = BindView::new(bind, self.resolver);
-        if view.get_class_members(&name, origin.as_deref()).is_some() {
+        if view
+            .type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref())
+            .is_some()
+        {
             return None;
         }
-        let members = view.get_interface_members(&name, origin.as_deref())?;
+        let members =
+            view.type_members(vn_sem::types::DeclKind::Interface, &name, origin.as_deref())?;
         let args: Vec<Type> = self
             .ty_table
             .get_list(args_list)

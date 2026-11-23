@@ -26,7 +26,7 @@ fn check_in_bind(name: &Arc<str>, key: &str, ext_bind: &vn_sem::bind::BindResult
     {
         return true;
     }
-    if let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
+    if let Some(members) = ext_bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
         && members.iter().any(|m| m.name.as_ref() == key)
     {
         return true;
@@ -172,11 +172,14 @@ impl<'r> Checker<'r> {
                     }
 
                     let mut variants = Vec::new();
-                    if let Some(members) = bind.get_enum_members_local(name.as_ref()) {
+                    if let Some(members) =
+                        bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
+                    {
                         variants.extend(members.iter().map(|m| m.name.clone()));
                     }
                     if let Some(ext_bind) = self.resolver.find_bind_for_type(&name, &origin_modules)
-                        && let Some(members) = ext_bind.get_enum_members_local(name.as_ref())
+                        && let Some(members) =
+                            ext_bind.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
                     {
                         variants.extend(members.iter().map(|m| m.name.clone()));
                     }

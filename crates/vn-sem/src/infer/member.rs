@@ -133,7 +133,11 @@ pub(crate) fn infer_member(
                     return Type::Dynamic;
                 };
                 let origin_str = origin.and_then(|o| ctx_resolve_text(Some(ctx), o));
-                if let Some(variants) = ctx.get_enum_members(&name_str, origin_str.as_deref()) {
+                if let Some(variants) = ctx.type_members(
+                    crate::types::DeclKind::Enum,
+                    &name_str,
+                    origin_str.as_deref(),
+                ) {
                     if prop_name == vn_core::MemberKey::RawValue.name()
                         || prop_name == vn_core::MemberKey::Tag.name()
                     {
@@ -162,10 +166,10 @@ pub(crate) fn infer_member(
                 }
                 let origin = origin_str.as_deref();
                 let found = [
-                    ctx.get_class_members(&name_str, origin),
-                    ctx.get_interface_members(&name_str, origin),
-                    ctx.get_namespace_members(&name_str, origin),
-                    ctx.get_enum_members(&name_str, origin),
+                    ctx.type_members(crate::types::DeclKind::Class, &name_str, origin),
+                    ctx.type_members(crate::types::DeclKind::Interface, &name_str, origin),
+                    ctx.type_members(crate::types::DeclKind::Namespace, &name_str, origin),
+                    ctx.type_members(crate::types::DeclKind::Enum, &name_str, origin),
                 ]
                 .into_iter()
                 .flatten()

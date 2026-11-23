@@ -60,30 +60,13 @@ impl TypeContext for AliasSubstitutionContext<'_> {
         self.inner.and_then(|c| c.symbol_kind(name))
     }
 
-    fn get_interface_members(
+    fn type_members(
         &self,
+        kind: crate::types::DeclKind,
         name: &str,
         origin: Option<&str>,
     ) -> Option<Vec<crate::types::ClassMemberInfo>> {
-        self.inner
-            .and_then(|c| c.get_interface_members(name, origin))
-    }
-
-    fn get_class_members(
-        &self,
-        name: &str,
-        origin: Option<&str>,
-    ) -> Option<Vec<crate::types::ClassMemberInfo>> {
-        self.inner.and_then(|c| c.get_class_members(name, origin))
-    }
-
-    fn get_namespace_members(
-        &self,
-        name: &str,
-        origin: Option<&str>,
-    ) -> Option<Vec<crate::types::ClassMemberInfo>> {
-        self.inner
-            .and_then(|c| c.get_namespace_members(name, origin))
+        self.inner.and_then(|c| c.type_members(kind, name, origin))
     }
 
     fn source_file(&self) -> Option<&str> {

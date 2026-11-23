@@ -8,7 +8,10 @@ pub(crate) fn is_enum_type(
     name: &Arc<str>,
     origin_modules: &[String],
 ) -> bool {
-    if bind.get_enum_members_local(name.as_ref()).is_some() {
+    if bind
+        .members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
+        .is_some()
+    {
         return true;
     }
     if bind
@@ -26,5 +29,8 @@ pub(crate) fn is_enum_type(
     resolver
         .find_bind_for_type(name, origin_modules)
         .as_ref()
-        .is_some_and(|eb| eb.get_enum_members_local(name.as_ref()).is_some())
+        .is_some_and(|eb| {
+            eb.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())
+                .is_some()
+        })
 }

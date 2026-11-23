@@ -20,7 +20,8 @@ pub fn qualified_type(
         };
         let scope = text(scope, ctx, table)?;
         origin = declared_in.and_then(|a| text(a, ctx, table)).or(origin);
-        let members = ctx.get_namespace_members(&scope, origin.as_deref())?;
+        let members =
+            ctx.type_members(crate::types::DeclKind::Namespace, &scope, origin.as_deref())?;
         let member = members.into_iter().find(|m| m.name.as_ref() == segment)?;
         ty = match member.kind {
             ClassMemberKind::Type(_) => {

@@ -229,7 +229,9 @@ impl<'r> Checker<'r> {
                 bind,
             );
             let known = !expected.is_empty()
-                || view.get_class_members(class, None).is_some()
+                || view
+                    .type_members(vn_sem::types::DeclKind::Class, class, None)
+                    .is_some()
                 || bind
                     .core
                     .as_ref()
@@ -249,12 +251,13 @@ impl<'r> Checker<'r> {
             }
         }
         let declared = cls_name.and_then(|cn| {
-            view.get_class_members(cn, None).and_then(|members| {
-                members
-                    .iter()
-                    .find(|m| m.kind == vn_sem::types::ClassMemberKind::Constructor)
-                    .map(|m| m.ty)
-            })
+            view.type_members(vn_sem::types::DeclKind::Class, cn, None)
+                .and_then(|members| {
+                    members
+                        .iter()
+                        .find(|m| m.kind == vn_sem::types::ClassMemberKind::Constructor)
+                        .map(|m| m.ty)
+                })
         });
         let cls_name: Option<String> = cls_name.map(str::to_owned);
         if let Some(class) = cls_name.as_deref() {

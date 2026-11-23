@@ -28,7 +28,11 @@ impl<'r> Checker<'r> {
             return;
         }
         let constructor = vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(&parent.name, parent.origin.as_deref())
+            .type_members(
+                vn_sem::types::DeclKind::Class,
+                &parent.name,
+                parent.origin.as_deref(),
+            )
             .and_then(|members| {
                 members
                     .iter()

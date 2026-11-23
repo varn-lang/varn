@@ -84,7 +84,11 @@ pub(super) fn infer_member(c: &mut CallTypeCtx, object: ExprId, property: ExprId
     };
 
     if let Some(ctx) = c.ctx
-        && let Some(members) = ctx.get_class_members(&class_name, origin.as_deref())
+        && let Some(members) = ctx.type_members(
+            vn_sem::types::DeclKind::Class,
+            &class_name,
+            origin.as_deref(),
+        )
         && let Some(m) = members.iter().find(|m| m.name.as_ref() == prop_name)
     {
         return Some(m.ty);

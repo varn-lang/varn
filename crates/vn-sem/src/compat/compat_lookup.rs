@@ -32,10 +32,10 @@ pub(super) fn named_members(
     origin: Option<&str>,
 ) -> Option<Vec<ClassMemberInfo>> {
     use crate::types::TypeContext;
-    bind.get_interface_members(name, origin)
-        .or_else(|| bind.get_class_members(name, origin))
-        .or_else(|| bind.get_namespace_members(name, origin))
-        .or_else(|| bind.get_enum_members(name, origin))
+    bind.type_members(crate::types::DeclKind::Interface, name, origin)
+        .or_else(|| bind.type_members(crate::types::DeclKind::Class, name, origin))
+        .or_else(|| bind.type_members(crate::types::DeclKind::Namespace, name, origin))
+        .or_else(|| bind.type_members(crate::types::DeclKind::Enum, name, origin))
 }
 pub(super) fn compatible_named(
     declared: &str,
@@ -65,8 +65,14 @@ pub(super) fn compatible_named(
     };
     use crate::types::TypeContext;
 
-    if bind.get_class_members(declared, origin_decl).is_some() {
-        if bind.get_class_members(inferred, origin_inf).is_none() {
+    if bind
+        .type_members(crate::types::DeclKind::Class, declared, origin_decl)
+        .is_some()
+    {
+        if bind
+            .type_members(crate::types::DeclKind::Class, inferred, origin_inf)
+            .is_none()
+        {
             return false;
         }
         let mut current = inferred.to_owned();
@@ -85,8 +91,12 @@ pub(super) fn compatible_named(
         }
     }
 
-    if bind.get_interface_members(declared, origin_decl).is_some()
-        && bind.get_class_members(inferred, origin_inf).is_some()
+    if bind
+        .type_members(crate::types::DeclKind::Interface, declared, origin_decl)
+        .is_some()
+        && bind
+            .type_members(crate::types::DeclKind::Class, inferred, origin_inf)
+            .is_some()
         && !class_declares(bind, inferred, origin_inf, declared)
     {
         return false;
@@ -141,7 +151,10 @@ pub(super) fn class_value_satisfies(
         return true;
     };
     use crate::types::TypeContext;
-    if bind.get_interface_members(declared, origin_decl).is_none() {
+    if bind
+        .type_members(crate::types::DeclKind::Interface, declared, origin_decl)
+        .is_none()
+    {
         return false;
     }
     match (

@@ -1,3 +1,4 @@
+use crate::types::DeclKind;
 use super::BindResult;
 use crate::scope::ScopeId;
 use crate::types::TypeContext;
@@ -111,22 +112,22 @@ impl TypeContext for BindView<'_> {
         Some(&self.bind.ty_table)
     }
 
-    fn get_interface_members(
+    fn type_members(
         &self,
+        kind: DeclKind,
         name: &str,
         origin: Option<&str>,
     ) -> Option<Vec<ClassMemberInfo>> {
         if let Some(rb) = self.foreign(origin) {
-            return rb.get_interface_members_local(name).cloned();
+            return rb.members_local(kind, name).cloned();
         }
-        self.bind.get_interface_members_local(name).cloned()
-    }
-
-    fn get_class_members(&self, name: &str, origin: Option<&str>) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(rb) = self.foreign(origin) {
-            return rb.get_class_entry(name).map(|e| e.members.clone());
+        let mut members = self.bind.members_local(kind, name).cloned()?;
+        if kind == DeclKind::Namespace
+            && let Some(settled) = self.settled
+        {
+            super::settle_members(&mut members, settled);
         }
-        self.bind.get_class_entry(name).map(|e| e.members.clone())
+        Some(members)
     }
 
     fn class_entry(&self, name: &str, origin: Option<&str>) -> Option<ClassMemberInfo> {
@@ -134,28 +135,6 @@ impl TypeContext for BindView<'_> {
             return rb.get_class_entry(name).cloned();
         }
         self.bind.get_class_entry(name).cloned()
-    }
-
-    fn get_namespace_members(
-        &self,
-        name: &str,
-        origin: Option<&str>,
-    ) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(rb) = self.foreign(origin) {
-            return rb.get_namespace_members_local(name).cloned();
-        }
-        let mut members = self.bind.get_namespace_members_local(name).cloned()?;
-        if let Some(settled) = self.settled {
-            super::settle_members(&mut members, settled);
-        }
-        Some(members)
-    }
-
-    fn get_enum_members(&self, name: &str, origin: Option<&str>) -> Option<Vec<ClassMemberInfo>> {
-        if let Some(rb) = self.foreign(origin) {
-            return rb.get_enum_members_local(name).cloned();
-        }
-        self.bind.get_enum_members_local(name).cloned()
     }
 
     fn is_type_parameter(&self, name: &str) -> bool {

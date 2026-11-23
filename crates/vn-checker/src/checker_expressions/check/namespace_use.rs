@@ -56,10 +56,14 @@ impl<'r> Checker<'r> {
         let name = self.resolve_bind_atom(bind, name);
         let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
         let view = vn_sem::bind::BindView::new(bind, self.resolver);
-        view.get_namespace_members(&name, origin.as_deref())
+        view.type_members(vn_sem::types::DeclKind::Namespace, &name, origin.as_deref())
             .is_some()
-            && view.get_class_members(&name, origin.as_deref()).is_none()
-            && view.get_enum_members(&name, origin.as_deref()).is_none()
+            && view
+                .type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref())
+                .is_none()
+            && view
+                .type_members(vn_sem::types::DeclKind::Enum, &name, origin.as_deref())
+                .is_none()
     }
 
     pub(crate) fn reject_mutable_export(&mut self, export: &ExportDecl, bind: &BindResult) {

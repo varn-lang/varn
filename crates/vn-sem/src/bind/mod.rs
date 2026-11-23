@@ -59,6 +59,17 @@ pub struct TypeMembers {
     pub setters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Type>>,
 }
 
+impl TypeMembers {
+    pub fn members(&self, kind: DeclKind, name: &str) -> Option<&Vec<ClassMemberInfo>> {
+        match kind {
+            DeclKind::Class => self.classes.get(name).map(|entry| &entry.members),
+            DeclKind::Interface => self.interfaces.get(name),
+            DeclKind::Namespace => self.namespaces.get(name),
+            DeclKind::Enum => self.enums.get(name),
+        }
+    }
+}
+
 pub type VariantFields = FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>>;
 
 #[derive(Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -387,34 +398,19 @@ impl BindResult {
         scope.ordered.iter().map(|&id| self.arena.get(id))
     }
 
+    pub fn members_local(&self, kind: DeclKind, name: &str) -> Option<&Vec<ClassMemberInfo>> {
+        self.type_members.members(kind, name).or_else(|| {
+            self.core
+                .as_ref()
+                .and_then(|core| core.types.members(kind, name))
+        })
+    }
+
     pub fn get_class_entry(&self, name: &str) -> Option<&ClassMemberInfo> {
         self.type_members
             .classes
             .get(name)
             .or_else(|| self.core.as_ref().and_then(|b| b.types.classes.get(name)))
-    }
-
-    pub fn get_interface_members_local(&self, name: &str) -> Option<&Vec<ClassMemberInfo>> {
-        self.type_members.interfaces.get(name).or_else(|| {
-            self.core
-                .as_ref()
-                .and_then(|b| b.types.interfaces.get(name))
-        })
-    }
-
-    pub fn get_namespace_members_local(&self, name: &str) -> Option<&Vec<ClassMemberInfo>> {
-        self.type_members.namespaces.get(name).or_else(|| {
-            self.core
-                .as_ref()
-                .and_then(|b| b.types.namespaces.get(name))
-        })
-    }
-
-    pub fn get_enum_members_local(&self, name: &str) -> Option<&Vec<ClassMemberInfo>> {
-        self.type_members
-            .enums
-            .get(name)
-            .or_else(|| self.core.as_ref().and_then(|b| b.types.enums.get(name)))
     }
 
     pub fn get_class_methods_for(&self, name: &str) -> Option<&FxHashMap<Arc<str>, Type>> {

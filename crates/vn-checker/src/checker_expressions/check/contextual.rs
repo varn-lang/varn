@@ -196,10 +196,28 @@ impl<'r> Checker<'r> {
                         let origin: Option<String> = origin_atom.map(resolve_atom);
                         let view = vn_sem::bind::BindView::new(bind, self.resolver);
                         let members = view
-                            .get_class_members(&name, origin.as_deref())
-                            .or_else(|| view.get_interface_members(&name, origin.as_deref()))
-                            .or_else(|| view.get_namespace_members(&name, origin.as_deref()))
-                            .or_else(|| view.get_enum_members(&name, origin.as_deref()))
+                            .type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref())
+                            .or_else(|| {
+                                view.type_members(
+                                    vn_sem::types::DeclKind::Interface,
+                                    &name,
+                                    origin.as_deref(),
+                                )
+                            })
+                            .or_else(|| {
+                                view.type_members(
+                                    vn_sem::types::DeclKind::Namespace,
+                                    &name,
+                                    origin.as_deref(),
+                                )
+                            })
+                            .or_else(|| {
+                                view.type_members(
+                                    vn_sem::types::DeclKind::Enum,
+                                    &name,
+                                    origin.as_deref(),
+                                )
+                            })
                             .unwrap_or_default();
 
                         let mapping = match self.ty_table.get(ty.0) {

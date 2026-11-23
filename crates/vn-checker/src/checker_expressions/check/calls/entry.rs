@@ -375,19 +375,22 @@ impl Checker<'_> {
         let name = self.resolve_bind_atom(bind, name);
         let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
         let view = vn_sem::bind::BindView::new(bind, self.resolver);
-        match view.get_class_members(&name, origin.as_deref()) {
+        match view.type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref()) {
             Some(members) => members
                 .iter()
                 .any(|m| m.name.as_ref() == vn_core::MemberKey::Callable.name()),
             None => {
                 let origin_modules: Vec<String> = origin.iter().map(|o| o.to_string()).collect();
                 let interface = bind
-                    .get_interface_members_local(&name)
+                    .members_local(vn_sem::types::DeclKind::Interface, &name)
                     .cloned()
                     .or_else(|| {
                         self.resolver
                             .find_bind_for_type(&name, &origin_modules)
-                            .and_then(|b| b.get_interface_members_local(&name).cloned())
+                            .and_then(|b| {
+                                b.members_local(vn_sem::types::DeclKind::Interface, &name)
+                                    .cloned()
+                            })
                     });
                 interface.is_none_or(|members| {
                     members

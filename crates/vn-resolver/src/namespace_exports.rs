@@ -12,7 +12,7 @@ pub(super) fn export_declared(
     abs_path: &str,
     out: &mut ExportMap,
 ) {
-    let Some(listed) = bind.get_namespace_members_local(declared) else {
+    let Some(listed) = bind.members_local(vn_sem::types::DeclKind::Namespace, declared) else {
         return;
     };
     let mut paths = Vec::new();

@@ -115,8 +115,11 @@ impl Checker<'_> {
                         let name_str = bind.interner.resolve(name).to_string();
                         let origin_str = origin.map(|o| bind.interner.resolve(o).to_string());
                         let view = vn_sem::bind::BindView::new(bind, self.resolver);
-                        if let Some(cms) = view.get_class_members(&name_str, origin_str.as_deref())
-                        {
+                        if let Some(cms) = view.type_members(
+                            vn_sem::types::DeclKind::Class,
+                            &name_str,
+                            origin_str.as_deref(),
+                        ) {
                             for cm in cms {
                                 if !cm.is_static {
                                     put_member(

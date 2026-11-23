@@ -51,7 +51,9 @@ impl Checker<'_> {
                 let name = self.ty_table.names().resolve(name);
                 let origin = origin.and_then(|o| self.ty_table.names().try_resolve(o));
                 view.class_entry(name, origin).is_none()
-                    && view.get_interface_members(name, origin).is_none()
+                    && view
+                        .type_members(vn_sem::types::DeclKind::Interface, name, origin)
+                        .is_none()
                     && view.resolve_type_alias(name, origin).is_none()
             }
             TypeKind::Primitive(_)
@@ -113,7 +115,10 @@ impl Checker<'_> {
             TypeKind::Named(name, origin) | TypeKind::Generic(name, _, origin) => {
                 let name = self.ty_table.names().resolve(name);
                 let origin = origin.and_then(|o| self.ty_table.names().try_resolve(o));
-                if view.get_enum_members(name, origin).is_some() {
+                if view
+                    .type_members(vn_sem::types::DeclKind::Enum, name, origin)
+                    .is_some()
+                {
                     true
                 } else if let Some(entry) = view.class_entry(name, origin)
                     && entry.is_struct

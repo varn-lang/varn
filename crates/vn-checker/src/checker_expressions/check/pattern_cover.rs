@@ -48,7 +48,7 @@ impl Checker<'_> {
         if let Some(variants) = owner.sum_type_variants.get(name.as_ref()) {
             return Some(variants.iter().map(|v| v.to_string()).collect());
         }
-        let members = owner.get_enum_members_local(name.as_ref())?;
+        let members = owner.members_local(vn_sem::types::DeclKind::Enum, name.as_ref())?;
         Some(
             members
                 .iter()

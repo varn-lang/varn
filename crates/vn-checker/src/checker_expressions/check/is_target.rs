@@ -32,11 +32,14 @@ impl<'r> Checker<'r> {
                 let name = self.resolve_bind_atom(bind, name);
                 let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
                 let view = BindView::new(bind, self.resolver);
-                if view.get_class_members(&name, origin.as_deref()).is_some() {
+                if view
+                    .type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref())
+                    .is_some()
+                {
                     return false;
                 }
                 if view
-                    .get_interface_members(&name, origin.as_deref())
+                    .type_members(vn_sem::types::DeclKind::Interface, &name, origin.as_deref())
                     .is_some()
                 {
                     return true;

@@ -36,8 +36,18 @@ pub(super) fn resolve_intersection_type(
                 let name_str = ctx.atom_text(name)?;
                 let origin_str = origin.and_then(|o| ctx.atom_text(o));
                 let members = ctx
-                    .get_class_members(&name_str, origin_str.as_deref())
-                    .or_else(|| ctx.get_interface_members(&name_str, origin_str.as_deref()))?;
+                    .type_members(
+                        crate::types::DeclKind::Class,
+                        &name_str,
+                        origin_str.as_deref(),
+                    )
+                    .or_else(|| {
+                        ctx.type_members(
+                            crate::types::DeclKind::Interface,
+                            &name_str,
+                            origin_str.as_deref(),
+                        )
+                    })?;
                 Some(
                     members
                         .iter()

@@ -186,7 +186,7 @@ impl Checker<'_> {
             None => None,
         };
         let owner = foreign.as_deref().unwrap_or(bind);
-        let mut fields = match owner.get_interface_members_local(&name) {
+        let mut fields = match owner.members_local(vn_sem::types::DeclKind::Interface, &name) {
             Some(fields) => fields.clone(),
             None if owner.classify_decl(&name) == Some(DeclKind::Interface) => Vec::new(),
             None => return None,

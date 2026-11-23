@@ -59,7 +59,7 @@ impl<'r> Checker<'r> {
         let name = self.resolve_bind_atom(bind, name);
         let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
         vn_sem::bind::BindView::new(bind, self.resolver)
-            .get_class_members(&name, origin.as_deref())
+            .type_members(vn_sem::types::DeclKind::Class, &name, origin.as_deref())
             .is_some()
     }
 
