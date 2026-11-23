@@ -25,8 +25,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
             pairs: pairs.iter().map(|(k, v)| (k.0, v.0)).collect(),
         }),
         InstKind::BuildObject { pairs } => Some(SsaOp::BuildObject {
-            keys: pairs.iter().map(|(k, _)| k.clone()).collect(),
-            values: pairs.iter().map(|(_, v)| v.0).collect(),
+            pairs: pairs.iter().map(|(k, v)| (k.clone(), v.0)).collect(),
         }),
         InstKind::BuildTuple { elements } => Some(SsaOp::BuildTuple {
             elements: elements.iter().map(|v| v.0).collect(),

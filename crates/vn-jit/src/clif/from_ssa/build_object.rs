@@ -4,13 +4,7 @@ use cranelift_frontend::FunctionBuilder;
 use super::heap::{boxed_value, exec_ctx};
 use super::Ctx;
 
-pub(super) fn emit_build_object(
-    b: &mut FunctionBuilder,
-    ctx: &Ctx<'_>,
-    values: &[Option<Value>],
-    ids: &[u32],
-    keys: &[std::sync::Arc<str>],
-) -> Result<Value, String> {
+fn shape_index(ctx: &Ctx<'_>, pairs: &[(std::sync::Arc<str>, u32)]) -> Result<usize, String> {
     let idx = ctx
         .proto
         .chunk
@@ -18,7 +12,10 @@ pub(super) fn emit_build_object(
         .iter()
         .position(|e| match e {
             vn_types::PoolEntry::Shape(k) => {
-                k.len() == keys.len() && k.iter().zip(keys).all(|(a, b)| a.as_ref() == b.as_ref())
+                k.len() == pairs.len()
+                    && k.iter()
+                        .zip(pairs)
+                        .all(|(a, (b, _))| a.as_ref() == b.as_ref())
             }
             vn_types::PoolEntry::Literal(_)
             | vn_types::PoolEntry::Function(_)
@@ -29,12 +26,22 @@ pub(super) fn emit_build_object(
     ctx.proto
         .resolved_shape(idx)
         .ok_or("from_ssa: unresolved object shape")?;
-    let count = ids.len();
+    Ok(idx)
+}
+
+pub(super) fn emit_build_object(
+    b: &mut FunctionBuilder,
+    ctx: &Ctx<'_>,
+    values: &[Option<Value>],
+    pairs: &[(std::sync::Arc<str>, u32)],
+) -> Result<Value, String> {
+    let idx = shape_index(ctx, pairs)?;
+    let count = pairs.len();
     let total = ctx.helpers.object_layout.data_off + vn_types::ObjData::bytes_for(count);
     let Some(class_idx) = vn_types::cell::class_for(total) else {
-        return emit_build_object_slow(b, ctx, values, ids, keys);
+        return emit_build_object_slow(b, ctx, values, pairs, idx);
     };
-    emit_build_object_inline(b, ctx, values, ids, keys, idx, count, class_idx)
+    emit_build_object_inline(b, ctx, values, pairs, idx, count, class_idx)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -42,8 +49,7 @@ fn emit_build_object_inline(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    ids: &[u32],
-    keys: &[std::sync::Arc<str>],
+    pairs: &[(std::sync::Arc<str>, u32)],
     shape_idx: usize,
     count: usize,
     class_idx: usize,
@@ -58,9 +64,9 @@ fn emit_build_object_inline(
     let flags = cranelift_codegen::ir::MemFlagsData::trusted();
     let ectx = exec_ctx(ctx);
 
-    let vals: Vec<Value> = ids
+    let vals: Vec<Value> = pairs
         .iter()
-        .map(|v| boxed_value(b, ctx, values, *v))
+        .map(|(_, v)| boxed_value(b, ctx, values, *v))
         .collect::<Result<_, _>>()?;
 
     let rcbox = b.ins().load(
@@ -165,7 +171,7 @@ fn emit_build_object_inline(
     b.ins().jump(join_blk, &[boxed.into()]);
 
     b.switch_to_block(slow_blk);
-    let slow_v = emit_build_object_slow(b, ctx, values, ids, keys)?;
+    let slow_v = emit_build_object_slow(b, ctx, values, pairs, shape_idx)?;
     b.ins().jump(join_blk, &[slow_v.into()]);
 
     b.switch_to_block(join_blk);
@@ -254,31 +260,12 @@ fn emit_build_object_slow(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    ids: &[u32],
-    keys: &[std::sync::Arc<str>],
+    pairs: &[(std::sync::Arc<str>, u32)],
+    idx: usize,
 ) -> Result<Value, String> {
-    let idx = ctx
-        .proto
-        .chunk
-        .constants
+    let vals: Vec<Value> = pairs
         .iter()
-        .position(|e| match e {
-            vn_types::PoolEntry::Shape(k) => {
-                k.len() == keys.len() && k.iter().zip(keys).all(|(a, b)| a.as_ref() == b.as_ref())
-            }
-            vn_types::PoolEntry::Literal(_)
-            | vn_types::PoolEntry::Function(_)
-            | vn_types::PoolEntry::Layout(_)
-            | vn_types::PoolEntry::Variant(_) => false,
-        })
-        .ok_or("from_ssa: object shape not in pool")?;
-    ctx.proto
-        .resolved_shape(idx)
-        .ok_or("from_ssa: unresolved object shape")?;
-
-    let vals: Vec<Value> = ids
-        .iter()
-        .map(|v| boxed_value(b, ctx, values, *v))
+        .map(|(_, v)| boxed_value(b, ctx, values, *v))
         .collect::<Result<_, _>>()?;
     let ectx = exec_ctx(ctx);
     let count = vals.len();

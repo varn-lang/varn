@@ -177,8 +177,7 @@ pub enum SsaOp {
     },
 
     BuildObject {
-        keys: Vec<std::sync::Arc<str>>,
-        values: Vec<u32>,
+        pairs: Vec<(std::sync::Arc<str>, u32)>,
     },
 
     GetProperty {

@@ -314,8 +314,8 @@ pub(super) fn emit(
             let boxed = heap::emit_build_map(b, ctx, values, pairs)?;
             Out::Boxed(boxed)
         }
-        SsaOp::BuildObject { keys, values: ids } => {
-            let boxed = build_object::emit_build_object(b, ctx, values, ids, keys)?;
+        SsaOp::BuildObject { pairs } => {
+            let boxed = build_object::emit_build_object(b, ctx, values, pairs)?;
             Out::Boxed(boxed)
         }
         SsaOp::GetIndex { object, index } => {

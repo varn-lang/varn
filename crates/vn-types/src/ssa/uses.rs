@@ -100,7 +100,7 @@ impl SsaOp {
                 f(*k);
                 f(*v);
             }),
-            SsaOp::BuildObject { values, .. } => values.iter().for_each(|a| f(*a)),
+            SsaOp::BuildObject { pairs } => pairs.iter().for_each(|(_, v)| f(*v)),
             SsaOp::GetProperty { object, .. }
             | SsaOp::GetSlotMethod { object, .. }
             | SsaOp::GetFixedField { object, .. }
