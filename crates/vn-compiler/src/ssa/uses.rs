@@ -54,6 +54,7 @@ macro_rules! inst_uses {
             | GetSuperSlot { .. } => {}
 
             Unary { operand, .. }
+            | KindOf { operand }
             | IsNull { operand }
             | Cast { operand, .. }
             | Convert { operand, .. }

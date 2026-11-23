@@ -144,6 +144,7 @@ fn is_suspend_site(kind: &InstKind) -> bool {
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)

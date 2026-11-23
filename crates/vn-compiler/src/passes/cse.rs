@@ -160,6 +160,9 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
 
         InstKind::Binary { op, lhs, rhs, ty } => Key::Binary(*op, *ty, id(*lhs), id(*rhs)),
         InstKind::Unary { op, operand, ty } => Key::Unary(*op, *ty, id(*operand)),
+        InstKind::KindOf { operand } => {
+            Key::Unary(vn_core::UnOp::KindOf, BackendTy::Str, id(*operand))
+        }
         InstKind::IsNull { operand } => Key::IsNull(id(*operand)),
         InstKind::TypeTest { value, class } => Key::TypeTest(id(*value), id(*class)),
         InstKind::IsArray { operand } => Key::IsArray(id(*operand)),

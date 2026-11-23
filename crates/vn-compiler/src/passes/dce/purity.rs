@@ -30,6 +30,7 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | LoadNativeGlobalIdx(_)
         | LoadUpvalue(_)
         | LoadCaptured { .. }
+        | KindOf { .. }
         | ModuleSlot { .. }
         | This
         | CatchParam { .. } => true,

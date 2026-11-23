@@ -14,7 +14,8 @@ pub(super) fn why_not(kind: &InstKind, value_tys: &[BackendTy]) -> String {
         InstKind::Unary { op, operand, .. } => {
             format!("no portable form for {op:?} on {:?}", ty(operand))
         }
-        other @ InstKind::ConstInt(_)
+        other @ InstKind::KindOf { .. }
+        | other @ InstKind::ConstInt(_)
         | other @ InstKind::ConstFloat(_)
         | other @ InstKind::ConstBool(_)
         | other @ InstKind::ConstStr(_)

@@ -63,6 +63,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)
@@ -204,6 +205,7 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)

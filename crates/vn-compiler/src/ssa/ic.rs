@@ -119,6 +119,7 @@ fn sites(kind: &InstKind, has_dest: bool) -> u16 {
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)

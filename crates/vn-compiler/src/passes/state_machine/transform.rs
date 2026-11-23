@@ -88,6 +88,7 @@ fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)>
                 | InstKind::ConstNull
                 | InstKind::Binary { .. }
                 | InstKind::Unary { .. }
+                | InstKind::KindOf { .. }
                 | InstKind::LoadGlobal(_)
                 | InstKind::LoadGlobalIdx(_)
                 | InstKind::LoadNativeGlobalIdx(_)

@@ -36,6 +36,7 @@ pub(super) fn try_project(kind: &InstKind) -> Option<SsaOp> {
         }),
         InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadUpvalue(_)
         | InstKind::StoreUpvalue { .. }
         | InstKind::Call { .. }

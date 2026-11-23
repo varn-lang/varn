@@ -207,6 +207,7 @@ fn merge_blocks(func: &mut SsaFunc) -> bool {
                         | InstKind::ConstNull
                         | InstKind::Binary { .. }
                         | InstKind::Unary { .. }
+                        | InstKind::KindOf { .. }
                         | InstKind::LoadGlobal(_)
                         | InstKind::LoadGlobalIdx(_)
                         | InstKind::LoadNativeGlobalIdx(_)

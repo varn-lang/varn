@@ -156,6 +156,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
             matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
                 && matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::Not)
         }
+        InstKind::KindOf { .. } => true,
         InstKind::LoadGlobal(_) | InstKind::LoadGlobalIdx(_) | InstKind::LoadNativeGlobalIdx(_) => {
             facts.globals_stable
         }
@@ -254,6 +255,7 @@ fn is_transparent(kind: &InstKind) -> bool {
             | InstKind::ConstNull
             | InstKind::Binary { .. }
             | InstKind::Unary { .. }
+            | InstKind::KindOf { .. }
             | InstKind::LoadGlobal(_)
             | InstKind::LoadGlobalIdx(_)
             | InstKind::LoadNativeGlobalIdx(_)

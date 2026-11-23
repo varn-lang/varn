@@ -123,6 +123,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)

@@ -61,6 +61,17 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
+        InstKind::KindOf { .. } => {
+            if let Some(dest) = inst.dest {
+                let dty = func.value_ty(dest);
+                if dty != BackendTy::Str && !BackendTy::Str.is_boxed() {
+                    return Err(format!(
+                        "typed kindof defines v{}: {dty:?}, expected Str",
+                        dest.0
+                    ));
+                }
+            }
+        }
         InstKind::ConstInt(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);

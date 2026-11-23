@@ -22,6 +22,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::Unary { op, operand, ty: t } => {
             format!("{}.{} {}", unop(*op), ty(*t), val(*operand))
         }
+        InstKind::KindOf { operand } => format!("kindof {}", val(*operand)),
         InstKind::LoadGlobal(name) => format!("global {name}"),
         InstKind::LoadGlobalIdx(slot) => format!("global @{slot}"),
         InstKind::LoadNativeGlobalIdx(slot) => format!("native-global @{slot}"),

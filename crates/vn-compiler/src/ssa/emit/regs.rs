@@ -168,6 +168,7 @@ fn window_size(kind: &InstKind) -> u32 {
         | InstKind::ConstNull
         | InstKind::Binary { .. }
         | InstKind::Unary { .. }
+        | InstKind::KindOf { .. }
         | InstKind::LoadGlobal(_)
         | InstKind::LoadGlobalIdx(_)
         | InstKind::LoadNativeGlobalIdx(_)

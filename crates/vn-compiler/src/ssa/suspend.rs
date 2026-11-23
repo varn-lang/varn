@@ -26,6 +26,7 @@ pub fn analyze(ssa: &SsaFunc) -> Vec<SuspendPoint> {
                 | InstKind::ConstNull
                 | InstKind::Binary { .. }
                 | InstKind::Unary { .. }
+                | InstKind::KindOf { .. }
                 | InstKind::LoadGlobal(_)
                 | InstKind::LoadGlobalIdx(_)
                 | InstKind::LoadNativeGlobalIdx(_)
@@ -134,6 +135,7 @@ pub fn suspend_live_regs(
                 | InstKind::ConstNull
                 | InstKind::Binary { .. }
                 | InstKind::Unary { .. }
+                | InstKind::KindOf { .. }
                 | InstKind::LoadGlobal(_)
                 | InstKind::LoadGlobalIdx(_)
                 | InstKind::LoadNativeGlobalIdx(_)
@@ -287,6 +289,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                 | InstKind::ConstNull
                 | InstKind::Binary { .. }
                 | InstKind::Unary { .. }
+                | InstKind::KindOf { .. }
                 | InstKind::LoadGlobal(_)
                 | InstKind::LoadGlobalIdx(_)
                 | InstKind::LoadNativeGlobalIdx(_)

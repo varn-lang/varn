@@ -25,6 +25,9 @@ pub enum InstKind {
         operand: Value,
         ty: BackendTy,
     },
+    KindOf {
+        operand: Value,
+    },
 
     LoadGlobal(Arc<str>),
 
@@ -385,6 +388,7 @@ impl InstKind {
             InstKind::ConstNull => Some(BackendTy::Dynamic(DynReason::Boxed)),
             InstKind::Binary { .. }
             | InstKind::Unary { .. }
+            | InstKind::KindOf { .. }
             | InstKind::LoadGlobal(_)
             | InstKind::LoadGlobalIdx(_)
             | InstKind::LoadNativeGlobalIdx(_)

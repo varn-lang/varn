@@ -84,6 +84,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
             let operand_const = const_map.get(operand)?;
             fold_unary(*op, operand_const, *ty)
         }
+        InstKind::KindOf { .. } => None,
         InstKind::Binary { op, lhs, rhs, ty } => {
             let lhs_const = const_map.get(lhs)?;
             let rhs_const = const_map.get(rhs)?;
@@ -104,6 +105,7 @@ fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<
                 | InstKind::ConstBigInt(_)
                 | InstKind::Binary { .. }
                 | InstKind::Unary { .. }
+                | InstKind::KindOf { .. }
                 | InstKind::LoadGlobal(_)
                 | InstKind::LoadGlobalIdx(_)
                 | InstKind::LoadNativeGlobalIdx(_)

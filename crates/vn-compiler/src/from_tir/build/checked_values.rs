@@ -75,14 +75,7 @@ impl Builder<'_> {
         self.seal_block(join_blk);
         self.seal_block(throw_blk);
         self.current = throw_blk;
-        let got = self.emit(
-            InstKind::Unary {
-                op: vn_core::UnOp::KindOf,
-                operand: v,
-                ty: BackendTy::Str,
-            },
-            BackendTy::Str,
-        );
+        let got = self.emit(InstKind::KindOf { operand: v }, BackendTy::Str);
         let head = self.emit(
             InstKind::ConstStr(std::sync::Arc::from(format!(
                 "type mismatch: expected '{expected}', got '"

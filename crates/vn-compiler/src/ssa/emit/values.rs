@@ -46,6 +46,17 @@ pub(super) fn emit_value(
         InstKind::Unary { op, operand, .. } => {
             scalars::emit_unary(chunk, d, *op, *operand, reg, scratch, line);
         }
+        InstKind::KindOf { operand } => {
+            scalars::emit_unary(
+                chunk,
+                d,
+                vn_core::UnOp::KindOf,
+                *operand,
+                reg,
+                scratch,
+                line,
+            );
+        }
         InstKind::LoadGlobal(name) => access::emit_load_global(chunk, d, name, line),
         InstKind::LoadGlobalIdx(slot) => access::emit_load_global_idx(chunk, d, *slot, line)?,
         InstKind::LoadNativeGlobalIdx(slot) => {

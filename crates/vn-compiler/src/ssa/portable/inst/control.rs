@@ -35,6 +35,7 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
                 operand: *operand,
             })
         }
+        InstKind::KindOf { operand } => Some(SsaOp::KindOf { operand: *operand }),
         InstKind::IsArray { operand } => Some(SsaOp::IsArray { operand: *operand }),
         InstKind::ToString { operand } => Some(SsaOp::ToString { operand: *operand }),
         InstKind::ObjectKeys { operand } => Some(SsaOp::ObjectKeys { operand: *operand }),
