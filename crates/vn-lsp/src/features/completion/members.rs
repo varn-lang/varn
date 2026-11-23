@@ -2,7 +2,8 @@ use crate::document::DocumentState;
 use rustc_hash::FxHashSet;
 use tower_lsp_f::lsp_types::{CompletionItem, CompletionItemKind, InsertTextFormat};
 use vn_core::TokenKind;
-use vn_sem::semantic_info::{NestedTypeKind, ResolvedMemberKind, ResolvedMemberSummary};
+use vn_sem::semantic_info::{ResolvedMemberKind, ResolvedMemberSummary};
+use vn_sem::types::DeclKind;
 use vn_sem::types::Type;
 
 pub struct ReceiverInfo {
@@ -155,10 +156,10 @@ fn completion_kind(kind: ResolvedMemberKind) -> CompletionItemKind {
         ResolvedMemberKind::EnumMember => CompletionItemKind::EnumMember,
         ResolvedMemberKind::Constructor => CompletionItemKind::Constructor,
         ResolvedMemberKind::NestedType(k) => match k {
-            NestedTypeKind::Interface => CompletionItemKind::Interface,
-            NestedTypeKind::Namespace => CompletionItemKind::Module,
-            NestedTypeKind::Enum => CompletionItemKind::Enum,
-            NestedTypeKind::Class => CompletionItemKind::Class,
+            DeclKind::Interface => CompletionItemKind::Interface,
+            DeclKind::Namespace => CompletionItemKind::Module,
+            DeclKind::Enum => CompletionItemKind::Enum,
+            DeclKind::Class => CompletionItemKind::Class,
         },
     }
 }

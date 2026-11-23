@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use vn_core::ast::NamespaceDecl;
+use vn_sem::types::DeclKind;
 
 use vn_sem::infer::pattern_lead_name;
 use vn_sem::scope::ScopeKind;
@@ -30,7 +31,7 @@ impl<'r> super::super::Binder<'r> {
         }
         self.namespace_path.pop();
 
-        self.declare_kind(id_rc.clone(), vn_sem::bind::DeclKind::Namespace);
+        self.declare_kind(id_rc.clone(), DeclKind::Namespace);
         let members = self.collect_namespace_members(&exported_decls(&n.body));
         if !members.is_empty() {
             self.type_members.namespaces.insert(id_rc, members);
@@ -122,7 +123,7 @@ impl<'r> super::super::Binder<'r> {
                     );
                     members.push(ClassMemberInfo {
                         name,
-                        kind: ClassMemberKind::Class,
+                        kind: ClassMemberKind::Type(DeclKind::Class),
                         is_async: false,
                         is_generator: false,
                         is_static: false,
@@ -186,7 +187,7 @@ impl<'r> super::super::Binder<'r> {
                     );
                     members.push(ClassMemberInfo {
                         name: n_id_rc,
-                        kind: ClassMemberKind::Namespace,
+                        kind: ClassMemberKind::Type(DeclKind::Namespace),
                         is_async: false,
                         is_generator: false,
                         is_static: false,
@@ -255,7 +256,7 @@ impl<'r> super::super::Binder<'r> {
                     );
                     members.push(ClassMemberInfo {
                         name: e_id_rc,
-                        kind: ClassMemberKind::Enum,
+                        kind: ClassMemberKind::Type(DeclKind::Enum),
                         is_async: false,
                         is_generator: false,
                         is_static: false,
@@ -291,7 +292,7 @@ impl<'r> super::super::Binder<'r> {
                     );
                     members.push(ClassMemberInfo {
                         name: i_id_rc,
-                        kind: ClassMemberKind::Interface,
+                        kind: ClassMemberKind::Type(DeclKind::Interface),
                         is_async: false,
                         is_generator: false,
                         is_static: false,

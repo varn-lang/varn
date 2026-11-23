@@ -1,5 +1,6 @@
 use vn_core::{LangPrimitive, TokenKind, TypeKind};
 use vn_sem::symbol::SymbolKind;
+use vn_sem::types::DeclKind;
 use vn_sem::types::Type;
 
 use super::context::TokenContext;
@@ -119,10 +120,10 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
             vn_sem::semantic_info::ResolvedMemberKind::Constructor => TT_FUNCTION,
 
             vn_sem::semantic_info::ResolvedMemberKind::NestedType(k) => match k {
-                vn_sem::semantic_info::NestedTypeKind::Interface => TT_INTERFACE,
-                vn_sem::semantic_info::NestedTypeKind::Namespace => TT_NAMESPACE,
-                vn_sem::semantic_info::NestedTypeKind::Enum => TT_ENUM,
-                vn_sem::semantic_info::NestedTypeKind::Class => TT_CLASS,
+                DeclKind::Interface => TT_INTERFACE,
+                DeclKind::Namespace => TT_NAMESPACE,
+                DeclKind::Enum => TT_ENUM,
+                DeclKind::Class => TT_CLASS,
             },
         });
     }

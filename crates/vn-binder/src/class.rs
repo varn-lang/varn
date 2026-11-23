@@ -3,6 +3,7 @@ use std::sync::Arc;
 use vn_core::ast::ClassDecl;
 use vn_core::{Atom, TypeKind};
 use vn_sem::symbol::{Symbol, SymbolKind};
+use vn_sem::types::DeclKind;
 use vn_sem::types::Type;
 use vn_sem::types::{ClassMemberInfo, ClassMemberKind};
 
@@ -125,7 +126,7 @@ impl<'r> super::Binder<'r> {
 
         let class_info = ClassMemberInfo {
             name: name.clone(),
-            kind: ClassMemberKind::Class,
+            kind: ClassMemberKind::Type(DeclKind::Class),
             is_async: false,
             is_generator: false,
             is_static: false,
@@ -144,7 +145,7 @@ impl<'r> super::Binder<'r> {
             ..Default::default()
         };
 
-        self.declare_kind(name.clone(), vn_sem::bind::DeclKind::Class);
+        self.declare_kind(name.clone(), DeclKind::Class);
         self.type_members.classes.entry(name).or_insert(class_info);
         self.current = saved;
     }

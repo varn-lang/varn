@@ -2,6 +2,7 @@ use std::sync::Arc;
 use vn_sem::bind::BindResult;
 use vn_sem::exports::ExportMap;
 use vn_sem::symbol::{Symbol, SymbolKind};
+use vn_sem::types::DeclKind;
 use vn_sem::types::{ClassMemberInfo, ClassMemberKind};
 
 pub(super) fn export_declared(
@@ -80,15 +81,15 @@ fn value_paths<'a>(
         match member.kind {
             ClassMemberKind::Function
             | ClassMemberKind::Variable
-            | ClassMemberKind::Class
-            | ClassMemberKind::Enum => out.push((path, member)),
-            ClassMemberKind::Namespace => value_paths(&member.members, &path, out),
+            | ClassMemberKind::Type(DeclKind::Class)
+            | ClassMemberKind::Type(DeclKind::Enum) => out.push((path, member)),
+            ClassMemberKind::Type(DeclKind::Namespace) => value_paths(&member.members, &path, out),
             ClassMemberKind::Constructor
             | ClassMemberKind::Method
             | ClassMemberKind::Property
             | ClassMemberKind::Getter
             | ClassMemberKind::Setter
-            | ClassMemberKind::Interface => {}
+            | ClassMemberKind::Type(DeclKind::Interface) => {}
         }
     }
 }

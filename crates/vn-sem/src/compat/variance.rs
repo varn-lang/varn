@@ -200,12 +200,7 @@ pub fn measure_params(
                     | TypeKind::TypePredicate { .. } => walk_both(&mut ctx, m.ty.0, &[]),
                 }
             }
-            ClassMemberKind::Property
-            | ClassMemberKind::Variable
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {
+            ClassMemberKind::Property | ClassMemberKind::Variable | ClassMemberKind::Type(_) => {
                 if m.is_readonly {
                     walk(&mut ctx, m.ty.0, Pol::Out, &[]);
                 } else {

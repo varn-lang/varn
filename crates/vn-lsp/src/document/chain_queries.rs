@@ -27,7 +27,7 @@ fn summary_from_resolution(
 fn summary_from_class_member(
     m: &vn_sem::types::ClassMemberInfo,
 ) -> vn_sem::semantic_info::ResolvedMemberSummary {
-    use vn_sem::semantic_info::{NestedTypeKind as N, ResolvedMemberKind as R};
+    use vn_sem::semantic_info::ResolvedMemberKind as R;
     use vn_sem::types::ClassMemberKind as C;
     vn_sem::semantic_info::ResolvedMemberSummary {
         name: m.name.clone(),
@@ -37,10 +37,7 @@ fn summary_from_class_member(
             C::Constructor => R::Constructor,
             C::Getter => R::Getter,
             C::Setter => R::Setter,
-            C::Class => R::NestedType(N::Class),
-            C::Interface => R::NestedType(N::Interface),
-            C::Namespace => R::NestedType(N::Namespace),
-            C::Enum => R::NestedType(N::Enum),
+            C::Type(k) => R::NestedType(k),
             C::Variable | C::Property => R::Property,
         },
         is_static: m.is_static,

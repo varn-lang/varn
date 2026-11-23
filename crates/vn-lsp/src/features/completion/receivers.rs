@@ -2,6 +2,7 @@ use crate::document::{DocumentState, TokenRecord};
 use vn_core::TokenKind;
 use vn_sem::semantic_info::ResolvedMemberKind;
 use vn_sem::symbol::SymbolKind;
+use vn_sem::types::DeclKind;
 use vn_sem::types::Type;
 
 use super::members::ReceiverInfo;
@@ -105,9 +106,7 @@ pub fn dot_receiver(
 
     if let Some(res) = state.db.member_resolutions.get(&before.offset) {
         let is_instance = match res.member_kind {
-            ResolvedMemberKind::NestedType(kind) => {
-                kind == vn_sem::semantic_info::NestedTypeKind::Namespace
-            }
+            ResolvedMemberKind::NestedType(kind) => kind == DeclKind::Namespace,
             ResolvedMemberKind::Method
             | ResolvedMemberKind::Property
             | ResolvedMemberKind::Getter

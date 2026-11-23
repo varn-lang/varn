@@ -266,10 +266,7 @@ fn class_members_compatible(
             ClassMemberKind::Constructor
             | ClassMemberKind::Function
             | ClassMemberKind::Variable
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(_) => {}
         }
     }
     true
@@ -342,10 +339,7 @@ pub(super) fn class_members_match_object(
             ClassMemberKind::Constructor
             | ClassMemberKind::Function
             | ClassMemberKind::Variable
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(_) => {}
         }
     }
     true

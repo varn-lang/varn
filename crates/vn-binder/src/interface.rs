@@ -2,6 +2,7 @@ use std::sync::Arc;
 use vn_core::ast::{InterfaceDecl, InterfaceMember};
 use vn_sem::infer::pattern_lead_name;
 use vn_sem::symbol::{Symbol, SymbolKind};
+use vn_sem::types::DeclKind;
 use vn_sem::types::{ClassMemberInfo, ClassMemberKind};
 use vn_sem::types::{FunctionParam, FunctionType, Type};
 
@@ -50,7 +51,7 @@ impl<'r> super::Binder<'r> {
         }
 
         self.record_interfaces(&id_rc, &i.extends);
-        self.declare_kind(id_rc.clone(), vn_sem::bind::DeclKind::Interface);
+        self.declare_kind(id_rc.clone(), DeclKind::Interface);
         if !members.is_empty() {
             self.type_members
                 .interfaces

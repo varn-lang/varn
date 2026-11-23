@@ -186,12 +186,7 @@ fn build_one_class(
                     &mut method_names,
                 );
             }
-            ClassMemberKind::Getter
-            | ClassMemberKind::Setter
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            ClassMemberKind::Getter | ClassMemberKind::Setter | ClassMemberKind::Type(_) => {}
         }
     }
 
@@ -269,10 +264,7 @@ fn build_one_class(
             | ClassMemberKind::Method
             | ClassMemberKind::Function
             | ClassMemberKind::Constructor
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(_) => {}
         }
     }
 
@@ -320,10 +312,7 @@ pub(super) fn build_statics<'a>(
             | ClassMemberKind::Constructor
             | ClassMemberKind::Getter
             | ClassMemberKind::Setter
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(_) => {}
         }
     }
     for (kind, name, ty, _) in members {
@@ -344,10 +333,7 @@ pub(super) fn build_statics<'a>(
             | ClassMemberKind::Constructor
             | ClassMemberKind::Getter
             | ClassMemberKind::Setter
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(_) => {}
         }
     }
     statics

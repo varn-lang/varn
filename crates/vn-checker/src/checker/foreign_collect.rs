@@ -154,7 +154,7 @@ impl Checker<'_> {
             .resolver
             .module_bind(origin)
             .or_else(|| self.resolver.stdlib_bind(origin))?;
-        use vn_sem::bind::DeclKind;
+        use vn_sem::types::DeclKind;
         if !matches!(owner.classify_decl(name.as_ref()), Some(DeclKind::Class)) {
             return None;
         }
@@ -217,10 +217,7 @@ impl Checker<'_> {
                     }
                     ClassMemberKind::Getter
                     | ClassMemberKind::Setter
-                    | ClassMemberKind::Class
-                    | ClassMemberKind::Interface
-                    | ClassMemberKind::Namespace
-                    | ClassMemberKind::Enum => {}
+                    | ClassMemberKind::Type(_) => {}
                 }
             }
             if !level_has_ctor && level_has_init {
@@ -248,10 +245,7 @@ impl Checker<'_> {
                     | ClassMemberKind::Method
                     | ClassMemberKind::Function
                     | ClassMemberKind::Constructor
-                    | ClassMemberKind::Class
-                    | ClassMemberKind::Interface
-                    | ClassMemberKind::Namespace
-                    | ClassMemberKind::Enum => {}
+                    | ClassMemberKind::Type(_) => {}
                 }
             }
         }

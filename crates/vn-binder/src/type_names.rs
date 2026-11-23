@@ -24,7 +24,7 @@ impl super::Binder<'_> {
             .unwrap_or_else(|| Arc::from(self.interner.resolve(id)))
     }
 
-    pub(crate) fn declare_kind(&mut self, name: Arc<str>, kind: vn_sem::bind::DeclKind) {
+    pub(crate) fn declare_kind(&mut self, name: Arc<str>, kind: vn_sem::types::DeclKind) {
         self.decl_kinds
             .entry(name)
             .and_modify(|held| *held = (*held).min(kind))

@@ -44,15 +44,9 @@ pub(super) fn core_static_ops(bind: &BindResult) -> FxHashMap<(Arc<str>, Arc<str
             let kind = match m.kind {
                 K::Method => CoreStaticKind::Method,
                 K::Property => CoreStaticKind::Value,
-                K::Constructor
-                | K::Function
-                | K::Variable
-                | K::Getter
-                | K::Setter
-                | K::Class
-                | K::Interface
-                | K::Namespace
-                | K::Enum => continue,
+                K::Constructor | K::Function | K::Variable | K::Getter | K::Setter | K::Type(_) => {
+                    continue
+                }
             };
             if let Some(op) = provider.native_op_id(vn_core::op_id::CORE_MODULE, cname, &m.name) {
                 out.insert((Arc::from(cname), m.name.clone()), CoreStatic { op, kind });
@@ -90,10 +84,7 @@ pub(super) fn core_method_ops(bind: &BindResult) -> FxHashMap<(Arc<str>, Arc<str
                     | vn_sem::types::ClassMemberKind::Variable
                     | vn_sem::types::ClassMemberKind::Constructor
                     | vn_sem::types::ClassMemberKind::Setter
-                    | vn_sem::types::ClassMemberKind::Class
-                    | vn_sem::types::ClassMemberKind::Interface
-                    | vn_sem::types::ClassMemberKind::Namespace
-                    | vn_sem::types::ClassMemberKind::Enum,
+                    | vn_sem::types::ClassMemberKind::Type(_),
                     _,
                 ) => continue,
             };

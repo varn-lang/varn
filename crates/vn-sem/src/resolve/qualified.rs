@@ -23,10 +23,7 @@ pub fn qualified_type(
         let members = ctx.get_namespace_members(&scope, origin.as_deref())?;
         let member = members.into_iter().find(|m| m.name.as_ref() == segment)?;
         ty = match member.kind {
-            ClassMemberKind::Class
-            | ClassMemberKind::Enum
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Namespace => {
+            ClassMemberKind::Type(_) => {
                 Type::named_with_origin(format!("{scope}::{segment}"), origin.clone(), table)
             }
             ClassMemberKind::Property => member.ty,

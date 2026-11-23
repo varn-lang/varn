@@ -2,6 +2,7 @@ use std::sync::Arc;
 use vn_core::ast::{ClassMember, EnumDecl, TypeAliasDecl};
 use vn_sem::bind::PendingEnrich;
 use vn_sem::symbol::{Symbol, SymbolKind};
+use vn_sem::types::DeclKind;
 use vn_sem::types::Type;
 use vn_sem::types::{ClassMemberInfo, ClassMemberKind};
 
@@ -64,7 +65,7 @@ impl<'r> super::super::Binder<'r> {
             .collect();
         self.define(e.id, sym);
 
-        self.declare_kind(id_rc.clone(), vn_sem::bind::DeclKind::Enum);
+        self.declare_kind(id_rc.clone(), DeclKind::Enum);
         let child = self
             .scopes
             .child(vn_sem::scope::ScopeKind::Class, self.current);
@@ -298,7 +299,7 @@ impl<'r> super::super::Binder<'r> {
 
         let class_info = ClassMemberInfo {
             name: id_rc.clone(),
-            kind: ClassMemberKind::Class,
+            kind: ClassMemberKind::Type(DeclKind::Class),
             is_async: false,
             is_generator: false,
             is_static: false,

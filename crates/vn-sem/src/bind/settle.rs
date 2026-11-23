@@ -1,4 +1,5 @@
 use crate::symbol::SymbolId;
+use crate::types::DeclKind;
 use crate::types::{ClassMemberInfo, ClassMemberKind, Type};
 use rustc_hash::FxHashMap;
 
@@ -12,16 +13,18 @@ pub fn settle_members(members: &mut [ClassMemberInfo], symbol_types: &FxHashMap<
                     member.ty = *ty;
                 }
             }
-            ClassMemberKind::Namespace => settle_members(&mut member.members, symbol_types),
+            ClassMemberKind::Type(DeclKind::Namespace) => {
+                settle_members(&mut member.members, symbol_types)
+            }
             ClassMemberKind::Method
             | ClassMemberKind::Function
             | ClassMemberKind::Property
             | ClassMemberKind::Constructor
             | ClassMemberKind::Getter
             | ClassMemberKind::Setter
-            | ClassMemberKind::Class
-            | ClassMemberKind::Interface
-            | ClassMemberKind::Enum => {}
+            | ClassMemberKind::Type(DeclKind::Class)
+            | ClassMemberKind::Type(DeclKind::Interface)
+            | ClassMemberKind::Type(DeclKind::Enum) => {}
         }
     }
 }

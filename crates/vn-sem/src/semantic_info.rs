@@ -14,16 +14,8 @@ pub enum ResolvedMemberKind {
     ExtensionMethod,
     ExtensionProperty,
 
-    NestedType(NestedTypeKind),
+    NestedType(crate::types::DeclKind),
     Constructor,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum NestedTypeKind {
-    Class,
-    Interface,
-    Namespace,
-    Enum,
 }
 
 impl ResolvedMemberKind {
@@ -40,17 +32,6 @@ impl ResolvedMemberKind {
             ResolvedMemberKind::ExtensionProperty => "extension property",
             ResolvedMemberKind::Constructor => vn_core::TokenKind::Constructor.as_str(),
             ResolvedMemberKind::NestedType(k) => k.label(),
-        }
-    }
-}
-
-impl NestedTypeKind {
-    pub fn label(&self) -> &'static str {
-        match self {
-            NestedTypeKind::Class => "class",
-            NestedTypeKind::Interface => "interface",
-            NestedTypeKind::Namespace => "namespace",
-            NestedTypeKind::Enum => "enum",
         }
     }
 }

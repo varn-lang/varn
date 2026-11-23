@@ -96,6 +96,27 @@ pub enum ObjectTypeMember {
 }
 
 #[derive(
+    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+)]
+pub enum DeclKind {
+    Enum,
+    Class,
+    Interface,
+    Namespace,
+}
+
+impl DeclKind {
+    pub fn label(&self) -> &'static str {
+        match self {
+            DeclKind::Class => vn_core::TokenKind::Class.as_str(),
+            DeclKind::Interface => vn_core::TokenKind::Interface.as_str(),
+            DeclKind::Namespace => vn_core::TokenKind::Namespace.as_str(),
+            DeclKind::Enum => vn_core::TokenKind::Enum.as_str(),
+        }
+    }
+}
+
+#[derive(
     Clone, Copy, Debug, PartialEq, Eq, Default, Hash, serde::Serialize, serde::Deserialize,
 )]
 pub enum ClassMemberKind {
@@ -107,10 +128,7 @@ pub enum ClassMemberKind {
     Variable,
     Getter,
     Setter,
-    Class,
-    Interface,
-    Namespace,
-    Enum,
+    Type(DeclKind),
 }
 
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]

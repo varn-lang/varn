@@ -1,5 +1,6 @@
 use crate::document::DocumentState;
-use vn_sem::semantic_info::{NestedTypeKind, ResolvedMemberKind, ResolvedMemberSummary};
+use vn_sem::semantic_info::{ResolvedMemberKind, ResolvedMemberSummary};
+use vn_sem::types::DeclKind;
 
 use super::format::{format_summary_member, format_type_params_str};
 
@@ -58,14 +59,14 @@ pub fn format_member_sig(
                 format!("function {name}({params}): {ret}")
             }
         }
-        ResolvedMemberKind::NestedType(k @ (NestedTypeKind::Class | NestedTypeKind::Interface)) => {
+        ResolvedMemberKind::NestedType(k @ (DeclKind::Class | DeclKind::Interface)) => {
             let tp = format_type_params_str(state, &member.ty);
             format_nested(state, k.label(), &owner, member, &tp)
         }
-        ResolvedMemberKind::NestedType(k @ NestedTypeKind::Namespace) => {
+        ResolvedMemberKind::NestedType(k @ DeclKind::Namespace) => {
             format_nested(state, k.label(), &owner, member, "")
         }
-        ResolvedMemberKind::NestedType(k @ NestedTypeKind::Enum) => {
+        ResolvedMemberKind::NestedType(k @ DeclKind::Enum) => {
             format!("{} {owner}{name}", k.label())
         }
         ResolvedMemberKind::EnumMember => format_enum_member(clean_parent, name, ""),

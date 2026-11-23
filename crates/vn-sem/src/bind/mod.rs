@@ -1,6 +1,7 @@
 use crate::cores::CoreMembers;
 use crate::scope::{ScopeArena, ScopeId};
 use crate::symbol::{Symbol, SymbolArena, SymbolId};
+use crate::types::DeclKind;
 use crate::types::{ClassMemberInfo, ClassMemberKind, Type};
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
@@ -295,16 +296,6 @@ pub struct NamespaceImport {
     pub hang: Arc<str>,
     pub exported: Arc<str>,
     pub members: Vec<Arc<str>>,
-}
-
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
-)]
-pub enum DeclKind {
-    Enum,
-    Class,
-    Interface,
-    Namespace,
 }
 
 mod extension_labels;

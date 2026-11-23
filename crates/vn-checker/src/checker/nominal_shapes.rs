@@ -5,6 +5,7 @@ use std::sync::Arc;
 use vn_core::{Diagnostic, ErrorCode, TypeKind};
 use vn_sem::bind::BindResult;
 use vn_sem::output::{ResolvedShape, ShapeKind};
+use vn_sem::types::DeclKind;
 use vn_sem::types::{ClassMemberInfo, FunctionType, ObjectTypeMember, TypeContext};
 use vn_sem::types::{ClassMemberKind, Type};
 
@@ -187,9 +188,7 @@ impl Checker<'_> {
         let owner = foreign.as_deref().unwrap_or(bind);
         let mut fields = match owner.get_interface_members_local(&name) {
             Some(fields) => fields.clone(),
-            None if owner.classify_decl(&name) == Some(vn_sem::bind::DeclKind::Interface) => {
-                Vec::new()
-            }
+            None if owner.classify_decl(&name) == Some(DeclKind::Interface) => Vec::new(),
             None => return None,
         };
         if parents.len() >= 64 || !parents.insert(ty.0) {
