@@ -7,6 +7,7 @@ pub(super) fn collect_extension_members(
     results: &mut Vec<vn_sem::semantic_info::ResolvedMemberSummary>,
     seen: &mut rustc_hash::FxHashSet<Arc<str>>,
     ty: &Type,
+    resolver: &dyn vn_sem::resolver::ImportResolver,
     bind: &BindResult,
     table: &mut CheckerTyTable,
 ) {
@@ -86,7 +87,28 @@ pub(super) fn collect_extension_members(
         (ExtensionKind::Getter, K::ExtensionProperty, true),
         (ExtensionKind::Setter, K::ExtensionProperty, true),
     ] {
-        for (name, mangled) in bind.extensions.members_for(kind, *ty, table, &name_of) {
+        for (name, candidates) in bind.extensions.matching_members(kind, *ty, table, &name_of) {
+            let view = vn_sem::bind::BindView::new(bind, resolver);
+            let mut cache = rustc_hash::FxHashMap::default();
+            let Some(mangled) = candidates.into_iter().find(|mangled| {
+                super::member_util::extension_applies(
+                    bind,
+                    table,
+                    mangled,
+                    ty,
+                    &mut |constraint, bound, table| {
+                        vn_sem::compat::types_compatible_with_cache(
+                            constraint,
+                            bound,
+                            Some(&view),
+                            &mut cache,
+                            table,
+                        )
+                    },
+                )
+            }) else {
+                continue;
+            };
             push(
                 &name,
                 &mangled,

@@ -1,0 +1,8 @@
+// expect: error[VN3004]
+interface Sized { size(): int }
+class Bag { size(): int { return 9 } }
+extension<T extends Sized> on T[] {
+    total(): int { return this.length }
+}
+const bags: Bag[] = [new Bag()]
+bags.total()

@@ -136,18 +136,23 @@ impl Extensions {
         Ok(())
     }
 
-    pub fn resolve(
+    pub fn matching(
         &self,
         kind: vn_core::extension_names::ExtensionKind,
         receiver: Type,
         member: &str,
         table: &crate::types::CheckerTyTable,
         name_of: receiver_pattern::NameOf,
-    ) -> Option<Arc<str>> {
-        let concrete = ReceiverPattern::of(receiver, table, name_of, &[])?;
-        let head = concrete.head()?;
-        let candidates = self.table(kind).get(&head)?.get(member)?;
-        best_candidate(candidates, &concrete).map(|c| c.mangled.clone())
+    ) -> Vec<Arc<str>> {
+        let Some(concrete) = ReceiverPattern::of(receiver, table, name_of, &[]) else {
+            return Vec::new();
+        };
+        concrete
+            .head()
+            .and_then(|head| self.table(kind).get(&head))
+            .and_then(|bucket| bucket.get(member))
+            .map(|candidates| by_specificity(candidates, &concrete))
+            .unwrap_or_default()
     }
 
     pub fn candidates_named(
@@ -166,24 +171,23 @@ impl Extensions {
             .unwrap_or_default()
     }
 
-    pub fn members_for(
+    pub fn matching_members(
         &self,
         kind: vn_core::extension_names::ExtensionKind,
         receiver: Type,
         table: &crate::types::CheckerTyTable,
         name_of: receiver_pattern::NameOf,
-    ) -> Vec<(Arc<str>, Arc<str>)> {
+    ) -> Vec<(Arc<str>, Vec<Arc<str>>)> {
         let Some(concrete) = ReceiverPattern::of(receiver, table, name_of, &[]) else {
             return Vec::new();
         };
         let Some(bucket) = concrete.head().and_then(|head| self.table(kind).get(&head)) else {
             return Vec::new();
         };
-        let mut out: Vec<(Arc<str>, Arc<str>)> = bucket
+        let mut out: Vec<(Arc<str>, Vec<Arc<str>>)> = bucket
             .iter()
-            .filter_map(|(member, candidates)| {
-                best_candidate(candidates, &concrete).map(|c| (member.clone(), c.mangled.clone()))
-            })
+            .map(|(member, candidates)| (member.clone(), by_specificity(candidates, &concrete)))
+            .filter(|(_, found)| !found.is_empty())
             .collect();
         out.sort();
         out
@@ -204,14 +208,18 @@ impl Extensions {
     }
 }
 
-fn best_candidate<'a>(
-    candidates: &'a [ExtensionCandidate],
-    concrete: &ReceiverPattern,
-) -> Option<&'a ExtensionCandidate> {
-    candidates
+fn by_specificity(candidates: &[ExtensionCandidate], concrete: &ReceiverPattern) -> Vec<Arc<str>> {
+    let mut found: Vec<&ExtensionCandidate> = candidates
         .iter()
         .filter(|c| c.pattern.matches(concrete, &mut Vec::new()))
-        .max_by_key(|c| c.pattern.specificity())
+        .collect();
+    found.sort_by(|a, b| {
+        b.pattern
+            .specificity()
+            .cmp(&a.pattern.specificity())
+            .then_with(|| a.mangled.cmp(&b.mangled))
+    });
+    found.into_iter().map(|c| c.mangled.clone()).collect()
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

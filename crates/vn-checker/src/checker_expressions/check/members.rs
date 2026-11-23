@@ -298,14 +298,32 @@ impl<'r> Checker<'r> {
 }
 
 pub(crate) fn resolve_extension(
-    checker: &Checker,
+    checker: &mut Checker,
     kind: vn_core::extension_names::ExtensionKind,
     ty: &Type,
     member: &str,
     bind: &BindResult,
 ) -> Option<std::sync::Arc<str>> {
-    bind.extensions
-        .resolve(kind, *ty, member, &checker.ty_table, &|atom| {
+    let candidates = bind
+        .extensions
+        .matching(kind, *ty, member, &checker.ty_table, &|atom| {
             Some(checker.resolve_bind_atom(bind, atom))
-        })
+        });
+    let mut table = std::mem::take(std::sync::Arc::make_mut(&mut checker.ty_table));
+    let chosen = candidates.into_iter().find(|mangled| {
+        crate::checker_expressions::members::member_util::extension_applies(
+            bind,
+            &mut table,
+            mangled,
+            ty,
+            &mut |constraint, bound, table| {
+                std::mem::swap(std::sync::Arc::make_mut(&mut checker.ty_table), table);
+                let fits = checker.types_compatible_cached(constraint, bound, Some(bind));
+                std::mem::swap(std::sync::Arc::make_mut(&mut checker.ty_table), table);
+                fits
+            },
+        )
+    });
+    checker.ty_table = std::sync::Arc::new(table);
+    chosen
 }

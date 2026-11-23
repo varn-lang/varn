@@ -3,7 +3,7 @@ use rustc_hash::FxHashMap;
 use std::sync::Arc;
 use vn_core::TypeKind;
 use vn_sem::bind::BindResult;
-use vn_sem::types::Type;
+use vn_sem::types::{CheckerTyTable, Type};
 
 pub(crate) fn class_type_params(
     resolver: &dyn vn_sem::resolver::ImportResolver,
@@ -78,6 +78,86 @@ fn resolve_extension_symbol_type(bind: &BindResult, mangled: &Arc<str>) -> Optio
     let atom = bind.interner.get(mangled.as_ref())?;
     let sid = scope.resolve(atom, &bind.scopes)?;
     bind.arena.get(sid).ty
+}
+
+fn extension_symbol<'b>(
+    bind: &'b BindResult,
+    mangled: &Arc<str>,
+) -> Option<&'b vn_sem::symbol::Symbol> {
+    let scope = bind.scopes.get(bind.global_scope);
+    let atom = bind.interner.get(mangled.as_ref())?;
+    let sid = scope.resolve(atom, &bind.scopes)?;
+    Some(bind.arena.get(sid))
+}
+
+pub(crate) type Compat<'c> = &'c mut dyn FnMut(&Type, &Type, &mut CheckerTyTable) -> bool;
+
+pub(crate) fn extension_applies(
+    bind: &BindResult,
+    table: &mut CheckerTyTable,
+    mangled: &Arc<str>,
+    receiver: &Type,
+    compatible: Compat,
+) -> bool {
+    let Some(sym) = extension_symbol(bind, mangled) else {
+        return false;
+    };
+    if sym.type_param_constraints.iter().all(Option::is_none) {
+        return true;
+    }
+    let Some(declared) = sym.ty.and_then(|ty| match table.get(ty.0) {
+        TypeKind::Fn(fid) => table
+            .get_function(fid)
+            .params
+            .first()
+            .map(|p| Type::resolved(p.ty)),
+        TypeKind::Primitive(_)
+        | TypeKind::Literal(_)
+        | TypeKind::This
+        | TypeKind::Array(_)
+        | TypeKind::Union(_)
+        | TypeKind::Intersection(_)
+        | TypeKind::Tuple(_)
+        | TypeKind::Named(..)
+        | TypeKind::Generic(..)
+        | TypeKind::Record(_)
+        | TypeKind::Interface(_)
+        | TypeKind::EnumVariant { .. }
+        | TypeKind::TypePredicate { .. } => None,
+    }) else {
+        return false;
+    };
+    let names: Vec<Arc<str>> = sym
+        .type_params
+        .iter()
+        .map(|atom| Arc::from(bind.interner.resolve(*atom)))
+        .collect();
+    let mut mapping: FxHashMap<Arc<str>, Type> = FxHashMap::default();
+    crate::checker_type_inferences::collect_type_inferences(
+        &declared,
+        receiver,
+        &names,
+        &mut mapping,
+        table,
+        &bind.interner,
+    );
+    let by_atom: FxHashMap<vn_core::Atom, Type> = mapping
+        .iter()
+        .map(|(name, ty)| (vn_core::Atom::of(name), *ty))
+        .collect();
+    names
+        .iter()
+        .zip(sym.type_param_constraints.iter())
+        .all(|(name, constraint)| {
+            let Some(constraint) = constraint else {
+                return true;
+            };
+            let Some(bound) = mapping.get(name).copied() else {
+                return false;
+            };
+            let constraint = constraint.map_generics(&by_atom, table);
+            compatible(&constraint, &bound, table)
+        })
 }
 
 pub(super) fn extension_method_auth(bind: &BindResult, mangled: &Arc<str>) -> MemberAuth {
@@ -176,11 +256,21 @@ pub(crate) fn extension_receiver_forms(
                 return None;
             };
             let this = checker.ty_table.get_function(fid).params.first()?.ty;
-            Some(
-                Type::resolved(this)
-                    .display(&checker.ty_table, &bind.interner)
-                    .to_string(),
-            )
+            let shown = |ty: Type| ty.display(&checker.ty_table, &bind.interner).to_string();
+            let receiver = shown(Type::resolved(this));
+            let bounds: Vec<String> = extension_symbol(bind, &mangled)?
+                .type_params
+                .iter()
+                .zip(&extension_symbol(bind, &mangled)?.type_param_constraints)
+                .filter_map(|(name, bound)| {
+                    bound.map(|b| format!("{} extends {}", bind.interner.resolve(*name), shown(b)))
+                })
+                .collect();
+            Some(if bounds.is_empty() {
+                receiver
+            } else {
+                format!("{receiver}' where '{}", bounds.join(", "))
+            })
         })
         .collect();
     forms.sort();

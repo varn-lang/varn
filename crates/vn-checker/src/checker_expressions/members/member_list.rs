@@ -239,7 +239,14 @@ pub fn get_members_of_type(
         | TypeKind::TypePredicate { .. } => {}
     }
 
-    super::member_extension::collect_extension_members(&mut results, &mut seen, ty, bind, table);
+    super::member_extension::collect_extension_members(
+        &mut results,
+        &mut seen,
+        ty,
+        resolver,
+        bind,
+        table,
+    );
     results
 }
 

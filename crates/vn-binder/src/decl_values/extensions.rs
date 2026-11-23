@@ -51,6 +51,12 @@ impl<'r> super::super::Binder<'r> {
         let type_name = type_name.to_string();
         let pattern =
             vn_sem::bind::extension_pattern(e, receiver_ty, &self.ty_table, &self.interner);
+        let ext_param_atoms: Vec<vn_core::Atom> = e.type_params.iter().map(|t| t.name).collect();
+        let ext_constraints: Vec<Option<Type>> = e
+            .type_params
+            .iter()
+            .map(|t| t.constraint.as_ref().map(|c| self.resolve_type(c)))
+            .collect();
         let Some((pattern, head)) = pattern.and_then(|p| p.head().map(|h| (p, h))) else {
             self.emit(
                 vn_core::Diagnostic::error(
@@ -130,6 +136,8 @@ impl<'r> super::super::Binder<'r> {
                         Symbol::new(SymbolKind::Function, mangled_atom, line).with_type(fn_type);
                     sym.col = method.range.start.column;
                     sym.offset = method.range.start.offset;
+                    sym.type_params = ext_param_atoms.clone();
+                    sym.type_param_constraints = ext_constraints.clone();
                     sym.has_explicit_type = method.return_type.is_some();
                     sym.is_async = method.modifiers.is_async;
                     sym.is_generator = method.modifiers.is_generator;
@@ -198,6 +206,8 @@ impl<'r> super::super::Binder<'r> {
                         .with_type(fn_type);
                     sym.col = range.start.column;
                     sym.offset = range.start.offset;
+                    sym.type_params = ext_param_atoms.clone();
+                    sym.type_param_constraints = ext_constraints.clone();
                     sym.has_explicit_type = return_type.is_some();
                     self.define_outside(outer, mangled_atom, sym);
                     self.record_extension(
@@ -255,6 +265,8 @@ impl<'r> super::super::Binder<'r> {
                         .with_type(fn_type);
                     sym.col = range.start.column;
                     sym.offset = range.start.offset;
+                    sym.type_params = ext_param_atoms.clone();
+                    sym.type_param_constraints = ext_constraints.clone();
                     sym.has_explicit_type = true;
                     self.define_outside(outer, mangled_atom, sym);
                     self.record_extension(
