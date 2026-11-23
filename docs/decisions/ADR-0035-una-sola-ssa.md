@@ -35,12 +35,18 @@ backend. La proyeccion desaparece.
 Fases, cada una con su puerta (suite completa y matriz de `verify.ps1` en verde, y
 sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
 
-- F1. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}` sustituyen a
-  `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm`. `Terminator` y
-  `SsaTerm` pasan a ser un solo tipo, con un solo recorrido de operandos.
-- F2. Cadenas y constantes con una sola representacion (`Arc<str>` en ambos lados;
-  serde con `rc`). Las 55 variantes de copia quedan identicas en forma.
-- F3. Un solo enum de instrucciones. `InstKind` pasa a ser `vn_types::ssa::Op`; los
+- [x] F1a. `SsaTerm<V = u32, B = u32>` es generico sobre los ids: el compilador
+  lo instancia con `Value`/`BlockId`, el JIT con `u32`. `Terminator` y
+  `term_uses!` se borran; `for_each_use`, `for_each_use_mut` y `map_ids` se
+  escriben una vez (3159abfa).
+- [x] F2. Cadenas `Arc<str>` tambien en la SSA portable (b07acd0c).
+- F1b. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}` sustituyen a
+  `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm` (1500
+  referencias en 29 ficheros del JIT).
+- F3. Un solo enum de instrucciones, por el mismo camino que F1a: `SsaOp`
+  generico sobre el id de valor, con las cargas de las 26 variantes que difieren
+  (operador tipado, ranuras IC, registros capturados) en tipos asociados a un
+  parametro de nivel. `InstKind` pasa a ser `vn_types::ssa::Op`; los
   pases del compilador hacen match sobre el. `uses.rs` del compilador se borra en
   favor de `Op::for_each_use`/`for_each_use_mut`.
 - F4. Las anotaciones de backend (ranura IC, registros capturados, `ip`, landing de
