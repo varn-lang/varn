@@ -41,19 +41,19 @@ pub struct SsaInst {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum SsaTerm {
-    Return(Option<u32>),
-    Throw(u32),
+pub enum SsaTerm<V = u32, B = u32> {
+    Return(Option<V>),
+    Throw(V),
     Jump {
-        target: u32,
-        args: Vec<u32>,
+        target: B,
+        args: Vec<V>,
     },
     Branch {
-        cond: u32,
-        then_blk: u32,
-        then_args: Vec<u32>,
-        else_blk: u32,
-        else_args: Vec<u32>,
+        cond: V,
+        then_blk: B,
+        then_args: Vec<V>,
+        else_blk: B,
+        else_args: Vec<V>,
     },
     Unreachable,
 }

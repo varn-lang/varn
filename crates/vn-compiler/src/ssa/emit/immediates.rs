@@ -87,7 +87,7 @@ pub(super) fn plan_immediates(ssa: &SsaFunc) -> Immediates {
                 folded[form.carrier.0 as usize] += 1;
             }
         }
-        crate::ssa::uses::visit_term_uses(&block.term, &mut |v| total[v.0 as usize] += 1);
+        block.term.for_each_use(|v| total[v.0 as usize] += 1);
     }
 
     let elided = (0..n)

@@ -96,7 +96,7 @@ pub fn run_global(func: &mut SsaFunc) -> bool {
         for inst in &block.insts {
             crate::ssa::uses::visit_uses(&inst.kind, &mut push);
         }
-        crate::ssa::uses::visit_term_uses(&block.term, &mut push);
+        block.term.for_each_use(&mut push);
     }
     let mut seen: FxHashMap<Key, (Value, usize)> = FxHashMap::default();
     let mut rewrites: FxHashMap<Value, Value> = FxHashMap::default();

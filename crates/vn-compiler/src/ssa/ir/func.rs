@@ -64,7 +64,7 @@ impl SsaFunc {
             for inst in &mut block.insts {
                 crate::ssa::uses::visit_uses_mut(&mut inst.kind, &mut sub);
             }
-            crate::ssa::uses::visit_term_uses_mut(&mut block.term, &mut sub);
+            block.term.for_each_use_mut(&mut sub);
         }
     }
 
@@ -78,7 +78,7 @@ impl SsaFunc {
             for inst in &mut block.insts {
                 crate::ssa::uses::visit_uses_mut(&mut inst.kind, &mut sub);
             }
-            crate::ssa::uses::visit_term_uses_mut(&mut block.term, &mut sub);
+            block.term.for_each_use_mut(&mut sub);
         }
     }
 }

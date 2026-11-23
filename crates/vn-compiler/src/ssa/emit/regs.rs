@@ -239,7 +239,7 @@ fn coalesce_window_args(ssa: &SsaFunc, reg: &mut [u8], call_base: u8) {
         for inst in &block.insts {
             crate::ssa::uses::visit_uses(&inst.kind, &mut |v| uses[v.0 as usize] += 1);
         }
-        crate::ssa::uses::visit_term_uses(&block.term, &mut |v| uses[v.0 as usize] += 1);
+        block.term.for_each_use(|v| uses[v.0 as usize] += 1);
     }
     for block in &ssa.blocks {
         for (at, inst) in block.insts.iter().enumerate() {

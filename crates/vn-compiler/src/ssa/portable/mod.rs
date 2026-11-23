@@ -360,26 +360,5 @@ struct Site<'a> {
 }
 
 fn project_term(term: &Terminator) -> SsaTerm {
-    match term {
-        Terminator::Return(v) => SsaTerm::Return(v.map(|v| v.0)),
-        Terminator::Throw(v) => SsaTerm::Throw(v.0),
-        Terminator::Jump { target, args } => SsaTerm::Jump {
-            target: target.0,
-            args: args.iter().map(|v| v.0).collect(),
-        },
-        Terminator::Branch {
-            cond,
-            then_blk,
-            then_args,
-            else_blk,
-            else_args,
-        } => SsaTerm::Branch {
-            cond: cond.0,
-            then_blk: then_blk.0,
-            then_args: then_args.iter().map(|v| v.0).collect(),
-            else_blk: else_blk.0,
-            else_args: else_args.iter().map(|v| v.0).collect(),
-        },
-        Terminator::Unreachable => SsaTerm::Unreachable,
-    }
+    term.map_ids(|v| v.0, |b| b.0)
 }

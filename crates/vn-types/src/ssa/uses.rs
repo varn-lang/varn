@@ -164,8 +164,8 @@ impl SsaOp {
     }
 }
 
-impl SsaTerm {
-    pub fn for_each_use(&self, mut f: impl FnMut(u32)) {
+impl<V: Copy, B: Copy> SsaTerm<V, B> {
+    pub fn for_each_use(&self, mut f: impl FnMut(V)) {
         match self {
             SsaTerm::Return(Some(v)) | SsaTerm::Throw(v) => f(*v),
             SsaTerm::Return(None) | SsaTerm::Unreachable => {}
@@ -180,6 +180,49 @@ impl SsaTerm {
                 then_args.iter().for_each(|a| f(*a));
                 else_args.iter().for_each(|a| f(*a));
             }
+        }
+    }
+
+    pub fn for_each_use_mut(&mut self, mut f: impl FnMut(&mut V)) {
+        match self {
+            SsaTerm::Return(Some(v)) | SsaTerm::Throw(v) => f(v),
+            SsaTerm::Return(None) | SsaTerm::Unreachable => {}
+            SsaTerm::Jump { args, .. } => args.iter_mut().for_each(f),
+            SsaTerm::Branch {
+                cond,
+                then_args,
+                else_args,
+                ..
+            } => {
+                f(cond);
+                then_args.iter_mut().for_each(&mut f);
+                else_args.iter_mut().for_each(f);
+            }
+        }
+    }
+
+    pub fn map_ids<W, C>(&self, value: impl Fn(V) -> W, block: impl Fn(B) -> C) -> SsaTerm<W, C> {
+        match self {
+            SsaTerm::Return(v) => SsaTerm::Return(v.map(&value)),
+            SsaTerm::Throw(v) => SsaTerm::Throw(value(*v)),
+            SsaTerm::Jump { target, args } => SsaTerm::Jump {
+                target: block(*target),
+                args: args.iter().map(|v| value(*v)).collect(),
+            },
+            SsaTerm::Branch {
+                cond,
+                then_blk,
+                then_args,
+                else_blk,
+                else_args,
+            } => SsaTerm::Branch {
+                cond: value(*cond),
+                then_blk: block(*then_blk),
+                then_args: then_args.iter().map(|v| value(*v)).collect(),
+                else_blk: block(*else_blk),
+                else_args: else_args.iter().map(|v| value(*v)).collect(),
+            },
+            SsaTerm::Unreachable => SsaTerm::Unreachable,
         }
     }
 }

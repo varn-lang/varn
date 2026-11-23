@@ -1,6 +1,6 @@
 use rustc_hash::FxHashMap;
 
-use super::ir::{InstKind, SsaFunc, Terminator, Value};
+use super::ir::{InstKind, SsaFunc, Value};
 
 macro_rules! by_value {
     ($f:ident, $v:expr) => {
@@ -194,48 +194,12 @@ macro_rules! inst_uses {
     }};
 }
 
-macro_rules! term_uses {
-    ($term:expr, $f:ident, $use:ident, $iter:ident) => {
-        match $term {
-            Terminator::Return(Some(v)) | Terminator::Throw(v) => $use!($f, v),
-            Terminator::Return(None) | Terminator::Unreachable => {}
-            Terminator::Jump { args, .. } => {
-                for a in $iter!(args) {
-                    $use!($f, a);
-                }
-            }
-            Terminator::Branch {
-                cond,
-                then_args,
-                else_args,
-                ..
-            } => {
-                $use!($f, cond);
-                for a in $iter!(then_args) {
-                    $use!($f, a);
-                }
-                for a in $iter!(else_args) {
-                    $use!($f, a);
-                }
-            }
-        }
-    };
-}
-
 pub fn visit_uses(kind: &InstKind, f: &mut impl FnMut(Value)) {
     inst_uses!(kind, f, by_value, shared)
 }
 
 pub fn visit_uses_mut(kind: &mut InstKind, f: &mut impl FnMut(&mut Value)) {
     inst_uses!(kind, f, by_ref, exclusive)
-}
-
-pub fn visit_term_uses(term: &Terminator, f: &mut impl FnMut(Value)) {
-    term_uses!(term, f, by_value, shared)
-}
-
-pub fn visit_term_uses_mut(term: &mut Terminator, mut f: impl FnMut(&mut Value)) {
-    term_uses!(term, f, by_ref, exclusive)
 }
 
 pub fn replace_uses_with_map(func: &mut SsaFunc, map: &FxHashMap<Value, Value>) -> bool {
@@ -258,7 +222,7 @@ pub fn replace_uses_with_map(func: &mut SsaFunc, map: &FxHashMap<Value, Value>) 
         for inst in &mut block.insts {
             visit_uses_mut(&mut inst.kind, &mut sub);
         }
-        visit_term_uses_mut(&mut block.term, &mut sub);
+        block.term.for_each_use_mut(&mut sub);
     }
     changed
 }
