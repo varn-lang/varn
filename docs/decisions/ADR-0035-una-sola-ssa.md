@@ -49,9 +49,17 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   parametro de nivel. `InstKind` pasa a ser `vn_types::ssa::Op`; los
   pases del compilador hacen match sobre el. `uses.rs` del compilador se borra en
   favor de `Op::for_each_use`/`for_each_use_mut`.
-- F4. Las anotaciones de backend (ranura IC, registros capturados, `ip`, landing de
-  `try`) se guardan en una tabla paralela del `SsaProto` en lugar de reescribir la
-  instruccion. El JIT las lee de esa tabla.
+- [x] F3a. `SsaSpread` y `SsaObjectSpreadPart` son genericos sobre el id y el
+  compilador los usa en lugar de tuplas (f00e0f21).
+- [x] F4a. La ranura de cache y el punto de continuacion (`ip` + conjunto vivo) van
+  en `SsaInst` (`cache`, `resume`), no en la operacion (f1cf5a87). Tras esto, 65
+  de los 81 brazos de la proyeccion son copia.
+- F4b. Variables capturadas: el compilador usa `VarId` y la SSA portable un indice
+  de captura (`LoadCaptured`, `StoreCaptured`, `CloseUpvalues`, `Dispose`,
+  `MakeClosure`). `VarId` baja a `vn-types` y la tabla de capturas del
+  `SsaProto` resuelve su registro.
+- F4c. Una sola forma para `BuildObject` (pares o claves y valores) y
+  `ConstDecimal`.
 - F5. La eleccion del operador por tipo (`binary_opcode`) baja a `vn-types` como
   funcion pura de los tipos, y la usan la emision de bytecode y el JIT; `SsaBinOp` y
   `SsaUnOp` se derivan de ella. Se borra `ssa/portable/`.
