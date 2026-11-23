@@ -1,0 +1,4 @@
+// expect: error[VN3001]
+interface Box<T> { get(): T }
+class Plain { get(): int { return 1 } }
+const b: Box<int> = new Plain()

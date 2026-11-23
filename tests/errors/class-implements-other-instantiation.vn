@@ -1,0 +1,4 @@
+// expect: error[VN3001]
+interface Box<T> { get(): T }
+class Text implements Box<str> { get(): str { return "a" } }
+const b: Box<int> = new Text()

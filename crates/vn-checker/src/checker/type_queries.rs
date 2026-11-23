@@ -38,6 +38,9 @@ impl<'r> Checker<'r> {
         if let Some(fits) = self.fits_open_parameter(declared, inferred, bind) {
             return fits;
         }
+        if bind.is_some_and(|b| self.class_lacks_interface(declared, inferred, b)) {
+            return false;
+        }
         let declared = &bind
             .and_then(|b| self.instantiate_interface(declared, inferred, b))
             .unwrap_or(*declared);
@@ -86,6 +89,29 @@ impl<'r> Checker<'r> {
             return None;
         }
         Some(declared.0 == inferred.0 || *inferred == Type::Never)
+    }
+
+    fn class_lacks_interface(&self, declared: &Type, inferred: &Type, bind: &BindResult) -> bool {
+        let vn_core::TypeKind::Generic(interface, _, interface_origin) =
+            self.ty_table.get(declared.0)
+        else {
+            return false;
+        };
+        let vn_core::TypeKind::Named(class, class_origin) = self.ty_table.get(inferred.0) else {
+            return false;
+        };
+        let view = BindView::new(bind, self.resolver);
+        let interface = self.resolve_bind_atom(bind, interface);
+        let interface_origin = interface_origin.map(|o| self.resolve_bind_atom(bind, o));
+        let class = self.resolve_bind_atom(bind, class);
+        let class_origin = class_origin.map(|o| self.resolve_bind_atom(bind, o));
+        use vn_sem::types::TypeContext;
+        view.get_interface_members(&interface, interface_origin.as_deref())
+            .is_some()
+            && view
+                .get_class_members(&class, class_origin.as_deref())
+                .is_some()
+            && !vn_sem::compat::class_declares(&view, &class, class_origin.as_deref(), &interface)
     }
 
     fn instantiate_interface(

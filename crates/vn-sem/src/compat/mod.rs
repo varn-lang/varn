@@ -13,6 +13,7 @@ mod scalar;
 mod unions;
 pub mod variance;
 
+pub use compat_lookup::class_declares;
 pub use core::{types_compatible, types_compatible_with_cache};
 pub use expr_sat::expr_satisfies_target_type;
 pub use hashable::is_hashable;

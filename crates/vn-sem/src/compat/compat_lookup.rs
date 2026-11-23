@@ -105,12 +105,7 @@ pub(super) fn compatible_named(
     }
 }
 
-pub(super) fn class_declares(
-    bind: &BindView,
-    class: &str,
-    origin: Option<&str>,
-    interface: &str,
-) -> bool {
+pub fn class_declares(bind: &BindView, class: &str, origin: Option<&str>, interface: &str) -> bool {
     let mut pending: Vec<(String, Option<String>)> =
         vec![(class.to_owned(), origin.map(str::to_owned))];
     let mut seen: FxHashSet<String> = FxHashSet::default();

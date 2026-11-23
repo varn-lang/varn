@@ -1,6 +1,6 @@
 import { describe, it, expect } from "std:test";
 
-class Money implements Display, Debug {
+class Money implements Display, Debug, Equatable<Money>, Comparable<Money>, Cloneable<Money>, Add<Money, Money>, Neg<Money> {
     cents: int
     constructor(c: int) { this.cents = c }
     equals(other: Money): bool { return this.cents == other.cents }
@@ -23,7 +23,7 @@ const g: Debug = new Money(7)
 const plus: Add<Money, Money> = new Money(1)
 const minus: Neg<Money> = new Money(2)
 
-class Box { v: int; constructor(v: int) { this.v = v } get(key: int): int? { return key == 0 ? this.v : null } }
+class Box implements Indexable<int, int> { v: int; constructor(v: int) { this.v = v } get(key: int): int? { return key == 0 ? this.v : null } }
 const ix: Indexable<int, int> = new Box(4)
 
 class Settings {
