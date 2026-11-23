@@ -263,8 +263,8 @@ pub struct BindResult {
     pub enum_variant_tags: FxHashMap<Arc<str>, Vec<i64>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted")]
     pub sum_variant_parent: FxHashMap<Arc<str>, Arc<str>>,
-    #[serde(serialize_with = "crate::portable::canonical::sorted")]
-    pub sum_variant_fields: FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>,
+    #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
+    pub sum_variant_fields: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>>,
     pub extensions: Extensions,
     #[serde(skip)]
     pub core: Option<Arc<CoreMembers>>,
@@ -327,10 +327,13 @@ impl BindResult {
             || self.sum_type_variants.contains_key(name)
     }
 
+    pub fn variant_fields(&self, enum_name: &str, variant: &str) -> Option<&Vec<(Arc<str>, Type)>> {
+        self.sum_variant_fields.get(enum_name)?.get(variant)
+    }
+
     pub fn enum_layout(&self, name: &str) -> Option<Vec<VariantLayout>> {
         let fields = |variant: &Arc<str>| {
-            self.sum_variant_fields
-                .get(variant)
+            self.variant_fields(name, variant)
                 .cloned()
                 .unwrap_or_default()
         };

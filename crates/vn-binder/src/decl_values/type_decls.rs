@@ -114,6 +114,8 @@ impl<'r> super::super::Binder<'r> {
             self.sum_variant_parent
                 .insert(member_id_rc.clone(), id_rc.clone());
             self.sum_variant_fields
+                .entry(id_rc.clone())
+                .or_default()
                 .insert(member_id_rc.clone(), fields.clone());
 
             let constant_instance = member.payload_fields.iter().all(|f| f.init.is_some());

@@ -161,16 +161,18 @@ impl<'r> Checker<'r> {
             if !uncovered.is_empty() && !self.matrix_exhaustive(cases, subject_ty, bind) {
                 let missing = uncovered
                     .iter()
-                    .map(|v| match owner.sum_variant_fields.get(v.as_str()) {
-                        Some(fields) if !fields.is_empty() => {
-                            format!(
-                                "{v}({})",
-                                vec![vn_core::TokenKind::Placeholder.as_str(); fields.len()]
-                                    .join(", ")
-                            )
-                        }
-                        None | Some(_) => v.clone(),
-                    })
+                    .map(
+                        |v| match owner.variant_fields(type_name.as_ref(), v.as_str()) {
+                            Some(fields) if !fields.is_empty() => {
+                                format!(
+                                    "{v}({})",
+                                    vec![vn_core::TokenKind::Placeholder.as_str(); fields.len()]
+                                        .join(", ")
+                                )
+                            }
+                            None | Some(_) => v.clone(),
+                        },
+                    )
                     .collect();
                 let message = format!(
                     "non-exhaustive match: missing cases for {}",

@@ -97,13 +97,13 @@ impl<'r> Checker<'r> {
             }
             let mut found_tys = Vec::new();
             for v in &variants {
-                if let Some(fields) = bind.sum_variant_fields.get(v)
+                if let Some(fields) = bind.variant_fields(name.as_ref(), v)
                     && let Some((_, ty)) = fields.iter().find(|(fname, _)| fname.as_ref() == key)
                 {
                     found_tys.push(*ty);
                 }
                 if let Some(ext_bind) = self.resolver.find_bind_for_type(&name, &origin_modules)
-                    && let Some(fields) = ext_bind.sum_variant_fields.get(v)
+                    && let Some(fields) = ext_bind.variant_fields(name.as_ref(), v)
                     && let Some((_, ty)) = fields.iter().find(|(fname, _)| fname.as_ref() == key)
                 {
                     let ty = *ty;

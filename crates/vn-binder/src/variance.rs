@@ -143,7 +143,11 @@ fn sum_type_payloads(b: &Binder, name: &Arc<str>) -> Vec<vn_sem::types::ClassMem
         return payloads;
     };
     for variant in variants {
-        if let Some(fields) = b.sum_variant_fields.get(variant.as_ref()) {
+        if let Some(fields) = b
+            .sum_variant_fields
+            .get(name.as_ref())
+            .and_then(|variants| variants.get(variant.as_ref()))
+        {
             for (field, ty) in fields {
                 payloads.push(vn_sem::types::ClassMemberInfo {
                     name: field.clone(),

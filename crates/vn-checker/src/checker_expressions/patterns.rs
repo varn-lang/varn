@@ -405,7 +405,8 @@ impl<'r> Checker<'r> {
             | TypeKind::TypePredicate { .. } => (None, Vec::new(), None),
         };
 
-        let mut fields = bind.sum_variant_fields.get(variant).cloned();
+        let owner = parent.clone()?;
+        let mut fields = bind.variant_fields(&owner, variant).cloned();
         let mut def_bind: Option<std::sync::Arc<BindResult>> = None;
         if fields.is_none()
             && let Some(o) = &origin
@@ -415,7 +416,7 @@ impl<'r> Checker<'r> {
                 .module_bind(o.as_ref())
                 .or_else(|| self.resolver.stdlib_bind(o.as_ref()));
             if let Some(mb) = mb {
-                fields = mb.sum_variant_fields.get(variant).cloned();
+                fields = mb.variant_fields(&owner, variant).cloned();
                 def_bind = Some(mb);
             }
         }

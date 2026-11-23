@@ -78,7 +78,11 @@ impl Roots {
         for methods in bind.class_methods.values() {
             self.types.extend(methods.values().map(|t| t.0));
         }
-        for fields in bind.sum_variant_fields.values() {
+        for fields in bind
+            .sum_variant_fields
+            .values()
+            .flat_map(|variants| variants.values())
+        {
             self.types.extend(fields.iter().map(|(_, t)| t.0));
         }
     }

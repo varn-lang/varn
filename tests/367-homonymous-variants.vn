@@ -1,0 +1,26 @@
+import { describe, it, expect } from "std:test";
+
+enum Shape { Circle(float), Square(float) }
+enum Token { Circle(int), Word(str) }
+
+function area(s: Shape): float {
+    return match (s) {
+        Circle(r) => r * r,
+        Square(w) => w * w,
+    }
+}
+
+function weight(t: Token): int {
+    return match (t) {
+        Circle(n) => n + 1,
+        Word(w) => w.length,
+    }
+}
+
+await describe("367 two enums can have variants with the same name", async () => {
+    await it("each variant keeps the payload of its own enum", () => {
+        expect(area(Shape.Circle(2.0))).toBe(4.0)
+        expect(weight(Token.Circle(4))).toBe(5)
+        expect(weight(Token.Word("abc"))).toBe(3)
+    })
+})

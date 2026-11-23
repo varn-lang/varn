@@ -139,14 +139,17 @@ fn bind_typed_pattern_vars(b: &mut Binder, pattern: &MatchPattern, ty: Option<Ty
             }
         }
         MatchPattern::EnumVariant {
+            enum_name,
             variant_name,
             payload,
-            ..
         } => {
-            let field_types = b
-                .sum_variant_fields
-                .get(b.interner.resolve(*variant_name))
-                .cloned()
+            let variant = b.interner.resolve(*variant_name);
+            let owner: Option<Arc<str>> = match enum_name {
+                Some(name) => Some(Arc::from(b.interner.resolve(*name))),
+                None => b.sum_variant_parent.get(variant).cloned(),
+            };
+            let field_types = owner
+                .and_then(|owner| b.sum_variant_fields.get(&owner)?.get(variant).cloned())
                 .unwrap_or_default();
             match payload {
                 vn_core::ast::VariantPayload::Positional(items) => {
