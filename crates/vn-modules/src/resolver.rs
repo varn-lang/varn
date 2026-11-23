@@ -1,7 +1,6 @@
 pub use super::uri::{path_to_uri, percent_decode, uri_to_path};
 pub use super::{
-    canonical_or_original, is_pkg_specifier, normalize_path_string, resolve_pkg_specifier,
-    resolve_pkg_specifier_detailed,
+    canonical_or_original, is_pkg_specifier, resolve_pkg_specifier, resolve_pkg_specifier_detailed,
 };
 
 use super::contain::check_within_root;
@@ -37,7 +36,7 @@ pub fn resolve_in(spec: &str, base_dir: &Path) -> Result<ModuleId, String> {
                 base_dir.join(&rel)
             };
             let lexical =
-                normalize_path_string(normalize_components(&joined).to_string_lossy().into_owned());
+                vn_core::paths::portable_path(&normalize_components(&joined).to_string_lossy());
             let canonical = canonical_or_original(Path::new(&lexical));
             check_within_root(base_dir, &canonical)?;
             Ok(ModuleId::local_str(&canonical))
@@ -64,17 +63,9 @@ fn normalize_components(path: &Path) -> PathBuf {
     out
 }
 
-pub fn normalize_display_path(path: &str) -> String {
-    let without_prefix = path
-        .strip_prefix(r"\\?\")
-        .or_else(|| path.strip_prefix("//?/"))
-        .unwrap_or(path);
-    without_prefix.replace('\\', "/")
-}
-
 pub fn relative_import_path(from_file: &str, to_file: &str) -> String {
-    let from = normalize_display_path(from_file);
-    let to = normalize_display_path(to_file);
+    let from = vn_core::paths::portable_path(from_file);
+    let to = vn_core::paths::portable_path(to_file);
 
     let from_dir = from.rsplit_once('/').map(|(d, _)| d).unwrap_or("");
     let from_parts: Vec<&str> = from_dir.split('/').filter(|p| !p.is_empty()).collect();

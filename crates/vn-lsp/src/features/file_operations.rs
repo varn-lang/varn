@@ -86,7 +86,7 @@ fn resolves_to(doc_uri: &str, spec: &str, target_uri: &str) -> bool {
     };
     let joined = dir.join(spec);
     let joined_str = joined.to_string_lossy().into_owned();
-    let normalized = vn_modules::resolver::normalize_display_path(&joined_str);
+    let normalized = vn_core::paths::portable_path(&joined_str);
     let uri = vn_modules::resolver::path_to_uri(&normalized);
     uri == target_uri
 }

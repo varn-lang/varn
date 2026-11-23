@@ -59,7 +59,7 @@ fn resolve_specifier(state: &DocumentState, spec: &str) -> Option<Uri> {
         let dir = base_path.parent()?;
         let joined = dir.join(spec);
         let joined_str = joined.to_string_lossy().into_owned();
-        let normalized = vn_modules::resolver::normalize_display_path(&joined_str);
+        let normalized = vn_core::paths::portable_path(&joined_str);
         let uri = vn_modules::resolver::path_to_uri(&normalized);
         return Uri::parse(&uri).ok();
     }

@@ -3,9 +3,7 @@ use vn_core::TokenKind;
 
 use super::{token_lexeme, ImportPathContext, TokenRecord};
 
-pub use vn_modules::resolver::{
-    normalize_display_path, path_to_uri, percent_decode, relative_import_path, uri_to_path,
-};
+pub use vn_modules::resolver::{path_to_uri, percent_decode, relative_import_path, uri_to_path};
 
 fn before(tok: &TokenRecord, line: u32, col: u32) -> bool {
     tok.line < line || (tok.line == line && tok.col < col)

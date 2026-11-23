@@ -2,7 +2,6 @@ use std::path::Path;
 
 use crate::constants::STD_PREFIX;
 use crate::document::uri_to_path;
-use vn_modules::resolver::normalize_display_path;
 
 use super::make_lang_hover;
 use tower_lsp_f::lsp_types::Hover;
@@ -38,5 +37,5 @@ fn resolve_import_module_path(specifier: &str, doc_uri: &str) -> String {
 
     let resolved = std::fs::canonicalize(&with_ext).unwrap_or(with_ext);
 
-    normalize_display_path(&resolved.to_string_lossy())
+    vn_core::paths::portable_path(&resolved.to_string_lossy())
 }

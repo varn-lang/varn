@@ -50,7 +50,7 @@ pub fn path_for(specifier: &str) -> Option<PathBuf> {
 }
 
 pub fn specifier_from_path(path: &str) -> Option<String> {
-    let normalized = vn_modules::resolver::normalize_display_path(path);
+    let normalized = vn_core::paths::portable_path(path);
 
     if let Some(rest) = strip_root(&normalized, &root()) {
         let (kind, file) = rest.split_once('/')?;
@@ -72,7 +72,7 @@ pub fn specifier_from_path(path: &str) -> Option<String> {
 }
 
 fn strip_root(normalized_path: &str, root: &std::path::Path) -> Option<String> {
-    let root = vn_modules::resolver::normalize_display_path(&root.to_string_lossy());
+    let root = vn_core::paths::portable_path(&root.to_string_lossy());
     Some(
         normalized_path
             .strip_prefix(&root)?
@@ -82,9 +82,8 @@ fn strip_root(normalized_path: &str, root: &std::path::Path) -> Option<String> {
 }
 
 pub fn is_mirrored_uri(uri: &str) -> bool {
-    let path =
-        vn_modules::resolver::normalize_display_path(&vn_modules::resolver::uri_to_path(uri));
-    let root = vn_modules::resolver::normalize_display_path(&root().to_string_lossy());
+    let path = vn_core::paths::portable_path(&vn_modules::resolver::uri_to_path(uri));
+    let root = vn_core::paths::portable_path(&root().to_string_lossy());
     path.starts_with(&root)
 }
 

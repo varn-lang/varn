@@ -113,7 +113,7 @@ impl<'r> super::Binder<'r> {
                     }
                     (None, Some(path)) => format!(
                         "cannot resolve module '{source_str}': no file at {}",
-                        vn_core::diagnostics::display_path(path)
+                        vn_core::paths::portable_path(path)
                     ),
                     (None, None) => format!("cannot resolve module '{source_str}'"),
                 };

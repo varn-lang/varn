@@ -214,23 +214,9 @@ fn canonical_or_string(path: &Path) -> Option<String> {
         return None;
     }
     if let Ok(canonical) = std::fs::canonicalize(path) {
-        return Some(normalize_path_string(
-            canonical.to_string_lossy().into_owned(),
-        ));
+        return Some(vn_core::paths::portable_path(&canonical.to_string_lossy()));
     }
-    Some(normalize_path_string(path.to_string_lossy().into_owned()))
-}
-
-pub fn normalize_path_string(path: String) -> String {
-    #[cfg(windows)]
-    {
-        if let Some(rest) = path.strip_prefix("\\\\?\\") {
-            return rest.replace('\\', "/");
-        }
-        path.replace('\\', "/")
-    }
-    #[cfg(not(windows))]
-    path
+    Some(vn_core::paths::portable_path(&path.to_string_lossy()))
 }
 
 fn enforce_dependency_constraint(
@@ -276,7 +262,7 @@ fn enforce_dependency_constraint(
 
 pub fn canonical_or_original(path: &Path) -> String {
     if let Ok(canonical) = std::fs::canonicalize(path) {
-        return normalize_path_string(canonical.to_string_lossy().into_owned());
+        return vn_core::paths::portable_path(&canonical.to_string_lossy());
     }
-    normalize_path_string(path.to_string_lossy().into_owned())
+    vn_core::paths::portable_path(&path.to_string_lossy())
 }

@@ -21,3 +21,15 @@ pub fn vn_cache_dir() -> PathBuf {
     }
     vn_home_dir().join("cache")
 }
+
+pub fn portable_path(path: &str) -> String {
+    let path = path
+        .strip_prefix(r"\\?\")
+        .or_else(|| path.strip_prefix("//?/"))
+        .unwrap_or(path);
+    if cfg!(windows) {
+        path.replace('\\', "/")
+    } else {
+        path.to_owned()
+    }
+}

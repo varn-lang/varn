@@ -103,11 +103,11 @@ impl Failure {
 }
 
 pub fn relative_path(file: &str) -> String {
-    let cleaned = vn_core::diagnostics::display_path(file);
+    let cleaned = vn_core::paths::portable_path(file);
     std::env::current_dir()
         .ok()
         .and_then(|cwd| {
-            let root = vn_core::diagnostics::display_path(&cwd.to_string_lossy());
+            let root = vn_core::paths::portable_path(&cwd.to_string_lossy());
             cleaned.strip_prefix(&format!("{root}/")).map(str::to_owned)
         })
         .unwrap_or(cleaned)

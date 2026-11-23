@@ -14,7 +14,7 @@ impl SyntaxFailure {
             format!(
                 "{} ({}:{}:{})",
                 first.message,
-                vn_core::diagnostics::display_path(&first.file),
+                vn_core::paths::portable_path(&first.file),
                 first.range.start.line,
                 first.range.start.column
             )

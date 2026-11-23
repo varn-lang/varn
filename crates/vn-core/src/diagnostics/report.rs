@@ -4,12 +4,6 @@ use crate::term::chalk::{chalk, Chalk};
 
 const TAB_WIDTH: usize = 4;
 
-pub fn display_path(path: &str) -> String {
-    path.strip_prefix(r"\\?\")
-        .unwrap_or(path)
-        .replace('\\', "/")
-}
-
 struct Place<'a> {
     line: usize,
     column: usize,
@@ -76,7 +70,7 @@ pub fn format_diagnostic(diagnostic: &Diagnostic, source: &str) -> String {
         accent(diagnostic.kind, &diagnostic.code.to_string()),
         chalk("]").bold(),
         chalk(&diagnostic.message).bold(),
-        display_path(&diagnostic.file),
+        crate::paths::portable_path(&diagnostic.file),
         start.line,
         start.column,
     );
@@ -88,7 +82,7 @@ pub fn format_diagnostic(diagnostic: &Diagnostic, source: &str) -> String {
             "\n{gutter} {}: {}\n{gutter} {corner} {}:{}:{}\n{gutter} {bar}",
             chalk("note").dim(),
             chalk(&related.message).bold(),
-            display_path(&related.file),
+            crate::paths::portable_path(&related.file),
             related_start.line,
             related_start.column,
         ));
@@ -178,7 +172,7 @@ pub fn render_summary(subject: &str, errors: usize, warnings: usize) -> String {
     format!(
         "{}: could not compile `{}` due to {}{}",
         chalk("error").red().bold(),
-        display_path(subject),
+        crate::paths::portable_path(subject),
         count_phrase(errors, "error"),
         if warnings > 0 {
             format!("; {}", count_phrase(warnings, "warning"))

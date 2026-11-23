@@ -1,5 +1,3 @@
-use super::normalize_path_string;
-
 pub fn percent_decode(s: &str) -> String {
     let bytes = s.as_bytes();
     let mut out = String::with_capacity(s.len());
@@ -25,12 +23,12 @@ pub fn uri_to_path(uri: &str) -> String {
     let uri = decoded.as_str();
     if let Some(rest) = uri.strip_prefix("file:///") {
         #[cfg(windows)]
-        return normalize_path_string(rest.replace('/', "\\"));
+        return vn_core::paths::portable_path(rest);
         #[cfg(not(windows))]
-        return normalize_path_string(format!("/{rest}"));
+        return vn_core::paths::portable_path(&format!("/{rest}"));
     }
     if let Some(rest) = uri.strip_prefix("file://") {
-        return normalize_path_string(rest.to_owned());
+        return vn_core::paths::portable_path(rest);
     }
     uri.to_owned()
 }

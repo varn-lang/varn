@@ -133,7 +133,7 @@ pub(crate) fn format_stack(frames: &[FrameInfo]) -> String {
             format!(
                 "  at {} ({}:{})",
                 frame.fn_name,
-                vn_core::diagnostics::display_path(&frame.file),
+                vn_core::paths::portable_path(&frame.file),
                 frame.line
             )
         })
