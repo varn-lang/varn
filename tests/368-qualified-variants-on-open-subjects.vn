@@ -1,0 +1,35 @@
+import { describe, it, expect } from "std:test";
+
+enum Shape { Circle(float), Square(float) }
+enum Token { Circle(int) }
+
+function size(d: dynamic): float {
+    return match (d) {
+        Shape.Circle(r) => r,
+        Shape.Square(w) => w * 2.0,
+        _ => -1.0,
+    }
+}
+
+function pick(s: Shape | Token): int {
+    return match (s) {
+        Token.Circle(n) => n,
+        Shape.Circle(_) => 100,
+        _ => 0,
+    }
+}
+
+await describe("368 a qualified variant pattern tests the enum of an open subject", async () => {
+    await it("a dynamic subject is tested against the named enum", () => {
+        expect(size(Shape.Circle(1.5))).toBe(1.5)
+        expect(size(Shape.Square(2.0))).toBe(4.0)
+        expect(size(Token.Circle(3))).toBe(-1.0)
+        expect(size(7)).toBe(-1.0)
+    })
+
+    await it("a union of enums tells same-named variants apart", () => {
+        expect(pick(Token.Circle(4))).toBe(4)
+        expect(pick(Shape.Circle(1.0))).toBe(100)
+        expect(pick(Shape.Square(1.0))).toBe(0)
+    })
+})

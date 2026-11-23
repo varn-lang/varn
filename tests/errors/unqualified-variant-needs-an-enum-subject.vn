@@ -1,0 +1,8 @@
+// expect: error[VN4015]
+enum Shape { Circle(float) }
+function f(d: dynamic): int {
+    return match (d) {
+        Circle(_) => 1,
+        _ => 0,
+    }
+}

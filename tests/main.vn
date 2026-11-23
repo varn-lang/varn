@@ -356,6 +356,7 @@ import "./364-extension-receiver-patterns.vn"
 import "./365-members-through-a-constraint.vn"
 import "./366-extension-constraints.vn"
 import "./367-homonymous-variants.vn"
+import "./368-qualified-variants-on-open-subjects.vn"
 
 await describe("main.vn import.meta.main", async () => {
     await it("the entry module is main", async () => {

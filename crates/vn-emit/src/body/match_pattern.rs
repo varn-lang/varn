@@ -222,19 +222,25 @@ impl<'a> FnEmitter<'a> {
             }
         });
 
-        let Some(eid) = eid else {
-            return self.match_variant_by_name(s, variant_name, payload_pattern);
+        let Some((eid, variant)) = eid.and_then(|eid| {
+            self.m.enums.get(eid.0 as usize).and_then(|info| {
+                info.variants
+                    .iter()
+                    .find(|v| v.name.as_ref() == variant_name)
+                    .map(|v| (eid, v.clone()))
+            })
+        }) else {
+            return (bool_lit(false), Vec::new());
         };
-        let Some(info) = self.m.enums.get(eid.0 as usize) else {
-            return self.match_variant_by_name(s, variant_name, payload_pattern);
+        let typed_subject = matches!(s.ty.non_nullable(self.tt), BackendTy::Enum(e) if e == eid);
+        let (guard, subject) = match (typed_subject, enum_name) {
+            (true, _) | (false, None) => (bool_lit(true), s.clone()),
+            (false, Some(name)) => {
+                let test = self.type_test_of_name(s.clone(), name);
+                (test, self.cast_to(s.clone(), BackendTy::Enum(eid)))
+            }
         };
-        let Some(variant) = info
-            .variants
-            .iter()
-            .find(|v| v.name.as_ref() == variant_name)
-        else {
-            return self.match_variant_by_name(s, variant_name, payload_pattern);
-        };
+        let s = &subject;
         let tag = variant.tag;
         let payload: Vec<BackendTy> = variant.payload.clone();
         let field_names: Vec<Arc<str>> = variant.field_names.clone();
@@ -263,7 +269,7 @@ impl<'a> FnEmitter<'a> {
             span: s.span,
         };
 
-        let mut cond = cond;
+        let mut cond = self.and_cond(guard, cond);
         let mut binds = Vec::new();
         let read = |at: usize| {
             let fty = payload
@@ -301,58 +307,6 @@ impl<'a> FnEmitter<'a> {
                     cond = self.and_cond(cond, test);
                     binds.append(&mut bound);
                 }
-            }
-        }
-        (cond, binds)
-    }
-
-    pub(super) fn match_variant_by_name(
-        &mut self,
-        s: &TirExpr,
-        variant_name: &str,
-        payload_pattern: &VariantPayload,
-    ) -> (TirExpr, Vec<TirStmt>) {
-        let dyn_ty = BackendTy::Dynamic(DynReason::Unrecorded);
-        let why = self.by_name_reason(s.ty);
-        let by_name = |n: &str| Resolution::ByName {
-            name: Arc::from(n),
-            why,
-        };
-        let field = |recv: TirExpr, name: &str, ty: BackendTy| TirExpr {
-            kind: TirExprKind::Field {
-                object: Box::new(recv),
-                name: Arc::from(name),
-            },
-            ty,
-            res: by_name(name),
-            span: s.span,
-        };
-        let mut cond = TirExpr {
-            kind: TirExprKind::Binary {
-                op: TirBinOp::Eq,
-                lhs: Box::new(field(
-                    s.clone(),
-                    vn_core::MemberKey::VariantName.as_str(),
-                    BackendTy::Str,
-                )),
-                rhs: Box::new(TirExpr {
-                    kind: TirExprKind::StrLit(Arc::from(variant_name)),
-                    ty: BackendTy::Str,
-                    res: Resolution::None,
-                    span: s.span,
-                }),
-            },
-            ty: BackendTy::Bool,
-            res: Resolution::None,
-            span: s.span,
-        };
-        let mut binds = Vec::new();
-        if let VariantPayload::Positional(items) = payload_pattern {
-            for (at, item) in items.iter().enumerate() {
-                let value = field(s.clone(), &format!("value{at}"), dyn_ty);
-                let (test, mut bound) = self.match_pattern(&value, item);
-                cond = self.and_cond(cond, test);
-                binds.append(&mut bound);
             }
         }
         (cond, binds)

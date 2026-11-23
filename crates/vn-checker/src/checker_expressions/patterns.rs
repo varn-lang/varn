@@ -255,8 +255,31 @@ impl<'r> Checker<'r> {
                     );
                     return;
                 }
+                let subject_is_enum = self.enum_subject(value_ty, bind);
+                let lookup_ty = match (enum_name, subject_is_enum) {
+                    (_, true) => *value_ty,
+                    (Some(qualifier), false) => Type::named(
+                        bind.interner.resolve(*qualifier),
+                        &mut *std::sync::Arc::make_mut(&mut self.ty_table),
+                    ),
+                    (None, false) => {
+                        if !value_ty.is_error() {
+                            let shown = value_ty.display(&self.ty_table, &bind.interner);
+                            self.emit(
+                                vn_core::Diagnostic::error(
+                                    vn_core::ErrorCode::MatchPatternTypeMismatch,
+                                    format!(
+                                        "'{shown}' is not an enum, so `{variant_name_str}` does not say which enum it belongs to: write `Enum.{variant_name_str}(...)`"
+                                    ),
+                                )
+                                .with_range(range),
+                            );
+                        }
+                        return;
+                    }
+                };
                 let Some((fields, mapping)) =
-                    self.variant_fields_with_subst(&variant_name_str, value_ty, bind)
+                    self.variant_fields_with_subst(&variant_name_str, &lookup_ty, bind)
                 else {
                     return;
                 };
@@ -364,6 +387,21 @@ impl<'r> Checker<'r> {
                 }
             }
         }
+    }
+
+    fn enum_subject(&mut self, value_ty: &Type, bind: &BindResult) -> bool {
+        let ty = value_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
+        let (TypeKind::Named(name, origin) | TypeKind::Generic(name, _, origin)) =
+            self.ty_table.get(ty.0)
+        else {
+            return false;
+        };
+        let name: std::sync::Arc<str> = std::sync::Arc::from(bind.interner.resolve(name));
+        let origins: Vec<String> = origin
+            .map(|o| bind.interner.resolve(o).to_owned())
+            .into_iter()
+            .collect();
+        crate::checker_expressions::members::is_enum_type(self.resolver, bind, &name, &origins)
     }
 
     pub(crate) fn variant_fields_with_subst(
