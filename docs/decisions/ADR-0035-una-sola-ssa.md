@@ -64,6 +64,33 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   funcion pura de los tipos, y la usan la emision de bytecode y el JIT; `SsaBinOp` y
   `SsaUnOp` se derivan de ella. Se borra `ssa/portable/`.
 
+## Pendientes
+Orden de trabajo: F5, F1b y F3, de menor a mayor alcance.
+
+- F5 primero: es la fase mas pequena y la que borra la proyeccion.
+- F1b: `ValueId`/`BlockId` compartidos (unas 1500 referencias en el JIT).
+- F3: fundir `InstKind` y `SsaOp` (unas 2700 referencias en el compilador). Las
+  diferencias que quedan entre los dos enums, medidas tras F4c:
+  - `Binary`/`Unary`: `vn_core::BinOp`/`UnOp` + `BackendTy` frente a
+    `SsaBinOp`/`SsaUnOp` (lo resuelve F5).
+  - `MakeClosure`: `func` + `Vec<vn_tir::TirUpvalue>` frente a `proto` (constante del
+    chunk) + `Vec<SsaUpvalue>`.
+  - `CallDirect`: el compilador lleva ademas `shape`.
+  - `CloseUpvalues`: mismo tipo, distinto nombre de campo (`targets` frente a
+    `vars`).
+  - Solo en `InstKind`: `MapGetIndex`, `MapSetIndex`.
+  - Solo en `SsaOp`: `ArrayExtend`, `BindMethod`, `KindOf`, `WrapSpread`.
+- Medir `vn bench` sobre `tests/benchmarks/vn` contra el binario previo para F4b y
+  F4c, que pasaron la matriz completa sin esa medicion.
+
+Defectos encontrados durante F4b, fuera de esta decision:
+
+- `vn-emit/src/body/stmt_block.rs` (`drain_dispose_frame`) compara contra el literal
+  `"dispose"` en lugar de un nombre canonico de `vn-core` (Ley 16).
+- `drain_dispose_frame` llama siempre a `dispose`, nunca a `disposeAsync`: falta
+  comprobar si `await using` libera el recurso de forma asincrona. La instruccion
+  `Dispose` borrada distinguia ambos casos, pero ningun constructor la emitia.
+
 ## Verificacion
 Cada fase compila sin la anterior duplicacion (no conviven dos rutas, Ley 8) y pasa la
 matriz completa. Se mide `vn bench` sobre el corpus de `tests/benchmarks/vn` contra el
