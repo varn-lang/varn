@@ -124,6 +124,8 @@ Recomendación: retirar la expresión `function`; las funciones anónimas se esc
 
 ### 6.1 Bloqueos y pendientes
 
-- **D9.** Resuelto. El preludio usaba la maquinaria para 12 tipos utilitarios y `Array.flat()` dependía de `Flattened<T>`; el recuento inicial de 0–1 usos solo miró código de usuario. `flat()` pasó a ser una extensión sobre `U[][]` (ADR-0035) y la maquinaria se retiró.
 - **D8.** Una interfaz genérica instanciada se expande a una forma anónima antes de compararse y sigue siendo estructural. Hacerla nominal exige que el tipo conserve su interfaz de origen.
 - **D7.** El runtime conserva la veracidad dinámica (`truthy` en el JIT y en la VM) aunque el checker ya no produce condiciones que no sean `bool`; hay que retirarla.
+- **Heredado del ADR-0033 (D5).** Auditoría de `dynamic`: cada uso debe estar en una frontera con el host o desaparecer.
+- **Heredado del ADR-0033.** El emisor resuelve variantes con `match_variant_by_name` cuando no conoce el enum del sujeto: es una búsqueda por nombre en runtime (Ley 17) que se elimina resolviendo el enum en compilación.
+- **Heredado del ADR-0033.** `vn-vm/src/exec/compare.rs` tiene comodines `_ =>` (Ley 7), y `class_key.rs` un `_ if` con guarda.
