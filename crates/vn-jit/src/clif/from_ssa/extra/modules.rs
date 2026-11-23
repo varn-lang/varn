@@ -1,7 +1,7 @@
 use super::super::heap::{boxed_value, exec_ctx};
 use super::super::store::Out;
 use super::super::Ctx;
-use super::extra_shared::{frame, native};
+use super::extra_shared::native;
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 
@@ -12,7 +12,7 @@ pub(super) fn load_global(
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
-    let f = frame(ctx)?;
+    let f = ctx.frame_for("extra op")?;
     let ni = super::super::props::str_idx(ctx, name)? as i64;
     let niv = b.ins().iconst(types::I64, ni);
     crate::clif::from_ssa::exceptions::call_checked(
@@ -33,7 +33,7 @@ pub(super) fn store_global(
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
-    let f = frame(ctx)?;
+    let f = ctx.frame_for("extra op")?;
     let boxed = boxed_value(b, ctx, values, value)?;
     let (t, p) = b.ins().isplit(boxed);
     let niv = b
@@ -58,7 +58,7 @@ pub(super) fn load_module(
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
-    let f = frame(ctx)?;
+    let f = ctx.frame_for("extra op")?;
     super::suspend::spill(b, ctx, values, live)?;
     let idx = super::super::props::str_idx(ctx, source)? as i64;
     let siv = b.ins().iconst(types::I64, idx);

@@ -16,10 +16,7 @@ fn slot_addr(
     slot: u32,
     region: Region,
 ) -> Result<Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: global access in a frame-less body")?;
+    let frame = ctx.frame_for("global access")?;
     let helpers = ctx.helpers;
     let rcbox = b.ins().load(
         types::I64,

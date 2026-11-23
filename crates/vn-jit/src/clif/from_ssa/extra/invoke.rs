@@ -4,7 +4,7 @@ use super::super::heap::{boxed_value, exec_ctx};
 use super::super::load_value;
 use super::super::store::Out;
 use super::super::Ctx;
-use super::extra_shared::{frame, native, stage};
+use super::extra_shared::{native, stage};
 use cranelift_codegen::ir::{types, InstBuilder, MemFlagsData, Value};
 use cranelift_frontend::FunctionBuilder;
 
@@ -14,7 +14,7 @@ pub(super) fn super_call(
     values: &[Option<Value>],
     args: &[u32],
 ) -> Result<Option<Option<Out>>, String> {
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let ctor =
         super::super::classops::emit_get_super(b, ctx, vn_core::TokenKind::Constructor.as_str())?;
     let r = emit_super_call(b, ctx, values, ctor, args)?;
@@ -28,7 +28,7 @@ pub(super) fn super_method_call(
     name: &str,
     args: &[u32],
 ) -> Result<Option<Option<Out>>, String> {
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let m = super::super::classops::emit_get_super(b, ctx, name)?;
     let mut vals = Vec::with_capacity(args.len());
     for a in args {
@@ -47,7 +47,7 @@ pub(super) fn super_invoke_slot(
     slot: u16,
     args: &[u32],
 ) -> Result<Option<Option<Out>>, String> {
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let this = super::super::props::emit_this(ctx)?;
     let mut vals = Vec::with_capacity(args.len() + 1);
     vals.push(this);
@@ -83,7 +83,7 @@ pub(super) fn extension_call(
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
-    let f = frame(ctx)?;
+    let f = ctx.frame_for("extra op")?;
     let callee = match slot {
         Some(s) => {
             super::super::globals::emit_load(b, ctx, s, super::super::globals::Region::Module)?

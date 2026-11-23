@@ -24,10 +24,7 @@ pub(super) fn emit_alloc_instance(
     };
     let cell_bytes = CELL_CLASSES[class_idx] as i64;
 
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: AllocInstance without a frame")?;
+    let frame = ctx.frame_for("AllocInstance")?;
     let ectx = frame.exec_ctx;
     let flags = cranelift_codegen::ir::MemFlagsData::trusted();
     let (_ct, cp) = boxed_parts(b, ctx, values, class)?;
@@ -219,10 +216,7 @@ pub(super) fn emit_alloc_instance_slow(
     values: &[Option<cranelift_codegen::ir::Value>],
     class: u32,
 ) -> Result<cranelift_codegen::ir::Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: AllocInstance without a frame")?;
+    let frame = ctx.frame_for("AllocInstance")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;
     let ectx = frame.exec_ctx;
     crate::clif::from_ssa::exceptions::call_checked(

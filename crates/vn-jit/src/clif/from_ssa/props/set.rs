@@ -18,10 +18,7 @@ pub(crate) fn emit_set_property(
 ) -> Result<(), String> {
     let (ot, op) = boxed_parts(b, ctx, values, object)?;
     let val = boxed_value(b, ctx, values, value)?;
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: property write without a frame")?;
+    let frame = ctx.frame_for("property write")?;
     let name_idx = str_idx(ctx, name)?;
     let ectx = frame.exec_ctx;
 

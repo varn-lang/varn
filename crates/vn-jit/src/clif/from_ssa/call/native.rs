@@ -13,10 +13,7 @@ pub(crate) fn emit_call_native_op(
     args: &[u32],
     op_id: u64,
 ) -> Result<Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: native call without a frame")?;
+    let frame = ctx.frame_for("native call")?;
     if args.is_empty() && op_id == vn_core::op_id::KnownOp::IntToString.id() {
         return heap::emit_unary_boxed(b, ctx, values, object, ctx.helpers.to_string);
     }
@@ -206,10 +203,7 @@ fn emit_char_code_at(
 ) -> Result<Value, String> {
     use cranelift_codegen::ir::{condcodes::IntCC, MemFlagsData};
     let m = MemFlagsData::trusted();
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: charCodeAt without a frame")?;
+    let frame = ctx.frame_for("charCodeAt")?;
     let zero = b.ins().iconst(types::I64, 0);
     let minus_one = b.ins().iconst(types::I64, -1);
 

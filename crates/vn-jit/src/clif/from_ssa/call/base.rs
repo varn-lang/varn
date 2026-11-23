@@ -38,10 +38,7 @@ pub(crate) fn emit_self_call_framed(
     values: &[Option<Value>],
     args: &[u32],
 ) -> Result<Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: framed self-call without a frame")?;
+    let frame = ctx.frame_for("framed self-call")?;
     if args.len() + 1 != ctx.proto.arity {
         return Err("from_ssa: self-call arity mismatch".into());
     }

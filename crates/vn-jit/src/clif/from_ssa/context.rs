@@ -109,6 +109,12 @@ pub(in crate::clif) struct Lowered {
 }
 
 impl Ctx<'_> {
+    pub(super) fn frame_for(&self, op: &str) -> Result<&FrameIo, String> {
+        self.frame
+            .as_ref()
+            .ok_or_else(|| format!("from_ssa: {op} without a frame"))
+    }
+
     pub(super) fn exits(
         &self,
         b: &mut cranelift_frontend::FunctionBuilder,

@@ -86,10 +86,7 @@ pub(super) fn super_slot(
     ctx: &Ctx<'_>,
     slot: u16,
 ) -> Result<Option<Option<Out>>, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: GetSuperSlot without a frame")?;
+    let frame = ctx.frame_for("GetSuperSlot")?;
     frame.base.ok_or(super::super::NEEDS_ACTIVATION)?;
     let ectx = frame.exec_ctx;
     let h = ctx.helpers;

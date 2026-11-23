@@ -16,10 +16,7 @@ pub(crate) fn emit_get_property(
     cs: u16,
 ) -> Result<Value, String> {
     let (ot, op) = boxed_parts(b, ctx, values, object)?;
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: property access without a frame")?;
+    let frame = ctx.frame_for("property access")?;
     let name_idx = str_idx(ctx, name)?;
     let ectx = frame.exec_ctx;
 

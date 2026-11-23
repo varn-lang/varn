@@ -18,10 +18,7 @@ pub(crate) fn emit_invoke_slot(
 ) -> Result<Value, String> {
     use cranelift_codegen::ir::condcodes::IntCC;
     use cranelift_codegen::ir::types;
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: invoke slot without a frame")?;
+    let frame = ctx.frame_for("invoke slot")?;
     let receiver = heap::boxed_value(b, ctx, values, recv)?;
     let window = boxed_window(b, ctx, values, receiver, args)?;
     let slot_v = b.ins().iconst(types::I64, i64::from(slot));
@@ -215,10 +212,7 @@ pub(crate) fn emit_method_call(
 ) -> Result<Value, String> {
     use cranelift_codegen::ir::condcodes::IntCC;
     use cranelift_codegen::ir::types;
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: method call without a frame")?;
+    let frame = ctx.frame_for("method call")?;
     let receiver = heap::boxed_value(b, ctx, values, recv)?;
     let window = boxed_window(b, ctx, values, receiver, args)?;
     let name_v = b

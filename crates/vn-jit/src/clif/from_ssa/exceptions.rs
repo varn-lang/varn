@@ -1,15 +1,9 @@
 use super::super::abi::Activation;
 use super::super::native_abi::{NativeClass, NativeShape};
-use super::{heap, home_store, Ctx, FrameIo};
+use super::{heap, home_store, Ctx};
 use cranelift_codegen::ir::{types, Block, InstBuilder, MemFlagsData, Value};
 use cranelift_frontend::FunctionBuilder;
 use vn_types::register_meta::SlotKind;
-
-fn frame<'a>(ctx: &'a Ctx<'_>) -> Result<&'a FrameIo, String> {
-    ctx.frame
-        .as_ref()
-        .ok_or_else(|| "from_ssa: try/throw without a frame".into())
-}
 
 fn current_landing(ctx: &Ctx<'_>) -> Option<(usize, Block)> {
     let st = ctx.pure_try.borrow();
@@ -41,7 +35,7 @@ pub(super) fn emit_try(
     catch_value: u32,
     live: &[u32],
 ) -> Result<(), String> {
-    let fr = frame(ctx)?;
+    let fr = ctx.frame_for("try/throw")?;
     let _ = fr;
     for &v in live {
         let boxed = heap::boxed_value(b, ctx, values, v)?;
@@ -102,7 +96,7 @@ pub(super) fn emit_throw_boxed(
         b.ins().jump(landing, &[boxed.into()]);
         Ok(())
     } else {
-        let fr = frame(ctx)?;
+        let fr = ctx.frame_for("try/throw")?;
         let ectx = fr.exec_ctx;
         b.ins().store(
             MemFlagsData::trusted(),

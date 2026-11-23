@@ -22,10 +22,7 @@ pub(crate) fn emit(
     call: NativeCall<'_>,
     slow: impl FnOnce(&mut FunctionBuilder) -> Result<Value, String>,
 ) -> Result<Out, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: call in a frame-less body")?;
+    let frame = ctx.frame_for("call")?;
     let ectx = frame.exec_ctx;
     let lay = &ctx.helpers.call_layout;
     let m = MemFlagsData::trusted();
@@ -169,10 +166,7 @@ pub(crate) fn emit_direct(
     use super::invoke::{boxed_window, emit_invoke};
     use crate::clif::emit::call_helper;
 
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: direct call in a frame-less body")?;
+    let frame = ctx.frame_for("direct call")?;
     let ectx = frame.exec_ctx;
     let m = MemFlagsData::trusted();
     let dest_kind = call

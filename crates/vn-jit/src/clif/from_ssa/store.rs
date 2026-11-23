@@ -86,10 +86,7 @@ pub(super) fn load_home_value(
 }
 
 fn homes<'a>(ctx: &'a Ctx<'_>) -> Result<super::super::homes::Homes<'a>, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: home access without a frame")?;
+    let frame = ctx.frame_for("home access")?;
     Ok(super::super::homes::Homes {
         exec_ctx: frame.exec_ctx,
         base: frame.base.ok_or(super::NEEDS_ACTIVATION)?,

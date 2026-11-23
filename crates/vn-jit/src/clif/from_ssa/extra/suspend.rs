@@ -3,7 +3,7 @@ use super::super::heap::{boxed_value, exec_ctx};
 use super::super::load_value;
 use super::super::store::{home_load, home_store, Out};
 use super::super::Ctx;
-use super::extra_shared::{frame, native};
+use super::extra_shared::native;
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 
@@ -131,7 +131,7 @@ pub(super) fn dispose(
     cs: u16,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let reg = ctx
         .ssa
         .captured_reg(var)

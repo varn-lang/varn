@@ -3,16 +3,12 @@ use cranelift_frontend::FunctionBuilder;
 use vn_types::ssa::SsaUpvalue;
 use vn_types::UpvalueSource;
 
-use super::{heap, home_load, home_store, Ctx, FrameIo};
-
-fn frame<'a>(ctx: &'a Ctx<'_>) -> Result<&'a FrameIo, String> {
-    ctx.frame
-        .as_ref()
-        .ok_or_else(|| "from_ssa: closure op without a frame".into())
-}
+use super::{heap, home_load, home_store, Ctx};
 
 fn captured_reg(ctx: &Ctx<'_>, var: u32) -> Result<u32, String> {
-    frame(ctx)?.base.ok_or(super::NEEDS_ACTIVATION)?;
+    ctx.frame_for("closure op")?
+        .base
+        .ok_or(super::NEEDS_ACTIVATION)?;
     ctx.ssa
         .captured_reg(var)
         .ok_or_else(|| format!("from_ssa: captured variable {var} has no register"))
@@ -24,7 +20,7 @@ pub(super) fn emit_make_closure(
     proto: u32,
     upvalues: &[SsaUpvalue],
 ) -> Result<Value, String> {
-    let frame = frame(ctx)?;
+    let frame = ctx.frame_for("closure op")?;
     let words = upvalues
         .iter()
         .map(|src| {
@@ -99,7 +95,7 @@ pub(super) fn emit_load_upvalue(
     ctx: &Ctx<'_>,
     index: u32,
 ) -> Result<Value, String> {
-    let frame = frame(ctx)?;
+    let frame = ctx.frame_for("closure op")?;
     let idx = b.ins().iconst(types::I64, i64::from(index));
     crate::clif::from_ssa::exceptions::call_checked(
         b,
@@ -121,7 +117,7 @@ pub(super) fn emit_store_upvalue(
     index: u32,
     value: u32,
 ) -> Result<(), String> {
-    let frame = frame(ctx)?;
+    let frame = ctx.frame_for("closure op")?;
     let (tag, payload) = heap::boxed_parts(b, ctx, values, value)?;
     let idx = b.ins().iconst(types::I64, i64::from(index));
     crate::clif::from_ssa::exceptions::call_checked(
@@ -138,7 +134,7 @@ pub(super) fn emit_close_upvalues(
     ctx: &Ctx<'_>,
     vars: &[u32],
 ) -> Result<(), String> {
-    let frame = frame(ctx)?;
+    let frame = ctx.frame_for("closure op")?;
     let lowest = vars
         .iter()
         .map(|v| captured_reg(ctx, *v))

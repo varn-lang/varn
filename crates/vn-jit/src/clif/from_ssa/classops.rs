@@ -14,10 +14,7 @@ pub(super) fn emit_make_class(
     name: &str,
     super_class: Option<u32>,
 ) -> Result<cranelift_codegen::ir::Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: MakeClass without a frame")?;
+    let frame = ctx.frame_for("MakeClass")?;
     let name_idx = str_idx(ctx, name)?;
     let (st, sp) = match super_class {
         Some(v) => boxed_parts(b, ctx, values, v)?,
@@ -43,10 +40,7 @@ pub(super) fn emit_freeze_class(
     values: &[Option<cranelift_codegen::ir::Value>],
     class: u32,
 ) -> Result<(), String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: FreezeClass without a frame")?;
+    let frame = ctx.frame_for("FreezeClass")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;
     let ectx = frame.exec_ctx;
     crate::clif::from_ssa::exceptions::call_checked(
@@ -65,10 +59,7 @@ pub(super) fn emit_declare_layout(
     class: u32,
     layout: &vn_core::layout::ClassLayout,
 ) -> Result<(), String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: DeclareLayout without a frame")?;
+    let frame = ctx.frame_for("DeclareLayout")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;
     let layout_idx = ctx
         .proto
@@ -97,10 +88,7 @@ pub(super) fn emit_define_member(
     member: u32,
     kind: i64,
 ) -> Result<(), String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: class member op without a frame")?;
+    let frame = ctx.frame_for("class member op")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;
     let (mt, mp) = boxed_parts(b, ctx, values, member)?;
     let name_idx = str_idx(ctx, name)?;
@@ -135,10 +123,7 @@ pub(super) fn emit_get_super(
     ctx: &Ctx<'_>,
     name: &str,
 ) -> Result<cranelift_codegen::ir::Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: GetSuper without a frame")?;
+    let frame = ctx.frame_for("GetSuper")?;
     frame.base.ok_or(super::NEEDS_ACTIVATION)?;
     let name_idx = str_idx(ctx, name)?;
     let ectx = frame.exec_ctx;
@@ -157,10 +142,7 @@ pub(super) fn emit_make_enum_variant(
     ctx: &Ctx<'_>,
     def: &vn_types::value::VariantDef,
 ) -> Result<cranelift_codegen::ir::Value, String> {
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: MakeEnumVariant without a frame")?;
+    let frame = ctx.frame_for("MakeEnumVariant")?;
     let def_idx = ctx
         .proto
         .chunk

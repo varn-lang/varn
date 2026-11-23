@@ -1,7 +1,7 @@
 use super::super::heap::{boxed_value, exec_ctx};
 use super::super::store::Out;
 use super::super::Ctx;
-use super::extra_shared::{frame, native, stage};
+use super::extra_shared::{native, stage};
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 use vn_types::ssa::{SsaObjectSpreadPart, SsaSpread};
@@ -27,7 +27,7 @@ pub(super) fn array_spread(
     values: &[Option<Value>],
     elements: &[SsaSpread],
 ) -> Result<Option<Option<Out>>, String> {
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let r = emit_array_spread(b, ctx, values, elements)?;
     Ok(Some(Some(Out::Boxed(r))))
 }
@@ -39,7 +39,7 @@ pub(super) fn object_spread(
     parts: &[SsaObjectSpreadPart],
     cs_base: u16,
 ) -> Result<Option<Option<Out>>, String> {
-    frame(ctx)?;
+    ctx.frame_for("extra op")?;
     let r = emit_object_spread(b, ctx, values, parts, cs_base)?;
     Ok(Some(Some(Out::Boxed(r))))
 }
@@ -163,10 +163,7 @@ fn emit_object_spread(
 ) -> Result<Value, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
-    let frame = ctx
-        .frame
-        .as_ref()
-        .ok_or("from_ssa: spread without a frame")?;
+    let frame = ctx.frame_for("spread")?;
     crate::clif::from_ssa::exceptions::call_checked(b, ctx, h.build_empty_object, &[ectx])?;
     let fresh = |b: &mut FunctionBuilder| crate::clif::emit::load_native_result(b, h, ectx);
     let mut keyed = 0u32;
