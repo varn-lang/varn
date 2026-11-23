@@ -1,27 +1,27 @@
-use vn_core::ast::operators::BinaryOp;
+use vn_core::BinOp;
 use vn_core::TokenKind;
 
-pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinaryOp> {
+pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinOp> {
     match kind {
-        TokenKind::Plus => Some(BinaryOp::Add),
-        TokenKind::Minus => Some(BinaryOp::Sub),
-        TokenKind::Star => Some(BinaryOp::Mul),
-        TokenKind::Slash => Some(BinaryOp::Div),
-        TokenKind::Percent => Some(BinaryOp::Mod),
-        TokenKind::StarStar => Some(BinaryOp::Pow),
-        TokenKind::EqEq | TokenKind::EqEqEq => Some(BinaryOp::Eq),
-        TokenKind::BangEq | TokenKind::BangEqEq => Some(BinaryOp::NotEq),
-        TokenKind::LAngle => Some(BinaryOp::Lt),
-        TokenKind::RAngle => Some(BinaryOp::Gt),
-        TokenKind::LtEq => Some(BinaryOp::LtEq),
-        TokenKind::GtEq => Some(BinaryOp::GtEq),
-        TokenKind::Amp => Some(BinaryOp::BitAnd),
-        TokenKind::Pipe => Some(BinaryOp::BitOr),
-        TokenKind::Caret => Some(BinaryOp::BitXor),
-        TokenKind::LtLt => Some(BinaryOp::Shl),
-        TokenKind::GtGt => Some(BinaryOp::Shr),
-        TokenKind::GtGtGt => Some(BinaryOp::UShr),
-        TokenKind::In => Some(BinaryOp::In),
+        TokenKind::Plus => Some(BinOp::Add),
+        TokenKind::Minus => Some(BinOp::Sub),
+        TokenKind::Star => Some(BinOp::Mul),
+        TokenKind::Slash => Some(BinOp::Div),
+        TokenKind::Percent => Some(BinOp::Mod),
+        TokenKind::StarStar => Some(BinOp::Pow),
+        TokenKind::EqEq | TokenKind::EqEqEq => Some(BinOp::Eq),
+        TokenKind::BangEq | TokenKind::BangEqEq => Some(BinOp::Ne),
+        TokenKind::LAngle => Some(BinOp::Lt),
+        TokenKind::RAngle => Some(BinOp::Gt),
+        TokenKind::LtEq => Some(BinOp::Le),
+        TokenKind::GtEq => Some(BinOp::Ge),
+        TokenKind::Amp => Some(BinOp::BitAnd),
+        TokenKind::Pipe => Some(BinOp::BitOr),
+        TokenKind::Caret => Some(BinOp::BitXor),
+        TokenKind::LtLt => Some(BinOp::Shl),
+        TokenKind::GtGt => Some(BinOp::Shr),
+        TokenKind::GtGtGt => Some(BinOp::Ushr),
+        TokenKind::In => Some(BinOp::In),
         TokenKind::EOF
         | TokenKind::Dynamic
         | TokenKind::Identifier

@@ -1,12 +1,13 @@
 use super::context::{Builder, Result};
 use crate::ssa::ir::{InstKind, Value};
+use vn_core::BinOp;
 use vn_tir::{BackendTy, DynReason};
-use vn_tir::{TirBinOp, TirExpr, TirUnOp};
+use vn_tir::{TirExpr, TirUnOp};
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_binary(
         &mut self,
-        op: TirBinOp,
+        op: BinOp,
         lhs: &TirExpr,
         rhs: &TirExpr,
         ty: BackendTy,
@@ -60,7 +61,7 @@ impl<'m> Builder<'m> {
         self.emit(InstKind::Convert { operand: v, conv }, ty)
     }
 
-    fn u64_binary(&mut self, op: TirBinOp, l: Value, r: Value, ty: BackendTy) -> Value {
+    fn u64_binary(&mut self, op: BinOp, l: Value, r: Value, ty: BackendTy) -> Value {
         self.emit(
             InstKind::Binary {
                 op,
@@ -72,43 +73,30 @@ impl<'m> Builder<'m> {
         )
     }
 
-    fn lower_u64_binary(&mut self, op: TirBinOp, l: Value, r: Value, ty: BackendTy) -> Value {
+    fn lower_u64_binary(&mut self, op: BinOp, l: Value, r: Value, ty: BackendTy) -> Value {
         use vn_core::ValueConv as C;
         let boxed = BackendTy::Dynamic(DynReason::Boxed);
         match op {
-            TirBinOp::BitAnd
-            | TirBinOp::BitOr
-            | TirBinOp::BitXor
-            | TirBinOp::Shr
-            | TirBinOp::Ushr => {
+            BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::Shr | BinOp::Ushr => {
                 let (lb, rb) = (
                     self.u64_convert(l, C::U64ToBits),
                     self.u64_convert(r, C::U64ToBits),
                 );
-                let op = if op == TirBinOp::Shr {
-                    TirBinOp::Ushr
-                } else {
-                    op
-                };
+                let op = if op == BinOp::Shr { BinOp::Ushr } else { op };
                 let bits = self.u64_binary(op, lb, rb, BackendTy::INT);
                 self.u64_convert(bits, C::U64FromBits)
             }
-            TirBinOp::Shl => {
+            BinOp::Shl => {
                 let (lb, rb) = (
                     self.u64_convert(l, C::U64ToBigInt),
                     self.u64_convert(r, C::U64ToBigInt),
                 );
                 let two = self.emit(InstKind::ConstBigInt(std::sync::Arc::from("2")), boxed);
-                let scale = self.u64_binary(TirBinOp::Pow, two, rb, boxed);
-                let product = self.u64_binary(TirBinOp::Mul, lb, scale, boxed);
+                let scale = self.u64_binary(BinOp::Pow, two, rb, boxed);
+                let product = self.u64_binary(BinOp::Mul, lb, scale, boxed);
                 self.narrow_to(product, ty)
             }
-            TirBinOp::Eq
-            | TirBinOp::Ne
-            | TirBinOp::Lt
-            | TirBinOp::Le
-            | TirBinOp::Gt
-            | TirBinOp::Ge => {
+            BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Le | BinOp::Gt | BinOp::Ge => {
                 let (lb, rb) = (
                     self.u64_convert(l, C::U64ToBigInt),
                     self.u64_convert(r, C::U64ToBigInt),
@@ -123,13 +111,13 @@ impl<'m> Builder<'m> {
                     BackendTy::Bool,
                 )
             }
-            TirBinOp::Add
-            | TirBinOp::Sub
-            | TirBinOp::Mul
-            | TirBinOp::Div
-            | TirBinOp::Mod
-            | TirBinOp::Pow
-            | TirBinOp::In => {
+            BinOp::Add
+            | BinOp::Sub
+            | BinOp::Mul
+            | BinOp::Div
+            | BinOp::Mod
+            | BinOp::Pow
+            | BinOp::In => {
                 let (lb, rb) = (
                     self.u64_convert(l, C::U64ToBigInt),
                     self.u64_convert(r, C::U64ToBigInt),
@@ -209,7 +197,7 @@ impl<'m> Builder<'m> {
                 let mask = self.emit(InstKind::ConstInt(kind.max() as i64), ty);
                 Ok(self.emit(
                     InstKind::Binary {
-                        op: TirBinOp::BitXor,
+                        op: BinOp::BitXor,
                         lhs: v,
                         rhs: mask,
                         ty,

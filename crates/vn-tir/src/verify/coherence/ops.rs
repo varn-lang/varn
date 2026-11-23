@@ -1,13 +1,14 @@
-use crate::node::{TirBinOp, TirExpr};
+use crate::node::TirExpr;
 use crate::resolution::Resolution;
 use crate::ty::{BackendTy, DynReason};
 use crate::verify::VerifyError;
 use crate::TirModule;
+use vn_core::BinOp;
 
 pub(super) fn check_binary(
     m: &TirModule,
     e: &TirExpr,
-    op: TirBinOp,
+    op: BinOp,
     lhs: &TirExpr,
     rhs: &TirExpr,
     errors: &mut Vec<VerifyError>,
@@ -22,7 +23,7 @@ pub(super) fn check_binary(
         return;
     }
 
-    if matches!(op, TirBinOp::In) {
+    if matches!(op, BinOp::In) {
         if e.ty != BackendTy::Bool {
             errors.push(VerifyError::new(
                 format!("{op:?} must produce Bool, node says {:?}", e.ty),

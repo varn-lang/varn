@@ -98,33 +98,29 @@ pub(super) fn infer_member_type(
 pub(super) fn infer_binary_type(
     checker: &mut Checker<'_>,
     rec: &mut Recorder,
-    op: vn_core::ast::operators::BinaryOp,
+    op: vn_core::BinOp,
     left: ExprId,
     right: ExprId,
     bind: &BindResult,
 ) -> Type {
-    use vn_core::ast::operators::BinaryOp;
+    use vn_core::BinOp;
 
     match op {
-        BinaryOp::Eq
-        | BinaryOp::NotEq
-        | BinaryOp::Lt
-        | BinaryOp::Gt
-        | BinaryOp::LtEq
-        | BinaryOp::GtEq
-        | BinaryOp::In => Type::Bool,
-        BinaryOp::Add
-        | BinaryOp::Sub
-        | BinaryOp::Mul
-        | BinaryOp::Div
-        | BinaryOp::Mod
-        | BinaryOp::Pow
-        | BinaryOp::BitAnd
-        | BinaryOp::BitOr
-        | BinaryOp::BitXor
-        | BinaryOp::Shl
-        | BinaryOp::Shr
-        | BinaryOp::UShr => {
+        BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::In => {
+            Type::Bool
+        }
+        BinOp::Add
+        | BinOp::Sub
+        | BinOp::Mul
+        | BinOp::Div
+        | BinOp::Mod
+        | BinOp::Pow
+        | BinOp::BitAnd
+        | BinOp::BitOr
+        | BinOp::BitXor
+        | BinOp::Shl
+        | BinOp::Shr
+        | BinOp::Ushr => {
             let l_raw = base_type(&checker.infer_type(rec, left, bind));
             let r_raw = base_type(&checker.infer_type(rec, right, bind));
             let l = l_raw.apparent(&checker.ty_table);
@@ -145,7 +141,7 @@ pub(super) fn infer_binary_type(
                 &checker.ty_table,
             );
             match op {
-                BinaryOp::Add => {
+                BinOp::Add => {
                     if matches!(
                         checker.ty_table.get(l.0),
                         TypeKind::Primitive(vn_core::LangPrimitive::Str)
@@ -158,26 +154,26 @@ pub(super) fn infer_binary_type(
                     vn_sem::types::numeric_ops::numeric_binary_type(&l, &r, &checker.ty_table)
                         .unwrap_or(unresolved)
                 }
-                BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod | BinaryOp::Pow => {
+                BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod | BinOp::Pow => {
                     vn_sem::types::numeric_ops::numeric_binary_type(&l, &r, &checker.ty_table)
                         .unwrap_or(unresolved)
                 }
-                BinaryOp::BitAnd
-                | BinaryOp::BitOr
-                | BinaryOp::BitXor
-                | BinaryOp::Shl
-                | BinaryOp::Shr
-                | BinaryOp::UShr => {
+                BinOp::BitAnd
+                | BinOp::BitOr
+                | BinOp::BitXor
+                | BinOp::Shl
+                | BinOp::Shr
+                | BinOp::Ushr => {
                     vn_sem::types::numeric_ops::integer_binary_type(&l, &r, &checker.ty_table)
                         .unwrap_or(unresolved)
                 }
-                BinaryOp::Eq
-                | BinaryOp::NotEq
-                | BinaryOp::Lt
-                | BinaryOp::Gt
-                | BinaryOp::LtEq
-                | BinaryOp::GtEq
-                | BinaryOp::In => unresolved,
+                BinOp::Eq
+                | BinOp::Ne
+                | BinOp::Lt
+                | BinOp::Gt
+                | BinOp::Le
+                | BinOp::Ge
+                | BinOp::In => unresolved,
             }
         }
     }

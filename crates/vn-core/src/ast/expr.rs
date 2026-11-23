@@ -65,7 +65,7 @@ pub enum ExprKind {
         operand: ExprId,
     },
     Binary {
-        op: super::operators::BinaryOp,
+        op: crate::BinOp,
         left: ExprId,
         right: ExprId,
     },

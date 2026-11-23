@@ -2,9 +2,9 @@ use super::context::FnEmitter;
 use super::small_utils::int_lit;
 use std::sync::Arc;
 use vn_core::ast::Pattern;
+use vn_core::BinOp;
 use vn_tir::{
-    BackendTy, DynReason, Resolution, Span, TirArg, TirBinOp, TirExpr, TirExprKind, TirStmt,
-    TirUnOp,
+    BackendTy, DynReason, Resolution, Span, TirArg, TirExpr, TirExprKind, TirStmt, TirUnOp,
 };
 
 impl<'a> FnEmitter<'a> {
@@ -314,7 +314,7 @@ impl<'a> FnEmitter<'a> {
         );
         let present = TirExpr {
             kind: TirExprKind::Binary {
-                op: TirBinOp::Lt,
+                op: BinOp::Lt,
                 lhs: Box::new(int_lit(i as i64)),
                 rhs: Box::new(len),
             },

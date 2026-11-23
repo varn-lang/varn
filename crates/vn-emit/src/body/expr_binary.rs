@@ -1,13 +1,14 @@
 use super::context::FnEmitter;
-use super::small_utils::{bin_op, bool_lit};
-use vn_core::ast::operators::{BinaryOp, LogicalOp};
+use super::small_utils::bool_lit;
+use vn_core::ast::operators::LogicalOp;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, DynReason, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirUnOp};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, DynReason, Resolution, Span, TirExpr, TirExprKind, TirUnOp};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_binary(
         &mut self,
-        op: BinaryOp,
+        op: BinOp,
         left: ExprId,
         right: ExprId,
         ty: BackendTy,
@@ -17,47 +18,44 @@ impl<'a> FnEmitter<'a> {
         let rhs = self.lower_expr(right);
 
         match op {
-            BinaryOp::Eq => return self.equality(TirBinOp::Eq, lhs, rhs, span),
-            BinaryOp::NotEq => return self.equality(TirBinOp::Ne, lhs, rhs, span),
-            BinaryOp::Add
-            | BinaryOp::Sub
-            | BinaryOp::Mul
-            | BinaryOp::Div
-            | BinaryOp::Mod
-            | BinaryOp::Pow
-            | BinaryOp::Lt
-            | BinaryOp::Gt
-            | BinaryOp::LtEq
-            | BinaryOp::GtEq
-            | BinaryOp::BitAnd
-            | BinaryOp::BitOr
-            | BinaryOp::BitXor
-            | BinaryOp::Shl
-            | BinaryOp::Shr
-            | BinaryOp::UShr
-            | BinaryOp::In => {}
+            BinOp::Eq => return self.equality(BinOp::Eq, lhs, rhs, span),
+            BinOp::Ne => return self.equality(BinOp::Ne, lhs, rhs, span),
+            BinOp::Add
+            | BinOp::Sub
+            | BinOp::Mul
+            | BinOp::Div
+            | BinOp::Mod
+            | BinOp::Pow
+            | BinOp::Lt
+            | BinOp::Gt
+            | BinOp::Le
+            | BinOp::Ge
+            | BinOp::BitAnd
+            | BinOp::BitOr
+            | BinOp::BitXor
+            | BinOp::Shl
+            | BinOp::Shr
+            | BinOp::Ushr
+            | BinOp::In => {}
         }
 
-        let Some(top) = bin_op(op) else {
-            if op == BinaryOp::In {
-                return TirExpr {
-                    kind: TirExprKind::Binary {
-                        op: TirBinOp::In,
-                        lhs: Box::new(lhs),
-                        rhs: Box::new(rhs),
-                    },
-                    ty: BackendTy::Bool,
-                    res: Resolution::None,
-                    span,
-                };
-            }
-            return self.cast_to(lhs, BackendTy::Bool);
-        };
+        if op == BinOp::In {
+            return TirExpr {
+                kind: TirExprKind::Binary {
+                    op: BinOp::In,
+                    lhs: Box::new(lhs),
+                    rhs: Box::new(rhs),
+                },
+                ty: BackendTy::Bool,
+                res: Resolution::None,
+                span,
+            };
+        }
 
-        let (lhs, rhs, node_ty) = self.coerce_binary_operands(top, lhs, rhs, ty);
+        let (lhs, rhs, node_ty) = self.coerce_binary_operands(op, lhs, rhs, ty);
         TirExpr {
             kind: TirExprKind::Binary {
-                op: top,
+                op,
                 lhs: Box::new(lhs),
                 rhs: Box::new(rhs),
             },
@@ -69,12 +67,12 @@ impl<'a> FnEmitter<'a> {
 
     pub(super) fn equality(
         &mut self,
-        op: TirBinOp,
+        op: BinOp,
         lhs: TirExpr,
         rhs: TirExpr,
         span: Span,
     ) -> TirExpr {
-        let is_eq = op == TirBinOp::Eq;
+        let is_eq = op == BinOp::Eq;
         let is_null_expr = |e: &TirExpr| -> bool {
             matches!(e.kind, TirExprKind::NullLit) || e.ty.non_nullable(self.tt) == BackendTy::Never
         };
@@ -146,7 +144,7 @@ impl<'a> FnEmitter<'a> {
 
     fn equality_with_absent(
         &mut self,
-        op: TirBinOp,
+        op: BinOp,
         lhs: TirExpr,
         rhs: TirExpr,
         span: Span,
@@ -165,7 +163,7 @@ impl<'a> FnEmitter<'a> {
         TirExpr {
             kind: TirExprKind::Select {
                 cond: Box::new(unary_bool(TirUnOp::IsNull, maybe, span)),
-                then_val: Box::new(bool_lit(op != TirBinOp::Eq)),
+                then_val: Box::new(bool_lit(op != BinOp::Eq)),
                 else_val: Box::new(compared),
             },
             ty: BackendTy::Bool,
@@ -214,7 +212,7 @@ impl<'a> FnEmitter<'a> {
 
     pub(super) fn coerce_binary_operands(
         &mut self,
-        op: TirBinOp,
+        op: BinOp,
         lhs: TirExpr,
         rhs: TirExpr,
         checked: BackendTy,
@@ -240,18 +238,17 @@ impl<'a> FnEmitter<'a> {
             return (self.cast_to(lhs, l), self.cast_to(rhs, r), ty);
         }
 
-        let common = if op == TirBinOp::Add
-            && (matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str))
-        {
-            BackendTy::Str
-        } else if l == BackendTy::FLOAT || r == BackendTy::FLOAT {
-            BackendTy::FLOAT
-        } else if matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str) {
-            BackendTy::Str
-        } else {
-            l
-        };
-        let (lhs, rhs) = if op == TirBinOp::Add && common == BackendTy::Str {
+        let common =
+            if op == BinOp::Add && (matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str)) {
+                BackendTy::Str
+            } else if l == BackendTy::FLOAT || r == BackendTy::FLOAT {
+                BackendTy::FLOAT
+            } else if matches!(l, BackendTy::Str) || matches!(r, BackendTy::Str) {
+                BackendTy::Str
+            } else {
+                l
+            };
+        let (lhs, rhs) = if op == BinOp::Add && common == BackendTy::Str {
             (self.coerce_to_str(lhs), self.coerce_to_str(rhs))
         } else {
             (self.cast_to(lhs, common), self.cast_to(rhs, common))

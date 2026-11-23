@@ -1,9 +1,10 @@
 use crate::error::PResult;
 use crate::stream::TokenStream;
-use vn_core::ast::operators::{BinaryOp, VarKind};
+use vn_core::ast::operators::VarKind;
 use vn_core::ast::{
     Decl, ExprId, ExprKind, Pattern, StmtId, StmtKind, VarDeclarator, VariableDecl,
 };
+use vn_core::BinOp;
 use vn_core::{Atom, SourceRange, TokenKind};
 
 pub(super) struct Binding {
@@ -72,13 +73,13 @@ fn pieces(s: &mut TokenStream, binding: Binding) -> Pieces {
     let source_decl = variable(s, range, VarKind::Const, tmp_pattern, binding.source);
     let tmp_ref = s.expr(range, ExprKind::Identifier { name: tmp });
     let bound_decl = variable(s, range, binding.kind, binding.pattern, tmp_ref);
-    let compare = |s: &mut TokenStream, op: BinaryOp| {
+    let compare = |s: &mut TokenStream, op: BinOp| {
         let left = s.expr(range, ExprKind::Identifier { name: tmp });
         let right = s.expr(range, ExprKind::NullLiteral);
         s.expr(range, ExprKind::Binary { op, left, right })
     };
-    let present = compare(s, BinaryOp::NotEq);
-    let absent = compare(s, BinaryOp::Eq);
+    let present = compare(s, BinOp::Ne);
+    let absent = compare(s, BinOp::Eq);
     Pieces {
         source_decl,
         bound_decl,

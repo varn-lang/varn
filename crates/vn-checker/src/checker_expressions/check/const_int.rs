@@ -1,8 +1,8 @@
 use super::super::name_suggestions::closest_in_list;
 use super::Checker;
 use std::sync::Arc;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::{ExprId, ExprKind};
+use vn_core::BinOp;
 use vn_core::{Diagnostic, ErrorCode};
 
 impl<'r> Checker<'r> {
@@ -82,28 +82,28 @@ pub(super) fn const_int_expr(e: ExprId, arena: &vn_core::ast::AstArena) -> Const
                 other @ Overflow | other @ NotConst => return other,
             };
             match op {
-                BinaryOp::Add => lift(vn_core::add_int(a, b)),
-                BinaryOp::Sub => lift(vn_core::sub_int(a, b)),
-                BinaryOp::Mul => lift(vn_core::mul_int(a, b)),
-                BinaryOp::Pow => match u64::try_from(b) {
+                BinOp::Add => lift(vn_core::add_int(a, b)),
+                BinOp::Sub => lift(vn_core::sub_int(a, b)),
+                BinOp::Mul => lift(vn_core::mul_int(a, b)),
+                BinOp::Pow => match u64::try_from(b) {
                     Ok(e) => lift(vn_core::pow_int(a, e)),
                     Err(_) => NotConst,
                 },
-                BinaryOp::Div
-                | BinaryOp::Mod
-                | BinaryOp::Eq
-                | BinaryOp::NotEq
-                | BinaryOp::Lt
-                | BinaryOp::Gt
-                | BinaryOp::LtEq
-                | BinaryOp::GtEq
-                | BinaryOp::BitAnd
-                | BinaryOp::BitOr
-                | BinaryOp::BitXor
-                | BinaryOp::Shl
-                | BinaryOp::Shr
-                | BinaryOp::UShr
-                | BinaryOp::In => NotConst,
+                BinOp::Div
+                | BinOp::Mod
+                | BinOp::Eq
+                | BinOp::Ne
+                | BinOp::Lt
+                | BinOp::Gt
+                | BinOp::Le
+                | BinOp::Ge
+                | BinOp::BitAnd
+                | BinOp::BitOr
+                | BinOp::BitXor
+                | BinOp::Shl
+                | BinOp::Shr
+                | BinOp::Ushr
+                | BinOp::In => NotConst,
             }
         }
         ExprKind::FloatLiteral { .. }

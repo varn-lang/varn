@@ -2,7 +2,8 @@ use super::context::FnEmitter;
 use std::collections::BTreeSet;
 use vn_core::ast::{StmtId, StmtKind};
 use vn_core::Atom;
-use vn_tir::{BackendTy, LocalId, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, LocalId, Resolution, Span, TirExpr, TirExprKind, TirStmt};
 
 const LEAVE: i64 = 1;
 const AGAIN: i64 = 2;
@@ -43,7 +44,7 @@ fn set_flag(flag: LocalId, value: i64) -> TirStmt {
     })
 }
 
-fn flag_is(flag: LocalId, op: TirBinOp, value: i64) -> TirExpr {
+fn flag_is(flag: LocalId, op: BinOp, value: i64) -> TirExpr {
     TirExpr {
         kind: TirExprKind::Binary {
             op,
@@ -114,18 +115,18 @@ impl<'a> FnEmitter<'a> {
             };
             if target + 1 == around {
                 out.push(TirStmt::If {
-                    cond: flag_is(flag, TirBinOp::Eq, LEAVE),
+                    cond: flag_is(flag, BinOp::Eq, LEAVE),
                     then_body: vec![set_flag(flag, 0), TirStmt::Break],
                     else_body: vec![],
                 });
                 out.push(TirStmt::If {
-                    cond: flag_is(flag, TirBinOp::Eq, AGAIN),
+                    cond: flag_is(flag, BinOp::Eq, AGAIN),
                     then_body: vec![set_flag(flag, 0), TirStmt::Continue],
                     else_body: vec![],
                 });
             } else {
                 out.push(TirStmt::If {
-                    cond: flag_is(flag, TirBinOp::Ne, 0),
+                    cond: flag_is(flag, BinOp::Ne, 0),
                     then_body: vec![TirStmt::Break],
                     else_body: vec![],
                 });

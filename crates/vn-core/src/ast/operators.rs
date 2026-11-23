@@ -25,29 +25,6 @@ pub struct Modifiers {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum BinaryOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
-    Pow,
-    Eq,
-    NotEq,
-    Lt,
-    Gt,
-    LtEq,
-    GtEq,
-    BitAnd,
-    BitOr,
-    BitXor,
-    Shl,
-    Shr,
-    UShr,
-    In,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LogicalOp {
     And,
     Or,

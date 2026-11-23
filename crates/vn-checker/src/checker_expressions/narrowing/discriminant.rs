@@ -1,7 +1,7 @@
 use crate::checker::recorder::Recorder;
 use crate::checker::Checker;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::{ExprId, ExprKind};
+use vn_core::BinOp;
 use vn_core::TypeKind;
 use vn_sem::bind::BindResult;
 use vn_sem::symbol::SymbolId;
@@ -13,14 +13,14 @@ impl<'r> Checker<'r> {
         rec: &Recorder,
         left: ExprId,
         right: ExprId,
-        op: BinaryOp,
+        op: BinOp,
         bind: &BindResult,
         is_true_branch: bool,
         out: &mut Vec<(SymbolId, Type)>,
     ) {
         let arena = self.ast_arena;
-        let is_eq = op == BinaryOp::Eq;
-        let is_neq = op == BinaryOp::NotEq;
+        let is_eq = op == BinOp::Eq;
+        let is_neq = op == BinOp::Ne;
         if (is_eq || is_neq)
             && let ExprKind::Member {
                 object,

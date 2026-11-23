@@ -1,6 +1,6 @@
 use super::CallTypeCtx;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::ExprId;
+use vn_core::BinOp;
 use vn_sem::types::numeric_ops::{integer_binary_type, numeric_binary_type};
 use vn_sem::types::Type;
 
@@ -8,34 +8,27 @@ pub(super) fn infer_binary(
     c: &mut CallTypeCtx,
     left: ExprId,
     right: ExprId,
-    op: BinaryOp,
+    op: BinOp,
 ) -> Option<Type> {
     let l = c.infer(left)?.apparent(c.table);
     let r = c.infer(right)?.apparent(c.table);
 
     match op {
-        BinaryOp::Add => {
+        BinOp::Add => {
             if l == Type::Str || r == Type::Str {
                 Some(Type::Str)
             } else {
                 numeric_binary_type(&l, &r, c.table)
             }
         }
-        BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod | BinaryOp::Pow => {
+        BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod | BinOp::Pow => {
             numeric_binary_type(&l, &r, c.table)
         }
-        BinaryOp::Lt
-        | BinaryOp::Gt
-        | BinaryOp::LtEq
-        | BinaryOp::GtEq
-        | BinaryOp::Eq
-        | BinaryOp::NotEq
-        | BinaryOp::In => Some(Type::Bool),
-        BinaryOp::BitAnd
-        | BinaryOp::BitOr
-        | BinaryOp::BitXor
-        | BinaryOp::Shl
-        | BinaryOp::Shr
-        | BinaryOp::UShr => integer_binary_type(&l, &r, c.table),
+        BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::Eq | BinOp::Ne | BinOp::In => {
+            Some(Type::Bool)
+        }
+        BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::Shl | BinOp::Shr | BinOp::Ushr => {
+            integer_binary_type(&l, &r, c.table)
+        }
     }
 }

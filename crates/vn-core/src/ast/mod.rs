@@ -23,9 +23,7 @@ pub use expr::{
     PropKey, TemplatePart,
 };
 pub use module_decl::{ExportDecl, ExportSpecifier, ImportDecl, ImportSpecifier};
-pub use operators::{
-    AssignOp, BinaryOp, LogicalOp, Modifiers, UnaryOp, UpdateOp, VarKind, Visibility,
-};
+pub use operators::{AssignOp, LogicalOp, Modifiers, UnaryOp, UpdateOp, VarKind, Visibility};
 pub use pattern::{
     literal_variant_name, ArrayPatternEl, MatchField, MatchPattern, ObjPatternProp, Param, Pattern,
     SequenceRest, VariantPayload,

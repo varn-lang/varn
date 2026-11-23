@@ -1,6 +1,7 @@
 use super::context::FnEmitter;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt, TirUnOp};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind, TirStmt, TirUnOp};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_try_expr(
@@ -88,7 +89,7 @@ impl<'a> FnEmitter<'a> {
         };
         let cond = TirExpr {
             kind: TirExprKind::Binary {
-                op: TirBinOp::Eq,
+                op: BinOp::Eq,
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
                     kind: TirExprKind::IntLit(fail_tag),

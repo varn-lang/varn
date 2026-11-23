@@ -76,7 +76,7 @@ impl Checker<'_> {
         &mut self,
         rec: &mut Recorder,
         expr: ExprId,
-        op: vn_core::ast::operators::BinaryOp,
+        op: vn_core::BinOp,
         left: ExprId,
         right: ExprId,
         bind: &BindResult,

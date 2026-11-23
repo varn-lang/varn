@@ -1,7 +1,8 @@
 use super::recorder::Recorder;
 use super::Checker;
 use std::collections::BTreeSet;
-use vn_core::ast::{BinaryOp, ExprId};
+use vn_core::ast::ExprId;
+use vn_core::BinOp;
 use vn_core::{Diagnostic, ErrorCode, LangPrimitive, SourceRange, TypeKind};
 use vn_sem::bind::{BindResult, BindView};
 use vn_sem::types::{CheckerTyId, ClassMemberKind, ObjectTypeMember, Type, TypeContext};
@@ -10,13 +11,13 @@ impl Checker<'_> {
     pub(crate) fn reject_reference_equality(
         &mut self,
         rec: &mut Recorder,
-        op: BinaryOp,
+        op: BinOp,
         left: ExprId,
         right: ExprId,
         range: SourceRange,
         bind: &BindResult,
     ) -> bool {
-        if !matches!(op, BinaryOp::Eq | BinaryOp::NotEq) {
+        if !matches!(op, BinOp::Eq | BinOp::Ne) {
             return false;
         }
         let left = self.infer_type(rec, left, bind);

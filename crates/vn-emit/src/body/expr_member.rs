@@ -3,7 +3,8 @@ use super::small_utils::int_lit;
 use std::sync::Arc;
 use vn_core::ast::{AstArena, ExprId, ExprKind};
 use vn_core::AtomInterner;
-use vn_tir::{BackendTy, Resolution, Span, TirArg, TirBinOp, TirExpr, TirExprKind};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, Resolution, Span, TirArg, TirExpr, TirExprKind};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn member_name(
@@ -122,7 +123,7 @@ impl<'a> FnEmitter<'a> {
                 if inclusive {
                     e = TirExpr {
                         kind: TirExprKind::Binary {
-                            op: TirBinOp::Add,
+                            op: BinOp::Add,
                             lhs: Box::new(e),
                             rhs: Box::new(int_lit(1)),
                         },

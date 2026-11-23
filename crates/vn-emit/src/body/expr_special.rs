@@ -1,7 +1,8 @@
 use super::context::FnEmitter;
 use std::sync::Arc;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, DynReason, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirUnOp};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, DynReason, Resolution, Span, TirExpr, TirExprKind, TirUnOp};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_decimal_kind(&self, raw: vn_core::Atom) -> Option<TirExprKind> {
@@ -77,7 +78,7 @@ impl<'a> FnEmitter<'a> {
             };
             TirExpr {
                 kind: TirExprKind::Binary {
-                    op: TirBinOp::Eq,
+                    op: BinOp::Eq,
                     lhs: Box::new(got),
                     rhs: Box::new(want),
                 },

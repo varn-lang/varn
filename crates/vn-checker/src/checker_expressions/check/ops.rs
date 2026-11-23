@@ -1,9 +1,9 @@
 use super::const_int::overflows_int_literal;
 use super::Checker;
 use crate::checker::recorder::Recorder;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::operators::UnaryOp;
 use vn_core::ast::{ExprId, ExprKind};
+use vn_core::BinOp;
 use vn_sem::bind::BindResult;
 use vn_sem::types::TypeContext;
 
@@ -48,7 +48,7 @@ impl<'r> Checker<'r> {
         expr: ExprId,
         left: ExprId,
         right: ExprId,
-        op: BinaryOp,
+        op: BinOp,
         range: vn_core::SourceRange,
         arena: &vn_core::ast::AstArena,
         bind: &BindResult,

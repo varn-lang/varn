@@ -1,7 +1,8 @@
 use super::context::FnEmitter;
 use std::sync::Arc;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, Resolution, Span, TirArg, TirArrayEl, TirBinOp, TirExpr, TirExprKind};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, Resolution, Span, TirArg, TirArrayEl, TirExpr, TirExprKind};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_tagged_template(
@@ -111,7 +112,7 @@ impl<'a> FnEmitter<'a> {
                 None => piece,
                 Some(a) => str_expr(
                     TirExprKind::Binary {
-                        op: TirBinOp::Add,
+                        op: BinOp::Add,
                         lhs: Box::new(a),
                         rhs: Box::new(piece),
                     },

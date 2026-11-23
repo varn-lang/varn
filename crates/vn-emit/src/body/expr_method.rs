@@ -1,6 +1,6 @@
 use super::call_contract::Callee;
 use super::context::FnEmitter;
-use super::small_utils::{bin_op, int_lit};
+use super::small_utils::int_lit;
 use std::sync::Arc;
 use vn_core::ast::ExprId;
 use vn_tir::{BackendTy, DynReason, Resolution, Span, TirArg, TirExpr, TirExprKind, TirUnOp};
@@ -254,7 +254,7 @@ impl<'a> FnEmitter<'a> {
                 let compared = self.method_call(recv, name, args, BackendTy::INT, None, span);
                 TirExpr {
                     kind: TirExprKind::Binary {
-                        op: bin_op(op).expect("comparison operators lower to a TirBinOp"),
+                        op,
                         lhs: Box::new(compared),
                         rhs: Box::new(int_lit(0)),
                     },

@@ -1,8 +1,8 @@
 use std::sync::Arc;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::{AstArena, ExprId, ExprKind, MatchBody, Pattern, PropKey, StmtId, StmtKind};
 use vn_core::AtomInterner;
-use vn_tir::{BackendTy, Resolution, Span, TirBinOp, TirExpr, TirExprKind};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind};
 
 pub(super) fn pattern_lead(p: &Pattern, interner: &AtomInterner) -> Arc<str> {
     match p {
@@ -49,22 +49,22 @@ pub(super) fn bool_lit(v: bool) -> TirExpr {
     }
 }
 
-pub(super) fn assign_bin_op(op: vn_core::ast::operators::AssignOp) -> Result<Option<TirBinOp>, ()> {
+pub(super) fn assign_bin_op(op: vn_core::ast::operators::AssignOp) -> Result<Option<BinOp>, ()> {
     use vn_core::ast::operators::AssignOp as A;
     Ok(Some(match op {
         A::Assign => return Ok(None),
-        A::AddAssign => TirBinOp::Add,
-        A::SubAssign => TirBinOp::Sub,
-        A::MulAssign => TirBinOp::Mul,
-        A::DivAssign => TirBinOp::Div,
-        A::ModAssign => TirBinOp::Mod,
-        A::PowAssign => TirBinOp::Pow,
-        A::BitAndAssign => TirBinOp::BitAnd,
-        A::BitOrAssign => TirBinOp::BitOr,
-        A::BitXorAssign => TirBinOp::BitXor,
-        A::ShlAssign => TirBinOp::Shl,
-        A::ShrAssign => TirBinOp::Shr,
-        A::UShrAssign => TirBinOp::Ushr,
+        A::AddAssign => BinOp::Add,
+        A::SubAssign => BinOp::Sub,
+        A::MulAssign => BinOp::Mul,
+        A::DivAssign => BinOp::Div,
+        A::ModAssign => BinOp::Mod,
+        A::PowAssign => BinOp::Pow,
+        A::BitAndAssign => BinOp::BitAnd,
+        A::BitOrAssign => BinOp::BitOr,
+        A::BitXorAssign => BinOp::BitXor,
+        A::ShlAssign => BinOp::Shl,
+        A::ShrAssign => BinOp::Shr,
+        A::UShrAssign => BinOp::Ushr,
         A::AndAssign | A::OrAssign | A::NullishAssign => return Err(()),
     }))
 }
@@ -76,30 +76,6 @@ pub(super) fn int_lit(v: i64) -> TirExpr {
         res: Resolution::None,
         span: Span::EMPTY,
     }
-}
-
-pub(super) fn bin_op(op: BinaryOp) -> Option<TirBinOp> {
-    Some(match op {
-        BinaryOp::Add => TirBinOp::Add,
-        BinaryOp::Sub => TirBinOp::Sub,
-        BinaryOp::Mul => TirBinOp::Mul,
-        BinaryOp::Div => TirBinOp::Div,
-        BinaryOp::Mod => TirBinOp::Mod,
-        BinaryOp::Pow => TirBinOp::Pow,
-        BinaryOp::Eq => TirBinOp::Eq,
-        BinaryOp::NotEq => TirBinOp::Ne,
-        BinaryOp::Lt => TirBinOp::Lt,
-        BinaryOp::Gt => TirBinOp::Gt,
-        BinaryOp::LtEq => TirBinOp::Le,
-        BinaryOp::GtEq => TirBinOp::Ge,
-        BinaryOp::BitAnd => TirBinOp::BitAnd,
-        BinaryOp::BitOr => TirBinOp::BitOr,
-        BinaryOp::BitXor => TirBinOp::BitXor,
-        BinaryOp::Shl => TirBinOp::Shl,
-        BinaryOp::Shr => TirBinOp::Shr,
-        BinaryOp::UShr => TirBinOp::Ushr,
-        BinaryOp::In => return None,
-    })
 }
 
 pub(super) fn has_continue(ast_arena: &AstArena, stmt: StmtId) -> bool {

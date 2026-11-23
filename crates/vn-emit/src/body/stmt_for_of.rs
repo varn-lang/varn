@@ -2,9 +2,10 @@ use super::context::FnEmitter;
 use super::small_utils::{bool_lit, int_lit};
 use std::sync::Arc;
 use vn_core::ast::{ExprId, ExprKind, Pattern, StmtId};
+use vn_core::BinOp;
 use vn_core::MemberKey;
 use vn_sem::output::ForOfPlan;
-use vn_tir::{BackendTy, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt};
+use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind, TirStmt};
 
 pub(super) fn local_var(local: vn_tir::LocalId, ty: BackendTy) -> TirExpr {
     TirExpr {
@@ -15,7 +16,7 @@ pub(super) fn local_var(local: vn_tir::LocalId, ty: BackendTy) -> TirExpr {
     }
 }
 
-pub(super) fn binary(op: TirBinOp, lhs: TirExpr, rhs: TirExpr, ty: BackendTy) -> TirExpr {
+pub(super) fn binary(op: BinOp, lhs: TirExpr, rhs: TirExpr, ty: BackendTy) -> TirExpr {
     TirExpr {
         kind: TirExprKind::Binary {
             op,
@@ -64,7 +65,7 @@ impl<'a> FnEmitter<'a> {
             let lo = self.lower_expr(start);
             let hi = self.lower_expr(end);
             let hi = if inclusive {
-                binary(TirBinOp::Add, hi, int_lit(1), BackendTy::INT)
+                binary(BinOp::Add, hi, int_lit(1), BackendTy::INT)
             } else {
                 hi
             };
@@ -115,8 +116,8 @@ impl<'a> FnEmitter<'a> {
                 let stride = self.hoist(stride);
                 out.extend(std::mem::take(&mut self.pending));
                 out.extend(self.int_loop(left, int_lit(0), count, body, move |i| {
-                    let offset = binary(TirBinOp::Mul, i, stride, BackendTy::INT);
-                    binary(TirBinOp::Add, start, offset, BackendTy::INT)
+                    let offset = binary(BinOp::Mul, i, stride, BackendTy::INT);
+                    binary(BinOp::Add, start, offset, BackendTy::INT)
                 }));
             }
             Some(ForOfPlan::Protocol {
@@ -162,16 +163,16 @@ impl<'a> FnEmitter<'a> {
         out.push(TirStmt::Let {
             local: i,
             ty: BackendTy::INT,
-            init: Some(binary(TirBinOp::Sub, lo, int_lit(1), BackendTy::INT)),
+            init: Some(binary(BinOp::Sub, lo, int_lit(1), BackendTy::INT)),
         });
         let ivar = || local_var(i, BackendTy::INT);
         let mut loop_body = vec![
             assign(
                 ivar(),
-                binary(TirBinOp::Add, ivar(), int_lit(1), BackendTy::INT),
+                binary(BinOp::Add, ivar(), int_lit(1), BackendTy::INT),
             ),
             TirStmt::If {
-                cond: binary(TirBinOp::Lt, ivar(), hi, BackendTy::Bool),
+                cond: binary(BinOp::Lt, ivar(), hi, BackendTy::Bool),
                 then_body: vec![],
                 else_body: vec![TirStmt::Break],
             },
@@ -222,10 +223,10 @@ impl<'a> FnEmitter<'a> {
         let mut loop_body = vec![
             assign(
                 idx_var(),
-                binary(TirBinOp::Add, idx_var(), int_lit(1), BackendTy::INT),
+                binary(BinOp::Add, idx_var(), int_lit(1), BackendTy::INT),
             ),
             TirStmt::If {
-                cond: binary(TirBinOp::Lt, idx_var(), len, BackendTy::Bool),
+                cond: binary(BinOp::Lt, idx_var(), len, BackendTy::Bool),
                 then_body: vec![],
                 else_body: vec![TirStmt::Break],
             },

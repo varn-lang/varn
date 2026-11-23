@@ -1,9 +1,9 @@
-use super::super::expr_labels::{base_type, op_str};
+use super::super::expr_labels::base_type;
 use crate::checker::recorder::Recorder;
 use crate::checker::Checker;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::ExprId;
 use vn_core::source::SourceRange;
+use vn_core::BinOp;
 use vn_core::{Diagnostic, ErrorCode};
 use vn_sem::bind::BindResult;
 use vn_sem::types::Type;
@@ -16,7 +16,7 @@ impl<'r> Checker<'r> {
     pub(super) fn check_binary_operands(
         &mut self,
         rec: &mut Recorder,
-        op: BinaryOp,
+        op: BinOp,
         left: ExprId,
         right: ExprId,
         range: SourceRange,
@@ -24,14 +24,14 @@ impl<'r> Checker<'r> {
     ) {
         let l_ty = self.infer_type(rec, left, bind);
         let r_ty = self.infer_type(rec, right, bind);
-        if !matches!(op, BinaryOp::Eq | BinaryOp::NotEq) {
+        if !matches!(op, BinOp::Eq | BinOp::Ne) {
             let left_rejected = self.reject_dynamic_operand(&l_ty, "operate on", range);
             let right_rejected = self.reject_dynamic_operand(&r_ty, "operate on", range);
             if left_rejected || right_rejected {
                 return;
             }
         }
-        if matches!(op, BinaryOp::Eq | BinaryOp::NotEq) {
+        if matches!(op, BinOp::Eq | BinOp::Ne) {
             let is_null = |e: ExprId| {
                 matches!(
                     self.ast_arena.expr(e).kind,
@@ -75,25 +75,23 @@ impl<'r> Checker<'r> {
                     &self.ty_table,
                 );
             let valid = match op {
-                BinaryOp::Add => same_numeric || (l_base == Type::Str && r_base == Type::Str),
-                BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod | BinaryOp::Pow => {
-                    same_numeric
-                }
-                BinaryOp::BitAnd
-                | BinaryOp::BitOr
-                | BinaryOp::BitXor
-                | BinaryOp::Shl
-                | BinaryOp::Shr
-                | BinaryOp::UShr => {
+                BinOp::Add => same_numeric || (l_base == Type::Str && r_base == Type::Str),
+                BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod | BinOp::Pow => same_numeric,
+                BinOp::BitAnd
+                | BinOp::BitOr
+                | BinOp::BitXor
+                | BinOp::Shl
+                | BinOp::Shr
+                | BinOp::Ushr => {
                     vn_sem::types::numeric_ops::integer_binary_type(&l_eff, &r_eff, &self.ty_table)
                         .is_some()
                 }
-                BinaryOp::Lt | BinaryOp::Gt | BinaryOp::LtEq | BinaryOp::GtEq => {
+                BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge => {
                     same_numeric
                         || (l_base == Type::Str && r_base == Type::Str)
                         || (l_base == Type::Char && r_base == Type::Char)
                 }
-                BinaryOp::Eq | BinaryOp::NotEq => {
+                BinOp::Eq | BinOp::Ne => {
                     if both_numeric {
                         same_numeric
                     } else {
@@ -103,11 +101,11 @@ impl<'r> Checker<'r> {
                             || self.value_fits(rec, &r_ty, &l_ty, Some(left), Some(bind))
                     }
                 }
-                BinaryOp::In => self
+                BinOp::In => self
                     .map_key_type(&r_base)
                     .is_some_and(|key| self.types_compatible_cached(&key, &l_base, Some(bind))),
             };
-            if !valid && op == BinaryOp::In {
+            if !valid && op == BinOp::In {
                 let r_ty_s = r_ty.display(&self.ty_table, &bind.interner);
                 self.emit(
                     Diagnostic::error(
@@ -126,7 +124,7 @@ impl<'r> Checker<'r> {
                         ErrorCode::InvalidTypeOperator,
                         format!(
                             "invalid binary operation '{}' between '{}' and '{}'",
-                            op_str(&op),
+                            op.symbol(),
                             l_ty_s,
                             r_ty_s
                         ),

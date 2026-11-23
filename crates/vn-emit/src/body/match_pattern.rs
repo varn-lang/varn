@@ -3,9 +3,8 @@ use super::small_utils::bool_lit;
 use crate::ty::NameResolver;
 use std::sync::Arc;
 use vn_core::ast::pattern::{MatchField, MatchPattern, SequenceRest, VariantPayload};
-use vn_tir::{
-    BackendTy, DynReason, LocalId, Resolution, TirBinOp, TirExpr, TirExprKind, TirStmt, TirUnOp,
-};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, DynReason, LocalId, Resolution, TirExpr, TirExprKind, TirStmt, TirUnOp};
 
 #[derive(Clone, Copy)]
 pub(super) enum MatchDest {
@@ -47,7 +46,7 @@ impl<'a> FnEmitter<'a> {
             }
             MatchPattern::Literal(lit) => {
                 let l = self.lower_expr(*lit);
-                (self.equality(TirBinOp::Eq, s.clone(), l, s.span), vec![])
+                (self.equality(BinOp::Eq, s.clone(), l, s.span), vec![])
             }
             MatchPattern::Tuple(items) => {
                 let mut cond = self.present_guard(s);
@@ -69,8 +68,8 @@ impl<'a> FnEmitter<'a> {
                     s.span,
                 );
                 let op = match rest {
-                    SequenceRest::Closed => TirBinOp::Eq,
-                    SequenceRest::Open | SequenceRest::Bind(_) => TirBinOp::Ge,
+                    SequenceRest::Closed => BinOp::Eq,
+                    SequenceRest::Open | SequenceRest::Bind(_) => BinOp::Ge,
                 };
                 let length_test = TirExpr {
                     kind: TirExprKind::Binary {
@@ -255,7 +254,7 @@ impl<'a> FnEmitter<'a> {
         };
         let cond = TirExpr {
             kind: TirExprKind::Binary {
-                op: TirBinOp::Eq,
+                op: BinOp::Eq,
                 lhs: Box::new(disc),
                 rhs: Box::new(TirExpr {
                     kind: TirExprKind::IntLit(tag),

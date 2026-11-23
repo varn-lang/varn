@@ -3,12 +3,12 @@ use crate::resolve::resolve_type_node;
 use crate::types::numeric_ops::{adopt_literal_operands, numeric_binary_type};
 use crate::types::{CheckerTyTable, ObjectTypeMember, Type};
 use std::sync::Arc;
-use vn_core::ast::operators::BinaryOp;
 use vn_core::ast::{AstArena, ExprId, ObjectProp, PropKey};
+use vn_core::BinOp;
 use vn_core::TypeKind;
 
 pub(crate) fn infer_binary(
-    op: &BinaryOp,
+    op: &BinOp,
     left: ExprId,
     right: ExprId,
     arena: &AstArena,
@@ -16,7 +16,7 @@ pub(crate) fn infer_binary(
     table: &mut CheckerTyTable,
 ) -> Type {
     match op {
-        BinaryOp::Add => {
+        BinOp::Add => {
             let l = infer_expr_type(left, arena, ctx, table).apparent(table);
             let r = infer_expr_type(right, arena, ctx, table).apparent(table);
             match (table.get(l.0), table.get(r.0)) {
@@ -28,25 +28,16 @@ pub(crate) fn infer_binary(
                 }
             }
         }
-        BinaryOp::Sub | BinaryOp::Mul | BinaryOp::Div | BinaryOp::Mod | BinaryOp::Pow => {
+        BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod | BinOp::Pow => {
             let l = infer_expr_type(left, arena, ctx, table).apparent(table);
             let r = infer_expr_type(right, arena, ctx, table).apparent(table);
             let (l, r) = adopt_literal_operands(arena, left, right, l, r, table);
             numeric_binary_type(&l, &r, table).unwrap_or(Type::Dynamic)
         }
-        BinaryOp::Eq
-        | BinaryOp::NotEq
-        | BinaryOp::Lt
-        | BinaryOp::Gt
-        | BinaryOp::LtEq
-        | BinaryOp::GtEq
-        | BinaryOp::In => Type::Bool,
-        BinaryOp::BitAnd
-        | BinaryOp::BitOr
-        | BinaryOp::BitXor
-        | BinaryOp::Shl
-        | BinaryOp::Shr
-        | BinaryOp::UShr => {
+        BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::In => {
+            Type::Bool
+        }
+        BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor | BinOp::Shl | BinOp::Shr | BinOp::Ushr => {
             let l = infer_expr_type(left, arena, ctx, table).apparent(table);
             let r = infer_expr_type(right, arena, ctx, table).apparent(table);
             match (table.get(l.0), table.get(r.0)) {

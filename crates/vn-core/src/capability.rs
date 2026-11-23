@@ -1,10 +1,11 @@
-use crate::ast::operators::{BinaryOp, UnaryOp};
+use crate::ast::operators::UnaryOp;
+use crate::BinOp;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OperatorShape {
     Value,
 
-    CompareToZero(BinaryOp),
+    CompareToZero(BinOp),
 
     Equals,
 
@@ -26,8 +27,8 @@ const fn value(capability: &'static str, method: &'static str) -> OperatorMethod
     }
 }
 
-pub const fn binary_operator_method(op: BinaryOp) -> Option<OperatorMethod> {
-    use BinaryOp as B;
+pub const fn binary_operator_method(op: BinOp) -> Option<OperatorMethod> {
+    use BinOp as B;
     Some(match op {
         B::Add => value("Add", "add"),
         B::Sub => value("Sub", "sub"),
@@ -35,7 +36,7 @@ pub const fn binary_operator_method(op: BinaryOp) -> Option<OperatorMethod> {
         B::Div => value("Div", "div"),
         B::Mod => value("Rem", "rem"),
         B::Pow => value("Pow", "pow"),
-        B::Lt | B::Gt | B::LtEq | B::GtEq => OperatorMethod {
+        B::Lt | B::Gt | B::Le | B::Ge => OperatorMethod {
             capability: "Comparable",
             method: "compare",
             shape: OperatorShape::CompareToZero(op),
@@ -45,12 +46,12 @@ pub const fn binary_operator_method(op: BinaryOp) -> Option<OperatorMethod> {
             method: "equals",
             shape: OperatorShape::Equals,
         },
-        B::NotEq => OperatorMethod {
+        B::Ne => OperatorMethod {
             capability: "Equatable",
             method: "equals",
             shape: OperatorShape::NotEquals,
         },
-        B::BitAnd | B::BitOr | B::BitXor | B::Shl | B::Shr | B::UShr | B::In => return None,
+        B::BitAnd | B::BitOr | B::BitXor | B::Shl | B::Shr | B::Ushr | B::In => return None,
     })
 }
 

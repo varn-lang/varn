@@ -1,6 +1,7 @@
 use crate::resolution::Resolution;
 use crate::ty::{BackendTy, ClassId, FnId};
 use std::sync::Arc;
+use vn_core::BinOp;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub struct Span {
@@ -25,8 +26,6 @@ pub enum CheckKind {
     Conform,
     Decode,
 }
-
-pub use vn_core::BinOp as TirBinOp;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TirUnOp {
@@ -82,7 +81,7 @@ pub enum TirExprKind {
     Var,
 
     Binary {
-        op: TirBinOp,
+        op: BinOp,
         lhs: Box<TirExpr>,
         rhs: Box<TirExpr>,
     },

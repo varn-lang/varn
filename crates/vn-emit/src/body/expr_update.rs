@@ -2,7 +2,8 @@ use super::context::FnEmitter;
 use super::small_utils::int_lit;
 use vn_core::ast::operators::UpdateOp;
 use vn_core::ast::ExprId;
-use vn_tir::{BackendTy, Resolution, Span, TirBinOp, TirExpr, TirExprKind, TirStmt};
+use vn_core::BinOp;
+use vn_tir::{BackendTy, Resolution, Span, TirExpr, TirExprKind, TirStmt};
 
 impl<'a> FnEmitter<'a> {
     pub(super) fn lower_index_update(
@@ -50,8 +51,8 @@ impl<'a> FnEmitter<'a> {
             span,
         };
         let bop = match op {
-            UpdateOp::Increment => TirBinOp::Add,
-            UpdateOp::Decrement => TirBinOp::Sub,
+            UpdateOp::Increment => BinOp::Add,
+            UpdateOp::Decrement => BinOp::Sub,
         };
         let step = if node_ty == BackendTy::FLOAT {
             self.cast_to(int_lit(1), BackendTy::FLOAT)
@@ -111,8 +112,8 @@ impl<'a> FnEmitter<'a> {
         self.place_target = false;
         let t = if value_field { t } else { self.pin_place(t) };
         let bop = match op {
-            UpdateOp::Increment => TirBinOp::Add,
-            UpdateOp::Decrement => TirBinOp::Sub,
+            UpdateOp::Increment => BinOp::Add,
+            UpdateOp::Decrement => BinOp::Sub,
         };
         let step = if t.ty == BackendTy::FLOAT {
             self.cast_to(int_lit(1), BackendTy::FLOAT)
