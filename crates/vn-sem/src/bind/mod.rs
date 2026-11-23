@@ -58,6 +58,8 @@ pub struct TypeMembers {
     pub setters: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Type>>,
 }
 
+pub type VariantFields = FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>>;
+
 #[derive(Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct Extensions {
     #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
@@ -264,7 +266,7 @@ pub struct BindResult {
     #[serde(serialize_with = "crate::portable::canonical::sorted")]
     pub sum_variant_parent: FxHashMap<Arc<str>, Arc<str>>,
     #[serde(serialize_with = "crate::portable::canonical::sorted_nested")]
-    pub sum_variant_fields: FxHashMap<Arc<str>, FxHashMap<Arc<str>, Vec<(Arc<str>, Type)>>>,
+    pub sum_variant_fields: VariantFields,
     pub extensions: Extensions,
     #[serde(skip)]
     pub core: Option<Arc<CoreMembers>>,
