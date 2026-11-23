@@ -1,24 +1,26 @@
 use vn_core::ast::operators::AssignOp;
+use vn_core::ast::operators::LogicalOp;
+use vn_core::BinOp;
 use vn_core::TokenKind;
 
 pub(crate) fn token_to_assign_op(kind: TokenKind) -> Option<AssignOp> {
     match kind {
         TokenKind::Eq => Some(AssignOp::Assign),
-        TokenKind::PlusEq => Some(AssignOp::AddAssign),
-        TokenKind::MinusEq => Some(AssignOp::SubAssign),
-        TokenKind::StarEq => Some(AssignOp::MulAssign),
-        TokenKind::SlashEq => Some(AssignOp::DivAssign),
-        TokenKind::PercentEq => Some(AssignOp::ModAssign),
-        TokenKind::StarStarEq => Some(AssignOp::PowAssign),
-        TokenKind::AmpEq => Some(AssignOp::BitAndAssign),
-        TokenKind::PipeEq => Some(AssignOp::BitOrAssign),
-        TokenKind::CaretEq => Some(AssignOp::BitXorAssign),
-        TokenKind::LtLtEq => Some(AssignOp::ShlAssign),
-        TokenKind::GtGtEq => Some(AssignOp::ShrAssign),
-        TokenKind::GtGtGtEq => Some(AssignOp::UShrAssign),
-        TokenKind::AmpAmpEq => Some(AssignOp::AndAssign),
-        TokenKind::PipePipeEq => Some(AssignOp::OrAssign),
-        TokenKind::QuestionQuestionEq => Some(AssignOp::NullishAssign),
+        TokenKind::PlusEq => Some(AssignOp::Compound(BinOp::Add)),
+        TokenKind::MinusEq => Some(AssignOp::Compound(BinOp::Sub)),
+        TokenKind::StarEq => Some(AssignOp::Compound(BinOp::Mul)),
+        TokenKind::SlashEq => Some(AssignOp::Compound(BinOp::Div)),
+        TokenKind::PercentEq => Some(AssignOp::Compound(BinOp::Mod)),
+        TokenKind::StarStarEq => Some(AssignOp::Compound(BinOp::Pow)),
+        TokenKind::AmpEq => Some(AssignOp::Compound(BinOp::BitAnd)),
+        TokenKind::PipeEq => Some(AssignOp::Compound(BinOp::BitOr)),
+        TokenKind::CaretEq => Some(AssignOp::Compound(BinOp::BitXor)),
+        TokenKind::LtLtEq => Some(AssignOp::Compound(BinOp::Shl)),
+        TokenKind::GtGtEq => Some(AssignOp::Compound(BinOp::Shr)),
+        TokenKind::GtGtGtEq => Some(AssignOp::Compound(BinOp::Ushr)),
+        TokenKind::AmpAmpEq => Some(AssignOp::Logical(LogicalOp::And)),
+        TokenKind::PipePipeEq => Some(AssignOp::Logical(LogicalOp::Or)),
+        TokenKind::QuestionQuestionEq => Some(AssignOp::Logical(LogicalOp::Nullish)),
         TokenKind::EOF
         | TokenKind::Dynamic
         | TokenKind::Identifier

@@ -1,6 +1,7 @@
 use super::Checker;
 use crate::checker::recorder::Recorder;
 use vn_core::ast::destructure::is_destructuring_assign;
+use vn_core::ast::operators::LogicalOp;
 use vn_core::ast::ExprId;
 use vn_core::{Diagnostic, ErrorCode};
 use vn_sem::bind::BindResult;
@@ -27,24 +28,13 @@ impl<'r> Checker<'r> {
         self.is_assignment_target = prev;
 
         let reads_operand = match op {
-            AssignOp::Assign
-            | AssignOp::AndAssign
-            | AssignOp::OrAssign
-            | AssignOp::NullishAssign => false,
-            AssignOp::AddAssign
-            | AssignOp::SubAssign
-            | AssignOp::MulAssign
-            | AssignOp::DivAssign
-            | AssignOp::ModAssign
-            | AssignOp::PowAssign
-            | AssignOp::BitAndAssign
-            | AssignOp::BitOrAssign
-            | AssignOp::BitXorAssign
-            | AssignOp::ShlAssign
-            | AssignOp::ShrAssign
-            | AssignOp::UShrAssign => true,
+            AssignOp::Assign | AssignOp::Logical(_) => false,
+            AssignOp::Compound(_) => true,
         };
-        if matches!(op, AssignOp::AndAssign | AssignOp::OrAssign) {
+        if matches!(
+            op,
+            AssignOp::Logical(LogicalOp::And) | AssignOp::Logical(LogicalOp::Or)
+        ) {
             self.require_condition(rec, target, bind);
         }
         if reads_operand {

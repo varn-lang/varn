@@ -51,22 +51,11 @@ pub(super) fn bool_lit(v: bool) -> TirExpr {
 
 pub(super) fn assign_bin_op(op: vn_core::ast::operators::AssignOp) -> Result<Option<BinOp>, ()> {
     use vn_core::ast::operators::AssignOp as A;
-    Ok(Some(match op {
-        A::Assign => return Ok(None),
-        A::AddAssign => BinOp::Add,
-        A::SubAssign => BinOp::Sub,
-        A::MulAssign => BinOp::Mul,
-        A::DivAssign => BinOp::Div,
-        A::ModAssign => BinOp::Mod,
-        A::PowAssign => BinOp::Pow,
-        A::BitAndAssign => BinOp::BitAnd,
-        A::BitOrAssign => BinOp::BitOr,
-        A::BitXorAssign => BinOp::BitXor,
-        A::ShlAssign => BinOp::Shl,
-        A::ShrAssign => BinOp::Shr,
-        A::UShrAssign => BinOp::Ushr,
-        A::AndAssign | A::OrAssign | A::NullishAssign => return Err(()),
-    }))
+    match op {
+        A::Assign => Ok(None),
+        A::Compound(op) => Ok(Some(op)),
+        A::Logical(_) => Err(()),
+    }
 }
 
 pub(super) fn int_lit(v: i64) -> TirExpr {

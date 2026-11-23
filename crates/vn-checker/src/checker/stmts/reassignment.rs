@@ -2,6 +2,7 @@ use super::super::Checker;
 use super::assigned_targets::{assigned_in_stmt, static_path_atoms, AssignedTargets, MemberRoot};
 use crate::checker::recorder::Recorder;
 use std::sync::Arc;
+use vn_core::ast::operators::LogicalOp;
 use vn_core::ast::{AssignOp, ExprId, ExprKind, StmtId, StmtKind};
 use vn_core::Atom;
 use vn_sem::bind::BindResult;
@@ -180,20 +181,10 @@ impl<'r> Checker<'r> {
             return Vec::new();
         };
         let fills = match op {
-            AssignOp::Assign | AssignOp::NullishAssign | AssignOp::OrAssign => true,
-            AssignOp::AndAssign
-            | AssignOp::AddAssign
-            | AssignOp::SubAssign
-            | AssignOp::MulAssign
-            | AssignOp::DivAssign
-            | AssignOp::ModAssign
-            | AssignOp::PowAssign
-            | AssignOp::BitAndAssign
-            | AssignOp::BitOrAssign
-            | AssignOp::BitXorAssign
-            | AssignOp::ShlAssign
-            | AssignOp::ShrAssign
-            | AssignOp::UShrAssign => false,
+            AssignOp::Assign
+            | AssignOp::Logical(LogicalOp::Nullish)
+            | AssignOp::Logical(LogicalOp::Or) => true,
+            AssignOp::Logical(LogicalOp::And) | AssignOp::Compound(_) => false,
         };
         if !fills {
             return Vec::new();
@@ -226,20 +217,10 @@ impl<'r> Checker<'r> {
             return Vec::new();
         };
         let fills = match op {
-            AssignOp::Assign | AssignOp::NullishAssign | AssignOp::OrAssign => true,
-            AssignOp::AndAssign
-            | AssignOp::AddAssign
-            | AssignOp::SubAssign
-            | AssignOp::MulAssign
-            | AssignOp::DivAssign
-            | AssignOp::ModAssign
-            | AssignOp::PowAssign
-            | AssignOp::BitAndAssign
-            | AssignOp::BitOrAssign
-            | AssignOp::BitXorAssign
-            | AssignOp::ShlAssign
-            | AssignOp::ShrAssign
-            | AssignOp::UShrAssign => false,
+            AssignOp::Assign
+            | AssignOp::Logical(LogicalOp::Nullish)
+            | AssignOp::Logical(LogicalOp::Or) => true,
+            AssignOp::Logical(LogicalOp::And) | AssignOp::Compound(_) => false,
         };
         let ExprKind::Identifier { name } = &self.ast_arena.expr(*target).kind else {
             return Vec::new();

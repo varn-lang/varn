@@ -2,6 +2,7 @@ use super::context::FnEmitter;
 use super::small_utils::assign_bin_op;
 use std::sync::Arc;
 use vn_core::ast::operators::AssignOp;
+use vn_core::ast::operators::LogicalOp;
 use vn_core::ast::ExprId;
 use vn_tir::{
     BackendTy, DynReason, Resolution, Span, TirArg, TirExpr, TirExprKind, TirStmt, TirUnOp,
@@ -293,7 +294,7 @@ impl<'a> FnEmitter<'a> {
     ) -> TirExpr {
         let place_ty = read.ty;
         let cond = match op {
-            AssignOp::NullishAssign => TirExpr {
+            AssignOp::Logical(LogicalOp::Nullish) => TirExpr {
                 kind: TirExprKind::Unary {
                     op: TirUnOp::IsNull,
                     operand: Box::new(read.clone()),
@@ -303,39 +304,17 @@ impl<'a> FnEmitter<'a> {
                 span,
             },
             AssignOp::Assign
-            | AssignOp::AddAssign
-            | AssignOp::SubAssign
-            | AssignOp::MulAssign
-            | AssignOp::DivAssign
-            | AssignOp::ModAssign
-            | AssignOp::PowAssign
-            | AssignOp::BitAndAssign
-            | AssignOp::BitOrAssign
-            | AssignOp::BitXorAssign
-            | AssignOp::ShlAssign
-            | AssignOp::ShrAssign
-            | AssignOp::UShrAssign
-            | AssignOp::AndAssign
-            | AssignOp::OrAssign => self.cast_to(read.clone(), BackendTy::Bool),
+            | AssignOp::Compound(_)
+            | AssignOp::Logical(LogicalOp::And)
+            | AssignOp::Logical(LogicalOp::Or) => self.cast_to(read.clone(), BackendTy::Bool),
         };
         let v = self.cast_to(v, place_ty);
         let (then_val, else_val) = match op {
-            AssignOp::OrAssign => (read, v),
+            AssignOp::Logical(LogicalOp::Or) => (read, v),
             AssignOp::Assign
-            | AssignOp::AddAssign
-            | AssignOp::SubAssign
-            | AssignOp::MulAssign
-            | AssignOp::DivAssign
-            | AssignOp::ModAssign
-            | AssignOp::PowAssign
-            | AssignOp::BitAndAssign
-            | AssignOp::BitOrAssign
-            | AssignOp::BitXorAssign
-            | AssignOp::ShlAssign
-            | AssignOp::ShrAssign
-            | AssignOp::UShrAssign
-            | AssignOp::AndAssign
-            | AssignOp::NullishAssign => (v, read),
+            | AssignOp::Compound(_)
+            | AssignOp::Logical(LogicalOp::And)
+            | AssignOp::Logical(LogicalOp::Nullish) => (v, read),
         };
         TirExpr {
             kind: TirExprKind::Select {

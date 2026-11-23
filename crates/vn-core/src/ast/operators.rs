@@ -48,19 +48,6 @@ pub enum UpdateOp {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AssignOp {
     Assign,
-    AddAssign,
-    SubAssign,
-    MulAssign,
-    DivAssign,
-    ModAssign,
-    PowAssign,
-    BitAndAssign,
-    BitOrAssign,
-    BitXorAssign,
-    ShlAssign,
-    ShrAssign,
-    UShrAssign,
-    AndAssign,
-    OrAssign,
-    NullishAssign,
+    Compound(crate::BinOp),
+    Logical(LogicalOp),
 }
