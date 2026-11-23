@@ -110,8 +110,8 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             index: *index,
             value: *value,
         }),
-        InstKind::CloseUpvalues { targets } => Some(SsaOp::CloseUpvalues {
-            vars: targets.iter().map(|t| captured.var(*t)).collect(),
+        InstKind::CloseUpvalues { vars } => Some(SsaOp::CloseUpvalues {
+            vars: vars.iter().map(|t| captured.var(*t)).collect(),
         }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

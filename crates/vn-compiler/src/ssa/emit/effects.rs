@@ -173,12 +173,8 @@ pub(super) fn emit_effect(
             chunk.emit_rc(OpCode::StoreModuleSlot, reg[value.0 as usize], *slot, line);
             return Ok(true);
         }
-        InstKind::CloseUpvalues { targets } => {
-            let lowest = targets
-                .iter()
-                .map(|t| var_reg(*t, nparams))
-                .min()
-                .unwrap_or(0);
+        InstKind::CloseUpvalues { vars } => {
+            let lowest = vars.iter().map(|t| var_reg(*t, nparams)).min().unwrap_or(0);
             chunk.emit1(OpCode::CloseUpvalue, lowest as u16, line);
             return Ok(true);
         }

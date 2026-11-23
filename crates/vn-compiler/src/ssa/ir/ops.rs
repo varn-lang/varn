@@ -260,7 +260,7 @@ pub enum InstKind {
         try_val: Value,
     },
     CloseUpvalues {
-        targets: Vec<SsaVar>,
+        vars: Vec<SsaVar>,
     },
     LoadModule {
         source: Arc<str>,

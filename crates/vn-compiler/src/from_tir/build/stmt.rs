@@ -244,7 +244,7 @@ impl<'m> Builder<'m> {
                 if self.is_open() {
                     let closes = self.loop_body_pinned(body);
                     if !closes.is_empty() {
-                        self.emit_effect(InstKind::CloseUpvalues { targets: closes });
+                        self.emit_effect(InstKind::CloseUpvalues { vars: closes });
                     }
                     let cur = self.current;
                     self.set_term(Terminator::Jump {

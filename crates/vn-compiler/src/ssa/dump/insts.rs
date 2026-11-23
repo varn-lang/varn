@@ -313,7 +313,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::Try { handler } => format!("try b{}", handler.0),
         InstKind::PopTry => "poptry".to_owned(),
         InstKind::CatchParam { try_val } => format!("catchparam {}", val(*try_val)),
-        InstKind::CloseUpvalues { targets } => format!("closeupvalues {:?}", targets),
+        InstKind::CloseUpvalues { vars } => format!("closeupvalues {:?}", vars),
         InstKind::LoadModule { source } => format!("loadmodule {source}"),
         InstKind::StoreModuleSlot { value, slot } => {
             format!("storemoduleslot {slot} = {}", val(*value))

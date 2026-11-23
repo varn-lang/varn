@@ -276,8 +276,8 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
         for inst in &block.insts {
             match &inst.kind {
                 InstKind::LoadCaptured { var } | InstKind::StoreCaptured { var, .. } => note(*var),
-                InstKind::CloseUpvalues { targets } => {
-                    for v in targets {
+                InstKind::CloseUpvalues { vars } => {
+                    for v in vars {
                         note(*v);
                     }
                 }
