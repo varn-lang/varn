@@ -8,7 +8,6 @@ use vn_types::ssa::{SsaBlock, SsaProto, SsaTerm, SsaValue};
 
 mod entries;
 mod inst;
-mod ops;
 mod why_not;
 
 use inst::project_inst;

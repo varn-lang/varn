@@ -1,4 +1,3 @@
-use crate::lower::binary_opcode;
 use crate::ssa::ir::Value;
 use crate::OptError;
 use std::sync::Arc;
@@ -70,12 +69,17 @@ pub(super) fn emit_binary(
     reg: &[u8],
     line: u32,
 ) {
-    let opcode = binary_opcode(
-        op,
-        ty,
-        value_tys.get(lhs.0 as usize).copied(),
-        value_tys.get(rhs.0 as usize).copied(),
-    );
+    let ty_slot = crate::ssa::emit::slot_kind_of(ty);
+    let lhs_slot = value_tys
+        .get(lhs.0 as usize)
+        .map(|t| crate::ssa::emit::slot_kind_of(*t))
+        .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
+    let rhs_slot = value_tys
+        .get(rhs.0 as usize)
+        .map(|t| crate::ssa::emit::slot_kind_of(*t))
+        .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
+    let opcode =
+        vn_types::ssa::opcode_of_bin(vn_types::ssa::select_bin(op, ty_slot, lhs_slot, rhs_slot));
     chunk.emit_rrr(opcode, d, reg[lhs.0 as usize], reg[rhs.0 as usize], line);
 }
 

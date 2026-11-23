@@ -9,7 +9,7 @@ mod uses;
 
 pub use op::SsaOp;
 pub use operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, SsaVar};
-pub use operators::{DynBinOp, DynUnOp, SsaBinOp, SsaUnOp};
+pub use operators::{opcode_of_bin, select_bin, select_un, DynBinOp, DynUnOp, SsaBinOp, SsaUnOp};
 
 pub type SsaTy = SlotKind;
 
