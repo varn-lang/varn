@@ -99,48 +99,12 @@ impl ExecCtx {
 
     fn run_prepared(&mut self, prepared: PreparedCall) -> crate::error::VmResult<Invoked> {
         let res = match prepared {
-            PreparedCall::NativeImmediate(f, mask, arg_count) => {
-                let take = arg_count.min(self.stage.len());
-                if take <= 16 {
-                    let mut buf = [VmValue::null(); 16];
-                    let start = self.stage.len() - take;
-                    for i in 0..take {
-                        buf[i] = self.stage[start + i];
-                    }
-                    self.stage.clear();
-                    self.invoke_native(f, mask, &buf[..take])
-                } else {
-                    let start = self.stage.len() - take;
-                    let vm_args: Vec<VmValue> = self.stage.drain(start..).collect();
-                    self.stage.clear();
-                    self.invoke_native(f, mask, &vm_args)
-                }
-                .map_err(crate::error::RuntimeError::from)
-            }
-            PreparedCall::RawNativeImmediate(f, mask, arg_count) => {
-                let take = arg_count.min(self.stage.len());
-                if take <= 16 {
-                    let mut buf = [VmValue::null(); 16];
-                    let start = self.stage.len() - take;
-                    for i in 0..take {
-                        buf[i] = self.stage[start + i];
-                    }
-                    self.stage.clear();
-                    let slice = if take > 1 { &buf[1..take] } else { &buf[..0] };
-                    self.invoke_native(f, mask, slice)
-                } else {
-                    let start = self.stage.len() - take;
-                    let vm_args: Vec<VmValue> = self.stage.drain(start..).collect();
-                    self.stage.clear();
-                    let slice = if !vm_args.is_empty() {
-                        &vm_args[1..]
-                    } else {
-                        &vm_args[..]
-                    };
-                    self.invoke_native(f, mask, slice)
-                }
-                .map_err(crate::error::RuntimeError::from)
-            }
+            PreparedCall::NativeImmediate(f, mask, arg_count) => self
+                .invoke_staged_native(f, mask, arg_count, false)
+                .map_err(crate::error::RuntimeError::from),
+            PreparedCall::RawNativeImmediate(f, mask, arg_count) => self
+                .invoke_staged_native(f, mask, arg_count, true)
+                .map_err(crate::error::RuntimeError::from),
             PreparedCall::Frame(frame) => {
                 let depth = self.frames.len();
                 self.frames.push(frame);

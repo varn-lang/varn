@@ -14,6 +14,29 @@ impl ExecCtx {
     }
 
     #[inline(always)]
+    pub(crate) fn invoke_staged_native(
+        &mut self,
+        f: vn_types::NativeFn,
+        mask: u64,
+        arg_count: usize,
+        skip_receiver: bool,
+    ) -> vn_types::NativeFnResult {
+        const INLINE: usize = 16;
+        let take = arg_count.min(self.stage.len());
+        let start = self.stage.len() - take;
+        let skip = usize::from(skip_receiver && take > 0);
+        if take <= INLINE {
+            let mut buf = [crate::value::VmValue::null(); INLINE];
+            buf[..take].copy_from_slice(&self.stage[start..]);
+            self.stage.clear();
+            self.invoke_native(f, mask, &buf[skip..take])
+        } else {
+            let args: Vec<crate::value::VmValue> = self.stage.drain(start..).collect();
+            self.stage.clear();
+            self.invoke_native(f, mask, &args[skip..])
+        }
+    }
+
     pub(crate) fn invoke_native(
         &mut self,
         f: vn_types::NativeFn,

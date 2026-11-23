@@ -110,45 +110,17 @@ impl ExecCtx {
             }
             PreparedCall::NativeImmediate(f, mask, arg_count) => {
                 self.record_call_native(f, None);
-
-                let take = arg_count.min(self.stage.len());
-                let result = if take <= 16 {
-                    let mut buf = [VmValue::null(); 16];
-                    let start = self.stage.len() - take;
-                    for i in 0..take {
-                        buf[i] = self.stage[start + i];
-                    }
-                    self.stage.truncate(start);
-                    self.invoke_native(f, mask, &buf[..take])
-                } else {
-                    let start = self.stage.len() - take;
-                    let args: Vec<VmValue> = self.stage.drain(start..).collect();
-                    self.invoke_native(f, mask, &args)
-                }
-                .map_err(RuntimeError::from)?;
-
+                let result = self
+                    .invoke_staged_native(f, mask, arg_count, false)
+                    .map_err(RuntimeError::from)?;
                 self.stage.clear();
                 self.stage.push(result);
             }
             PreparedCall::RawNativeImmediate(f, mask, arg_count) => {
                 self.record_call_native(f, None);
-                let take = arg_count.min(self.stage.len());
-                let start = self.stage.len() - take;
-                let result = if take <= 16 {
-                    let mut buf = [VmValue::null(); 16];
-                    for i in 0..take {
-                        buf[i] = self.stage[start + i];
-                    }
-                    self.stage.truncate(start);
-                    let slice = if take > 1 { &buf[1..take] } else { &buf[..0] };
-                    self.invoke_native(f, mask, slice)
-                } else {
-                    let args: Vec<VmValue> = self.stage.drain(start..).collect();
-                    let slice = if args.len() > 1 { &args[1..] } else { &[] };
-                    self.invoke_native(f, mask, slice)
-                }
-                .map_err(RuntimeError::from)?;
-
+                let result = self
+                    .invoke_staged_native(f, mask, arg_count, true)
+                    .map_err(RuntimeError::from)?;
                 self.stage.clear();
                 self.stage.push(result);
             }
