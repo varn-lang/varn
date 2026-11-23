@@ -17,8 +17,8 @@ pub(super) fn predecessors(ssa: &SsaProto) -> Vec<Vec<usize>> {
             preds[*s as usize].push(b);
         }
         for inst in &blk.insts {
-            if let vn_types::ssa::SsaOp::Try { catch_ip, .. } = &inst.op
-                && let Some(e) = ssa.catch_at(*catch_ip as usize)
+            if let Some(landing) = inst.try_landing()
+                && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
                 let h = e.block as usize;
                 if h < preds.len() && !preds[h].contains(&b) {
@@ -71,8 +71,8 @@ pub(super) fn order(ssa: &SsaProto, entry: usize) -> Vec<usize> {
             SsaTerm::Return(_) | SsaTerm::Throw(_) | SsaTerm::Unreachable => Vec::new(),
         };
         for inst in &ssa.blocks[b].insts {
-            if let vn_types::ssa::SsaOp::Try { catch_ip, .. } = &inst.op
-                && let Some(e) = ssa.catch_at(*catch_ip as usize)
+            if let Some(landing) = inst.try_landing()
+                && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
                 let h = e.block as usize;
                 if h < n && !succs.contains(&h) {

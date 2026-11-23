@@ -1,11 +1,10 @@
-use super::super::Site;
 use super::composite_class::project_class;
 use super::composite_object::project_object;
 use crate::ssa::ir::{InstKind, Value};
 use vn_tir::BackendTy;
 use vn_types::ssa::SsaOp;
 
-pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site) -> Option<SsaOp> {
+pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
     match kind {
         InstKind::AllocInstance {
             class,
@@ -37,12 +36,10 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
         }),
         InstKind::BuildObjectSpread { parts } => Some(SsaOp::BuildObjectSpread {
             parts: parts.iter().map(|p| p.map(|v| v.0)).collect(),
-            cs_base: u16::from(site.ic_slot?),
         }),
         InstKind::GetProperty { object, name } => Some(SsaOp::GetProperty {
             object: object.0,
             name: name.clone(),
-            cs: u16::from(site.ic_slot?),
         }),
         InstKind::GetSlotMethod { object, slot } => Some(SsaOp::GetSlotMethod {
             object: object.0,
@@ -56,7 +53,6 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy], site: &Site)
             object: object.0,
             value: value.0,
             name: name.clone(),
-            cs: u16::from(site.ic_slot?),
         }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

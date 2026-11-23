@@ -87,12 +87,9 @@ pub(super) fn landing_maps(ssa: &SsaProto) -> Result<(LandingLive, LandingError)
     }
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            if let vn_types::ssa::SsaOp::Try {
-                catch_ip,
-                catch_value,
-                ..
-            } = &inst.op
-                && let Some(e) = ssa.catch_at(*catch_ip as usize)
+            if let vn_types::ssa::SsaOp::Try { catch_value } = &inst.op
+                && let Some(landing) = inst.try_landing()
+                && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
                 let h = e.block as usize;
                 if let Some(prev) = landing_error.get(&h) {

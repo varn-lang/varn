@@ -38,6 +38,42 @@ pub struct SsaInst {
     pub op: SsaOp,
     pub line: u32,
     pub ip: u32,
+    pub cache: Option<u16>,
+    pub resume: Option<SsaResume>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SsaResume {
+    pub ip: u32,
+    pub live: Vec<u32>,
+}
+
+impl SsaInst {
+    pub fn cache_slot(&self) -> Result<u16, String> {
+        self.cache
+            .ok_or_else(|| format!("ssa: {:?} has no cache slot", self.op))
+    }
+
+    pub fn resume_point(&self) -> Result<&SsaResume, String> {
+        self.resume
+            .as_ref()
+            .ok_or_else(|| format!("ssa: {:?} has no resume point", self.op))
+    }
+
+    pub fn try_landing(&self) -> Option<&SsaResume> {
+        if matches!(self.op, SsaOp::Try { .. }) {
+            self.resume.as_ref()
+        } else {
+            None
+        }
+    }
+
+    pub fn for_each_use(&self, mut f: impl FnMut(u32)) {
+        self.op.for_each_use(&mut f);
+        if let Some(resume) = &self.resume {
+            resume.live.iter().for_each(|v| f(*v));
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

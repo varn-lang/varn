@@ -69,7 +69,7 @@ pub(super) fn emit_entry(
     header_blk: Block,
 ) -> Result<(), String> {
     let ssa = ctx.ssa;
-    let consts: FxHashMap<u32, &SsaOp> = ssa
+    let consts: FxHashMap<u32, &vn_types::ssa::SsaInst> = ssa
         .blocks
         .iter()
         .flat_map(|blk| blk.insts.iter())
@@ -79,11 +79,11 @@ pub(super) fn emit_entry(
                 SsaOp::ConstInt(_) | SsaOp::ConstFloat(_) | SsaOp::ConstBool(_)
             )
         })
-        .filter_map(|inst| Some((inst.dest?, &inst.op)))
+        .filter_map(|inst| Some((inst.dest?, inst)))
         .collect();
     for &v in &header.live {
-        if let Some(op) = consts.get(&v) {
-            if let Some(out) = super::scalar::emit_inst(b, ctx, values, op, Some(v))? {
+        if let Some(inst) = consts.get(&v) {
+            if let Some(out) = super::scalar::emit_inst(b, ctx, values, inst)? {
                 land(b, ctx, values, Some(v), out)?;
             }
             continue;
@@ -178,8 +178,8 @@ pub(super) fn expand_resume(
             SsaTerm::Return(_) | SsaTerm::Throw(_) | SsaTerm::Unreachable => {}
         }
         for inst in &ssa.blocks[b].insts {
-            if let vn_types::ssa::SsaOp::Try { catch_ip, .. } = &inst.op
-                && let Some(e) = ssa.catch_at(*catch_ip as usize)
+            if let Some(landing) = inst.try_landing()
+                && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
                 let h = e.block as usize;
                 if h < reached.len() && !reached[h] {

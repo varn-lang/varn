@@ -68,7 +68,11 @@ pub(in crate::clif::from_ssa) fn fused_await_calls(
             else {
                 continue;
             };
-            let vn_types::ssa::SsaOp::Await { operand, live, .. } = &pair[1].op else {
+            let (
+                vn_types::ssa::SsaOp::Await { operand },
+                Some(vn_types::ssa::SsaResume { live, .. }),
+            ) = (&pair[1].op, &pair[1].resume)
+            else {
                 continue;
             };
             if *operand == d

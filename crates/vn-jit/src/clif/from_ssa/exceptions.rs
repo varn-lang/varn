@@ -226,8 +226,8 @@ pub(super) fn try_live_set(ssa: &vn_types::ssa::SsaProto) -> rustc_hash::FxHashS
     let mut set = rustc_hash::FxHashSet::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            if let vn_types::ssa::SsaOp::Try { live, .. } = &inst.op {
-                set.extend(live.iter().copied());
+            if let Some(landing) = inst.try_landing() {
+                set.extend(landing.live.iter().copied());
             }
         }
     }

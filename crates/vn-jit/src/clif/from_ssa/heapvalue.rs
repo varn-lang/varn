@@ -11,9 +11,9 @@ pub(super) fn emit(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    op: &SsaOp,
-    dest: Option<u32>,
+    inst: &vn_types::ssa::SsaInst,
 ) -> Result<Option<Option<Out>>, String> {
+    let (op, dest) = (&inst.op, inst.dest);
     match op {
         SsaOp::SetIndex {
             object,
@@ -41,9 +41,8 @@ pub(super) fn emit(
             object,
             value,
             name,
-            cs,
         } => {
-            props::emit_set_property(b, ctx, values, *object, *value, name, *cs)?;
+            props::emit_set_property(b, ctx, values, *object, *value, name, inst.cache_slot()?)?;
             return Ok(Some(None));
         }
         SsaOp::DeclareLayout { class, layout } => {
@@ -328,8 +327,13 @@ pub(super) fn emit(
             offset,
             access,
         } => props::emit_get_fixed_field(b, ctx, values, *object, *slot, *offset, *access, dest)?,
-        SsaOp::GetProperty { object, name, cs } => Out::Boxed(props::emit_get_property(
-            b, ctx, values, *object, name, *cs,
+        SsaOp::GetProperty { object, name } => Out::Boxed(props::emit_get_property(
+            b,
+            ctx,
+            values,
+            *object,
+            name,
+            inst.cache_slot()?,
         )?),
         SsaOp::MakeClass { name, super_class } => {
             let boxed = classops::emit_make_class(b, ctx, values, name, *super_class)?;

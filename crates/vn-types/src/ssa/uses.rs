@@ -79,12 +79,7 @@ impl SsaOp {
                 f(*object);
                 args.iter().for_each(|a| f(*a));
             }
-            SsaOp::Try {
-                catch_value, live, ..
-            } => {
-                f(*catch_value);
-                live.iter().for_each(|a| f(*a));
-            }
+            SsaOp::Try { catch_value } => f(*catch_value),
             SsaOp::CatchParam { try_val } => f(*try_val),
             SsaOp::StoreGlobalIdx { value, .. }
             | SsaOp::StoreCaptured { value, .. }
@@ -154,11 +149,8 @@ impl SsaOp {
                 f(*callee);
                 args.iter().for_each(|e| f(e.value));
             }
-            SsaOp::LoadModule { live, .. } => live.iter().for_each(|a| f(*a)),
-            SsaOp::Await { operand, live, .. } | SsaOp::Yield { operand, live, .. } => {
-                f(*operand);
-                live.iter().for_each(|a| f(*a));
-            }
+            SsaOp::LoadModule { .. } => {}
+            SsaOp::Await { operand } | SsaOp::Yield { operand } => f(*operand),
             SsaOp::Dispose { var, .. } => f(*var),
         }
     }

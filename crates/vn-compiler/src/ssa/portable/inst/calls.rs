@@ -15,12 +15,11 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             args,
             ..
         } => match site.direct_slot {
-            Some(direct) => Some(SsaOp::CallDirect {
+            Some(_) => Some(SsaOp::CallDirect {
                 target: target.clone(),
                 slot: *slot,
                 callee: callee.0,
                 args: args.iter().map(|v| v.0).collect(),
-                site: u16::from(direct),
             }),
             None => Some(SsaOp::Call {
                 callee: callee.0,
@@ -34,13 +33,11 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             recv: recv.0,
             name: name.clone(),
             args: args.iter().map(|v| v.0).collect(),
-            cs: u16::from(site.ic_slot?),
         }),
         InstKind::InvokeSlot { recv, slot, args } => Some(SsaOp::InvokeSlot {
             recv: recv.0,
             slot: *slot,
             args: args.iter().map(|v| v.0).collect(),
-            cs: u16::from(site.ic_slot?),
         }),
         InstKind::CallNativeOp {
             object,

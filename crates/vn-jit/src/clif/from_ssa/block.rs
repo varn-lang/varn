@@ -162,7 +162,7 @@ pub(super) fn lower_block(
         if super::frame_policy::may_push_frame(ctx, &inst.op) {
             super::exceptions::note_site(b, ctx);
         }
-        match scalar::emit_inst(b, ctx, values, &inst.op, inst.dest)? {
+        match scalar::emit_inst(b, ctx, values, inst)? {
             Some(out) => store::land(b, ctx, values, inst.dest, out)?,
             None if inst.dest.is_some() => {
                 return Err(format!("from_ssa: {:?} defines no value", inst.op));

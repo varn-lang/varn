@@ -17,16 +17,16 @@ pub(super) fn try_emit(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    op: &SsaOp,
-    dest: Option<u32>,
+    inst: &vn_types::ssa::SsaInst,
 ) -> Result<Option<Option<Out>>, String> {
+    let (op, dest) = (&inst.op, inst.dest);
     match op {
         SsaOp::LoadGlobal(name) => modules::load_global(b, ctx, name),
         SsaOp::StoreGlobal { name, value } => modules::store_global(b, ctx, values, name, *value),
         SsaOp::BuildTuple { elements } => build::tuple(b, ctx, values, elements),
         SsaOp::BuildArraySpread { elements } => build::array_spread(b, ctx, values, elements),
-        SsaOp::BuildObjectSpread { parts, cs_base } => {
-            build::object_spread(b, ctx, values, parts, *cs_base)
+        SsaOp::BuildObjectSpread { parts } => {
+            build::object_spread(b, ctx, values, parts, inst.cache_slot()?)
         }
         SsaOp::ObjectMerge { target, source } => {
             build::object_merge(b, ctx, values, *target, *source)
@@ -64,28 +64,25 @@ pub(super) fn try_emit(
             args,
         } => invoke::extension_call(b, ctx, values, func, *slot, *recv, args),
         SsaOp::CallSpread { callee, args } => invoke::call_spread(b, ctx, values, *callee, args),
-        SsaOp::LoadModule {
-            source,
-            own_ip,
-            live,
-        } => modules::load_module(b, ctx, values, source, *own_ip, live),
+        SsaOp::LoadModule { source } => {
+            let resume = inst.resume_point()?;
+            modules::load_module(b, ctx, values, source, resume.ip, &resume.live)
+        }
         SsaOp::ModuleSlot { object, slot } => modules::module_slot(b, ctx, values, *object, *slot),
         SsaOp::StoreModuleSlot { slot, value } => {
             modules::store_module_slot(b, ctx, values, *slot, *value)
         }
-        SsaOp::Await {
-            operand,
-            resume_ip,
-            live,
-        } => suspend::await_(b, ctx, values, *operand, *resume_ip, live, dest),
+        SsaOp::Await { operand } => {
+            let resume = inst.resume_point()?;
+            suspend::await_(b, ctx, values, *operand, resume.ip, &resume.live, dest)
+        }
         SsaOp::Spawn { operand } => suspend::spawn(b, ctx, values, *operand),
-        SsaOp::Yield {
-            operand,
-            resume_ip,
-            live,
-        } => suspend::yield_(b, ctx, values, *operand, *resume_ip, live, dest),
-        SsaOp::Dispose { var, is_await, cs } => {
-            suspend::dispose(b, ctx, values, *var, *is_await, *cs)
+        SsaOp::Yield { operand } => {
+            let resume = inst.resume_point()?;
+            suspend::yield_(b, ctx, values, *operand, resume.ip, &resume.live, dest)
+        }
+        SsaOp::Dispose { var, is_await } => {
+            suspend::dispose(b, ctx, values, *var, *is_await, inst.cache_slot()?)
         }
         SsaOp::ConstInt(_)
         | SsaOp::ConstFloat(_)

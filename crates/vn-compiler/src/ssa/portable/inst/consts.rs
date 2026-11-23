@@ -1,8 +1,7 @@
-use super::super::Site;
 use crate::ssa::ir::InstKind;
 use vn_types::ssa::SsaOp;
 
-pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
+pub(super) fn try_project(kind: &InstKind) -> Option<SsaOp> {
     match kind {
         InstKind::ConstInt(n) => Some(SsaOp::ConstInt(*n)),
         InstKind::ConstFloat(f) => Some(SsaOp::ConstFloat(*f)),
@@ -26,8 +25,6 @@ pub(super) fn try_project(kind: &InstKind, site: &Site) -> Option<SsaOp> {
         }),
         InstKind::LoadModule { source } => Some(SsaOp::LoadModule {
             source: source.clone(),
-            own_ip: site.own_ip,
-            live: site.resume_live.clone(),
         }),
         InstKind::ModuleSlot { object, slot } => Some(SsaOp::ModuleSlot {
             object: object.0,

@@ -1,4 +1,4 @@
-use super::super::{Captured, Site};
+use super::super::Captured;
 use crate::ssa::ir::InstKind;
 use vn_tir::BackendTy;
 use vn_types::ssa::SsaOp;
@@ -6,7 +6,6 @@ use vn_types::ssa::SsaOp;
 pub(super) fn try_project(
     kind: &InstKind,
     value_tys: &[BackendTy],
-    site: &Site,
     captured: &mut Captured,
 ) -> Option<SsaOp> {
     match kind {
@@ -54,21 +53,12 @@ pub(super) fn try_project(
         }),
         InstKind::PopTry => Some(SsaOp::PopTry),
         InstKind::CatchParam { try_val } => Some(SsaOp::CatchParam { try_val: try_val.0 }),
-        InstKind::Await { operand } => Some(SsaOp::Await {
-            operand: operand.0,
-            resume_ip: site.next_ip,
-            live: site.resume_live.clone(),
-        }),
+        InstKind::Await { operand } => Some(SsaOp::Await { operand: operand.0 }),
         InstKind::Spawn { operand } => Some(SsaOp::Spawn { operand: operand.0 }),
-        InstKind::Yield { operand } => Some(SsaOp::Yield {
-            operand: operand.0,
-            resume_ip: site.next_ip,
-            live: site.resume_live.clone(),
-        }),
+        InstKind::Yield { operand } => Some(SsaOp::Yield { operand: operand.0 }),
         InstKind::Dispose { target, is_await } => Some(SsaOp::Dispose {
             var: captured.index(crate::ssa::ir::VarId::Local(*target)),
             is_await: *is_await,
-            cs: u16::from(site.ic_slot?),
         }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

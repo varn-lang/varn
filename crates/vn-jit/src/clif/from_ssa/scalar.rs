@@ -13,13 +13,13 @@ pub(super) fn emit_inst(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    op: &SsaOp,
-    dest: Option<u32>,
+    inst: &vn_types::ssa::SsaInst,
 ) -> Result<Option<Out>, String> {
-    if let Some(out) = heapvalue::emit(b, ctx, values, op, dest)? {
+    let (op, dest) = (&inst.op, inst.dest);
+    if let Some(out) = heapvalue::emit(b, ctx, values, inst)? {
         return Ok(out);
     }
-    if let Some(out) = super::extra::try_emit(b, ctx, values, op, dest)? {
+    if let Some(out) = super::extra::try_emit(b, ctx, values, inst)? {
         return Ok(out);
     }
 
@@ -139,24 +139,28 @@ pub(super) fn emit_inst(
             let call = b.ins().call(ctx.self_ref, &a);
             b.inst_results(call)[0]
         }
-        SsaOp::MethodCall {
-            recv,
-            name,
-            args,
-            cs,
-        } => {
+        SsaOp::MethodCall { recv, name, args } => {
             return Ok(Some(Out::Boxed(call::emit_method_call(
-                b, ctx, values, *recv, name, args, *cs, dest,
+                b,
+                ctx,
+                values,
+                *recv,
+                name,
+                args,
+                inst.cache_slot()?,
+                dest,
             )?)))
         }
-        SsaOp::InvokeSlot {
-            recv,
-            slot,
-            args,
-            cs,
-        } => {
+        SsaOp::InvokeSlot { recv, slot, args } => {
             return Ok(Some(Out::Boxed(call::emit_invoke_slot(
-                b, ctx, values, *recv, *slot, args, *cs, dest,
+                b,
+                ctx,
+                values,
+                *recv,
+                *slot,
+                args,
+                inst.cache_slot()?,
+                dest,
             )?)))
         }
         SsaOp::CallNativeOp {
@@ -171,9 +175,8 @@ pub(super) fn emit_inst(
         SsaOp::Call { callee, args } => {
             return Ok(Some(call::emit_call(b, ctx, values, *callee, args, dest)?))
         }
-        SsaOp::CallDirect {
-            callee, args, site, ..
-        } => {
+        SsaOp::CallDirect { callee, args, .. } => {
+            let site = inst.cache_slot()?;
             return Ok(Some(call::emit_direct(
                 b,
                 ctx,
@@ -182,9 +185,9 @@ pub(super) fn emit_inst(
                     callee: *callee,
                     args,
                     dest,
-                    site: *site,
+                    site,
                 },
-            )?))
+            )?));
         }
         SsaOp::AllocInstance {
             class,
@@ -218,12 +221,9 @@ pub(super) fn emit_inst(
             closures::emit_store_upvalue(b, ctx, values, *index, *value)?;
             return Ok(None);
         }
-        SsaOp::Try {
-            catch_ip,
-            catch_value,
-            live,
-        } => {
-            exceptions::emit_try(b, ctx, values, *catch_ip, *catch_value, live)?;
+        SsaOp::Try { catch_value } => {
+            let landing = inst.resume_point()?;
+            exceptions::emit_try(b, ctx, values, landing.ip, *catch_value, &landing.live)?;
             return Ok(None);
         }
         SsaOp::PopTry => {

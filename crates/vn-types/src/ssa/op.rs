@@ -36,7 +36,6 @@ pub enum SsaOp {
         slot: Option<u32>,
         callee: u32,
         args: Vec<u32>,
-        site: u16,
     },
 
     AllocInstance {
@@ -87,9 +86,7 @@ pub enum SsaOp {
     LoadNativeGlobalIdx(u32),
 
     Try {
-        catch_ip: u32,
         catch_value: u32,
-        live: Vec<u32>,
     },
 
     PopTry,
@@ -187,7 +184,6 @@ pub enum SsaOp {
     GetProperty {
         object: u32,
         name: std::sync::Arc<str>,
-        cs: u16,
     },
 
     GetSlotMethod {
@@ -199,7 +195,6 @@ pub enum SsaOp {
         object: u32,
         value: u32,
         name: std::sync::Arc<str>,
-        cs: u16,
     },
 
     GetIndex {
@@ -229,14 +224,12 @@ pub enum SsaOp {
         recv: u32,
         name: std::sync::Arc<str>,
         args: Vec<u32>,
-        cs: u16,
     },
 
     InvokeSlot {
         recv: u32,
         slot: u16,
         args: Vec<u32>,
-        cs: u16,
     },
 
     CallNativeOp {
@@ -313,7 +306,6 @@ pub enum SsaOp {
 
     BuildObjectSpread {
         parts: Vec<SsaObjectSpreadPart>,
-        cs_base: u16,
     },
 
     ObjectMerge {
@@ -383,8 +375,6 @@ pub enum SsaOp {
 
     LoadModule {
         source: std::sync::Arc<str>,
-        own_ip: u32,
-        live: Vec<u32>,
     },
 
     ModuleSlot {
@@ -399,8 +389,6 @@ pub enum SsaOp {
 
     Await {
         operand: u32,
-        resume_ip: u32,
-        live: Vec<u32>,
     },
 
     Spawn {
@@ -409,13 +397,10 @@ pub enum SsaOp {
 
     Yield {
         operand: u32,
-        resume_ip: u32,
-        live: Vec<u32>,
     },
 
     Dispose {
         var: u32,
         is_await: bool,
-        cs: u16,
     },
 }
