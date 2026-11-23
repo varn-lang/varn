@@ -1,5 +1,5 @@
 use crate::ssa::ir::{InstKind, SsaFunc, Terminator};
-use vn_types::ssa::{SsaEntryKind, SsaSecondaryEntry};
+use vn_types::ssa::{BlockId, SsaEntryKind, SsaSecondaryEntry, ValueId};
 
 use super::Emitted;
 
@@ -42,10 +42,14 @@ fn loop_entries(ssa: &SsaFunc, emitted: &Emitted<'_>) -> Vec<SsaSecondaryEntry> 
         .filter(|(_, h)| **h)
         .filter_map(|(b, _)| {
             let ip = u32::try_from(off(b)).ok()?;
-            let mut live: Vec<u32> = emitted.liveness.live_in[b].iter().copied().collect();
+            let mut live: Vec<ValueId> = emitted.liveness.live_in[b]
+                .iter()
+                .copied()
+                .map(ValueId)
+                .collect();
             live.sort_unstable();
             Some(SsaSecondaryEntry {
-                block: b as u32,
+                block: BlockId(b as u32),
                 ip,
                 live,
                 kind: SsaEntryKind::Loop,
@@ -80,15 +84,10 @@ fn resume_entries(ssa: &SsaFunc, emitted: &Emitted<'_>) -> Vec<SsaSecondaryEntry
             if ip == u32::MAX {
                 continue;
             }
-            let mut live: Vec<u32> = emitted
-                .liveness
-                .live_after(ssa, b, i)
-                .into_iter()
-                .map(|v| v.0)
-                .collect();
+            let mut live: Vec<ValueId> = emitted.liveness.live_after(ssa, b, i);
             live.sort_unstable();
             out.push(SsaSecondaryEntry {
-                block: cont,
+                block: BlockId(cont),
                 ip,
                 live,
                 kind: SsaEntryKind::Resume,
@@ -113,14 +112,15 @@ fn catch_entries(ssa: &SsaFunc, emitted: &Emitted<'_>) -> Vec<SsaSecondaryEntry>
                 continue;
             };
             let dest = inst.dest.map(|v| v.0);
-            let mut live: Vec<u32> = emitted.liveness.live_in[h]
+            let mut live: Vec<ValueId> = emitted.liveness.live_in[h]
                 .iter()
                 .copied()
                 .filter(|v| Some(*v) != dest)
+                .map(ValueId)
                 .collect();
             live.sort_unstable();
             out.push(SsaSecondaryEntry {
-                block: h as u32,
+                block: BlockId(h as u32),
                 ip,
                 live,
                 kind: SsaEntryKind::Catch,

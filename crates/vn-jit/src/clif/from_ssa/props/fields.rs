@@ -7,11 +7,12 @@ use super::super::super::fields::{
 use super::super::heap::{boxed_value, exec_ctx};
 use super::super::store::{load_value, Out};
 use super::super::Ctx;
+use vn_types::ssa::ValueId;
 
 fn field_io<'a>(
     b: &mut FunctionBuilder,
     ctx: &'a Ctx<'_>,
-    object: u32,
+    object: ValueId,
 ) -> Result<FieldIo<'a>, String> {
     let (landing, err_ret) = ctx.exits(b);
     Ok(FieldIo {
@@ -63,11 +64,11 @@ pub(crate) fn emit_get_fixed_field(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
+    object: ValueId,
     slot: u16,
     offset: u32,
     access: vn_core::FieldAccess,
-    dest: Option<u32>,
+    dest: Option<ValueId>,
 ) -> Result<Out, String> {
     use vn_core::layout::{ScalarRepr, TypeLayout};
     use vn_types::register_meta::SlotKind;
@@ -125,7 +126,7 @@ pub(crate) fn emit_get_fixed_field(
 fn emit_get_fixed_field_native(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
-    object: u32,
+    object: ValueId,
     obj: Value,
     ivar: Option<cranelift_frontend::Variable>,
     offset: u32,
@@ -188,8 +189,8 @@ pub(crate) fn emit_set_fixed_field(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    value: u32,
+    object: ValueId,
+    value: ValueId,
     slot: u16,
     offset: u32,
     kind: Option<vn_core::FieldKind>,

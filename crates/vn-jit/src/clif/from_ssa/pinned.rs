@@ -1,10 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use vn_types::ssa::{SsaOp, SsaProto};
+use vn_types::ssa::{SsaOp, SsaProto, ValueId};
 
 pub(super) struct Pins {
-    pub prefill: BTreeMap<usize, Vec<u32>>,
-    pub bodies: BTreeMap<u32, BTreeSet<usize>>,
+    pub prefill: BTreeMap<usize, Vec<ValueId>>,
+    pub bodies: BTreeMap<ValueId, BTreeSet<usize>>,
 }
 
 pub(super) fn compute(
@@ -13,7 +13,7 @@ pub(super) fn compute(
     rpo_pos: &[usize],
     reached: &[bool],
 ) -> Pins {
-    let mut def_block: BTreeMap<u32, usize> = BTreeMap::new();
+    let mut def_block: BTreeMap<ValueId, usize> = BTreeMap::new();
     for (b, blk) in ssa.blocks.iter().enumerate() {
         if !reached[b] {
             continue;
@@ -24,7 +24,7 @@ pub(super) fn compute(
             }
         }
     }
-    let mut readers: BTreeMap<u32, Vec<usize>> = BTreeMap::new();
+    let mut readers: BTreeMap<ValueId, Vec<usize>> = BTreeMap::new();
     for (b, blk) in ssa.blocks.iter().enumerate() {
         if !reached[b] {
             continue;
@@ -50,7 +50,7 @@ pub(super) fn compute(
         let body = super::cfg::loop_body(preds, rpo_pos, reached, *h);
         bodies.insert(*h, body.into_iter().collect());
     }
-    let mut best: BTreeMap<u32, (usize, usize, usize)> = BTreeMap::new();
+    let mut best: BTreeMap<ValueId, (usize, usize, usize)> = BTreeMap::new();
     for (object, uses) in &readers {
         for h in &headers {
             let body = &bodies[h];
@@ -197,8 +197,8 @@ pub(super) fn compute(
             }
         }
     }
-    let mut prefill: BTreeMap<usize, Vec<u32>> = BTreeMap::new();
-    let mut pinned_bodies: BTreeMap<u32, BTreeSet<usize>> = BTreeMap::new();
+    let mut prefill: BTreeMap<usize, Vec<ValueId>> = BTreeMap::new();
+    let mut pinned_bodies: BTreeMap<ValueId, BTreeSet<usize>> = BTreeMap::new();
     for (object, (pre, _, header)) in best {
         prefill.entry(pre).or_default().push(object);
         pinned_bodies.insert(object, bodies[&header].clone());

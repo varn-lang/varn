@@ -4,6 +4,7 @@ use cranelift_frontend::FunctionBuilder;
 use super::{load_value, Ctx};
 
 use super::super::emit::{box_bool, box_f64, box_int, call_helper, unbox_f64_coerce, unbox_int};
+use vn_types::ssa::ValueId;
 
 pub(super) fn exec_ctx(ctx: &Ctx<'_>) -> Value {
     ctx.exec_ctx
@@ -13,7 +14,7 @@ pub(super) fn boxed_value(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    v: u32,
+    v: ValueId,
 ) -> Result<Value, String> {
     let x = load_value(b, ctx, values, v)?;
     Ok(box_native(b, ctx.ssa.value_ty(v), x))
@@ -38,7 +39,7 @@ pub(super) fn boxed_parts(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    v: u32,
+    v: ValueId,
 ) -> Result<(Value, Value), String> {
     let boxed = boxed_value(b, ctx, values, v)?;
     Ok(b.ins().isplit(boxed))
@@ -64,7 +65,7 @@ pub(super) fn emit_is_array(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Value, String> {
     let (tag, payload) = boxed_parts(b, ctx, values, operand)?;
     let ectx = exec_ctx(ctx);
@@ -80,7 +81,7 @@ pub(super) fn emit_unary_boxed(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
     helper: usize,
 ) -> Result<Value, String> {
     let (tag, payload) = boxed_parts(b, ctx, values, operand)?;
@@ -93,8 +94,8 @@ pub(super) fn emit_str_concat(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    lhs: u32,
-    rhs: u32,
+    lhs: ValueId,
+    rhs: ValueId,
 ) -> Result<Value, String> {
     let (at, ap) = boxed_parts(b, ctx, values, lhs)?;
     let (bt, bp) = boxed_parts(b, ctx, values, rhs)?;
@@ -107,7 +108,7 @@ pub(super) fn emit_build_str(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    parts: &[u32],
+    parts: &[ValueId],
 ) -> Result<Value, String> {
     let vals: Vec<Value> = parts
         .iter()
@@ -120,7 +121,7 @@ pub(super) fn emit_build_array(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    elements: &[u32],
+    elements: &[ValueId],
     storage: vn_core::ArrayStorage,
 ) -> Result<Value, String> {
     let vals: Vec<Value> = elements
@@ -142,7 +143,7 @@ pub(super) fn emit_build_map(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    pairs: &[(u32, u32)],
+    pairs: &[(ValueId, ValueId)],
 ) -> Result<Value, String> {
     let mut vals = Vec::with_capacity(pairs.len() * 2);
     for (k, v) in pairs {

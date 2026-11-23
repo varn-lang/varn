@@ -40,8 +40,8 @@ pub(super) fn prepare<'s>(
     let nparams = proto.arity.saturating_sub(1);
     super::cfg::check_block_args(ssa)?;
     if ssa.blocks.is_empty()
-        || ssa.entry as usize >= ssa.blocks.len()
-        || ssa.blocks[ssa.entry as usize].params.len() != nparams
+        || ssa.entry.0 as usize >= ssa.blocks.len()
+        || ssa.blocks[ssa.entry.0 as usize].params.len() != nparams
         || proto.param_kinds.len() != nparams
     {
         return Err("from_ssa: not a leaf-compatible proto".into());
@@ -74,15 +74,15 @@ pub(super) fn prepare<'s>(
     ))
 }
 
-pub(super) type LandingLive = BTreeMap<usize, Vec<u32>>;
-pub(super) type LandingError = BTreeMap<usize, u32>;
+pub(super) type LandingLive = BTreeMap<usize, Vec<vn_types::ssa::ValueId>>;
+pub(super) type LandingError = BTreeMap<usize, vn_types::ssa::ValueId>;
 
 pub(super) fn landing_maps(ssa: &SsaProto) -> Result<(LandingLive, LandingError), String> {
     let mut landing_live: LandingLive = Default::default();
     let mut landing_error: LandingError = Default::default();
     for e in &ssa.secondary_entries {
         if e.kind == SsaEntryKind::Catch {
-            landing_live.insert(e.block as usize, e.live.clone());
+            landing_live.insert(e.block.0 as usize, e.live.clone());
         }
     }
     for blk in &ssa.blocks {
@@ -91,7 +91,7 @@ pub(super) fn landing_maps(ssa: &SsaProto) -> Result<(LandingLive, LandingError)
                 && let Some(landing) = inst.try_landing()
                 && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
-                let h = e.block as usize;
+                let h = e.block.0 as usize;
                 if let Some(prev) = landing_error.get(&h) {
                     if *prev != *catch_value {
                         return Err("from_ssa: handler shared by two try values".into());
@@ -155,7 +155,7 @@ pub(super) fn reachability(ssa: &SsaProto, start: usize, with_full: bool) -> Res
         reached[blk] = true;
     }
     let full_rpo = if with_full {
-        super::cfg::order(ssa, ssa.entry as usize)
+        super::cfg::order(ssa, ssa.entry.0 as usize)
     } else {
         rpo.clone()
     };

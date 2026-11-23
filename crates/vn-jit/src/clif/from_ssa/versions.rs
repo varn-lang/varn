@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use cranelift_codegen::ir::{types, Block, BlockArg, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
 use rustc_hash::{FxHashMap, FxHashSet};
-use vn_types::ssa::{SsaProto, SsaTerm};
+use vn_types::ssa::{SsaProto, SsaTerm, ValueId};
 
 use super::super::native_abi::NativeShape;
 use super::block::lower_block;
@@ -110,8 +110,8 @@ pub(super) fn lower_versioned(
     rpo: &[usize],
     rpo_pos: &[usize],
     shape: &NativeShape,
-    global_src: &BTreeMap<u32, u32>,
-    pins: &BTreeMap<usize, Vec<u32>>,
+    global_src: &BTreeMap<ValueId, u32>,
+    pins: &BTreeMap<usize, Vec<ValueId>>,
     hoisted: &mut BTreeMap<(usize, u32), Value>,
     hoist_at: &BTreeMap<usize, Vec<(usize, u32)>>,
     loop_bodies: &FxHashMap<usize, FxHashSet<usize>>,
@@ -124,8 +124,8 @@ pub(super) fn lower_versioned(
     entry: usize,
 ) -> Result<(), String> {
     emitted[i] = true;
-    let gobjs: Vec<u32> = plans[pi].guards.iter().map(|(o, _)| *o).collect();
-    if !gobjs.iter().all(|o| values[*o as usize].is_some()) {
+    let gobjs: Vec<ValueId> = plans[pi].guards.iter().map(|(o, _)| *o).collect();
+    if !gobjs.iter().all(|o| values[o.0 as usize].is_some()) {
         let cb = blocks[i].expect("block created");
         return lower_block(
             b,

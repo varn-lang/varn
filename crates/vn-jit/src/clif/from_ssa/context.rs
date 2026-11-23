@@ -2,7 +2,7 @@ use cranelift_codegen::ir::{FuncRef, Value};
 use cranelift_codegen::isa::CallConv;
 use rustc_hash::{FxHashMap, FxHashSet};
 use vn_types::register_meta::FrameLayout;
-use vn_types::ssa::SsaProto;
+use vn_types::ssa::{SsaProto, ValueId};
 use vn_types::{FunctionProto, VmValue};
 
 use super::super::abi::Activation;
@@ -31,13 +31,13 @@ pub(super) struct Ctx<'a> {
 
     pub constants: &'a [VmValue],
 
-    pub fusable_cmp: FxHashSet<u32>,
+    pub fusable_cmp: FxHashSet<ValueId>,
 
     pub fuse_ok: std::cell::Cell<bool>,
 
     pub pending_cmp: std::cell::RefCell<Option<super::super::generic::PendingStrCmp>>,
 
-    pub sso_consts: FxHashMap<u32, super::super::generic::SsoConst>,
+    pub sso_consts: FxHashMap<ValueId, super::super::generic::SsoConst>,
     pub self_ref: FuncRef,
 
     pub self_abi: Option<SelfAbi>,
@@ -57,26 +57,26 @@ pub(super) struct Ctx<'a> {
 
     pub views: views::Views,
 
-    pub in_range_steps: FxHashSet<u32>,
+    pub in_range_steps: FxHashSet<ValueId>,
 
-    pub no_overflow: FxHashSet<u32>,
+    pub no_overflow: FxHashSet<ValueId>,
 
-    pub fast_bounds: FxHashSet<u32>,
+    pub fast_bounds: FxHashSet<ValueId>,
 
     pub elide: std::cell::Cell<bool>,
 
     pub pinned_bodies:
-        std::cell::RefCell<std::collections::BTreeMap<u32, std::collections::BTreeSet<usize>>>,
+        std::cell::RefCell<std::collections::BTreeMap<ValueId, std::collections::BTreeSet<usize>>>,
 
     pub emitting_block: std::cell::Cell<usize>,
 
     pub site_ip: std::cell::Cell<u32>,
 
-    pub carried: FxHashMap<u32, cranelift_frontend::Variable>,
+    pub carried: FxHashMap<ValueId, cranelift_frontend::Variable>,
 
-    pub try_live: FxHashSet<u32>,
+    pub try_live: FxHashSet<ValueId>,
 
-    pub fused_awaits: FxHashMap<u32, (u32, Vec<u32>)>,
+    pub fused_awaits: FxHashMap<ValueId, (ValueId, Vec<ValueId>)>,
 
     pub pure_try: std::cell::RefCell<PureTryState>,
 
@@ -93,7 +93,7 @@ pub(in crate::clif) const NEEDS_ACTIVATION: &str = "from_ssa: body needs a Frame
 pub(super) struct PureTryState {
     pub err_ret: Option<cranelift_codegen::ir::Block>,
     pub entry_stacks: Vec<Vec<usize>>,
-    pub landing_error: std::collections::BTreeMap<usize, u32>,
+    pub landing_error: std::collections::BTreeMap<usize, ValueId>,
     pub clif_map: std::collections::BTreeMap<usize, cranelift_codegen::ir::Block>,
     pub stack: Vec<usize>,
 }

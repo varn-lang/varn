@@ -7,6 +7,7 @@ use super::super::emit::{box_bool, box_int, call_helper};
 use super::super::generic::{boxed_binop, boxed_compare};
 use super::heap::boxed_parts;
 use super::{Ctx, Out};
+use vn_types::ssa::ValueId;
 
 fn bool_out(b: &mut FunctionBuilder, cond: Value, dest: Option<SlotKind>) -> Out {
     match dest {
@@ -26,8 +27,8 @@ pub(super) fn emit_bin(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     op: DynBinOp,
-    lhs: u32,
-    rhs: u32,
+    lhs: ValueId,
+    rhs: ValueId,
     dest: Option<SlotKind>,
 ) -> Result<Out, String> {
     let h = ctx.helpers;
@@ -75,7 +76,7 @@ pub(super) fn emit_un(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     op: DynUnOp,
-    operand: u32,
+    operand: ValueId,
     dest: Option<SlotKind>,
 ) -> Result<Out, String> {
     let h = ctx.helpers;

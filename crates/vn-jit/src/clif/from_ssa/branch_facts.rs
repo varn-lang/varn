@@ -1,8 +1,9 @@
 use super::range_math::{I64_HI, I64_LO};
 use vn_types::register_meta::SlotKind;
+use vn_types::ssa::ValueId;
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaTerm};
 
-pub(super) type Fact = (u32, i128, i128);
+pub(super) type Fact = (ValueId, i128, i128);
 
 pub(super) fn immediate_dominators(
     preds: &[Vec<usize>],
@@ -54,11 +55,11 @@ fn meet(idom: &[Option<usize>], rpo_pos: &[usize], mut a: usize, mut b: usize) -
 fn compare_fact(
     ssa: &SsaProto,
     def: &[Option<&SsaOp>],
-    consts: &dyn Fn(u32) -> Option<i128>,
-    cond: u32,
+    consts: &dyn Fn(ValueId) -> Option<i128>,
+    cond: ValueId,
     on_then: bool,
 ) -> Option<Fact> {
-    let Some(SsaOp::Binary { op, lhs, rhs }) = def[cond as usize] else {
+    let Some(SsaOp::Binary { op, lhs, rhs }) = def[cond.0 as usize] else {
         return None;
     };
     let (var, bound, op) = match (consts(*lhs), consts(*rhs)) {
@@ -126,7 +127,7 @@ pub(super) fn per_block_facts(
     preds: &[Vec<usize>],
     rpo_pos: &[usize],
     reached: &[bool],
-    consts: &dyn Fn(u32) -> Option<i128>,
+    consts: &dyn Fn(ValueId) -> Option<i128>,
 ) -> Vec<Vec<Fact>> {
     let idom = immediate_dominators(preds, rpo_pos, reached);
     let mut order: Vec<usize> = (0..ssa.blocks.len()).filter(|&b| reached[b]).collect();
@@ -148,7 +149,7 @@ pub(super) fn per_block_facts(
             && then_blk != else_blk
             && ssa.blocks[*p].insts.iter().any(|i| i.dest == Some(*cond))
         {
-            let on_then = *then_blk as usize == b;
+            let on_then = then_blk.0 as usize == b;
             if let Some(f) = compare_fact(ssa, def, consts, *cond, on_then) {
                 mine.push(f);
             }
@@ -160,7 +161,7 @@ pub(super) fn per_block_facts(
 
 pub(super) fn refine(
     facts: &[Fact],
-    value: u32,
+    value: ValueId,
     known: Option<(i128, i128)>,
 ) -> Option<(i128, i128)> {
     let mut range = known;

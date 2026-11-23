@@ -4,6 +4,7 @@ use vn_types::register_meta::SlotKind;
 use vn_types::ssa::SsaTerm;
 
 use super::{heap, load_value, Ctx};
+use vn_types::ssa::{BlockId, ValueId};
 
 fn scalar_return(k: SlotKind) -> bool {
     matches!(
@@ -35,7 +36,7 @@ fn condition(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    v: u32,
+    v: ValueId,
 ) -> Result<Value, String> {
     match ctx.ssa.value_ty(v) {
         SlotKind::Bool => load_value(b, ctx, values, v),
@@ -54,7 +55,7 @@ pub(super) fn emit_term(
     blocks: &[Option<cranelift_codegen::ir::Block>],
     values: &[Option<Value>],
     term: &SsaTerm,
-    polls: impl Fn(u32) -> bool,
+    polls: impl Fn(BlockId) -> bool,
 ) -> Result<(), String> {
     let loops = match term {
         SsaTerm::Jump { target, .. } => polls(*target),
@@ -152,7 +153,7 @@ fn resolve_args(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Vec<cranelift_codegen::ir::BlockArg>, String> {
     args.iter()
         .map(|v| load_value(b, ctx, values, *v).map(cranelift_codegen::ir::BlockArg::from))
@@ -161,10 +162,10 @@ fn resolve_args(
 
 fn block_of(
     blocks: &[Option<cranelift_codegen::ir::Block>],
-    id: u32,
+    id: BlockId,
 ) -> Result<cranelift_codegen::ir::Block, String> {
     blocks
-        .get(id as usize)
+        .get(id.0 as usize)
         .copied()
         .flatten()
         .ok_or_else(|| format!("from_ssa: block {id} not created"))

@@ -6,18 +6,19 @@ use vn_types::ssa::{SsaOp, SsaProto, SsaSecondaryEntry, SsaTerm};
 
 use super::store::{clif_ty, define, is_heap, land, load_home_value};
 use super::Ctx;
+use vn_types::ssa::ValueId;
 
 pub(super) fn carried(
     b: &mut FunctionBuilder,
     ssa: &SsaProto,
     header: &SsaSecondaryEntry,
     reached: &[bool],
-) -> FxHashMap<u32, Variable> {
+) -> FxHashMap<ValueId, Variable> {
     let def = super::cfg::def_blocks(ssa);
     let mut carried = FxHashMap::default();
     for &v in &header.live {
         let kind = ssa.value_ty(v);
-        let redefined = def[v as usize].is_some_and(|blk| reached[blk]);
+        let redefined = def[v.0 as usize].is_some_and(|blk| reached[blk]);
         if redefined && let Some(ty) = clif_ty(kind) {
             let var = b.declare_var(ty);
             if is_heap(kind) {
@@ -36,7 +37,7 @@ pub(super) fn versioned(
     preds: &[Vec<usize>],
     rpo_pos: &[usize],
     reached: &[bool],
-) -> FxHashMap<u32, Variable> {
+) -> FxHashMap<ValueId, Variable> {
     let mut carried = FxHashMap::default();
     for plan in plans {
         for blk in super::cfg::loop_body(preds, rpo_pos, reached, plan.header) {
@@ -69,7 +70,7 @@ pub(super) fn emit_entry(
     header_blk: Block,
 ) -> Result<(), String> {
     let ssa = ctx.ssa;
-    let consts: FxHashMap<u32, &vn_types::ssa::SsaInst> = ssa
+    let consts: FxHashMap<ValueId, &vn_types::ssa::SsaInst> = ssa
         .blocks
         .iter()
         .flat_map(|blk| blk.insts.iter())
@@ -102,7 +103,7 @@ pub(super) fn emit_entry(
             let st = ctx.pure_try.borrow();
             let stack = st
                 .entry_stacks
-                .get(header.block as usize)
+                .get(header.block.0 as usize)
                 .cloned()
                 .unwrap_or_default();
             let landing = stack.last().and_then(|h| st.clif_map.get(h).copied());
@@ -134,7 +135,7 @@ pub(super) fn emit_entry(
         }
     }
     let mut args = Vec::new();
-    for &p in &ssa.blocks[header.block as usize].params {
+    for &p in &ssa.blocks[header.block.0 as usize].params {
         let arg = load_home_value(b, ctx, ssa.reg(p), ssa.value_ty(p))?;
         args.push(BlockArg::from(arg));
     }
@@ -161,7 +162,7 @@ pub(super) fn expand_resume(
         rpo.push(b);
         match &ssa.blocks[b].term {
             SsaTerm::Jump { target, .. } => {
-                let s = *target as usize;
+                let s = target.0 as usize;
                 if s < reached.len() && !reached[s] {
                     stack.push(s);
                 }
@@ -169,7 +170,7 @@ pub(super) fn expand_resume(
             SsaTerm::Branch {
                 then_blk, else_blk, ..
             } => {
-                for s in [*then_blk as usize, *else_blk as usize] {
+                for s in [then_blk.0 as usize, else_blk.0 as usize] {
                     if s < reached.len() && !reached[s] {
                         stack.push(s);
                     }
@@ -181,7 +182,7 @@ pub(super) fn expand_resume(
             if let Some(landing) = inst.try_landing()
                 && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
-                let h = e.block as usize;
+                let h = e.block.0 as usize;
                 if h < reached.len() && !reached[h] {
                     stack.push(h);
                 }

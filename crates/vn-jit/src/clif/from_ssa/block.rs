@@ -7,6 +7,7 @@ use super::super::abi::Activation;
 use super::super::native_abi::{NativeClass, NativeShape};
 use super::frame_policy::may_push_frame;
 use super::{arrays, cfg, exceptions, globals, heap, scalar, setup, store, term, Ctx};
+use vn_types::ssa::{BlockId, ValueId};
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn lower_block(
@@ -18,8 +19,8 @@ pub(super) fn lower_block(
     preds: &[Vec<usize>],
     rpo_pos: &[usize],
     shape: &NativeShape,
-    global_src: &std::collections::BTreeMap<u32, u32>,
-    pins: &std::collections::BTreeMap<usize, Vec<u32>>,
+    global_src: &std::collections::BTreeMap<ValueId, u32>,
+    pins: &std::collections::BTreeMap<usize, Vec<ValueId>>,
     hoisted: &mut std::collections::BTreeMap<(usize, u32), Value>,
     hoist_at: &std::collections::BTreeMap<usize, Vec<(usize, u32)>>,
     loop_bodies: &rustc_hash::FxHashMap<usize, rustc_hash::FxHashSet<usize>>,
@@ -95,11 +96,16 @@ pub(super) fn lower_block(
     }
 
     let old_elide = ctx.elide.replace(elide_flag);
-    let mut fwd: std::collections::BTreeMap<(u32, u16), u32> = Default::default();
-    let canon = |o: u32| -> u32 { global_src.get(&o).map(|s| 0x8000_0000u32 | s).unwrap_or(o) };
-    let polls = |target: u32| {
-        rpo_pos[target as usize] <= rpo_pos[ssa_idx]
-            && cfg::loop_may_collect(ssa, preds, target as usize, ssa_idx)
+    let mut fwd: std::collections::BTreeMap<(ValueId, u16), ValueId> = Default::default();
+    let canon = |o: ValueId| -> ValueId {
+        global_src
+            .get(&o)
+            .map(|s| ValueId(0x8000_0000u32 | s))
+            .unwrap_or(o)
+    };
+    let polls = |target: BlockId| {
+        rpo_pos[target.0 as usize] <= rpo_pos[ssa_idx]
+            && cfg::loop_may_collect(ssa, preds, target.0 as usize, ssa_idx)
     };
     *ctx.pending_cmp.borrow_mut() = None;
     ctx.fuse_ok.set(
@@ -192,7 +198,7 @@ pub(super) fn lower_block(
             }
             vn_types::ssa::SsaOp::StoreGlobalIdx { slot, .. } => {
                 let g = 0x8000_0000u32 | slot;
-                fwd.retain(|k, _| k.0 != g);
+                fwd.retain(|k, _| k.0 .0 != g);
                 ctx.views.invalidate_global(b, *slot);
                 hoisted.retain(|(_, s), _| s != slot);
             }

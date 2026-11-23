@@ -52,9 +52,9 @@ pub(in crate::clif) fn try_lower(
         dump_ssa_trace(ssa);
     }
     let (osr, flags) = setup::prepare(proto, ssa, osr_req, activation)?;
-    let entry = ssa.entry as usize;
+    let entry = ssa.entry.0 as usize;
     let call_entry = osr.is_none().then_some(entry);
-    let start = osr.map_or(entry, |h| h.block as usize);
+    let start = osr.map_or(entry, |h| h.block.0 as usize);
 
     let (landing_live, landing_error) = setup::landing_maps(ssa)?;
 
@@ -234,7 +234,7 @@ pub(in crate::clif) fn try_lower(
     }
     let mut values: Vec<Option<Value>> = vec![None; ssa.values.len()];
     if let Some(h) = osr {
-        let header = blocks[h.block as usize].expect("block created");
+        let header = blocks[h.block.0 as usize].expect("block created");
         osr::emit_entry(&mut b, &ctx, &mut values, h, header)?;
     }
     let pins = match osr {

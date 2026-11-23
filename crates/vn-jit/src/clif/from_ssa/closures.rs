@@ -4,6 +4,7 @@ use vn_types::ssa::{SsaUpvalue, SsaVar};
 use vn_types::UpvalueSource;
 
 use super::{heap, home_load, home_store, Ctx};
+use vn_types::ssa::ValueId;
 
 fn captured_reg(ctx: &Ctx<'_>, var: SsaVar) -> Result<u32, String> {
     ctx.frame_for("closure op")?
@@ -84,7 +85,7 @@ pub(super) fn emit_store_captured(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     var: SsaVar,
-    value: u32,
+    value: ValueId,
 ) -> Result<(), String> {
     let boxed = heap::boxed_value(b, ctx, values, value)?;
     home_store(b, ctx, captured_reg(ctx, var)?, boxed)
@@ -115,7 +116,7 @@ pub(super) fn emit_store_upvalue(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     index: u32,
-    value: u32,
+    value: ValueId,
 ) -> Result<(), String> {
     let frame = ctx.frame_for("closure op")?;
     let (tag, payload) = heap::boxed_parts(b, ctx, values, value)?;

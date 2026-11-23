@@ -11,37 +11,37 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
             payload_size,
             ..
         } => Some(SsaOp::AllocInstance {
-            class: class.0,
+            class: *class,
             payload_size: *payload_size,
         }),
         InstKind::BuildStr { parts } => Some(SsaOp::BuildStr {
-            parts: parts.iter().map(|v| v.0).collect(),
+            parts: parts.iter().copied().collect(),
         }),
         InstKind::BuildArray { elements, storage } => Some(SsaOp::BuildArray {
-            elements: elements.iter().map(|v| v.0).collect(),
+            elements: elements.iter().copied().collect(),
             storage: *storage,
         }),
         InstKind::BuildMap { pairs } => Some(SsaOp::BuildMap {
-            pairs: pairs.iter().map(|(k, v)| (k.0, v.0)).collect(),
+            pairs: pairs.iter().copied().collect(),
         }),
         InstKind::BuildObject { pairs } => Some(SsaOp::BuildObject {
-            pairs: pairs.iter().map(|(k, v)| (k.clone(), v.0)).collect(),
+            pairs: pairs.iter().map(|(k, v)| (k.clone(), *v)).collect(),
         }),
         InstKind::BuildTuple { elements } => Some(SsaOp::BuildTuple {
-            elements: elements.iter().map(|v| v.0).collect(),
+            elements: elements.iter().copied().collect(),
         }),
         InstKind::BuildArraySpread { elements } => Some(SsaOp::BuildArraySpread {
-            elements: elements.iter().map(|e| e.map(|v| v.0)).collect(),
+            elements: elements.clone(),
         }),
         InstKind::BuildObjectSpread { parts } => Some(SsaOp::BuildObjectSpread {
-            parts: parts.iter().map(|p| p.map(|v| v.0)).collect(),
+            parts: parts.clone(),
         }),
         InstKind::GetProperty { object, name } => Some(SsaOp::GetProperty {
-            object: object.0,
+            object: *object,
             name: name.clone(),
         }),
         InstKind::GetSlotMethod { object, slot } => Some(SsaOp::GetSlotMethod {
-            object: object.0,
+            object: *object,
             slot: *slot,
         }),
         InstKind::SetProperty {
@@ -49,8 +49,8 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
             name,
             value,
         } => Some(SsaOp::SetProperty {
-            object: object.0,
-            value: value.0,
+            object: *object,
+            value: *value,
             name: name.clone(),
         }),
         InstKind::ConstInt(_)
@@ -139,14 +139,14 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
     match kind {
         InstKind::ArrayGetIndex { object, index } if is_int(value_tys, *index) => {
             Some(SsaOp::ArrayGetIndex {
-                object: object.0,
-                index: index.0,
+                object: *object,
+                index: *index,
             })
         }
         InstKind::BytesGetIndex { object, index } if is_int(value_tys, *index) => {
             Some(SsaOp::BytesGetIndex {
-                object: object.0,
-                index: index.0,
+                object: *object,
+                index: *index,
             })
         }
         InstKind::ArraySetIndex {
@@ -154,25 +154,25 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
             index,
             value,
         } if is_int(value_tys, *index) => Some(SsaOp::ArraySetIndex {
-            object: object.0,
-            index: index.0,
-            value: value.0,
+            object: *object,
+            index: *index,
+            value: *value,
         }),
         InstKind::BytesSetIndex {
             object,
             index,
             value,
         } if is_int(value_tys, *index) => Some(SsaOp::BytesSetIndex {
-            object: object.0,
-            index: index.0,
-            value: value.0,
+            object: *object,
+            index: *index,
+            value: *value,
         }),
         InstKind::GetIndex { object, index }
         | InstKind::ArrayGetIndex { object, index }
         | InstKind::BytesGetIndex { object, index }
         | InstKind::MapGetIndex { object, index } => Some(SsaOp::GetIndex {
-            object: object.0,
-            index: index.0,
+            object: *object,
+            index: *index,
         }),
         InstKind::SetIndex {
             object,
@@ -194,13 +194,13 @@ fn project_indexed(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
             index,
             value,
         } => Some(SsaOp::SetIndex {
-            object: object.0,
-            index: index.0,
-            value: value.0,
+            object: *object,
+            index: *index,
+            value: *value,
         }),
         InstKind::ArrayPush { array, value } => Some(SsaOp::ArrayPush {
-            array: array.0,
-            value: value.0,
+            array: *array,
+            value: *value,
         }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)

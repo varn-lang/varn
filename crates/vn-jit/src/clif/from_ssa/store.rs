@@ -3,6 +3,7 @@ use cranelift_frontend::FunctionBuilder;
 use vn_types::register_meta::SlotKind;
 
 use super::{heap, Ctx};
+use vn_types::ssa::ValueId;
 
 pub(super) enum Out {
     Native(Value),
@@ -16,7 +17,7 @@ pub(super) fn land(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    dest: Option<u32>,
+    dest: Option<ValueId>,
     out: Out,
 ) -> Result<(), String> {
     let Some(d) = dest else {
@@ -40,7 +41,7 @@ pub(super) fn define(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    v: u32,
+    v: ValueId,
     x: Value,
 ) {
     ctx.views.forget_instance(b, v);
@@ -50,7 +51,7 @@ pub(super) fn define(
             if is_heap(ctx.ssa.value_ty(v)) {
                 b.declare_value_needs_stack_map(x);
             }
-            values[v as usize] = Some(x);
+            values[v.0 as usize] = Some(x);
         }
     }
 }
@@ -59,13 +60,13 @@ pub(super) fn load_value(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    v: u32,
+    v: ValueId,
 ) -> Result<Value, String> {
     if let Some(var) = ctx.carried.get(&v) {
         return Ok(b.use_var(*var));
     }
     values
-        .get(v as usize)
+        .get(v.0 as usize)
         .copied()
         .flatten()
         .ok_or_else(|| format!("from_ssa: value {v} used before definition"))

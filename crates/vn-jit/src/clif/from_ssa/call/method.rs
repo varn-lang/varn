@@ -6,15 +6,16 @@ use super::super::{heap, props, store, Ctx, Out};
 use super::direct::{entry_out_slot, run_entered_or};
 use super::invoke::boxed_window;
 use super::native_entry::{self, NativeCall};
+use vn_types::ssa::ValueId;
 pub(crate) fn emit_invoke_slot(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    recv: u32,
+    recv: ValueId,
     slot: u16,
-    args: &[u32],
+    args: &[ValueId],
     cs: u16,
-    dest: Option<u32>,
+    dest: Option<ValueId>,
 ) -> Result<Value, String> {
     use cranelift_codegen::ir::condcodes::IntCC;
     use cranelift_codegen::ir::types;
@@ -204,11 +205,11 @@ pub(crate) fn emit_method_call(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    recv: u32,
+    recv: ValueId,
     name: &str,
-    args: &[u32],
+    args: &[ValueId],
     cs: u16,
-    dest: Option<u32>,
+    dest: Option<ValueId>,
 ) -> Result<Value, String> {
     use cranelift_codegen::ir::condcodes::IntCC;
     use cranelift_codegen::ir::types;

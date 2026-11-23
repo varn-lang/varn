@@ -7,12 +7,13 @@ use super::super::Ctx;
 use super::extra_shared::{native, stage};
 use cranelift_codegen::ir::{types, InstBuilder, MemFlagsData, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_types::ssa::ValueId;
 
 pub(super) fn super_call(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     ctx.frame_for("extra op")?;
     let ctor =
@@ -26,7 +27,7 @@ pub(super) fn super_method_call(
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
     name: &str,
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     ctx.frame_for("extra op")?;
     let m = super::super::classops::emit_get_super(b, ctx, name)?;
@@ -45,7 +46,7 @@ pub(super) fn super_invoke_slot(
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
     slot: u16,
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     ctx.frame_for("extra op")?;
     let this = super::super::props::emit_this(ctx)?;
@@ -78,8 +79,8 @@ pub(super) fn extension_call(
     values: &mut [Option<Value>],
     func: &str,
     slot: Option<u32>,
-    recv: u32,
-    args: &[u32],
+    recv: ValueId,
+    args: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -119,7 +120,7 @@ pub(super) fn call_spread(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    callee: u32,
+    callee: ValueId,
     args: &[vn_types::ssa::SsaSpread],
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
@@ -153,7 +154,7 @@ fn emit_super_call(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     ctor: Value,
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Value, String> {
     let this = super::super::props::emit_this(ctx)?;
     let mut vals = Vec::with_capacity(args.len() + 1);

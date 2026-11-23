@@ -54,7 +54,7 @@ pub(super) fn build(
 }
 
 pub(super) fn redundant_guards(ssa: &SsaProto, reach: &Reach) -> FxHashSet<u32> {
-    let entry = ssa.entry as usize;
+    let entry = ssa.entry.0 as usize;
     let calls_self = |blk: &vn_types::ssa::SsaBlock| {
         blk.insts
             .iter()

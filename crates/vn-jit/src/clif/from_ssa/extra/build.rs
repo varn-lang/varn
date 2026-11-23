@@ -4,13 +4,14 @@ use super::super::Ctx;
 use super::extra_shared::{native, stage};
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_types::ssa::ValueId;
 use vn_types::ssa::{SsaObjectSpreadPart, SsaSpread};
 
 pub(super) fn tuple(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    elements: &[u32],
+    elements: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     let h = ctx.helpers;
     let vals: Vec<Value> = elements
@@ -48,8 +49,8 @@ pub(super) fn object_merge(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    target: u32,
-    source: u32,
+    target: ValueId,
+    source: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -70,7 +71,7 @@ pub(super) fn object_rest(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    object: u32,
+    object: ValueId,
     skip_keys: &[std::sync::Arc<str>],
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);

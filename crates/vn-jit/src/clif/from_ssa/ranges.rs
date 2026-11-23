@@ -5,6 +5,7 @@ use super::range_math::{
 use super::range_versioning::{version_plans, VersionPlan};
 use rustc_hash::{FxHashMap, FxHashSet};
 use vn_types::register_meta::SlotKind;
+use vn_types::ssa::{BlockId, ValueId};
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaTerm};
 
 #[derive(Clone, Copy, PartialEq)]
@@ -19,7 +20,7 @@ fn def_map(ssa: &SsaProto) -> Vec<Option<&SsaOp>> {
     for blk in &ssa.blocks {
         for inst in &blk.insts {
             if let Some(d) = inst.dest {
-                def[d as usize] = Some(&inst.op);
+                def[d.0 as usize] = Some(&inst.op);
             }
         }
     }
@@ -30,11 +31,11 @@ fn def_block(ssa: &SsaProto) -> Vec<Option<usize>> {
     let mut def = vec![None; ssa.values.len()];
     for (b, blk) in ssa.blocks.iter().enumerate() {
         for &p in &blk.params {
-            def[p as usize] = Some(b);
+            def[p.0 as usize] = Some(b);
         }
         for inst in &blk.insts {
             if let Some(d) = inst.dest {
-                def[d as usize] = Some(b);
+                def[d.0 as usize] = Some(b);
             }
         }
     }
@@ -67,14 +68,14 @@ pub(super) fn loop_sets(
             continue;
         };
         let body = super::cfg::loop_body(preds, rpo_pos, reached, header);
-        if !body.contains(&(*then_blk as usize)) || body.contains(&(*else_blk as usize)) {
+        if !body.contains(&(then_blk.0 as usize)) || body.contains(&(else_blk.0 as usize)) {
             continue;
         }
         if !blk.insts.iter().any(|i| i.dest == Some(*cond)) {
             continue;
         }
         if !matches!(
-            def[*cond as usize],
+            def[cond.0 as usize],
             Some(SsaOp::Binary {
                 op: SsaBinOp::IntLt | SsaBinOp::IntLe | SsaBinOp::IntGt | SsaBinOp::IntGe,
                 ..
@@ -96,10 +97,10 @@ pub(super) fn analyze(
     preds: &[Vec<usize>],
     rpo_pos: &[usize],
     reached: &[bool],
-) -> (FxHashSet<u32>, Vec<VersionPlan>) {
+) -> (FxHashSet<ValueId>, Vec<VersionPlan>) {
     let def = def_map(ssa);
     let dblk = def_block(ssa);
-    let pred_edges: Vec<Vec<(u32, Vec<u32>, Edge)>> = (0..ssa.blocks.len())
+    let pred_edges: Vec<Vec<(BlockId, Vec<ValueId>, Edge)>> = (0..ssa.blocks.len())
         .map(|from| match &ssa.blocks[from].term {
             SsaTerm::Jump { target, args } => vec![(*target, args.clone(), Edge::Jump)],
             SsaTerm::Branch {
@@ -118,17 +119,17 @@ pub(super) fn analyze(
 
     let (headers, bodies) = loop_sets(ssa, preds, rpo_pos, reached);
 
-    let mut ranges: FxHashMap<u32, (i128, i128)> = FxHashMap::default();
+    let mut ranges: FxHashMap<ValueId, (i128, i128)> = FxHashMap::default();
     for (v, op) in def.iter().enumerate() {
         if let Some(SsaOp::ConstInt(c)) = op
-            && ssa.value_ty(v as u32) == SlotKind::Int
+            && ssa.value_ty(ValueId(v as u32)) == SlotKind::Int
         {
-            ranges.insert(v as u32, (*c as i128, *c as i128));
+            ranges.insert(ValueId(v as u32), (*c as i128, *c as i128));
         }
     }
 
-    let consts = |v: u32| -> Option<i128> {
-        match def[v as usize] {
+    let consts = |v: ValueId| -> Option<i128> {
+        match def[v.0 as usize] {
             Some(SsaOp::ConstInt(c)) if ssa.value_ty(v) == SlotKind::Int => Some(*c as i128),
             _ => None,
         }
@@ -138,7 +139,7 @@ pub(super) fn analyze(
     let mut converged = false;
     for _ in 0..64 {
         let mut changed = false;
-        let mut checks: FxHashMap<(usize, u32), Check> = FxHashMap::default();
+        let mut checks: FxHashMap<(usize, ValueId), Check> = FxHashMap::default();
         for &h in &headers {
             for &p in &ssa.blocks[h].params {
                 if ssa.value_ty(p) != SlotKind::Int {
@@ -167,7 +168,7 @@ pub(super) fn analyze(
                         continue;
                     }
                     for (t, args, _) in pred_edges[*pred].iter() {
-                        if *t as usize != b {
+                        if t.0 as usize != b {
                             continue;
                         }
                         let Some(&a) = args.get(pi) else {
@@ -198,7 +199,7 @@ pub(super) fn analyze(
                             continue;
                         }
                         for (t, args, _) in pred_edges[*pred].iter() {
-                            if *t as usize != b {
+                            if t.0 as usize != b {
                                 continue;
                             }
                             let Some(&a) = args.get(pi) else {
@@ -303,12 +304,12 @@ pub(super) fn analyze(
         }
     }
 
-    let no_overflow: FxHashSet<u32> = if converged {
+    let no_overflow: FxHashSet<ValueId> = if converged {
         ranges
             .iter()
             .filter(|&(_, &(l, h))| l >= I64_LO && h <= I64_HI)
             .filter(|(v, _)| {
-                matches!(def[**v as usize], Some(SsaOp::Binary { op, .. }) if matches!(op, SsaBinOp::IntAdd | SsaBinOp::IntSub | SsaBinOp::IntMul))
+                matches!(def[v.0 as usize], Some(SsaOp::Binary { op, .. }) if matches!(op, SsaBinOp::IntAdd | SsaBinOp::IntSub | SsaBinOp::IntMul))
             })
             .map(|(v, _)| *v)
             .collect()
@@ -337,11 +338,11 @@ pub(super) fn analyze(
 fn step_contrib(
     _ssa: &SsaProto,
     def: &[Option<&SsaOp>],
-    ranges: &FxHashMap<u32, (i128, i128)>,
-    checks: &FxHashMap<(usize, u32), Check>,
+    ranges: &FxHashMap<ValueId, (i128, i128)>,
+    checks: &FxHashMap<(usize, ValueId), Check>,
     header: usize,
-    param: u32,
-    arg: u32,
+    param: ValueId,
+    arg: ValueId,
     entry: (i128, i128),
 ) -> Option<(i128, i128)> {
     let c = checks.get(&(header, param))?;
@@ -350,7 +351,7 @@ fn step_contrib(
         op: step,
         lhs: sl,
         rhs: sr,
-    }) = def[arg as usize]
+    }) = def[arg.0 as usize]
     else {
         return None;
     };

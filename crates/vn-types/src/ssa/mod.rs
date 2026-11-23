@@ -13,6 +13,24 @@ pub use operators::{opcode_of_bin, select_bin, select_un, DynBinOp, DynUnOp, Ssa
 
 pub type SsaTy = SlotKind;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct ValueId(pub u32);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct BlockId(pub u32);
+
+impl std::fmt::Display for ValueId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl std::fmt::Display for BlockId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SsaValue {
     pub ty: SsaTy,
@@ -27,14 +45,14 @@ impl SsaValue {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SsaBlock {
-    pub params: Vec<u32>,
+    pub params: Vec<ValueId>,
     pub insts: Vec<SsaInst>,
     pub term: SsaTerm,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SsaInst {
-    pub dest: Option<u32>,
+    pub dest: Option<ValueId>,
     pub op: SsaOp,
     pub line: u32,
     pub ip: u32,
@@ -45,7 +63,7 @@ pub struct SsaInst {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SsaResume {
     pub ip: u32,
-    pub live: Vec<u32>,
+    pub live: Vec<ValueId>,
 }
 
 impl SsaInst {
@@ -68,7 +86,7 @@ impl SsaInst {
         }
     }
 
-    pub fn for_each_use(&self, mut f: impl FnMut(u32)) {
+    pub fn for_each_use(&self, mut f: impl FnMut(ValueId)) {
         self.op.for_each_use(&mut f);
         if let Some(resume) = &self.resume {
             resume.live.iter().for_each(|v| f(*v));
@@ -77,7 +95,7 @@ impl SsaInst {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum SsaTerm<V = u32, B = u32> {
+pub enum SsaTerm<V = ValueId, B = BlockId> {
     Return(Option<V>),
     Throw(V),
     Jump {
@@ -98,7 +116,7 @@ pub enum SsaTerm<V = u32, B = u32> {
 pub struct SsaProto {
     pub name: std::sync::Arc<str>,
     pub nparams: u32,
-    pub entry: u32,
+    pub entry: BlockId,
     pub blocks: Vec<SsaBlock>,
     pub values: Vec<SsaValue>,
     pub regs: Vec<u32>,
@@ -129,10 +147,10 @@ pub enum SsaEntryKind {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SsaSecondaryEntry {
-    pub block: u32,
+    pub block: BlockId,
     pub ip: u32,
 
-    pub live: Vec<u32>,
+    pub live: Vec<ValueId>,
 
     pub kind: SsaEntryKind,
 }
@@ -158,18 +176,18 @@ impl SsaProto {
         self.call_shapes.get(self.call_sites[at].1 as usize)
     }
 
-    pub fn block(&self, id: u32) -> &SsaBlock {
-        &self.blocks[id as usize]
+    pub fn block(&self, id: BlockId) -> &SsaBlock {
+        &self.blocks[id.0 as usize]
     }
 
     #[inline]
-    pub fn value_ty(&self, v: u32) -> SsaTy {
-        self.values[v as usize].ty
+    pub fn value_ty(&self, v: ValueId) -> SsaTy {
+        self.values[v.0 as usize].ty
     }
 
     #[inline]
-    pub fn reg(&self, v: u32) -> u32 {
-        self.regs.get(v as usize).copied().unwrap_or(0)
+    pub fn reg(&self, v: ValueId) -> u32 {
+        self.regs.get(v.0 as usize).copied().unwrap_or(0)
     }
 
     pub fn secondary_at(&self, ip: usize) -> Option<&SsaSecondaryEntry> {

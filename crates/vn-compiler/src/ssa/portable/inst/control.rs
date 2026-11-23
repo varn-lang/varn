@@ -16,15 +16,15 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
                 .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
             Some(SsaOp::Binary {
                 op: vn_types::ssa::select_bin(*op, ty_slot, lhs_slot, rhs_slot),
-                lhs: lhs.0,
-                rhs: rhs.0,
+                lhs: *lhs,
+                rhs: *rhs,
             })
         }
         InstKind::Unary {
             op: vn_core::UnOp::KindOf,
             operand,
             ..
-        } => Some(SsaOp::KindOf { operand: operand.0 }),
+        } => Some(SsaOp::KindOf { operand: *operand }),
         InstKind::Unary { op, operand, .. } => {
             let operand_slot = value_tys
                 .get(operand.0 as usize)
@@ -32,38 +32,38 @@ pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<Ss
                 .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
             Some(SsaOp::Unary {
                 op: vn_types::ssa::select_un(*op, operand_slot)?,
-                operand: operand.0,
+                operand: *operand,
             })
         }
-        InstKind::IsArray { operand } => Some(SsaOp::IsArray { operand: operand.0 }),
-        InstKind::ToString { operand } => Some(SsaOp::ToString { operand: operand.0 }),
-        InstKind::ObjectKeys { operand } => Some(SsaOp::ObjectKeys { operand: operand.0 }),
-        InstKind::GetEnumTag { operand } => Some(SsaOp::GetEnumTag { operand: operand.0 }),
-        InstKind::Cast { operand, .. } => Some(SsaOp::Cast { operand: operand.0 }),
+        InstKind::IsArray { operand } => Some(SsaOp::IsArray { operand: *operand }),
+        InstKind::ToString { operand } => Some(SsaOp::ToString { operand: *operand }),
+        InstKind::ObjectKeys { operand } => Some(SsaOp::ObjectKeys { operand: *operand }),
+        InstKind::GetEnumTag { operand } => Some(SsaOp::GetEnumTag { operand: *operand }),
+        InstKind::Cast { operand, .. } => Some(SsaOp::Cast { operand: *operand }),
         InstKind::Convert { operand, conv } => Some(SsaOp::Convert {
-            operand: operand.0,
+            operand: *operand,
             conv: *conv,
         }),
-        InstKind::IsNull { operand } => Some(SsaOp::IsNull { operand: operand.0 }),
+        InstKind::IsNull { operand } => Some(SsaOp::IsNull { operand: *operand }),
         InstKind::TypeTest { value, class } => Some(SsaOp::TypeTest {
-            value: value.0,
-            class: class.0,
+            value: *value,
+            class: *class,
         }),
-        InstKind::AssertNotNull { operand } => Some(SsaOp::AssertNotNull { operand: operand.0 }),
+        InstKind::AssertNotNull { operand } => Some(SsaOp::AssertNotNull { operand: *operand }),
         InstKind::Range {
             start,
             end,
             inclusive,
         } => Some(SsaOp::Range {
-            start: start.0,
-            end: end.0,
+            start: *start,
+            end: *end,
             inclusive: *inclusive,
         }),
         InstKind::PopTry => Some(SsaOp::PopTry),
-        InstKind::CatchParam { try_val } => Some(SsaOp::CatchParam { try_val: try_val.0 }),
-        InstKind::Await { operand } => Some(SsaOp::Await { operand: operand.0 }),
-        InstKind::Spawn { operand } => Some(SsaOp::Spawn { operand: operand.0 }),
-        InstKind::Yield { operand } => Some(SsaOp::Yield { operand: operand.0 }),
+        InstKind::CatchParam { try_val } => Some(SsaOp::CatchParam { try_val: *try_val }),
+        InstKind::Await { operand } => Some(SsaOp::Await { operand: *operand }),
+        InstKind::Spawn { operand } => Some(SsaOp::Spawn { operand: *operand }),
+        InstKind::Yield { operand } => Some(SsaOp::Yield { operand: *operand }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)
         | InstKind::ConstBool(_)

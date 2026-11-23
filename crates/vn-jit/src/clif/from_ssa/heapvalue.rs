@@ -6,6 +6,7 @@ use super::super::emit::unbox_int;
 use vn_types::Literal;
 
 use super::{build_object, classops, globals, heap, load_value, pool, props, Ctx, Out};
+use vn_types::ssa::ValueId;
 
 pub(super) fn emit(
     b: &mut FunctionBuilder,
@@ -458,7 +459,11 @@ pub(super) fn emit(
     Ok(Some(Some(v)))
 }
 
-fn sso_operand(ctx: &Ctx<'_>, lhs: u32, rhs: u32) -> Option<super::super::generic::SsoConst> {
+fn sso_operand(
+    ctx: &Ctx<'_>,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Option<super::super::generic::SsoConst> {
     let (k, on_rhs) = match (ctx.sso_consts.get(&rhs), ctx.sso_consts.get(&lhs)) {
         (Some(k), _) => (k, true),
         (None, Some(k)) => (k, false),

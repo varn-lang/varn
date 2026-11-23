@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use cranelift_codegen::ir::{types, InstBuilder};
 use cranelift_frontend::{FunctionBuilder, Variable};
-use vn_types::ssa::{SsaOp, SsaProto};
+use vn_types::ssa::{SsaOp, SsaProto, ValueId};
 
 #[derive(Clone, Copy)]
 pub(crate) struct View {
@@ -12,10 +12,10 @@ pub(crate) struct View {
 }
 
 pub(crate) struct Views {
-    by_value: BTreeMap<u32, View>,
+    by_value: BTreeMap<ValueId, View>,
     instance_by_canon: BTreeMap<u32, Variable>,
-    global_src: BTreeMap<u32, u32>,
-    this_values: BTreeSet<u32>,
+    global_src: BTreeMap<ValueId, u32>,
+    this_values: BTreeSet<ValueId>,
 }
 
 pub(crate) const GLOBAL_CANON_BIT: u32 = 0x8000_0000;
@@ -33,14 +33,14 @@ impl Views {
                 this_values.insert(d);
             }
         }
-        let canon = |o: u32| -> u32 {
+        let canon = |o: ValueId| -> u32 {
             if this_values.contains(&o) {
                 return THIS_CANON;
             }
             global_src
                 .get(&o)
                 .map(|s| GLOBAL_CANON_BIT | s)
-                .unwrap_or(o)
+                .unwrap_or(o.0)
         };
         let mut by_value = BTreeMap::new();
         let mut instance_by_canon = BTreeMap::new();
@@ -251,14 +251,14 @@ impl Views {
         views
     }
 
-    pub(crate) fn canon(&self, object: u32) -> u32 {
+    pub(crate) fn canon(&self, object: ValueId) -> u32 {
         if self.this_values.contains(&object) {
             return THIS_CANON;
         }
         self.global_src
             .get(&object)
             .map(|s| GLOBAL_CANON_BIT | s)
-            .unwrap_or(object)
+            .unwrap_or(object.0)
     }
 
     pub(crate) fn instance_var(&self, canon: u32) -> Option<Variable> {
@@ -273,11 +273,11 @@ impl Views {
         }
     }
 
-    pub(super) fn of(&self, object: u32) -> Option<View> {
+    pub(super) fn of(&self, object: ValueId) -> Option<View> {
         self.by_value.get(&object).copied()
     }
 
-    pub(super) fn forget(&self, b: &mut FunctionBuilder, value: u32) {
+    pub(super) fn forget(&self, b: &mut FunctionBuilder, value: ValueId) {
         if let Some(view) = self.by_value.get(&value) {
             let zero = b.ins().iconst(types::I64, 0);
             b.def_var(view.data, zero);
@@ -307,8 +307,8 @@ impl Views {
         }
     }
 
-    pub(super) fn forget_instance(&self, b: &mut FunctionBuilder, value: u32) {
-        if let Some(var) = self.instance_by_canon.get(&value) {
+    pub(super) fn forget_instance(&self, b: &mut FunctionBuilder, value: ValueId) {
+        if let Some(var) = self.instance_by_canon.get(&value.0) {
             let zero = b.ins().iconst(types::I64, 0);
             b.def_var(*var, zero);
         }

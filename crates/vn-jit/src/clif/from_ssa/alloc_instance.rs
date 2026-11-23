@@ -5,13 +5,14 @@ use cranelift_frontend::FunctionBuilder;
 use vn_types::cell::{
     CELL_CLASSES, SIZE_CLASS_LANE_OFF, SIZE_CLASS_STRIDE, VEC_CAP_OFF, VEC_LEN_OFF, VEC_PTR_OFF,
 };
+use vn_types::ssa::ValueId;
 use vn_types::vm_value::KIND_HEAP;
 
 pub(super) fn emit_alloc_instance(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
-    class: u32,
+    class: ValueId,
     payload_size: u32,
 ) -> Result<cranelift_codegen::ir::Value, String> {
     use vn_types::cell;
@@ -214,7 +215,7 @@ pub(super) fn emit_alloc_instance_slow(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
-    class: u32,
+    class: ValueId,
 ) -> Result<cranelift_codegen::ir::Value, String> {
     let frame = ctx.frame_for("AllocInstance")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;

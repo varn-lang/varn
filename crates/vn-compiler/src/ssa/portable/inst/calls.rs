@@ -5,8 +5,8 @@ use vn_types::ssa::{SsaOp, SsaUpvalue};
 pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured) -> Option<SsaOp> {
     match kind {
         InstKind::Call { callee, args, .. } => Some(SsaOp::Call {
-            callee: callee.0,
-            args: args.iter().map(|v| v.0).collect(),
+            callee: *callee,
+            args: args.iter().copied().collect(),
         }),
         InstKind::CallDirect {
             target,
@@ -18,34 +18,34 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             Some(_) => Some(SsaOp::CallDirect {
                 target: target.clone(),
                 slot: *slot,
-                callee: callee.0,
-                args: args.iter().map(|v| v.0).collect(),
+                callee: *callee,
+                args: args.iter().copied().collect(),
             }),
             None => Some(SsaOp::Call {
-                callee: callee.0,
-                args: args.iter().map(|v| v.0).collect(),
+                callee: *callee,
+                args: args.iter().copied().collect(),
             }),
         },
         InstKind::SelfCall { args } => Some(SsaOp::SelfCall {
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::MethodCall { recv, name, args } => Some(SsaOp::MethodCall {
-            recv: recv.0,
+            recv: *recv,
             name: name.clone(),
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::InvokeSlot { recv, slot, args } => Some(SsaOp::InvokeSlot {
-            recv: recv.0,
+            recv: *recv,
             slot: *slot,
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::CallNativeOp {
             object,
             args,
             op_id,
         } => Some(SsaOp::CallNativeOp {
-            object: object.0,
-            args: args.iter().map(|v| v.0).collect(),
+            object: *object,
+            args: args.iter().copied().collect(),
             op_id: *op_id,
         }),
         InstKind::IntrinsicCall {
@@ -53,20 +53,20 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             args,
             wire_byte,
         } => Some(SsaOp::IntrinsicCall {
-            object: object.0,
-            args: args.iter().map(|v| v.0).collect(),
+            object: *object,
+            args: args.iter().copied().collect(),
             wire: *wire_byte,
         }),
         InstKind::SuperCall { args } => Some(SsaOp::SuperCall {
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::SuperMethodCall { name, args } => Some(SsaOp::SuperMethodCall {
             name: name.clone(),
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::SuperInvokeSlot { slot, args } => Some(SsaOp::SuperInvokeSlot {
             slot: *slot,
-            args: args.iter().map(|v| v.0).collect(),
+            args: args.iter().copied().collect(),
         }),
         InstKind::ExtensionCall {
             func,
@@ -76,12 +76,12 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         } => Some(SsaOp::ExtensionCall {
             func: func.clone(),
             slot: *slot,
-            recv: recv.0,
-            args: args.iter().map(|v| v.0).collect(),
+            recv: *recv,
+            args: args.iter().copied().collect(),
         }),
         InstKind::CallSpread { callee, args } => Some(SsaOp::CallSpread {
-            callee: callee.0,
-            args: args.iter().map(|a| a.map(|v| v.0)).collect(),
+            callee: *callee,
+            args: args.clone(),
         }),
         InstKind::MakeClosure { upvalues_src, .. } => Some(SsaOp::MakeClosure {
             proto: u32::from(site.closure_const?),
@@ -103,12 +103,12 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         }),
         InstKind::StoreCaptured { var, value } => Some(SsaOp::StoreCaptured {
             var: captured.var(*var),
-            value: value.0,
+            value: *value,
         }),
         InstKind::LoadUpvalue(index) => Some(SsaOp::LoadUpvalue(*index)),
         InstKind::StoreUpvalue { index, value } => Some(SsaOp::StoreUpvalue {
             index: *index,
-            value: value.0,
+            value: *value,
         }),
         InstKind::CloseUpvalues { targets } => Some(SsaOp::CloseUpvalues {
             vars: targets.iter().map(|t| captured.var(*t)).collect(),

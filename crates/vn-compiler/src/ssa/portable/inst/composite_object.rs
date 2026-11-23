@@ -5,20 +5,20 @@ pub(super) fn project_object(kind: &InstKind) -> Option<SsaOp> {
     match kind {
         InstKind::This => Some(SsaOp::This),
         InstKind::ObjectMerge { target, source } => Some(SsaOp::ObjectMerge {
-            target: target.0,
-            source: source.0,
+            target: *target,
+            source: *source,
         }),
         InstKind::ObjectRest { object, skip_keys } => Some(SsaOp::ObjectRest {
-            object: object.0,
+            object: *object,
             skip_keys: skip_keys.to_vec(),
         }),
         InstKind::GetPropertyMaybe { object, name } => Some(SsaOp::GetPropertyMaybe {
-            object: object.0,
+            object: *object,
             name: name.clone(),
         }),
-        InstKind::ArrayLength { operand } => Some(SsaOp::ArrayLength { operand: operand.0 }),
-        InstKind::BytesLength { operand } => Some(SsaOp::BytesLength { operand: operand.0 }),
-        InstKind::StrLength { operand } => Some(SsaOp::StrLength { operand: operand.0 }),
+        InstKind::ArrayLength { operand } => Some(SsaOp::ArrayLength { operand: *operand }),
+        InstKind::BytesLength { operand } => Some(SsaOp::BytesLength { operand: *operand }),
+        InstKind::StrLength { operand } => Some(SsaOp::StrLength { operand: *operand }),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)
         | InstKind::ConstBool(_)

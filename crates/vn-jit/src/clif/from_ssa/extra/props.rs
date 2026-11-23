@@ -4,12 +4,13 @@ use super::super::Ctx;
 use super::extra_shared::native;
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_types::ssa::ValueId;
 
 pub(super) fn property_maybe(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    object: u32,
+    object: ValueId,
     name: &str,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
@@ -32,7 +33,7 @@ pub(super) fn assert_not_null(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -46,7 +47,7 @@ pub(super) fn bind_method(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    object: u32,
+    object: ValueId,
     name: &str,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
@@ -64,7 +65,7 @@ pub(super) fn slot_method(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    object: u32,
+    object: ValueId,
     slot: u16,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
@@ -99,8 +100,8 @@ pub(super) fn array_extend(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    array: u32,
-    source: u32,
+    array: ValueId,
+    source: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -121,7 +122,7 @@ pub(super) fn wrap_spread(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -135,8 +136,8 @@ pub(super) fn range(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    start: u32,
-    end: u32,
+    start: ValueId,
+    end: ValueId,
     inclusive: bool,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);

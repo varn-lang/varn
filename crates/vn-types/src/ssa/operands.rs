@@ -1,13 +1,14 @@
+use super::ValueId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SsaSpread<V = u32> {
+pub struct SsaSpread<V = ValueId> {
     pub value: V,
     pub spread: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SsaObjectSpreadPart<V = u32> {
+pub struct SsaObjectSpreadPart<V = ValueId> {
     pub key: Option<std::sync::Arc<str>>,
     pub value: V,
 }

@@ -8,7 +8,7 @@ mod control;
 
 use super::super::ir::{Inst, InstKind};
 use super::{Captured, Site};
-use vn_types::ssa::{SsaInst, SsaOp, SsaResume};
+use vn_types::ssa::{SsaInst, SsaOp, SsaResume, ValueId};
 
 pub(super) fn project_inst(
     inst: &Inst,
@@ -18,9 +18,14 @@ pub(super) fn project_inst(
 ) -> Option<SsaInst> {
     if let InstKind::Try { .. } = &inst.kind {
         let (catch_ip, live) = site.landing?;
-        let catch_value = inst.dest?.0;
-        let mut live: Vec<u32> = live.iter().copied().filter(|v| *v != catch_value).collect();
-        live.sort_unstable();
+        let catch_value = inst.dest?;
+        let mut live: Vec<ValueId> = live
+            .iter()
+            .copied()
+            .map(ValueId)
+            .filter(|v| *v != catch_value)
+            .collect();
+        live.sort_unstable_by_key(|v| v.0);
         return Some(SsaInst {
             dest: None,
             op: SsaOp::Try { catch_value },
@@ -37,7 +42,7 @@ pub(super) fn project_inst(
         .or_else(|| control::try_project(kind, value_tys))?;
     let (cache, resume) = annotate(&op, &site)?;
     Some(SsaInst {
-        dest: inst.dest.map(|v| v.0),
+        dest: inst.dest,
         op,
         line: inst.line,
         ip: site.next_ip,

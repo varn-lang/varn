@@ -1,13 +1,14 @@
 use super::range_math::{add_range, apply_cap, header_check, mul_range, sub_range, Check, I64_HI};
 use rustc_hash::{FxHashMap, FxHashSet};
 use vn_types::register_meta::SlotKind;
+use vn_types::ssa::ValueId;
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaTerm};
 
 pub(super) struct VersionPlan {
     pub header: usize,
     pub preheader: usize,
-    pub guards: Vec<(u32, i128)>,
-    pub elide: FxHashSet<u32>,
+    pub guards: Vec<(ValueId, i128)>,
+    pub elide: FxHashSet<ValueId>,
 }
 
 pub(super) fn version_op_ok(ssa: &SsaProto, op: &SsaOp) -> bool {
@@ -28,11 +29,11 @@ pub(super) fn version_plans(
     dblk: &[Option<usize>],
     bodies: &FxHashMap<usize, rustc_hash::FxHashSet<usize>>,
     headers: &[usize],
-    ranges: &FxHashMap<u32, (i128, i128)>,
+    ranges: &FxHashMap<ValueId, (i128, i128)>,
 ) -> Vec<VersionPlan> {
     let _ = def;
-    let mut narrowed: FxHashMap<u32, (i128, i128)> = ranges.clone();
-    let mut checks: FxHashMap<(usize, u32), Check> = FxHashMap::default();
+    let mut narrowed: FxHashMap<ValueId, (i128, i128)> = ranges.clone();
+    let mut checks: FxHashMap<(usize, ValueId), Check> = FxHashMap::default();
     let mut nconverged = false;
     for _ in 0..64 {
         let mut changed = false;
@@ -64,7 +65,7 @@ pub(super) fn version_plans(
                     if !matches!(op, SsaBinOp::IntAdd | SsaBinOp::IntSub | SsaBinOp::IntMul) {
                         continue;
                     }
-                    let read = |v: u32| -> Option<(i128, i128)> {
+                    let read = |v: ValueId| -> Option<(i128, i128)> {
                         let mut r = *narrowed.get(&v)?;
                         for ((hh, kk), c) in checks.iter() {
                             if *kk == v && bodies[hh].contains(&b) && b != *hh {
@@ -135,7 +136,7 @@ pub(super) fn version_plans(
         return Vec::new();
     }
 
-    let use_range = |v: u32, b: usize| -> Option<(i128, i128)> {
+    let use_range = |v: ValueId, b: usize| -> Option<(i128, i128)> {
         let mut r = *narrowed.get(&v)?;
         for ((hh, kk), c) in checks.iter() {
             if *kk == v && bodies[hh].contains(&b) && b != *hh {
@@ -156,7 +157,7 @@ pub(super) fn version_plans(
         let body = &bodies[&h];
         let mut ok = true;
         let mut elide = FxHashSet::default();
-        let mut arrays: FxHashMap<u32, i128> = FxHashMap::default();
+        let mut arrays: FxHashMap<ValueId, i128> = FxHashMap::default();
         for &b in body {
             if !reached[b] {
                 continue;
@@ -199,7 +200,7 @@ pub(super) fn version_plans(
                             ok = false;
                             break;
                         }
-                        if dblk[*object as usize].is_none_or(|db| body.contains(&db)) {
+                        if dblk[object.0 as usize].is_none_or(|db| body.contains(&db)) {
                             ok = false;
                             break;
                         }
@@ -315,7 +316,7 @@ pub(super) fn version_plans(
         let pre = outside[0];
         if !matches!(
             ssa.blocks[pre].term,
-            SsaTerm::Jump { target, .. } if target as usize == h
+            SsaTerm::Jump { target, .. } if target.0 as usize == h
         ) {
             continue;
         }

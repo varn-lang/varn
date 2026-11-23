@@ -1,8 +1,9 @@
 use rustc_hash::{FxHashMap, FxHashSet};
+use vn_types::ssa::ValueId;
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaTerm};
 
-pub(super) fn fusable_compares(ssa: &SsaProto) -> FxHashSet<u32> {
-    let mut uses: FxHashMap<u32, u32> = FxHashMap::default();
+pub(super) fn fusable_compares(ssa: &SsaProto) -> FxHashSet<ValueId> {
+    let mut uses: FxHashMap<ValueId, u32> = FxHashMap::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {
             inst.for_each_use(|v| *uses.entry(v).or_default() += 1);

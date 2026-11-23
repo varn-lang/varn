@@ -6,13 +6,14 @@ use super::props::str_idx;
 use super::Ctx;
 
 use super::super::emit::box_null;
+use vn_types::ssa::ValueId;
 
 pub(super) fn emit_make_class(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
     name: &str,
-    super_class: Option<u32>,
+    super_class: Option<ValueId>,
 ) -> Result<cranelift_codegen::ir::Value, String> {
     let frame = ctx.frame_for("MakeClass")?;
     let name_idx = str_idx(ctx, name)?;
@@ -38,7 +39,7 @@ pub(super) fn emit_freeze_class(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
-    class: u32,
+    class: ValueId,
 ) -> Result<(), String> {
     let frame = ctx.frame_for("FreezeClass")?;
     let (ct, cp) = boxed_parts(b, ctx, values, class)?;
@@ -56,7 +57,7 @@ pub(super) fn emit_declare_layout(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
-    class: u32,
+    class: ValueId,
     layout: &vn_core::layout::ClassLayout,
 ) -> Result<(), String> {
     let frame = ctx.frame_for("DeclareLayout")?;
@@ -83,9 +84,9 @@ pub(super) fn emit_define_member(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<cranelift_codegen::ir::Value>],
-    class: u32,
+    class: ValueId,
     name: &str,
-    member: u32,
+    member: ValueId,
     kind: i64,
 ) -> Result<(), String> {
     let frame = ctx.frame_for("class member op")?;

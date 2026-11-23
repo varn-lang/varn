@@ -1,5 +1,6 @@
 use rustc_hash::FxHashSet;
 
+use vn_types::ssa::ValueId;
 use vn_types::ssa::{SsaBinOp, SsaOp, SsaProto, SsaTerm};
 
 #[derive(Clone, Copy, PartialEq)]
@@ -14,14 +15,14 @@ pub(super) fn in_range_steps(
     preds: &[Vec<usize>],
     rpo_pos: &[usize],
     reached: &[bool],
-) -> FxHashSet<u32> {
+) -> FxHashSet<ValueId> {
     let mut def: Vec<Option<&SsaOp>> = vec![None; ssa.values.len()];
     for inst in ssa.blocks.iter().flat_map(|blk| &blk.insts) {
         if let Some(d) = inst.dest {
-            def[d as usize] = Some(&inst.op);
+            def[d.0 as usize] = Some(&inst.op);
         }
     }
-    let is_one = |v: u32| matches!(def[v as usize], Some(SsaOp::ConstInt(1)));
+    let is_one = |v: ValueId| matches!(def[v.0 as usize], Some(SsaOp::ConstInt(1)));
 
     let mut steps = FxHashSet::default();
     for (header, blk) in ssa.blocks.iter().enumerate() {
@@ -39,7 +40,7 @@ pub(super) fn in_range_steps(
         };
 
         let in_header = blk.insts.iter().any(|i| i.dest == Some(*cond));
-        let Some(SsaOp::Binary { op, lhs, rhs }) = def[*cond as usize] else {
+        let Some(SsaOp::Binary { op, lhs, rhs }) = def[cond.0 as usize] else {
             continue;
         };
         let (k, bound) = match op {
@@ -94,8 +95,8 @@ pub(super) fn in_range_steps(
         }
         let body = super::cfg::loop_body(preds, rpo_pos, reached, header);
         if body.is_empty()
-            || !body.contains(&(*then_blk as usize))
-            || body.contains(&(*else_blk as usize))
+            || !body.contains(&(then_blk.0 as usize))
+            || body.contains(&(else_blk.0 as usize))
         {
             continue;
         }

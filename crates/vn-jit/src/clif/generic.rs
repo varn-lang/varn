@@ -187,7 +187,7 @@ pub(crate) fn str_compare(
 }
 
 pub(crate) struct PendingStrCmp {
-    pub dest: u32,
+    pub dest: vn_types::ssa::ValueId,
     pub is_eq: bool,
     pub helper: usize,
     pub a: Parts,

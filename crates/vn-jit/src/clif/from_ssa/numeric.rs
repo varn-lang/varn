@@ -7,6 +7,7 @@ use vn_types::ssa::SsaProto;
 
 use super::super::emit::box_f64;
 use super::{call, heap, load_value, Ctx, Out};
+use vn_types::ssa::ValueId;
 
 fn exec_ctx(ctx: &Ctx<'_>) -> Value {
     heap::exec_ctx(ctx)
@@ -26,10 +27,10 @@ pub(super) fn emit_intrinsic(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    args: &[u32],
+    object: ValueId,
+    args: &[ValueId],
     wire: u8,
-    dest: Option<u32>,
+    dest: Option<ValueId>,
 ) -> Result<Out, String> {
     if let [arg] = args
         && ctx.ssa.value_ty(*arg) == SlotKind::Float
@@ -62,7 +63,7 @@ pub(super) fn emit_intrinsic(
     )))
 }
 
-pub(super) fn is_inline_convert(ssa: &SsaProto, operand: u32, conv: ValueConv) -> bool {
+pub(super) fn is_inline_convert(ssa: &SsaProto, operand: ValueId, conv: ValueConv) -> bool {
     conv == ValueConv::IntToFloat && ssa.value_ty(operand) == SlotKind::Int
 }
 
@@ -70,7 +71,7 @@ pub(super) fn emit_convert(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
     conv: ValueConv,
 ) -> Result<Out, String> {
     if is_inline_convert(ctx.ssa, operand, conv) {

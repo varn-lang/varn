@@ -6,14 +6,15 @@ use super::super::{load_value, Ctx, Out};
 use super::direct::{entry_out_slot, run_entered_or};
 use super::invoke::{boxed_window, emit_invoke};
 use super::native_entry::{self, NativeCall};
+use vn_types::ssa::ValueId;
 
 pub(crate) fn emit_call(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    callee: u32,
-    args: &[u32],
-    dest: Option<u32>,
+    callee: ValueId,
+    args: &[ValueId],
+    dest: Option<ValueId>,
 ) -> Result<Out, String> {
     if !super::super::store::is_heap(ctx.ssa.value_ty(callee)) {
         return Err("from_ssa: call through a scalar callee".into());
@@ -36,7 +37,7 @@ pub(crate) fn emit_self_call_framed(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Value, String> {
     let frame = ctx.frame_for("framed self-call")?;
     if args.len() + 1 != ctx.proto.arity {

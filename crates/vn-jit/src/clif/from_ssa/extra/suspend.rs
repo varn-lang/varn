@@ -6,15 +6,16 @@ use super::super::Ctx;
 use super::extra_shared::native;
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_types::ssa::ValueId;
 
 pub(super) fn await_(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    operand: u32,
+    operand: ValueId,
     resume_ip: u32,
-    live: &[u32],
-    dest: Option<u32>,
+    live: &[ValueId],
+    dest: Option<ValueId>,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -58,8 +59,8 @@ pub(super) fn await_(
 
 pub(in crate::clif::from_ssa) fn fused_await_calls(
     ssa: &vn_types::ssa::SsaProto,
-    try_live: &rustc_hash::FxHashSet<u32>,
-) -> rustc_hash::FxHashMap<u32, (u32, Vec<u32>)> {
+    try_live: &rustc_hash::FxHashSet<ValueId>,
+) -> rustc_hash::FxHashMap<ValueId, (ValueId, Vec<ValueId>)> {
     let mut fused = rustc_hash::FxHashMap::default();
     for blk in &ssa.blocks {
         for pair in blk.insts.windows(2) {
@@ -91,7 +92,7 @@ pub(super) fn spawn(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -105,10 +106,10 @@ pub(super) fn yield_(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    operand: u32,
+    operand: ValueId,
     resume_ip: u32,
-    live: &[u32],
-    dest: Option<u32>,
+    live: &[ValueId],
+    dest: Option<ValueId>,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -130,7 +131,7 @@ pub(super) fn spill(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    live: &[u32],
+    live: &[ValueId],
 ) -> Result<(), String> {
     for &v in live {
         let Ok(x) = load_value(b, ctx, values, v) else {

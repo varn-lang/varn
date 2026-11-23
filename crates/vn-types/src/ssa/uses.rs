@@ -1,7 +1,7 @@
-use super::{SsaOp, SsaTerm};
+use super::{SsaOp, SsaTerm, ValueId};
 
 impl SsaOp {
-    pub fn for_each_use(&self, mut f: impl FnMut(u32)) {
+    pub fn for_each_use(&self, mut f: impl FnMut(ValueId)) {
         match self {
             SsaOp::ConstInt(_)
             | SsaOp::ConstFloat(_)

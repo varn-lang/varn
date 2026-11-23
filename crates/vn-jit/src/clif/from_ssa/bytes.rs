@@ -5,6 +5,7 @@ use vn_types::register_meta::SlotKind;
 use super::super::emit::{box_int, unbox_int, HEAP_KIND, KIND_MASK};
 use super::{heap, load_value, Ctx, Out};
 use crate::JitBufferLayout;
+use vn_types::ssa::ValueId;
 
 const BYTES_VIEW_DISC: i64 = 3;
 
@@ -12,9 +13,9 @@ pub(super) fn emit_get(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    index: u32,
-    dest: Option<u32>,
+    object: ValueId,
+    index: ValueId,
+    dest: Option<ValueId>,
 ) -> Result<Out, String> {
     let lay = ctx.helpers.buffer_layout;
     let kind_off = ctx.helpers.array_layout.kind_off as i32;
@@ -103,9 +104,9 @@ pub(super) fn emit_set(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    index: u32,
-    value: u32,
+    object: ValueId,
+    index: ValueId,
+    value: ValueId,
 ) -> Result<(), String> {
     let lay = ctx.helpers.buffer_layout;
     let kind_off = ctx.helpers.array_layout.kind_off as i32;

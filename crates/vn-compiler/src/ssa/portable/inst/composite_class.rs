@@ -9,7 +9,7 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             offset,
             tag,
         } => Some(SsaOp::GetFixedField {
-            object: object.0,
+            object: *object,
             slot: *slot,
             offset: *offset,
             access: *tag,
@@ -21,19 +21,19 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             offset,
             tag,
         } => Some(SsaOp::SetFixedField {
-            object: object.0,
-            value: value.0,
+            object: *object,
+            value: *value,
             slot: *slot,
             offset: *offset,
             kind: *tag,
         }),
         InstKind::MakeClass { name, super_class } => Some(SsaOp::MakeClass {
             name: name.clone(),
-            super_class: super_class.map(|v| v.0),
+            super_class: *super_class,
         }),
-        InstKind::FreezeClass { class } => Some(SsaOp::FreezeClass { class: class.0 }),
+        InstKind::FreezeClass { class } => Some(SsaOp::FreezeClass { class: *class }),
         InstKind::DeclareLayout { class, layout } => Some(SsaOp::DeclareLayout {
-            class: class.0,
+            class: *class,
             layout: layout.clone(),
         }),
         InstKind::DefineMember {
@@ -42,9 +42,9 @@ pub(super) fn project_class(kind: &InstKind) -> Option<SsaOp> {
             value,
             kind,
         } => Some(SsaOp::DefineMember {
-            class: class.0,
+            class: *class,
             name: name.clone(),
-            member: value.0,
+            member: *value,
             kind: *kind,
         }),
         InstKind::GetSuper { name } => Some(SsaOp::GetSuper { name: name.clone() }),

@@ -20,7 +20,7 @@ pub struct ClifDebugSink {
     pub code: Option<CodeBytes>,
 }
 
-use vn_types::ssa::SsaProto;
+use vn_types::ssa::{SsaProto, ValueId};
 
 use cranelift_codegen::ir::Function;
 
@@ -53,7 +53,7 @@ pub(super) fn capture_kinds_ssa(debug: &mut Option<&mut ClifDebugSink>, ssa: &Ss
     }
 }
 
-fn val_class(ssa: &SsaProto, v: u32) -> String {
+fn val_class(ssa: &SsaProto, v: ValueId) -> String {
     format!("v{v}:{:?}", ssa.value_ty(v))
 }
 

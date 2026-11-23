@@ -16,23 +16,23 @@ pub(super) fn try_project(kind: &InstKind) -> Option<SsaOp> {
         InstKind::LoadNativeGlobalIdx(slot) => Some(SsaOp::LoadNativeGlobalIdx(*slot)),
         InstKind::StoreGlobalIdx { slot, value } => Some(SsaOp::StoreGlobalIdx {
             slot: *slot,
-            value: value.0,
+            value: *value,
         }),
         InstKind::LoadGlobal(name) => Some(SsaOp::LoadGlobal(name.clone())),
         InstKind::StoreGlobal { name, value } => Some(SsaOp::StoreGlobal {
             name: name.clone(),
-            value: value.0,
+            value: *value,
         }),
         InstKind::LoadModule { source } => Some(SsaOp::LoadModule {
             source: source.clone(),
         }),
         InstKind::ModuleSlot { object, slot } => Some(SsaOp::ModuleSlot {
-            object: object.0,
+            object: *object,
             slot: *slot,
         }),
         InstKind::StoreModuleSlot { value, slot } => Some(SsaOp::StoreModuleSlot {
             slot: *slot,
-            value: value.0,
+            value: *value,
         }),
         InstKind::Binary { .. }
         | InstKind::Unary { .. }

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, SsaVar};
 use super::operators::{SsaBinOp, SsaUnOp};
+use super::ValueId;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum SsaOp {
@@ -13,58 +14,58 @@ pub enum SsaOp {
 
     Binary {
         op: SsaBinOp,
-        lhs: u32,
-        rhs: u32,
+        lhs: ValueId,
+        rhs: ValueId,
     },
 
     Unary {
         op: SsaUnOp,
-        operand: u32,
+        operand: ValueId,
     },
 
     SelfCall {
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     Call {
-        callee: u32,
-        args: Vec<u32>,
+        callee: ValueId,
+        args: Vec<ValueId>,
     },
 
     CallDirect {
         target: std::sync::Arc<str>,
         slot: Option<u32>,
-        callee: u32,
-        args: Vec<u32>,
+        callee: ValueId,
+        args: Vec<ValueId>,
     },
 
     AllocInstance {
-        class: u32,
+        class: ValueId,
         payload_size: u32,
     },
 
     LoadGlobalIdx(u32),
 
     ArrayGetIndex {
-        object: u32,
-        index: u32,
+        object: ValueId,
+        index: ValueId,
     },
 
     BytesGetIndex {
-        object: u32,
-        index: u32,
+        object: ValueId,
+        index: ValueId,
     },
 
     ArraySetIndex {
-        object: u32,
-        index: u32,
-        value: u32,
+        object: ValueId,
+        index: ValueId,
+        value: ValueId,
     },
 
     BytesSetIndex {
-        object: u32,
-        index: u32,
-        value: u32,
+        object: ValueId,
+        index: ValueId,
+        value: ValueId,
     },
 
     ConstChar(char),
@@ -78,26 +79,26 @@ pub enum SsaOp {
     },
 
     IntrinsicCall {
-        object: u32,
-        args: Vec<u32>,
+        object: ValueId,
+        args: Vec<ValueId>,
         wire: u8,
     },
 
     LoadNativeGlobalIdx(u32),
 
     Try {
-        catch_value: u32,
+        catch_value: ValueId,
     },
 
     PopTry,
 
     CatchParam {
-        try_val: u32,
+        try_val: ValueId,
     },
 
     StoreGlobalIdx {
         slot: u32,
-        value: u32,
+        value: ValueId,
     },
 
     MakeClosure {
@@ -111,14 +112,14 @@ pub enum SsaOp {
 
     StoreCaptured {
         var: SsaVar,
-        value: u32,
+        value: ValueId,
     },
 
     LoadUpvalue(u32),
 
     StoreUpvalue {
         index: u32,
-        value: u32,
+        value: ValueId,
     },
 
     CloseUpvalues {
@@ -126,134 +127,134 @@ pub enum SsaOp {
     },
 
     Cast {
-        operand: u32,
+        operand: ValueId,
     },
 
     Convert {
-        operand: u32,
+        operand: ValueId,
         conv: vn_core::ValueConv,
     },
 
     IsNull {
-        operand: u32,
+        operand: ValueId,
     },
 
     TypeTest {
-        value: u32,
-        class: u32,
+        value: ValueId,
+        class: ValueId,
     },
 
     KindOf {
-        operand: u32,
+        operand: ValueId,
     },
 
     ToString {
-        operand: u32,
+        operand: ValueId,
     },
 
     IsArray {
-        operand: u32,
+        operand: ValueId,
     },
 
     GetEnumTag {
-        operand: u32,
+        operand: ValueId,
     },
 
     ObjectKeys {
-        operand: u32,
+        operand: ValueId,
     },
 
     BuildStr {
-        parts: Vec<u32>,
+        parts: Vec<ValueId>,
     },
 
     BuildArray {
-        elements: Vec<u32>,
+        elements: Vec<ValueId>,
         storage: vn_core::ArrayStorage,
     },
 
     BuildMap {
-        pairs: Vec<(u32, u32)>,
+        pairs: Vec<(ValueId, ValueId)>,
     },
 
     BuildObject {
-        pairs: Vec<(std::sync::Arc<str>, u32)>,
+        pairs: Vec<(std::sync::Arc<str>, ValueId)>,
     },
 
     GetProperty {
-        object: u32,
+        object: ValueId,
         name: std::sync::Arc<str>,
     },
 
     GetSlotMethod {
-        object: u32,
+        object: ValueId,
         slot: u16,
     },
 
     SetProperty {
-        object: u32,
-        value: u32,
+        object: ValueId,
+        value: ValueId,
         name: std::sync::Arc<str>,
     },
 
     GetIndex {
-        object: u32,
-        index: u32,
+        object: ValueId,
+        index: ValueId,
     },
 
     SetIndex {
-        object: u32,
-        index: u32,
-        value: u32,
+        object: ValueId,
+        index: ValueId,
+        value: ValueId,
     },
 
     ArrayLength {
-        operand: u32,
+        operand: ValueId,
     },
 
     StrLength {
-        operand: u32,
+        operand: ValueId,
     },
 
     BytesLength {
-        operand: u32,
+        operand: ValueId,
     },
 
     MethodCall {
-        recv: u32,
+        recv: ValueId,
         name: std::sync::Arc<str>,
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     InvokeSlot {
-        recv: u32,
+        recv: ValueId,
         slot: u16,
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     CallNativeOp {
-        object: u32,
-        args: Vec<u32>,
+        object: ValueId,
+        args: Vec<ValueId>,
         op_id: u64,
     },
 
     ArrayPush {
-        array: u32,
-        value: u32,
+        array: ValueId,
+        value: ValueId,
     },
 
     This,
 
     GetFixedField {
-        object: u32,
+        object: ValueId,
         slot: u16,
         offset: u32,
         access: vn_core::FieldAccess,
     },
 
     SetFixedField {
-        object: u32,
-        value: u32,
+        object: ValueId,
+        value: ValueId,
         slot: u16,
         offset: u32,
         kind: Option<vn_core::FieldKind>,
@@ -261,22 +262,22 @@ pub enum SsaOp {
 
     MakeClass {
         name: std::sync::Arc<str>,
-        super_class: Option<u32>,
+        super_class: Option<ValueId>,
     },
 
     FreezeClass {
-        class: u32,
+        class: ValueId,
     },
 
     DeclareLayout {
-        class: u32,
+        class: ValueId,
         layout: std::sync::Arc<vn_core::layout::ClassLayout>,
     },
 
     DefineMember {
-        class: u32,
+        class: ValueId,
         name: std::sync::Arc<str>,
-        member: u32,
+        member: ValueId,
         kind: vn_core::MemberDef,
     },
 
@@ -292,11 +293,11 @@ pub enum SsaOp {
 
     StoreGlobal {
         name: std::sync::Arc<str>,
-        value: u32,
+        value: ValueId,
     },
 
     BuildTuple {
-        elements: Vec<u32>,
+        elements: Vec<ValueId>,
     },
 
     BuildArraySpread {
@@ -308,67 +309,67 @@ pub enum SsaOp {
     },
 
     ObjectMerge {
-        target: u32,
-        source: u32,
+        target: ValueId,
+        source: ValueId,
     },
 
     ObjectRest {
-        object: u32,
+        object: ValueId,
         skip_keys: Vec<std::sync::Arc<str>>,
     },
 
     GetPropertyMaybe {
-        object: u32,
+        object: ValueId,
         name: std::sync::Arc<str>,
     },
 
     AssertNotNull {
-        operand: u32,
+        operand: ValueId,
     },
 
     BindMethod {
-        object: u32,
+        object: ValueId,
         name: std::sync::Arc<str>,
     },
 
     ArrayExtend {
-        array: u32,
-        source: u32,
+        array: ValueId,
+        source: ValueId,
     },
 
     WrapSpread {
-        operand: u32,
+        operand: ValueId,
     },
 
     Range {
-        start: u32,
-        end: u32,
+        start: ValueId,
+        end: ValueId,
         inclusive: bool,
     },
 
     SuperCall {
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     SuperMethodCall {
         name: std::sync::Arc<str>,
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     SuperInvokeSlot {
         slot: u16,
-        args: Vec<u32>,
+        args: Vec<ValueId>,
     },
 
     ExtensionCall {
         func: std::sync::Arc<str>,
         slot: Option<u32>,
-        recv: u32,
-        args: Vec<u32>,
+        recv: ValueId,
+        args: Vec<ValueId>,
     },
 
     CallSpread {
-        callee: u32,
+        callee: ValueId,
         args: Vec<SsaSpread>,
     },
 
@@ -377,24 +378,24 @@ pub enum SsaOp {
     },
 
     ModuleSlot {
-        object: u32,
+        object: ValueId,
         slot: u16,
     },
 
     StoreModuleSlot {
         slot: u16,
-        value: u32,
+        value: ValueId,
     },
 
     Await {
-        operand: u32,
+        operand: ValueId,
     },
 
     Spawn {
-        operand: u32,
+        operand: ValueId,
     },
 
     Yield {
-        operand: u32,
+        operand: ValueId,
     },
 }

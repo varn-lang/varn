@@ -2,9 +2,10 @@ use std::collections::BTreeMap;
 
 use rustc_hash::{FxHashMap, FxHashSet};
 use vn_types::ssa::SsaProto;
+use vn_types::ssa::ValueId;
 
-pub(super) fn global_sources(ssa: &SsaProto) -> BTreeMap<u32, u32> {
-    let mut global_src: BTreeMap<u32, u32> = Default::default();
+pub(super) fn global_sources(ssa: &SsaProto) -> BTreeMap<ValueId, u32> {
+    let mut global_src: BTreeMap<ValueId, u32> = Default::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {
             if let (Some(d), vn_types::ssa::SsaOp::LoadGlobalIdx(slot)) = (inst.dest, &inst.op) {

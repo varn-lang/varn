@@ -8,6 +8,7 @@ use super::super::emit::{
     unbox_f64_coerce, unbox_int,
 };
 use super::{heap, load_value, Ctx, Out};
+use vn_types::ssa::ValueId;
 use vn_types::vm_value::KIND_HEAP;
 
 trait ElemCodegen {
@@ -109,7 +110,7 @@ pub(super) fn view(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
+    object: ValueId,
     slow: Block,
 ) -> Result<(Value, Value, Value), String> {
     let Some(v) = ctx.views.of(object) else {
@@ -188,9 +189,9 @@ pub(super) fn emit_get(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    index: u32,
-    dest: Option<u32>,
+    object: ValueId,
+    index: ValueId,
+    dest: Option<ValueId>,
 ) -> Result<Out, String> {
     let exec_ctx = heap::exec_ctx(ctx);
     let want = SlotKind::array_storage(dest.map_or(SlotKind::Dynamic, |d| ctx.ssa.value_ty(d)));
@@ -280,9 +281,9 @@ pub(super) fn emit_set(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    index: u32,
-    value: u32,
+    object: ValueId,
+    index: ValueId,
+    value: ValueId,
 ) -> Result<(), String> {
     let exec_ctx = heap::exec_ctx(ctx);
     let src = SlotKind::array_storage(ctx.ssa.value_ty(value));
@@ -357,7 +358,7 @@ pub(super) fn prefill(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    objects: &[u32],
+    objects: &[ValueId],
 ) -> Result<Block, String> {
     let done = b.create_block();
     let mut slows = Vec::with_capacity(objects.len());

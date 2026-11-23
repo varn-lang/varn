@@ -2,11 +2,12 @@ use rustc_hash::FxHashSet;
 use vn_types::ssa::{SsaProto, SsaTerm};
 
 use super::store::clif_ty;
+use vn_types::ssa::{BlockId, ValueId};
 
 pub(super) fn predecessors(ssa: &SsaProto) -> Vec<Vec<usize>> {
     let mut preds = vec![Vec::new(); ssa.blocks.len()];
     for (b, blk) in ssa.blocks.iter().enumerate() {
-        let succs: &[u32] = match &blk.term {
+        let succs: &[BlockId] = match &blk.term {
             SsaTerm::Jump { target, .. } => std::slice::from_ref(target),
             SsaTerm::Branch {
                 then_blk, else_blk, ..
@@ -14,13 +15,13 @@ pub(super) fn predecessors(ssa: &SsaProto) -> Vec<Vec<usize>> {
             SsaTerm::Return(_) | SsaTerm::Throw(_) | SsaTerm::Unreachable => &[],
         };
         for s in succs {
-            preds[*s as usize].push(b);
+            preds[s.0 as usize].push(b);
         }
         for inst in &blk.insts {
             if let Some(landing) = inst.try_landing()
                 && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
-                let h = e.block as usize;
+                let h = e.block.0 as usize;
                 if h < preds.len() && !preds[h].contains(&b) {
                     preds[h].push(b);
                 }
@@ -64,17 +65,17 @@ pub(super) fn order(ssa: &SsaProto, entry: usize) -> Vec<usize> {
     while let Some(&(b, stage)) = stack.last() {
         stack.last_mut().unwrap().1 += 1;
         let mut succs: Vec<usize> = match &ssa.blocks[b].term {
-            SsaTerm::Jump { target, .. } => vec![*target as usize],
+            SsaTerm::Jump { target, .. } => vec![target.0 as usize],
             SsaTerm::Branch {
                 then_blk, else_blk, ..
-            } => vec![*else_blk as usize, *then_blk as usize],
+            } => vec![else_blk.0 as usize, then_blk.0 as usize],
             SsaTerm::Return(_) | SsaTerm::Throw(_) | SsaTerm::Unreachable => Vec::new(),
         };
         for inst in &ssa.blocks[b].insts {
             if let Some(landing) = inst.try_landing()
                 && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
-                let h = e.block as usize;
+                let h = e.block.0 as usize;
                 if h < n && !succs.contains(&h) {
                     succs.insert(0, h);
                 }
@@ -97,8 +98,8 @@ pub(super) fn order(ssa: &SsaProto, entry: usize) -> Vec<usize> {
 }
 
 pub(super) fn check_block_args(ssa: &SsaProto) -> Result<(), String> {
-    let check = |from: usize, target: u32, args: &[u32]| -> Result<(), String> {
-        let params = &ssa.blocks[target as usize].params;
+    let check = |from: usize, target: BlockId, args: &[ValueId]| -> Result<(), String> {
+        let params = &ssa.blocks[target.0 as usize].params;
         if params.len() != args.len() {
             return Err(format!(
                 "from_ssa: block {from} passes {} values to block {target}, which takes {}",
@@ -175,10 +176,10 @@ pub(super) fn def_blocks(ssa: &SsaProto) -> Vec<Option<usize>> {
     let mut def = vec![None; ssa.values.len()];
     for (b, blk) in ssa.blocks.iter().enumerate() {
         for &p in &blk.params {
-            def[p as usize] = Some(b);
+            def[p.0 as usize] = Some(b);
         }
         for d in blk.insts.iter().filter_map(|i| i.dest) {
-            def[d as usize] = Some(b);
+            def[d.0 as usize] = Some(b);
         }
     }
     def
@@ -186,10 +187,10 @@ pub(super) fn def_blocks(ssa: &SsaProto) -> Vec<Option<usize>> {
 
 pub(super) fn normal_succs(ssa: &SsaProto, b: usize) -> Vec<usize> {
     match &ssa.blocks[b].term {
-        SsaTerm::Jump { target, .. } => vec![*target as usize],
+        SsaTerm::Jump { target, .. } => vec![target.0 as usize],
         SsaTerm::Branch {
             then_blk, else_blk, ..
-        } => vec![*then_blk as usize, *else_blk as usize],
+        } => vec![then_blk.0 as usize, else_blk.0 as usize],
         SsaTerm::Return(_) | SsaTerm::Throw(_) | SsaTerm::Unreachable => Vec::new(),
     }
 }

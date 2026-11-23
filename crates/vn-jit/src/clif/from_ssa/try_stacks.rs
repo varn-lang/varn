@@ -7,7 +7,7 @@ pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Ve
         match &inst.op {
             vn_types::ssa::SsaOp::Try { .. } => {
                 let e = ssa.catch_at(inst.try_landing()?.ip as usize)?;
-                stack.push(e.block as usize);
+                stack.push(e.block.0 as usize);
             }
             vn_types::ssa::SsaOp::PopTry => {
                 stack.pop()?;
@@ -119,7 +119,7 @@ pub(super) fn stack_before_try(
         match &inst.op {
             vn_types::ssa::SsaOp::Try { .. } => {
                 let e = ssa.catch_at(inst.try_landing()?.ip as usize)?;
-                stack.push(e.block as usize);
+                stack.push(e.block.0 as usize);
             }
             vn_types::ssa::SsaOp::PopTry => {
                 stack.pop()?;
@@ -224,7 +224,7 @@ pub(super) fn try_entry_stacks(
 ) -> Option<Vec<Vec<usize>>> {
     let n = ssa.blocks.len();
     let mut entry: Vec<Option<Vec<usize>>> = vec![None; n];
-    entry[ssa.entry as usize] = Some(Vec::new());
+    entry[ssa.entry.0 as usize] = Some(Vec::new());
     for _ in 0..n + 2 {
         let mut changed = false;
         for &b in rpo {
@@ -237,7 +237,7 @@ pub(super) fn try_entry_stacks(
             for (ti, inst) in ssa.blocks[b].insts.iter().enumerate() {
                 if let Some(landing) = inst.try_landing() {
                     let e = ssa.catch_at(landing.ip as usize)?;
-                    let h = e.block as usize;
+                    let h = e.block.0 as usize;
                     if h >= n {
                         return None;
                     }

@@ -5,12 +5,13 @@ use super::super::super::emit::unbox_int;
 use super::super::arrays;
 use super::super::heap::{boxed_parts, boxed_value, exec_ctx};
 use super::super::{Ctx, Out};
+use vn_types::ssa::ValueId;
 
 pub(crate) fn emit_array_length(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Out, String> {
     let slow = b.create_block();
     b.set_cold_block(slow);
@@ -42,7 +43,7 @@ pub(crate) fn emit_str_length(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Value, String> {
     let (tag, payload) = boxed_parts(b, ctx, values, operand)?;
     let ectx = exec_ctx(ctx);
@@ -65,7 +66,7 @@ pub(crate) fn emit_bytes_length(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    operand: u32,
+    operand: ValueId,
 ) -> Result<Value, String> {
     let (tag, payload) = boxed_parts(b, ctx, values, operand)?;
     let ectx = exec_ctx(ctx);

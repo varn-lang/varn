@@ -3,8 +3,9 @@ use cranelift_frontend::FunctionBuilder;
 
 use super::heap::{boxed_value, exec_ctx};
 use super::Ctx;
+use vn_types::ssa::ValueId;
 
-fn shape_index(ctx: &Ctx<'_>, pairs: &[(std::sync::Arc<str>, u32)]) -> Result<usize, String> {
+fn shape_index(ctx: &Ctx<'_>, pairs: &[(std::sync::Arc<str>, ValueId)]) -> Result<usize, String> {
     let idx = ctx
         .proto
         .chunk
@@ -33,7 +34,7 @@ pub(super) fn emit_build_object(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    pairs: &[(std::sync::Arc<str>, u32)],
+    pairs: &[(std::sync::Arc<str>, ValueId)],
 ) -> Result<Value, String> {
     let idx = shape_index(ctx, pairs)?;
     let count = pairs.len();
@@ -49,7 +50,7 @@ fn emit_build_object_inline(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    pairs: &[(std::sync::Arc<str>, u32)],
+    pairs: &[(std::sync::Arc<str>, ValueId)],
     shape_idx: usize,
     count: usize,
     class_idx: usize,
@@ -260,7 +261,7 @@ fn emit_build_object_slow(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    pairs: &[(std::sync::Arc<str>, u32)],
+    pairs: &[(std::sync::Arc<str>, ValueId)],
     idx: usize,
 ) -> Result<Value, String> {
     let vals: Vec<Value> = pairs

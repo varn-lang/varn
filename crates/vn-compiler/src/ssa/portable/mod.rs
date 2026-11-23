@@ -4,7 +4,7 @@ use vn_tir::BackendTy;
 use crate::ssa::ir::{InstKind, SsaFunc, SsaVar, Terminator};
 use crate::ssa::liveness::Liveness;
 use rustc_hash::FxHashSet;
-use vn_types::ssa::{SsaBlock, SsaProto, SsaTerm, SsaValue};
+use vn_types::ssa::{SsaBlock, SsaProto, SsaTerm, SsaValue, ValueId};
 
 mod entries;
 mod inst;
@@ -196,9 +196,6 @@ pub(crate) fn project(
                     | InstKind::Await { .. }
                     | InstKind::Yield { .. } => {
                         crate::ssa::suspend::resume_live(ssa, lv, &handlers, b, i)
-                            .into_iter()
-                            .map(|v| v.0)
-                            .collect()
                     }
                     InstKind::ConstInt(_)
                     | InstKind::ConstFloat(_)
@@ -302,7 +299,7 @@ pub(crate) fn project(
             insts.push(projected);
         }
         blocks.push(SsaBlock {
-            params: block.params.iter().map(|v| v.0).collect(),
+            params: block.params.clone(),
             insts,
             term: project_term(&block.term),
         });
@@ -324,7 +321,7 @@ pub(crate) fn project(
             .get(ssa.entry.0 as usize)
             .map(|b| b.params.len() as u32)
             .unwrap_or(0),
-        entry: ssa.entry.0,
+        entry: ssa.entry,
         blocks,
         values,
         regs: emitted.reg.iter().map(|&r| r as u32).collect(),
@@ -350,9 +347,9 @@ struct Site<'a> {
 
     next_ip: u32,
 
-    resume_live: Vec<u32>,
+    resume_live: Vec<ValueId>,
 }
 
 fn project_term(term: &Terminator) -> SsaTerm {
-    term.map_ids(|v| v.0, |b| b.0)
+    term.clone()
 }

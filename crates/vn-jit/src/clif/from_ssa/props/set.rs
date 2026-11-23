@@ -6,13 +6,14 @@ use super::super::heap::{boxed_parts, boxed_value};
 use super::super::store::drop_home_addrs;
 use super::super::Ctx;
 use super::shared::str_idx;
+use vn_types::ssa::ValueId;
 
 pub(crate) fn emit_set_property(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    value: u32,
+    object: ValueId,
+    value: ValueId,
     name: &str,
     cs: u16,
 ) -> Result<(), String> {

@@ -4,6 +4,7 @@ use super::super::Ctx;
 use super::extra_shared::native;
 use cranelift_codegen::ir::{types, InstBuilder, Value};
 use cranelift_frontend::FunctionBuilder;
+use vn_types::ssa::ValueId;
 
 pub(super) fn load_global(
     b: &mut FunctionBuilder,
@@ -29,7 +30,7 @@ pub(super) fn store_global(
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
     name: &str,
-    value: u32,
+    value: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -54,7 +55,7 @@ pub(super) fn load_module(
     values: &[Option<Value>],
     source: &str,
     own_ip: u32,
-    live: &[u32],
+    live: &[ValueId],
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;
@@ -76,7 +77,7 @@ pub(super) fn module_slot(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
-    object: u32,
+    object: ValueId,
     slot: u16,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
@@ -98,7 +99,7 @@ pub(super) fn store_module_slot(
     ctx: &Ctx<'_>,
     values: &mut [Option<Value>],
     slot: u16,
-    value: u32,
+    value: ValueId,
 ) -> Result<Option<Option<Out>>, String> {
     let ectx = exec_ctx(ctx);
     let h = ctx.helpers;

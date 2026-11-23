@@ -5,13 +5,14 @@ use super::super::super::emit::call_helper;
 use super::super::{heap, Ctx};
 use super::direct::{entry_out_slot, run_entered_or};
 use super::scratch::scratch_addr;
+use vn_types::ssa::ValueId;
 
 pub(crate) fn boxed_window(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     callee: Value,
-    args: &[u32],
+    args: &[ValueId],
 ) -> Result<Value, String> {
     let addr = scratch_addr(b, ctx, args.len() + 1);
     b.ins().store(

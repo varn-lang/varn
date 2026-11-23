@@ -4,6 +4,7 @@ use super::{heap, home_store, Ctx};
 use cranelift_codegen::ir::{types, Block, InstBuilder, MemFlagsData, Value};
 use cranelift_frontend::FunctionBuilder;
 use vn_types::register_meta::SlotKind;
+use vn_types::ssa::ValueId;
 
 fn current_landing(ctx: &Ctx<'_>) -> Option<(usize, Block)> {
     let st = ctx.pure_try.borrow();
@@ -32,8 +33,8 @@ pub(super) fn emit_try(
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
     catch_ip: u32,
-    catch_value: u32,
-    live: &[u32],
+    catch_value: ValueId,
+    live: &[ValueId],
 ) -> Result<(), String> {
     let fr = ctx.frame_for("try/throw")?;
     let _ = fr;
@@ -45,7 +46,7 @@ pub(super) fn emit_try(
         .ssa
         .catch_at(catch_ip as usize)
         .ok_or_else(|| format!("from_ssa: no catch entry at ip {catch_ip}"))?;
-    let h = e.block as usize;
+    let h = e.block.0 as usize;
     {
         let mut st = ctx.pure_try.borrow_mut();
         if let Some(prev) = st.landing_error.get(&h) {
@@ -73,7 +74,7 @@ pub(super) fn emit_throw(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    value: u32,
+    value: ValueId,
 ) -> Result<(), String> {
     let boxed = heap::boxed_value(b, ctx, values, value)?;
     emit_throw_boxed(b, ctx, boxed)
@@ -118,9 +119,12 @@ pub(super) fn emit_throw_boxed(
     }
 }
 
-pub(super) fn emit_catch_param(values: &[Option<Value>], try_val: u32) -> Result<Value, String> {
+pub(super) fn emit_catch_param(
+    values: &[Option<Value>],
+    try_val: ValueId,
+) -> Result<Value, String> {
     values
-        .get(try_val as usize)
+        .get(try_val.0 as usize)
         .copied()
         .flatten()
         .ok_or_else(|| format!("from_ssa: catch value {try_val} not defined at landing"))
@@ -222,7 +226,7 @@ pub(super) fn call_checked_value(
     Ok(v)
 }
 
-pub(super) fn try_live_set(ssa: &vn_types::ssa::SsaProto) -> rustc_hash::FxHashSet<u32> {
+pub(super) fn try_live_set(ssa: &vn_types::ssa::SsaProto) -> rustc_hash::FxHashSet<ValueId> {
     let mut set = rustc_hash::FxHashSet::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {

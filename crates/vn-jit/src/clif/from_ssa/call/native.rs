@@ -4,13 +4,14 @@ use cranelift_frontend::FunctionBuilder;
 use super::super::super::emit::{box_bool, box_found_index, box_int};
 use super::super::{heap, Ctx};
 use super::invoke::boxed_window;
+use vn_types::ssa::ValueId;
 
 pub(crate) fn emit_call_native_op(
     b: &mut FunctionBuilder,
     ctx: &Ctx<'_>,
     values: &[Option<Value>],
-    object: u32,
-    args: &[u32],
+    object: ValueId,
+    args: &[ValueId],
     op_id: u64,
 ) -> Result<Value, String> {
     let frame = ctx.frame_for("native call")?;

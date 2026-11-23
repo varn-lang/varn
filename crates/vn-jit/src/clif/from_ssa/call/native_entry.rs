@@ -7,12 +7,13 @@ use super::super::super::native_abi::{NativeClass, NativeShape};
 use super::super::store::{clif_ty, drop_home_addrs};
 use super::super::{heap, load_value, stack_exit, Ctx, Out};
 use crate::NATIVE_FRAMELESS;
+use vn_types::ssa::ValueId;
 
 pub(crate) struct NativeCall<'a> {
     pub callee: Value,
     pub receiver: Value,
-    pub args: &'a [u32],
-    pub dest: Option<u32>,
+    pub args: &'a [ValueId],
+    pub dest: Option<ValueId>,
 }
 
 pub(crate) fn emit(
@@ -150,9 +151,9 @@ pub(crate) fn emit(
 }
 
 pub(crate) struct DirectCall<'a> {
-    pub callee: u32,
-    pub args: &'a [u32],
-    pub dest: Option<u32>,
+    pub callee: ValueId,
+    pub args: &'a [ValueId],
+    pub dest: Option<ValueId>,
     pub site: u16,
 }
 
@@ -305,7 +306,7 @@ fn stage_argv(
     ectx: Value,
     closure: Value,
     receiver: Value,
-    args: &[u32],
+    args: &[ValueId],
     shape: &NativeShape,
 ) -> Result<Vec<Value>, String> {
     let (rtag, rpayload) = b.ins().isplit(receiver);
