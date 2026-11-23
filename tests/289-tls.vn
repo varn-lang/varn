@@ -4,11 +4,11 @@ import { readText } from "std:fs";
 import { TcpStream, TcpListener } from "std:net";
 import { fetch, HttpServer, Request, RequestInit, Response } from "std:http";
 
-const ca = readText("tests/helpers/tls/ca.pem");
-const cert = readText("tests/helpers/tls/server.pem");
-const key = readText("tests/helpers/tls/server.key");
-const clientCa = readText("tests/helpers/tls/clientca.pem");
-const identity = readText("tests/helpers/tls/client-identity.pem");
+const ca = readText(`${import.meta.dirname}/helpers/tls/ca.pem`);
+const cert = readText(`${import.meta.dirname}/helpers/tls/server.pem`);
+const key = readText(`${import.meta.dirname}/helpers/tls/server.key`);
+const clientCa = readText(`${import.meta.dirname}/helpers/tls/clientca.pem`);
+const identity = readText(`${import.meta.dirname}/helpers/tls/client-identity.pem`);
 
 async function echoOnce(listener: TcpListener): Task<void> {
     const conn = await listener.accept();

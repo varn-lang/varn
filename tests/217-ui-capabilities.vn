@@ -5,7 +5,7 @@ const vnBin = Process.currentExe();
 
 await describe("217 ui capabilities", async () => {
     await it("sandbox denies window open", async () => {
-        const proc = Process.spawn(vnBin, ["run", "--sandbox", "tests/helpers/ui_open_probe.vn"]);
+        const proc = Process.spawn(vnBin, ["run", "--sandbox", `${import.meta.dirname}/helpers/ui_open_probe.vn`]);
         const r = proc.wait();
         expect(r.success).toBe(false);
     });
@@ -14,7 +14,7 @@ await describe("217 ui capabilities", async () => {
         const proc = Process.spawn(vnBin, [
             "run",
             "--allow-read=.",
-            "tests/helpers/ui_open_probe.vn"
+            `${import.meta.dirname}/helpers/ui_open_probe.vn`
         ]);
         const r = proc.wait();
         expect(r.success).toBe(false);
@@ -25,14 +25,14 @@ await describe("217 ui capabilities", async () => {
             "run",
             "--allow-read=.",
             "--allow-ui",
-            "tests/helpers/ui_open_probe.vn"
+            `${import.meta.dirname}/helpers/ui_open_probe.vn`
         ]);
         const r = proc.wait();
         expect(r.success).toBe(true);
     });
 
     await it("default run allows window open", async () => {
-        const proc = Process.spawn(vnBin, ["run", "tests/helpers/ui_open_probe.vn"]);
+        const proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/ui_open_probe.vn`]);
         const r = proc.wait();
         expect(r.success).toBe(true);
     });

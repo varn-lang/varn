@@ -95,7 +95,7 @@ expect(writer.received[2].toString()).toBe("Chunk3");
 async function testTcpBinaryRoundtrip(): Task<void> {
     let portFile = freshPortFile();
     let vnBin = Process.currentExe();
-    let proc = Process.spawn(vnBin, ["run", "tests/helpers/tcp_binary_echo_server.vn", "--", portFile]);
+    let proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/tcp_binary_echo_server.vn`, "--", portFile]);
     try {
         let port = await awaitPort(portFile);
         let client = await TcpStream.connect("127.0.0.1", port);

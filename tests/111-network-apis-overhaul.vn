@@ -80,7 +80,7 @@ function testWebSocket(): void {
 }
 let portFile = freshPortFile();
 let vnBin = Process.currentExe();
-let proc = Process.spawn(vnBin, ["run", "tests/helpers/tcp_echo_server.vn", "--", portFile]);
+let proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/tcp_echo_server.vn`, "--", portFile]);
 
 async function main(): Task<void> {
     testNetIpUtils();
