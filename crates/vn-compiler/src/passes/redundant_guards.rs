@@ -1,4 +1,3 @@
-use crate::hir::HirBinOp;
 use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator, Value};
 use rustc_hash::{FxHashMap, FxHashSet};
 
@@ -162,7 +161,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                         else_facts.insert(*operand, NullFact::NonNull);
                     }
                     InstKind::Binary {
-                        op: HirBinOp::Eq,
+                        op: vn_core::BinOp::Eq,
                         lhs,
                         rhs,
                         ..
@@ -180,7 +179,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                         }
                     }
                     InstKind::Binary {
-                        op: HirBinOp::Ne,
+                        op: vn_core::BinOp::Ne,
                         lhs,
                         rhs,
                         ..

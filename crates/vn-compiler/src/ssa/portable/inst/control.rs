@@ -20,7 +20,7 @@ pub(super) fn try_project(
             })
         }
         InstKind::Unary {
-            op: crate::hir::HirUnOp::KindOf,
+            op: vn_core::UnOp::KindOf,
             operand,
             ..
         } => Some(SsaOp::KindOf { operand: operand.0 }),

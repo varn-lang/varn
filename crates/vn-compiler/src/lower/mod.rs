@@ -1,15 +1,13 @@
 use vn_core::OpCode;
 use vn_tir::BackendTy;
 
-use crate::hir::HirBinOp;
-
 pub(crate) fn binary_opcode(
-    op: HirBinOp,
+    op: vn_core::BinOp,
     ty: BackendTy,
     lhs_ty: Option<BackendTy>,
     rhs_ty: Option<BackendTy>,
 ) -> OpCode {
-    let str_operand = matches!(op, HirBinOp::Add)
+    let str_operand = matches!(op, vn_core::BinOp::Add)
         && (matches!(lhs_ty, Some(BackendTy::Str)) || matches!(rhs_ty, Some(BackendTy::Str)));
     if str_operand {
         OpCode::StrConcat
@@ -18,8 +16,8 @@ pub(crate) fn binary_opcode(
     }
 }
 
-fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
-    use HirBinOp::*;
+fn bin_opcode(op: vn_core::BinOp, ty: BackendTy) -> OpCode {
+    use vn_core::BinOp::*;
     match ty {
         BackendTy::Literal(_) => bin_opcode(op, ty.representation()),
         BackendTy::Num(vn_core::NumKind::Int(_)) => match op {
@@ -114,8 +112,8 @@ fn bin_opcode(op: HirBinOp, ty: BackendTy) -> OpCode {
     }
 }
 
-fn dynamic_opcode(op: HirBinOp) -> OpCode {
-    use HirBinOp::*;
+fn dynamic_opcode(op: vn_core::BinOp) -> OpCode {
+    use vn_core::BinOp::*;
     match op {
         Add => OpCode::Add,
         Sub => OpCode::Sub,

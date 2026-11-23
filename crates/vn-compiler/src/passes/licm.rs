@@ -1,4 +1,3 @@
-use crate::hir::{HirBinOp, HirUnOp};
 use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator};
 use vn_tir::BackendTy;
 
@@ -142,21 +141,21 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
             let typed = matches!(ty, BackendTy::Num(_));
             let safe_op = matches!(
                 op,
-                HirBinOp::Add
-                    | HirBinOp::Sub
-                    | HirBinOp::Mul
-                    | HirBinOp::Eq
-                    | HirBinOp::Ne
-                    | HirBinOp::Lt
-                    | HirBinOp::Le
-                    | HirBinOp::Gt
-                    | HirBinOp::Ge
+                vn_core::BinOp::Add
+                    | vn_core::BinOp::Sub
+                    | vn_core::BinOp::Mul
+                    | vn_core::BinOp::Eq
+                    | vn_core::BinOp::Ne
+                    | vn_core::BinOp::Lt
+                    | vn_core::BinOp::Le
+                    | vn_core::BinOp::Gt
+                    | vn_core::BinOp::Ge
             );
             typed && safe_op
         }
         InstKind::Unary { op, ty, .. } => {
             matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
-                && matches!(op, HirUnOp::Neg | HirUnOp::Not)
+                && matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::Not)
         }
         InstKind::LoadGlobal(_) | InstKind::LoadGlobalIdx(_) | InstKind::LoadNativeGlobalIdx(_) => {
             facts.globals_stable

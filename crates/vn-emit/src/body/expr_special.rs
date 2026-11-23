@@ -62,7 +62,7 @@ impl<'a> FnEmitter<'a> {
         let tag = |name: &'static str| {
             let got = TirExpr {
                 kind: TirExprKind::Unary {
-                    op: TirUnOp::KindOf,
+                    op: TirUnOp::Scalar(vn_core::UnOp::KindOf),
                     operand: Box::new(v.clone()),
                 },
                 ty: BackendTy::Str,

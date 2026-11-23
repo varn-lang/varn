@@ -287,9 +287,7 @@ fn captured_home_regs(ssa: &SsaFunc, nparams: usize) -> Vec<u16> {
                         note(*v);
                     }
                 }
-                InstKind::Dispose { target, .. } => {
-                    note(VarId::Local(crate::hir::LocalId(target.0)))
-                }
+                InstKind::Dispose { target, .. } => note(VarId::Local(*target)),
                 InstKind::ConstInt(_)
                 | InstKind::ConstFloat(_)
                 | InstKind::ConstBool(_)

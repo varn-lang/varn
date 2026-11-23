@@ -1,8 +1,8 @@
 use super::ids::{BlockId, Value, VarId};
-use crate::hir::{HirBinOp, HirUnOp, HirUpvalueSrc, LocalId};
 use bigdecimal::BigDecimal as Decimal;
 use std::sync::Arc;
 use vn_tir::BackendTy;
+use vn_tir::LocalId;
 
 #[derive(Debug, Clone)]
 pub enum InstKind {
@@ -16,13 +16,13 @@ pub enum InstKind {
     ConstBigInt(Arc<str>),
     ConstNull,
     Binary {
-        op: HirBinOp,
+        op: vn_core::BinOp,
         lhs: Value,
         rhs: Value,
         ty: BackendTy,
     },
     Unary {
-        op: HirUnOp,
+        op: vn_core::UnOp,
         operand: Value,
         ty: BackendTy,
     },
@@ -224,7 +224,7 @@ pub enum InstKind {
 
     MakeClosure {
         func: u32,
-        upvalues_src: Vec<HirUpvalueSrc>,
+        upvalues_src: Vec<vn_tir::TirUpvalue>,
     },
     LoadCaptured {
         var: VarId,

@@ -1,7 +1,7 @@
 use super::context::{Builder, LoopCtx, Result};
-use crate::hir::LocalId;
 use crate::ssa::ir::{InstKind, Terminator, VarId};
 use crate::OptError;
+use vn_tir::LocalId;
 use vn_tir::TirStmt;
 use vn_tir::{BackendTy, DynReason};
 

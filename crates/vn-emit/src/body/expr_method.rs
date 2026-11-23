@@ -242,7 +242,7 @@ impl<'a> FnEmitter<'a> {
                 let equals = self.method_call(recv, name, args, BackendTy::Bool, None, span);
                 TirExpr {
                     kind: TirExprKind::Unary {
-                        op: TirUnOp::Not,
+                        op: TirUnOp::Scalar(vn_core::UnOp::Not),
                         operand: Box::new(equals),
                     },
                     ty: BackendTy::Bool,

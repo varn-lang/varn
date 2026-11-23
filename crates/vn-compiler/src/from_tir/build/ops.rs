@@ -1,25 +1,4 @@
-use crate::hir::{HirUnOp, HirUpvalueSrc, LocalId};
-use vn_tir::{BackendTy, TirUnOp};
-
-pub(super) fn un_op(op: TirUnOp) -> HirUnOp {
-    match op {
-        TirUnOp::Neg => HirUnOp::Neg,
-        TirUnOp::Not => HirUnOp::Not,
-        TirUnOp::BitNot => HirUnOp::BitNot,
-        TirUnOp::KindOf => HirUnOp::KindOf,
-        TirUnOp::IsNull | TirUnOp::Present | TirUnOp::ToStr => {
-            unreachable!("handled by lower_expr")
-        }
-    }
-}
-
-pub(super) fn upvalue_src(u: vn_tir::TirUpvalue) -> HirUpvalueSrc {
-    match u {
-        vn_tir::TirUpvalue::ParentLocal(i) => HirUpvalueSrc::ParentLocal(LocalId(i)),
-        vn_tir::TirUpvalue::ParentParam(i) => HirUpvalueSrc::ParentParam(i),
-        vn_tir::TirUpvalue::ParentUpvalue(i) => HirUpvalueSrc::ParentUpvalue(i),
-    }
-}
+use vn_tir::BackendTy;
 
 pub(super) fn is_free_fn_name(name: &str) -> bool {
     name.split("::").all(|part| {

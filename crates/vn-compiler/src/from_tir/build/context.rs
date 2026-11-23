@@ -1,7 +1,7 @@
-use crate::hir::LocalId;
 use crate::ssa::ir::{Block, BlockId, Value, ValueDef, VarId};
 use crate::OptError;
 use rustc_hash::{FxHashMap, FxHashSet};
+use vn_tir::LocalId;
 use vn_tir::{BackendTy, TirModule, TirStmt};
 
 pub(crate) type Result<T> = std::result::Result<T, OptError>;

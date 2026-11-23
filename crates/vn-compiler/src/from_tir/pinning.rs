@@ -5,7 +5,7 @@ use crate::ssa::ir::VarId;
 use vn_tir::children::{child_exprs, seq_bodies};
 
 pub(super) fn captured_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
-    use crate::hir::LocalId;
+    use vn_tir::LocalId;
     use vn_tir::TirUpvalue;
     let mut out = FxHashSet::default();
     fn walk_expr(e: &TirExpr, out: &mut FxHashSet<VarId>) {
@@ -71,7 +71,7 @@ pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
         if let TirExprKind::Var = &e.kind {
             match &e.res {
                 Resolution::Local(id) => {
-                    out.insert(VarId::Local(crate::hir::LocalId(id.0)));
+                    out.insert(VarId::Local(*id));
                 }
                 Resolution::Param(i) => {
                     out.insert(VarId::Param(*i));
@@ -100,7 +100,7 @@ pub(super) fn try_pinned_vars(func: &vn_tir::TirFunction) -> FxHashSet<VarId> {
                     scan_expr_assigns(e, out)
                 }
                 TirStmt::Let { local, .. } => {
-                    out.insert(VarId::Local(crate::hir::LocalId(local.0)));
+                    out.insert(VarId::Local(*local));
                 }
                 TirStmt::If {
                     then_body,

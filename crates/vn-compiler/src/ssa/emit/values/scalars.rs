@@ -1,4 +1,3 @@
-use crate::hir::{HirBinOp, HirUnOp};
 use crate::lower::binary_opcode;
 use crate::ssa::ir::Value;
 use crate::OptError;
@@ -63,7 +62,7 @@ pub(super) fn emit_const_null(chunk: &mut Chunk, d: u8, line: u32) {
 pub(super) fn emit_binary(
     chunk: &mut Chunk,
     d: u8,
-    op: HirBinOp,
+    op: vn_core::BinOp,
     lhs: Value,
     rhs: Value,
     ty: BackendTy,
@@ -83,7 +82,7 @@ pub(super) fn emit_binary(
 pub(super) fn emit_unary(
     chunk: &mut Chunk,
     d: u8,
-    op: HirUnOp,
+    op: vn_core::UnOp,
     operand: Value,
     reg: &[u8],
     scratch: u8,
@@ -91,10 +90,10 @@ pub(super) fn emit_unary(
 ) {
     let s = reg[operand.0 as usize];
     match op {
-        HirUnOp::Neg => chunk.emit_rr(OpCode::Negate, d, s, line),
-        HirUnOp::Not => chunk.emit_rr(OpCode::Not, d, s, line),
-        HirUnOp::KindOf => chunk.emit_rr(OpCode::KindOf, d, s, line),
-        HirUnOp::BitNot => {
+        vn_core::UnOp::Neg => chunk.emit_rr(OpCode::Negate, d, s, line),
+        vn_core::UnOp::Not => chunk.emit_rr(OpCode::Not, d, s, line),
+        vn_core::UnOp::KindOf => chunk.emit_rr(OpCode::KindOf, d, s, line),
+        vn_core::UnOp::BitNot => {
             let idx = chunk.add_constant(PoolEntry::Literal(Literal::Int(-1)));
             chunk.emit_rc(OpCode::LoadConst, scratch, idx, line);
             chunk.emit_rrr(OpCode::BitXor, d, s, scratch, line);

@@ -61,7 +61,7 @@ pub use lang_type::{
     is_lang_type, BuiltinType, CoreSum, LangConstraint, LangPrimitive, TYPE_ALIASES_MODULE,
 };
 pub use opcode::OpCode;
-pub use ops::BinOp;
+pub use ops::{BinOp, UnOp};
 pub use source::{SourceLocation, SourceRange};
 
 pub use accessor::AccessorKind;

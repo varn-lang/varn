@@ -1,5 +1,5 @@
-use crate::hir::LocalId;
 use vn_tir::BackendTy;
+use vn_tir::LocalId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum VarId {

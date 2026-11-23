@@ -41,7 +41,7 @@ pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<I
             opcode,
         })
     };
-    use crate::hir::HirBinOp as H;
+    use vn_core::BinOp as H;
     match op {
         H::Add => form(OpCode::AddImm, false).or_else(|| form(OpCode::AddImm, true)),
         H::Sub => form(OpCode::SubImm, false),

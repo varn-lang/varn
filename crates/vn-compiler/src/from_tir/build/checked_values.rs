@@ -32,7 +32,7 @@ impl Builder<'_> {
             let is_null = self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool);
             let not_null = self.emit(
                 InstKind::Unary {
-                    op: crate::hir::HirUnOp::Not,
+                    op: vn_core::UnOp::Not,
                     operand: is_null,
                     ty: BackendTy::Bool,
                 },
@@ -40,7 +40,7 @@ impl Builder<'_> {
             );
             self.emit(
                 InstKind::Binary {
-                    op: crate::hir::HirBinOp::Eq,
+                    op: vn_core::BinOp::Eq,
                     lhs: is_instance,
                     rhs: not_null,
                     ty: BackendTy::Bool,
@@ -77,7 +77,7 @@ impl Builder<'_> {
         self.current = throw_blk;
         let got = self.emit(
             InstKind::Unary {
-                op: crate::hir::HirUnOp::KindOf,
+                op: vn_core::UnOp::KindOf,
                 operand: v,
                 ty: BackendTy::Str,
             },
@@ -97,7 +97,7 @@ impl Builder<'_> {
         for part in [got, tail] {
             message = self.emit(
                 InstKind::Binary {
-                    op: crate::hir::HirBinOp::Add,
+                    op: vn_core::BinOp::Add,
                     lhs: message,
                     rhs: part,
                     ty: BackendTy::Str,

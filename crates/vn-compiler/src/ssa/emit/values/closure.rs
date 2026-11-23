@@ -1,4 +1,3 @@
-use crate::hir::HirUpvalueSrc;
 use crate::ssa::ir::{BlockId, Value, VarId};
 use crate::OptError;
 use std::rc::Rc;
@@ -12,7 +11,7 @@ pub(super) fn emit_make_closure(
     chunk: &mut Chunk,
     d: u8,
     func: u32,
-    upvalues_src: &[HirUpvalueSrc],
+    upvalues_src: &[vn_tir::TirUpvalue],
     source_file: &Arc<str>,
     nparams: usize,
     closure_const: &mut Option<u16>,
@@ -32,17 +31,17 @@ pub(super) fn emit_make_closure(
         chunk.write(idx, line);
         for uv_src in upvalues_src {
             let is_local = match uv_src {
-                HirUpvalueSrc::ParentLocal(_) | HirUpvalueSrc::ParentParam(_) => 1u8,
-                HirUpvalueSrc::ParentUpvalue(_) => 0u8,
+                vn_tir::TirUpvalue::ParentLocal(_) | vn_tir::TirUpvalue::ParentParam(_) => 1u8,
+                vn_tir::TirUpvalue::ParentUpvalue(_) => 0u8,
             };
             let index = match uv_src {
-                HirUpvalueSrc::ParentLocal(id) => {
-                    super::super::regs::var_reg(VarId::Local(*id), nparams)
+                vn_tir::TirUpvalue::ParentLocal(id) => {
+                    super::super::regs::var_reg(VarId::Local(vn_tir::LocalId(*id)), nparams)
                 }
-                HirUpvalueSrc::ParentParam(i) => {
+                vn_tir::TirUpvalue::ParentParam(i) => {
                     super::super::regs::var_reg(VarId::Param(*i), nparams)
                 }
-                HirUpvalueSrc::ParentUpvalue(idx) => *idx as u8,
+                vn_tir::TirUpvalue::ParentUpvalue(idx) => *idx as u8,
             };
             chunk.write(Chunk::pack(is_local, index), line);
         }

@@ -97,13 +97,13 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             upvalues: upvalues_src
                 .iter()
                 .map(|src| match src {
-                    crate::hir::HirUpvalueSrc::ParentLocal(id) => {
-                        SsaUpvalue::Captured(captured.index(VarId::Local(*id)))
+                    vn_tir::TirUpvalue::ParentLocal(id) => {
+                        SsaUpvalue::Captured(captured.index(VarId::Local(vn_tir::LocalId(*id))))
                     }
-                    crate::hir::HirUpvalueSrc::ParentParam(i) => {
+                    vn_tir::TirUpvalue::ParentParam(i) => {
                         SsaUpvalue::Captured(captured.index(VarId::Param(*i)))
                     }
-                    crate::hir::HirUpvalueSrc::ParentUpvalue(idx) => SsaUpvalue::Inherited(*idx),
+                    vn_tir::TirUpvalue::ParentUpvalue(idx) => SsaUpvalue::Inherited(*idx),
                 })
                 .collect(),
         }),

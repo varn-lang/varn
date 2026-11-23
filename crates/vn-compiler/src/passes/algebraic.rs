@@ -1,7 +1,6 @@
 use rustc_hash::FxHashMap;
 use vn_tir::{BackendTy, DynReason};
 
-use crate::hir::HirBinOp;
 use crate::ssa::ir::{Inst, InstKind, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
 
@@ -77,12 +76,12 @@ fn simplify(
             let li = int_const.get(&l).copied();
             let ri = int_const.get(&r).copied();
             match op {
-                HirBinOp::Add => match (li, ri) {
+                vn_core::BinOp::Add => match (li, ri) {
                     (_, Some(0)) => Some(Simplified::Use(l)),
                     (Some(0), _) => Some(Simplified::Use(r)),
                     _ => None,
                 },
-                HirBinOp::Sub => {
+                vn_core::BinOp::Sub => {
                     if ri == Some(0) {
                         Some(Simplified::Use(l))
                     } else if l == r {
@@ -91,7 +90,7 @@ fn simplify(
                         None
                     }
                 }
-                HirBinOp::Mul => match (li, ri) {
+                vn_core::BinOp::Mul => match (li, ri) {
                     (_, Some(1)) => Some(Simplified::Use(l)),
                     (Some(1), _) => Some(Simplified::Use(r)),
 
@@ -99,28 +98,28 @@ fn simplify(
                     _ => None,
                 },
 
-                HirBinOp::Div
-                | HirBinOp::Mod
-                | HirBinOp::Pow
-                | HirBinOp::Eq
-                | HirBinOp::Ne
-                | HirBinOp::Lt
-                | HirBinOp::Le
-                | HirBinOp::Gt
-                | HirBinOp::Ge
-                | HirBinOp::BitAnd
-                | HirBinOp::BitOr
-                | HirBinOp::BitXor
-                | HirBinOp::Shl
-                | HirBinOp::Shr
-                | HirBinOp::Ushr
-                | HirBinOp::In => None,
+                vn_core::BinOp::Div
+                | vn_core::BinOp::Mod
+                | vn_core::BinOp::Pow
+                | vn_core::BinOp::Eq
+                | vn_core::BinOp::Ne
+                | vn_core::BinOp::Lt
+                | vn_core::BinOp::Le
+                | vn_core::BinOp::Gt
+                | vn_core::BinOp::Ge
+                | vn_core::BinOp::BitAnd
+                | vn_core::BinOp::BitOr
+                | vn_core::BinOp::BitXor
+                | vn_core::BinOp::Shl
+                | vn_core::BinOp::Shr
+                | vn_core::BinOp::Ushr
+                | vn_core::BinOp::In => None,
             }
         }
         BackendTy::Num(vn_core::NumKind::Float(_)) => {
             let is_one = |v: Value| float_const.get(&v).copied() == Some(1.0);
             match op {
-                HirBinOp::Mul => {
+                vn_core::BinOp::Mul => {
                     if is_one(r) {
                         Some(Simplified::Use(l))
                     } else if is_one(l) {
@@ -129,24 +128,24 @@ fn simplify(
                         None
                     }
                 }
-                HirBinOp::Div => is_one(r).then_some(Simplified::Use(l)),
-                HirBinOp::Add
-                | HirBinOp::Sub
-                | HirBinOp::Mod
-                | HirBinOp::Pow
-                | HirBinOp::Eq
-                | HirBinOp::Ne
-                | HirBinOp::Lt
-                | HirBinOp::Le
-                | HirBinOp::Gt
-                | HirBinOp::Ge
-                | HirBinOp::BitAnd
-                | HirBinOp::BitOr
-                | HirBinOp::BitXor
-                | HirBinOp::Shl
-                | HirBinOp::Shr
-                | HirBinOp::Ushr
-                | HirBinOp::In => None,
+                vn_core::BinOp::Div => is_one(r).then_some(Simplified::Use(l)),
+                vn_core::BinOp::Add
+                | vn_core::BinOp::Sub
+                | vn_core::BinOp::Mod
+                | vn_core::BinOp::Pow
+                | vn_core::BinOp::Eq
+                | vn_core::BinOp::Ne
+                | vn_core::BinOp::Lt
+                | vn_core::BinOp::Le
+                | vn_core::BinOp::Gt
+                | vn_core::BinOp::Ge
+                | vn_core::BinOp::BitAnd
+                | vn_core::BinOp::BitOr
+                | vn_core::BinOp::BitXor
+                | vn_core::BinOp::Shl
+                | vn_core::BinOp::Shr
+                | vn_core::BinOp::Ushr
+                | vn_core::BinOp::In => None,
             }
         }
         BackendTy::Bool

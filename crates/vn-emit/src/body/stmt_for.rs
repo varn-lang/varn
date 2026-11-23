@@ -143,7 +143,7 @@ impl<'a> FnEmitter<'a> {
             loop_body.push(TirStmt::If {
                 cond: TirExpr {
                     kind: TirExprKind::Unary {
-                        op: TirUnOp::Not,
+                        op: TirUnOp::Scalar(vn_core::UnOp::Not),
                         operand: Box::new(var(first, BackendTy::Bool)),
                     },
                     ty: BackendTy::Bool,

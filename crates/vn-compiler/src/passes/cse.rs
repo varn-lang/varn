@@ -1,7 +1,6 @@
 use rustc_hash::FxHashMap;
 use vn_tir::BackendTy;
 
-use crate::hir::{HirBinOp, HirUnOp};
 use crate::ssa::ir::{InstKind, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
 
@@ -16,8 +15,8 @@ enum Key {
     Char(char),
     BigInt(Arc<str>),
     Null,
-    Binary(HirBinOp, BackendTy, u32, u32),
-    Unary(HirUnOp, BackendTy, u32),
+    Binary(vn_core::BinOp, BackendTy, u32, u32),
+    Unary(vn_core::UnOp, BackendTy, u32),
     IsNull(u32),
     IsArray(u32),
     TypeTest(u32, u32),

@@ -162,7 +162,7 @@ impl<'a> FnEmitter<'a> {
         };
         TirExpr {
             kind: TirExprKind::Unary {
-                op: TirUnOp::Not,
+                op: TirUnOp::Scalar(vn_core::UnOp::Not),
                 operand: Box::new(is_null),
             },
             ty: BackendTy::Bool,

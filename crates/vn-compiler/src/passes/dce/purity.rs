@@ -1,4 +1,3 @@
-use crate::hir::{HirBinOp, HirUnOp};
 use crate::ssa::ir::InstKind;
 use vn_tir::BackendTy;
 
@@ -63,38 +62,38 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
             let int_can_overflow = *ty == BackendTy::INT
                 && matches!(
                     op,
-                    HirBinOp::Add
-                        | HirBinOp::Sub
-                        | HirBinOp::Mul
-                        | HirBinOp::Shl
-                        | HirBinOp::Shr
-                        | HirBinOp::Ushr
+                    vn_core::BinOp::Add
+                        | vn_core::BinOp::Sub
+                        | vn_core::BinOp::Mul
+                        | vn_core::BinOp::Shl
+                        | vn_core::BinOp::Shr
+                        | vn_core::BinOp::Ushr
                 );
 
             let never_traps = matches!(
                 op,
-                HirBinOp::Add
-                    | HirBinOp::Sub
-                    | HirBinOp::Mul
-                    | HirBinOp::Eq
-                    | HirBinOp::Ne
-                    | HirBinOp::Lt
-                    | HirBinOp::Le
-                    | HirBinOp::Gt
-                    | HirBinOp::Ge
-                    | HirBinOp::BitAnd
-                    | HirBinOp::BitOr
-                    | HirBinOp::BitXor
-                    | HirBinOp::Shl
-                    | HirBinOp::Shr
-                    | HirBinOp::Ushr
+                vn_core::BinOp::Add
+                    | vn_core::BinOp::Sub
+                    | vn_core::BinOp::Mul
+                    | vn_core::BinOp::Eq
+                    | vn_core::BinOp::Ne
+                    | vn_core::BinOp::Lt
+                    | vn_core::BinOp::Le
+                    | vn_core::BinOp::Gt
+                    | vn_core::BinOp::Ge
+                    | vn_core::BinOp::BitAnd
+                    | vn_core::BinOp::BitOr
+                    | vn_core::BinOp::BitXor
+                    | vn_core::BinOp::Shl
+                    | vn_core::BinOp::Shr
+                    | vn_core::BinOp::Ushr
             );
             typed && never_traps && !int_can_overflow
         }
         Unary { op, ty, .. } => match op {
-            HirUnOp::KindOf => true,
-            HirUnOp::Neg => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
-            HirUnOp::Not | HirUnOp::BitNot => {
+            vn_core::UnOp::KindOf => true,
+            vn_core::UnOp::Neg => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
+            vn_core::UnOp::Not | vn_core::UnOp::BitNot => {
                 matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
             }
         },

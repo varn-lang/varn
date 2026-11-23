@@ -30,11 +30,7 @@ pub use vn_core::BinOp as TirBinOp;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TirUnOp {
-    Neg,
-    Not,
-    BitNot,
-
-    KindOf,
+    Scalar(vn_core::UnOp),
 
     IsNull,
 

@@ -88,7 +88,7 @@ impl<'a> FnEmitter<'a> {
             return if is_eq {
                 is_null
             } else {
-                unary_bool(TirUnOp::Not, is_null, span)
+                unary_bool(TirUnOp::Scalar(vn_core::UnOp::Not), is_null, span)
             };
         }
         let literal = |e: &TirExpr| {
@@ -107,7 +107,7 @@ impl<'a> FnEmitter<'a> {
             return if value == is_eq {
                 other
             } else {
-                unary_bool(TirUnOp::Not, other, span)
+                unary_bool(TirUnOp::Scalar(vn_core::UnOp::Not), other, span)
             };
         }
         if let (BackendTy::Enum(l), BackendTy::Enum(r)) = (lhs.ty, rhs.ty)
@@ -330,9 +330,9 @@ impl<'a> FnEmitter<'a> {
         span: Span,
     ) -> TirExpr {
         let top = match op {
-            vn_core::ast::operators::UnaryOp::Minus => TirUnOp::Neg,
-            vn_core::ast::operators::UnaryOp::Not => TirUnOp::Not,
-            vn_core::ast::operators::UnaryOp::BitNot => TirUnOp::BitNot,
+            vn_core::ast::operators::UnaryOp::Minus => TirUnOp::Scalar(vn_core::UnOp::Neg),
+            vn_core::ast::operators::UnaryOp::Not => TirUnOp::Scalar(vn_core::UnOp::Not),
+            vn_core::ast::operators::UnaryOp::BitNot => TirUnOp::Scalar(vn_core::UnOp::BitNot),
             vn_core::ast::operators::UnaryOp::Plus => return self.lower_expr(operand),
         };
 

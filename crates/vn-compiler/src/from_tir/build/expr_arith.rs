@@ -187,13 +187,13 @@ impl<'m> Builder<'m> {
                 Ok(v)
             }
             TirUnOp::ToStr => Ok(self.emit(InstKind::ToString { operand: v }, BackendTy::Str)),
-            TirUnOp::BitNot
+            TirUnOp::Scalar(vn_core::UnOp::BitNot)
                 if ty == BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64)) =>
             {
                 let bits = self.u64_convert(v, vn_core::ValueConv::U64ToBits);
                 let inverted = self.emit(
                     InstKind::Unary {
-                        op: super::ops::un_op(op),
+                        op: vn_core::UnOp::BitNot,
                         operand: bits,
                         ty: BackendTy::INT,
                     },
@@ -201,7 +201,7 @@ impl<'m> Builder<'m> {
                 );
                 Ok(self.u64_convert(inverted, vn_core::ValueConv::U64FromBits))
             }
-            TirUnOp::BitNot if matches!(ty, BackendTy::Num(vn_core::NumKind::Int(k)) if !k.is_signed() && k != vn_core::IntKind::I64) =>
+            TirUnOp::Scalar(vn_core::UnOp::BitNot) if matches!(ty, BackendTy::Num(vn_core::NumKind::Int(k)) if !k.is_signed() && k != vn_core::IntKind::I64) =>
             {
                 let BackendTy::Num(vn_core::NumKind::Int(kind)) = ty else {
                     return Ok(v);
@@ -217,20 +217,15 @@ impl<'m> Builder<'m> {
                     ty,
                 ))
             }
-            TirUnOp::Neg | TirUnOp::Not | TirUnOp::BitNot | TirUnOp::KindOf => {
-                let result = self.emit(
-                    InstKind::Unary {
-                        op: super::ops::un_op(op),
-                        operand: v,
-                        ty,
+            TirUnOp::Scalar(op) => {
+                let result = self.emit(InstKind::Unary { op, operand: v, ty }, ty);
+                Ok(
+                    if matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::BitNot) {
+                        self.narrow_to(result, ty)
+                    } else {
+                        result
                     },
-                    ty,
-                );
-                Ok(if matches!(op, TirUnOp::Neg | TirUnOp::BitNot) {
-                    self.narrow_to(result, ty)
-                } else {
-                    result
-                })
+                )
             }
         }
     }
@@ -258,7 +253,7 @@ impl<'m> Builder<'m> {
                     let absent = self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool);
                     Some(self.emit(
                         InstKind::Unary {
-                            op: crate::hir::HirUnOp::Not,
+                            op: vn_core::UnOp::Not,
                             operand: absent,
                             ty: BackendTy::Bool,
                         },
@@ -303,7 +298,7 @@ impl<'m> Builder<'m> {
             }
             let absent = self.emit(
                 InstKind::Unary {
-                    op: crate::hir::HirUnOp::Not,
+                    op: vn_core::UnOp::Not,
                     operand: v,
                     ty: BackendTy::Bool,
                 },
@@ -311,7 +306,7 @@ impl<'m> Builder<'m> {
             );
             return Ok(self.emit(
                 InstKind::Unary {
-                    op: crate::hir::HirUnOp::Not,
+                    op: vn_core::UnOp::Not,
                     operand: absent,
                     ty: BackendTy::Bool,
                 },

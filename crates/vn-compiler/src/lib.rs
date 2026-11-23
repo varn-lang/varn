@@ -1,7 +1,6 @@
 pub use vn_types::chunk::FunctionProto;
 
 pub mod from_tir;
-pub mod hir;
 pub mod lower;
 pub mod passes;
 pub mod regalloc;

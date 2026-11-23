@@ -1,10 +1,9 @@
-use crate::hir::{HirBinOp, HirUnOp};
 use vn_core::OpCode;
 use vn_tir::BackendTy;
 use vn_types::ssa::{DynBinOp, DynUnOp, SsaBinOp, SsaUnOp};
 
 pub(super) fn project_bin(
-    op: HirBinOp,
+    op: vn_core::BinOp,
     lhs_ty: Option<BackendTy>,
     rhs_ty: Option<BackendTy>,
     ty: BackendTy,
@@ -180,16 +179,16 @@ pub(super) fn project_bin(
     })
 }
 
-pub(super) fn project_un(op: HirUnOp, operand_ty: Option<BackendTy>) -> Option<SsaUnOp> {
+pub(super) fn project_un(op: vn_core::UnOp, operand_ty: Option<BackendTy>) -> Option<SsaUnOp> {
     Some(match (op, operand_ty) {
-        (HirUnOp::Neg, Some(BackendTy::INT)) => SsaUnOp::NegInt,
-        (HirUnOp::Neg, Some(BackendTy::FLOAT)) => SsaUnOp::NegFloat,
-        (HirUnOp::Neg, _) => SsaUnOp::Dyn(DynUnOp::Neg),
-        (HirUnOp::Not, Some(BackendTy::Bool)) => SsaUnOp::Not,
-        (HirUnOp::Not, _) => SsaUnOp::Dyn(DynUnOp::Not),
-        (HirUnOp::BitNot, Some(BackendTy::INT)) => SsaUnOp::BitNotInt,
-        (HirUnOp::BitNot, _) => SsaUnOp::Dyn(DynUnOp::BitNot),
+        (vn_core::UnOp::Neg, Some(BackendTy::INT)) => SsaUnOp::NegInt,
+        (vn_core::UnOp::Neg, Some(BackendTy::FLOAT)) => SsaUnOp::NegFloat,
+        (vn_core::UnOp::Neg, _) => SsaUnOp::Dyn(DynUnOp::Neg),
+        (vn_core::UnOp::Not, Some(BackendTy::Bool)) => SsaUnOp::Not,
+        (vn_core::UnOp::Not, _) => SsaUnOp::Dyn(DynUnOp::Not),
+        (vn_core::UnOp::BitNot, Some(BackendTy::INT)) => SsaUnOp::BitNotInt,
+        (vn_core::UnOp::BitNot, _) => SsaUnOp::Dyn(DynUnOp::BitNot),
 
-        (HirUnOp::KindOf, _) => return None,
+        (vn_core::UnOp::KindOf, _) => return None,
     })
 }

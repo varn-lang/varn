@@ -1,7 +1,7 @@
 use super::context::{Builder, InlineBody, InlineFrame, Result};
-use crate::hir::LocalId;
 use crate::ssa::ir::{InstKind, Terminator, Value, VarId};
 use crate::OptError;
+use vn_tir::LocalId;
 use vn_tir::{BackendTy, FnId, TirArg, TirFunction};
 
 const LOCAL_SPAN: u32 = 1024;

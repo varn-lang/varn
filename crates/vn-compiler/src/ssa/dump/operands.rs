@@ -1,5 +1,4 @@
 use super::super::ir::Value;
-use crate::hir::{HirBinOp, HirUnOp};
 use vn_tir::{BackendTy, DynReason};
 
 pub(super) fn args_list(args: &[Value]) -> String {
@@ -42,35 +41,35 @@ pub(super) fn ty(t: BackendTy) -> &'static str {
     }
 }
 
-pub(super) fn binop(op: HirBinOp) -> &'static str {
+pub(super) fn binop(op: vn_core::BinOp) -> &'static str {
     match op {
-        HirBinOp::Add => "add",
-        HirBinOp::Sub => "sub",
-        HirBinOp::Mul => "mul",
-        HirBinOp::Div => "div",
-        HirBinOp::Mod => "mod",
-        HirBinOp::Pow => "pow",
-        HirBinOp::Eq => "eq",
-        HirBinOp::Ne => "ne",
-        HirBinOp::Lt => "lt",
-        HirBinOp::Le => "le",
-        HirBinOp::Gt => "gt",
-        HirBinOp::Ge => "ge",
-        HirBinOp::BitAnd => "band",
-        HirBinOp::BitOr => "bor",
-        HirBinOp::BitXor => "bxor",
-        HirBinOp::Shl => "shl",
-        HirBinOp::Shr => "shr",
-        HirBinOp::Ushr => "ushr",
-        HirBinOp::In => "in",
+        vn_core::BinOp::Add => "add",
+        vn_core::BinOp::Sub => "sub",
+        vn_core::BinOp::Mul => "mul",
+        vn_core::BinOp::Div => "div",
+        vn_core::BinOp::Mod => "mod",
+        vn_core::BinOp::Pow => "pow",
+        vn_core::BinOp::Eq => "eq",
+        vn_core::BinOp::Ne => "ne",
+        vn_core::BinOp::Lt => "lt",
+        vn_core::BinOp::Le => "le",
+        vn_core::BinOp::Gt => "gt",
+        vn_core::BinOp::Ge => "ge",
+        vn_core::BinOp::BitAnd => "band",
+        vn_core::BinOp::BitOr => "bor",
+        vn_core::BinOp::BitXor => "bxor",
+        vn_core::BinOp::Shl => "shl",
+        vn_core::BinOp::Shr => "shr",
+        vn_core::BinOp::Ushr => "ushr",
+        vn_core::BinOp::In => "in",
     }
 }
 
-pub(super) fn unop(op: HirUnOp) -> &'static str {
+pub(super) fn unop(op: vn_core::UnOp) -> &'static str {
     match op {
-        HirUnOp::Neg => "neg",
-        HirUnOp::Not => "not",
-        HirUnOp::BitNot => "bnot",
-        HirUnOp::KindOf => "::type",
+        vn_core::UnOp::Neg => "neg",
+        vn_core::UnOp::Not => "not",
+        vn_core::UnOp::BitNot => "bnot",
+        vn_core::UnOp::KindOf => "::type",
     }
 }

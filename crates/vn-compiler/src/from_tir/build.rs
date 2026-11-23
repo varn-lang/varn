@@ -241,7 +241,7 @@ impl<'m> Builder<'m> {
             }
 
             TirExprKind::Closure { func, upvalues } => {
-                let src = upvalues.iter().map(|u| ops::upvalue_src(*u)).collect();
+                let src = upvalues.to_vec();
                 Ok(self.emit(
                     InstKind::MakeClosure {
                         func: func.0,

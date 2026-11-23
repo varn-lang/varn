@@ -23,8 +23,8 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
                 if let Some(dest) = inst.dest {
                     let dty = func.value_ty(dest);
-                    let expected_res = crate::hir::binary_result_ty(*op, *ty);
-                    let is_str_concat = matches!(op, crate::hir::HirBinOp::Add)
+                    let expected_res = binary_result_ty(*op, *ty);
+                    let is_str_concat = matches!(op, vn_core::BinOp::Add)
                         && (lty == BackendTy::Str || rty == BackendTy::Str)
                         && dty == BackendTy::Str;
                     if dty != expected_res && !is_str_concat {
@@ -37,9 +37,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
             }
         }
         InstKind::Unary { op, operand, ty } => {
-            if matches!(op, crate::hir::HirUnOp::Neg | crate::hir::HirUnOp::BitNot)
-                && !ty.is_boxed()
-            {
+            if matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::BitNot) && !ty.is_boxed() {
                 let oty = func.value_ty(*operand);
                 if oty != *ty {
                     return Err(format!(
@@ -51,9 +49,9 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 let expected = match op {
-                    crate::hir::HirUnOp::Not => BackendTy::Bool,
-                    crate::hir::HirUnOp::KindOf => BackendTy::Str,
-                    crate::hir::HirUnOp::Neg | crate::hir::HirUnOp::BitNot => *ty,
+                    vn_core::UnOp::Not => BackendTy::Bool,
+                    vn_core::UnOp::KindOf => BackendTy::Str,
+                    vn_core::UnOp::Neg | vn_core::UnOp::BitNot => *ty,
                 };
                 if dty != expected && !expected.is_boxed() {
                     return Err(format!(
@@ -307,5 +305,13 @@ fn convert_operand_domain(conv: vn_core::ValueConv) -> Option<vn_core::NumericDo
         | ExpectBool | ExpectStrOrNull | ExpectBoolOrNull | ExpectInt | ExpectFloat
         | ExpectIntOrNull | ExpectFloatOrNull | ExpectRef | ExpectChar | NarrowI8 | NarrowI16
         | NarrowI32 | NarrowU8 | NarrowU16 | NarrowU32 | NarrowU64 | NarrowF32 => None,
+    }
+}
+
+fn binary_result_ty(op: vn_core::BinOp, operand_ty: BackendTy) -> BackendTy {
+    if op.produces_bool() {
+        BackendTy::Bool
+    } else {
+        operand_ty
     }
 }

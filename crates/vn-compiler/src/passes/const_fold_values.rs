@@ -1,5 +1,4 @@
 use super::const_fold::is_constant_kind;
-use crate::hir::{HirBinOp, HirUnOp};
 use crate::ssa::ir::InstKind;
 use vn_core::{add_int, mul_int, neg_int, pow_int, sub_int};
 use vn_tir::{BackendTy, DynReason};
@@ -17,23 +16,27 @@ pub(super) fn fold_convert(conv: vn_core::ValueConv, operand: &InstKind) -> Opti
     }
 }
 
-pub(super) fn fold_unary(op: HirUnOp, operand: &InstKind, _ty: BackendTy) -> Option<InstKind> {
+pub(super) fn fold_unary(
+    op: vn_core::UnOp,
+    operand: &InstKind,
+    _ty: BackendTy,
+) -> Option<InstKind> {
     match (op, operand) {
-        (HirUnOp::Neg, InstKind::ConstInt(x)) => neg_int(*x).map(InstKind::ConstInt),
-        (HirUnOp::Neg, InstKind::ConstFloat(x)) => Some(InstKind::ConstFloat(-x)),
-        (HirUnOp::Not, InstKind::ConstBool(x)) => Some(InstKind::ConstBool(!x)),
-        (HirUnOp::BitNot, InstKind::ConstInt(x)) => Some(InstKind::ConstInt(!x)),
+        (vn_core::UnOp::Neg, InstKind::ConstInt(x)) => neg_int(*x).map(InstKind::ConstInt),
+        (vn_core::UnOp::Neg, InstKind::ConstFloat(x)) => Some(InstKind::ConstFloat(-x)),
+        (vn_core::UnOp::Not, InstKind::ConstBool(x)) => Some(InstKind::ConstBool(!x)),
+        (vn_core::UnOp::BitNot, InstKind::ConstInt(x)) => Some(InstKind::ConstInt(!x)),
         _ => None,
     }
 }
 
 pub(super) fn fold_binary(
-    op: HirBinOp,
+    op: vn_core::BinOp,
     lhs: &InstKind,
     rhs: &InstKind,
     _ty: BackendTy,
 ) -> Option<InstKind> {
-    use HirBinOp::*;
+    use vn_core::BinOp::*;
     match (lhs, rhs) {
         (InstKind::ConstInt(x), InstKind::ConstInt(y)) => match op {
             Add => add_int(*x, *y).map(InstKind::ConstInt),
@@ -234,8 +237,8 @@ pub(super) fn const_inst_ty(kind: &InstKind) -> Option<BackendTy> {
     }
 }
 
-pub(super) fn fold_bigint(op: HirBinOp, x: &str, y: &str) -> Option<InstKind> {
-    use HirBinOp::*;
+pub(super) fn fold_bigint(op: vn_core::BinOp, x: &str, y: &str) -> Option<InstKind> {
+    use vn_core::BinOp::*;
     let (a, b): (num_bigint::BigInt, num_bigint::BigInt) = (x.parse().ok()?, y.parse().ok()?);
     let big = |v: num_bigint::BigInt| Some(InstKind::ConstBigInt(v.to_string().into()));
     match op {
