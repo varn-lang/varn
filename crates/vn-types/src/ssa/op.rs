@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::operands::{SsaObjectSpreadPart, SsaSpread, SsaUpvalue, SsaVar};
 use super::operators::{SsaBinOp, SsaUnOp};
-use super::ValueId;
+use super::{BlockId, ValueId};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum SsaOp {
@@ -89,7 +89,7 @@ pub enum SsaOp {
     LoadNativeGlobalIdx(u32),
 
     Try {
-        catch_value: ValueId,
+        handler: BlockId,
     },
 
     PopTry,

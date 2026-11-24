@@ -221,9 +221,10 @@ pub(super) fn emit_inst(
             closures::emit_store_upvalue(b, ctx, values, *index, *value)?;
             return Ok(None);
         }
-        SsaOp::Try { catch_value } => {
+        SsaOp::Try { .. } => {
             let landing = inst.resume_point()?;
-            exceptions::emit_try(b, ctx, values, landing.ip, *catch_value, &landing.live)?;
+            let catch_value = dest.ok_or("from_ssa: try without dest")?;
+            exceptions::emit_try(b, ctx, values, landing.ip, catch_value, &landing.live)?;
             return Ok(None);
         }
         SsaOp::PopTry => {

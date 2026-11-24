@@ -16,7 +16,7 @@ pub(super) fn project_inst(
     site: Site,
     captured: &mut Captured,
 ) -> Option<SsaInst> {
-    if let InstKind::Try { .. } = &inst.kind {
+    if let InstKind::Try { handler } = &inst.kind {
         let (catch_ip, live) = site.landing?;
         let catch_value = inst.dest?;
         let mut live: Vec<ValueId> = live
@@ -27,8 +27,8 @@ pub(super) fn project_inst(
             .collect();
         live.sort_unstable_by_key(|v| v.0);
         return Some(SsaInst {
-            dest: None,
-            op: SsaOp::Try { catch_value },
+            dest: inst.dest,
+            op: SsaOp::Try { handler: *handler },
             line: inst.line,
             ip: site.next_ip,
             cache: None,

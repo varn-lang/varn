@@ -15,6 +15,7 @@ impl SsaOp {
             | SsaOp::LoadGlobalIdx(_)
             | SsaOp::LoadNativeGlobalIdx(_)
             | SsaOp::PopTry
+            | SsaOp::Try { .. }
             | SsaOp::LoadCaptured { .. }
             | SsaOp::LoadUpvalue(_)
             | SsaOp::This
@@ -78,7 +79,6 @@ impl SsaOp {
                 f(*object);
                 args.iter().for_each(|a| f(*a));
             }
-            SsaOp::Try { catch_value } => f(*catch_value),
             SsaOp::CatchParam { try_val } => f(*try_val),
             SsaOp::StoreGlobalIdx { value, .. }
             | SsaOp::StoreCaptured { value, .. }

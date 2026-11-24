@@ -87,17 +87,18 @@ pub(super) fn landing_maps(ssa: &SsaProto) -> Result<(LandingLive, LandingError)
     }
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            if let vn_types::ssa::SsaOp::Try { catch_value } = &inst.op
+            if let vn_types::ssa::SsaOp::Try { .. } = &inst.op
+                && let Some(catch_value) = inst.dest
                 && let Some(landing) = inst.try_landing()
                 && let Some(e) = ssa.catch_at(landing.ip as usize)
             {
                 let h = e.block.0 as usize;
                 if let Some(prev) = landing_error.get(&h) {
-                    if *prev != *catch_value {
+                    if *prev != catch_value {
                         return Err("from_ssa: handler shared by two try values".into());
                     }
                 } else {
-                    landing_error.insert(h, *catch_value);
+                    landing_error.insert(h, catch_value);
                 }
             }
         }
