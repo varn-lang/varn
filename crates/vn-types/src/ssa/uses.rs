@@ -21,8 +21,7 @@ impl SsaOp {
             | SsaOp::This
             | SsaOp::GetSuper { .. }
             | SsaOp::GetSuperSlot { .. }
-            | SsaOp::LoadGlobal(_)
-            | SsaOp::AllocInstance { .. } => {}
+            | SsaOp::LoadGlobal(_) => {}
             SsaOp::Binary { lhs, rhs, .. } => {
                 f(*lhs);
                 f(*rhs);
@@ -41,6 +40,7 @@ impl SsaOp {
             | SsaOp::BytesLength { operand }
             | SsaOp::AssertNotNull { operand }
             | SsaOp::Spawn { operand } => f(*operand),
+            SsaOp::AllocInstance { class, .. } => f(*class),
             SsaOp::SelfCall { args } | SsaOp::SuperCall { args } => args.iter().for_each(|a| f(*a)),
             SsaOp::SuperMethodCall { args, .. } | SsaOp::SuperInvokeSlot { args, .. } => {
                 args.iter().for_each(|a| f(*a))
@@ -126,9 +126,11 @@ impl SsaOp {
                     f(*s);
                 }
             }
-            SsaOp::FreezeClass { class }
-            | SsaOp::DeclareLayout { class, .. }
-            | SsaOp::DefineMember { class, .. } => f(*class),
+            SsaOp::FreezeClass { class } | SsaOp::DeclareLayout { class, .. } => f(*class),
+            SsaOp::DefineMember { class, member, .. } => {
+                f(*class);
+                f(*member);
+            }
             SsaOp::BuildArraySpread { elements } => elements.iter().for_each(|e| f(e.value)),
             SsaOp::BuildObjectSpread { parts, .. } => parts.iter().for_each(|p| f(p.value)),
             SsaOp::ObjectMerge { target, source } => {
@@ -145,6 +147,161 @@ impl SsaOp {
             }
             SsaOp::LoadModule { .. } => {}
             SsaOp::Await { operand } | SsaOp::Yield { operand } => f(*operand),
+        }
+    }
+
+    pub fn for_each_use_mut(&mut self, mut f: impl FnMut(&mut ValueId)) {
+        match self {
+            SsaOp::ConstInt(_)
+            | SsaOp::ConstFloat(_)
+            | SsaOp::ConstBool(_)
+            | SsaOp::ConstNull
+            | SsaOp::ConstStr(_)
+            | SsaOp::ConstChar(_)
+            | SsaOp::ConstBigInt(_)
+            | SsaOp::ConstDecimal(_)
+            | SsaOp::MakeEnumVariant { .. }
+            | SsaOp::LoadGlobalIdx(_)
+            | SsaOp::LoadNativeGlobalIdx(_)
+            | SsaOp::PopTry
+            | SsaOp::Try { .. }
+            | SsaOp::LoadCaptured { .. }
+            | SsaOp::LoadUpvalue(_)
+            | SsaOp::This
+            | SsaOp::GetSuper { .. }
+            | SsaOp::GetSuperSlot { .. }
+            | SsaOp::LoadGlobal(_) => {}
+            SsaOp::Binary { lhs, rhs, .. } => {
+                f(lhs);
+                f(rhs);
+            }
+            SsaOp::Unary { operand, .. }
+            | SsaOp::Cast { operand }
+            | SsaOp::Convert { operand, .. }
+            | SsaOp::IsNull { operand }
+            | SsaOp::KindOf { operand }
+            | SsaOp::ToString { operand }
+            | SsaOp::IsArray { operand }
+            | SsaOp::GetEnumTag { operand }
+            | SsaOp::ObjectKeys { operand }
+            | SsaOp::ArrayLength { operand }
+            | SsaOp::StrLength { operand }
+            | SsaOp::BytesLength { operand }
+            | SsaOp::AssertNotNull { operand }
+            | SsaOp::Spawn { operand } => f(operand),
+            SsaOp::AllocInstance { class, .. } => f(class),
+            SsaOp::SelfCall { args } | SsaOp::SuperCall { args } => {
+                args.iter_mut().for_each(|a| f(a))
+            }
+            SsaOp::SuperMethodCall { args, .. } | SsaOp::SuperInvokeSlot { args, .. } => {
+                args.iter_mut().for_each(|a| f(a))
+            }
+            SsaOp::Call { callee, args, .. } | SsaOp::CallDirect { callee, args, .. } => {
+                f(callee);
+                args.iter_mut().for_each(|a| f(a));
+            }
+            SsaOp::ArrayGetIndex { object, index }
+            | SsaOp::BytesGetIndex { object, index }
+            | SsaOp::GetIndex { object, index } => {
+                f(object);
+                f(index);
+            }
+            SsaOp::ArraySetIndex {
+                object,
+                index,
+                value,
+            }
+            | SsaOp::BytesSetIndex {
+                object,
+                index,
+                value,
+            }
+            | SsaOp::SetIndex {
+                object,
+                index,
+                value,
+            } => {
+                f(object);
+                f(index);
+                f(value);
+            }
+            SsaOp::IntrinsicCall { object, args, .. }
+            | SsaOp::CallNativeOp { object, args, .. } => {
+                f(object);
+                args.iter_mut().for_each(|a| f(a));
+            }
+            SsaOp::CatchParam { try_val } => f(try_val),
+            SsaOp::StoreGlobalIdx { value, .. }
+            | SsaOp::StoreCaptured { value, .. }
+            | SsaOp::StoreUpvalue { value, .. }
+            | SsaOp::StoreGlobal { value, .. }
+            | SsaOp::StoreModuleSlot { value, .. } => f(value),
+            SsaOp::MakeClosure { .. } => {}
+            SsaOp::CloseUpvalues { .. } => {}
+            SsaOp::TypeTest { value, class } => {
+                f(value);
+                f(class);
+            }
+            SsaOp::BuildStr { parts } => parts.iter_mut().for_each(|a| f(a)),
+            SsaOp::BuildArray { elements, .. } | SsaOp::BuildTuple { elements } => {
+                elements.iter_mut().for_each(|a| f(a))
+            }
+            SsaOp::BuildMap { pairs } => pairs.iter_mut().for_each(|(k, v)| {
+                f(k);
+                f(v);
+            }),
+            SsaOp::BuildObject { pairs } => pairs.iter_mut().for_each(|(_, v)| f(v)),
+            SsaOp::GetProperty { object, .. }
+            | SsaOp::GetSlotMethod { object, .. }
+            | SsaOp::GetFixedField { object, .. }
+            | SsaOp::ObjectRest { object, .. }
+            | SsaOp::GetPropertyMaybe { object, .. }
+            | SsaOp::ModuleSlot { object, .. } => f(object),
+            SsaOp::SetProperty { object, value, .. }
+            | SsaOp::SetFixedField { object, value, .. } => {
+                f(object);
+                f(value);
+            }
+            SsaOp::MethodCall { recv, args, .. }
+            | SsaOp::InvokeSlot { recv, args, .. }
+            | SsaOp::ExtensionCall { recv, args, .. } => {
+                f(recv);
+                args.iter_mut().for_each(|a| f(a));
+            }
+            SsaOp::ArrayPush { array, value } => {
+                f(array);
+                f(value);
+            }
+            SsaOp::MakeClass { super_class, .. } => {
+                if let Some(s) = super_class {
+                    f(s);
+                }
+            }
+            SsaOp::FreezeClass { class } | SsaOp::DeclareLayout { class, .. } => f(class),
+            SsaOp::DefineMember { class, member, .. } => {
+                f(class);
+                f(member);
+            }
+            SsaOp::BuildArraySpread { elements } => {
+                elements.iter_mut().for_each(|e| f(&mut e.value))
+            }
+            SsaOp::BuildObjectSpread { parts, .. } => {
+                parts.iter_mut().for_each(|p| f(&mut p.value))
+            }
+            SsaOp::ObjectMerge { target, source } => {
+                f(target);
+                f(source);
+            }
+            SsaOp::Range { start, end, .. } => {
+                f(start);
+                f(end);
+            }
+            SsaOp::CallSpread { callee, args } => {
+                f(callee);
+                args.iter_mut().for_each(|e| f(&mut e.value));
+            }
+            SsaOp::LoadModule { .. } => {}
+            SsaOp::Await { operand } | SsaOp::Yield { operand } => f(operand),
         }
     }
 }

@@ -2,7 +2,6 @@ use rustc_hash::FxHashMap;
 use vn_types::ssa::SsaOp;
 
 use crate::ssa::ir::{const_ty, Inst, SsaFunc, Value};
-use crate::ssa::uses::replace_uses_with_map;
 
 pub fn run(func: &mut SsaFunc) -> bool {
     let mut int_const: FxHashMap<Value, i64> = FxHashMap::default();
@@ -49,7 +48,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
         }
         func.blocks[b].insts[i].kind = kind;
     }
-    changed |= replace_uses_with_map(func, &rewrites);
+    changed |= func.replace_uses_with_map(&rewrites);
     changed
 }
 

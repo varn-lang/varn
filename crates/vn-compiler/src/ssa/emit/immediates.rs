@@ -93,7 +93,7 @@ pub(super) fn plan_immediates(ssa: &SsaFunc) -> Immediates {
     let mut folded = vec![0u32; n];
     for block in &ssa.blocks {
         for inst in &block.insts {
-            crate::ssa::uses::visit_uses(&inst.kind, &mut |v| total[v.0 as usize] += 1);
+            inst.kind.for_each_use(|v| total[v.0 as usize] += 1);
             if let Some(form) = immediate_operand(&inst.kind, &imm) {
                 folded[form.carrier.0 as usize] += 1;
             }

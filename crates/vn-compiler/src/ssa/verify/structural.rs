@@ -145,7 +145,7 @@ fn edge_arg_count(func: &SsaFunc, pred: BlockId, block: BlockId) -> Result<usize
 
 pub(crate) fn inst_uses(kind: &SsaOp) -> Vec<Value> {
     let mut out = Vec::new();
-    crate::ssa::uses::visit_uses(kind, &mut |v| out.push(v));
+    kind.for_each_use(|v| out.push(v));
     out
 }
 

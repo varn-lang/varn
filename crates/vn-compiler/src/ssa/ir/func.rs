@@ -62,10 +62,35 @@ impl SsaFunc {
         };
         for block in &mut self.blocks {
             for inst in &mut block.insts {
-                crate::ssa::uses::visit_uses_mut(&mut inst.kind, &mut sub);
+                inst.kind.for_each_use_mut(&mut sub);
             }
             block.term.for_each_use_mut(&mut sub);
         }
+    }
+
+    pub fn replace_uses_with_map(&mut self, map: &rustc_hash::FxHashMap<Value, Value>) -> bool {
+        if map.is_empty() {
+            return false;
+        }
+        let mut changed = false;
+        let mut sub = |v: &mut Value| {
+            let mut hops = 0;
+            while let Some(&next) = map.get(v) {
+                if next == *v || hops > map.len() {
+                    break;
+                }
+                *v = next;
+                changed = true;
+                hops += 1;
+            }
+        };
+        for block in &mut self.blocks {
+            for inst in &mut block.insts {
+                inst.kind.for_each_use_mut(&mut sub);
+            }
+            block.term.for_each_use_mut(&mut sub);
+        }
+        changed
     }
 
     pub fn replace_all_uses(&mut self, old: Value, new: Value) {
@@ -76,7 +101,7 @@ impl SsaFunc {
         };
         for block in &mut self.blocks {
             for inst in &mut block.insts {
-                crate::ssa::uses::visit_uses_mut(&mut inst.kind, &mut sub);
+                inst.kind.for_each_use_mut(&mut sub);
             }
             block.term.for_each_use_mut(&mut sub);
         }

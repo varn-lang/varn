@@ -235,7 +235,7 @@ fn coalesce_window_args(ssa: &SsaFunc, reg: &mut [u8], call_base: u8) {
     let mut uses = vec![0u32; ssa.values.len()];
     for block in &ssa.blocks {
         for inst in &block.insts {
-            crate::ssa::uses::visit_uses(&inst.kind, &mut |v| uses[v.0 as usize] += 1);
+            inst.kind.for_each_use(|v| uses[v.0 as usize] += 1);
         }
         block.term.for_each_use(|v| uses[v.0 as usize] += 1);
     }

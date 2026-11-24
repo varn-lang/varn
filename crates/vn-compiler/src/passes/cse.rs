@@ -2,7 +2,6 @@ use rustc_hash::FxHashMap;
 use vn_types::ssa::SsaOp;
 
 use crate::ssa::ir::{SsaFunc, Value};
-use crate::ssa::uses::replace_uses_with_map;
 
 use std::sync::Arc;
 
@@ -77,7 +76,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
         }
     }
 
-    replace_uses_with_map(func, &rewrites)
+    func.replace_uses_with_map(&rewrites)
 }
 
 pub fn run_global(func: &mut SsaFunc) -> bool {
@@ -95,7 +94,7 @@ pub fn run_global(func: &mut SsaFunc) -> bool {
             }
         };
         for inst in &block.insts {
-            crate::ssa::uses::visit_uses(&inst.kind, &mut push);
+            inst.kind.for_each_use(&mut push);
         }
         block.term.for_each_use(&mut push);
     }
@@ -134,7 +133,7 @@ pub fn run_global(func: &mut SsaFunc) -> bool {
     if rewrites.is_empty() {
         return false;
     }
-    replace_uses_with_map(func, &rewrites)
+    func.replace_uses_with_map(&rewrites)
 }
 
 fn resolve(rewrites: &FxHashMap<Value, Value>, v: Value) -> u32 {
