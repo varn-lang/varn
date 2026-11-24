@@ -46,11 +46,7 @@ fn has_glob_meta(s: &str) -> bool {
     s.bytes().any(|b| b == b'*' || b == b'?' || b == b'[')
 }
 
-fn expand_glob(
-    pattern: &Path,
-    filter: &FileFilter,
-    root: &Path,
-) -> Result<Vec<PathBuf>, CliError> {
+fn expand_glob(pattern: &Path, filter: &FileFilter, root: &Path) -> Result<Vec<PathBuf>, CliError> {
     let norm = normalize_seps(&pattern.to_string_lossy());
     let norm = norm.trim_start_matches("./");
     let base = static_base(norm);
@@ -68,7 +64,10 @@ fn expand_glob(
         collect_all(&base_path, &mut pool)?;
     } else {
         let entries = std::fs::read_dir(&base_path).map_err(|e| {
-            CliError::fatal(format!("Failed to read directory '{}': {e}", base_path.display()))
+            CliError::fatal(format!(
+                "Failed to read directory '{}': {e}",
+                base_path.display()
+            ))
         })?;
         for entry in entries.flatten() {
             pool.push(entry.path());
