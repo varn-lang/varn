@@ -1,14 +1,7 @@
-use vn_tir::BackendTy;
-mod calls;
-mod composite;
-mod composite_class;
-mod composite_object;
-mod consts;
-mod control;
-
-use super::super::ir::Inst;
 use super::{Captured, Site};
-use vn_types::ssa::{SsaInst, SsaOp, SsaResume, ValueId};
+use crate::ssa::ir::Inst;
+use vn_tir::BackendTy;
+use vn_types::ssa::{SsaInst, SsaOp, SsaResume, SsaUpvalue, ValueId};
 
 pub(super) fn project_inst(
     inst: &Inst,
@@ -35,11 +28,23 @@ pub(super) fn project_inst(
             resume: Some(SsaResume { ip: catch_ip, live }),
         });
     }
-    let kind = &inst.kind;
-    let op = consts::try_project(kind)
-        .or_else(|| calls::try_project(kind, &site, captured))
-        .or_else(|| composite::try_project(kind, value_tys))
-        .or_else(|| control::try_project(kind, value_tys))?;
+    let mut op = inst.kind.clone();
+    remap_captured(&mut op, captured);
+    if site.direct_slot.is_none()
+        && let SsaOp::CallDirect {
+            callee,
+            args,
+            shape,
+            ..
+        } = op
+    {
+        op = SsaOp::Call {
+            callee,
+            args,
+            shape,
+        };
+    }
+    specialize_index(&mut op, value_tys);
     let (cache, resume) = annotate(&op, &site)?;
     Some(SsaInst {
         dest: inst.dest,
@@ -49,6 +54,75 @@ pub(super) fn project_inst(
         cache,
         resume,
     })
+}
+
+fn remap_captured(op: &mut SsaOp, captured: &mut Captured) {
+    if let SsaOp::MakeClosure { upvalues, .. } = op {
+        for uv in upvalues.iter_mut() {
+            if let SsaUpvalue::Captured(var) = uv {
+                *var = captured.var(*var);
+            }
+        }
+    }
+    if let SsaOp::LoadCaptured { var } = op {
+        *var = captured.var(*var);
+    }
+    if let SsaOp::StoreCaptured { var, .. } = op {
+        *var = captured.var(*var);
+    }
+    if let SsaOp::CloseUpvalues { vars } = op {
+        for var in vars.iter_mut() {
+            *var = captured.var(*var);
+        }
+    }
+}
+
+fn specialize_index(op: &mut SsaOp, value_tys: &[BackendTy]) {
+    let is_int = |v: ValueId| {
+        value_tys.get(v.0 as usize).is_some_and(|t| {
+            crate::ssa::emit::slot_kind_of(*t) == vn_types::register_meta::SlotKind::Int
+        })
+    };
+    if let SsaOp::ArrayGetIndex { object, index } = &*op
+        && !is_int(*index)
+    {
+        let (object, index) = (*object, *index);
+        *op = SsaOp::GetIndex { object, index };
+    }
+    if let SsaOp::BytesGetIndex { object, index } = &*op
+        && !is_int(*index)
+    {
+        let (object, index) = (*object, *index);
+        *op = SsaOp::GetIndex { object, index };
+    }
+    if let SsaOp::ArraySetIndex {
+        object,
+        index,
+        value,
+    } = &*op
+        && !is_int(*index)
+    {
+        let (object, index, value) = (*object, *index, *value);
+        *op = SsaOp::SetIndex {
+            object,
+            index,
+            value,
+        };
+    }
+    if let SsaOp::BytesSetIndex {
+        object,
+        index,
+        value,
+    } = &*op
+        && !is_int(*index)
+    {
+        let (object, index, value) = (*object, *index, *value);
+        *op = SsaOp::SetIndex {
+            object,
+            index,
+            value,
+        };
+    }
 }
 
 fn annotate(op: &SsaOp, site: &Site) -> Option<(Option<u16>, Option<SsaResume>)> {
@@ -121,8 +195,8 @@ fn annotate(op: &SsaOp, site: &Site) -> Option<(Option<u16>, Option<SsaResume>)>
         | SsaOp::GetFixedField { .. }
         | SsaOp::SetFixedField { .. }
         | SsaOp::MakeClass { .. }
-        | SsaOp::FreezeClass { .. }
         | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
         | SsaOp::DefineMember { .. }
         | SsaOp::GetSuper { .. }
         | SsaOp::GetSuperSlot { .. }

@@ -8,10 +8,10 @@ use rustc_hash::FxHashSet;
 use vn_types::ssa::{SsaBlock, SsaProto, SsaTerm, SsaValue, ValueId};
 
 mod entries;
-mod inst;
+mod lower;
 mod why_not;
 
-use inst::project_inst;
+use lower::project_inst;
 
 pub(crate) struct Emitted<'a> {
     pub reg: &'a [u8],
