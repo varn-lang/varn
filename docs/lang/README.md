@@ -15,5 +15,5 @@ Convención de los ejemplos: usan `assertTrue("etiqueta", condición)` y
 al anterior (reutilizan sus clases y funciones).
 
 Suite: 347 archivos `tests/*.vn`; `tests/main.vn` importa 345 (todos salvo sí
-mismo y `75-async-shapes-lib.vn`, auxiliar de `75-async-shapes.vn`) y cierra con
+mismo y `async-shapes-lib.test.vn`, auxiliar de `async-shapes.test.vn`) y cierra con
 `summary()`. Huecos de numeración: 39, 81, 91, 104–108, 172, 249, 333.

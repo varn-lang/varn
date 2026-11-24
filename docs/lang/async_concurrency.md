@@ -1,6 +1,6 @@
 # Varn Language — Concurrencia Asíncrona
 
-> Fuentes: `tests/21-async.vn`, `tests/47-isolates-multithread.vn`, `tests/54-channels.vn`, `tests/75-async-shapes.vn`, `tests/77-async-generators.vn`.
+> Fuentes: `tests/async.test.vn`, `tests/isolates-multithread.test.vn`, `tests/channels.test.vn`, `tests/async-shapes.test.vn`, `tests/async-generators.test.vn`.
 
 ---
 
@@ -10,7 +10,7 @@
 
 ```vn
 import { sleep, spawn, parallel } from "std:task"
-// tests/21-async.vn
+// tests/async.test.vn
 
 async function asyncAdd(a: int, b: int): int {
     return a + b
@@ -53,7 +53,7 @@ assertTrue("async catch", r3 === "caught:async fail")
 
 ```vn
 const h1 = spawn(asyncAdd(1, 2))
-assertTrue("spawn handle await", await h1 === 3)   // tests/21-async.vn
+assertTrue("spawn handle await", await h1 === 3)   // tests/async.test.vn
 ```
 
 ---
@@ -70,20 +70,20 @@ assertTrue("parallel len",  all.length === 3)
 assertTrue("parallel[0]",   all[0] === 4)
 assertTrue("parallel[1]",   all[1] === 9)
 assertTrue("parallel[2]",   all[2] === 16)
-// tests/21-async.vn
+// tests/async.test.vn
 ```
 
 Ejecuta todas las tareas en paralelo y devuelve los resultados en el mismo orden
-(`tests/21-async.vn`). El primer rechazo gana (`tests/21-async.vn`).
+(`tests/async.test.vn`). El primer rechazo gana (`tests/async.test.vn`).
 
 ### Combinadores (`Task.all`, `allSettled`, `race`)
 
 ```vn
 import { Task, delay } from "std:task"
 
-let winner = await Task.race([fastTask, slowTask])   // tests/97-stdlib-task-combinators.vn
-let allRes = await Task.all([t1, t2])                // tests/97-stdlib-task-combinators.vn
-let settled = await Task.allSettled([okTask, errTask])   // tests/97-stdlib-task-combinators.vn
+let winner = await Task.race([fastTask, slowTask])   // tests/stdlib-task-combinators.test.vn
+let allRes = await Task.all([t1, t2])                // tests/stdlib-task-combinators.test.vn
+let settled = await Task.allSettled([okTask, errTask])   // tests/stdlib-task-combinators.test.vn
 ```
 
 `cancel(handle)` libre, `clearTimeout` y `Task.yield`: SIN test en
@@ -94,7 +94,7 @@ let settled = await Task.allSettled([okTask, errTask])   // tests/97-stdlib-task
 ## 4. `TaskGroup` — Grupos de tareas
 
 ```vn
-using group = new TaskGroup<int>()   // tests/21-async.vn
+using group = new TaskGroup<int>()   // tests/async.test.vn
 const g1 = group.spawn(asyncAdd(7, 8))
 const g2 = group.spawn(asyncAdd(9, 10))
 const joined = await group.join()
@@ -106,7 +106,7 @@ assertTrue("group handle 1",    await g1 === 15)
 
 Timeout en `join(ms)` y mensaje de error: NO-VERIFICADOS (sin test).
 
-### Cancelación del grupo (`tests/21-async.vn`)
+### Cancelación del grupo (`tests/async.test.vn`)
 
 `cancel()` marca el grupo y cancela los joins en vuelo (sus tareas parqueadas
 se descartan en vez de seguir consumiendo drive). Los hijos ya completados no
@@ -124,7 +124,7 @@ try {
 }
 ```
 
-### Disposición asíncrona (`disposeAsync`, `tests/21-async.vn`)
+### Disposición asíncrona (`disposeAsync`, `tests/async.test.vn`)
 
 ```vn
 using disposeGroup = new TaskGroup<int>()
@@ -145,7 +145,7 @@ Un **isolate** es una unidad de ejecución aislada con su propio heap, GC y espa
 
 ```vn
 import { spawnIsolate, channel, Sender, Receiver, ChannelClosed } from "std:task"
-// tests/47-isolates-multithread.vn
+// tests/isolates-multithread.test.vn
 
 // Función que corre en el isolate hijo (debe ser exportada y top-level)
 export async function workerMain(rx: Receiver<ValueMsg>, tx: Sender<int>) {
@@ -203,7 +203,7 @@ El hijo carga el módulo que exporta el worker y ejecuta su top-level. El worker
 vive en un módulo sin efectos de top-level (`tests/helpers/isolate-workers.vn`),
 así el hijo no re-ejecuta la suite. `import.meta.main` es `true` solo en el
 módulo de entrada del proceso; en módulos importados y en los que carga un
-isolate es `false` (`tests/228-import-meta-main.vn`).
+isolate es `false` (`tests/import-meta-main.test.vn`).
 
 ```vn
 if (import.meta.main) {
@@ -217,7 +217,7 @@ if (import.meta.main) {
 
 ```vn
 import { channel, ChannelClosed, Sender, Receiver } from "std:task"
-// tests/54-channels.vn
+// tests/channels.test.vn
 
 const ch = channel<int>(2)     // canal con capacidad 2
 await ch.tx.send(1)
@@ -328,7 +328,7 @@ await h3.join()
 ## 8. `sleep`
 
 ```vn
-await sleep(1)    // pausa de ~1ms (disponible en pruebas como tests/21-async.vn)
+await sleep(1)    // pausa de ~1ms (disponible en pruebas como tests/async.test.vn)
 ```
 
 ---
@@ -338,8 +338,8 @@ await sleep(1)    // pausa de ~1ms (disponible en pruebas como tests/21-async.vn
 Varn soporta `await` a nivel de módulo:
 
 ```vn
-await runAsync()          // tests/21-async.vn
-await runAsyncGenerators()   // tests/77-async-generators.vn
-await testIsolates()         // tests/47-isolates-multithread.vn
+await runAsync()          // tests/async.test.vn
+await runAsyncGenerators()   // tests/async-generators.test.vn
+await testIsolates()         // tests/isolates-multithread.test.vn
 ```
 

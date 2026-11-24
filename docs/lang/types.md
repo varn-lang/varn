@@ -1,6 +1,6 @@
 # Varn Language — Sistema de Tipos
 
-> Fuentes: `tests/08-null-safety.vn`, `tests/12-classes.vn`, `tests/13-interfaces.vn`, `tests/14-generics.vn`, `tests/15-unions.vn`, `tests/16-enums.vn`, `tests/24-record.vn`, `tests/26-numeric-coercion.vn`, `tests/30-nullable-types.vn`, `tests/34-char-type.vn`, `tests/35-decimal-bigint.vn`, `tests/36-advanced-generics.vn`, `tests/41-advanced-enums.vn`, `tests/69-tuples-structs.vn`, `tests/79-control-flow-narrowing.vn`, `tests/87-primary-constructors-nullish-assign.vn`.
+> Fuentes: `tests/null-safety.test.vn`, `tests/classes.test.vn`, `tests/interfaces.test.vn`, `tests/generics.test.vn`, `tests/unions.test.vn`, `tests/enums.test.vn`, `tests/record.test.vn`, `tests/numeric-coercion.test.vn`, `tests/nullable-types.test.vn`, `tests/char-type.test.vn`, `tests/decimal-bigint.test.vn`, `tests/advanced-generics.test.vn`, `tests/advanced-enums.test.vn`, `tests/tuples-structs.test.vn`, `tests/control-flow-narrowing.test.vn`, `tests/primary-constructors-nullish-assign.test.vn`.
 
 ---
 
@@ -40,8 +40,8 @@ Todos son tipos canónicos únicos; **nunca** se aceptan aliases como `string`, 
 ### 2.1 Arrays
 
 ```vn
-const nums: int[] = [3, 1, 4, 1, 5]       // tests/05-arrays.vn
-let explicitGeneric: Array<int> = [10, 20, 30]  // tests/05-arrays.vn
+const nums: int[] = [3, 1, 4, 1, 5]       // tests/arrays.test.vn
+let explicitGeneric: Array<int> = [10, 20, 30]  // tests/arrays.test.vn
 let explicitBracket: int[] = explicitGeneric     // Asignable mutuamente
 let nested: int[][] = [[1, 2], [3, 4]]           // 2D array
 ```
@@ -53,7 +53,7 @@ let nested: int[][] = [[1, 2], [3, 4]]           // 2D array
 Colecciones heterogéneas inmutables con igualdad estructural:
 
 ```vn
-let t1 = (1, "hello", true)    // tests/69-tuples-structs.vn
+let t1 = (1, "hello", true)    // tests/tuples-structs.test.vn
 assertTrue("tuple elem 0", t1[0] == 1)
 assertTrue("tuple length", t1.length == 3)
 
@@ -66,7 +66,7 @@ assertTrue("tuple eq true", t1 == t2)   // igualdad estructural profunda
 Tipo valor nominal con igualdad por contenido (ver `docs/lang/classes_objects.md`, sección Structs):
 
 ```vn
-struct Release { name: str; version: int }   // tests/69-tuples-structs.vn
+struct Release { name: str; version: int }   // tests/tuples-structs.test.vn
 
 let r1 = new Release("Varn", 1)
 assertTrue("struct field name", r1.name == "Varn")
@@ -88,8 +88,8 @@ incompatibles en cualquier nivel. Para claves abiertas se declara
 
 ### 2.4 Mapas (`Map<K, V>`)
 
-Colección asociativa mutable (`tests/17-map-set.vn`,
-`tests/348-map-literals.vn`):
+Colección asociativa mutable (`tests/map-set.test.vn`,
+`tests/map-literals.test.vn`):
 Un literal `{...}` nunca es un `Map`.
 
 ```vn
@@ -107,7 +107,7 @@ scores["dave"] = 60               // mutación indexada
 assertTrue("map set dave",    scores["dave"] === 60)
 ```
 
-`Map<K, V>` se construye con `new Map` (`tests/17-map-set.vn`, `tests/348-map-literals.vn`):
+`Map<K, V>` se construye con `new Map` (`tests/map-set.test.vn`, `tests/map-literals.test.vn`):
 
 ```vn
 const m = new Map<str, int>()
@@ -145,7 +145,7 @@ assertTrue("set size dedup", set.size === 2)
 El sistema de tipos distingue entre un tipo no-nulo y su versión nulable:
 
 ```vn
-const a: str? = null       // str | null  (tests/30-nullable-types.vn)
+const a: str? = null       // str | null  (tests/nullable-types.test.vn)
 const b: str? = "hello"
 const f: int?[] = [1, null, 3]   // array de int nulables
 const h: int[]? = null            // array nulo
@@ -166,7 +166,7 @@ const j: int?[]? = null           // array nulo de int nulables
 ## 4. Uniones de Tipos
 
 ```vn
-type StringOrInt = str | int    // tests/15-unions.vn
+type StringOrInt = str | int    // tests/unions.test.vn
 type MaybeStr = str | null
 
 function processValue(v: StringOrInt): str {
@@ -183,7 +183,7 @@ assertTrue("union int branch", processValue(42) === "number: 42")
 ### Tipos unión de clases
 
 ```vn
-type Shape2 = Square2 | Circle2    // tests/15-unions.vn
+type Shape2 = Square2 | Circle2    // tests/unions.test.vn
 
 function totalArea(shapes: Shape2[]): float {
     let total = 0.0
@@ -201,7 +201,7 @@ function totalArea(shapes: Shape2[]): float {
 ### 5.1 Enums simples
 
 ```vn
-enum Direction { North, South, East, West }    // tests/16-enums.vn
+enum Direction { North, South, East, West }    // tests/enums.test.vn
 
 const dir: Direction = Direction.North
 assertTrue("enum value",    dir === Direction.North)
@@ -211,14 +211,14 @@ assertTrue("enum rawValue", Direction.East.rawValue === 2)
 ### 5.2 Enums con valores explícitos
 
 ```vn
-enum HttpMethod { GET = 0, POST = 1, PUT = 2, DELETE = 3 }   // tests/16-enums.vn
+enum HttpMethod { GET = 0, POST = 1, PUT = 2, DELETE = 3 }   // tests/enums.test.vn
 assertTrue("enum explicit", HttpMethod.POST.rawValue === 1)
 ```
 
 ### 5.3 Enums con payload (ADTs)
 
 ```vn
-enum Token {                          // tests/41-advanced-enums.vn
+enum Token {                          // tests/advanced-enums.test.vn
     Identifier(name: str),
     Number(value: float),
     String(value: str),
@@ -278,19 +278,19 @@ enum Result<T, E> {
 }
 const resOk = Result.Ok<int, str>(42)
 ```
-// `tests/41-advanced-enums.vn`. Enums que implementan interfaces: NO-VERIFICADO.
+// `tests/advanced-enums.test.vn`. Enums que implementan interfaces: NO-VERIFICADO.
 
 ---
 
 ## 6. Interfaces
 
 ```vn
-interface Printable {            // tests/13-interfaces.vn
+interface Printable {            // tests/interfaces.test.vn
     toString(): str
 }
 ```
 // Implementación múltiple, campos opcionales y resto de interfaces:
-// solo lo citado aquí es contrato; ver `tests/13-interfaces.vn`.
+// solo lo citado aquí es contrato; ver `tests/interfaces.test.vn`.
 
 ---
 
@@ -299,7 +299,7 @@ interface Printable {            // tests/13-interfaces.vn
 Ver también [`classes_objects.md`](classes_objects.md).
 
 ```vn
-class Animal {                        // tests/12-classes.vn
+class Animal {                        // tests/classes.test.vn
     name: str
     constructor(n: str) { this.name = n }
     speak() { return "..." }
@@ -337,7 +337,7 @@ Contratos que se comprueban en la declaración:
 ## 8. Generics
 
 ```vn
-class Box<T> {                        // tests/14-generics.vn
+class Box<T> {                        // tests/generics.test.vn
     value: T
     constructor(v: T) { this.value = v }
     get(): T { return this.value }
@@ -364,7 +364,7 @@ interface Comparable<T> {
 ### 8.1 Argumentos de tipo de `new`
 
 `new` deduce los argumentos de tipo de los argumentos del constructor,
-igual que una llamada genérica (tests/190-generic-instantiation-from-new.vn):
+igual que una llamada genérica (tests/generic-instantiation-from-new.test.vn):
 
 ```vn
 const b = new Box(1)              // Box<int>
@@ -382,7 +382,7 @@ const t = new Tagged(5, 7)        // label: L? con un int fija L = int
 ### 8.2 Varianza automática
 
 Sin anotaciones: el compilador mide dónde aparece cada parámetro dentro de
-los miembros y decide (tests/199-containers-are-invariant.vn,
+los miembros y decide (tests/containers-are-invariant.test.vn,
 tests/errors/generator-narrowing-rejected.vn):
 
 - solo salidas (`get(): T`, getters, campos `readonly`) → covariante:
@@ -443,7 +443,7 @@ El checker estrecha automáticamente el tipo dentro de bloques condicionales:
 ```vn
 function processOptional(val: str?): int {
     if (val !== null) {
-        return val.length   // val se estrecha a 'str' aquí (tests/79-control-flow-narrowing.vn)
+        return val.length   // val se estrecha a 'str' aquí (tests/control-flow-narrowing.test.vn)
     }
     return 0
 }
@@ -466,7 +466,7 @@ function speak(a: Animal): str {
 ### 10.1 Veracidad: solo `null` y `false` son falsos
 
 No hay tabla de valores falsos. `0`, `0.0`, `NaN`, `""` y `[]` son
-verdaderos (tests/186-truthiness-and-logical-values.vn).
+verdaderos (tests/truthiness-and-logical-values.test.vn).
 
 - Con `x: T?`, `if (x)` es exactamente `x != null`: la rama verdadera ve
   `T` y la falsa ve `null`.
@@ -480,18 +480,18 @@ verdaderos (tests/186-truthiness-and-logical-values.vn).
 
 - `xs[i]`, `s[i]`, `bytes[i]` y `rango[i]` tienen tipo `T`: el índice
   afirma que el elemento existe. Fuera de rango, o negativo, lanza
-  `RangeError`, también al escribir (tests/184-string-index.vn). Un array
+  `RangeError`, también al escribir (tests/string-index.test.vn). Un array
   crece con `push`; el acceso que puede fallar es `at(i)`, que devuelve `T?`.
 - `m[k]` sobre `Map<K, V>` tiene tipo `V?`: que la
-  clave falte es un caso normal (tests/187-keyed-index-and-optional-members.vn).
+  clave falte es un caso normal (tests/keyed-index-and-optional-members.test.vn).
   La escritura `m[k] = v` pide `V`.
 - Un miembro o parámetro opcional (`tag?: str`) es `str?`: omitirlo y pasar
-  `null` son lo mismo (tests/188-call-shape-and-optional-parameters.vn).
+  `null` son lo mismo (tests/call-shape-and-optional-parameters.test.vn).
 
 ### 10.3 El estrechamiento sigue a la asignación
 
 Un estrechamiento vale mientras la variable no cambie
-(tests/192-narrowing-follows-assignment.vn):
+(tests/narrowing-follows-assignment.test.vn):
 
 - Asignar a una variable deshace lo que se sabía de ella. Tras
   `if (x == null) return`, hacer `x = null` devuelve `x` a `T?`.
@@ -511,14 +511,14 @@ Un estrechamiento vale mientras la variable no cambie
 - Una función `never` no puede llegar a su final.
 - La anotación de un generador nombra lo que produce. `function* g(): int`
   y `function* g(): Generator<int>` son lo mismo, y cada `yield` se
-  comprueba contra ese tipo (tests/194-generator-declared-yield.vn).
+  comprueba contra ese tipo (tests/generator-declared-yield.test.vn).
 - Una restricción `T extends X` se comprueba contra el argumento de tipo
   escrito y contra el que se deduce de la llamada (`VN3202`).
 
 ### 10.5 Operadores, patrones y namespaces
 
 - `<`, `<=`, `>` y `>=` entre strings comparan sus puntos de código, en
-  orden (tests/196-string-order.vn). `==` entre arrays u objetos es
+  orden (tests/string-order.test.vn). `==` entre arrays u objetos es
   identidad.
 - `-`, `+` y `~` unarios, y `++`/`--`, exigen un número (o un tipo que
   sobrecargue el operador). No hay conversión: `-"a"` es error.
@@ -538,11 +538,11 @@ Un estrechamiento vale mientras la variable no cambie
   `a | b`.
 - `break` y `continue` actúan sobre el bucle más interno, o sobre el
   bucle que nombra su etiqueta (`fuera: for (...) { ... break fuera }`,
-  tests/201-loop-labels.vn). Una etiqueta que no nombra un bucle que
+  tests/loop-labels.test.vn). Una etiqueta que no nombra un bucle que
   rodea al salto es error.
 - Cada vuelta de un `for (let i ...)` tiene su propia `i`, igual que en
   `for-in`: una closure creada en la vuelta ve el valor de esa vuelta
-  (tests/198-loop-variable-per-iteration.vn).
+  (tests/loop-variable-per-iteration.test.vn).
 - `x!` afirma que `x` no es `null` y lo comprueba al ejecutar: si lo es,
   lanza. No es una forma de saltarse el tipo.
 - Un argumento nombrado debe nombrar un parámetro, y una sola vez.
@@ -583,7 +583,7 @@ lo leen y lo cambian.
 
 - `T[]`, `Map<K, V>`, `Set<T>` y los campos mutables son invariantes: un
   `Dog[]` no es un `Animal[]`, porque por la segunda vista se podría
-  guardar un `Cat` (tests/199-containers-are-invariant.vn). Un literal
+  guardar un `Cat` (tests/containers-are-invariant.test.vn). Un literal
   sí se adapta al tipo que se le pide. `Task`, `Generator` y los campos
   `readonly` son covariantes.
 - Dentro de una función genérica, `T` es opaco: no se le puede dar un
@@ -593,7 +593,7 @@ lo leen y lo cambian.
   que no.
 - `super.m()` y `super.x` llegan al padre también desde una flecha, un
   getter o el inicializador de un campo
-  (tests/200-super-reaches-the-parent.vn).
+  (tests/super-reaches-the-parent.test.vn).
 
 ### 10.6 Valores por defecto y spread
 
@@ -605,7 +605,7 @@ lo leen y lo cambian.
   Una variable `int` no se convierte sola a `float`.
 - `[...xs]` y `f(...xs)` aceptan cualquier iterable: `Array`, tupla,
   `Set` (valores), `Map` (entradas `(K,V)`), `str` (chars) y `Range`
-  (tests/191-spread-sources.vn, tests/180-for-in-collections.vn).
+  (tests/spread-sources.test.vn, tests/for-in-collections.test.vn).
   Un valor que puede ser `null` o un objeto no iterable son error de
   compilación.
 
@@ -616,7 +616,7 @@ lo leen y lo cambian.
 Tipo dinámico para valores cuya naturaleza se determina en tiempo de ejecución:
 
 ```vn
-function processTypeof(val: dynamic): str {    // tests/79-control-flow-narrowing.vn
+function processTypeof(val: dynamic): str {    // tests/control-flow-narrowing.test.vn
     if (typeof val === "str") {
         return val.toUpperCase()
     } else if (typeof val === "int") {
@@ -631,7 +631,7 @@ function processTypeof(val: dynamic): str {    // tests/79-control-flow-narrowin
 ## 12. Rangos
 
 ```vn
-const r1 = 0..5     // rango exclusivo [0, 5) (tests/18-ranges.vn)
+const r1 = 0..5     // rango exclusivo [0, 5) (tests/ranges.test.vn)
 const r2 = 1..=5    // rango inclusivo [1, 5]
 
 assertTrue("range start",       r1.start === 0)
@@ -649,7 +649,7 @@ Indexación directa con rangos en strings y arrays:
 
 ```vn
 let text = "Hello, World!"
-let greeting = text[0..5]     // "Hello"  (tests/88-range-indexing.vn)
+let greeting = text[0..5]     // "Hello"  (tests/range-indexing.test.vn)
 let greetingInc = text[0..=4] // "Hello"
 
 let numbers = [10, 20, 30, 40, 50, 60]

@@ -29,9 +29,9 @@ Module: `std:ui`
 > Un `Responsive` toma la clase de la ventana (`Constraints.windowClass`), no del ancho de su caja.
 > Ventana: `UiWindow.open(title, w, h)` abre ventana por defecto; `headless: true` para
 > tests. `run(title, build, w, h)` y `present(win, fr)` son las entradas de bucle.
-> Puertas: `tests/220-ui-declarative.vn`, `tests/232-ui-layout.vn`,
-> `tests/241-ui-controls.vn`, `tests/254-ui-reactive.vn`, `tests/255-ui-wrap-bounds.vn`,
-> `tests/235-signals.vn`, `tests/238-signals-tasks.vn`.
+> Puertas: `tests/ui-declarative.test.vn`, `tests/ui-layout.test.vn`,
+> `tests/ui-controls.test.vn`, `tests/ui-reactive.test.vn`, `tests/ui-wrap-bounds.test.vn`,
+> `tests/signals.test.vn`, `tests/signals-tasks.test.vn`.
 > Stack de render: `vn-ui` pinta con egui-wgpu 0.37 (wgpu 30, la pareja más reciente) sobre epaint para teselar rectángulos. El texto usa las fuentes de egui: `vn-text` guarda las definiciones de fuente compartidas por la medida (`runtime:text`) y por cada ventana, y así ambas miden lo mismo. La superficie usa formato no sRGB, que es lo que egui-wgpu espera para mezclar en espacio gamma.
 > Overlays: `Dialog(open, title, body)` (modal, el velo cierra al pulsar fuera),
 > `Select(options, value)` (ancla y lista que se cierra al elegir o al pulsar

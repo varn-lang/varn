@@ -61,7 +61,7 @@ representación boxed tampoco demuestra por sí sola semántica dinámica.
 Medición de una sola fixture:
 
 ```powershell
-target/release/vn debug -p tir:check tests/260-json-decode-validates.vn
+target/release/vn debug -p tir:check tests/json-decode-validates.test.vn
 ```
 
 Resultado: 194 nodos, 78 estáticos, 5 por nombre, indicador estático 94%.

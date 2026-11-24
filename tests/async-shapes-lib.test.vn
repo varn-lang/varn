@@ -1,4 +1,4 @@
-// Companion module for 75-async-shapes.vn. The point is the module boundary:
+// Companion module for async-shapes.test.vn. The point is the module boundary:
 // an async method or function only loses its `Task` wrap when the checker sees
 // it from another module.
 

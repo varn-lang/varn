@@ -338,7 +338,7 @@ Y el caso caro: `dce.rs` dice *"Trap behaviour was measured, not assumed"*. El
 trap existía; lo que nadie verificó es que fuera **alcanzable por un `catch`**.
 No lo era — `try/catch` sólo capturaba `throw` del usuario, y una división por
 cero o un `JSON.parse` inválido terminaban el proceso. Sobrevivió porque
-`tests/11-errors.vn` **evitaba** dividir por cero y lanzaba a mano.
+`tests/errors.test.vn` **evitaba** dividir por cero y lanzaba a mano.
 
 Verifica ejecutando, no leyendo.
 

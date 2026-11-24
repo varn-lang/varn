@@ -12,7 +12,7 @@ import { describe, it, expect } from "std:test";
 //
 // It never showed up in `vn run`, which makes one pass and rarely crosses the
 // tiering threshold; `vn bench` iterates enough to compile and failed on
-// `95-stdlib-markdown.vn`, whose `renderAst` is self-recursive and returns
+// `stdlib-markdown.test.vn`, whose `renderAst` is self-recursive and returns
 // `str`. That is what these assertions pin: every non-`int` return kind, each
 // exercised past the JIT threshold, and each identical to the interpreter.
 

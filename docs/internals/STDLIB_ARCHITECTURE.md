@@ -75,21 +75,21 @@ nativo se declara en su contrato con `@decodes("<op>")` (`runtime:json`, `parse$
 - `vn-gpu`: arena de buffers con handles generacionales (`arena.rs`), grafo perezoso `Add/Mul/Scale/MatMul` evaluado al descargar (`graph.rs`), sonda de adaptadores `wgpu` (`backend.rs`) y ejecución WGSL con un `submit` por grafo y fallback a CPU ante cualquier error (`execute.rs`).
 - Modelo de costo: `GPU_MIN_MACS = 200_000` (`lib.rs`); por debajo calcula la CPU. `engine()` informa qué motor resolvió la última operación.
 - `std:gpu`: `device.vn` (`backend`, `deviceCount`, `adapterName`, `engine`, `isAvailable`, `getInfo`) y `buffer.vn` (`GpuBuffer`).
-- Puerta: `tests/214-gpu-compute.vn`; bench `tests/benchmarks/vn/bench_gpu_matmul.vn`.
+- Puerta: `tests/gpu-compute.test.vn`; bench `tests/benchmarks/vn/bench_gpu_matmul.vn`.
 
 ## UI (`vn-ui` + `runtime:ui` + `std:ui` + `std:signals`)
 
 - `vn-ui`: ventana `winit`, render `wgpu` y `egui` 0.37 (`window.rs`, `render.rs`, `paint.rs`, `canvas.rs`, `input.rs`, `events.rs`, `comp.rs`, `quad.rs`, `present.rs`).
 - `runtime:ui` (`vn-builtins/src/modules/runtime/ui/`): ventanas como handles, cola de eventos y lista de comandos de dibujo. Toda la capa está tras la capability `ui` (`--allow-ui`).
 - `std:ui`: componentes, foco, edición de texto, layout, montaje, navegación, estado, estilos, `text` y una familia de widgets (`widget/`). `std:signals`: señales, efectos, estado y planificador reactivos.
-- Puertas: `tests/215-ui-headless.vn`, `217-ui-capabilities.vn`, `219-widgets.vn`, `220-ui-declarative.vn`, `232-ui-layout.vn`, `235-signals.vn`, `241-ui-controls.vn`, `245-ui-scroll.vn`, `246-ui-overlays.vn`, `250-layout-parity.vn`, `254-ui-reactive.vn`. Demos: `examples/ui-demo.vn`, `examples/ui-declarative-demo.vn`, `examples/ui-all-components.vn`.
+- Puertas: `tests/ui-headless.test.vn`, `ui-capabilities.test.vn`, `widgets.test.vn`, `ui-declarative.test.vn`, `ui-layout.test.vn`, `signals.test.vn`, `ui-controls.test.vn`, `ui-scroll.test.vn`, `ui-overlays.test.vn`, `layout-parity.test.vn`, `ui-reactive.test.vn`. Demos: `examples/ui-demo.vn`, `examples/ui-declarative-demo.vn`, `examples/ui-all-components.vn`.
 - [`UI-SPEC.md`](UI-SPEC.md) es la especificación objetivo; su estado frente al código no se volvió a auditar el 2026-11-13.
 
 ## Texto (`vn-text` + `runtime:text` + `std:ui/text`)
 
 - `vn-text` (`lib.rs`): definiciones de fuentes y medición/forma de texto con el contexto de `egui`.
 - `std:ui/text` (`std/ui/text.vn`): `fontCount`, `fonts`, `shape`, `measure`, `ascent`, `descent`, `wrap`.
-- Los ids de glifo dependen de la fuente del sistema: los tests son estructurales. Puerta: `tests/216-text-shaping.vn`.
+- Los ids de glifo dependen de la fuente del sistema: los tests son estructurales. Puerta: `tests/text-shaping.test.vn`.
 
 ## Macros
 

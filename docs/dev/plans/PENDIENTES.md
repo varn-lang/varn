@@ -574,10 +574,10 @@ Todos reproducidos con `target/quick/vn run` sobre `e0d92c53`.
 | JIT | `crates/vn-jit/src/clif/from_ssa/numeric.rs`, `ranges.rs`, `arrays.rs`, `clif/emit/payload.rs` (`guard_overflow`) |
 | Contratos nativos | `crates/vn-contract/src/*`, `crates/vn-macros/src/natives/*`, `contract_parse.rs`, `crates/vn-builtins/build.rs`, `src/modules/**`, `crates/vn-types/src/marshal.rs` |
 | Plantillas | `crates/vn-builtins/src/modules/core/types/{fixed_int,fixed_float}/` |
-| Tests | `tests/359-fixed-width-numbers.vn`; fixtures `tests/errors/{fixed-width-*,unsigned-has-no-negation,f32-literal-out-of-range,unknown-width-name-rejected,unknown-type-cast}.vn` |
+| Tests | `tests/fixed-width-numbers.test.vn`; fixtures `tests/errors/{fixed-width-*,unsigned-has-no-negation,f32-literal-out-of-range,unknown-width-name-rejected,unknown-type-cast}.vn` |
 | Planes | `docs/dev/plans/{FIXED-WIDTH,CONTRACT-V2,TO-NATIVE,PENDIENTES}.md` |
 
 Los bugs probados por sondeo se reprodujeron con programas sueltos; ninguno
 está aún como fixture. Al corregir cada uno de §5, añadir su caso a
-`tests/359-fixed-width-numbers.vn` o a `tests/errors/` (debe fallar antes del
+`tests/fixed-width-numbers.test.vn` o a `tests/errors/` (debe fallar antes del
 cambio).

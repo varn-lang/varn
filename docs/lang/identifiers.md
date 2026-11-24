@@ -99,8 +99,8 @@ assertTrue("pipe multi _",     4 |> addN(_, _) === 8)
 ## 6. Nombres de Tipos en `typeof`
 
 Verificado en tests: `"str"`, `"int"`, `"float"`, `"class"`
-(`tests/79-control-flow-narrowing.vn`,
-`tests/122-numeric-conversions.vn`, `tests/111-network-apis-overhaul.vn`).
+(`tests/control-flow-narrowing.test.vn`,
+`tests/numeric-conversions.test.vn`, `tests/network-apis-overhaul.test.vn`).
 Nombres canónicos: `"str"` nunca `"string"`, `"int"` nunca `"integer"`.
 Otros valores (`"bool"`, `"char"`, `"null"`, `"object"`, `"array"`,
 `"function"`): NO-VERIFICADOS.

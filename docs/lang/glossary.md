@@ -20,7 +20,7 @@ Función de testing. Lanza un error si `condition` es `false`.
 
 **`async`**
 Modificador de función. La función devuelve un valor awaitable; permite
-`await` dentro del cuerpo (`tests/21-async.vn`).
+`await` dentro del cuerpo (`tests/async.test.vn`).
 
 **`await`**  
 Operador que pausa la ejecución de la función asíncrona actual hasta que la `Future` se resuelva. También válido a nivel de módulo (top-level await).
@@ -99,7 +99,7 @@ Bloque que se ejecuta siempre después de `try/catch`, independientemente de si 
 **`float`**
 Tipo primitivo de número flotante de 64 bits (IEEE 754 doble precisión).
 `int / int` es `int`; la división flotante usa operandos `float`
-(`tests/120-int-division.vn`).
+(`tests/int-division.test.vn`).
 
 **`for`**  
 Bucle de tres partes estilo C: `for (init; condition; step) { }`.
@@ -155,7 +155,7 @@ Operador de verificación de tipo en tiempo de ejecución. Devuelve `bool`. Tamb
 **`int`**
 Tipo primitivo de entero de 64 bits con signo (`-2^63 .. 2^63-1`).
 La aritmética fuera de rango lanza `IntegerOverflow`; no envuelve
-(`tests/120-int-division.vn`, `tests/102-int-overflow.vn`).
+(`tests/int-division.test.vn`, `tests/int-overflow-102.test.vn`).
 
 **`interface`**  
 Contrato estructural sin implementación. Los campos opcionales se marcan con `?`. Varn usa tipado estructural.
@@ -235,7 +235,7 @@ Literal de cadena delimitado por triple comilla. No procesa secuencias de escape
 
 **Struct (`struct`)**
 Tipo valor nominal con campos inmutables e igualdad profunda (`==`); par de
-`Tuple` (`(…)`) (`tests/69-tuples-structs.vn`).
+`Tuple` (`(…)`) (`tests/tuples-structs.test.vn`).
 
 **`return`**  
 Devuelve un valor desde una función y termina su ejecución.
@@ -296,8 +296,8 @@ Tipo que puede ser uno de varios tipos posibles. Ejemplo: `str | int`, `T | null
 
 **`using`**
 Declaración de recurso con disposición automática (`dispose()`) al salir del
-bloque (`tests/21-async.vn`, `tests/54-channels.vn`,
-`tests/50-opt-unsupported-phase3.vn`).
+bloque (`tests/async.test.vn`, `tests/channels.test.vn`,
+`tests/opt-unsupported-phase3.test.vn`).
 
 ---
 
@@ -317,7 +317,7 @@ Tipo de retorno de funciones que no devuelven ningún valor significativo.
 Conversión implícita exacta: `int → bigint`, `int → decimal`. Un **literal**
 entero adopta `float`/`decimal`/`bigint` del contexto si es representable.
 `int → float` de variable NO es implícito: se escribe con `as`
-(`tests/122-numeric-conversions.vn`).
+(`tests/numeric-conversions.test.vn`).
 
 **`with` Expression**  
 Expresión que clona un objeto o instancia sobreescribiendo solo los campos especificados, manteniendo el original inmutable. Ejemplo: `u1 with { name: "Bob" }`.

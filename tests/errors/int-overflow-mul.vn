@@ -2,6 +2,6 @@
 //
 // `int` is a native i64 and raises rather than wrapping.
 //
-// Uncaught, it aborts the run; caught, it is an `Error` (see `tests/53-int-overflow.vn`).
+// Uncaught, it aborts the run; caught, it is an `Error` (see `tests/int-overflow-53.test.vn`).
 function mul(a: int, b: int): int { return a * b }
 print(mul(4000000000, 4000000000))

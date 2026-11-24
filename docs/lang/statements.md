@@ -1,6 +1,6 @@
 # Varn Language — Sentencias y Control de Flujo
 
-> Fuentes: `tests/09-control-flow.vn`, `tests/10-match.vn`, `tests/11-errors.vn`, `tests/18-ranges.vn`, `tests/34-char-type.vn`, `tests/47-isolates-multithread.vn`, `tests/54-channels.vn`, `tests/78-try-early-exit.vn`, `tests/79-control-flow-narrowing.vn`.
+> Fuentes: `tests/control-flow.test.vn`, `tests/match.test.vn`, `tests/errors.test.vn`, `tests/ranges.test.vn`, `tests/char-type.test.vn`, `tests/isolates-multithread.test.vn`, `tests/channels.test.vn`, `tests/try-early-exit.test.vn`, `tests/control-flow-narrowing.test.vn`.
 
 ---
 
@@ -56,7 +56,7 @@ Con bloques:
 
 ```vn
 if (val !== null) {
-    return val.length     // type narrowed to str (tests/79-control-flow-narrowing.vn)
+    return val.length     // type narrowed to str (tests/control-flow-narrowing.test.vn)
 }
 ```
 
@@ -66,7 +66,7 @@ if (val !== null) {
 
 ```vn
 function describeNum(n: int): str {
-    return match (n) {        // tests/10-match.vn
+    return match (n) {        // tests/match.test.vn
         0 => "zero",
         1 => "one",
         2 | 3 => "two or three",   // multi-valor
@@ -75,7 +75,7 @@ function describeNum(n: int): str {
 }
 ```
 
-Match sobre enum con payload (`tests/41-advanced-enums.vn`):
+Match sobre enum con payload (`tests/advanced-enums.test.vn`):
 
 ```vn
 let v = match x {
@@ -84,7 +84,7 @@ let v = match x {
 }
 ```
 
-Match anidado en `this` (`tests/41-advanced-enums.vn`, `tests/189-enum-variant-slots.vn`):
+Match anidado en `this` (`tests/advanced-enums.test.vn`, `tests/enum-variant-slots.test.vn`):
 
 ```vn
 area(): float {
@@ -105,7 +105,7 @@ while (i < arr.length) {
     if (arr[i] > threshold) { break }
     i = i + 1
 }
-// tests/09-control-flow.vn
+// tests/control-flow.test.vn
 ```
 
 ---
@@ -117,7 +117,7 @@ for (let i = 0; i <= max; i = i + 1) {
     if (i % 2 === 0) continue
     total = total + i
 }
-// tests/09-control-flow.vn
+// tests/control-flow.test.vn
 ```
 
 ---
@@ -131,14 +131,14 @@ let forOfSum = 0
 for (const n in [10, 20, 30]) {
     forOfSum = forOfSum + n
 }
-assertTrue("for-in sum", forOfSum === 60)   // tests/09-control-flow.vn
+assertTrue("for-in sum", forOfSum === 60)   // tests/control-flow.test.vn
 
 // Con rango inclusivo
 let rangeSum = 0
 for (const i in 1..=10) {
     rangeSum = rangeSum + i
 }
-assertTrue("range for-in sum", rangeSum === 55)   // tests/18-ranges.vn
+assertTrue("range for-in sum", rangeSum === 55)   // tests/ranges.test.vn
 
 // Con break
 let forOfBreak = 0
@@ -166,7 +166,7 @@ let keyCount = 0
 for (const k in obj2) {
     keyCount = keyCount + 1
 }
-assertTrue("for-in key count", keyCount === 3)   // tests/09-control-flow.vn
+assertTrue("for-in key count", keyCount === 3)   // tests/control-flow.test.vn
 ```
 
 ---
@@ -176,11 +176,11 @@ assertTrue("for-in key count", keyCount === 3)   // tests/09-control-flow.vn
 Consume iterables asíncronos, como canales o async generators:
 
 ```vn
-for await (const v in ch.rx) {         // tests/54-channels.vn
+for await (const v in ch.rx) {         // tests/channels.test.vn
     sum = sum + v
 }
 
-for await (const msg in rx) {          // tests/47-isolates-multithread.vn
+for await (const msg in rx) {          // tests/isolates-multithread.test.vn
     match (msg) {
         Val(n) => await tx.send(n + 1),
         Msg.Exit => open = false,
@@ -188,7 +188,7 @@ for await (const msg in rx) {          // tests/47-isolates-multithread.vn
     if (!open) break
 }
 
-for await (const v in awaitsThenYields()) {   // tests/77-async-generators.vn
+for await (const v in awaitsThenYields()) {   // tests/async-generators.test.vn
     total = total + v
 }
 ```
@@ -234,7 +234,7 @@ function withFinally(): int {
         finallyRan = true    // se ejecuta aunque haya return
     }
 }
-assertTrue("finally ran", finallyRan)   // tests/11-errors.vn
+assertTrue("finally ran", finallyRan)   // tests/errors.test.vn
 ```
 
 ---
@@ -250,7 +250,7 @@ function safeDivide(a: int, b: int): float {
         return -1
     }
 }
-// tests/11-errors.vn
+// tests/errors.test.vn
 
 // finally siempre se ejecuta
 try {
@@ -278,7 +278,7 @@ try {
 } catch (e) {
     isRangeError = e instanceof RangeError
 }
-assertTrue("catch instanceof", isRangeError)   // tests/11-errors.vn
+assertTrue("catch instanceof", isRangeError)   // tests/errors.test.vn
 ```
 
 ### Rethrow
@@ -308,7 +308,7 @@ function conBreak(): void {
         } catch (e) { /* nunca se llega aquí */ }
     }
 }
-// tests/78-try-early-exit.vn
+// tests/try-early-exit.test.vn
 
 function conReturn(): void {
     for (let i = 0; i < 3; i = i + 1) {
@@ -339,23 +339,23 @@ throw e    // re-lanzar una excepción capturada
 Gestión de recursos con disposición automática al salir del bloque:
 
 ```vn
-using group = new TaskGroup<int>()   // tests/21-async.vn
+using group = new TaskGroup<int>()   // tests/async.test.vn
 const g1 = group.spawn(asyncAdd(7, 8))
 const joined = await group.join()
 
 // Bloque explícito con using
 {
-    using tx = ch.tx               // tests/54-channels.vn
+    using tx = ch.tx               // tests/channels.test.vn
     await tx.send(5)
 }   // tx.dispose() se llama aquí automáticamente
 
 // using con destructuring
 {
-    using { res1, res2 } = resource;   // tests/50-opt-unsupported-phase3.vn
+    using { res1, res2 } = resource;   // tests/opt-unsupported-phase3.test.vn
 }   // resource.dispose() corre al salir
 
 // using con ficheros
-using file = File.open(path, "w");   // tests/45-simple-file-test.vn
+using file = File.open(path, "w");   // tests/simple-file-test.test.vn
 ```
 
 ---
@@ -369,7 +369,7 @@ function classify(n: int): str {
 assertTrue("nested ternary neg",  classify(-1) === "neg")
 assertTrue("nested ternary zero", classify(0) === "zero")
 assertTrue("nested ternary pos",  classify(1) === "pos")
-// tests/09-control-flow.vn
+// tests/control-flow.test.vn
 ```
 
 ---
@@ -418,5 +418,5 @@ Se acepta `const` o `let`, y cualquier patrón de destructuring (`if (const { a,
 
 Para recorrer con índice: `for (const [i, v] in xs.entries())`. `x in d` solo vale para diccionarios (`{ [k: str]: V }`) y `dynamic`; para rangos usa `.contains(x)`.
 
-Test: `tests/318-binding-conditions-entries-and-optional-calls.vn`.
+Test: `tests/binding-conditions-entries-and-optional-calls.test.vn`.
 

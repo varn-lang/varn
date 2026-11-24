@@ -1,6 +1,6 @@
 # Varn Language — Módulos y Paquetes
 
-> Fuentes: `tests/21-async.vn`, `tests/27-decorators.vn`, `tests/42-stdlib-comprehensive-test.vn`, `tests/47-isolates-multithread.vn`, `tests/54-channels.vn`, `tests/68-module-locals.vn`, `tests/80-capabilities-security.vn`, `tests/82-std-csv.vn`, `tests/83-canonical-types-regex-uuid-time.vn`, `tests/84-stdlib-process-compress-cli-env.vn`, `tests/85-stdlib-sqlite-ws-archive.vn`, `tests/86-tagged-templates.vn`.
+> Fuentes: `tests/async.test.vn`, `tests/decorators.test.vn`, `tests/stdlib-comprehensive-test.test.vn`, `tests/isolates-multithread.test.vn`, `tests/channels.test.vn`, `tests/module-locals.test.vn`, `tests/capabilities-security.test.vn`, `tests/std-csv.test.vn`, `tests/canonical-types-regex-uuid-time.test.vn`, `tests/stdlib-process-compress-cli-env.test.vn`, `tests/stdlib-sqlite-ws-archive.test.vn`, `tests/tagged-templates.test.vn`.
 
 ---
 
@@ -9,12 +9,12 @@
 ### Importación nombrada desde stdlib
 
 ```vn
-import { sleep, TaskGroup, spawn, parallel } from "std:task"   // tests/21-async.vn
-import { channel, Sender, Receiver, ChannelClosed, spawnIsolate } from "std:task"   // tests/47-isolates-multithread.vn
-import { describe, it, expect } from "std:test"   // tests/21-async.vn
-import { MetaKey, ClassRef } from "std:reflect"   // tests/27-decorators.vn
-import { WebSocket } from "std:ws"   // tests/85-stdlib-sqlite-ws-archive.vn
-import { readText, writeText, remove, exists } from "std:fs"   // tests/80-capabilities-security.vn
+import { sleep, TaskGroup, spawn, parallel } from "std:task"   // tests/async.test.vn
+import { channel, Sender, Receiver, ChannelClosed, spawnIsolate } from "std:task"   // tests/isolates-multithread.test.vn
+import { describe, it, expect } from "std:test"   // tests/async.test.vn
+import { MetaKey, ClassRef } from "std:reflect"   // tests/decorators.test.vn
+import { WebSocket } from "std:ws"   // tests/stdlib-sqlite-ws-archive.test.vn
+import { readText, writeText, remove, exists } from "std:fs"   // tests/capabilities-security.test.vn
 import { Env } from "std:env"
 import { platform, cwd } from "std:sys"
 ```
@@ -36,7 +36,7 @@ import { workerMain } from "./some-module"
 export async function workerMain(rx: Receiver<ValueMsg>, tx: Sender<int>) {
     // ...
 }
-// tests/47-isolates-multithread.vn
+// tests/isolates-multithread.test.vn
 ```
 
 Solo las funciones exportadas (`export`) de nivel superior pueden usarse con `spawnIsolate`.
@@ -57,7 +57,7 @@ function* touchesModuleState() {
     yield bumpCounter()    // accede a moduleCounter del módulo
     yield bumpCounter()
 }
-// tests/76-generator-values.vn
+// tests/generator-values.test.vn
 ```
 
 ---
@@ -68,11 +68,11 @@ Ver `standard_library.md` (mapa: `../STDLIB_ARCHITECTURE.md`). Aquí solo los
 imports ejercitados:
 
 ```vn
-import { sleep, TaskGroup, spawn, parallel } from "std:task"   // tests/21-async.vn
-import { channel, Sender, Receiver, ChannelClosed, spawnIsolate } from "std:task"   // tests/47-isolates-multithread.vn
-import { describe, it, expect } from "std:test"   // tests/21-async.vn
-import { MetaKey, ClassRef } from "std:reflect"   // tests/27-decorators.vn
-import { readText, writeText, remove, exists } from "std:fs"   // tests/80-capabilities-security.vn
+import { sleep, TaskGroup, spawn, parallel } from "std:task"   // tests/async.test.vn
+import { channel, Sender, Receiver, ChannelClosed, spawnIsolate } from "std:task"   // tests/isolates-multithread.test.vn
+import { describe, it, expect } from "std:test"   // tests/async.test.vn
+import { MetaKey, ClassRef } from "std:reflect"   // tests/decorators.test.vn
+import { readText, writeText, remove, exists } from "std:fs"   // tests/capabilities-security.test.vn
 import { Env } from "std:env"
 import { platform, cwd } from "std:sys"
 ```

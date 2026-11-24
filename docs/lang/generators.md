@@ -1,6 +1,6 @@
 # Varn Language — Generadores
 
-> Fuentes: `tests/20-generators.vn`, `tests/76-generator-values.vn`, `tests/77-async-generators.vn`.
+> Fuentes: `tests/generators.test.vn`, `tests/generator-values.test.vn`, `tests/async-generators.test.vn`.
 
 ---
 
@@ -16,7 +16,7 @@ function* range_gen(start: int, end: int) {
         i = i + 1
     }
 }
-// tests/20-generators.vn
+// tests/generators.test.vn
 
 const gen = range_gen(0, 5)
 assertTrue("gen value 0", gen.next().value === 0)
@@ -44,7 +44,7 @@ function* fib_gen() {
         b = tmp
     }
 }
-// tests/20-generators.vn
+// tests/generators.test.vn
 
 const fib2 = fib_gen()
 const fibs: int[] = []
@@ -73,7 +73,7 @@ function* yieldsArrays() {
 }
 const arr = yieldsArrays().next().value
 assertTrue("yielded array", arr.length === 3 && arr[1] === 2)
-// tests/76-generator-values.vn
+// tests/generator-values.test.vn
 
 function* yieldsObjects() {
     yield { a: 1, b: 2 }
@@ -99,7 +99,7 @@ function* touchesModuleState() {
 const counted = touchesModuleState()
 assertTrue("gen sees module state, first",  counted.next().value === 1)
 assertTrue("gen sees module state, second", counted.next().value === 2)
-// tests/76-generator-values.vn
+// tests/generator-values.test.vn
 ```
 
 ---
@@ -117,7 +117,7 @@ const returning = returnsAHeapValue()
 returning.next()
 const finalResult = returning.next()
 assertTrue("returned heap value", finalResult.done && finalResult.value[0] === 9)
-// tests/76-generator-values.vn
+// tests/generator-values.test.vn
 ```
 
 ---
@@ -133,7 +133,7 @@ function* yieldsAGenerator() {
 }
 const nested = yieldsAGenerator().next().value
 assertTrue("generator yields a generator", nested.next().value === 41)
-// tests/76-generator-values.vn
+// tests/generator-values.test.vn
 ```
 
 ---
@@ -168,7 +168,7 @@ async function* awaitsThenYields() {
     yield await tenTimes(2)    // 20
     yield await tenTimes(3)    // 30
 }
-// tests/77-async-generators.vn
+// tests/async-generators.test.vn
 
 const manual = awaitsThenYields()
 assertTrue("async gen first",  manual.next().value === 10)
@@ -270,5 +270,5 @@ Un generador suspendido dentro de un `try/finally` ejecuta sus `finally` cuando 
 - `for...of` y `for await` sobre un generador lo cierran al salir por `break`, `return` o `throw`.
 - En un `async function*`, `close()` devuelve una `Task`: `await gen.close()`.
 
-Los tests son `tests/317-generator-close-runs-finally.vn` y los fixtures `tests/errors/yield-*.vn`.
+Los tests son `tests/generator-close-runs-finally.test.vn` y los fixtures `tests/errors/yield-*.vn`.
 

@@ -371,7 +371,7 @@ Field         = Identifier [ ":" MatchPattern ] ;
 La guarda es una `Conditional`: no admite flechas ni asignaciones, para que `n if ok => …`
 lea `=>` como separador del brazo.
 
-Los patrones se anidan sin límite y cada sub-patrón se comprueba de verdad (`tests/338-match-patterns.vn`):
+Los patrones se anidan sin límite y cada sub-patrón se comprueba de verdad (`tests/match-patterns.test.vn`):
 
 - `Circle(1.0)` solo casa con un círculo de radio `1.0`; `Rect { h }` liga el campo **por nombre**, no por posición.
 - Una tupla `(a, b)` exige una tupla de esa aridad (`VN3016`); `[a, b]` exige un array (`VN3001`). Un array sin `...` casa por longitud exacta; con `...` por longitud mínima, y `...r` liga el resto.

@@ -3,7 +3,7 @@
 
 # Auditoría de `Value` y `VmValue`
 
-Fecha: 2026-10-02. Auditoría original; resuelta por ADR-0021 (`Value` eliminado, los tres fallos de corrupción corregidos y cubiertos por `tests/157-task-value-handles.vn`).
+Fecha: 2026-10-02. Auditoría original; resuelta por ADR-0021 (`Value` eliminado, los tres fallos de corrupción corregidos y cubiertos por `tests/task-value-handles.test.vn`).
 
 ## Resumen
 `Value` se presenta como el valor portable, pero no lo es: una parte de sus

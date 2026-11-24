@@ -107,7 +107,7 @@ Orden: (1) registro estructurado para tests y `UiEvent` único, sin cambio de co
 
 ## 6. Estado de la etapa 2 (un solo motor de texto)
 
-Hecho: H8 queda resuelto como "fuentes compartidas y comprobado". `vn_text::font_definitions()` es la única fuente de definiciones de fuentes. El contexto de medida y el de cada ventana las instalan. El test `tests/253-text-consistency.vn` mide con `std:ui/text` y pide el ancho a la ventana (que pinta con egui), y falla si divergen (comprobado con un mutante que vacía las fuentes de la ventana).
+Hecho: H8 queda resuelto como "fuentes compartidas y comprobado". `vn_text::font_definitions()` es la única fuente de definiciones de fuentes. El contexto de medida y el de cada ventana las instalan. El test `tests/text-consistency.test.vn` mide con `std:ui/text` y pide el ancho a la ventana (que pinta con egui), y falla si divergen (comprobado con un mutante que vacía las fuentes de la ventana).
 
 Límite real: egui guarda memoria de UI (foco, ids, scroll) dentro de su `Context`, así que cada ventana necesita el suyo. Un único `Context` compartido por todas las ventanas no es correcto. Por eso H8 se resuelve con definiciones compartidas y una comprobación, no con un único objeto.
 

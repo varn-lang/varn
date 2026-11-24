@@ -59,7 +59,7 @@ await describe("68 module locals", async () => {
         //
         // The getter case below is not hypothetical: the first cut of the pass walked
         // only `HirClass::methods` and missed `getters`, promoting a global a getter
-        // wrote. `tests/60-dce-purity.vn` caught it.
+        // wrote. `tests/dce-purity.test.vn` caught it.
         
         // --- promotable: read and written only by top-level code -------------------
         let counter = 0

@@ -6,7 +6,7 @@ Colección de ejemplos completos extraídos directamente de los archivos de prue
 
 ---
 
-## 01 — Aritmética (`tests/01-arithmetic.vn`)
+## 01 — Aritmética (`tests/arithmetic.test.vn`)
 
 ```vn
 assertTrue("int add",          1 + 2 === 3)
@@ -28,7 +28,7 @@ assertTrue("right shift",      64 >> 2 === 16)
 
 ---
 
-## 02 — Booleanos (`tests/02-boolean.vn`)
+## 02 — Booleanos (`tests/boolean.test.vn`)
 
 ```vn
 assertTrue("and short-circuit", (false && (1/0 === 0)) === false)
@@ -41,7 +41,7 @@ assertTrue("triple eq null",    null === null)
 
 ---
 
-## 03 — Cadenas de Texto (`tests/03-strings.vn`)
+## 03 — Cadenas de Texto (`tests/strings.test.vn`)
 
 ```vn
 const s = "  Hello, World!  "
@@ -69,7 +69,7 @@ assertTrue("str.join sep",   str.join(["a", "b", "c"], "-") === "a-b-c")
 
 ---
 
-## 04 — Template Literals (`tests/04-templates.vn`)
+## 04 — Template Literals (`tests/templates.test.vn`)
 
 ```vn
 const tval = 42
@@ -81,7 +81,7 @@ assertTrue("template + concat", `a${1 + 1}b` + "c" === "a2bc")
 
 ---
 
-## 05 — Arrays (`tests/05-arrays.vn`)
+## 05 — Arrays (`tests/arrays.test.vn`)
 
 ```vn
 const nums = [3, 1, 4, 1, 5, 9, 2, 6]
@@ -118,7 +118,7 @@ assertTrue("Array<T> to T[]", explicitBracket[1] === 20)
 
 ---
 
-## 06 — Destructuring (`tests/06-destructuring.vn`)
+## 06 — Destructuring (`tests/destructuring.test.vn`)
 
 ```vn
 const obj1 = { a: 1, b: 2, c: 3 }
@@ -144,7 +144,7 @@ assertTrue("obj spread z", ext.z === 3)
 
 ---
 
-## 07 — Closures (`tests/07-closures.vn`)
+## 07 — Closures (`tests/closures.test.vn`)
 
 ```vn
 function makeAdder(n: int): (a: int) => int {
@@ -173,7 +173,7 @@ assertTrue("compose", doubleInc(4) === 10)
 
 ---
 
-## 08 — Null Safety (`tests/08-null-safety.vn`)
+## 08 — Null Safety (`tests/null-safety.test.vn`)
 
 ```vn
 interface Profile { name: str; address?: Address }
@@ -192,7 +192,7 @@ assertTrue("?? chained",        (null ?? null ?? 7) === 7)
 
 ---
 
-## 09 — Control de Flujo (`tests/09-control-flow.vn`)
+## 09 — Control de Flujo (`tests/control-flow.test.vn`)
 
 ```vn
 function classify(n: int): str {
@@ -234,7 +234,7 @@ assertTrue("for-in key count", keyCount === 3)
 
 ---
 
-## 10 — Match (`tests/10-match.vn`)
+## 10 — Match (`tests/match.test.vn`)
 
 ```vn
 function describeNum(n: int): str {
@@ -251,7 +251,7 @@ assertTrue("match other", describeNum(99) === "other")
 
 ---
 
-## 11 — Manejo de Errores (`tests/11-errors.vn`)
+## 11 — Manejo de Errores (`tests/errors.test.vn`)
 
 ```vn
 // try/catch
@@ -281,7 +281,7 @@ assertTrue("finally ran",          finallyRan)
 
 ---
 
-## 16 — Enums (`tests/16-enums.vn`)
+## 16 — Enums (`tests/enums.test.vn`)
 
 ```vn
 enum Direction { North, South, East, West }
@@ -304,7 +304,7 @@ function describeDir(d: Direction): str {
 
 ---
 
-## 19 — Pipeline (`tests/19-pipeline.vn`)
+## 19 — Pipeline (`tests/pipeline.test.vn`)
 
 ```vn
 assertTrue("pipe simple",      5 |> double2 === 10)
@@ -317,7 +317,7 @@ assertTrue("pipe chained", piped === 12)
 
 ---
 
-## 20 — Generadores (`tests/20-generators.vn`)
+## 20 — Generadores (`tests/generators.test.vn`)
 
 ```vn
 function* range_gen(start: int, end: int) {
@@ -343,7 +343,7 @@ assertTrue("fib gen [7]", fibs[7] === 13)
 
 ---
 
-## 21 — Async/Await (`tests/21-async.vn`)
+## 21 — Async/Await (`tests/async.test.vn`)
 
 ```vn
 import { sleep, TaskGroup, spawn, parallel } from "std:task"
@@ -366,7 +366,7 @@ await runAsync()
 
 ---
 
-## 25 — Extension Methods (`tests/25-extensions.vn`)
+## 25 — Extension Methods (`tests/extensions.test.vn`)
 
 ```vn
 extension StringUtils on str {
@@ -394,7 +394,7 @@ assertTrue("int clamp lo", (2).clamp(5, 10) === 5)
 
 ---
 
-## 41 — Enums Avanzados (`tests/41-advanced-enums.vn`)
+## 41 — Enums Avanzados (`tests/advanced-enums.test.vn`)
 
 ```vn
 // Payload variant
@@ -437,7 +437,7 @@ assertTrue("generic enum Ok", valOk === 42)
 
 ---
 
-## 47 — Isolates (`tests/47-isolates-multithread.vn`)
+## 47 — Isolates (`tests/isolates-multithread.test.vn`)
 
 ```vn
 import { spawnIsolate, channel, Sender, Receiver } from "std:task"
@@ -457,7 +457,7 @@ await h1.join()
 
 ---
 
-## 69 — Tuples y Structs (`tests/69-tuples-structs.vn`)
+## 69 — Tuples y Structs (`tests/tuples-structs.test.vn`)
 
 ```vn
 let t1 = (1, "hello", true)
@@ -480,7 +480,7 @@ assertTrue("nested eq true", nested1 == nested2)
 
 ---
 
-## 86 — Tagged Templates (`tests/86-tagged-templates.vn`)
+## 86 — Tagged Templates (`tests/tagged-templates.test.vn`)
 
 ```vn
 function customTag(strings: str[], ...values: dynamic[]): str {
@@ -503,7 +503,7 @@ let rows = db.sql`SELECT * FROM users WHERE role = ${targetRole} AND active = ${
 
 ---
 
-## 87 — Primary Constructors y `??=` (`tests/87-primary-constructors-nullish-assign.vn`)
+## 87 — Primary Constructors y `??=` (`tests/primary-constructors-nullish-assign.test.vn`)
 
 ```vn
 // C# style primary constructor
@@ -528,7 +528,7 @@ assertEqual(a, 42)
 
 ---
 
-## 88 — Range Indexing (`tests/88-range-indexing.vn`)
+## 88 — Range Indexing (`tests/range-indexing.test.vn`)
 
 ```vn
 let text = "Hello, World!"
@@ -551,7 +551,7 @@ assertEqual(picked[0], "banana")
 
 ---
 
-## 89 — Raw Strings y `with` (`tests/89-raw-strings-and-with-expressions.vn`)
+## 89 — Raw Strings y `with` (`tests/raw-strings-and-with-expressions.test.vn`)
 
 ```vn
 // Raw String Literals

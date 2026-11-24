@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { asyncImportedMethod, importedAsyncFn, AsyncNs, ImportedAsyncBox } from "./75-async-shapes-lib.vn"
+import { asyncImportedMethod, importedAsyncFn, AsyncNs, ImportedAsyncBox } from "./async-shapes-lib.test.vn"
 
 // Varn has no explicit Promise wrapper: writing `async` is what makes the call
 // produce a task. So `async f(): int` declares a body returning `int` and a

@@ -1,6 +1,6 @@
 # Varn Language — Funciones y Métodos
 
-> Fuentes: `tests/07-closures.vn`, `tests/09-control-flow.vn`, `tests/14-generics.vn`, `tests/19-pipeline.vn`, `tests/22-recursion.vn`, `tests/36-advanced-generics.vn`, `tests/37-complex-closures.vn`, `tests/38-advanced-higher-order.vn`, `tests/40-named-arguments.vn`, `tests/86-tagged-templates.vn`.
+> Fuentes: `tests/closures.test.vn`, `tests/control-flow.test.vn`, `tests/generics.test.vn`, `tests/pipeline.test.vn`, `tests/recursion.test.vn`, `tests/advanced-generics.test.vn`, `tests/complex-closures.test.vn`, `tests/advanced-higher-order.test.vn`, `tests/named-arguments.test.vn`, `tests/tagged-templates.test.vn`.
 
 ---
 
@@ -37,7 +37,7 @@ function describe(name: str, age: int, city: str | null = null): str {
     if (city == null) { city = "Unknown" }
     return name + " is " + age.toString() + " years old and lives in " + city
 }
-// tests/40-named-arguments.vn
+// tests/named-arguments.test.vn
 
 // Básico en orden
 assertTrue("in-order", describe(name: "Alice", age: 30, city: "London") == "Alice is 30 years old and lives in London")
@@ -55,13 +55,13 @@ assertTrue("mixed", describe("Charlie", age: 40) == "Charlie is 40 years old and
 
 ```vn
 function describe(name: str, age: int, city: str | null = null): str { /* … */ }
-// tests/40-named-arguments.vn
+// tests/named-arguments.test.vn
 
 function greet(greeting: str, formal: bool | null = null): str {
     if (formal == true) return greeting + ", " + this.name
     return greeting + " " + this.name
 }
-// tests/40-named-arguments.vn
+// tests/named-arguments.test.vn
 ```
 
 ---
@@ -69,14 +69,14 @@ function greet(greeting: str, formal: bool | null = null): str {
 ## 4. Funciones Genéricas
 
 ```vn
-function identity<T>(v: T): T { return v }                     // tests/14-generics.vn
+function identity<T>(v: T): T { return v }                     // tests/generics.test.vn
 assertTrue("generic id int",  identity<int>(42) === 42)
 assertTrue("generic id str",  identity<str>("hi") === "hi")
 
 function swap<A, B>(a: A, b: B): B { return b }
 assertTrue("generic swap", swap<int, str>(1, "x") === "x")
 
-function applyFunc<T, U>(f: (T) => U, val: T): U {            // tests/14-generics.vn
+function applyFunc<T, U>(f: (T) => U, val: T): U {            // tests/generics.test.vn
     return f(val)
 }
 assertTrue("generic fn infer", applyFunc((x: int) => x.toString(), 123) === "123")
@@ -87,7 +87,7 @@ Funciones genéricas con named args:
 ```vn
 function identity<T>(value: T, label: str): T { return value }
 assertTrue("generic named args", identity<int>(value: 42, label: "Answer") == 42)
-// tests/40-named-arguments.vn
+// tests/named-arguments.test.vn
 ```
 
 ---
@@ -98,7 +98,7 @@ assertTrue("generic named args", identity<int>(value: 42, label: "Answer") == 42
 function pipe<A, B, C>(f: (A) => B, g: (B) => C): (A) => C {
     return (x: A) => g(f(x))
 }
-// tests/36-advanced-generics.vn
+// tests/advanced-generics.test.vn
 
 function flip<A, B, C>(f: (A, B) => C): (B, A) => C {
     return (b: B, a: A) => f(a, b)
@@ -124,7 +124,7 @@ function makeAdder(n: int): (a: int) => int {
 }
 const add5 = makeAdder(5)
 const add10 = makeAdder(10)
-assertTrue("closure add5",  add5(3) === 8)     // tests/07-closures.vn
+assertTrue("closure add5",  add5(3) === 8)     // tests/closures.test.vn
 assertTrue("closure add10", add10(3) === 13)
 assertTrue("closure independent", add5(0) !== add10(0))
 
@@ -150,7 +150,7 @@ function fib(n: int): int {
     if (n <= 1) return n
     return fib(n - 1) + fib(n - 2)
 }
-assertTrue("fib 10", fib(10) === 55)   // tests/22-recursion.vn
+assertTrue("fib 10", fib(10) === 55)   // tests/recursion.test.vn
 
 function power(base: int, exp: int): int {
     if (exp === 0) return 1
@@ -170,7 +170,7 @@ function isOdd2(n: int): bool {
     if (n === 0) return false
     return isEven2(n - 1)
 }
-assertTrue("mutual even", isEven2(4))    // tests/22-recursion.vn
+assertTrue("mutual even", isEven2(4))    // tests/recursion.test.vn
 assertTrue("mutual odd",  isOdd2(7))
 ```
 
@@ -184,7 +184,7 @@ import { sleep, spawn, parallel } from "std:task"
 async function asyncAdd(a: int, b: int): int {
     return a + b
 }
-// tests/21-async.vn
+// tests/async.test.vn
 
 async function asyncChain(): str {
     const x = await asyncAdd(3, 4)
@@ -207,7 +207,7 @@ function* range_gen(start: int, end: int) {
         i = i + 1
     }
 }
-// tests/20-generators.vn
+// tests/generators.test.vn
 
 const gen = range_gen(0, 5)
 const g0 = gen.next()
@@ -232,7 +232,7 @@ function customTag(strings: str[], ...values: dynamic[]): str {
     }
     return res
 }
-// tests/86-tagged-templates.vn
+// tests/tagged-templates.test.vn
 
 let name = "Varn"
 let version = 1
@@ -257,7 +257,7 @@ function memoize<T>(f: (a:int) => T): (int) => T {
         return result
     }
 }
-// tests/36-advanced-generics.vn
+// tests/advanced-generics.test.vn
 
 let callCount = 0
 const cached = memoize((n) => { callCount = callCount + 1; return n })
@@ -277,7 +277,7 @@ function makeAccumulator<T>(init: T, combine: (T, T) => T): (v: T) => T {
         return state
     }
 }
-// tests/36-advanced-generics.vn
+// tests/advanced-generics.test.vn
 
 const sumAcc = makeAccumulator<int>(0, (a, b) => a + b)
 sumAcc(5); sumAcc(3)

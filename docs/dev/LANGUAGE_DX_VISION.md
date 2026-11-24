@@ -15,9 +15,9 @@ antes de implementarla.
 
 | Propuesta | Estado | Evidencia |
 |---|---|---|
-| Guardas en `match` | Hecha | `tests/93-match-guards-spread-predicates.vn` |
-| Type guards de usuario (`v is T`) | Hecha | `tests/93-match-guards-spread-predicates.vn` |
-| Constructores primarios | Hecha (modificadores `public`/`private`, no `pub`) | `tests/87-primary-constructors-nullish-assign.vn` |
+| Guardas en `match` | Hecha | `tests/match-guards-spread-predicates.test.vn` |
+| Type guards de usuario (`v is T`) | Hecha | `tests/match-guards-spread-predicates.test.vn` |
+| Constructores primarios | Hecha (modificadores `public`/`private`, no `pub`) | `tests/primary-constructors-nullish-assign.test.vn` |
 | Pipeline asíncrono implícito | Pendiente | `await x \|> f(_)` aplica `await` a `x`, no al resultado |
 
 ### Guardas en `match`

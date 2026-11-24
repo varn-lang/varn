@@ -275,7 +275,7 @@ Orden: capa más baja primero (Ley 14). Validación por item:
   interfaces 198, tipos de objeto 161 (2.3 ns por lectura), `Declared` 107, miembros core 85.
   Mover esos contadores exige layouts fijos para tipos estructurales; sin ganancia medible.
 - Deuda de cimiento que sí limita el tipado: la inferencia de elemento de `let a = []`
-  (`tests/55-array-element-inference.vn` la espera; hoy `dynamic[]`). Diseño pendiente:
+  (`tests/array-element-inference.test.vn` la espera; hoy `dynamic[]`). Diseño pendiente:
   análisis de usos del símbolo (solo `push`/`a[i] = e`/lecturas, cualquier otro uso o
   conflicto de tipos deja `dynamic`) más una segunda pasada del cuerpo con el tipo refinado
   y diagnósticos suprimidos en la primera. Necesita decisión: duplica el chequeo de la
@@ -456,8 +456,8 @@ variantes y obliga a revisar la comparación estructural.
   coste es de 43 ns extra por llamada, y no hay todavía un benchmark de aplicación que
   muestre enums en un bucle caliente.
 - **Verificación:** el repro de arriba debe quedar a menos de 1,5× el método de clase;
-  `tests/16-enums.vn`, `tests/136-enum-identity.vn`, `tests/175-enum-instanceof.vn` y
-  `tests/189-enum-variant-slots.vn` sin cambios; matriz completa de 4 cuadrantes más
+  `tests/enums.test.vn`, `tests/enum-identity.test.vn`, `tests/175-enum-instanceof.vn` y
+  `tests/enum-variant-slots.test.vn` sin cambios; matriz completa de 4 cuadrantes más
   `VN_JIT_CACHE=verify`; comparación de tiers (`vn run --compare-tiers`).
 - **Se borraría (previsiblemente):** la rama de enum en `get_class`
   (`crates/vn-vm/src/exec/props/intrinsic.rs`) que resuelve la clase por

@@ -20,7 +20,7 @@ function withFinally(): int {
 }
 ```
 
-`tests/11-errors.vn`. `finally` corre aunque haya `return`. Captura básica:
+`tests/errors.test.vn`. `finally` corre aunque haya `return`. Captura básica:
 
 ```vn
 try {
@@ -30,7 +30,7 @@ try {
 }
 ```
 
-`tests/11-errors.vn`. Re-lanzar con `throw e`, errores custom con `extends Error`, `instanceof` en catch: mismo fichero, resto del file.
+`tests/errors.test.vn`. Re-lanzar con `throw e`, errores custom con `extends Error`, `instanceof` en catch: mismo fichero, resto del file.
 
 ## 2. `try` prefijo (operador, no bloque)
 
@@ -40,7 +40,7 @@ let y: int = try parse_positive(b);
 return Result.Ok(x + y);
 ```
 
-`tests/109-try-operator.vn`. Sobre `Option`: `:35`. Sobre nullable: `let non_null_str: str = try s;` (`:44`). Early-return del `Err`/`None`/`null` al llamante.
+`tests/try-operator.test.vn`. Sobre `Option`: `:35`. Sobre nullable: `let non_null_str: str = try s;` (`:44`). Early-return del `Err`/`None`/`null` al llamante.
 
 ## 3. Multi-catch tipado
 
@@ -52,13 +52,13 @@ return Result.Ok(x + y);
 } catch (e: CustomNetworkError) {
 ```
 
-`tests/90-multi-catch.vn` (sigue con `CustomDatabaseError`, `Error` general). Unión en un catch: `catch (e: TypeError | RangeError)`. Sin match de tipo, propaga al `try` exterior. `catch {` sin parámetro válido.
+`tests/multi-catch.test.vn` (sigue con `CustomDatabaseError`, `Error` general). Unión en un catch: `catch (e: TypeError | RangeError)`. Sin match de tipo, propaga al `try` exterior. `catch {` sin parámetro válido.
 
 ## 4. Errores async / canales / async-gen
 
-- Async: `try/catch` dentro de `async function` (`tests/21-async.vn`).
-- Canales: `send`/`receive` sobre canal cerrado rechazan con `ChannelClosed` (`tests/54-channels.vn`, `e instanceof ChannelClosed`).
-- Isolates: errores de `spawnIsolate` (closure anónima, fn no exportada) llegan como rechazo con `message` (`tests/47-isolates-multithread.vn`).
-- Async-gen: `try/catch` captura `await` rechazado dentro del cuerpo (`tests/77-async-generators.vn`); `throw` tras `yield` no capturable en `next()` (comentario `:99-102`).
+- Async: `try/catch` dentro de `async function` (`tests/async.test.vn`).
+- Canales: `send`/`receive` sobre canal cerrado rechazan con `ChannelClosed` (`tests/channels.test.vn`, `e instanceof ChannelClosed`).
+- Isolates: errores de `spawnIsolate` (closure anónima, fn no exportada) llegan como rechazo con `message` (`tests/isolates-multithread.test.vn`).
+- Async-gen: `try/catch` captura `await` rechazado dentro del cuerpo (`tests/async-generators.test.vn`); `throw` tras `yield` no capturable en `next()` (comentario `:99-102`).
 
 Sin más sintaxis de errores que la citada.

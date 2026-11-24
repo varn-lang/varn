@@ -244,7 +244,7 @@ antes de cada una de 5000 llamadas a una función con loop elegible —
 preheader deja el puntero cacheado consistente incluso cuando el heap
 tenía presión de nursery justo antes de entrar al loop. `VN_NO_JIT=1`
 tiene una falla preexistente no relacionada en
-`42-stdlib-comprehensive-test.vn` (confirmada idéntica en baseline sin
+`stdlib-comprehensive-test.test.vn` (confirmada idéntica en baseline sin
 estos cambios) — el resto del intérprete coincide con el comportamiento
 del JIT.
 

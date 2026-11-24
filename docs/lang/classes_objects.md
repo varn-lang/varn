@@ -1,6 +1,6 @@
 # Varn Language — Clases y Objetos
 
-> Fuentes: `tests/11-errors.vn`, `tests/12-classes.vn`, `tests/13-interfaces.vn`, `tests/23-objects.vn`, `tests/24-record.vn`, `tests/25-extensions.vn`, `tests/27-decorators.vn`, `tests/28-extensions-comprehensive.vn`, `tests/36-advanced-generics.vn`, `tests/87-primary-constructors-nullish-assign.vn`, `tests/89-raw-strings-and-with-expressions.vn`.
+> Fuentes: `tests/errors.test.vn`, `tests/classes.test.vn`, `tests/interfaces.test.vn`, `tests/objects.test.vn`, `tests/record.test.vn`, `tests/extensions.test.vn`, `tests/decorators.test.vn`, `tests/extensions-comprehensive.test.vn`, `tests/advanced-generics.test.vn`, `tests/primary-constructors-nullish-assign.test.vn`, `tests/raw-strings-and-with-expressions.test.vn`.
 
 ---
 
@@ -9,7 +9,7 @@
 ### Forma estándar
 
 ```vn
-class Animal {                         // tests/12-classes.vn
+class Animal {                         // tests/classes.test.vn
     name: str
     constructor(n: str) { this.name = n }
     speak() { return "..." }
@@ -20,7 +20,7 @@ class Animal {                         // tests/12-classes.vn
 ### Clases con visibilidad de campos
 
 ```vn
-class Temperature {                    // tests/12-classes.vn
+class Temperature {                    // tests/classes.test.vn
     private _celsius: float
     constructor(c: float) { this._celsius = c }
     get celsius() { return this._celsius }
@@ -48,7 +48,7 @@ class User(public id: int, public name: str, private role: str = "guest") {
     }
     getRole(): str { return this.role }
 }
-// tests/87-primary-constructors-nullish-assign.vn
+// tests/primary-constructors-nullish-assign.test.vn
 
 let u1 = new User(1, "Alice", "admin")
 assertTrue("id",    u1.id === 1)
@@ -74,7 +74,7 @@ class Hero {
     constructor(public id: int, public name: str, private power: float = 95.5) {}
     getPower(): float { return this.power }
 }
-// tests/87-primary-constructors-nullish-assign.vn
+// tests/primary-constructors-nullish-assign.test.vn
 
 let h = new Hero(101, "Superman")
 assertTrue("id",    h.id === 101)
@@ -86,7 +86,7 @@ assertTrue("power", h.getPower() === 95.5)
 ## 3. Herencia
 
 ```vn
-class Dog extends Animal {             // tests/12-classes.vn
+class Dog extends Animal {             // tests/classes.test.vn
     constructor(n: str) { super(n) }
     override speak() { return "Woof" }
 }
@@ -111,7 +111,7 @@ assertTrue("instanceof Animal",    pd instanceof Animal)
 ## 4. Clases Abstractas
 
 ```vn
-abstract class Shape {               // tests/12-classes.vn
+abstract class Shape {               // tests/classes.test.vn
     abstract area(): float
     describe(): str { return `shape with area ${this.area()}` }
 }
@@ -137,7 +137,7 @@ assertTrue("abstract describe", circ.describe().startsWith("shape with area"))
 ## 5. Métodos y Campos Estáticos
 
 ```vn
-class IdGen {                         // tests/12-classes.vn
+class IdGen {                         // tests/classes.test.vn
     private static _next: int = 1
     static next(): int {
         const id = IdGen._next
@@ -158,14 +158,14 @@ assertTrue("static reset",    IdGen.next() === 1)
 ## 6. Clases Genéricas
 
 ```vn
-class Box<T> {                        // tests/14-generics.vn
+class Box<T> {                        // tests/generics.test.vn
     value: T
     constructor(v: T) { this.value = v }
     get(): T { return this.value }
     map<U>(f: (T) => U): Box<U> { return new Box<U>(f(this.value)) }
 }
 
-class Node<T> {                       // tests/23-objects.vn
+class Node<T> {                       // tests/objects.test.vn
     value: T
     next: Node<T> | null
     constructor(v: T) { this.value = v; this.next = null }
@@ -179,7 +179,7 @@ class Node<T> {                       // tests/23-objects.vn
 Las extensiones añaden métodos a un tipo existente sin modificar su definición original.
 
 ```vn
-extension StringUtils on str {         // tests/25-extensions.vn
+extension StringUtils on str {         // tests/extensions.test.vn
     shout(): str { return this + "!" }
     times(n: int): str {
         let result = ""
@@ -222,7 +222,7 @@ assertTrue("int clamp",  (2).clamp(5, 10) === 5)
 Extensiones sobre clases propias:
 
 ```vn
-extension PointOps on Point {          // tests/28-extensions-comprehensive.vn
+extension PointOps on Point {          // tests/extensions-comprehensive.test.vn
     distanceTo(other: Point): float {
         let dx: float = this.x - other.x
         let dy: float = this.y - other.y
@@ -247,7 +247,7 @@ Los decoradores son funciones aplicadas a clases o métodos en tiempo de declara
 ### Decoradores de clase
 
 ```vn
-import { ClassRef, FunctionRef } from "std:reflect"   // tests/27-decorators.vn
+import { ClassRef, FunctionRef } from "std:reflect"   // tests/decorators.test.vn
 // los bloques siguientes de esta sección reutilizan este import
 
 let deco_log: str[] = []
@@ -352,7 +352,7 @@ Clona un objeto o instancia de clase sobreescribiendo solo los campos especifica
 
 ```vn
 class User(public id: int, public name: str, public role: str = "guest") {}
-// tests/89-raw-strings-and-with-expressions.vn
+// tests/raw-strings-and-with-expressions.test.vn
 
 let u1 = new User(10, "Alice", "admin")
 let u2 = u1 with { name: "Bob", role: "editor" }
@@ -393,7 +393,7 @@ assertTrue("node3 isMaster", node3.isMaster === true)
 ## 10. Errores y Excepciones Personalizadas
 
 ```vn
-class ValidationError extends Error {   // tests/11-errors.vn
+class ValidationError extends Error {   // tests/errors.test.vn
     field: str
     constructor(field: str, msg: str) {
         super(msg)
@@ -419,7 +419,7 @@ try {
 ## 11. Patrón Builder (Método Chaining)
 
 ```vn
-class Builder {                       // tests/23-objects.vn
+class Builder {                       // tests/objects.test.vn
     private parts: str[]
     constructor() { this.parts = [] }
     add(s: str): Builder {
@@ -439,7 +439,7 @@ assertTrue("builder pattern", result === "hello from builder")
 `struct` es un tipo valor nominal: una clase restringida cuyos campos, en orden, son su constructor.
 
 ```vn
-// tests/334-struct.vn
+// tests/struct.test.vn
 struct Point {
     x: int;
     y: int;

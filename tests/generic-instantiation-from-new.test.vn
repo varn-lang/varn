@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { ImportedAsyncBox } from "./75-async-shapes-lib.vn";
+import { ImportedAsyncBox } from "./async-shapes-lib.test.vn";
 
 class Box<T> {
     value: T
