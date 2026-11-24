@@ -1,5 +1,5 @@
 use super::const_fold_values::{fold_binary, fold_convert, fold_unary};
-use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator, Value};
+use crate::ssa::ir::{const_ty, BlockId, InstKind, SsaFunc, Terminator, Value};
 use rustc_hash::FxHashMap;
 
 pub fn run(func: &mut SsaFunc) -> bool {
@@ -18,7 +18,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                 }
 
                 if let Some(folded_kind) = fold_inst(&inst.kind, &const_map) {
-                    if let Some(ty) = folded_kind.const_ty() {
+                    if let Some(ty) = const_ty(&folded_kind) {
                         func.values[dest.0 as usize].ty = ty;
                     }
                     func.blocks[b_id.0 as usize].insts[inst_idx].kind = folded_kind.clone();

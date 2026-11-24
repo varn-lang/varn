@@ -1,6 +1,6 @@
 use rustc_hash::FxHashMap;
 
-use crate::ssa::ir::{Inst, InstKind, SsaFunc, Value};
+use crate::ssa::ir::{const_ty, Inst, InstKind, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
 
 pub fn run(func: &mut SsaFunc) -> bool {
@@ -42,7 +42,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
     let mut changed = !to_const.is_empty();
     for (b, i, kind) in to_const {
         if let Some(dest) = func.blocks[b].insts[i].dest
-            && let Some(ty) = kind.const_ty()
+            && let Some(ty) = const_ty(&kind)
         {
             func.values[dest.0 as usize].ty = ty;
         }
