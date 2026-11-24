@@ -9,6 +9,42 @@ use vn_core::term::{chalk, log, Section};
 
 const DEFAULT_TEST_DIR: &str = "tests";
 
+pub(super) fn sandbox_dir(file_idx: usize) -> PathBuf {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    std::env::temp_dir().join(format!("vn-test-{}-{nanos}-{file_idx}", std::process::id()))
+}
+
+fn record_failure(
+    results_store: &Arc<Mutex<Vec<TestResult>>>,
+    suites_failed_cnt: &AtomicUsize,
+    has_failure_flag: &Arc<AtomicBool>,
+    out_lock: &Arc<Mutex<()>>,
+    idx: usize,
+    display_name: String,
+    output: String,
+) {
+    suites_failed_cnt.fetch_add(1, Ordering::SeqCst);
+    has_failure_flag.store(true, Ordering::SeqCst);
+    results_store
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .push(TestResult {
+            idx,
+            display_name: display_name.clone(),
+            passed: false,
+            duration: Duration::ZERO,
+            output: output.clone(),
+        });
+    let _guard = out_lock.lock().unwrap_or_else(|e| e.into_inner());
+    log(format!("  {} {display_name}", chalk("FAILED").red()));
+    for line in output.lines() {
+        log(format!("    {}", chalk(line).dim()));
+    }
+}
+
 #[derive(Clone)]
 pub struct TestResult {
     pub idx: usize,
@@ -83,7 +119,7 @@ pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), 
 
     let mut handles = Vec::with_capacity(num_workers);
 
-    for _ in 0..num_workers {
+    for worker in 0..num_workers {
         let queue = Arc::clone(&file_queue);
         let has_failure_flag = Arc::clone(&has_failure);
         let suites_passed_cnt = Arc::clone(&suites_passed);
@@ -95,102 +131,124 @@ pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), 
         let capabilities = capabilities.clone();
         let verbose = args.verbose;
 
-        handles.push(std::thread::spawn(move || loop {
-            if fail_fast && has_failure_flag.load(Ordering::SeqCst) {
-                break;
-            }
+        handles.push(
+            std::thread::Builder::new()
+                .name(format!("vn-test-{worker}"))
+                .stack_size(vn_vm::VM_STACK_BYTES)
+                .spawn(move || loop {
+                    if fail_fast && has_failure_flag.load(Ordering::SeqCst) {
+                        break;
+                    }
 
-            let item = {
-                let mut guard = queue.lock().unwrap_or_else(|e| e.into_inner());
-                guard.pop()
-            };
-            let Some((idx, path)) = item else { break };
+                    let item = {
+                        let mut guard = queue.lock().unwrap_or_else(|e| e.into_inner());
+                        guard.pop()
+                    };
+                    let Some((idx, path)) = item else { break };
 
-            let display_name = path
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_else(|| path.to_string_lossy().to_string());
+                    let display_name = path
+                        .file_name()
+                        .map(|n| n.to_string_lossy().to_string())
+                        .unwrap_or_else(|| path.to_string_lossy().to_string());
 
-            let file_session = session.isolated();
-            let prepared = pipeline::Source::file(&path.to_string_lossy())
-                .map_err(CliError::from)
-                .and_then(|source| {
-                    crate::exec::compile(
-                        &file_session,
-                        source,
-                        pipeline::CachePolicy::Use,
-                        &pipeline::DebugFlags::default(),
-                        false,
-                    )
-                });
-            let units = test_units(&prepared, &display_name);
-            for (unit_name, test) in units {
-                if fail_fast && has_failure_flag.load(Ordering::SeqCst) {
-                    break;
-                }
-                let t1 = Instant::now();
-                let run_res = match &prepared {
-                    Ok(executable) => crate::exec::run_unit(
-                        &file_session,
-                        executable,
-                        pipeline::Policy {
-                            capabilities: capabilities.clone(),
-                            trace: false,
-                            gc: false,
-                            silent: quiet,
-                            fs_root: None,
-                        },
-                        test.as_ref(),
-                    ),
-                    Err(e) => Err(CliError::fatal(e.to_string())),
-                };
-                let elapsed = t1.elapsed();
+                    let sandbox = sandbox_dir(idx);
+                    let _ = std::fs::remove_dir_all(&sandbox);
+                    if let Err(e) = std::fs::create_dir_all(&sandbox) {
+                        record_failure(
+                            &results_store,
+                            &suites_failed_cnt,
+                            &has_failure_flag,
+                            &out_lock,
+                            idx,
+                            display_name,
+                            format!("cannot create test sandbox {}: {e}", sandbox.display()),
+                        );
+                        continue;
+                    }
 
-                let passed = run_res.is_ok();
-                let output = run_res.err().map(|e| format!("{e}")).unwrap_or_default();
+                    let file_session = session.isolated();
+                    let prepared = pipeline::Source::file(&path.to_string_lossy())
+                        .map_err(CliError::from)
+                        .and_then(|source| {
+                            crate::exec::compile(
+                                &file_session,
+                                source,
+                                pipeline::CachePolicy::Use,
+                                &pipeline::DebugFlags::default(),
+                                false,
+                            )
+                        });
+                    let units = test_units(&prepared, &display_name);
+                    for (unit_name, test) in units {
+                        if fail_fast && has_failure_flag.load(Ordering::SeqCst) {
+                            break;
+                        }
+                        let t1 = Instant::now();
+                        let run_res = match &prepared {
+                            Ok(executable) => crate::exec::run_unit(
+                                &file_session,
+                                executable,
+                                pipeline::Policy {
+                                    capabilities: capabilities.clone(),
+                                    trace: false,
+                                    gc: false,
+                                    silent: quiet,
+                                    fs_root: Some(sandbox.clone()),
+                                },
+                                test.as_ref(),
+                            ),
+                            Err(e) => Err(CliError::fatal(e.to_string())),
+                        };
+                        let elapsed = t1.elapsed();
 
-                if passed {
-                    suites_passed_cnt.fetch_add(1, Ordering::SeqCst);
-                } else {
-                    suites_failed_cnt.fetch_add(1, Ordering::SeqCst);
-                    has_failure_flag.store(true, Ordering::SeqCst);
-                }
+                        let passed = run_res.is_ok();
+                        let output = run_res.err().map(|e| format!("{e}")).unwrap_or_default();
 
-                results_store
-                    .lock()
-                    .unwrap_or_else(|e| e.into_inner())
-                    .push(TestResult {
-                        idx,
-                        display_name: unit_name.clone(),
-                        passed,
-                        duration: elapsed,
-                        output: output.clone(),
-                    });
+                        if passed {
+                            suites_passed_cnt.fetch_add(1, Ordering::SeqCst);
+                        } else {
+                            suites_failed_cnt.fetch_add(1, Ordering::SeqCst);
+                            has_failure_flag.store(true, Ordering::SeqCst);
+                        }
 
-                let ms = elapsed.as_millis();
-                let _guard = out_lock.lock().unwrap_or_else(|e| e.into_inner());
-                if passed {
-                    log(format!(
-                        "  {} {} {}",
-                        chalk("ok").green(),
-                        unit_name,
-                        chalk(format_args!("({ms}ms)")).dim()
-                    ));
-                } else {
-                    log(format!(
-                        "  {} {} {}",
-                        chalk("FAILED").red(),
-                        unit_name,
-                        chalk(format_args!("({ms}ms)")).dim()
-                    ));
-                    if verbose && !output.is_empty() {
-                        for line in output.lines() {
-                            log(format!("    {}", chalk(line).dim()));
+                        results_store
+                            .lock()
+                            .unwrap_or_else(|e| e.into_inner())
+                            .push(TestResult {
+                                idx,
+                                display_name: unit_name.clone(),
+                                passed,
+                                duration: elapsed,
+                                output: output.clone(),
+                            });
+
+                        let ms = elapsed.as_millis();
+                        let _guard = out_lock.lock().unwrap_or_else(|e| e.into_inner());
+                        if passed {
+                            log(format!(
+                                "  {} {} {}",
+                                chalk("ok").green(),
+                                unit_name,
+                                chalk(format_args!("({ms}ms)")).dim()
+                            ));
+                        } else {
+                            log(format!(
+                                "  {} {} {}",
+                                chalk("FAILED").red(),
+                                unit_name,
+                                chalk(format_args!("({ms}ms)")).dim()
+                            ));
+                            if verbose && !output.is_empty() {
+                                for line in output.lines() {
+                                    log(format!("    {}", chalk(line).dim()));
+                                }
+                            }
                         }
                     }
-                }
-            }
-        }));
+                    let _ = std::fs::remove_dir_all(&sandbox);
+                })
+                .map_err(|e| CliError::fatal(format!("cannot start test worker: {e}")))?,
+        );
     }
 
     for h in handles {

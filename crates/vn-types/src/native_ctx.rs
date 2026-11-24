@@ -241,9 +241,14 @@ pub trait NativeCtx: crate::Buffers {
     }
 
     fn resolve_fs_path(&self, path: &str) -> std::path::PathBuf {
+        use std::path::Component;
         let rel = std::path::Path::new(path);
+        let is_plain_relative = matches!(
+            rel.components().next(),
+            Some(Component::CurDir) | Some(Component::ParentDir) | Some(Component::Normal(_))
+        );
         match self.fs_root() {
-            Some(root) if rel.is_relative() => root.join(rel),
+            Some(root) if is_plain_relative => root.join(rel),
             _ => rel.to_path_buf(),
         }
     }
