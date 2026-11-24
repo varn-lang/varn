@@ -266,12 +266,16 @@ natives! {
     extname(p) => extname_inner(p),
     isAbsolute(p) => is_absolute_inner(p),
     join(segments) => join_inner(&owned(&segments), main_sep()),
-    resolve(segments) => {
+    resolve(ctx, segments) => {
         let segs = owned(&segments);
-        let cwd = std::env::current_dir()
-            .map_err(|e| coded("E_PATH_IO", e)).map_err(NativeError::range_error)?
-            .to_string_lossy()
-            .into_owned();
+        let cwd = match ctx.fs_root() {
+            Some(root) => root.to_string_lossy().into_owned(),
+            None => std::env::current_dir()
+                .map_err(|e| coded("E_PATH_IO", e))
+                .map_err(NativeError::range_error)?
+                .to_string_lossy()
+                .into_owned(),
+        };
         Ok(resolve_inner(&segs, main_sep(), &cwd))
     },
 }

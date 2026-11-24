@@ -17,36 +17,41 @@ const BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 const MEMORY: &str = ":memory:";
 
 
-fn open_connection(path: &str) -> Result<Connection, NativeError> {
-    let conn = if path == MEMORY {
+fn open_connection(path: &std::path::Path, display: &str) -> Result<Connection, NativeError> {
+    let conn = if display == MEMORY {
         Connection::open_in_memory()
     } else {
         Connection::open(path)
     }
-    .map_err(|e| failure(e, path))?;
-    conn.busy_timeout(BUSY_TIMEOUT).map_err(|e| failure(e, path))?;
+    .map_err(|e| failure(e, display))?;
+    conn.busy_timeout(BUSY_TIMEOUT).map_err(|e| failure(e, display))?;
     conn.pragma_update(None, "foreign_keys", true)
-        .map_err(|e| failure(e, path))?;
+        .map_err(|e| failure(e, display))?;
     Ok(conn)
 }
 
-fn allow_path(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
-    if path == MEMORY {
+fn allow_path(
+    ctx: &mut dyn NativeCtx,
+    path: &std::path::Path,
+    display: &str,
+) -> Result<(), NativeError> {
+    if display == MEMORY {
         return Ok(());
     }
-    if !ctx.check_fs_read(path) {
-        return Err(NativeError::capability(Capability::FsRead.name(), path));
+    if !ctx.check_fs_read_path(path) {
+        return Err(NativeError::capability(Capability::FsRead.name(), display));
     }
-    if !ctx.check_fs_write(path) {
-        return Err(NativeError::capability(Capability::FsWrite.name(), path));
+    if !ctx.check_fs_write_path(path) {
+        return Err(NativeError::capability(Capability::FsWrite.name(), display));
     }
     Ok(())
 }
 
 natives! {
     open(ctx, path) => {
-        allow_path(ctx, path)?;
-        Ok(register(open_connection(path)?))
+        let full = ctx.resolve_fs_path(path);
+        allow_path(ctx, &full, path)?;
+        Ok(register(open_connection(&full, path)?))
     },
     close(db_id) => {
         release(db_id);

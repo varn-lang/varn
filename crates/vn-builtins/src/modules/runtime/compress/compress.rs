@@ -89,31 +89,39 @@ natives! {
         decoder.read_to_end(&mut decompressed).map_err(|e| format!("inflate decompression error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         Ok(ctx.alloc_buffer_from_bytes(&decompressed))
     },
-    tarCreate(source_dir, tar_path) => {
-        let tar_file = File::create(tar_path).map_err(|e| format!("Tar create error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+    tarCreate(ctx, source_dir, tar_path) => {
+        let tar_path = ctx.resolve_fs_path(tar_path);
+        let tar_file = File::create(&tar_path).map_err(|e| format!("Tar create error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         let mut tar_builder = tar::Builder::new(tar_file);
-        tar_builder.append_dir_all(".", source_dir).map_err(|e| format!("Tar append error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        let source_dir = ctx.resolve_fs_path(source_dir);
+        tar_builder.append_dir_all(".", &source_dir).map_err(|e| format!("Tar append error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         tar_builder.finish().map_err(|e| format!("Tar finish error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         Ok(())
     },
-    tarExtract(tar_path, dest_dir) => {
-        let tar_file = File::open(tar_path).map_err(|e| format!("Tar open error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+    tarExtract(ctx, tar_path, dest_dir) => {
+        let tar_path = ctx.resolve_fs_path(tar_path);
+        let dest_dir = ctx.resolve_fs_path(dest_dir);
+        let tar_file = File::open(&tar_path).map_err(|e| format!("Tar open error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         let mut archive = tar::Archive::new(tar_file);
-        archive.unpack(dest_dir).map_err(|e| format!("Tar unpack error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        archive.unpack(&dest_dir).map_err(|e| format!("Tar unpack error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         Ok(())
     },
-    zipCreate(source_dir, zip_path) => {
-        let zip_file = File::create(zip_path).map_err(|e| format!("Zip create error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+    zipCreate(ctx, source_dir, zip_path) => {
+        let zip_path = ctx.resolve_fs_path(zip_path);
+        let zip_file = File::create(&zip_path).map_err(|e| format!("Zip create error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         let mut writer = zip::ZipWriter::new(zip_file);
-        let base = Path::new(source_dir);
+        let source_dir = ctx.resolve_fs_path(source_dir);
+        let base = Path::new(&source_dir);
         zip_dir_recursive(&mut writer, base, base).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         writer.finish().map_err(|e| format!("Zip finish error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         Ok(())
     },
-    zipExtract(zip_path, dest_dir) => {
-        let zip_file = File::open(zip_path).map_err(|e| format!("Zip open error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+    zipExtract(ctx, zip_path, dest_dir) => {
+        let zip_path = ctx.resolve_fs_path(zip_path);
+        let dest_dir = ctx.resolve_fs_path(dest_dir);
+        let zip_file = File::open(&zip_path).map_err(|e| format!("Zip open error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| format!("Zip archive error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
-        archive.extract(dest_dir).map_err(|e| format!("Zip extract error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
+        archive.extract(&dest_dir).map_err(|e| format!("Zip extract error: {e}")).map_err(|e| NativeError::std(StdErrorClass::Io, e))?;
         Ok(())
     },
 }

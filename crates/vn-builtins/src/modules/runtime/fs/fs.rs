@@ -22,25 +22,38 @@ fn capability_denied(capability: &str, path: &str) -> NativeError {
     .with_str(ErrorField::Target, path)
 }
 
-fn allow_read(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
-    if ctx.check_fs_read(path) {
+fn allow_read(ctx: &mut dyn NativeCtx, path: &std::path::Path) -> Result<(), NativeError> {
+    if ctx.check_fs_read_path(path) {
         Ok(())
     } else {
-        Err(capability_denied(Capability::FsRead.name(), path))
+        Err(capability_denied(
+            Capability::FsRead.name(),
+            &path.to_string_lossy(),
+        ))
     }
 }
 
-fn allow_write(ctx: &mut dyn NativeCtx, path: &str) -> Result<(), NativeError> {
-    if ctx.check_fs_write(path) {
+fn allow_write(ctx: &mut dyn NativeCtx, path: &std::path::Path) -> Result<(), NativeError> {
+    if ctx.check_fs_write_path(path) {
         Ok(())
     } else {
-        Err(capability_denied(Capability::FsWrite.name(), path))
+        Err(capability_denied(
+            Capability::FsWrite.name(),
+            &path.to_string_lossy(),
+        ))
     }
 }
 
-fn allow_copy(ctx: &mut dyn NativeCtx, from: &str, to: &str) -> Result<(), NativeError> {
-    if !ctx.check_fs_read(from) {
-        return Err(capability_denied(Capability::FsRead.name(), from));
+fn allow_copy(
+    ctx: &mut dyn NativeCtx,
+    from: &std::path::Path,
+    to: &std::path::Path,
+) -> Result<(), NativeError> {
+    if !ctx.check_fs_read_path(from) {
+        return Err(capability_denied(
+            Capability::FsRead.name(),
+            &from.to_string_lossy(),
+        ));
     }
     allow_write(ctx, to)
 }
@@ -80,32 +93,30 @@ vn_macros::vn_record! {
 natives! {
     class RawStats {}
     openRead(ctx, path) => {
-        if !ctx.check_fs_read(path) {
-            return Err(capability_denied(Capability::FsRead.name(), path));
-        }
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
         let file = std::fs::OpenOptions::new()
             .read(true)
-            .open(path)
-            .map_err(|e| fs_error(e, path))?;
+            .open(&full)
+            .map_err(|e| fs_error(e, &full.to_string_lossy()))?;
         Ok(descriptors::register(file))
     },
     openWrite(ctx, path, append) => {
-        if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.name(), path));
-        }
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
         let file = if append {
             std::fs::OpenOptions::new()
                 .create(true)
                 .append(true)
-                .open(path)
+                .open(&full)
         } else {
             std::fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open(path)
+                .open(&full)
         }
-        .map_err(|e| fs_error(e, path))?;
+        .map_err(|e| fs_error(e, &full.to_string_lossy()))?;
         Ok(descriptors::register(file))
     },
     readFd(fd, len) => {
@@ -126,22 +137,25 @@ natives! {
         Ok(bytes.len() as i64)
     },
     readFileBytes(ctx, path) => {
-        allow_read(ctx, path)?;
-        Ok(ctx.alloc_buffer_from_bytes(&paths::read_bytes(path)?))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(ctx.alloc_buffer_from_bytes(&paths::read_bytes(&full)?))
     },
     readFileBytesAsync(ctx, path) => {
-        allow_read(ctx, path)?;
-        let path = path.to_owned();
-        Ok(blocking::task(ctx, move || paths::read_bytes(&path).map(SendValue::Bytes)))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(blocking::task(ctx, move || paths::read_bytes(&full).map(SendValue::Bytes)))
     },
     writeFileBytes(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        paths::write(path, &bytes_arg(ctx, data)?)
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        paths::write(&full, &bytes_arg(ctx, data)?)
     },
     writeFileBytesAsync(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        let (path, bytes) = (path.to_owned(), bytes_arg(ctx, data)?);
-        Ok(blocking::task(ctx, move || paths::write(&path, &bytes).map(|()| SendValue::Null)))
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        let bytes = bytes_arg(ctx, data)?;
+        Ok(blocking::task(ctx, move || paths::write(&full, &bytes).map(|()| SendValue::Null)))
     },
     seek(ctx, fd, offset, origin) => {
         let origin = SeekOrigin::from_value(ctx, origin)
@@ -160,14 +174,16 @@ natives! {
     },
     close(fd) => descriptors::unregister(fd),
     exists(ctx, path) => {
-        allow_read(ctx, path)?;
-        std::path::Path::new(path).try_exists().map_err(|e| fs_error(e, path))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        std::path::Path::new(&full).try_exists().map_err(|e| fs_error(e, &full.to_string_lossy()))
     },
     stat(ctx, path) => {
-        if !ctx.check_fs_read(path) {
-            return Err(capability_denied(Capability::FsRead.name(), path));
+        let full = ctx.resolve_fs_path(path);
+        if !ctx.check_fs_read_path(&full) {
+            return Err(capability_denied(Capability::FsRead.name(), &full.to_string_lossy()));
         }
-        let meta = fs::metadata(path).map_err(|e| fs_error(e, path))?;
+        let meta = fs::metadata(&full).map_err(|e| fs_error(e, &full.to_string_lossy()))?;
         let mtime = meta
             .modified()
             .ok()
@@ -183,96 +199,111 @@ natives! {
         .map_err(NativeError::failure)
     },
     mkdir(ctx, path) => {
-        if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.name(), path));
+        let full = ctx.resolve_fs_path(path);
+        if !ctx.check_fs_write_path(&full) {
+            return Err(capability_denied(Capability::FsWrite.name(), &full.to_string_lossy()));
         }
-        fs::create_dir(path).map_err(|e| fs_error(e, path))
+        fs::create_dir(&full).map_err(|e| fs_error(e, &full.to_string_lossy()))
     },
     mkdirAll(ctx, path) => {
-        if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.name(), path));
+        let full = ctx.resolve_fs_path(path);
+        if !ctx.check_fs_write_path(&full) {
+            return Err(capability_denied(Capability::FsWrite.name(), &full.to_string_lossy()));
         }
-        fs::create_dir_all(path).map_err(|e| fs_error(e, path))
+        fs::create_dir_all(&full).map_err(|e| fs_error(e, &full.to_string_lossy()))
     },
     readDir(ctx, path) => {
-        allow_read(ctx, path)?;
-        Ok(strings(ctx, paths::read_dir(path)?))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(strings(ctx, paths::read_dir(&full)?))
     },
     readDirAsync(ctx, path) => {
-        allow_read(ctx, path)?;
-        let path = path.to_owned();
-        Ok(blocking::task(ctx, move || paths::read_dir(&path).map(text_array)))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(blocking::task(ctx, move || paths::read_dir(&full).map(text_array)))
     },
     remove(ctx, path) => {
-        if !ctx.check_fs_write(path) {
-            return Err(capability_denied(Capability::FsWrite.name(), path));
+        let full = ctx.resolve_fs_path(path);
+        if !ctx.check_fs_write_path(&full) {
+            return Err(capability_denied(Capability::FsWrite.name(), &full.to_string_lossy()));
         }
-        let p = std::path::Path::new(path);
-        if p.is_dir() {
-            fs::remove_dir(p).map_err(|e| fs_error(e, path))
+        if full.is_dir() {
+            fs::remove_dir(&full).map_err(|e| fs_error(e, &full.to_string_lossy()))
         } else {
-            fs::remove_file(p).map_err(|e| fs_error(e, path))
+            fs::remove_file(&full).map_err(|e| fs_error(e, &full.to_string_lossy()))
         }
     },
     removeAll(ctx, path) => {
-        allow_write(ctx, path)?;
-        paths::remove_all(path)
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        paths::remove_all(&full)
     },
     removeAllAsync(ctx, path) => {
-        allow_write(ctx, path)?;
-        let path = path.to_owned();
-        Ok(blocking::task(ctx, move || paths::remove_all(&path).map(|()| SendValue::Null)))
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        Ok(blocking::task(ctx, move || paths::remove_all(&full).map(|()| SendValue::Null)))
     },
     rename(ctx, from, to) => {
-        if !ctx.check_fs_read(from) || !ctx.check_fs_write(to) {
-            return Err(capability_denied(Capability::FsWrite.name(), to));
+        let full_from = ctx.resolve_fs_path(from);
+        let full_to = ctx.resolve_fs_path(to);
+        if !ctx.check_fs_read_path(&full_from) || !ctx.check_fs_write_path(&full_to) {
+            return Err(capability_denied(Capability::FsWrite.name(), &full_to.to_string_lossy()));
         }
-        fs::rename(from, to).map_err(|e| fs_error(e, from))
+        fs::rename(&full_from, &full_to).map_err(|e| fs_error(e, &full_from.to_string_lossy()))
     },
     copyFile(ctx, from, to) => {
-        allow_copy(ctx, from, to)?;
-        paths::copy(from, to)
+        let full_from = ctx.resolve_fs_path(from);
+        let full_to = ctx.resolve_fs_path(to);
+        allow_copy(ctx, &full_from, &full_to)?;
+        paths::copy(&full_from, &full_to)
     },
     copyFileAsync(ctx, from, to) => {
-        allow_copy(ctx, from, to)?;
-        let (from, to) = (from.to_owned(), to.to_owned());
-        Ok(blocking::task(ctx, move || paths::copy(&from, &to).map(|()| SendValue::Null)))
+        let full_from = ctx.resolve_fs_path(from);
+        let full_to = ctx.resolve_fs_path(to);
+        allow_copy(ctx, &full_from, &full_to)?;
+        Ok(blocking::task(ctx, move || paths::copy(&full_from, &full_to).map(|()| SendValue::Null)))
     },
     readFileText(ctx, path) => {
-        allow_read(ctx, path)?;
-        paths::read_text(path)
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        paths::read_text(&full)
     },
     readFileTextAsync(ctx, path) => {
-        allow_read(ctx, path)?;
-        let path = path.to_owned();
-        Ok(blocking::task(ctx, move || paths::read_text(&path).map(SendValue::Str)))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(blocking::task(ctx, move || paths::read_text(&full).map(SendValue::Str)))
     },
     writeFileText(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        paths::write(path, data.as_bytes())
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        paths::write(&full, data.as_bytes())
     },
     writeFileTextAsync(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        let (path, data) = (path.to_owned(), data.to_owned());
-        Ok(blocking::task(ctx, move || paths::write(&path, data.as_bytes()).map(|()| SendValue::Null)))
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        let data = data.to_owned();
+        Ok(blocking::task(ctx, move || paths::write(&full, data.as_bytes()).map(|()| SendValue::Null)))
     },
     appendFileText(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        paths::append(path, data.as_bytes())
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        paths::append(&full, data.as_bytes())
     },
     appendFileTextAsync(ctx, path, data) => {
-        allow_write(ctx, path)?;
-        let (path, data) = (path.to_owned(), data.to_owned());
-        Ok(blocking::task(ctx, move || paths::append(&path, data.as_bytes()).map(|()| SendValue::Null)))
+        let full = ctx.resolve_fs_path(path);
+        allow_write(ctx, &full)?;
+        let data = data.to_owned();
+        Ok(blocking::task(ctx, move || paths::append(&full, data.as_bytes()).map(|()| SendValue::Null)))
     },
     readLines(ctx, path) => {
-        allow_read(ctx, path)?;
-        Ok(strings(ctx, paths::read_lines(path)?))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(strings(ctx, paths::read_lines(&full)?))
     },
     readLinesAsync(ctx, path) => {
-        allow_read(ctx, path)?;
-        let path = path.to_owned();
-        Ok(blocking::task(ctx, move || paths::read_lines(&path).map(text_array)))
+        let full = ctx.resolve_fs_path(path);
+        allow_read(ctx, &full)?;
+        Ok(blocking::task(ctx, move || paths::read_lines(&full).map(text_array)))
     },
     readFdAll(fd) => {
         let buf = descriptors::read_all(&descriptors::handle(fd)?)?;
