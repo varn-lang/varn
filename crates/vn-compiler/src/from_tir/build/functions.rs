@@ -173,13 +173,7 @@ impl<'m> Builder<'m> {
                 },
                 crate::ssa::verify::convert_result_ty(conv),
             ),
-            None => self.emit(
-                InstKind::Cast {
-                    operand: supplied,
-                    ty,
-                },
-                ty,
-            ),
+            None => self.emit(InstKind::Cast { operand: supplied }, ty),
         };
         self.write_var(var, self.current, typed);
         Ok(())

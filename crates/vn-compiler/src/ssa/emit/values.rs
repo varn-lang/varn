@@ -80,9 +80,9 @@ pub(super) fn emit_value(
             object,
             slot,
             offset,
-            tag,
+            access,
         } => {
-            access::emit_get_fixed_field(chunk, d, *object, reg, *slot, *offset, *tag, line);
+            access::emit_get_fixed_field(chunk, d, *object, reg, *slot, *offset, *access, line);
         }
         InstKind::GetIndex { object, index } => {
             access::emit_get_index(chunk, d, *object, *index, reg, line);

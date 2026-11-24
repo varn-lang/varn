@@ -132,7 +132,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::TypeTest { value, class } => {
             format!("typetest {} {}", val(*value), val(*class))
         }
-        InstKind::Cast { operand, ty } => format!("cast {} as {ty:?}", val(*operand)),
+        InstKind::Cast { operand } => format!("cast {}", val(*operand)),
         InstKind::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
         InstKind::BuildArray { elements, .. } => format!("array{}", args_list(elements)),
         InstKind::BuildTuple { elements } => format!("tuple{}", args_list(elements)),
@@ -277,13 +277,13 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::DefineMember {
             class,
             name,
-            value,
+            member,
             kind,
         } => format!(
             "define {} {}.{name} = {}",
             kind.label(),
             val(*class),
-            val(*value)
+            val(*member)
         ),
         InstKind::MakeEnumVariant { def } => format!(
             "makeenumvariant {}.{} tag={}",

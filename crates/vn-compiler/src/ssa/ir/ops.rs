@@ -88,7 +88,7 @@ pub enum InstKind {
         slot: u16,
 
         offset: u32,
-        tag: vn_core::FieldAccess,
+        access: vn_core::FieldAccess,
     },
 
     GetIndex {
@@ -119,7 +119,7 @@ pub enum InstKind {
 
         offset: u32,
 
-        tag: Option<vn_core::FieldKind>,
+        kind: Option<vn_core::FieldKind>,
     },
 
     SetIndex {
@@ -173,7 +173,6 @@ pub enum InstKind {
 
     Cast {
         operand: Value,
-        ty: BackendTy,
     },
 
     Convert {
@@ -236,7 +235,7 @@ pub enum InstKind {
     DefineMember {
         class: Value,
         name: Arc<str>,
-        value: Value,
+        member: Value,
         kind: vn_core::MemberDef,
     },
     MakeEnumVariant {

@@ -115,7 +115,7 @@ impl<'m> Builder<'m> {
                     object: enum_v,
                     slot: variant.slot,
                     offset: 0,
-                    tag: vn_core::FieldAccess::Slot,
+                    access: vn_core::FieldAccess::Slot,
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );

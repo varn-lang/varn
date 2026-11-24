@@ -22,7 +22,7 @@ impl<'m> Builder<'m> {
                     object: obj,
                     slot: *slot,
                     offset,
-                    tag: vn_core::FieldAccess::Compact(kind),
+                    access: vn_core::FieldAccess::Compact(kind),
                 },
                 None => InstKind::GetProperty {
                     object: obj,
@@ -33,7 +33,7 @@ impl<'m> Builder<'m> {
                 object: obj,
                 slot: *slot,
                 offset: 0,
-                tag: vn_core::FieldAccess::Slot,
+                access: vn_core::FieldAccess::Slot,
             },
             Resolution::None
             | Resolution::Local(_)

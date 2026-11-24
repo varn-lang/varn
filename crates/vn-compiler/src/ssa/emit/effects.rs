@@ -37,7 +37,7 @@ pub(super) fn emit_effect(
             value,
             slot,
             offset,
-            tag,
+            kind,
         } => {
             chunk.write(
                 Chunk::pack_op(OpCode::SetFixedField, reg[object.0 as usize]),
@@ -46,7 +46,7 @@ pub(super) fn emit_effect(
             chunk.write(
                 Chunk::pack(
                     reg[value.0 as usize],
-                    vn_core::FieldAccess::Compact(*tag).encode(),
+                    vn_core::FieldAccess::Compact(*kind).encode(),
                 ),
                 line,
             );
@@ -185,11 +185,11 @@ pub(super) fn emit_effect(
         InstKind::DefineMember {
             class,
             name,
-            value,
+            member,
             kind,
         } => {
             let class_reg = reg[class.0 as usize];
-            let value_reg = reg[value.0 as usize];
+            let value_reg = reg[member.0 as usize];
             let key_idx = chunk.add_str(name);
             chunk.emit(kind.opcode(), line);
             chunk.write(Chunk::pack(class_reg, value_reg), line);

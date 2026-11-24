@@ -38,7 +38,7 @@ impl<'m> Builder<'m> {
             self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: v.name.clone(),
-                value: variant_v,
+                member: variant_v,
                 kind: vn_core::MemberDef::Method { is_static: true },
             });
             if let Some(slot) = enum_info
@@ -64,7 +64,7 @@ impl<'m> Builder<'m> {
             self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: sname.clone(),
-                value: reserved,
+                member: reserved,
                 kind: vn_core::MemberDef::Method { is_static: true },
             });
         }

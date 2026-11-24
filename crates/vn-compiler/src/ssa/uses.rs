@@ -122,9 +122,9 @@ macro_rules! inst_uses {
                 $use!($f, start);
                 $use!($f, end);
             }
-            DefineMember { class, value, .. } => {
+            DefineMember { class, member, .. } => {
                 $use!($f, class);
-                $use!($f, value);
+                $use!($f, member);
             }
 
             SetIndex {

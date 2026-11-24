@@ -63,7 +63,7 @@ impl Builder<'_> {
             name.to_string()
         };
         self.throw_type_mismatch_unless(holds, v, &expected)?;
-        Ok(self.emit(InstKind::Cast { operand: v, ty }, ty))
+        Ok(self.emit(InstKind::Cast { operand: v }, ty))
     }
 
     fn throw_type_mismatch_unless(&mut self, holds: Value, v: Value, expected: &str) -> Result<()> {
@@ -263,13 +263,7 @@ impl Builder<'_> {
                     InstKind::Convert { operand: v, conv },
                     BackendTy::Dynamic(DynReason::Boxed),
                 );
-                return Ok(self.emit(
-                    InstKind::Cast {
-                        operand: checked,
-                        ty,
-                    },
-                    ty,
-                ));
+                return Ok(self.emit(InstKind::Cast { operand: checked }, ty));
             }
             BackendTy::Dynamic(_)
             | BackendTy::Char

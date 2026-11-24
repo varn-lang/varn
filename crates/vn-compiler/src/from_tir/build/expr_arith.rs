@@ -143,7 +143,7 @@ impl<'m> Builder<'m> {
         };
         match vn_core::ValueConv::narrow(kind) {
             Some(conv) => self.emit(InstKind::Convert { operand: v, conv }, ty),
-            None if self.value_ty(v) != ty => self.emit(InstKind::Cast { operand: v, ty }, ty),
+            None if self.value_ty(v) != ty => self.emit(InstKind::Cast { operand: v }, ty),
             None => v,
         }
     }
@@ -393,6 +393,6 @@ impl<'m> Builder<'m> {
             let converted = self.emit(InstKind::Convert { operand: v, conv }, result_ty);
             return Ok(self.narrow_to(converted, node_ty));
         }
-        Ok(self.emit(InstKind::Cast { operand: v, ty }, ty))
+        Ok(self.emit(InstKind::Cast { operand: v }, ty))
     }
 }

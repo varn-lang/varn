@@ -46,13 +46,7 @@ impl<'m> Builder<'m> {
         if from == target || (from.is_boxed() && target.is_boxed()) {
             v
         } else {
-            self.emit(
-                InstKind::Cast {
-                    operand: v,
-                    ty: target,
-                },
-                target,
-            )
+            self.emit(InstKind::Cast { operand: v }, target)
         }
     }
 }

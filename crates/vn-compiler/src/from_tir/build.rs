@@ -119,7 +119,7 @@ impl<'m> Builder<'m> {
                         object: v,
                         slot: *field,
                         offset: 0,
-                        tag: vn_core::FieldAccess::Slot,
+                        access: vn_core::FieldAccess::Slot,
                     },
                     ty,
                 ))

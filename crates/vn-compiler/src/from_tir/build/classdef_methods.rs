@@ -54,7 +54,7 @@ impl<'m> Builder<'m> {
             self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: m.key.clone(),
-                value: mv,
+                member: mv,
                 kind: vn_core::MemberDef::Method {
                     is_static: m.is_static,
                 },
@@ -109,7 +109,7 @@ impl<'m> Builder<'m> {
             self.emit_effect(InstKind::DefineMember {
                 class: class_v,
                 name: a.key.clone(),
-                value: av,
+                member: av,
                 kind: vn_core::MemberDef::Accessor {
                     kind: if a.is_getter {
                         vn_core::AccessorKind::Get

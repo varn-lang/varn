@@ -148,17 +148,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::Cast { ty, .. } => {
-            if let Some(dest) = inst.dest {
-                let dty = func.value_ty(dest);
-                if dty != *ty {
-                    return Err(format!(
-                        "Cast defines v{}: {dty:?}, expected {ty:?}",
-                        dest.0
-                    ));
-                }
-            }
-        }
+        InstKind::Cast { .. } => {}
         InstKind::Convert { operand, conv } => {
             let expected = convert_result_ty(*conv);
             if let Some(dest) = inst.dest {

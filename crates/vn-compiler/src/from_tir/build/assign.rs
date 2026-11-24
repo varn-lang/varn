@@ -55,7 +55,7 @@ impl<'m> Builder<'m> {
                             value,
                             slot: *slot,
                             offset,
-                            tag,
+                            kind: tag,
                         },
                         None => InstKind::SetProperty {
                             object: obj,
@@ -68,7 +68,7 @@ impl<'m> Builder<'m> {
                         value,
                         slot: *slot,
                         offset: 0,
-                        tag: None,
+                        kind: None,
                     },
                     Resolution::None
                     | Resolution::Local(_)

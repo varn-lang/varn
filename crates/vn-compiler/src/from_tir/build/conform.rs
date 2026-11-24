@@ -67,12 +67,6 @@ impl<'m> Builder<'m> {
             },
             BackendTy::Dynamic(DynReason::Boxed),
         );
-        Ok(self.emit(
-            InstKind::Cast {
-                operand: checked,
-                ty,
-            },
-            ty,
-        ))
+        Ok(self.emit(InstKind::Cast { operand: checked }, ty))
     }
 }
