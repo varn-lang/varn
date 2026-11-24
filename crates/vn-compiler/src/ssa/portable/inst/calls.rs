@@ -55,11 +55,7 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             args: args.iter().copied().collect(),
             op_id: *op_id,
         }),
-        InstKind::IntrinsicCall {
-            object,
-            args,
-            wire,
-        } => Some(SsaOp::IntrinsicCall {
+        InstKind::IntrinsicCall { object, args, wire } => Some(SsaOp::IntrinsicCall {
             object: *object,
             args: args.iter().copied().collect(),
             wire: *wire,
@@ -90,8 +86,8 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             callee: *callee,
             args: args.clone(),
         }),
-        InstKind::MakeClosure { upvalues, .. } => Some(SsaOp::MakeClosure {
-            proto: u32::from(site.closure_const?),
+        InstKind::MakeClosure { func, upvalues } => Some(SsaOp::MakeClosure {
+            func: *func,
             upvalues: upvalues
                 .iter()
                 .map(|src| match src {

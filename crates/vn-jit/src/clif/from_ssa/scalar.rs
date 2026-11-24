@@ -198,10 +198,14 @@ pub(super) fn emit_inst(
             )))
         }
 
-        SsaOp::MakeClosure { proto, upvalues } => {
+        SsaOp::MakeClosure { upvalues, .. } => {
+            let proto = ctx
+                .ssa
+                .closure_proto_at(inst.ip)
+                .ok_or("from_ssa: closure without proto")?;
             return Ok(Some(Out::Boxed(closures::emit_make_closure(
-                b, ctx, *proto, upvalues,
-            )?)))
+                b, ctx, proto, upvalues,
+            )?)));
         }
         SsaOp::LoadCaptured { var } => {
             return Ok(Some(Out::Boxed(closures::emit_load_captured(

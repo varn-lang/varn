@@ -130,6 +130,8 @@ pub struct SsaProto {
     pub call_shapes: Vec<CallShape>,
 
     pub call_sites: Vec<(u32, u32)>,
+
+    pub closure_sites: Vec<(u32, u32)>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -174,6 +176,15 @@ impl SsaProto {
             .binary_search_by_key(&ip, |(site, _)| *site)
             .ok()?;
         self.call_shapes.get(self.call_sites[at].1 as usize)
+    }
+
+    #[inline]
+    pub fn closure_proto_at(&self, ip: u32) -> Option<u32> {
+        let at = self
+            .closure_sites
+            .binary_search_by_key(&ip, |(site, _)| *site)
+            .ok()?;
+        Some(self.closure_sites[at].1)
     }
 
     pub fn block(&self, id: BlockId) -> &SsaBlock {

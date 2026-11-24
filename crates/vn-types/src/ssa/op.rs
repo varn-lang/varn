@@ -104,7 +104,7 @@ pub enum SsaOp {
     },
 
     MakeClosure {
-        proto: u32,
+        func: u32,
         upvalues: Vec<SsaUpvalue>,
     },
 
