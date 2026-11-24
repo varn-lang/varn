@@ -346,6 +346,7 @@ pub struct TestArgs {
     #[command(flatten)]
     pub permissions: PermissionArgs,
 
+    #[arg(value_name = "PATH", help = "Fichero, directorio o patron glob (p. ej. \"tests/*jit*.vn\")")]
     pub path: Option<String>,
 
     #[arg(short, long)]

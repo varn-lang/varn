@@ -11,7 +11,7 @@ viva; esta página la resume.
 | `check` | `vn check [-v] [PATH...]` | Verifica tipos de cada archivo y de todas sus dependencias sin generar código; los directorios se recorren recursivamente y sin argumentos se usa `main` de `vn.toml`. Sale con 3 si algún archivo tiene diagnósticos. Los errores de emisión (p. ej. demasiadas constantes) solo aparecen en `run`/`build` |
 | `eval` | `vn eval [-v] [permisos] CODE` | Evalúa una expresión/programa corto |
 | `repl` | `vn repl [--debug-bytecode] [permisos]` | Bucle interactivo; cada línea es un programa aparte |
-| `test` | `vn test [PATH] [-f FILTER] [-j JOBS] [--fail-fast] [-v] [permisos]` | Ejecuta cada `.vn` de PATH (por defecto `tests/`, un nivel) |
+| `test` | `vn test [PATH] [-f FILTER] [-j JOBS] [--fail-fast] [-v] [permisos]` | Ejecuta cada `.vn` de PATH (por defecto `tests/`, un nivel). PATH admite globs (`tests/*jit*.vn`); cada fichero corre aislado en su propio directorio temporal, así que los tests en paralelo no comparten disco |
 | `bench` | `vn bench [FILE] [-e CODE] [--runs N=10] [--show-output] [-v] [--all-rows] [--min-clif-coverage PCT] [permisos]` | Tiempos por fase; `--min-clif-coverage` falla si la cobertura JIT queda por debajo |
 | `debug` | `vn debug [FILE] [-e CODE] [-p PHASE=all] [--fn NAME] [--list-phases] [--natives] [permisos]` | Inspección por fase; `--natives` imprime la tabla de operaciones nativas; ver [`CLI_INSPECT.md`](CLI_INSPECT.md) |
 
