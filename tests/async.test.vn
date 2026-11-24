@@ -81,8 +81,37 @@ async function runAsync(): Task<void> {
     expect(disposeThrew).toBeTruthy();
 }
 
+class AsyncOnlyResource {
+    cleaned: bool;
+    constructor() {
+        this.cleaned = false;
+    }
+    async disposeAsync(): Task<void> {
+        this.cleaned = true;
+    }
+}
+async function runAwaitUsing(): Task<void> {
+    const res = new AsyncOnlyResource();
+    {
+        await using r = res;
+        expect(r.cleaned).toBeFalsy();
+    }
+    expect(res.cleaned).toBeTruthy();
+    let finalized = false;
+    {
+        await using group = new TaskGroup<int>();
+        group.finally(() => { finalized = true; });
+        expect(finalized).toBeFalsy();
+        const t = group.spawn(asyncAdd(1, 2));
+        expect(await t).toBe(3);
+    }
+    expect(finalized).toBeTruthy();
+}
 await describe("21 Async", async () => {
     await it("async runtime", async () => {
         await runAsync();
+    });
+    await it("await using disposes asynchronously", async () => {
+        await runAwaitUsing();
     });
 });

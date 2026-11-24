@@ -1,0 +1,7 @@
+// expect: error[VN4011]
+class R {
+    async disposeAsync(): Task<void> {}
+}
+function plain(): void {
+    await using r = new R();
+}

@@ -1,0 +1,7 @@
+// expect: error[VN4016]
+class R {
+    dispose(): void {}
+}
+async function f(): Task<void> {
+    await using r = new R();
+}

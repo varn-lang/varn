@@ -12,12 +12,25 @@ impl<'r> Checker<'r> {
         is_await: bool,
         bind: &BindResult,
     ) {
-        let dispose_method = if is_await { "disposeAsync" } else { "dispose" };
+        let dispose_method = if is_await {
+            vn_core::well_known::ASYNC_DISPOSE_METHOD
+        } else {
+            vn_core::well_known::DISPOSE_METHOD
+        };
         let interface_name = if is_await {
             vn_core::well_known::ASYNC_DISPOSABLE
         } else {
             vn_core::well_known::DISPOSABLE
         };
+        if is_await && !self.in_async {
+            self.emit(
+                Diagnostic::error(
+                    ErrorCode::AwaitOutsideAsync,
+                    "'await using' is only valid inside an async function or at the top level",
+                )
+                .with_range(declarations.first().map(|d| d.range).unwrap_or_default()),
+            );
+        }
         for d in &declarations {
             if d.init.is_none() {
                 self.emit(

@@ -10,6 +10,12 @@ use vn_tir::{
     TirStmt, TyTable,
 };
 
+#[derive(Clone)]
+pub(super) struct PendingDispose {
+    pub(super) resource: TirExpr,
+    pub(super) is_async: bool,
+}
+
 #[derive(Clone, Copy)]
 pub(crate) struct ModuleCtx<'a> {
     pub names: &'a NameIndex,
@@ -89,7 +95,7 @@ pub(crate) struct FnEmitter<'a> {
     pub return_ty: BackendTy,
     pub yield_ty: BackendTy,
 
-    pub(super) disposables: Vec<Vec<TirExpr>>,
+    pub(super) disposables: Vec<Vec<PendingDispose>>,
 
     pub(super) loops: Vec<super::loop_labels::LoopFrame>,
 

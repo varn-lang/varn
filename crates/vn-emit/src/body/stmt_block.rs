@@ -1,4 +1,4 @@
-use super::context::FnEmitter;
+use super::context::{FnEmitter, PendingDispose};
 use super::match_pattern::MatchDest;
 use super::small_utils::{bool_lit, placeholder};
 use rustc_hash::FxHashMap;
@@ -26,19 +26,38 @@ impl<'a> FnEmitter<'a> {
 
     pub fn drain_dispose_frame(&mut self) -> Vec<TirStmt> {
         let mut out = Vec::new();
-        for resource in self.disposables.pop().unwrap_or_default().into_iter().rev() {
-            let name: Arc<str> = Arc::from("dispose");
-            let res = self.method_resolution(resource.ty, &name, 0, true, false);
-            out.push(TirStmt::Expr(TirExpr {
+        for pending in self.disposables.pop().unwrap_or_default().into_iter().rev() {
+            let name: Arc<str> = Arc::from(if pending.is_async {
+                vn_core::well_known::ASYNC_DISPOSE_METHOD
+            } else {
+                vn_core::well_known::DISPOSE_METHOD
+            });
+            let res = self.method_resolution(pending.resource.ty, &name, 0, true, false);
+            let call = TirExpr {
                 kind: TirExprKind::MethodCall {
-                    recv: Box::new(resource),
+                    recv: Box::new(pending.resource),
                     name,
                     args: vec![],
                 },
                 ty: BackendTy::Void,
                 res,
                 span: Span::EMPTY,
-            }));
+            };
+            if pending.is_async {
+                if self.top_level {
+                    self.saw_await = true;
+                }
+                out.push(TirStmt::Expr(TirExpr {
+                    kind: TirExprKind::Await {
+                        future: Box::new(call),
+                    },
+                    ty: BackendTy::Void,
+                    res: Resolution::None,
+                    span: Span::EMPTY,
+                }));
+            } else {
+                out.push(TirStmt::Expr(call));
+            }
         }
         out
     }
@@ -220,7 +239,11 @@ impl<'a> FnEmitter<'a> {
                 finally,
             } => self.lower_try(*block, catches, *finally),
 
-            StmtKind::Using { declarations, .. } => {
+            StmtKind::Using {
+                declarations,
+                is_await,
+            } => {
+                let is_async = *is_await;
                 let dyn_ty = BackendTy::Dynamic(DynReason::Unrecorded);
                 let mut out = Vec::new();
                 for d in declarations {
@@ -266,11 +289,14 @@ impl<'a> FnEmitter<'a> {
                                 }
                             };
                             if let Some(frame) = self.disposables.last_mut() {
-                                frame.push(TirExpr {
-                                    kind: TirExprKind::Var,
-                                    ty,
-                                    res,
-                                    span: Span::EMPTY,
+                                frame.push(PendingDispose {
+                                    resource: TirExpr {
+                                        kind: TirExprKind::Var,
+                                        ty,
+                                        res,
+                                        span: Span::EMPTY,
+                                    },
+                                    is_async,
                                 });
                             }
                         }
@@ -285,7 +311,10 @@ impl<'a> FnEmitter<'a> {
                             let src = self.hoist(src);
                             out.extend(std::mem::take(&mut self.pending));
                             if let Some(frame) = self.disposables.last_mut() {
-                                frame.push(src.clone());
+                                frame.push(PendingDispose {
+                                    resource: src.clone(),
+                                    is_async,
+                                });
                             }
                             self.bind_pattern(pat, src, &mut out);
                         }
