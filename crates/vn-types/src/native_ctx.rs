@@ -236,6 +236,26 @@ pub trait NativeCtx: crate::Buffers {
         self.capabilities().check_ffi()
     }
 
+    fn fs_root(&self) -> Option<&std::path::Path> {
+        None
+    }
+
+    fn resolve_fs_path(&self, path: &str) -> std::path::PathBuf {
+        let rel = std::path::Path::new(path);
+        match self.fs_root() {
+            Some(root) if rel.is_relative() => root.join(rel),
+            _ => rel.to_path_buf(),
+        }
+    }
+
+    fn check_fs_read_path(&self, path: &std::path::Path) -> bool {
+        self.capabilities().check_fs_read(path)
+    }
+
+    fn check_fs_write_path(&self, path: &std::path::Path) -> bool {
+        self.capabilities().check_fs_write(path)
+    }
+
     fn check_exec(&self) -> bool {
         self.capabilities().check_exec()
     }

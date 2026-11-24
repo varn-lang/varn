@@ -5,6 +5,7 @@ pub struct Policy {
     pub trace: bool,
     pub gc: bool,
     pub silent: bool,
+    pub fs_root: Option<std::path::PathBuf>,
 }
 
 impl Policy {
@@ -14,6 +15,7 @@ impl Policy {
             trace: false,
             gc: false,
             silent: false,
+            fs_root: None,
         }
     }
 }

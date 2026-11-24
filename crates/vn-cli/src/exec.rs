@@ -46,6 +46,7 @@ pub fn policy(permissions: &PermissionArgs, debug: &DebugFlags, silent: bool) ->
         trace: debug.trace,
         gc: debug.gc,
         silent,
+        fs_root: None,
     }
 }
 

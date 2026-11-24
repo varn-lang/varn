@@ -16,6 +16,10 @@ use crate::value::VmValue;
 use vn_types::{ClassObj, NativeCtx, NativeFn, ResourceStore};
 
 impl NativeCtx for ExecCtx {
+    fn fs_root(&self) -> Option<&std::path::Path> {
+        self.fs_root.as_deref()
+    }
+
     fn alloc_str(&mut self, s: &str) -> VmValue {
         self.heap.alloc_str_dynamic(s)
     }

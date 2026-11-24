@@ -32,6 +32,7 @@ pub fn execute_unit(
         policy.trace,
     )?;
     machine.ctx.print_silent = policy.silent;
+    machine.ctx.fs_root = policy.fs_root.clone();
     let main_proto = enter_main(&mut machine, Rc::new(executable.entry_proto.clone()));
     if policy.trace {
         vn_core::term::terminal::tagged(
