@@ -1,7 +1,8 @@
 # ADR-0035: Una sola SSA para el compilador y el JIT
 
 ## Estado
-Propuesta (2026-11-23).
+Completada (2026-11-24). Todas las fases ejecutadas con su puerta en verde;
+las mediciones por fase estan en "Mediciones".
 
 ## Contexto
 El compilador optimiza sobre `vn_compiler::ssa::ir::InstKind` (89 variantes) y el JIT
@@ -43,7 +44,7 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
 - [x] F1b. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}`
   sustituyen a `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm`
   (2e0a98d0; JIT en 4 lotes, 62 ficheros).
-- F3. Un solo enum de instrucciones: `SsaOp` vive en `vn-types` y el
+- [x] F3. Un solo enum de instrucciones: `SsaOp` vive en `vn-types` y el
   compilador lo usa directamente (se borra `InstKind`); los pases hacen match
   sobre el. La proyeccion portable colapsa a `portable/lower.rs`: clona la op
   y solo baja 3 casos (remap de capturadas, `CallDirect` sin slot a `Call`,
@@ -109,9 +110,9 @@ Orden de trabajo hecho: F5, F1b y limpieza previa de F3, de menor a mayor alcanc
 - [x] F3: `SsaOp` unico en `vn-types`; el compilador lo usa, `uses.rs` del
   compilador borrado, proyeccion colapsada a `lower.rs` (3 lowerings).
   Detalle en la seccion F3 de arriba.
-- Medir `vn bench` sobre `tests/benchmarks/vn` contra el binario previo para F4b y
-  F4c, que pasaron la matriz completa sin esa medicion, y para F5, F1b y la
-  limpieza de F3.
+- [x] Mediciones `vn bench`: corpus completo (28 ficheros,
+  `tests/benchmarks/vn`), 10 corridas por fichero, `VN_JIT_CACHE=off`,
+  binarios release por fase. Resultados en "Mediciones".
 
 Defectos encontrados durante F4b, fuera de esta decision:
 
@@ -122,9 +123,32 @@ Defectos encontrados durante F4b, fuera de esta decision:
   `Dispose` borrada distinguia ambos casos, pero ningun constructor la emitia.
 
 ## Verificacion
-Cada fase compila sin la anterior duplicacion (no conviven dos rutas, Ley 8) y pasa la
+Cada fase compila sin la anterior duplicacion (Ley 8) y pasa la
 matriz completa. Se mide `vn bench` sobre el corpus de `tests/benchmarks/vn` contra el
 binario de la fase previa, con la cache JIT desactivada.
+
+## Mediciones (2026-11-24)
+Corpus completo de 28 benches, `execute (warm)` p50, 10 corridas, release,
+`VN_JIT_CACHE=off`. Geomean del cociente contra la fase previa (1.00 = igual):
+
+- F4c (f1cf5a87 -> 90fbf8e7): 0.919
+- F4b (90fbf8e7 -> d2971db0): 1.029
+- F5 (d2971db0 -> 8d7732c1): 0.975
+- F1b (8d7732c1 -> 2e0a98d0): 1.155
+- Limpieza F3 (2e0a98d0 -> e14e6cf1): 0.954
+- Fusion F3 (e14e6cf1 -> HEAD): 1.124
+
+Lectura honesta: el protocolo no resuelve. El test A/A (mismo binario HEAD
+medido dos veces seguidas) da geomean 0.92 con ficheros oscilando 0.52-1.77,
+los CV intra-run llegan a 0.55 (`polymorphism`, `array_ops`, `now`) y la
+propia herramienta avisa `execute cv is above 10%, the run is not reliable`
+(`fib`). La deriva de la maquina durante la hora de medicion domina sobre
+cualquier efecto del codigo. Donde la medida si es fiable no hay efecto:
+`task_soak` (CV 0.02) y `task_spawn` (CV 0.05) son identicos en los 7 binarios
+(rango maximo 1.04 y 1.01). Conclusion: sin regresion sistematica distinguible
+del ruido; la puerta vinculante sigue siendo la matriz completa, en verde.
+Seguimiento propuesto (fuera de este ADR): protocolo con A/B intercalado, mas
+corridas y frecuencia fija antes de usar `vn bench` como puerta fina.
 
 ## Que se borra
 `ssa/portable/inst/` (proyeccion campo a campo), `vn-compiler/src/ssa/uses.rs`,
