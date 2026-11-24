@@ -172,7 +172,7 @@ pub(super) fn emit_inst(
                 b, ctx, values, *object, args, *op_id,
             )?)))
         }
-        SsaOp::Call { callee, args } => {
+        SsaOp::Call { callee, args, .. } => {
             return Ok(Some(call::emit_call(b, ctx, values, *callee, args, dest)?))
         }
         SsaOp::CallDirect { callee, args, .. } => {

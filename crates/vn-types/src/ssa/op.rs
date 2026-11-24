@@ -30,6 +30,7 @@ pub enum SsaOp {
     Call {
         callee: ValueId,
         args: Vec<ValueId>,
+        shape: Option<u32>,
     },
 
     CallDirect {
@@ -37,6 +38,7 @@ pub enum SsaOp {
         slot: Option<u32>,
         callee: ValueId,
         args: Vec<ValueId>,
+        shape: Option<u32>,
     },
 
     AllocInstance {

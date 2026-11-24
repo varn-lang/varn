@@ -44,7 +44,7 @@ impl SsaOp {
             SsaOp::SuperMethodCall { args, .. } | SsaOp::SuperInvokeSlot { args, .. } => {
                 args.iter().for_each(|a| f(*a))
             }
-            SsaOp::Call { callee, args } | SsaOp::CallDirect { callee, args, .. } => {
+            SsaOp::Call { callee, args, .. } | SsaOp::CallDirect { callee, args, .. } => {
                 f(*callee);
                 args.iter().for_each(|a| f(*a));
             }

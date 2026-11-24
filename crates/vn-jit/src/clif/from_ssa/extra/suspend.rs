@@ -64,7 +64,7 @@ pub(in crate::clif::from_ssa) fn fused_await_calls(
     let mut fused = rustc_hash::FxHashMap::default();
     for blk in &ssa.blocks {
         for pair in blk.insts.windows(2) {
-            let (vn_types::ssa::SsaOp::Call { callee, args }, Some(d)) =
+            let (vn_types::ssa::SsaOp::Call { callee, args, .. }, Some(d)) =
                 (&pair[0].op, pair[0].dest)
             else {
                 continue;

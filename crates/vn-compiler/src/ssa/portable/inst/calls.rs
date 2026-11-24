@@ -4,26 +4,33 @@ use vn_types::ssa::{SsaOp, SsaUpvalue};
 
 pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured) -> Option<SsaOp> {
     match kind {
-        InstKind::Call { callee, args, .. } => Some(SsaOp::Call {
+        InstKind::Call {
+            callee,
+            args,
+            shape,
+        } => Some(SsaOp::Call {
             callee: *callee,
             args: args.iter().copied().collect(),
+            shape: *shape,
         }),
         InstKind::CallDirect {
             target,
             slot,
             callee,
             args,
-            ..
+            shape,
         } => match site.direct_slot {
             Some(_) => Some(SsaOp::CallDirect {
                 target: target.clone(),
                 slot: *slot,
                 callee: *callee,
                 args: args.iter().copied().collect(),
+                shape: *shape,
             }),
             None => Some(SsaOp::Call {
                 callee: *callee,
                 args: args.iter().copied().collect(),
+                shape: *shape,
             }),
         },
         InstKind::SelfCall { args } => Some(SsaOp::SelfCall {
