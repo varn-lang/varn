@@ -1,40 +1,17 @@
 use crate::ssa::ir::InstKind;
-use vn_tir::BackendTy;
 use vn_types::ssa::SsaOp;
 
-pub(super) fn try_project(kind: &InstKind, value_tys: &[BackendTy]) -> Option<SsaOp> {
+pub(super) fn try_project(kind: &InstKind, _value_tys: &[vn_tir::BackendTy]) -> Option<SsaOp> {
     match kind {
-        InstKind::Binary { op, lhs, rhs, ty } => {
-            let ty_slot = crate::ssa::emit::slot_kind_of(*ty);
-            let lhs_slot = value_tys
-                .get(lhs.0 as usize)
-                .map(|t| crate::ssa::emit::slot_kind_of(*t))
-                .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
-            let rhs_slot = value_tys
-                .get(rhs.0 as usize)
-                .map(|t| crate::ssa::emit::slot_kind_of(*t))
-                .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
-            Some(SsaOp::Binary {
-                op: vn_types::ssa::select_bin(*op, ty_slot, lhs_slot, rhs_slot),
-                lhs: *lhs,
-                rhs: *rhs,
-            })
-        }
-        InstKind::Unary {
-            op: vn_core::UnOp::KindOf,
-            operand,
-            ..
-        } => Some(SsaOp::KindOf { operand: *operand }),
-        InstKind::Unary { op, operand, .. } => {
-            let operand_slot = value_tys
-                .get(operand.0 as usize)
-                .map(|t| crate::ssa::emit::slot_kind_of(*t))
-                .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
-            Some(SsaOp::Unary {
-                op: vn_types::ssa::select_un(*op, operand_slot)?,
-                operand: *operand,
-            })
-        }
+        InstKind::Binary { op, lhs, rhs } => Some(SsaOp::Binary {
+            op: *op,
+            lhs: *lhs,
+            rhs: *rhs,
+        }),
+        InstKind::Unary { op, operand } => Some(SsaOp::Unary {
+            op: *op,
+            operand: *operand,
+        }),
         InstKind::KindOf { operand } => Some(SsaOp::KindOf { operand: *operand }),
         InstKind::IsArray { operand } => Some(SsaOp::IsArray { operand: *operand }),
         InstKind::ToString { operand } => Some(SsaOp::ToString { operand: *operand }),

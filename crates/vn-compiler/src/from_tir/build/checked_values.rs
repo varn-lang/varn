@@ -30,20 +30,27 @@ impl Builder<'_> {
         );
         let holds = if nullable {
             let is_null = self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool);
+            let not_slot = crate::ssa::emit::slot_kind_of(self.value_ty(is_null));
+            let not_sel =
+                vn_types::ssa::select_un(vn_core::UnOp::Not, not_slot).ok_or_else(|| {
+                    crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
+                })?;
             let not_null = self.emit(
                 InstKind::Unary {
-                    op: vn_core::UnOp::Not,
+                    op: not_sel,
                     operand: is_null,
-                    ty: BackendTy::Bool,
                 },
                 BackendTy::Bool,
             );
+            let ty_slot = crate::ssa::emit::slot_kind_of(BackendTy::Bool);
+            let lhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(is_instance));
+            let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(not_null));
+            let sel = vn_types::ssa::select_bin(vn_core::BinOp::Eq, ty_slot, lhs_slot, rhs_slot);
             self.emit(
                 InstKind::Binary {
-                    op: vn_core::BinOp::Eq,
+                    op: sel,
                     lhs: is_instance,
                     rhs: not_null,
-                    ty: BackendTy::Bool,
                 },
                 BackendTy::Bool,
             )
@@ -88,12 +95,15 @@ impl Builder<'_> {
         );
         let mut message = head;
         for part in [got, tail] {
+            let ty_slot = crate::ssa::emit::slot_kind_of(BackendTy::Str);
+            let lhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(message));
+            let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(part));
+            let sel = vn_types::ssa::select_bin(vn_core::BinOp::Add, ty_slot, lhs_slot, rhs_slot);
             message = self.emit(
                 InstKind::Binary {
-                    op: vn_core::BinOp::Add,
+                    op: sel,
                     lhs: message,
                     rhs: part,
-                    ty: BackendTy::Str,
                 },
                 BackendTy::Str,
             );

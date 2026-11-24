@@ -15,15 +15,13 @@ pub enum InstKind {
     ConstBigInt(Arc<str>),
     ConstNull,
     Binary {
-        op: vn_core::BinOp,
+        op: vn_types::ssa::SsaBinOp,
         lhs: Value,
         rhs: Value,
-        ty: BackendTy,
     },
     Unary {
-        op: vn_core::UnOp,
+        op: vn_types::ssa::SsaUnOp,
         operand: Value,
-        ty: BackendTy,
     },
     KindOf {
         operand: Value,

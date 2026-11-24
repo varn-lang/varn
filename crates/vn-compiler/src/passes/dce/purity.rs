@@ -1,5 +1,4 @@
 use crate::ssa::ir::InstKind;
-use vn_tir::BackendTy;
 
 pub(crate) fn dest_droppable(kind: &InstKind) -> bool {
     use InstKind::*;
@@ -56,45 +55,42 @@ pub(crate) fn is_pure(kind: &InstKind) -> bool {
         | MakeEnumVariant { .. }
         | Range { .. } => true,
 
-        Binary { op, ty, .. } => {
-            let typed = matches!(ty, BackendTy::Num(_) | BackendTy::Bool);
-            let int_can_overflow = *ty == BackendTy::INT
-                && matches!(
-                    op,
-                    vn_core::BinOp::Add
-                        | vn_core::BinOp::Sub
-                        | vn_core::BinOp::Mul
-                        | vn_core::BinOp::Shl
-                        | vn_core::BinOp::Shr
-                        | vn_core::BinOp::Ushr
-                );
-
-            let never_traps = matches!(
+        Binary { op, .. } => {
+            matches!(
                 op,
-                vn_core::BinOp::Add
-                    | vn_core::BinOp::Sub
-                    | vn_core::BinOp::Mul
-                    | vn_core::BinOp::Eq
-                    | vn_core::BinOp::Ne
-                    | vn_core::BinOp::Lt
-                    | vn_core::BinOp::Le
-                    | vn_core::BinOp::Gt
-                    | vn_core::BinOp::Ge
-                    | vn_core::BinOp::BitAnd
-                    | vn_core::BinOp::BitOr
-                    | vn_core::BinOp::BitXor
-                    | vn_core::BinOp::Shl
-                    | vn_core::BinOp::Shr
-                    | vn_core::BinOp::Ushr
-            );
-            typed && never_traps && !int_can_overflow
+                vn_types::ssa::SsaBinOp::IntEq
+                    | vn_types::ssa::SsaBinOp::IntNe
+                    | vn_types::ssa::SsaBinOp::IntLt
+                    | vn_types::ssa::SsaBinOp::IntLe
+                    | vn_types::ssa::SsaBinOp::IntGt
+                    | vn_types::ssa::SsaBinOp::IntGe
+                    | vn_types::ssa::SsaBinOp::IntAnd
+                    | vn_types::ssa::SsaBinOp::IntOr
+                    | vn_types::ssa::SsaBinOp::IntXor
+                    | vn_types::ssa::SsaBinOp::FloatAdd
+                    | vn_types::ssa::SsaBinOp::FloatSub
+                    | vn_types::ssa::SsaBinOp::FloatMul
+                    | vn_types::ssa::SsaBinOp::FloatDiv
+                    | vn_types::ssa::SsaBinOp::FloatMod
+                    | vn_types::ssa::SsaBinOp::FloatPow
+                    | vn_types::ssa::SsaBinOp::FloatEq
+                    | vn_types::ssa::SsaBinOp::FloatNe
+                    | vn_types::ssa::SsaBinOp::FloatLt
+                    | vn_types::ssa::SsaBinOp::FloatLe
+                    | vn_types::ssa::SsaBinOp::FloatGt
+                    | vn_types::ssa::SsaBinOp::FloatGe
+                    | vn_types::ssa::SsaBinOp::StrConcat
+                    | vn_types::ssa::SsaBinOp::StrEq
+                    | vn_types::ssa::SsaBinOp::StrNe
+                    | vn_types::ssa::SsaBinOp::BitsEq
+                    | vn_types::ssa::SsaBinOp::BitsNe
+            )
         }
-        Unary { op, ty, .. } => match op {
-            vn_core::UnOp::KindOf => true,
-            vn_core::UnOp::Neg => matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_))),
-            vn_core::UnOp::Not | vn_core::UnOp::BitNot => {
-                matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
-            }
+        Unary { op, .. } => match op {
+            vn_types::ssa::SsaUnOp::NegFloat
+            | vn_types::ssa::SsaUnOp::Not
+            | vn_types::ssa::SsaUnOp::BitNotInt => true,
+            vn_types::ssa::SsaUnOp::NegInt | vn_types::ssa::SsaUnOp::Dyn(_) => false,
         },
 
         GetProperty { .. }

@@ -1,7 +1,6 @@
 use super::const_fold::is_constant_kind;
 use crate::ssa::ir::InstKind;
 use vn_core::{add_int, mul_int, neg_int, pow_int, sub_int};
-use vn_tir::BackendTy;
 
 pub(super) fn fold_convert(conv: vn_core::ValueConv, operand: &InstKind) -> Option<InstKind> {
     use vn_core::ValueConv::*;
@@ -16,120 +15,149 @@ pub(super) fn fold_convert(conv: vn_core::ValueConv, operand: &InstKind) -> Opti
     }
 }
 
-pub(super) fn fold_unary(
-    op: vn_core::UnOp,
-    operand: &InstKind,
-    _ty: BackendTy,
-) -> Option<InstKind> {
+pub(super) fn fold_unary(op: vn_types::ssa::SsaUnOp, operand: &InstKind) -> Option<InstKind> {
+    use vn_types::ssa::SsaUnOp::*;
     match (op, operand) {
-        (vn_core::UnOp::Neg, InstKind::ConstInt(x)) => neg_int(*x).map(InstKind::ConstInt),
-        (vn_core::UnOp::Neg, InstKind::ConstFloat(x)) => Some(InstKind::ConstFloat(-x)),
-        (vn_core::UnOp::Not, InstKind::ConstBool(x)) => Some(InstKind::ConstBool(!x)),
-        (vn_core::UnOp::BitNot, InstKind::ConstInt(x)) => Some(InstKind::ConstInt(!x)),
-        _ => None,
+        (NegInt, InstKind::ConstInt(x)) => neg_int(*x).map(InstKind::ConstInt),
+        (NegFloat, InstKind::ConstFloat(x)) => Some(InstKind::ConstFloat(-x)),
+        (Not, InstKind::ConstBool(x)) => Some(InstKind::ConstBool(!x)),
+        (BitNotInt, InstKind::ConstInt(x)) => Some(InstKind::ConstInt(!x)),
+        (NegInt, _) | (NegFloat, _) | (Not, _) | (BitNotInt, _) | (Dyn(_), _) => None,
     }
 }
 
 pub(super) fn fold_binary(
-    op: vn_core::BinOp,
+    op: vn_types::ssa::SsaBinOp,
     lhs: &InstKind,
     rhs: &InstKind,
-    _ty: BackendTy,
 ) -> Option<InstKind> {
-    use vn_core::BinOp::*;
+    use vn_types::ssa::SsaBinOp::*;
     match (lhs, rhs) {
         (InstKind::ConstInt(x), InstKind::ConstInt(y)) => match op {
-            Add => add_int(*x, *y).map(InstKind::ConstInt),
-            Sub => sub_int(*x, *y).map(InstKind::ConstInt),
-            Mul => mul_int(*x, *y).map(InstKind::ConstInt),
-            Div => vn_core::div_int(*x, *y).ok().map(InstKind::ConstInt),
-            Mod => vn_core::rem_int(*x, *y).ok().map(InstKind::ConstInt),
-
-            Pow => {
+            IntAdd => add_int(*x, *y).map(InstKind::ConstInt),
+            IntSub => sub_int(*x, *y).map(InstKind::ConstInt),
+            IntMul => mul_int(*x, *y).map(InstKind::ConstInt),
+            IntDiv => vn_core::div_int(*x, *y).ok().map(InstKind::ConstInt),
+            IntMod => vn_core::rem_int(*x, *y).ok().map(InstKind::ConstInt),
+            IntPow => {
                 if *y >= 0 && *y <= 30 {
                     pow_int(*x, *y as u64).map(InstKind::ConstInt)
                 } else {
                     None
                 }
             }
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Lt => Some(InstKind::ConstBool(x < y)),
-            Le => Some(InstKind::ConstBool(x <= y)),
-            Gt => Some(InstKind::ConstBool(x > y)),
-            Ge => Some(InstKind::ConstBool(x >= y)),
-            BitAnd => Some(InstKind::ConstInt(x & y)),
-            BitOr => Some(InstKind::ConstInt(x | y)),
-            BitXor => Some(InstKind::ConstInt(x ^ y)),
-            Shl => vn_core::shl_int(*x, *y).map(InstKind::ConstInt),
-            Shr => vn_core::shr_int(*x, *y).map(InstKind::ConstInt),
-            Ushr => vn_core::ushr_int(*x, *y).map(InstKind::ConstInt),
-            In => None,
+            IntEq => Some(InstKind::ConstBool(x == y)),
+            IntNe => Some(InstKind::ConstBool(x != y)),
+            IntLt => Some(InstKind::ConstBool(x < y)),
+            IntLe => Some(InstKind::ConstBool(x <= y)),
+            IntGt => Some(InstKind::ConstBool(x > y)),
+            IntGe => Some(InstKind::ConstBool(x >= y)),
+            IntAnd => Some(InstKind::ConstInt(x & y)),
+            IntOr => Some(InstKind::ConstInt(x | y)),
+            IntXor => Some(InstKind::ConstInt(x ^ y)),
+            IntShl => vn_core::shl_int(*x, *y).map(InstKind::ConstInt),
+            IntShr => vn_core::shr_int(*x, *y).map(InstKind::ConstInt),
+            IntUshr => vn_core::ushr_int(*x, *y).map(InstKind::ConstInt),
+            FloatAdd | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | BitsEq
+            | BitsNe | Dyn(_) => None,
         },
         (InstKind::ConstFloat(x), InstKind::ConstFloat(y)) => match op {
-            Add => Some(InstKind::ConstFloat(x + y)),
-            Sub => Some(InstKind::ConstFloat(x - y)),
-            Mul => Some(InstKind::ConstFloat(x * y)),
-            Div => Some(InstKind::ConstFloat(x / y)),
-            Mod => Some(InstKind::ConstFloat(x % y)),
-            Pow => Some(InstKind::ConstFloat(x.powf(*y))),
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Lt => Some(InstKind::ConstBool(x < y)),
-            Le => Some(InstKind::ConstBool(x <= y)),
-            Gt => Some(InstKind::ConstBool(x > y)),
-            Ge => Some(InstKind::ConstBool(x >= y)),
-            BitAnd | BitOr | BitXor | Shl | Shr | Ushr | In => None,
+            FloatAdd => Some(InstKind::ConstFloat(x + y)),
+            FloatSub => Some(InstKind::ConstFloat(x - y)),
+            FloatMul => Some(InstKind::ConstFloat(x * y)),
+            FloatDiv => Some(InstKind::ConstFloat(x / y)),
+            FloatMod => Some(InstKind::ConstFloat(x % y)),
+            FloatPow => Some(InstKind::ConstFloat(x.powf(*y))),
+            FloatEq => Some(InstKind::ConstBool(x == y)),
+            FloatNe => Some(InstKind::ConstBool(x != y)),
+            FloatLt => Some(InstKind::ConstBool(x < y)),
+            FloatLe => Some(InstKind::ConstBool(x <= y)),
+            FloatGt => Some(InstKind::ConstBool(x > y)),
+            FloatGe => Some(InstKind::ConstBool(x >= y)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | StrConcat
+            | StrEq | StrNe | BitsEq | BitsNe | Dyn(_) => None,
         },
         (InstKind::ConstBool(x), InstKind::ConstBool(y)) => match op {
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | In => None,
+            BitsEq => Some(InstKind::ConstBool(x == y)),
+            BitsNe => Some(InstKind::ConstBool(x != y)),
+            Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(x == y)),
+            Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(x != y)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | Dyn(_) => None,
         },
         (InstKind::ConstStr(x), InstKind::ConstStr(y)) => match op {
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | In => None,
+            StrEq => Some(InstKind::ConstBool(x == y)),
+            StrNe => Some(InstKind::ConstBool(x != y)),
+            Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(x == y)),
+            Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(x != y)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | BitsEq | BitsNe | Dyn(_) => None,
         },
         (InstKind::ConstChar(x), InstKind::ConstChar(y)) => match op {
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | In => None,
+            BitsEq => Some(InstKind::ConstBool(x == y)),
+            BitsNe => Some(InstKind::ConstBool(x != y)),
+            Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(x == y)),
+            Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(x != y)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | Dyn(_) => None,
         },
         (InstKind::ConstDecimal(x), InstKind::ConstDecimal(y)) => match op {
-            Add => Some(InstKind::ConstDecimal(x + y)),
-            Sub => Some(InstKind::ConstDecimal(x - y)),
-            Mul => Some(InstKind::ConstDecimal(vn_core::numeric_big::mul_decimal(
-                x, y,
-            ))),
-            Div => vn_core::numeric_big::div_decimal(x, y)
+            Dyn(vn_core::BinOp::Add) => Some(InstKind::ConstDecimal(x + y)),
+            Dyn(vn_core::BinOp::Sub) => Some(InstKind::ConstDecimal(x - y)),
+            Dyn(vn_core::BinOp::Mul) => Some(InstKind::ConstDecimal(
+                vn_core::numeric_big::mul_decimal(x, y),
+            )),
+            Dyn(vn_core::BinOp::Div) => vn_core::numeric_big::div_decimal(x, y)
                 .ok()
                 .map(InstKind::ConstDecimal),
-            Eq => Some(InstKind::ConstBool(x == y)),
-            Ne => Some(InstKind::ConstBool(x != y)),
-            Lt => Some(InstKind::ConstBool(x < y)),
-            Le => Some(InstKind::ConstBool(x <= y)),
-            Gt => Some(InstKind::ConstBool(x > y)),
-            Ge => Some(InstKind::ConstBool(x >= y)),
-            Mod | Pow | BitAnd | BitOr | BitXor | Shl | Shr | Ushr | In => None,
+            Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(x == y)),
+            Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(x != y)),
+            Dyn(vn_core::BinOp::Lt) => Some(InstKind::ConstBool(x < y)),
+            Dyn(vn_core::BinOp::Le) => Some(InstKind::ConstBool(x <= y)),
+            Dyn(vn_core::BinOp::Gt) => Some(InstKind::ConstBool(x > y)),
+            Dyn(vn_core::BinOp::Ge) => Some(InstKind::ConstBool(x >= y)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | BitsEq
+            | BitsNe | Dyn(_) => None,
         },
-        (InstKind::ConstBigInt(x), InstKind::ConstBigInt(y)) => fold_bigint(op, x, y),
+        (InstKind::ConstBigInt(x), InstKind::ConstBigInt(y)) => match op {
+            Dyn(inner) => fold_bigint(inner, x, y),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | BitsEq
+            | BitsNe => None,
+        },
         (InstKind::ConstNull, InstKind::ConstNull) => match op {
-            Eq => Some(InstKind::ConstBool(true)),
-            Ne => Some(InstKind::ConstBool(false)),
-            Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr | BitXor
-            | Shl | Shr | Ushr | In => None,
+            BitsEq => Some(InstKind::ConstBool(true)),
+            BitsNe => Some(InstKind::ConstBool(false)),
+            Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(true)),
+            Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(false)),
+            IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe
+            | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd
+            | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow | FloatEq | FloatNe
+            | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | Dyn(_) => None,
         },
         (InstKind::ConstNull, other) | (other, InstKind::ConstNull) => {
             if is_constant_kind(other) {
                 match op {
-                    Eq => Some(InstKind::ConstBool(false)),
-                    Ne => Some(InstKind::ConstBool(true)),
-                    Add | Sub | Mul | Div | Mod | Pow | Lt | Le | Gt | Ge | BitAnd | BitOr
-                    | BitXor | Shl | Shr | Ushr | In => None,
+                    BitsEq | Dyn(vn_core::BinOp::Eq) => Some(InstKind::ConstBool(false)),
+                    BitsNe | Dyn(vn_core::BinOp::Ne) => Some(InstKind::ConstBool(true)),
+                    IntAdd | IntSub | IntMul | IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt
+                    | IntLe | IntGt | IntGe | IntAnd | IntOr | IntXor | IntShl | IntShr
+                    | IntUshr | FloatAdd | FloatSub | FloatMul | FloatDiv | FloatMod | FloatPow
+                    | FloatEq | FloatNe | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat
+                    | StrEq | StrNe | Dyn(_) => None,
                 }
             } else {
                 None

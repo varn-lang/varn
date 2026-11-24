@@ -1,5 +1,4 @@
 use rustc_hash::FxHashMap;
-use vn_tir::BackendTy;
 
 use crate::ssa::ir::{Inst, InstKind, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
@@ -64,106 +63,59 @@ fn simplify(
     int_const: &FxHashMap<Value, i64>,
     float_const: &FxHashMap<Value, f64>,
 ) -> Option<Simplified> {
-    let InstKind::Binary { op, lhs, rhs, ty } = &inst.kind else {
+    let InstKind::Binary { op, lhs, rhs } = &inst.kind else {
         return None;
     };
     let (l, r) = (*lhs, *rhs);
 
-    let representation = ty.representation();
-    match &representation {
-        BackendTy::Literal(_) => None,
-        BackendTy::Num(vn_core::NumKind::Int(_)) => {
+    use vn_types::ssa::SsaBinOp::*;
+    match op {
+        IntAdd => {
             let li = int_const.get(&l).copied();
             let ri = int_const.get(&r).copied();
-            match op {
-                vn_core::BinOp::Add => match (li, ri) {
-                    (_, Some(0)) => Some(Simplified::Use(l)),
-                    (Some(0), _) => Some(Simplified::Use(r)),
-                    _ => None,
-                },
-                vn_core::BinOp::Sub => {
-                    if ri == Some(0) {
-                        Some(Simplified::Use(l))
-                    } else if l == r {
-                        Some(Simplified::Const(InstKind::ConstInt(0)))
-                    } else {
-                        None
-                    }
-                }
-                vn_core::BinOp::Mul => match (li, ri) {
-                    (_, Some(1)) => Some(Simplified::Use(l)),
-                    (Some(1), _) => Some(Simplified::Use(r)),
-
-                    (_, Some(0)) | (Some(0), _) => Some(Simplified::Const(InstKind::ConstInt(0))),
-                    _ => None,
-                },
-
-                vn_core::BinOp::Div
-                | vn_core::BinOp::Mod
-                | vn_core::BinOp::Pow
-                | vn_core::BinOp::Eq
-                | vn_core::BinOp::Ne
-                | vn_core::BinOp::Lt
-                | vn_core::BinOp::Le
-                | vn_core::BinOp::Gt
-                | vn_core::BinOp::Ge
-                | vn_core::BinOp::BitAnd
-                | vn_core::BinOp::BitOr
-                | vn_core::BinOp::BitXor
-                | vn_core::BinOp::Shl
-                | vn_core::BinOp::Shr
-                | vn_core::BinOp::Ushr
-                | vn_core::BinOp::In => None,
+            match (li, ri) {
+                (_, Some(0)) => Some(Simplified::Use(l)),
+                (Some(0), _) => Some(Simplified::Use(r)),
+                _ => None,
             }
         }
-        BackendTy::Num(vn_core::NumKind::Float(_)) => {
+        IntSub => {
+            let ri = int_const.get(&r).copied();
+            if ri == Some(0) {
+                Some(Simplified::Use(l))
+            } else if l == r {
+                Some(Simplified::Const(InstKind::ConstInt(0)))
+            } else {
+                None
+            }
+        }
+        IntMul => {
+            let li = int_const.get(&l).copied();
+            let ri = int_const.get(&r).copied();
+            match (li, ri) {
+                (_, Some(1)) => Some(Simplified::Use(l)),
+                (Some(1), _) => Some(Simplified::Use(r)),
+                (_, Some(0)) | (Some(0), _) => Some(Simplified::Const(InstKind::ConstInt(0))),
+                _ => None,
+            }
+        }
+        FloatMul => {
             let is_one = |v: Value| float_const.get(&v).copied() == Some(1.0);
-            match op {
-                vn_core::BinOp::Mul => {
-                    if is_one(r) {
-                        Some(Simplified::Use(l))
-                    } else if is_one(l) {
-                        Some(Simplified::Use(r))
-                    } else {
-                        None
-                    }
-                }
-                vn_core::BinOp::Div => is_one(r).then_some(Simplified::Use(l)),
-                vn_core::BinOp::Add
-                | vn_core::BinOp::Sub
-                | vn_core::BinOp::Mod
-                | vn_core::BinOp::Pow
-                | vn_core::BinOp::Eq
-                | vn_core::BinOp::Ne
-                | vn_core::BinOp::Lt
-                | vn_core::BinOp::Le
-                | vn_core::BinOp::Gt
-                | vn_core::BinOp::Ge
-                | vn_core::BinOp::BitAnd
-                | vn_core::BinOp::BitOr
-                | vn_core::BinOp::BitXor
-                | vn_core::BinOp::Shl
-                | vn_core::BinOp::Shr
-                | vn_core::BinOp::Ushr
-                | vn_core::BinOp::In => None,
+            if is_one(r) {
+                Some(Simplified::Use(l))
+            } else if is_one(l) {
+                Some(Simplified::Use(r))
+            } else {
+                None
             }
         }
-        BackendTy::Bool
-        | BackendTy::Str
-        | BackendTy::Char
-        | BackendTy::Bytes
-        | BackendTy::Enum(_)
-        | BackendTy::Fn(_)
-        | BackendTy::Dynamic(_)
-        | BackendTy::Decimal
-        | BackendTy::BigInt
-        | BackendTy::Void
-        | BackendTy::Never
-        | BackendTy::Array(_)
-        | BackendTy::Map(..)
-        | BackendTy::Set(_)
-        | BackendTy::Tuple(_)
-        | BackendTy::Class(_)
-        | BackendTy::Nullable(_) => None,
+        FloatDiv => {
+            let is_one = |v: Value| float_const.get(&v).copied() == Some(1.0);
+            is_one(r).then_some(Simplified::Use(l))
+        }
+        IntDiv | IntMod | IntPow | IntEq | IntNe | IntLt | IntLe | IntGt | IntGe | IntAnd
+        | IntOr | IntXor | IntShl | IntShr | IntUshr | FloatAdd | FloatSub | FloatMod
+        | FloatPow | FloatEq | FloatNe | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat
+        | StrEq | StrNe | BitsEq | BitsNe | Dyn(_) => None,
     }
 }

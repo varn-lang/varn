@@ -157,7 +157,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                         else_facts.insert(*operand, NullFact::NonNull);
                     }
                     InstKind::Binary {
-                        op: vn_core::BinOp::Eq,
+                        op: vn_types::ssa::SsaBinOp::Dyn(vn_core::BinOp::Eq),
                         lhs,
                         rhs,
                         ..
@@ -175,7 +175,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                         }
                     }
                     InstKind::Binary {
-                        op: vn_core::BinOp::Ne,
+                        op: vn_types::ssa::SsaBinOp::Dyn(vn_core::BinOp::Ne),
                         lhs,
                         rhs,
                         ..

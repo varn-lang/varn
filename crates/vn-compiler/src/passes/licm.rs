@@ -1,5 +1,4 @@
 use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator};
-use vn_tir::BackendTy;
 
 pub fn run(func: &mut SsaFunc) -> bool {
     let n = func.blocks.len();
@@ -136,25 +135,36 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::ArrayGetIndex { .. }
         | InstKind::BytesGetIndex { .. } => facts.memory_stable,
 
-        InstKind::Binary { op, ty, .. } => {
-            let typed = matches!(ty, BackendTy::Num(_));
-            let safe_op = matches!(
+        InstKind::Binary { op, .. } => {
+            matches!(
                 op,
-                vn_core::BinOp::Add
-                    | vn_core::BinOp::Sub
-                    | vn_core::BinOp::Mul
-                    | vn_core::BinOp::Eq
-                    | vn_core::BinOp::Ne
-                    | vn_core::BinOp::Lt
-                    | vn_core::BinOp::Le
-                    | vn_core::BinOp::Gt
-                    | vn_core::BinOp::Ge
-            );
-            typed && safe_op
+                vn_types::ssa::SsaBinOp::IntAdd
+                    | vn_types::ssa::SsaBinOp::IntSub
+                    | vn_types::ssa::SsaBinOp::IntMul
+                    | vn_types::ssa::SsaBinOp::IntEq
+                    | vn_types::ssa::SsaBinOp::IntNe
+                    | vn_types::ssa::SsaBinOp::IntLt
+                    | vn_types::ssa::SsaBinOp::IntLe
+                    | vn_types::ssa::SsaBinOp::IntGt
+                    | vn_types::ssa::SsaBinOp::IntGe
+                    | vn_types::ssa::SsaBinOp::FloatAdd
+                    | vn_types::ssa::SsaBinOp::FloatSub
+                    | vn_types::ssa::SsaBinOp::FloatMul
+                    | vn_types::ssa::SsaBinOp::FloatEq
+                    | vn_types::ssa::SsaBinOp::FloatNe
+                    | vn_types::ssa::SsaBinOp::FloatLt
+                    | vn_types::ssa::SsaBinOp::FloatLe
+                    | vn_types::ssa::SsaBinOp::FloatGt
+                    | vn_types::ssa::SsaBinOp::FloatGe
+            )
         }
-        InstKind::Unary { op, ty, .. } => {
-            matches!(ty, BackendTy::Num(_) | BackendTy::Bool)
-                && matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::Not)
+        InstKind::Unary { op, .. } => {
+            matches!(
+                op,
+                vn_types::ssa::SsaUnOp::NegInt
+                    | vn_types::ssa::SsaUnOp::NegFloat
+                    | vn_types::ssa::SsaUnOp::Not
+            )
         }
         InstKind::KindOf { .. } => true,
         InstKind::LoadGlobal(_) | InstKind::LoadGlobalIdx(_) | InstKind::LoadNativeGlobalIdx(_) => {

@@ -80,15 +80,15 @@ pub(super) fn is_constant_kind(kind: &InstKind) -> bool {
 
 fn fold_inst(kind: &InstKind, const_map: &FxHashMap<Value, InstKind>) -> Option<InstKind> {
     match kind {
-        InstKind::Unary { op, operand, ty } => {
+        InstKind::Unary { op, operand } => {
             let operand_const = const_map.get(operand)?;
-            fold_unary(*op, operand_const, *ty)
+            fold_unary(*op, operand_const)
         }
         InstKind::KindOf { .. } => None,
-        InstKind::Binary { op, lhs, rhs, ty } => {
+        InstKind::Binary { op, lhs, rhs } => {
             let lhs_const = const_map.get(lhs)?;
             let rhs_const = const_map.get(rhs)?;
-            fold_binary(*op, lhs_const, rhs_const, *ty)
+            fold_binary(*op, lhs_const, rhs_const)
         }
         InstKind::Convert { operand, conv } => fold_convert(*conv, const_map.get(operand)?),
         InstKind::TypeTest { .. } => None,

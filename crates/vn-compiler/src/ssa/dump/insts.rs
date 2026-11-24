@@ -1,5 +1,5 @@
 use super::super::ir::InstKind;
-use super::operands::{args_list, binop, ty, unop, val};
+use super::operands::{args_list, binop, unop, val};
 
 pub fn inst_kind(kind: &InstKind) -> String {
     match kind {
@@ -11,17 +11,10 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::ConstDecimal(d) => format!("decimal {d}"),
         InstKind::ConstBigInt(n) => format!("bigint {n}"),
         InstKind::ConstNull => "null".to_owned(),
-        InstKind::Binary {
-            op,
-            lhs,
-            rhs,
-            ty: t,
-        } => {
-            format!("{}.{} {}, {}", binop(*op), ty(*t), val(*lhs), val(*rhs))
+        InstKind::Binary { op, lhs, rhs } => {
+            format!("{} {}, {}", binop(*op), val(*lhs), val(*rhs))
         }
-        InstKind::Unary { op, operand, ty: t } => {
-            format!("{}.{} {}", unop(*op), ty(*t), val(*operand))
-        }
+        InstKind::Unary { op, operand } => format!("{} {}", unop(*op), val(*operand)),
         InstKind::KindOf { operand } => format!("kindof {}", val(*operand)),
         InstKind::LoadGlobal(name) => format!("global {name}"),
         InstKind::LoadGlobalIdx(slot) => format!("global @{slot}"),

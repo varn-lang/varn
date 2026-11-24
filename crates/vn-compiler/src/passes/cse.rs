@@ -1,5 +1,4 @@
 use rustc_hash::FxHashMap;
-use vn_tir::BackendTy;
 
 use crate::ssa::ir::{InstKind, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
@@ -15,8 +14,9 @@ enum Key {
     Char(char),
     BigInt(Arc<str>),
     Null,
-    Binary(vn_core::BinOp, BackendTy, u32, u32),
-    Unary(vn_core::UnOp, BackendTy, u32),
+    Binary(u32, u32, u32),
+    Unary(u32, u32),
+    KindOf(u32),
     IsNull(u32),
     IsArray(u32),
     TypeTest(u32, u32),
@@ -158,11 +158,9 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         InstKind::ConstBigInt(i) => Key::BigInt(i.clone()),
         InstKind::ConstNull => Key::Null,
 
-        InstKind::Binary { op, lhs, rhs, ty } => Key::Binary(*op, *ty, id(*lhs), id(*rhs)),
-        InstKind::Unary { op, operand, ty } => Key::Unary(*op, *ty, id(*operand)),
-        InstKind::KindOf { operand } => {
-            Key::Unary(vn_core::UnOp::KindOf, BackendTy::Str, id(*operand))
-        }
+        InstKind::Binary { op, lhs, rhs } => Key::Binary(bin_tag(*op), id(*lhs), id(*rhs)),
+        InstKind::Unary { op, operand } => Key::Unary(un_tag(*op), id(*operand)),
+        InstKind::KindOf { operand } => Key::KindOf(id(*operand)),
         InstKind::IsNull { operand } => Key::IsNull(id(*operand)),
         InstKind::TypeTest { value, class } => Key::TypeTest(id(*value), id(*class)),
         InstKind::IsArray { operand } => Key::IsArray(id(*operand)),
@@ -243,4 +241,88 @@ fn key_of(kind: &InstKind, id: &impl Fn(Value) -> u32) -> Option<Key> {
         | InstKind::BuildArraySpread { .. }
         | InstKind::BuildObjectSpread { .. } => return None,
     })
+}
+
+fn bin_tag(op: vn_types::ssa::SsaBinOp) -> u32 {
+    use vn_types::ssa::SsaBinOp::*;
+    match op {
+        IntAdd => 0,
+        IntSub => 1,
+        IntMul => 2,
+        IntDiv => 3,
+        IntMod => 4,
+        IntPow => 5,
+        IntEq => 6,
+        IntNe => 7,
+        IntLt => 8,
+        IntLe => 9,
+        IntGt => 10,
+        IntGe => 11,
+        IntAnd => 12,
+        IntOr => 13,
+        IntXor => 14,
+        IntShl => 15,
+        IntShr => 16,
+        IntUshr => 17,
+        FloatAdd => 18,
+        FloatSub => 19,
+        FloatMul => 20,
+        FloatDiv => 21,
+        FloatMod => 22,
+        FloatPow => 23,
+        FloatEq => 24,
+        FloatNe => 25,
+        FloatLt => 26,
+        FloatLe => 27,
+        FloatGt => 28,
+        FloatGe => 29,
+        StrConcat => 30,
+        StrEq => 31,
+        StrNe => 32,
+        BitsEq => 33,
+        BitsNe => 34,
+        Dyn(inner) => 100 + dyn_bin_tag(inner),
+    }
+}
+
+fn dyn_bin_tag(op: vn_core::BinOp) -> u32 {
+    use vn_core::BinOp::*;
+    match op {
+        Add => 0,
+        Sub => 1,
+        Mul => 2,
+        Div => 3,
+        Mod => 4,
+        Pow => 5,
+        Eq => 6,
+        Ne => 7,
+        Lt => 8,
+        Le => 9,
+        Gt => 10,
+        Ge => 11,
+        BitAnd => 12,
+        BitOr => 13,
+        BitXor => 14,
+        Shl => 15,
+        Shr => 16,
+        Ushr => 17,
+        In => 18,
+    }
+}
+
+fn un_tag(op: vn_types::ssa::SsaUnOp) -> u32 {
+    use vn_types::ssa::SsaUnOp::*;
+    match op {
+        NegInt => 0,
+        NegFloat => 1,
+        Not => 2,
+        BitNotInt => 3,
+        Dyn(inner) => {
+            100 + match inner {
+                vn_types::ssa::DynUnOp::Neg => 0,
+                vn_types::ssa::DynUnOp::Not => 1,
+                vn_types::ssa::DynUnOp::BitNot => 2,
+            }
+        }
+    }
 }

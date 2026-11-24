@@ -5,60 +5,59 @@ use vn_tir::{BackendTy, DynReason};
 pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
     use crate::ssa::ir::InstKind;
     match &inst.kind {
-        InstKind::Binary { op, lhs, rhs, ty } => {
-            if !ty.is_boxed() {
-                let lty = func.value_ty(*lhs);
-                let rty = func.value_ty(*rhs);
-                if lty != *ty {
-                    return Err(format!(
-                        "typed binary {op:?}.{ty:?} expects lhs type {ty:?}, got v{}: {lty:?}",
-                        lhs.0
-                    ));
+        InstKind::Binary { op, lhs: _, rhs: _ } => {
+            use vn_types::ssa::SsaBinOp as B;
+            let expected: Option<fn(BackendTy) -> bool> = match op {
+                B::IntAdd | B::IntSub | B::IntMul | B::IntDiv | B::IntMod | B::IntPow => {
+                    Some(is_int)
                 }
-                if rty != *ty {
-                    return Err(format!(
-                        "typed binary {op:?}.{ty:?} expects rhs type {ty:?}, got v{}: {rty:?}",
-                        rhs.0
-                    ));
+                B::IntEq | B::IntNe | B::IntLt | B::IntLe | B::IntGt | B::IntGe => Some(is_bool),
+                B::IntAnd | B::IntOr | B::IntXor | B::IntShl | B::IntShr | B::IntUshr => {
+                    Some(is_int)
                 }
-                if let Some(dest) = inst.dest {
-                    let dty = func.value_ty(dest);
-                    let expected_res = binary_result_ty(*op, *ty);
-                    let is_str_concat = matches!(op, vn_core::BinOp::Add)
-                        && (lty == BackendTy::Str || rty == BackendTy::Str)
-                        && dty == BackendTy::Str;
-                    if dty != expected_res && !is_str_concat {
-                        return Err(format!(
-                            "typed binary {op:?}.{ty:?} defines v{}: {dty:?}, expected {expected_res:?}",
-                            dest.0
-                        ));
-                    }
+                B::FloatAdd
+                | B::FloatSub
+                | B::FloatMul
+                | B::FloatDiv
+                | B::FloatMod
+                | B::FloatPow => Some(is_float),
+                B::FloatEq | B::FloatNe | B::FloatLt | B::FloatLe | B::FloatGt | B::FloatGe => {
+                    Some(is_bool)
                 }
+                B::StrConcat => Some(is_str),
+                B::StrEq | B::StrNe | B::BitsEq | B::BitsNe => Some(is_bool),
+                B::Dyn(_) => None,
+            };
+            if let (Some(dest), Some(want)) = (inst.dest, expected)
+                && !func.value_ty(dest).is_boxed()
+                && !want(func.value_ty(dest))
+            {
+                return Err(format!(
+                    "typed binary {op:?} defines v{}: {:?}, expected {}",
+                    dest.0,
+                    func.value_ty(dest),
+                    expect_label(*op)
+                ));
             }
         }
-        InstKind::Unary { op, operand, ty } => {
-            if matches!(op, vn_core::UnOp::Neg | vn_core::UnOp::BitNot) && !ty.is_boxed() {
-                let oty = func.value_ty(*operand);
-                if oty != *ty {
-                    return Err(format!(
-                        "typed unary {op:?}.{ty:?} expects operand type {ty:?}, got v{}: {oty:?}",
-                        operand.0
-                    ));
-                }
-            }
-            if let Some(dest) = inst.dest {
-                let dty = func.value_ty(dest);
-                let expected = match op {
-                    vn_core::UnOp::Not => BackendTy::Bool,
-                    vn_core::UnOp::KindOf => BackendTy::Str,
-                    vn_core::UnOp::Neg | vn_core::UnOp::BitNot => *ty,
-                };
-                if dty != expected && !expected.is_boxed() {
-                    return Err(format!(
-                        "typed unary {op:?}.{ty:?} defines v{}: {dty:?}, expected {expected:?}",
-                        dest.0
-                    ));
-                }
+        InstKind::Unary { op, operand: _ } => {
+            use vn_types::ssa::SsaUnOp as U;
+            let expected: Option<fn(BackendTy) -> bool> = match op {
+                U::NegInt | U::BitNotInt => Some(is_int),
+                U::NegFloat => Some(is_float),
+                U::Not => Some(is_bool),
+                U::Dyn(_) => None,
+            };
+            if let (Some(dest), Some(want)) = (inst.dest, expected)
+                && !func.value_ty(dest).is_boxed()
+                && !want(func.value_ty(dest))
+            {
+                return Err(format!(
+                    "typed unary {op:?} defines v{}: {:?}, expected {}",
+                    dest.0,
+                    func.value_ty(dest),
+                    expect_label_un(*op)
+                ));
             }
         }
         InstKind::KindOf { .. } => {
@@ -314,10 +313,44 @@ fn convert_operand_domain(conv: vn_core::ValueConv) -> Option<vn_core::NumericDo
     }
 }
 
-fn binary_result_ty(op: vn_core::BinOp, operand_ty: BackendTy) -> BackendTy {
-    if op.produces_bool() {
-        BackendTy::Bool
-    } else {
-        operand_ty
+fn is_int(ty: BackendTy) -> bool {
+    matches!(ty, BackendTy::Num(vn_core::NumKind::Int(_)))
+}
+
+fn is_float(ty: BackendTy) -> bool {
+    matches!(ty, BackendTy::Num(vn_core::NumKind::Float(_)))
+}
+
+fn is_bool(ty: BackendTy) -> bool {
+    ty == BackendTy::Bool
+}
+
+fn is_str(ty: BackendTy) -> bool {
+    ty == BackendTy::Str
+}
+
+fn expect_label(op: vn_types::ssa::SsaBinOp) -> &'static str {
+    use vn_types::ssa::SsaBinOp as B;
+    match op {
+        B::IntAdd | B::IntSub | B::IntMul | B::IntDiv | B::IntMod | B::IntPow => "an integer type",
+        B::IntEq | B::IntNe | B::IntLt | B::IntLe | B::IntGt | B::IntGe => "Bool",
+        B::IntAnd | B::IntOr | B::IntXor | B::IntShl | B::IntShr | B::IntUshr => "an integer type",
+        B::FloatAdd | B::FloatSub | B::FloatMul | B::FloatDiv | B::FloatMod | B::FloatPow => {
+            "a float type"
+        }
+        B::FloatEq | B::FloatNe | B::FloatLt | B::FloatLe | B::FloatGt | B::FloatGe => "Bool",
+        B::StrConcat => "Str",
+        B::StrEq | B::StrNe | B::BitsEq | B::BitsNe => "Bool",
+        B::Dyn(_) => "Dynamic",
+    }
+}
+
+fn expect_label_un(op: vn_types::ssa::SsaUnOp) -> &'static str {
+    use vn_types::ssa::SsaUnOp as U;
+    match op {
+        U::NegInt | U::BitNotInt => "an integer type",
+        U::NegFloat => "a float type",
+        U::Not => "Bool",
+        U::Dyn(_) => "Dynamic",
     }
 }

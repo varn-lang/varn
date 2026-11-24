@@ -14,10 +14,10 @@ pub fn run(func: &mut SsaFunc) -> bool {
 
     for block in &func.blocks {
         for inst in &block.insts {
-            if let Some(d) = inst.dest {
-                if matches!(inst.kind, InstKind::BuildArray { .. }) {
-                    array_values.insert(d.0);
-                }
+            if let Some(d) = inst.dest
+                && matches!(inst.kind, InstKind::BuildArray { .. })
+            {
+                array_values.insert(d.0);
             }
         }
     }

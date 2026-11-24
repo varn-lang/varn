@@ -2,8 +2,8 @@ use crate::ssa::ir::Value;
 use crate::OptError;
 use std::sync::Arc;
 use vn_core::OpCode;
-use vn_tir::BackendTy;
 use vn_types::chunk::{Chunk, Literal, PoolEntry};
+use vn_types::ssa::{DynUnOp, SsaBinOp, SsaUnOp};
 
 type Result<T> = std::result::Result<T, OptError>;
 
@@ -61,32 +61,20 @@ pub(super) fn emit_const_null(chunk: &mut Chunk, d: u8, line: u32) {
 pub(super) fn emit_binary(
     chunk: &mut Chunk,
     d: u8,
-    op: vn_core::BinOp,
+    op: SsaBinOp,
     lhs: Value,
     rhs: Value,
-    ty: BackendTy,
-    value_tys: &[BackendTy],
     reg: &[u8],
     line: u32,
 ) {
-    let ty_slot = crate::ssa::emit::slot_kind_of(ty);
-    let lhs_slot = value_tys
-        .get(lhs.0 as usize)
-        .map(|t| crate::ssa::emit::slot_kind_of(*t))
-        .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
-    let rhs_slot = value_tys
-        .get(rhs.0 as usize)
-        .map(|t| crate::ssa::emit::slot_kind_of(*t))
-        .unwrap_or(vn_types::register_meta::SlotKind::Dynamic);
-    let opcode =
-        vn_types::ssa::opcode_of_bin(vn_types::ssa::select_bin(op, ty_slot, lhs_slot, rhs_slot));
+    let opcode = vn_types::ssa::opcode_of_bin(op);
     chunk.emit_rrr(opcode, d, reg[lhs.0 as usize], reg[rhs.0 as usize], line);
 }
 
 pub(super) fn emit_unary(
     chunk: &mut Chunk,
     d: u8,
-    op: vn_core::UnOp,
+    op: SsaUnOp,
     operand: Value,
     reg: &[u8],
     scratch: u8,
@@ -94,10 +82,11 @@ pub(super) fn emit_unary(
 ) {
     let s = reg[operand.0 as usize];
     match op {
-        vn_core::UnOp::Neg => chunk.emit_rr(OpCode::Negate, d, s, line),
-        vn_core::UnOp::Not => chunk.emit_rr(OpCode::Not, d, s, line),
-        vn_core::UnOp::KindOf => chunk.emit_rr(OpCode::KindOf, d, s, line),
-        vn_core::UnOp::BitNot => {
+        SsaUnOp::NegInt | SsaUnOp::NegFloat | SsaUnOp::Dyn(DynUnOp::Neg) => {
+            chunk.emit_rr(OpCode::Negate, d, s, line)
+        }
+        SsaUnOp::Not | SsaUnOp::Dyn(DynUnOp::Not) => chunk.emit_rr(OpCode::Not, d, s, line),
+        SsaUnOp::BitNotInt | SsaUnOp::Dyn(DynUnOp::BitNot) => {
             let idx = chunk.add_constant(PoolEntry::Literal(Literal::Int(-1)));
             chunk.emit_rc(OpCode::LoadConst, scratch, idx, line);
             chunk.emit_rrr(OpCode::BitXor, d, s, scratch, line);

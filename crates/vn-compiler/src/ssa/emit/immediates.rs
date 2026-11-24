@@ -1,6 +1,6 @@
 use super::super::ir::{InstKind, SsaFunc, Value};
 use vn_core::OpCode;
-use vn_tir::BackendTy;
+use vn_types::ssa::SsaBinOp;
 
 pub(super) struct Immediates {
     pub(super) imm: Vec<Option<i8>>,
@@ -22,13 +22,7 @@ pub(super) struct ImmediateForm {
 }
 
 pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<ImmediateForm> {
-    let InstKind::Binary {
-        op,
-        lhs,
-        rhs,
-        ty: BackendTy::INT,
-    } = kind
-    else {
+    let InstKind::Binary { op, lhs, rhs } = kind else {
         return None;
     };
     let get = |v: &Value| -> Option<i8> { *imm.get(v.0 as usize)? };
@@ -41,27 +35,43 @@ pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<I
             opcode,
         })
     };
-    use vn_core::BinOp as H;
     match op {
-        H::Add => form(OpCode::AddImm, false).or_else(|| form(OpCode::AddImm, true)),
-        H::Sub => form(OpCode::SubImm, false),
-        H::Lt => form(OpCode::LtImm, false).or_else(|| form(OpCode::GtImm, true)),
-        H::Le => form(OpCode::LteImm, false).or_else(|| form(OpCode::GteImm, true)),
-        H::Gt => form(OpCode::GtImm, false).or_else(|| form(OpCode::LtImm, true)),
-        H::Ge => form(OpCode::GteImm, false).or_else(|| form(OpCode::LteImm, true)),
-        H::Eq => form(OpCode::EqImm, false).or_else(|| form(OpCode::EqImm, true)),
-        H::Ne => form(OpCode::NeqImm, false).or_else(|| form(OpCode::NeqImm, true)),
-        H::Mul
-        | H::Div
-        | H::Mod
-        | H::Pow
-        | H::BitAnd
-        | H::BitOr
-        | H::BitXor
-        | H::Shl
-        | H::Shr
-        | H::Ushr
-        | H::In => None,
+        SsaBinOp::IntAdd => form(OpCode::AddImm, false).or_else(|| form(OpCode::AddImm, true)),
+        SsaBinOp::IntSub => form(OpCode::SubImm, false),
+        SsaBinOp::IntLt => form(OpCode::LtImm, false).or_else(|| form(OpCode::GtImm, true)),
+        SsaBinOp::IntLe => form(OpCode::LteImm, false).or_else(|| form(OpCode::GteImm, true)),
+        SsaBinOp::IntGt => form(OpCode::GtImm, false).or_else(|| form(OpCode::LtImm, true)),
+        SsaBinOp::IntGe => form(OpCode::GteImm, false).or_else(|| form(OpCode::LteImm, true)),
+        SsaBinOp::IntEq => form(OpCode::EqImm, false).or_else(|| form(OpCode::EqImm, true)),
+        SsaBinOp::IntNe => form(OpCode::NeqImm, false).or_else(|| form(OpCode::NeqImm, true)),
+        SsaBinOp::IntMul
+        | SsaBinOp::IntDiv
+        | SsaBinOp::IntMod
+        | SsaBinOp::IntPow
+        | SsaBinOp::IntAnd
+        | SsaBinOp::IntOr
+        | SsaBinOp::IntXor
+        | SsaBinOp::IntShl
+        | SsaBinOp::IntShr
+        | SsaBinOp::IntUshr
+        | SsaBinOp::FloatAdd
+        | SsaBinOp::FloatSub
+        | SsaBinOp::FloatMul
+        | SsaBinOp::FloatDiv
+        | SsaBinOp::FloatMod
+        | SsaBinOp::FloatPow
+        | SsaBinOp::FloatEq
+        | SsaBinOp::FloatNe
+        | SsaBinOp::FloatLt
+        | SsaBinOp::FloatLe
+        | SsaBinOp::FloatGt
+        | SsaBinOp::FloatGe
+        | SsaBinOp::StrConcat
+        | SsaBinOp::StrEq
+        | SsaBinOp::StrNe
+        | SsaBinOp::BitsEq
+        | SsaBinOp::BitsNe
+        | SsaBinOp::Dyn(_) => None,
     }
 }
 

@@ -40,22 +40,14 @@ pub(super) fn emit_value(
         InstKind::ConstDecimal(dec) => scalars::emit_const_decimal(chunk, d, dec, line),
         InstKind::ConstBigInt(n) => scalars::emit_const_bigint(chunk, d, n, line)?,
         InstKind::ConstNull => scalars::emit_const_null(chunk, d, line),
-        InstKind::Binary { op, lhs, rhs, ty } => {
-            scalars::emit_binary(chunk, d, *op, *lhs, *rhs, *ty, value_tys, reg, line);
+        InstKind::Binary { op, lhs, rhs } => {
+            scalars::emit_binary(chunk, d, *op, *lhs, *rhs, reg, line);
         }
-        InstKind::Unary { op, operand, .. } => {
+        InstKind::Unary { op, operand } => {
             scalars::emit_unary(chunk, d, *op, *operand, reg, scratch, line);
         }
         InstKind::KindOf { operand } => {
-            scalars::emit_unary(
-                chunk,
-                d,
-                vn_core::UnOp::KindOf,
-                *operand,
-                reg,
-                scratch,
-                line,
-            );
+            chunk.emit_rr(OpCode::KindOf, d, reg[operand.0 as usize], line);
         }
         InstKind::LoadGlobal(name) => access::emit_load_global(chunk, d, name, line),
         InstKind::LoadGlobalIdx(slot) => access::emit_load_global_idx(chunk, d, *slot, line)?,

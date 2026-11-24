@@ -148,11 +148,6 @@ impl<'m> Builder<'m> {
                 object: obj,
                 index: idx,
             }
-        } else if matches!(self.value_ty(obj), BackendTy::Map(..)) {
-            InstKind::GetIndex {
-                object: obj,
-                index: idx,
-            }
         } else {
             InstKind::GetIndex {
                 object: obj,
