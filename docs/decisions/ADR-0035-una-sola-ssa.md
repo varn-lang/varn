@@ -43,12 +43,14 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
 - [x] F1b. Identificadores compartidos. `vn_types::ssa::{ValueId, BlockId}`
   sustituyen a `Value`/`BlockId` del compilador y a los `u32` de `SsaOp`/`SsaTerm`
   (2e0a98d0; JIT en 4 lotes, 62 ficheros).
-- F3. Un solo enum de instrucciones, por el mismo camino que F1a: `SsaOp`
-  generico sobre el id de valor, con las cargas de las 26 variantes que difieren
-  (operador tipado, ranuras IC, registros capturados) en tipos asociados a un
-  parametro de nivel. `InstKind` pasa a ser `vn_types::ssa::Op`; los
-  pases del compilador hacen match sobre el. `uses.rs` del compilador se borra en
-  favor de `Op::for_each_use`/`for_each_use_mut`.
+- F3. Un solo enum de instrucciones: `SsaOp` vive en `vn-types` y el
+  compilador lo usa directamente (se borra `InstKind`); los pases hacen match
+  sobre el. La proyeccion portable colapsa a `portable/lower.rs`: clona la op
+  y solo baja 3 casos (remap de capturadas, `CallDirect` sin slot a `Call`,
+  `Array/BytesGetIndex` con indice no entero a `Get/SetIndex`); el resto es
+  copia mas las anotaciones (`cache`, `resume`) y las tablas (`call_sites`,
+  `closure_sites`). `uses.rs` del compilador se borra en favor de
+  `SsaOp::for_each_use`/`for_each_use_mut`.
   Hecho como limpieza previa (cada paso con puerta `-Min` en verde):
   - `CloseUpvalues` nombra `vars` en ambos lados (957481c8).
   - `MapGetIndex`/`MapSetIndex` se borran; el compilador usa `GetIndex`/`SetIndex`
@@ -58,11 +60,29 @@ sin regresion fuera del ruido en `vn bench` frente a la fase anterior):
   - `ArrayExtend`, `BindMethod` y `WrapSpread` se borran de `SsaOp`: nunca los
     construia la proyeccion (3f5c3236; se borran sus brazos en el JIT y sus
     constructores muertos en `extra/props`).
-  Tras esto ambos enums tienen 88 variantes. Queda: `Binary`/`Unary` (guardar el
-  `SsaBinOp`/`SsaUnOp` ya elegido en `from_tir`), `MakeClosure` (`func` +
-  `Vec<SsaUpvalue>` en ambos, con la tabla `closure_consts` como anotacion),
-  `CallDirect` (`shape` a la tabla `call_sites`), y fundir los enums con el
-  parametro de nivel.
+  Tras esto ambos enums tenian 87 variantes. Faltaban `wire_byte`/`wire`,
+  `Try`, `MakeClosure` y la fusion:
+  - `wire_byte` pasa a `wire` en el compilador (ea9d449b).
+  - `Try` portable conserva `handler: BlockId` y `dest` como el compilador;
+    el JIT lee el valor de `dest` (2bf73d4b).
+  - `MakeClosure` conserva `func` en ambos; la constante de closure viaja en
+    `SsaProto.closure_sites` (ip, proto) como `call_sites`, y el JIT la lee
+    con `closure_proto_at` (0453c19e).
+  - `InstKind` se borra; `const_ty` pasa a funcion libre; los 59 ficheros del
+    compilador hacen match sobre `SsaOp` (1064197f, ac32e68a).
+  - `SsaOp` gana `for_each_use_mut`; `replace_uses_with_map` pasa a metodo de
+    `SsaFunc`; se borra `ssa/uses.rs` del compilador (1ae79031). Al unificar
+    aparece una divergencia latente: la version portable no visitaba
+    `AllocInstance.class` ni `DefineMember.member`; se corrige en la unica
+    implementacion (los pases del compilador los necesitan como usos; sin
+    esto la suite falla con `new: expected a class, got null`).
+  - `ssa/portable/inst/` (6 ficheros de copias campo a campo) se borra;
+    `lower.rs` clona y baja los 3 casos (f3998293).
+  No hizo falta ningun parametro de nivel `Op<V, L>`: tras F1b (ids
+  compartidos) y F3a (spreads genericos) las 87 variantes ya eran textualmente
+  identicas una vez normalizados `Try` y `MakeClosure`; las diferencias que
+  quedan son anotaciones fuera de la op (`cache`, `resume`, `call_sites`,
+  `closure_sites`).
 - [x] F3a. `SsaSpread` y `SsaObjectSpreadPart` son genericos sobre el id y el
   compilador los usa en lugar de tuplas (f00e0f21).
 - [x] F4a. La ranura de cache y el punto de continuacion (`ip` + conjunto vivo) van
@@ -86,29 +106,9 @@ Orden de trabajo hecho: F5, F1b y limpieza previa de F3, de menor a mayor alcanc
 - [x] F5: operador tipado en `vn-types`; se borran `portable/ops.rs` y `lower`.
 - [x] F1b: `ValueId`/`BlockId` compartidos (62 ficheros entre `vn-types`,
   compilador y JIT).
-- F3 restante: fundir `InstKind` y `SsaOp` en un unico `Op` generico por nivel.
-  Limpieza previa hecha (cada paso con puerta `-Min` en verde):
-  - `CloseUpvalues`: `vars` en ambos (957481c8).
-  - `MapGetIndex`/`MapSetIndex`: borrados, `GetIndex`/`SetIndex` para mapas
-    (8715602b; se borra `emit_map_get_index`, que emitia un RRR sin opcode).
-  - `KindOf`: variante propia en ambos (ade6cefc).
-  - `ArrayExtend`, `BindMethod`, `WrapSpread`: borrados de `SsaOp`, nunca
-    construidos (3f5c3236).
-  - `Binary`/`Unary`: guardan el `SsaBinOp`/`SsaUnOp` ya elegido en `from_tir`;
-    emision mapea con `opcode_of_bin` y la proyeccion copia (c0f932d5; pureza
-    de `NegInt` a impura para no eliminar su trampa).
-  - `MakeClosure`: `SsaUpvalue` en ambos (af326aa8).
-  - `Call`/`CallDirect`: `shape` en ambos (639f0dec; la tabla `call_sites` se
-    mantiene para el JIT).
-  - `DefineMember` (`member`), `GetFixedField` (`access`), `SetFixedField`
-    (`kind`): nombres unificados; `Cast` pierde `ty` (e14e6cf1).
-  Tras esto ambos enums tienen 88 variantes. Quedan, para el `Op` generico:
-  - `MakeClosure`: `func` (id TIR, disponible al construir) frente a `proto`
-    (indice de constante, disponible tras emitir) como anotacion de backend.
-  - `Try`: `handler` + `dest` frente a `catch_value` sin `dest` + `resume`.
-  El `Op` pasa a ser `vn_types::ssa::Op<V, L>` con esas cargas en tipos
-  asociados al nivel; los pases hacen match sobre el; se borran `uses.rs` del
-  compilador y `ssa/portable/`.
+- [x] F3: `SsaOp` unico en `vn-types`; el compilador lo usa, `uses.rs` del
+  compilador borrado, proyeccion colapsada a `lower.rs` (3 lowerings).
+  Detalle en la seccion F3 de arriba.
 - Medir `vn bench` sobre `tests/benchmarks/vn` contra el binario previo para F4b y
   F4c, que pasaron la matriz completa sin esa medicion, y para F5, F1b y la
   limpieza de F3.
@@ -127,8 +127,10 @@ matriz completa. Se mide `vn bench` sobre el corpus de `tests/benchmarks/vn` con
 binario de la fase previa, con la cache JIT desactivada.
 
 ## Que se borra
-`ssa/portable/` (proyeccion), `vn-compiler/src/ssa/uses.rs`, `Terminator`,
-`ir::Value`/`ir::BlockId`, la mitad de las declaraciones de variantes de instruccion.
+`ssa/portable/inst/` (proyeccion campo a campo), `vn-compiler/src/ssa/uses.rs`,
+`ir::Value`/`ir::BlockId` (ya eran alias), la mitad de las declaraciones de
+variantes de instruccion. Quedan en `portable/`: `lower.rs` (los 3 lowerings +
+anotaciones), `entries.rs`, `why_not.rs` y el driver `mod.rs`.
 
 ## Riesgos
 F3 toca todos los pases del compilador (unas 20000 lineas) y F4 todo el lector del JIT.
