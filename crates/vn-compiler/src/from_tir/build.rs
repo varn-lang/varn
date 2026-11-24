@@ -241,11 +241,24 @@ impl<'m> Builder<'m> {
             }
 
             TirExprKind::Closure { func, upvalues } => {
-                let src = upvalues.to_vec();
+                let upvalues = upvalues
+                    .iter()
+                    .map(|src| match src {
+                        vn_tir::TirUpvalue::ParentLocal(id) => {
+                            vn_types::ssa::SsaUpvalue::Captured(crate::ssa::ir::SsaVar::Local(*id))
+                        }
+                        vn_tir::TirUpvalue::ParentParam(i) => {
+                            vn_types::ssa::SsaUpvalue::Captured(crate::ssa::ir::SsaVar::Param(*i))
+                        }
+                        vn_tir::TirUpvalue::ParentUpvalue(idx) => {
+                            vn_types::ssa::SsaUpvalue::Inherited(*idx)
+                        }
+                    })
+                    .collect();
                 Ok(self.emit(
                     InstKind::MakeClosure {
                         func: func.0,
-                        upvalues_src: src,
+                        upvalues,
                     },
                     BackendTy::Dynamic(DynReason::Runtime),
                 ))

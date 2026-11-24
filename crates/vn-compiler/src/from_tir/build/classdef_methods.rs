@@ -44,7 +44,7 @@ impl<'m> Builder<'m> {
             let mut mv = self.emit(
                 InstKind::MakeClosure {
                     func: m.func.0,
-                    upvalues_src: vec![],
+                    upvalues: vec![],
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );
@@ -99,7 +99,7 @@ impl<'m> Builder<'m> {
             let mut av = self.emit(
                 InstKind::MakeClosure {
                     func: a.func.0,
-                    upvalues_src: vec![],
+                    upvalues: vec![],
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );

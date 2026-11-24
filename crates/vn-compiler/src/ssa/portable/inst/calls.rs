@@ -1,5 +1,5 @@
 use super::super::{Captured, Site};
-use crate::ssa::ir::{InstKind, SsaVar};
+use crate::ssa::ir::InstKind;
 use vn_types::ssa::{SsaOp, SsaUpvalue};
 
 pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured) -> Option<SsaOp> {
@@ -83,18 +83,13 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
             callee: *callee,
             args: args.clone(),
         }),
-        InstKind::MakeClosure { upvalues_src, .. } => Some(SsaOp::MakeClosure {
+        InstKind::MakeClosure { upvalues, .. } => Some(SsaOp::MakeClosure {
             proto: u32::from(site.closure_const?),
-            upvalues: upvalues_src
+            upvalues: upvalues
                 .iter()
                 .map(|src| match src {
-                    vn_tir::TirUpvalue::ParentLocal(id) => {
-                        SsaUpvalue::Captured(captured.var(SsaVar::Local(*id)))
-                    }
-                    vn_tir::TirUpvalue::ParentParam(i) => {
-                        SsaUpvalue::Captured(captured.var(SsaVar::Param(*i)))
-                    }
-                    vn_tir::TirUpvalue::ParentUpvalue(idx) => SsaUpvalue::Inherited(*idx),
+                    SsaUpvalue::Captured(var) => SsaUpvalue::Captured(captured.var(*var)),
+                    SsaUpvalue::Inherited(idx) => SsaUpvalue::Inherited(*idx),
                 })
                 .collect(),
         }),

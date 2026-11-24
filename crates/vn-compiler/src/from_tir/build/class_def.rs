@@ -94,7 +94,7 @@ impl<'m> Builder<'m> {
             let fv = self.emit(
                 InstKind::MakeClosure {
                     func: blk.0,
-                    upvalues_src: vec![],
+                    upvalues: vec![],
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );

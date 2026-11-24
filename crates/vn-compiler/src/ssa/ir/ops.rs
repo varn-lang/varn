@@ -213,7 +213,7 @@ pub enum InstKind {
 
     MakeClosure {
         func: u32,
-        upvalues_src: Vec<vn_tir::TirUpvalue>,
+        upvalues: Vec<vn_types::ssa::SsaUpvalue>,
     },
     LoadCaptured {
         var: SsaVar,

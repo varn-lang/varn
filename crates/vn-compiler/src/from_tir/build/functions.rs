@@ -76,7 +76,7 @@ fn build_inner(
             let fv = b.emit(
                 InstKind::MakeClosure {
                     func: i as u32,
-                    upvalues_src: vec![],
+                    upvalues: vec![],
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );

@@ -131,12 +131,12 @@ pub(super) fn emit_value(
             scalars::emit_to_string(chunk, d, *operand, reg, line);
         }
 
-        InstKind::MakeClosure { func, upvalues_src } => {
+        InstKind::MakeClosure { func, upvalues } => {
             closure::emit_make_closure(
                 chunk,
                 d,
                 *func,
-                upvalues_src,
+                upvalues,
                 source_file,
                 nparams,
                 closure_const,

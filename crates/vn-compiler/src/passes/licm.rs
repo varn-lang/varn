@@ -176,7 +176,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
         | InstKind::IsArray { .. }
         | InstKind::GetEnumTag { .. }
         | InstKind::StrLength { .. } => true,
-        InstKind::MakeClosure { upvalues_src, .. } => upvalues_src.is_empty(),
+        InstKind::MakeClosure { upvalues, .. } => upvalues.is_empty(),
         InstKind::ConstInt(_)
         | InstKind::ConstFloat(_)
         | InstKind::ConstBool(_)

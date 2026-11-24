@@ -1,4 +1,4 @@
-use crate::ssa::ir::{BlockId, SsaVar, Value};
+use crate::ssa::ir::{BlockId, Value};
 use crate::OptError;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub(super) fn emit_make_closure(
     chunk: &mut Chunk,
     d: u8,
     func: u32,
-    upvalues_src: &[vn_tir::TirUpvalue],
+    upvalues: &[vn_types::ssa::SsaUpvalue],
     source_file: &Arc<str>,
     nparams: usize,
     closure_const: &mut Option<u16>,
@@ -21,23 +21,22 @@ pub(super) fn emit_make_closure(
     let proto = crate::from_tir::compile::compile_closure(scope, func, source_file.clone())?;
     let idx = chunk.add_constant(PoolEntry::Function(Rc::new(proto)));
     *closure_const = Some(idx);
-    if upvalues_src.is_empty() {
+    if upvalues.is_empty() {
         chunk.write(Chunk::pack_op(OpCode::LoadStaticFn, d), line);
         chunk.write(idx, line);
     } else {
-        let uv_count = upvalues_src.len() as u8;
+        let uv_count = upvalues.len() as u8;
         chunk.emit(OpCode::MakeClosure, line);
         chunk.write(Chunk::pack(d, uv_count), line);
         chunk.write(idx, line);
-        for uv_src in upvalues_src {
-            let source = match uv_src {
-                vn_tir::TirUpvalue::ParentLocal(id) => vn_types::UpvalueSource::Local(u32::from(
-                    super::super::regs::var_reg(SsaVar::Local(*id), nparams),
-                )),
-                vn_tir::TirUpvalue::ParentParam(i) => vn_types::UpvalueSource::Local(u32::from(
-                    super::super::regs::var_reg(SsaVar::Param(*i), nparams),
-                )),
-                vn_tir::TirUpvalue::ParentUpvalue(idx) => vn_types::UpvalueSource::Inherited(*idx),
+        for uv in upvalues {
+            let source = match uv {
+                vn_types::ssa::SsaUpvalue::Captured(var) => vn_types::UpvalueSource::Local(
+                    u32::from(super::super::regs::var_reg(*var, nparams)),
+                ),
+                vn_types::ssa::SsaUpvalue::Inherited(idx) => {
+                    vn_types::UpvalueSource::Inherited(*idx)
+                }
             };
             let word = source.to_bytecode().ok_or(OptError::Unsupported(
                 "ssa-emit: closure upvalue index exceeds u8",
