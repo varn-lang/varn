@@ -351,7 +351,12 @@ pub struct TestArgs {
     #[arg(short, long)]
     pub filter: Option<String>,
 
-    #[arg(short = 'j', long)]
+    #[arg(
+        short = 'j',
+        long,
+        value_name = "N",
+        help = "Workers en paralelo (por defecto: todos los cores)"
+    )]
     pub jobs: Option<usize>,
 
     #[arg(long)]
