@@ -1,4 +1,5 @@
-use crate::ssa::ir::{InstKind, SsaFunc, Terminator};
+use crate::ssa::ir::{SsaFunc, Terminator};
+use vn_types::ssa::SsaOp;
 
 pub(super) fn emission_order(ssa: &SsaFunc) -> Vec<usize> {
     let n = ssa.blocks.len();
@@ -14,7 +15,7 @@ pub(super) fn emission_order(ssa: &SsaFunc) -> Vec<usize> {
             }
         };
         for inst in &ssa.blocks[b].insts {
-            if let InstKind::Try { handler } = &inst.kind {
+            if let SsaOp::Try { handler } = &inst.kind {
                 s.push(handler.0 as usize);
             }
         }

@@ -1,8 +1,9 @@
 use super::context::{Builder, LoopCtx, Result};
-use crate::ssa::ir::{InstKind, SsaVar, Terminator};
+use crate::ssa::ir::{SsaVar, Terminator};
 use crate::OptError;
 use vn_tir::TirStmt;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 pub(super) fn stmt_offset(s: &TirStmt) -> Option<u32> {
     match s {
@@ -78,12 +79,12 @@ impl<'m> Builder<'m> {
                     None => match declared {
                         BackendTy::Literal(_) => self.zero_value(declared.representation()),
                         BackendTy::Num(vn_core::NumKind::Int(_)) => {
-                            self.emit(InstKind::ConstInt(0), declared)
+                            self.emit(SsaOp::ConstInt(0), declared)
                         }
                         BackendTy::Num(vn_core::NumKind::Float(_)) => {
-                            self.emit(InstKind::ConstFloat(0.0), declared)
+                            self.emit(SsaOp::ConstFloat(0.0), declared)
                         }
-                        BackendTy::Bool => self.emit(InstKind::ConstBool(false), declared),
+                        BackendTy::Bool => self.emit(SsaOp::ConstBool(false), declared),
                         BackendTy::Str
                         | BackendTy::Char
                         | BackendTy::Bytes
@@ -99,7 +100,7 @@ impl<'m> Builder<'m> {
                         | BackendTy::Set(_)
                         | BackendTy::Tuple(_)
                         | BackendTy::Class(_)
-                        | BackendTy::Nullable(_) => self.emit(InstKind::ConstNull, declared),
+                        | BackendTy::Nullable(_) => self.emit(SsaOp::ConstNull, declared),
                     },
                 };
                 self.store_var(var, value);
@@ -123,7 +124,7 @@ impl<'m> Builder<'m> {
                     None => None,
                 };
                 for _ in 0..self.try_depth {
-                    self.emit_effect(InstKind::PopTry);
+                    self.emit_effect(SsaOp::PopTry);
                 }
                 self.set_term(Terminator::Return(val));
             }
@@ -134,7 +135,7 @@ impl<'m> Builder<'m> {
             TirStmt::Break => {
                 if let Some(c) = self.loops.last().copied() {
                     for _ in 0..self.try_depth.saturating_sub(c.try_depth) {
-                        self.emit_effect(InstKind::PopTry);
+                        self.emit_effect(SsaOp::PopTry);
                     }
                     let from = self.current;
                     self.set_term(Terminator::Jump {
@@ -147,7 +148,7 @@ impl<'m> Builder<'m> {
             TirStmt::Continue => {
                 if let Some(c) = self.loops.last().copied() {
                     for _ in 0..self.try_depth.saturating_sub(c.try_depth) {
-                        self.emit_effect(InstKind::PopTry);
+                        self.emit_effect(SsaOp::PopTry);
                     }
                     let from = self.current;
                     self.set_term(Terminator::Jump {
@@ -244,7 +245,7 @@ impl<'m> Builder<'m> {
                 if self.is_open() {
                     let closes = self.loop_body_pinned(body);
                     if !closes.is_empty() {
-                        self.emit_effect(InstKind::CloseUpvalues { vars: closes });
+                        self.emit_effect(SsaOp::CloseUpvalues { vars: closes });
                     }
                     let cur = self.current;
                     self.set_term(Terminator::Jump {
@@ -269,7 +270,7 @@ impl<'m> Builder<'m> {
                 let exit = self.new_block();
 
                 let try_val = self.emit(
-                    InstKind::Try { handler: landing },
+                    SsaOp::Try { handler: landing },
                     BackendTy::Dynamic(DynReason::Boxed),
                 );
 
@@ -277,7 +278,7 @@ impl<'m> Builder<'m> {
                 self.lower_block(body)?;
                 self.try_depth -= 1;
                 if self.is_open() {
-                    self.emit_effect(InstKind::PopTry);
+                    self.emit_effect(SsaOp::PopTry);
                     let from = self.current;
                     self.set_term(Terminator::Jump {
                         target: exit,
@@ -290,7 +291,7 @@ impl<'m> Builder<'m> {
                 self.seal_block(landing);
                 self.current = landing;
                 let err = self.emit(
-                    InstKind::CatchParam { try_val },
+                    SsaOp::CatchParam { try_val },
                     BackendTy::Dynamic(DynReason::Boxed),
                 );
                 self.store_var(SsaVar::Local(catch_local.0), err);

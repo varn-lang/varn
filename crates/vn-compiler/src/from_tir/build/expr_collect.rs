@@ -1,7 +1,8 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use vn_tir::TirExpr;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 const ARRAY_CHUNK: usize = 64;
 
@@ -24,11 +25,11 @@ impl<'m> Builder<'m> {
                     spread: true,
                 }];
                 parts.extend(self.array_chunk_parts(chunk)?);
-                array = self.emit(InstKind::BuildArraySpread { elements: parts }, ty);
+                array = self.emit(SsaOp::BuildArraySpread { elements: parts }, ty);
             } else {
                 for el in chunk {
                     let value = self.array_element(el)?;
-                    self.emit_effect(InstKind::ArrayPush { array, value });
+                    self.emit_effect(SsaOp::ArrayPush { array, value });
                 }
             }
         }
@@ -39,7 +40,7 @@ impl<'m> Builder<'m> {
         match el {
             vn_tir::TirArrayEl::Expr(x) | vn_tir::TirArrayEl::Spread(x) => self.lower_expr(x),
             vn_tir::TirArrayEl::Hole => {
-                Ok(self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed)))
+                Ok(self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed)))
             }
         }
     }
@@ -67,14 +68,14 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         if spread {
             let parts = self.array_chunk_parts(chunk)?;
-            Ok(self.emit(InstKind::BuildArraySpread { elements: parts }, ty))
+            Ok(self.emit(SsaOp::BuildArraySpread { elements: parts }, ty))
         } else {
             let elements = chunk
                 .iter()
                 .map(|el| self.array_element(el))
                 .collect::<Result<Vec<_>>>()?;
             let storage = self.array_storage(ty, &elements);
-            Ok(self.emit(InstKind::BuildArray { elements, storage }, ty))
+            Ok(self.emit(SsaOp::BuildArray { elements, storage }, ty))
         }
     }
 
@@ -130,7 +131,7 @@ impl<'m> Builder<'m> {
         for x in xs {
             vals.push(self.lower_expr(x)?);
         }
-        Ok(self.emit(InstKind::BuildTuple { elements: vals }, ty))
+        Ok(self.emit(SsaOp::BuildTuple { elements: vals }, ty))
     }
 
     pub(super) fn lower_object_lit(
@@ -167,7 +168,7 @@ impl<'m> Builder<'m> {
                     }
                 }
             }
-            Ok(self.emit(InstKind::BuildObjectSpread { parts }, ty))
+            Ok(self.emit(SsaOp::BuildObjectSpread { parts }, ty))
         } else {
             let mut pairs = Vec::with_capacity(entries.len());
             for entry in entries {
@@ -176,7 +177,7 @@ impl<'m> Builder<'m> {
                     pairs.push((name.clone(), v));
                 }
             }
-            Ok(self.emit(InstKind::BuildObject { pairs }, ty))
+            Ok(self.emit(SsaOp::BuildObject { pairs }, ty))
         }
     }
 

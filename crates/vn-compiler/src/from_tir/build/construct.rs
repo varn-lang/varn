@@ -1,9 +1,10 @@
 use super::context::{Builder, InlineFrame, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use crate::OptError;
 use std::sync::Arc;
 use vn_tir::{BackendTy, DynReason};
 use vn_tir::{ClassId, FnId, Resolution, TirArg, TirClassDef, TirExpr, TirExprKind, TirStmt};
+use vn_types::ssa::SsaOp;
 
 const CONSTRUCTOR: &str = vn_core::TokenKind::Constructor.as_str();
 
@@ -36,14 +37,14 @@ impl<'m> Builder<'m> {
                     .and_then(|ci| ci.method_slot(CONSTRUCTOR))
                 {
                     let inst = self.emit(
-                        InstKind::AllocInstance {
+                        SsaOp::AllocInstance {
                             class: cv,
                             payload_size,
                         },
                         ty,
                     );
                     let bound = self.emit(
-                        InstKind::GetSlotMethod { object: inst, slot },
+                        SsaOp::GetSlotMethod { object: inst, slot },
                         BackendTy::Dynamic(DynReason::Runtime),
                     );
                     self.lower_call(bound, args, ty)?;
@@ -53,7 +54,7 @@ impl<'m> Builder<'m> {
             }
             let argv = self.lower_args(args)?;
             let inst = self.emit(
-                InstKind::AllocInstance {
+                SsaOp::AllocInstance {
                     class: cv,
                     payload_size,
                 },
@@ -65,7 +66,7 @@ impl<'m> Builder<'m> {
                 .and_then(|ci| ci.method_slot(CONSTRUCTOR))
             {
                 self.emit(
-                    InstKind::InvokeSlot {
+                    SsaOp::InvokeSlot {
                         recv: inst,
                         slot,
                         args: argv,
@@ -74,7 +75,7 @@ impl<'m> Builder<'m> {
                 );
             } else {
                 self.emit(
-                    InstKind::MethodCall {
+                    SsaOp::MethodCall {
                         recv: inst,
                         name: Arc::from(CONSTRUCTOR),
                         args: argv,
@@ -97,7 +98,7 @@ impl<'m> Builder<'m> {
         if !spreads && let Some(func) = self.inlinable_constructor(def, args) {
             let argv = self.lower_ctor_args(func, args)?;
             let inst = self.emit(
-                InstKind::AllocInstance {
+                SsaOp::AllocInstance {
                     class: cv,
                     payload_size,
                 },
@@ -108,7 +109,7 @@ impl<'m> Builder<'m> {
         }
         if spreads {
             let inst = self.emit(
-                InstKind::AllocInstance {
+                SsaOp::AllocInstance {
                     class: cv,
                     payload_size,
                 },
@@ -120,7 +121,7 @@ impl<'m> Builder<'m> {
                 .and_then(|ci| ci.method_slot(CONSTRUCTOR))
             {
                 let bound = self.emit(
-                    InstKind::GetSlotMethod { object: inst, slot },
+                    SsaOp::GetSlotMethod { object: inst, slot },
                     BackendTy::Dynamic(DynReason::Runtime),
                 );
                 self.lower_call(bound, args, ty)?;
@@ -131,7 +132,7 @@ impl<'m> Builder<'m> {
         }
         let argv = self.lower_args(args)?;
         let inst = self.emit(
-            InstKind::AllocInstance {
+            SsaOp::AllocInstance {
                 class: cv,
                 payload_size,
             },
@@ -143,7 +144,7 @@ impl<'m> Builder<'m> {
             .and_then(|ci| ci.method_slot(CONSTRUCTOR))
         {
             self.emit(
-                InstKind::InvokeSlot {
+                SsaOp::InvokeSlot {
                     recv: inst,
                     slot,
                     args: argv,

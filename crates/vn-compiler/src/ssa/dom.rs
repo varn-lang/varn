@@ -1,4 +1,5 @@
-use super::ir::{Block, BlockId, InstKind, SsaFunc, Terminator};
+use super::ir::{Block, BlockId, SsaFunc, Terminator};
+use vn_types::ssa::SsaOp;
 
 const UNREACHED: u32 = u32::MAX;
 
@@ -16,7 +17,7 @@ pub(crate) fn block_successors(block: &Block) -> Vec<BlockId> {
         } => vec![*then_blk, *else_blk],
     };
     for inst in &block.insts {
-        if let InstKind::Try { handler } = &inst.kind {
+        if let SsaOp::Try { handler } = &inst.kind {
             succs.push(*handler);
         }
     }

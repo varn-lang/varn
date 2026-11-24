@@ -3,9 +3,9 @@ use crate::ssa::ir::{Inst, SsaFunc};
 use vn_tir::{BackendTy, DynReason};
 
 pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
-    use crate::ssa::ir::InstKind;
+    use vn_types::ssa::SsaOp;
     match &inst.kind {
-        InstKind::Binary { op, lhs: _, rhs: _ } => {
+        SsaOp::Binary { op, lhs: _, rhs: _ } => {
             use vn_types::ssa::SsaBinOp as B;
             let expected: Option<fn(BackendTy) -> bool> = match op {
                 B::IntAdd | B::IntSub | B::IntMul | B::IntDiv | B::IntMod | B::IntPow => {
@@ -40,7 +40,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 ));
             }
         }
-        InstKind::Unary { op, operand: _ } => {
+        SsaOp::Unary { op, operand: _ } => {
             use vn_types::ssa::SsaUnOp as U;
             let expected: Option<fn(BackendTy) -> bool> = match op {
                 U::NegInt | U::BitNotInt => Some(is_int),
@@ -60,7 +60,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 ));
             }
         }
-        InstKind::KindOf { .. } => {
+        SsaOp::KindOf { .. } => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Str && !BackendTy::Str.is_boxed() {
@@ -71,7 +71,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::ConstInt(_) => {
+        SsaOp::ConstInt(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if !matches!(dty, BackendTy::Num(vn_core::NumKind::Int(_))) {
@@ -82,7 +82,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::ConstFloat(_) => {
+        SsaOp::ConstFloat(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if !matches!(dty, BackendTy::Num(vn_core::NumKind::Float(_))) {
@@ -93,7 +93,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::ConstBool(_) => {
+        SsaOp::ConstBool(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Bool {
@@ -104,7 +104,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::ConstStr(_) => {
+        SsaOp::ConstStr(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Str {
@@ -115,7 +115,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::ConstChar(_) => {
+        SsaOp::ConstChar(_) => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Char {
@@ -126,7 +126,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::IsNull { .. } => {
+        SsaOp::IsNull { .. } => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Bool {
@@ -137,7 +137,7 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::TypeTest { .. } => {
+        SsaOp::TypeTest { .. } => {
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
                 if dty != BackendTy::Bool {
@@ -148,8 +148,8 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 }
             }
         }
-        InstKind::Cast { .. } => {}
-        InstKind::Convert { operand, conv } => {
+        SsaOp::Cast { .. } => {}
+        SsaOp::Convert { operand, conv } => {
             let expected = convert_result_ty(*conv);
             if let Some(dest) = inst.dest {
                 let dty = func.value_ty(dest);
@@ -170,10 +170,10 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 ));
             }
         }
-        InstKind::ArrayGetIndex { index, .. }
-        | InstKind::ArraySetIndex { index, .. }
-        | InstKind::BytesGetIndex { index, .. }
-        | InstKind::BytesSetIndex { index, .. } => {
+        SsaOp::ArrayGetIndex { index, .. }
+        | SsaOp::ArraySetIndex { index, .. }
+        | SsaOp::BytesGetIndex { index, .. }
+        | SsaOp::BytesSetIndex { index, .. } => {
             let ity = func.value_ty(*index);
             if ity != BackendTy::INT && !ity.is_boxed() {
                 return Err(format!(
@@ -182,77 +182,77 @@ pub(super) fn check_inst_types(func: &SsaFunc, inst: &Inst) -> VerifyResult {
                 ));
             }
         }
-        InstKind::ConstDecimal(_)
-        | InstKind::ConstBigInt(_)
-        | InstKind::ConstNull
-        | InstKind::LoadGlobal(_)
-        | InstKind::LoadGlobalIdx(_)
-        | InstKind::LoadNativeGlobalIdx(_)
-        | InstKind::LoadUpvalue(_)
-        | InstKind::StoreGlobal { .. }
-        | InstKind::StoreGlobalIdx { .. }
-        | InstKind::StoreUpvalue { .. }
-        | InstKind::Call { .. }
-        | InstKind::CallDirect { .. }
-        | InstKind::AllocInstance { .. }
-        | InstKind::SelfCall { .. }
-        | InstKind::GetProperty { .. }
-        | InstKind::GetSlotMethod { .. }
-        | InstKind::GetFixedField { .. }
-        | InstKind::GetIndex { .. }
-        | InstKind::SetProperty { .. }
-        | InstKind::SetFixedField { .. }
-        | InstKind::SetIndex { .. }
-        | InstKind::ArrayPush { .. }
-        | InstKind::ObjectMerge { .. }
-        | InstKind::MethodCall { .. }
-        | InstKind::InvokeSlot { .. }
-        | InstKind::BuildArray { .. }
-        | InstKind::BuildTuple { .. }
-        | InstKind::BuildObject { .. }
-        | InstKind::BuildMap { .. }
-        | InstKind::ObjectRest { .. }
-        | InstKind::ToString { .. }
-        | InstKind::BuildStr { .. }
-        | InstKind::MakeClosure { .. }
-        | InstKind::LoadCaptured { .. }
-        | InstKind::StoreCaptured { .. }
-        | InstKind::MakeClass { .. }
-        | InstKind::DeclareLayout { .. }
-        | InstKind::FreezeClass { .. }
-        | InstKind::DefineMember { .. }
-        | InstKind::MakeEnumVariant { .. }
-        | InstKind::Try { .. }
-        | InstKind::PopTry
-        | InstKind::CatchParam { .. }
-        | InstKind::CloseUpvalues { .. }
-        | InstKind::LoadModule { .. }
-        | InstKind::StoreModuleSlot { .. }
-        | InstKind::Await { .. }
-        | InstKind::Spawn { .. }
-        | InstKind::Yield { .. }
-        | InstKind::IntrinsicCall { .. }
-        | InstKind::CallNativeOp { .. }
-        | InstKind::AssertNotNull { .. }
-        | InstKind::GetPropertyMaybe { .. }
-        | InstKind::ModuleSlot { .. }
-        | InstKind::GetEnumTag { .. }
-        | InstKind::IsArray { .. }
-        | InstKind::StrLength { .. }
-        | InstKind::ArrayLength { .. }
-        | InstKind::BytesLength { .. }
-        | InstKind::This
-        | InstKind::Range { .. }
-        | InstKind::ObjectKeys { .. }
-        | InstKind::GetSuper { .. }
-        | InstKind::GetSuperSlot { .. }
-        | InstKind::SuperCall { .. }
-        | InstKind::SuperMethodCall { .. }
-        | InstKind::SuperInvokeSlot { .. }
-        | InstKind::ExtensionCall { .. }
-        | InstKind::CallSpread { .. }
-        | InstKind::BuildArraySpread { .. }
-        | InstKind::BuildObjectSpread { .. } => {}
+        SsaOp::ConstDecimal(_)
+        | SsaOp::ConstBigInt(_)
+        | SsaOp::ConstNull
+        | SsaOp::LoadGlobal(_)
+        | SsaOp::LoadGlobalIdx(_)
+        | SsaOp::LoadNativeGlobalIdx(_)
+        | SsaOp::LoadUpvalue(_)
+        | SsaOp::StoreGlobal { .. }
+        | SsaOp::StoreGlobalIdx { .. }
+        | SsaOp::StoreUpvalue { .. }
+        | SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
+        | SsaOp::AllocInstance { .. }
+        | SsaOp::SelfCall { .. }
+        | SsaOp::GetProperty { .. }
+        | SsaOp::GetSlotMethod { .. }
+        | SsaOp::GetFixedField { .. }
+        | SsaOp::GetIndex { .. }
+        | SsaOp::SetProperty { .. }
+        | SsaOp::SetFixedField { .. }
+        | SsaOp::SetIndex { .. }
+        | SsaOp::ArrayPush { .. }
+        | SsaOp::ObjectMerge { .. }
+        | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
+        | SsaOp::BuildArray { .. }
+        | SsaOp::BuildTuple { .. }
+        | SsaOp::BuildObject { .. }
+        | SsaOp::BuildMap { .. }
+        | SsaOp::ObjectRest { .. }
+        | SsaOp::ToString { .. }
+        | SsaOp::BuildStr { .. }
+        | SsaOp::MakeClosure { .. }
+        | SsaOp::LoadCaptured { .. }
+        | SsaOp::StoreCaptured { .. }
+        | SsaOp::MakeClass { .. }
+        | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
+        | SsaOp::DefineMember { .. }
+        | SsaOp::MakeEnumVariant { .. }
+        | SsaOp::Try { .. }
+        | SsaOp::PopTry
+        | SsaOp::CatchParam { .. }
+        | SsaOp::CloseUpvalues { .. }
+        | SsaOp::LoadModule { .. }
+        | SsaOp::StoreModuleSlot { .. }
+        | SsaOp::Await { .. }
+        | SsaOp::Spawn { .. }
+        | SsaOp::Yield { .. }
+        | SsaOp::IntrinsicCall { .. }
+        | SsaOp::CallNativeOp { .. }
+        | SsaOp::AssertNotNull { .. }
+        | SsaOp::GetPropertyMaybe { .. }
+        | SsaOp::ModuleSlot { .. }
+        | SsaOp::GetEnumTag { .. }
+        | SsaOp::IsArray { .. }
+        | SsaOp::StrLength { .. }
+        | SsaOp::ArrayLength { .. }
+        | SsaOp::BytesLength { .. }
+        | SsaOp::This
+        | SsaOp::Range { .. }
+        | SsaOp::ObjectKeys { .. }
+        | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
+        | SsaOp::SuperCall { .. }
+        | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
+        | SsaOp::ExtensionCall { .. }
+        | SsaOp::CallSpread { .. }
+        | SsaOp::BuildArraySpread { .. }
+        | SsaOp::BuildObjectSpread { .. } => {}
     }
     Ok(())
 }

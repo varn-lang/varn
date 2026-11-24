@@ -1,6 +1,7 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{Block, BlockId, Inst, InstKind, SsaVar, Terminator, Value, ValueDef};
+use crate::ssa::ir::{Block, BlockId, Inst, SsaVar, Terminator, Value, ValueDef};
 use vn_tir::BackendTy;
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn new_block(&mut self) -> BlockId {
@@ -68,7 +69,7 @@ impl<'m> Builder<'m> {
         self.block_mut(block).preds.push(pred);
     }
 
-    pub(super) fn emit(&mut self, kind: InstKind, ty: BackendTy) -> Value {
+    pub(super) fn emit(&mut self, kind: SsaOp, ty: BackendTy) -> Value {
         let dest = self.new_value(ty);
         let line = self.cur_line;
         let scope = self.current_inline_scope();
@@ -81,7 +82,7 @@ impl<'m> Builder<'m> {
         dest
     }
 
-    pub(super) fn emit_effect(&mut self, kind: InstKind) {
+    pub(super) fn emit_effect(&mut self, kind: SsaOp) {
         let line = self.cur_line;
         let scope = self.current_inline_scope();
         self.block_mut(self.current).insts.push(Inst {

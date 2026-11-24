@@ -1,8 +1,8 @@
 use super::control::Terminator;
 use super::ids::{BlockId, Value};
-use super::ops::InstKind;
 use std::sync::Arc;
 use vn_tir::BackendTy;
+use vn_types::ssa::SsaOp;
 
 #[derive(Debug)]
 pub struct SsaFunc {
@@ -97,7 +97,7 @@ pub struct Block {
 #[derive(Debug, Clone)]
 pub struct Inst {
     pub dest: Option<Value>,
-    pub kind: InstKind,
+    pub kind: SsaOp,
     pub line: u32,
     pub scope: u32,
 }

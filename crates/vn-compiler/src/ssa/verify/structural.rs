@@ -1,7 +1,8 @@
 use super::dominance::{check_use, DefSite};
 use super::type_rules::check_inst_types;
 use crate::ssa::dom::DomTree;
-use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator, Value};
+use crate::ssa::ir::{BlockId, SsaFunc, Terminator, Value};
+use vn_types::ssa::SsaOp;
 
 pub type VerifyResult = Result<(), String>;
 
@@ -112,7 +113,7 @@ pub(crate) fn recompute_preds(func: &mut SsaFunc) {
 
 fn edge_arg_count(func: &SsaFunc, pred: BlockId, block: BlockId) -> Result<usize, String> {
     for inst in &func.blocks[pred.0 as usize].insts {
-        if let InstKind::Try { handler } = &inst.kind
+        if let SsaOp::Try { handler } = &inst.kind
             && *handler == block
         {
             return Ok(0);
@@ -142,7 +143,7 @@ fn edge_arg_count(func: &SsaFunc, pred: BlockId, block: BlockId) -> Result<usize
     }
 }
 
-pub(crate) fn inst_uses(kind: &InstKind) -> Vec<Value> {
+pub(crate) fn inst_uses(kind: &SsaOp) -> Vec<Value> {
     let mut out = Vec::new();
     crate::ssa::uses::visit_uses(kind, &mut |v| out.push(v));
     out

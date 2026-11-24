@@ -1,4 +1,5 @@
-use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator};
+use crate::ssa::ir::{BlockId, SsaFunc, Terminator};
+use vn_types::ssa::SsaOp;
 
 pub fn run(func: &mut SsaFunc) -> bool {
     let n = func.blocks.len();
@@ -129,13 +130,13 @@ struct LoopFacts {
     memory_stable: bool,
 }
 
-fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
+fn hoistable(kind: &SsaOp, facts: LoopFacts) -> bool {
     match kind {
-        InstKind::GetFixedField { .. }
-        | InstKind::ArrayGetIndex { .. }
-        | InstKind::BytesGetIndex { .. } => facts.memory_stable,
+        SsaOp::GetFixedField { .. } | SsaOp::ArrayGetIndex { .. } | SsaOp::BytesGetIndex { .. } => {
+            facts.memory_stable
+        }
 
-        InstKind::Binary { op, .. } => {
+        SsaOp::Binary { op, .. } => {
             matches!(
                 op,
                 vn_types::ssa::SsaBinOp::IntAdd
@@ -158,7 +159,7 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
                     | vn_types::ssa::SsaBinOp::FloatGe
             )
         }
-        InstKind::Unary { op, .. } => {
+        SsaOp::Unary { op, .. } => {
             matches!(
                 op,
                 vn_types::ssa::SsaUnOp::NegInt
@@ -166,128 +167,128 @@ fn hoistable(kind: &InstKind, facts: LoopFacts) -> bool {
                     | vn_types::ssa::SsaUnOp::Not
             )
         }
-        InstKind::KindOf { .. } => true,
-        InstKind::LoadGlobal(_) | InstKind::LoadGlobalIdx(_) | InstKind::LoadNativeGlobalIdx(_) => {
+        SsaOp::KindOf { .. } => true,
+        SsaOp::LoadGlobal(_) | SsaOp::LoadGlobalIdx(_) | SsaOp::LoadNativeGlobalIdx(_) => {
             facts.globals_stable
         }
 
-        InstKind::IsNull { .. }
-        | InstKind::TypeTest { .. }
-        | InstKind::IsArray { .. }
-        | InstKind::GetEnumTag { .. }
-        | InstKind::StrLength { .. } => true,
-        InstKind::MakeClosure { upvalues, .. } => upvalues.is_empty(),
-        InstKind::ConstInt(_)
-        | InstKind::ConstFloat(_)
-        | InstKind::ConstBool(_)
-        | InstKind::ConstStr(_)
-        | InstKind::ConstChar(_)
-        | InstKind::ConstDecimal(_)
-        | InstKind::ConstBigInt(_)
-        | InstKind::ConstNull
-        | InstKind::LoadUpvalue(_)
-        | InstKind::StoreGlobal { .. }
-        | InstKind::StoreGlobalIdx { .. }
-        | InstKind::StoreUpvalue { .. }
-        | InstKind::Call { .. }
-        | InstKind::CallDirect { .. }
-        | InstKind::AllocInstance { .. }
-        | InstKind::SelfCall { .. }
-        | InstKind::GetProperty { .. }
-        | InstKind::GetSlotMethod { .. }
-        | InstKind::GetIndex { .. }
-        | InstKind::SetProperty { .. }
-        | InstKind::SetFixedField { .. }
-        | InstKind::SetIndex { .. }
-        | InstKind::ArraySetIndex { .. }
-        | InstKind::BytesSetIndex { .. }
-        | InstKind::ArrayPush { .. }
-        | InstKind::ObjectMerge { .. }
-        | InstKind::MethodCall { .. }
-        | InstKind::InvokeSlot { .. }
-        | InstKind::Cast { .. }
-        | InstKind::Convert { .. }
-        | InstKind::BuildArray { .. }
-        | InstKind::BuildTuple { .. }
-        | InstKind::BuildObject { .. }
-        | InstKind::BuildMap { .. }
-        | InstKind::ObjectRest { .. }
-        | InstKind::ToString { .. }
-        | InstKind::BuildStr { .. }
-        | InstKind::LoadCaptured { .. }
-        | InstKind::StoreCaptured { .. }
-        | InstKind::MakeClass { .. }
-        | InstKind::DeclareLayout { .. }
-        | InstKind::FreezeClass { .. }
-        | InstKind::DefineMember { .. }
-        | InstKind::MakeEnumVariant { .. }
-        | InstKind::Try { .. }
-        | InstKind::PopTry
-        | InstKind::CatchParam { .. }
-        | InstKind::CloseUpvalues { .. }
-        | InstKind::LoadModule { .. }
-        | InstKind::StoreModuleSlot { .. }
-        | InstKind::Await { .. }
-        | InstKind::Spawn { .. }
-        | InstKind::Yield { .. }
-        | InstKind::IntrinsicCall { .. }
-        | InstKind::CallNativeOp { .. }
-        | InstKind::AssertNotNull { .. }
-        | InstKind::GetPropertyMaybe { .. }
-        | InstKind::ModuleSlot { .. }
-        | InstKind::ArrayLength { .. }
-        | InstKind::BytesLength { .. }
-        | InstKind::This
-        | InstKind::Range { .. }
-        | InstKind::ObjectKeys { .. }
-        | InstKind::GetSuper { .. }
-        | InstKind::GetSuperSlot { .. }
-        | InstKind::SuperCall { .. }
-        | InstKind::SuperMethodCall { .. }
-        | InstKind::SuperInvokeSlot { .. }
-        | InstKind::ExtensionCall { .. }
-        | InstKind::CallSpread { .. }
-        | InstKind::BuildArraySpread { .. }
-        | InstKind::BuildObjectSpread { .. } => false,
+        SsaOp::IsNull { .. }
+        | SsaOp::TypeTest { .. }
+        | SsaOp::IsArray { .. }
+        | SsaOp::GetEnumTag { .. }
+        | SsaOp::StrLength { .. } => true,
+        SsaOp::MakeClosure { upvalues, .. } => upvalues.is_empty(),
+        SsaOp::ConstInt(_)
+        | SsaOp::ConstFloat(_)
+        | SsaOp::ConstBool(_)
+        | SsaOp::ConstStr(_)
+        | SsaOp::ConstChar(_)
+        | SsaOp::ConstDecimal(_)
+        | SsaOp::ConstBigInt(_)
+        | SsaOp::ConstNull
+        | SsaOp::LoadUpvalue(_)
+        | SsaOp::StoreGlobal { .. }
+        | SsaOp::StoreGlobalIdx { .. }
+        | SsaOp::StoreUpvalue { .. }
+        | SsaOp::Call { .. }
+        | SsaOp::CallDirect { .. }
+        | SsaOp::AllocInstance { .. }
+        | SsaOp::SelfCall { .. }
+        | SsaOp::GetProperty { .. }
+        | SsaOp::GetSlotMethod { .. }
+        | SsaOp::GetIndex { .. }
+        | SsaOp::SetProperty { .. }
+        | SsaOp::SetFixedField { .. }
+        | SsaOp::SetIndex { .. }
+        | SsaOp::ArraySetIndex { .. }
+        | SsaOp::BytesSetIndex { .. }
+        | SsaOp::ArrayPush { .. }
+        | SsaOp::ObjectMerge { .. }
+        | SsaOp::MethodCall { .. }
+        | SsaOp::InvokeSlot { .. }
+        | SsaOp::Cast { .. }
+        | SsaOp::Convert { .. }
+        | SsaOp::BuildArray { .. }
+        | SsaOp::BuildTuple { .. }
+        | SsaOp::BuildObject { .. }
+        | SsaOp::BuildMap { .. }
+        | SsaOp::ObjectRest { .. }
+        | SsaOp::ToString { .. }
+        | SsaOp::BuildStr { .. }
+        | SsaOp::LoadCaptured { .. }
+        | SsaOp::StoreCaptured { .. }
+        | SsaOp::MakeClass { .. }
+        | SsaOp::DeclareLayout { .. }
+        | SsaOp::FreezeClass { .. }
+        | SsaOp::DefineMember { .. }
+        | SsaOp::MakeEnumVariant { .. }
+        | SsaOp::Try { .. }
+        | SsaOp::PopTry
+        | SsaOp::CatchParam { .. }
+        | SsaOp::CloseUpvalues { .. }
+        | SsaOp::LoadModule { .. }
+        | SsaOp::StoreModuleSlot { .. }
+        | SsaOp::Await { .. }
+        | SsaOp::Spawn { .. }
+        | SsaOp::Yield { .. }
+        | SsaOp::IntrinsicCall { .. }
+        | SsaOp::CallNativeOp { .. }
+        | SsaOp::AssertNotNull { .. }
+        | SsaOp::GetPropertyMaybe { .. }
+        | SsaOp::ModuleSlot { .. }
+        | SsaOp::ArrayLength { .. }
+        | SsaOp::BytesLength { .. }
+        | SsaOp::This
+        | SsaOp::Range { .. }
+        | SsaOp::ObjectKeys { .. }
+        | SsaOp::GetSuper { .. }
+        | SsaOp::GetSuperSlot { .. }
+        | SsaOp::SuperCall { .. }
+        | SsaOp::SuperMethodCall { .. }
+        | SsaOp::SuperInvokeSlot { .. }
+        | SsaOp::ExtensionCall { .. }
+        | SsaOp::CallSpread { .. }
+        | SsaOp::BuildArraySpread { .. }
+        | SsaOp::BuildObjectSpread { .. } => false,
     }
 }
 
-fn is_transparent(kind: &InstKind) -> bool {
+fn is_transparent(kind: &SsaOp) -> bool {
     matches!(
         kind,
-        InstKind::ConstInt(_)
-            | InstKind::ConstFloat(_)
-            | InstKind::ConstBool(_)
-            | InstKind::ConstStr(_)
-            | InstKind::ConstChar(_)
-            | InstKind::ConstDecimal(_)
-            | InstKind::ConstBigInt(_)
-            | InstKind::ConstNull
-            | InstKind::Binary { .. }
-            | InstKind::Unary { .. }
-            | InstKind::KindOf { .. }
-            | InstKind::LoadGlobal(_)
-            | InstKind::LoadGlobalIdx(_)
-            | InstKind::LoadNativeGlobalIdx(_)
-            | InstKind::LoadUpvalue(_)
-            | InstKind::StoreUpvalue { .. }
-            | InstKind::GetFixedField { .. }
-            | InstKind::SetFixedField { .. }
-            | InstKind::ArrayGetIndex { .. }
-            | InstKind::ArraySetIndex { .. }
-            | InstKind::BytesSetIndex { .. }
-            | InstKind::IsNull { .. }
-            | InstKind::TypeTest { .. }
-            | InstKind::IsArray { .. }
-            | InstKind::StrLength { .. }
-            | InstKind::ArrayLength { .. }
-            | InstKind::BytesLength { .. }
-            | InstKind::GetEnumTag { .. }
-            | InstKind::MakeClosure { .. }
+        SsaOp::ConstInt(_)
+            | SsaOp::ConstFloat(_)
+            | SsaOp::ConstBool(_)
+            | SsaOp::ConstStr(_)
+            | SsaOp::ConstChar(_)
+            | SsaOp::ConstDecimal(_)
+            | SsaOp::ConstBigInt(_)
+            | SsaOp::ConstNull
+            | SsaOp::Binary { .. }
+            | SsaOp::Unary { .. }
+            | SsaOp::KindOf { .. }
+            | SsaOp::LoadGlobal(_)
+            | SsaOp::LoadGlobalIdx(_)
+            | SsaOp::LoadNativeGlobalIdx(_)
+            | SsaOp::LoadUpvalue(_)
+            | SsaOp::StoreUpvalue { .. }
+            | SsaOp::GetFixedField { .. }
+            | SsaOp::SetFixedField { .. }
+            | SsaOp::ArrayGetIndex { .. }
+            | SsaOp::ArraySetIndex { .. }
+            | SsaOp::BytesSetIndex { .. }
+            | SsaOp::IsNull { .. }
+            | SsaOp::TypeTest { .. }
+            | SsaOp::IsArray { .. }
+            | SsaOp::StrLength { .. }
+            | SsaOp::ArrayLength { .. }
+            | SsaOp::BytesLength { .. }
+            | SsaOp::GetEnumTag { .. }
+            | SsaOp::MakeClosure { .. }
     )
 }
 
-fn operands(kind: &InstKind) -> Vec<crate::ssa::ir::Value> {
+fn operands(kind: &SsaOp) -> Vec<crate::ssa::ir::Value> {
     crate::ssa::verify::inst_uses(kind)
 }
 

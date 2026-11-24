@@ -1,7 +1,8 @@
 use super::purity::{dest_droppable, is_pure};
 use super::trivial_phi::{eliminate_trivial_phis, remove_param};
-use crate::ssa::ir::{BlockId, InstKind, SsaFunc, Terminator, Value};
+use crate::ssa::ir::{BlockId, SsaFunc, Terminator, Value};
 use rustc_hash::FxHashSet;
+use vn_types::ssa::SsaOp;
 
 pub fn run(func: &mut SsaFunc) -> bool {
     let mut changed = false;
@@ -61,7 +62,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
     changed
 }
 
-fn add_inst_uses(kind: &InstKind, used: &mut FxHashSet<Value>) {
+fn add_inst_uses(kind: &SsaOp, used: &mut FxHashSet<Value>) {
     used.extend(crate::ssa::verify::inst_uses(kind));
 }
 

@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, SsaVar, Terminator, Value};
+use crate::ssa::ir::{SsaVar, Terminator, Value};
 use crate::OptError;
 use vn_tir::{BackendTy, DynReason};
 use vn_tir::{Resolution, TirExpr, TirExprKind};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_assign(&mut self, target: &TirExpr, value: Value) -> Result<()> {
@@ -21,16 +22,16 @@ impl<'m> Builder<'m> {
                     self.store_var(var, value);
                 }
                 Resolution::Upvalue(uv) => {
-                    self.emit_effect(InstKind::StoreUpvalue { index: *uv, value });
+                    self.emit_effect(SsaOp::StoreUpvalue { index: *uv, value });
                 }
                 Resolution::ByName { name, .. } => {
-                    self.emit_effect(InstKind::StoreGlobal {
+                    self.emit_effect(SsaOp::StoreGlobal {
                         name: name.clone(),
                         value,
                     });
                 }
                 Resolution::GlobalSlot(n) => {
-                    self.emit_effect(InstKind::StoreGlobalIdx { slot: *n, value });
+                    self.emit_effect(SsaOp::StoreGlobalIdx { slot: *n, value });
                 }
                 Resolution::None
                 | Resolution::NativeGlobal(_)
@@ -50,20 +51,20 @@ impl<'m> Builder<'m> {
                 let obj = self.lower_expr(object)?;
                 let kind = match &target.res {
                     Resolution::FieldSlot(slot) => match self.compact_field(object.ty, *slot) {
-                        Some((offset, tag)) => InstKind::SetFixedField {
+                        Some((offset, tag)) => SsaOp::SetFixedField {
                             object: obj,
                             value,
                             slot: *slot,
                             offset,
                             kind: tag,
                         },
-                        None => InstKind::SetProperty {
+                        None => SsaOp::SetProperty {
                             object: obj,
                             name: name.clone(),
                             value,
                         },
                     },
-                    Resolution::StaticField(slot) => InstKind::SetFixedField {
+                    Resolution::StaticField(slot) => SsaOp::SetFixedField {
                         object: obj,
                         value,
                         slot: *slot,
@@ -83,7 +84,7 @@ impl<'m> Builder<'m> {
                     | Resolution::NativeOp(_)
                     | Resolution::NativeDecode { .. }
                     | Resolution::EnumVariant { .. }
-                    | Resolution::ByName { .. } => InstKind::SetProperty {
+                    | Resolution::ByName { .. } => SsaOp::SetProperty {
                         object: obj,
                         name: name.clone(),
                         value,
@@ -97,19 +98,19 @@ impl<'m> Builder<'m> {
                 let kind = if matches!(object.ty, vn_tir::BackendTy::Bytes)
                     && matches!(self.value_ty(idx), BackendTy::INT | BackendTy::Dynamic(_))
                 {
-                    InstKind::BytesSetIndex {
+                    SsaOp::BytesSetIndex {
                         object: obj,
                         index: idx,
                         value,
                     }
                 } else if matches!(self.value_ty(obj), BackendTy::Array(_)) {
-                    InstKind::ArraySetIndex {
+                    SsaOp::ArraySetIndex {
                         object: obj,
                         index: idx,
                         value,
                     }
                 } else {
-                    InstKind::SetIndex {
+                    SsaOp::SetIndex {
                         object: obj,
                         index: idx,
                         value,
@@ -163,7 +164,7 @@ impl<'m> Builder<'m> {
     pub(super) fn store_var(&mut self, var: SsaVar, value: Value) {
         if self.pinned.contains(&var) {
             self.var_ty.insert(var, self.value_ty(value));
-            self.emit_effect(InstKind::StoreCaptured { var, value });
+            self.emit_effect(SsaOp::StoreCaptured { var, value });
         } else {
             let cur = self.current;
             self.write_var(var, cur, value);
@@ -173,7 +174,7 @@ impl<'m> Builder<'m> {
     pub(super) fn load_var(&mut self, var: SsaVar, ty: BackendTy) -> Result<Value> {
         if self.pinned.contains(&var) {
             let ty = self.var_ty.get(&var).copied().unwrap_or(ty);
-            Ok(self.emit(InstKind::LoadCaptured { var }, ty))
+            Ok(self.emit(SsaOp::LoadCaptured { var }, ty))
         } else {
             self.read_var(var, self.current)
         }
@@ -193,15 +194,13 @@ impl<'m> Builder<'m> {
                 }
                 self.load_var(SsaVar::Param(*i), ty)
             }
-            Resolution::Upvalue(uv) => Ok(self.emit(InstKind::LoadUpvalue(*uv), ty)),
-            Resolution::GlobalSlot(n) => Ok(self.emit(InstKind::LoadGlobalIdx(*n), ty)),
+            Resolution::Upvalue(uv) => Ok(self.emit(SsaOp::LoadUpvalue(*uv), ty)),
+            Resolution::GlobalSlot(n) => Ok(self.emit(SsaOp::LoadGlobalIdx(*n), ty)),
             Resolution::NativeGlobal(n) => {
-                Ok(self.emit(InstKind::LoadNativeGlobalIdx(*n), native_global_ty(*n)))
+                Ok(self.emit(SsaOp::LoadNativeGlobalIdx(*n), native_global_ty(*n)))
             }
             Resolution::ModuleSlot { .. } => Err(OptError::Unsupported("from_tir: module slot")),
-            Resolution::ByName { name, .. } => {
-                Ok(self.emit(InstKind::LoadGlobal(name.clone()), ty))
-            }
+            Resolution::ByName { name, .. } => Ok(self.emit(SsaOp::LoadGlobal(name.clone()), ty)),
             Resolution::DirectFn(f) => {
                 let name = self
                     .tir
@@ -212,7 +211,7 @@ impl<'m> Builder<'m> {
             }
             Resolution::None => match self.inlining.last().and_then(|frame| frame.this) {
                 Some(this) => Ok(this),
-                None => Ok(self.emit(InstKind::This, ty)),
+                None => Ok(self.emit(SsaOp::This, ty)),
             },
             Resolution::FieldSlot(_)
             | Resolution::StaticField(_)

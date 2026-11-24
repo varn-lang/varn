@@ -1,7 +1,8 @@
 use std::sync::Arc;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use vn_tir::{TirExpr, TirExprKind};
 
 mod assign;
@@ -32,24 +33,21 @@ impl<'m> Builder<'m> {
     fn lower_expr(&mut self, e: &TirExpr) -> Result<Value> {
         let ty = e.ty.representation();
         match &e.kind {
-            TirExprKind::IntLit(n) => Ok(self.emit(InstKind::ConstInt(*n), BackendTy::INT)),
-            TirExprKind::FloatLit(f) => Ok(self.emit(InstKind::ConstFloat(*f), BackendTy::FLOAT)),
-            TirExprKind::BoolLit(b) => Ok(self.emit(InstKind::ConstBool(*b), BackendTy::Bool)),
-            TirExprKind::StrLit(s) => Ok(self.emit(InstKind::ConstStr(s.clone()), BackendTy::Str)),
+            TirExprKind::IntLit(n) => Ok(self.emit(SsaOp::ConstInt(*n), BackendTy::INT)),
+            TirExprKind::FloatLit(f) => Ok(self.emit(SsaOp::ConstFloat(*f), BackendTy::FLOAT)),
+            TirExprKind::BoolLit(b) => Ok(self.emit(SsaOp::ConstBool(*b), BackendTy::Bool)),
+            TirExprKind::StrLit(s) => Ok(self.emit(SsaOp::ConstStr(s.clone()), BackendTy::Str)),
 
-            TirExprKind::CharLit(c) => Ok(self.emit(InstKind::ConstChar(*c), BackendTy::Char)),
+            TirExprKind::CharLit(c) => Ok(self.emit(SsaOp::ConstChar(*c), BackendTy::Char)),
             TirExprKind::NullLit => {
-                Ok(self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed)))
+                Ok(self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed)))
             }
             TirExprKind::DecimalLit(s) => {
                 let d = s.parse().unwrap_or_default();
-                Ok(self.emit(
-                    InstKind::ConstDecimal(d),
-                    BackendTy::Dynamic(DynReason::Boxed),
-                ))
+                Ok(self.emit(SsaOp::ConstDecimal(d), BackendTy::Dynamic(DynReason::Boxed)))
             }
             TirExprKind::BigIntLit(n) => Ok(self.emit(
-                InstKind::ConstBigInt(n.clone()),
+                SsaOp::ConstBigInt(n.clone()),
                 BackendTy::Dynamic(DynReason::Boxed),
             )),
             TirExprKind::RangeLit {
@@ -98,24 +96,24 @@ impl<'m> Builder<'m> {
 
             TirExprKind::Await { future } => {
                 let v = self.lower_expr(future)?;
-                Ok(self.emit(InstKind::Await { operand: v }, ty))
+                Ok(self.emit(SsaOp::Await { operand: v }, ty))
             }
             TirExprKind::Yield { value, .. } => {
                 let v = match value {
                     Some(e) => self.lower_expr(e)?,
-                    None => self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed)),
+                    None => self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed)),
                 };
-                Ok(self.emit(InstKind::Yield { operand: v }, ty))
+                Ok(self.emit(SsaOp::Yield { operand: v }, ty))
             }
 
             TirExprKind::Discriminant { value } => {
                 let v = self.lower_expr(value)?;
-                Ok(self.emit(InstKind::GetEnumTag { operand: v }, BackendTy::INT))
+                Ok(self.emit(SsaOp::GetEnumTag { operand: v }, BackendTy::INT))
             }
             TirExprKind::VariantPayload { value, field, .. } => {
                 let v = self.lower_expr(value)?;
                 Ok(self.emit(
-                    InstKind::GetFixedField {
+                    SsaOp::GetFixedField {
                         object: v,
                         slot: *field,
                         offset: 0,
@@ -136,7 +134,7 @@ impl<'m> Builder<'m> {
                     BackendTy::Dynamic(DynReason::Runtime),
                 );
                 Ok(self.emit(
-                    InstKind::TypeTest {
+                    SsaOp::TypeTest {
                         value: v,
                         class: cls,
                     },
@@ -147,7 +145,7 @@ impl<'m> Builder<'m> {
                 let v = self.lower_expr(value)?;
                 let cls = self.lower_expr(class)?;
                 Ok(self.emit(
-                    InstKind::TypeTest {
+                    SsaOp::TypeTest {
                         value: v,
                         class: cls,
                     },
@@ -159,7 +157,7 @@ impl<'m> Builder<'m> {
 
             TirExprKind::ObjectKeys { operand } => {
                 let o = self.lower_expr(operand)?;
-                Ok(self.emit(InstKind::ObjectKeys { operand: o }, ty))
+                Ok(self.emit(SsaOp::ObjectKeys { operand: o }, ty))
             }
 
             TirExprKind::SuperCall { args }
@@ -168,17 +166,17 @@ impl<'m> Builder<'m> {
                 if let Some(slot) = self.super_method_slot(vn_core::TokenKind::Constructor.as_str())
                 {
                     let ctor = self.emit(
-                        InstKind::GetSuperSlot { slot },
+                        SsaOp::GetSuperSlot { slot },
                         BackendTy::Dynamic(DynReason::Runtime),
                     );
                     return self.lower_call(ctor, args, ty);
                 }
                 if self.super_chain_ctorless() {
                     self.lower_effects(args)?;
-                    return Ok(self.emit(InstKind::ConstNull, ty));
+                    return Ok(self.emit(SsaOp::ConstNull, ty));
                 }
                 let ctor = self.emit(
-                    InstKind::GetSuper {
+                    SsaOp::GetSuper {
                         name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
                     },
                     BackendTy::Dynamic(DynReason::Runtime),
@@ -191,27 +189,27 @@ impl<'m> Builder<'m> {
                         self.super_method_slot(vn_core::TokenKind::Constructor.as_str())
                 {
                     let argv = self.lower_args(args)?;
-                    return Ok(self.emit(InstKind::SuperInvokeSlot { slot, args: argv }, ty));
+                    return Ok(self.emit(SsaOp::SuperInvokeSlot { slot, args: argv }, ty));
                 }
                 if self.super_chain_ctorless() {
                     self.lower_effects(args)?;
-                    return Ok(self.emit(InstKind::ConstNull, ty));
+                    return Ok(self.emit(SsaOp::ConstNull, ty));
                 }
                 let argv = self.lower_args(args)?;
-                Ok(self.emit(InstKind::SuperCall { args: argv }, ty))
+                Ok(self.emit(SsaOp::SuperCall { args: argv }, ty))
             }
             TirExprKind::SuperMethodCall { name, args }
                 if args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_))) =>
             {
                 if let Some(slot) = self.super_method_slot(name) {
                     let method = self.emit(
-                        InstKind::GetSuperSlot { slot },
+                        SsaOp::GetSuperSlot { slot },
                         BackendTy::Dynamic(DynReason::Runtime),
                     );
                     return self.lower_call(method, args, ty);
                 }
                 let method = self.emit(
-                    InstKind::GetSuper { name: name.clone() },
+                    SsaOp::GetSuper { name: name.clone() },
                     BackendTy::Dynamic(DynReason::Runtime),
                 );
                 self.lower_call(method, args, ty)
@@ -221,11 +219,11 @@ impl<'m> Builder<'m> {
                     && let Some(slot) = self.super_method_slot(name)
                 {
                     let argv = self.lower_args(args)?;
-                    return Ok(self.emit(InstKind::SuperInvokeSlot { slot, args: argv }, ty));
+                    return Ok(self.emit(SsaOp::SuperInvokeSlot { slot, args: argv }, ty));
                 }
                 let argv = self.lower_args(args)?;
                 Ok(self.emit(
-                    InstKind::SuperMethodCall {
+                    SsaOp::SuperMethodCall {
                         name: name.clone(),
                         args: argv,
                     },
@@ -235,9 +233,9 @@ impl<'m> Builder<'m> {
 
             TirExprKind::SuperField { name } => {
                 if let Some(slot) = self.super_method_slot(name) {
-                    return Ok(self.emit(InstKind::GetSuperSlot { slot }, ty));
+                    return Ok(self.emit(SsaOp::GetSuperSlot { slot }, ty));
                 }
-                Ok(self.emit(InstKind::GetSuper { name: name.clone() }, ty))
+                Ok(self.emit(SsaOp::GetSuper { name: name.clone() }, ty))
             }
 
             TirExprKind::Closure { func, upvalues } => {
@@ -256,7 +254,7 @@ impl<'m> Builder<'m> {
                     })
                     .collect();
                 Ok(self.emit(
-                    InstKind::MakeClosure {
+                    SsaOp::MakeClosure {
                         func: func.0,
                         upvalues,
                     },

@@ -1,8 +1,9 @@
 use super::context::{Builder, InlineFrame, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use crate::OptError;
 use vn_tir::TirStmt;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 fn creates_closure(e: &vn_tir::TirExpr) -> bool {
     matches!(e.kind, vn_tir::TirExprKind::Closure { .. })
@@ -77,7 +78,7 @@ impl<'m> Builder<'m> {
         }
         if any_spread {
             self.emit(
-                InstKind::BuildArraySpread { elements: vals },
+                SsaOp::BuildArraySpread { elements: vals },
                 BackendTy::Dynamic(DynReason::Boxed),
             );
         }
@@ -122,13 +123,13 @@ impl<'m> Builder<'m> {
             }
         }
         if any_spread {
-            Ok(self.emit(InstKind::CallSpread { callee, args: vals }, ty))
+            Ok(self.emit(SsaOp::CallSpread { callee, args: vals }, ty))
         } else {
             let mut plain: Vec<Value> = vals.into_iter().map(|a| a.value).collect();
             let shape =
                 callee_ty.and_then(|callee_ty| self.declared_call_shape(callee_ty, &mut plain));
             Ok(self.emit(
-                InstKind::Call {
+                SsaOp::Call {
                     callee,
                     args: plain,
                     shape,
@@ -169,7 +170,7 @@ impl<'m> Builder<'m> {
             return None;
         }
         for _ in 0..padding.len() {
-            let null = self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
+            let null = self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
             args.push(null);
         }
         let shape = vn_types::ssa::CallShape { params, ret };
@@ -204,7 +205,7 @@ impl<'m> Builder<'m> {
             return Ok(None);
         }
         let argv = self.lower_args(args)?;
-        Ok(Some(self.emit(InstKind::SelfCall { args: argv }, ty)))
+        Ok(Some(self.emit(SsaOp::SelfCall { args: argv }, ty)))
     }
 
     pub(super) fn try_inline_direct_call(

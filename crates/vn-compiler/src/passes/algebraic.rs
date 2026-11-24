@@ -1,6 +1,7 @@
 use rustc_hash::FxHashMap;
+use vn_types::ssa::SsaOp;
 
-use crate::ssa::ir::{const_ty, Inst, InstKind, SsaFunc, Value};
+use crate::ssa::ir::{const_ty, Inst, SsaFunc, Value};
 use crate::ssa::uses::replace_uses_with_map;
 
 pub fn run(func: &mut SsaFunc) -> bool {
@@ -9,10 +10,10 @@ pub fn run(func: &mut SsaFunc) -> bool {
     for block in &func.blocks {
         for inst in &block.insts {
             match (inst.dest, &inst.kind) {
-                (Some(d), InstKind::ConstInt(i)) => {
+                (Some(d), SsaOp::ConstInt(i)) => {
                     int_const.insert(d, *i);
                 }
-                (Some(d), InstKind::ConstFloat(f)) => {
+                (Some(d), SsaOp::ConstFloat(f)) => {
                     float_const.insert(d, *f);
                 }
                 _ => {}
@@ -21,7 +22,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
     }
 
     let mut rewrites: FxHashMap<Value, Value> = FxHashMap::default();
-    let mut to_const: Vec<(usize, usize, InstKind)> = Vec::new();
+    let mut to_const: Vec<(usize, usize, SsaOp)> = Vec::new();
 
     for (b, block) in func.blocks.iter().enumerate() {
         for (i, inst) in block.insts.iter().enumerate() {
@@ -55,7 +56,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
 enum Simplified {
     Use(Value),
 
-    Const(InstKind),
+    Const(SsaOp),
 }
 
 fn simplify(
@@ -63,7 +64,7 @@ fn simplify(
     int_const: &FxHashMap<Value, i64>,
     float_const: &FxHashMap<Value, f64>,
 ) -> Option<Simplified> {
-    let InstKind::Binary { op, lhs, rhs } = &inst.kind else {
+    let SsaOp::Binary { op, lhs, rhs } = &inst.kind else {
         return None;
     };
     let (l, r) = (*lhs, *rhs);
@@ -84,7 +85,7 @@ fn simplify(
             if ri == Some(0) {
                 Some(Simplified::Use(l))
             } else if l == r {
-                Some(Simplified::Const(InstKind::ConstInt(0)))
+                Some(Simplified::Const(SsaOp::ConstInt(0)))
             } else {
                 None
             }
@@ -95,7 +96,7 @@ fn simplify(
             match (li, ri) {
                 (_, Some(1)) => Some(Simplified::Use(l)),
                 (Some(1), _) => Some(Simplified::Use(r)),
-                (_, Some(0)) | (Some(0), _) => Some(Simplified::Const(InstKind::ConstInt(0))),
+                (_, Some(0)) | (Some(0), _) => Some(Simplified::Const(SsaOp::ConstInt(0))),
                 _ => None,
             }
         }

@@ -1,7 +1,8 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use vn_tir::TirExpr;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_range_lit(
@@ -13,7 +14,7 @@ impl<'m> Builder<'m> {
         let s = self.lower_expr(start)?;
         let e2 = self.lower_expr(end)?;
         Ok(self.emit(
-            InstKind::Range {
+            SsaOp::Range {
                 start: s,
                 end: e2,
                 inclusive,
@@ -29,7 +30,7 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         let o = self.lower_expr(object)?;
         Ok(self.emit(
-            InstKind::ObjectRest {
+            SsaOp::ObjectRest {
                 object: o,
                 skip_keys: skip_keys.to_vec(),
             },
@@ -47,7 +48,7 @@ impl<'m> Builder<'m> {
         let r = self.lower_expr(recv)?;
         let argv = self.lower_args(args)?;
         Ok(self.emit(
-            InstKind::ExtensionCall {
+            SsaOp::ExtensionCall {
                 func: func.clone(),
                 slot: self.gslot(func),
                 recv: r,

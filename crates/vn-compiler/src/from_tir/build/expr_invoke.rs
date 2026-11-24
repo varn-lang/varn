@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use crate::OptError;
 use vn_tir::{BackendTy, DynReason};
 use vn_tir::{Resolution, TirExpr};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_call_expr(
@@ -13,10 +14,10 @@ impl<'m> Builder<'m> {
         ty: BackendTy,
     ) -> Result<Value> {
         if let Resolution::Intrinsic(wire) = res {
-            let object = self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
+            let object = self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
             let argv = self.lower_args(args)?;
             return Ok(self.emit(
-                InstKind::IntrinsicCall {
+                SsaOp::IntrinsicCall {
                     object,
                     args: argv,
                     wire: *wire as u8,
@@ -28,7 +29,7 @@ impl<'m> Builder<'m> {
             let mut argv = self.lower_args(args)?;
             let object = argv.remove(0);
             return Ok(self.emit(
-                InstKind::CallNativeOp {
+                SsaOp::CallNativeOp {
                     object,
                     args: argv,
                     op_id,
@@ -63,7 +64,7 @@ impl<'m> Builder<'m> {
                 let mut argv = self.lower_args(args)?;
                 let shape = self.declared_call_shape(callee.ty, &mut argv);
                 return Ok(self.emit(
-                    InstKind::CallDirect {
+                    SsaOp::CallDirect {
                         target,
                         slot,
                         callee: cv,
@@ -87,7 +88,7 @@ impl<'m> Builder<'m> {
                 )
             }
             Resolution::NativeGlobal(n) => self.emit(
-                InstKind::LoadNativeGlobalIdx(*n),
+                SsaOp::LoadNativeGlobalIdx(*n),
                 BackendTy::Dynamic(DynReason::Runtime),
             ),
             Resolution::None
@@ -151,7 +152,7 @@ impl<'m> Builder<'m> {
             let value = self.lower_expr(value)?;
             lowered.push((key, value));
         }
-        Ok(Some(self.emit(InstKind::BuildMap { pairs: lowered }, ty)))
+        Ok(Some(self.emit(SsaOp::BuildMap { pairs: lowered }, ty)))
     }
 
     fn lower_factory_construction(
@@ -167,9 +168,9 @@ impl<'m> Builder<'m> {
             return Ok(None);
         }
         let argv = self.lower_args(args)?;
-        let object = self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
+        let object = self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Boxed));
         Ok(Some(self.emit(
-            InstKind::CallNativeOp {
+            SsaOp::CallNativeOp {
                 object,
                 args: argv,
                 op_id: op.id(),
@@ -190,7 +191,7 @@ impl<'m> Builder<'m> {
         if args.iter().any(|a| matches!(a, vn_tir::TirArg::Spread(_))) {
             let bound = match res {
                 Resolution::VtableSlot(slot) => self.emit(
-                    InstKind::GetSlotMethod {
+                    SsaOp::GetSlotMethod {
                         object: r,
                         slot: *slot,
                     },
@@ -211,7 +212,7 @@ impl<'m> Builder<'m> {
                 | Resolution::NativeDecode { .. }
                 | Resolution::EnumVariant { .. }
                 | Resolution::ByName { .. } => self.emit(
-                    InstKind::GetProperty {
+                    SsaOp::GetProperty {
                         object: r,
                         name: name.clone(),
                     },
@@ -230,7 +231,7 @@ impl<'m> Builder<'m> {
         if let Resolution::VtableSlot(slot) = res {
             let argv = self.lower_args(args)?;
             return Ok(self.emit(
-                InstKind::InvokeSlot {
+                SsaOp::InvokeSlot {
                     recv: r,
                     slot: *slot,
                     args: argv,
@@ -241,14 +242,14 @@ impl<'m> Builder<'m> {
         let argv = self.lower_args(args)?;
         if let Resolution::NativeOp(op_id) = res {
             if *op_id == vn_core::op_id::KnownOp::ArrayPush.id() && argv.len() == 1 {
-                self.emit_effect(InstKind::ArrayPush {
+                self.emit_effect(SsaOp::ArrayPush {
                     array: r,
                     value: argv[0],
                 });
-                return Ok(self.emit(InstKind::ConstNull, ty));
+                return Ok(self.emit(SsaOp::ConstNull, ty));
             }
             return Ok(self.emit(
-                InstKind::CallNativeOp {
+                SsaOp::CallNativeOp {
                     object: r,
                     args: argv,
                     op_id: *op_id,
@@ -257,7 +258,7 @@ impl<'m> Builder<'m> {
             ));
         }
         Ok(self.emit(
-            InstKind::MethodCall {
+            SsaOp::MethodCall {
                 recv: r,
                 name: name.clone(),
                 args: argv,
@@ -307,7 +308,7 @@ impl<'m> Builder<'m> {
             .and_then(|global| self.gslot(&global))
             .ok_or(OptError::Unsupported("from_tir: variant without a slot"))?;
         let variant = self.emit(
-            InstKind::LoadGlobalIdx(slot),
+            SsaOp::LoadGlobalIdx(slot),
             BackendTy::Dynamic(DynReason::Runtime),
         );
         if args.is_empty() {

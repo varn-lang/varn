@@ -1,6 +1,7 @@
-use super::super::ir::{InstKind, SsaFunc, Value};
+use super::super::ir::{SsaFunc, Value};
 use vn_core::OpCode;
 use vn_types::ssa::SsaBinOp;
+use vn_types::ssa::SsaOp;
 
 pub(super) struct Immediates {
     pub(super) imm: Vec<Option<i8>>,
@@ -21,8 +22,8 @@ pub(super) struct ImmediateForm {
     pub(super) opcode: OpCode,
 }
 
-pub(super) fn immediate_operand(kind: &InstKind, imm: &[Option<i8>]) -> Option<ImmediateForm> {
-    let InstKind::Binary { op, lhs, rhs } = kind else {
+pub(super) fn immediate_operand(kind: &SsaOp, imm: &[Option<i8>]) -> Option<ImmediateForm> {
+    let SsaOp::Binary { op, lhs, rhs } = kind else {
         return None;
     };
     let get = |v: &Value| -> Option<i8> { *imm.get(v.0 as usize)? };
@@ -80,7 +81,7 @@ pub(super) fn plan_immediates(ssa: &SsaFunc) -> Immediates {
     let mut imm: Vec<Option<i8>> = vec![None; n];
     for block in &ssa.blocks {
         for inst in &block.insts {
-            if let (Some(d), InstKind::ConstInt(i)) = (inst.dest, &inst.kind)
+            if let (Some(d), SsaOp::ConstInt(i)) = (inst.dest, &inst.kind)
                 && let Ok(small) = i8::try_from(*i)
             {
                 imm[d.0 as usize] = Some(small);

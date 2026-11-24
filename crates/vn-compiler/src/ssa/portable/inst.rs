@@ -6,7 +6,7 @@ mod composite_object;
 mod consts;
 mod control;
 
-use super::super::ir::{Inst, InstKind};
+use super::super::ir::Inst;
 use super::{Captured, Site};
 use vn_types::ssa::{SsaInst, SsaOp, SsaResume, ValueId};
 
@@ -16,7 +16,7 @@ pub(super) fn project_inst(
     site: Site,
     captured: &mut Captured,
 ) -> Option<SsaInst> {
-    if let InstKind::Try { handler } = &inst.kind {
+    if let SsaOp::Try { handler } = &inst.kind {
         let (catch_ip, live) = site.landing?;
         let catch_value = inst.dest?;
         let mut live: Vec<ValueId> = live

@@ -1,6 +1,7 @@
 use rustc_hash::FxHashMap;
+use vn_types::ssa::SsaOp;
 
-use super::ir::{InstKind, SsaFunc, Value};
+use super::ir::{SsaFunc, Value};
 
 macro_rules! by_value {
     ($f:ident, $v:expr) => {
@@ -28,7 +29,7 @@ macro_rules! exclusive {
 
 macro_rules! inst_uses {
     ($kind:expr, $f:ident, $use:ident, $iter:ident) => {{
-        use InstKind::*;
+        use SsaOp::*;
         match $kind {
             ConstInt(_)
             | ConstFloat(_)
@@ -191,11 +192,11 @@ macro_rules! inst_uses {
     }};
 }
 
-pub fn visit_uses(kind: &InstKind, f: &mut impl FnMut(Value)) {
+pub fn visit_uses(kind: &SsaOp, f: &mut impl FnMut(Value)) {
     inst_uses!(kind, f, by_value, shared)
 }
 
-pub fn visit_uses_mut(kind: &mut InstKind, f: &mut impl FnMut(&mut Value)) {
+pub fn visit_uses_mut(kind: &mut SsaOp, f: &mut impl FnMut(&mut Value)) {
     inst_uses!(kind, f, by_ref, exclusive)
 }
 

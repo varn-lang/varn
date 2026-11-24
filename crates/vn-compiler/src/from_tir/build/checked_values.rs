@@ -1,6 +1,7 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use vn_tir::{BackendTy, DynReason, TirExpr};
+use vn_types::ssa::SsaOp;
 
 impl Builder<'_> {
     fn lower_checked_class(
@@ -22,21 +23,21 @@ impl Builder<'_> {
             BackendTy::Dynamic(DynReason::Runtime),
         );
         let is_instance = self.emit(
-            InstKind::TypeTest {
+            SsaOp::TypeTest {
                 value: v,
                 class: cls,
             },
             BackendTy::Bool,
         );
         let holds = if nullable {
-            let is_null = self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool);
+            let is_null = self.emit(SsaOp::IsNull { operand: v }, BackendTy::Bool);
             let not_slot = crate::ssa::emit::slot_kind_of(self.value_ty(is_null));
             let not_sel =
                 vn_types::ssa::select_un(vn_core::UnOp::Not, not_slot).ok_or_else(|| {
                     crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
                 })?;
             let not_null = self.emit(
-                InstKind::Unary {
+                SsaOp::Unary {
                     op: not_sel,
                     operand: is_null,
                 },
@@ -47,7 +48,7 @@ impl Builder<'_> {
             let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(not_null));
             let sel = vn_types::ssa::select_bin(vn_core::BinOp::Eq, ty_slot, lhs_slot, rhs_slot);
             self.emit(
-                InstKind::Binary {
+                SsaOp::Binary {
                     op: sel,
                     lhs: is_instance,
                     rhs: not_null,
@@ -63,7 +64,7 @@ impl Builder<'_> {
             name.to_string()
         };
         self.throw_type_mismatch_unless(holds, v, &expected)?;
-        Ok(self.emit(InstKind::Cast { operand: v }, ty))
+        Ok(self.emit(SsaOp::Cast { operand: v }, ty))
     }
 
     fn throw_type_mismatch_unless(&mut self, holds: Value, v: Value, expected: &str) -> Result<()> {
@@ -82,17 +83,14 @@ impl Builder<'_> {
         self.seal_block(join_blk);
         self.seal_block(throw_blk);
         self.current = throw_blk;
-        let got = self.emit(InstKind::KindOf { operand: v }, BackendTy::Str);
+        let got = self.emit(SsaOp::KindOf { operand: v }, BackendTy::Str);
         let head = self.emit(
-            InstKind::ConstStr(std::sync::Arc::from(format!(
+            SsaOp::ConstStr(std::sync::Arc::from(format!(
                 "type mismatch: expected '{expected}', got '"
             ))),
             BackendTy::Str,
         );
-        let tail = self.emit(
-            InstKind::ConstStr(std::sync::Arc::from("'")),
-            BackendTy::Str,
-        );
+        let tail = self.emit(SsaOp::ConstStr(std::sync::Arc::from("'")), BackendTy::Str);
         let mut message = head;
         for part in [got, tail] {
             let ty_slot = crate::ssa::emit::slot_kind_of(BackendTy::Str);
@@ -100,7 +98,7 @@ impl Builder<'_> {
             let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(part));
             let sel = vn_types::ssa::select_bin(vn_core::BinOp::Add, ty_slot, lhs_slot, rhs_slot);
             message = self.emit(
-                InstKind::Binary {
+                SsaOp::Binary {
                     op: sel,
                     lhs: message,
                     rhs: part,
@@ -113,11 +111,11 @@ impl Builder<'_> {
                 crate::OptError::Unsupported("from_tir: TypeError is not a native global"),
             )?;
         let ctor = self.emit(
-            InstKind::LoadNativeGlobalIdx(type_error),
+            SsaOp::LoadNativeGlobalIdx(type_error),
             BackendTy::Dynamic(DynReason::Runtime),
         );
         let error = self.emit(
-            InstKind::Call {
+            SsaOp::Call {
                 callee: ctor,
                 args: vec![message],
                 shape: None,
@@ -260,10 +258,10 @@ impl Builder<'_> {
                     }
                 };
                 let checked = self.emit(
-                    InstKind::Convert { operand: v, conv },
+                    SsaOp::Convert { operand: v, conv },
                     BackendTy::Dynamic(DynReason::Boxed),
                 );
-                return Ok(self.emit(InstKind::Cast { operand: checked }, ty));
+                return Ok(self.emit(SsaOp::Cast { operand: checked }, ty));
             }
             BackendTy::Dynamic(_)
             | BackendTy::Char
@@ -285,6 +283,6 @@ impl Builder<'_> {
             }
         };
         let result_ty = crate::ssa::verify::convert_result_ty(conv);
-        Ok(self.emit(InstKind::Convert { operand: v, conv }, result_ty))
+        Ok(self.emit(SsaOp::Convert { operand: v, conv }, result_ty))
     }
 }

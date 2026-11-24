@@ -1,7 +1,8 @@
 use super::context::{Builder, InlineBody, InlineFrame, Result};
-use crate::ssa::ir::{InstKind, SsaVar, Terminator, Value};
+use crate::ssa::ir::{SsaVar, Terminator, Value};
 use crate::OptError;
 use vn_tir::{BackendTy, FnId, TirArg, TirFunction};
+use vn_types::ssa::SsaOp;
 
 const LOCAL_SPAN: u32 = 1024;
 const RESULT_SLOT: u32 = LOCAL_SPAN - 1;
@@ -91,7 +92,7 @@ impl<'m> Builder<'m> {
         self.seal_block(body.exit);
         self.current = body.exit;
         if self.blocks[body.exit.0 as usize].preds.is_empty() {
-            let dead = self.emit(InstKind::ConstNull, call_ty);
+            let dead = self.emit(SsaOp::ConstNull, call_ty);
             self.set_term(Terminator::Unreachable);
             return Ok(Some(dead));
         }
@@ -121,9 +122,9 @@ impl<'m> Builder<'m> {
     pub(super) fn zero_value(&mut self, ty: BackendTy) -> Value {
         match ty {
             BackendTy::Literal(_) => self.zero_value(ty.representation()),
-            BackendTy::Num(vn_core::NumKind::Int(_)) => self.emit(InstKind::ConstInt(0), ty),
-            BackendTy::Num(vn_core::NumKind::Float(_)) => self.emit(InstKind::ConstFloat(0.0), ty),
-            BackendTy::Bool => self.emit(InstKind::ConstBool(false), ty),
+            BackendTy::Num(vn_core::NumKind::Int(_)) => self.emit(SsaOp::ConstInt(0), ty),
+            BackendTy::Num(vn_core::NumKind::Float(_)) => self.emit(SsaOp::ConstFloat(0.0), ty),
+            BackendTy::Bool => self.emit(SsaOp::ConstBool(false), ty),
             BackendTy::Str
             | BackendTy::Char
             | BackendTy::Bytes
@@ -139,7 +140,7 @@ impl<'m> Builder<'m> {
             | BackendTy::Set(_)
             | BackendTy::Tuple(_)
             | BackendTy::Class(_)
-            | BackendTy::Nullable(_) => self.emit(InstKind::ConstNull, ty),
+            | BackendTy::Nullable(_) => self.emit(SsaOp::ConstNull, ty),
         }
     }
 }

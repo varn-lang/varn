@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, SsaFunc, SsaVar, Terminator};
+use crate::ssa::ir::{SsaFunc, SsaVar, Terminator};
 use std::sync::Arc;
 use vn_tir::DynReason;
 use vn_tir::{BackendTy, TirExpr, TirFunction, TirModule, TirStmt};
+use vn_types::ssa::SsaOp;
 
 pub(crate) fn defaulted_param_mask(body: &[TirStmt], nparams: usize) -> Vec<bool> {
     let mut mask = vec![false; nparams];
@@ -74,7 +75,7 @@ fn build_inner(
                 continue;
             }
             let fv = b.emit(
-                InstKind::MakeClosure {
+                SsaOp::MakeClosure {
                     func: i as u32,
                     upvalues: vec![],
                 },
@@ -167,13 +168,13 @@ impl<'m> Builder<'m> {
         };
         let typed = match conv {
             Some(conv) => self.emit(
-                InstKind::Convert {
+                SsaOp::Convert {
                     operand: supplied,
                     conv,
                 },
                 crate::ssa::verify::convert_result_ty(conv),
             ),
-            None => self.emit(InstKind::Cast { operand: supplied }, ty),
+            None => self.emit(SsaOp::Cast { operand: supplied }, ty),
         };
         self.write_var(var, self.current, typed);
         Ok(())

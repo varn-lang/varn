@@ -7,4 +7,3 @@ pub use control::Terminator;
 pub use func::{Block, Inst, SsaFunc};
 pub use ids::{BlockId, SsaVar, Value, ValueDef};
 pub(crate) use ops::const_ty;
-pub use ops::InstKind;

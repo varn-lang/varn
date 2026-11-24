@@ -1,5 +1,6 @@
-use super::ir::{InstKind, SsaFunc, Terminator, Value};
+use super::ir::{SsaFunc, Terminator, Value};
 use rustc_hash::FxHashSet;
+use vn_types::ssa::SsaOp;
 
 #[derive(Debug)]
 pub struct Liveness {
@@ -55,7 +56,7 @@ impl Liveness {
                     defs[b].insert(d.0);
                     local_defined.insert(d.0);
                 }
-                if let InstKind::Try { handler } = &inst.kind {
+                if let SsaOp::Try { handler } = &inst.kind {
                     succ[b].push(handler.0 as usize);
                 }
                 idx += 1;

@@ -1,9 +1,10 @@
 use super::context::{Builder, Result};
 use crate::from_tir::describe::Describer;
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use std::sync::Arc;
 use vn_tir::BackendTy;
 use vn_tir::DynReason;
+use vn_types::ssa::SsaOp;
 
 pub(super) fn is_structural(ty: BackendTy) -> bool {
     matches!(
@@ -51,7 +52,7 @@ impl<'m> Builder<'m> {
     ) -> Result<Value> {
         let mut describer = Describer::new(self.tir);
         let desc = describer.describe(node_ty)?;
-        let text = self.emit(InstKind::ConstStr(Arc::from(desc.encode())), BackendTy::Str);
+        let text = self.emit(SsaOp::ConstStr(Arc::from(desc.encode())), BackendTy::Str);
         let mut args = vec![text];
         for name in &describer.witnesses {
             args.push(self.emit(
@@ -60,13 +61,13 @@ impl<'m> Builder<'m> {
             ));
         }
         let checked = self.emit(
-            InstKind::CallNativeOp {
+            SsaOp::CallNativeOp {
                 object: v,
                 args,
                 op_id,
             },
             BackendTy::Dynamic(DynReason::Boxed),
         );
-        Ok(self.emit(InstKind::Cast { operand: checked }, ty))
+        Ok(self.emit(SsaOp::Cast { operand: checked }, ty))
     }
 }

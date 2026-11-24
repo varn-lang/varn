@@ -1,34 +1,34 @@
-use super::super::ir::InstKind;
 use super::operands::{args_list, binop, unop, val};
+use vn_types::ssa::SsaOp;
 
-pub fn inst_kind(kind: &InstKind) -> String {
+pub fn inst_kind(kind: &SsaOp) -> String {
     match kind {
-        InstKind::ConstInt(n) => format!("int {n}"),
-        InstKind::ConstFloat(n) => format!("float {n}"),
-        InstKind::ConstBool(b) => format!("bool {b}"),
-        InstKind::ConstStr(s) => format!("str {s:?}"),
-        InstKind::ConstChar(c) => format!("char {c:?}"),
-        InstKind::ConstDecimal(d) => format!("decimal {d}"),
-        InstKind::ConstBigInt(n) => format!("bigint {n}"),
-        InstKind::ConstNull => "null".to_owned(),
-        InstKind::Binary { op, lhs, rhs } => {
+        SsaOp::ConstInt(n) => format!("int {n}"),
+        SsaOp::ConstFloat(n) => format!("float {n}"),
+        SsaOp::ConstBool(b) => format!("bool {b}"),
+        SsaOp::ConstStr(s) => format!("str {s:?}"),
+        SsaOp::ConstChar(c) => format!("char {c:?}"),
+        SsaOp::ConstDecimal(d) => format!("decimal {d}"),
+        SsaOp::ConstBigInt(n) => format!("bigint {n}"),
+        SsaOp::ConstNull => "null".to_owned(),
+        SsaOp::Binary { op, lhs, rhs } => {
             format!("{} {}, {}", binop(*op), val(*lhs), val(*rhs))
         }
-        InstKind::Unary { op, operand } => format!("{} {}", unop(*op), val(*operand)),
-        InstKind::KindOf { operand } => format!("kindof {}", val(*operand)),
-        InstKind::LoadGlobal(name) => format!("global {name}"),
-        InstKind::LoadGlobalIdx(slot) => format!("global @{slot}"),
-        InstKind::LoadNativeGlobalIdx(slot) => format!("native-global @{slot}"),
-        InstKind::LoadUpvalue(uv) => format!("upvalue #{uv}"),
-        InstKind::StoreGlobal { name, value } => format!("storeglobal {name} = {}", val(*value)),
-        InstKind::StoreGlobalIdx { slot, value } => {
+        SsaOp::Unary { op, operand } => format!("{} {}", unop(*op), val(*operand)),
+        SsaOp::KindOf { operand } => format!("kindof {}", val(*operand)),
+        SsaOp::LoadGlobal(name) => format!("global {name}"),
+        SsaOp::LoadGlobalIdx(slot) => format!("global @{slot}"),
+        SsaOp::LoadNativeGlobalIdx(slot) => format!("native-global @{slot}"),
+        SsaOp::LoadUpvalue(uv) => format!("upvalue #{uv}"),
+        SsaOp::StoreGlobal { name, value } => format!("storeglobal {name} = {}", val(*value)),
+        SsaOp::StoreGlobalIdx { slot, value } => {
             format!("storeglobal @{slot} = {}", val(*value))
         }
-        InstKind::StoreUpvalue { index, value } => {
+        SsaOp::StoreUpvalue { index, value } => {
             format!("storeupvalue #{index} = {}", val(*value))
         }
-        InstKind::Call { callee, args, .. } => format!("call {}{}", val(*callee), args_list(args)),
-        InstKind::CallDirect {
+        SsaOp::Call { callee, args, .. } => format!("call {}{}", val(*callee), args_list(args)),
+        SsaOp::CallDirect {
             target,
             slot,
             callee,
@@ -45,32 +45,32 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 args_list(args)
             )
         }
-        InstKind::AllocInstance { class, .. } => format!("alloc {}", val(*class)),
-        InstKind::SelfCall { args } => format!("callself{}", args_list(args)),
-        InstKind::GetProperty { object, name } => format!("getprop {}.{name}", val(*object)),
-        InstKind::GetSlotMethod { object, slot } => {
+        SsaOp::AllocInstance { class, .. } => format!("alloc {}", val(*class)),
+        SsaOp::SelfCall { args } => format!("callself{}", args_list(args)),
+        SsaOp::GetProperty { object, name } => format!("getprop {}.{name}", val(*object)),
+        SsaOp::GetSlotMethod { object, slot } => {
             format!("getslotmethod {}.#{slot}", val(*object))
         }
-        InstKind::GetFixedField { object, slot, .. } => {
+        SsaOp::GetFixedField { object, slot, .. } => {
             format!("getfixed {}[{slot}]", val(*object))
         }
-        InstKind::GetIndex { object, index } => {
+        SsaOp::GetIndex { object, index } => {
             format!("getindex {}[{}]", val(*object), val(*index))
         }
-        InstKind::ArrayGetIndex { object, index } => {
+        SsaOp::ArrayGetIndex { object, index } => {
             format!("arraygetindex {}[{}]", val(*object), val(*index))
         }
-        InstKind::BytesGetIndex { object, index } => {
+        SsaOp::BytesGetIndex { object, index } => {
             format!("bytesgetindex {}[{}]", val(*object), val(*index))
         }
-        InstKind::SetProperty {
+        SsaOp::SetProperty {
             object,
             name,
             value,
         } => {
             format!("setprop {}.{name} = {}", val(*object), val(*value))
         }
-        InstKind::SetFixedField {
+        SsaOp::SetFixedField {
             object,
             value,
             slot,
@@ -78,7 +78,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
         } => {
             format!("setfixed {}[{slot}] = {}", val(*object), val(*value))
         }
-        InstKind::SetIndex {
+        SsaOp::SetIndex {
             object,
             index,
             value,
@@ -90,10 +90,10 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 val(*value)
             )
         }
-        InstKind::ArrayPush { array, value } => {
+        SsaOp::ArrayPush { array, value } => {
             format!("arraypush {}, {}", val(*array), val(*value))
         }
-        InstKind::ArraySetIndex {
+        SsaOp::ArraySetIndex {
             object,
             index,
             value,
@@ -105,7 +105,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 val(*value)
             )
         }
-        InstKind::BytesSetIndex {
+        SsaOp::BytesSetIndex {
             object,
             index,
             value,
@@ -117,26 +117,26 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 val(*value)
             )
         }
-        InstKind::ObjectMerge { target, source } => {
+        SsaOp::ObjectMerge { target, source } => {
             format!("objectmerge {} <- {}", val(*target), val(*source))
         }
-        InstKind::MethodCall { recv, name, args } => {
+        SsaOp::MethodCall { recv, name, args } => {
             format!("callmethod {}.{name}{}", val(*recv), args_list(args))
         }
-        InstKind::InvokeSlot {
+        SsaOp::InvokeSlot {
             recv, slot, args, ..
         } => {
             format!("invokeslot {}.#{slot}{}", val(*recv), args_list(args))
         }
-        InstKind::IsNull { operand } => format!("isnull {}", val(*operand)),
-        InstKind::TypeTest { value, class } => {
+        SsaOp::IsNull { operand } => format!("isnull {}", val(*operand)),
+        SsaOp::TypeTest { value, class } => {
             format!("typetest {} {}", val(*value), val(*class))
         }
-        InstKind::Cast { operand } => format!("cast {}", val(*operand)),
-        InstKind::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
-        InstKind::BuildArray { elements, .. } => format!("array{}", args_list(elements)),
-        InstKind::BuildTuple { elements } => format!("tuple{}", args_list(elements)),
-        InstKind::BuildObject { pairs } => {
+        SsaOp::Cast { operand } => format!("cast {}", val(*operand)),
+        SsaOp::Convert { operand, conv } => format!("convert {} {conv:?}", val(*operand)),
+        SsaOp::BuildArray { elements, .. } => format!("array{}", args_list(elements)),
+        SsaOp::BuildTuple { elements } => format!("tuple{}", args_list(elements)),
+        SsaOp::BuildObject { pairs } => {
             let inner = pairs
                 .iter()
                 .map(|(k, v)| format!("{k}: {}", val(*v)))
@@ -144,7 +144,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 .join(", ");
             format!("object {{{inner}}}")
         }
-        InstKind::BuildMap { pairs } => {
+        SsaOp::BuildMap { pairs } => {
             let inner = pairs
                 .iter()
                 .map(|(k, v)| format!("{}: {}", val(*k), val(*v)))
@@ -152,34 +152,34 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 .join(", ");
             format!("map {{{inner}}}")
         }
-        InstKind::ObjectRest { object, skip_keys } => {
+        SsaOp::ObjectRest { object, skip_keys } => {
             format!("objectrest {} skip={:?}", val(*object), skip_keys)
         }
-        InstKind::ToString { operand } => format!("tostring {}", val(*operand)),
-        InstKind::BuildStr { parts } => format!("buildstr{}", args_list(parts)),
-        InstKind::MakeClosure { func, .. } => format!("closure tir#{func}"),
-        InstKind::IntrinsicCall { object, args, wire } => {
+        SsaOp::ToString { operand } => format!("tostring {}", val(*operand)),
+        SsaOp::BuildStr { parts } => format!("buildstr{}", args_list(parts)),
+        SsaOp::MakeClosure { func, .. } => format!("closure tir#{func}"),
+        SsaOp::IntrinsicCall { object, args, wire } => {
             format!("intrinsic#{wire} {}{}", val(*object), args_list(args))
         }
-        InstKind::CallNativeOp {
+        SsaOp::CallNativeOp {
             object,
             args,
             op_id,
         } => {
             format!("nativeop#{op_id:#x} {}{}", val(*object), args_list(args))
         }
-        InstKind::AssertNotNull { operand } => format!("assertnotnull {}", val(*operand)),
-        InstKind::GetPropertyMaybe { object, name } => {
+        SsaOp::AssertNotNull { operand } => format!("assertnotnull {}", val(*operand)),
+        SsaOp::GetPropertyMaybe { object, name } => {
             format!("getpropmaybe {}.{name}", val(*object))
         }
-        InstKind::ModuleSlot { object, slot } => format!("moduleslot {}[{slot}]", val(*object)),
-        InstKind::GetEnumTag { operand } => format!("enumtag {}", val(*operand)),
-        InstKind::IsArray { operand } => format!("isarray {}", val(*operand)),
-        InstKind::StrLength { operand } => format!("strlen {}", val(*operand)),
-        InstKind::ArrayLength { operand } => format!("arrlen {}", val(*operand)),
-        InstKind::BytesLength { operand } => format!("byteslen {}", val(*operand)),
-        InstKind::This => "this".to_owned(),
-        InstKind::Range {
+        SsaOp::ModuleSlot { object, slot } => format!("moduleslot {}[{slot}]", val(*object)),
+        SsaOp::GetEnumTag { operand } => format!("enumtag {}", val(*operand)),
+        SsaOp::IsArray { operand } => format!("isarray {}", val(*operand)),
+        SsaOp::StrLength { operand } => format!("strlen {}", val(*operand)),
+        SsaOp::ArrayLength { operand } => format!("arrlen {}", val(*operand)),
+        SsaOp::BytesLength { operand } => format!("byteslen {}", val(*operand)),
+        SsaOp::This => "this".to_owned(),
+        SsaOp::Range {
             start,
             end,
             inclusive,
@@ -187,17 +187,17 @@ pub fn inst_kind(kind: &InstKind) -> String {
             let op = if *inclusive { "..=" } else { ".." };
             format!("range {}{op}{}", val(*start), val(*end))
         }
-        InstKind::ObjectKeys { operand } => format!("objectkeys {}", val(*operand)),
-        InstKind::GetSuper { name } => format!("getsuper super.{name}"),
-        InstKind::GetSuperSlot { slot } => format!("getsuperslot super.#{slot}"),
-        InstKind::SuperCall { args } => format!("supercall{}", args_list(args)),
-        InstKind::SuperMethodCall { name, args } => {
+        SsaOp::ObjectKeys { operand } => format!("objectkeys {}", val(*operand)),
+        SsaOp::GetSuper { name } => format!("getsuper super.{name}"),
+        SsaOp::GetSuperSlot { slot } => format!("getsuperslot super.#{slot}"),
+        SsaOp::SuperCall { args } => format!("supercall{}", args_list(args)),
+        SsaOp::SuperMethodCall { name, args } => {
             format!("supercall super.{name}{}", args_list(args))
         }
-        InstKind::SuperInvokeSlot { slot, args } => {
+        SsaOp::SuperInvokeSlot { slot, args } => {
             format!("supercall super.#{slot}{}", args_list(args))
         }
-        InstKind::ExtensionCall {
+        SsaOp::ExtensionCall {
             func, recv, args, ..
         } => {
             format!("extcall {func}({}{})", val(*recv), {
@@ -209,7 +209,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 }
             })
         }
-        InstKind::CallSpread { callee, args } => {
+        SsaOp::CallSpread { callee, args } => {
             let a = args
                 .iter()
                 .map(|a| {
@@ -223,7 +223,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 .join(", ");
             format!("callspread {}({a})", val(*callee))
         }
-        InstKind::BuildArraySpread { elements } => {
+        SsaOp::BuildArraySpread { elements } => {
             let a = elements
                 .iter()
                 .map(|a| {
@@ -237,7 +237,7 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 .join(", ");
             format!("array[{a}]")
         }
-        InstKind::BuildObjectSpread { parts } => {
+        SsaOp::BuildObjectSpread { parts } => {
             let a = parts
                 .iter()
                 .map(|p| match &p.key {
@@ -248,14 +248,14 @@ pub fn inst_kind(kind: &InstKind) -> String {
                 .join(", ");
             format!("object {{{a}}}")
         }
-        InstKind::LoadCaptured { var } => format!("loadcaptured {var:?}"),
-        InstKind::StoreCaptured { var, value } => {
+        SsaOp::LoadCaptured { var } => format!("loadcaptured {var:?}"),
+        SsaOp::StoreCaptured { var, value } => {
             format!("storecaptured {var:?} = {}", val(*value))
         }
-        InstKind::MakeClass { name, super_class } => {
+        SsaOp::MakeClass { name, super_class } => {
             format!("makeclass {name} super={:?}", super_class.map(val))
         }
-        InstKind::DeclareLayout { class, layout } => {
+        SsaOp::DeclareLayout { class, layout } => {
             format!(
                 "declarelayout {} {{{}}}",
                 val(*class),
@@ -267,10 +267,10 @@ pub fn inst_kind(kind: &InstKind) -> String {
                     .join(", ")
             )
         }
-        InstKind::FreezeClass { class } => {
+        SsaOp::FreezeClass { class } => {
             format!("freezeclass {}", val(*class))
         }
-        InstKind::DefineMember {
+        SsaOp::DefineMember {
             class,
             name,
             member,
@@ -281,20 +281,20 @@ pub fn inst_kind(kind: &InstKind) -> String {
             val(*class),
             val(*member)
         ),
-        InstKind::MakeEnumVariant { def } => format!(
+        SsaOp::MakeEnumVariant { def } => format!(
             "makeenumvariant {}.{} tag={}",
             def.enum_name, def.variant_name, def.tag
         ),
-        InstKind::Try { handler } => format!("try b{}", handler.0),
-        InstKind::PopTry => "poptry".to_owned(),
-        InstKind::CatchParam { try_val } => format!("catchparam {}", val(*try_val)),
-        InstKind::CloseUpvalues { vars } => format!("closeupvalues {:?}", vars),
-        InstKind::LoadModule { source } => format!("loadmodule {source}"),
-        InstKind::StoreModuleSlot { value, slot } => {
+        SsaOp::Try { handler } => format!("try b{}", handler.0),
+        SsaOp::PopTry => "poptry".to_owned(),
+        SsaOp::CatchParam { try_val } => format!("catchparam {}", val(*try_val)),
+        SsaOp::CloseUpvalues { vars } => format!("closeupvalues {:?}", vars),
+        SsaOp::LoadModule { source } => format!("loadmodule {source}"),
+        SsaOp::StoreModuleSlot { value, slot } => {
             format!("storemoduleslot {slot} = {}", val(*value))
         }
-        InstKind::Await { operand } => format!("await {}", val(*operand)),
-        InstKind::Spawn { operand } => format!("spawn {}", val(*operand)),
-        InstKind::Yield { operand } => format!("yield {}", val(*operand)),
+        SsaOp::Await { operand } => format!("await {}", val(*operand)),
+        SsaOp::Spawn { operand } => format!("spawn {}", val(*operand)),
+        SsaOp::Yield { operand } => format!("yield {}", val(*operand)),
     }
 }

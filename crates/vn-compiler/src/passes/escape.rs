@@ -1,6 +1,7 @@
 use rustc_hash::{FxHashMap, FxHashSet};
+use vn_types::ssa::SsaOp;
 
-use crate::ssa::ir::{InstKind, SsaFunc, Terminator, Value};
+use crate::ssa::ir::{SsaFunc, Terminator, Value};
 use crate::ssa::verify::inst_uses;
 
 struct Site {
@@ -17,7 +18,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
         let mut read_here: FxHashSet<u32> = FxHashSet::default();
         for inst in &block.insts {
             match (&inst.kind, inst.dest) {
-                (InstKind::AllocInstance { .. }, Some(d)) => {
+                (SsaOp::AllocInstance { .. }, Some(d)) => {
                     sites.insert(
                         d.0,
                         Site {
@@ -28,7 +29,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     continue;
                 }
                 (
-                    InstKind::SetFixedField {
+                    SsaOp::SetFixedField {
                         object,
                         value,
                         slot,
@@ -45,7 +46,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
                     }
                     continue;
                 }
-                (InstKind::GetFixedField { object, slot, .. }, Some(d))
+                (SsaOp::GetFixedField { object, slot, .. }, Some(d))
                     if sites.contains_key(&object.0) =>
                 {
                     read_here.insert(object.0);
@@ -113,9 +114,10 @@ pub fn run(func: &mut SsaFunc) -> bool {
     }
     for block in &mut func.blocks {
         block.insts.retain(|inst| match (&inst.kind, inst.dest) {
-            (InstKind::AllocInstance { .. }, Some(d)) => !sites.contains_key(&d.0),
-            (InstKind::SetFixedField { object, .. }, _)
-            | (InstKind::GetFixedField { object, .. }, _) => !sites.contains_key(&object.0),
+            (SsaOp::AllocInstance { .. }, Some(d)) => !sites.contains_key(&d.0),
+            (SsaOp::SetFixedField { object, .. }, _) | (SsaOp::GetFixedField { object, .. }, _) => {
+                !sites.contains_key(&object.0)
+            }
             _ => true,
         });
     }

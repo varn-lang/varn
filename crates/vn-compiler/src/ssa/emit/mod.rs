@@ -1,4 +1,4 @@
-use super::ir::{BlockId, Inst, InstKind, SsaFunc, Terminator};
+use super::ir::{BlockId, Inst, SsaFunc, Terminator};
 use crate::OptError;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -6,6 +6,7 @@ use std::sync::Arc;
 use vn_core::OpCode;
 use vn_tir::BackendTy;
 use vn_types::chunk::{Chunk, FeedbackVector, FunctionProto, PolyICSlot};
+use vn_types::ssa::SsaOp;
 
 mod effects;
 mod immediates;
@@ -287,7 +288,7 @@ fn emit_inst(
     closure_const: &mut Option<u16>,
     scope: &crate::from_tir::compile::ModuleScope,
 ) -> Result<()> {
-    if let (Some(d), InstKind::ConstInt(_)) = (inst.dest, &inst.kind)
+    if let (Some(d), SsaOp::ConstInt(_)) = (inst.dest, &inst.kind)
         && imms.is_elided(d)
     {
         return Ok(());

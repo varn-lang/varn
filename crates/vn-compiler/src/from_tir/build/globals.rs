@@ -1,7 +1,8 @@
 use super::context::Builder;
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use std::sync::Arc;
 use vn_tir::BackendTy;
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn gname(&self, name: &str) -> Arc<str> {
@@ -20,20 +21,20 @@ impl<'m> Builder<'m> {
             .map(|i| i as u32)
     }
 
-    pub(super) fn global_load(&self, bare: &str) -> InstKind {
+    pub(super) fn global_load(&self, bare: &str) -> SsaOp {
         match self.gslot(bare) {
-            Some(slot) => InstKind::LoadGlobalIdx(slot),
+            Some(slot) => SsaOp::LoadGlobalIdx(slot),
             None => match vn_core::abi::native_global_index(bare) {
-                Some(native) => InstKind::LoadNativeGlobalIdx(native),
-                None => InstKind::LoadGlobal(self.gname(bare)),
+                Some(native) => SsaOp::LoadNativeGlobalIdx(native),
+                None => SsaOp::LoadGlobal(self.gname(bare)),
             },
         }
     }
 
-    pub(super) fn global_store(&self, bare: &str, value: Value) -> InstKind {
+    pub(super) fn global_store(&self, bare: &str, value: Value) -> SsaOp {
         match self.gslot(bare) {
-            Some(slot) => InstKind::StoreGlobalIdx { slot, value },
-            None => InstKind::StoreGlobal {
+            Some(slot) => SsaOp::StoreGlobalIdx { slot, value },
+            None => SsaOp::StoreGlobal {
                 name: self.gname(bare),
                 value,
             },
@@ -46,7 +47,7 @@ impl<'m> Builder<'m> {
         if from == target || (from.is_boxed() && target.is_boxed()) {
             v
         } else {
-            self.emit(InstKind::Cast { operand: v }, target)
+            self.emit(SsaOp::Cast { operand: v }, target)
         }
     }
 }

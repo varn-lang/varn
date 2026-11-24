@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use std::sync::Arc;
 use vn_tir::TirClassDef;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn build_class_def(&mut self, def: &TirClassDef) -> Result<()> {
@@ -15,7 +16,7 @@ impl<'m> Builder<'m> {
             None => None,
         };
         let mut class_v = self.emit(
-            InstKind::MakeClass {
+            SsaOp::MakeClass {
                 name: def.name.clone(),
                 super_class: super_v,
             },
@@ -25,7 +26,7 @@ impl<'m> Builder<'m> {
         let enum_info = def.enum_id.and_then(|id| self.tir.enum_info(id));
         for v in &def.variants {
             let variant_v = self.emit(
-                InstKind::MakeEnumVariant {
+                SsaOp::MakeEnumVariant {
                     def: Arc::new(vn_types::value::VariantDef {
                         enum_name: def.name.clone(),
                         variant_name: v.name.clone(),
@@ -35,7 +36,7 @@ impl<'m> Builder<'m> {
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );
-            self.emit_effect(InstKind::DefineMember {
+            self.emit_effect(SsaOp::DefineMember {
                 class: class_v,
                 name: v.name.clone(),
                 member: variant_v,
@@ -45,7 +46,7 @@ impl<'m> Builder<'m> {
                 .and_then(|ei| ei.variant_global(&v.name))
                 .and_then(|global| self.gslot(&global))
             {
-                self.emit_effect(InstKind::StoreGlobalIdx {
+                self.emit_effect(SsaOp::StoreGlobalIdx {
                     slot,
                     value: variant_v,
                 });
@@ -53,15 +54,15 @@ impl<'m> Builder<'m> {
         }
 
         if let Some(ci) = def.class_id.and_then(|cid| self.tir.class(cid)) {
-            self.emit_effect(InstKind::DeclareLayout {
+            self.emit_effect(SsaOp::DeclareLayout {
                 class: class_v,
                 layout: Arc::new(ci.layout.clone()),
             });
         }
 
         for (sname, _) in &def.statics {
-            let reserved = self.emit(InstKind::ConstNull, BackendTy::Dynamic(DynReason::Runtime));
-            self.emit_effect(InstKind::DefineMember {
+            let reserved = self.emit(SsaOp::ConstNull, BackendTy::Dynamic(DynReason::Runtime));
+            self.emit_effect(SsaOp::DefineMember {
                 class: class_v,
                 name: sname.clone(),
                 member: reserved,
@@ -83,7 +84,7 @@ impl<'m> Builder<'m> {
                 continue;
             };
             let value = self.lower_expr(e)?;
-            self.emit_effect(InstKind::SetProperty {
+            self.emit_effect(SsaOp::SetProperty {
                 object: defined,
                 name: sname.clone(),
                 value,
@@ -92,14 +93,14 @@ impl<'m> Builder<'m> {
 
         for blk in &def.static_blocks {
             let fv = self.emit(
-                InstKind::MakeClosure {
+                SsaOp::MakeClosure {
                     func: blk.0,
                     upvalues: vec![],
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );
             self.emit(
-                InstKind::Call {
+                SsaOp::Call {
                     callee: fv,
                     args: vec![],
                     shape: None,
@@ -113,7 +114,7 @@ impl<'m> Builder<'m> {
                 continue;
             }
             let recv = self.emit(
-                InstKind::GetProperty {
+                SsaOp::GetProperty {
                     object: class_v,
                     name: v.name.clone(),
                 },
@@ -124,7 +125,7 @@ impl<'m> Builder<'m> {
                 args.push(self.lower_expr(a)?);
             }
             self.emit(
-                InstKind::MethodCall {
+                SsaOp::MethodCall {
                     recv,
                     name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
                     args,
@@ -133,7 +134,7 @@ impl<'m> Builder<'m> {
             );
         }
 
-        self.emit_effect(InstKind::FreezeClass { class: defined });
+        self.emit_effect(SsaOp::FreezeClass { class: defined });
 
         Ok(())
     }

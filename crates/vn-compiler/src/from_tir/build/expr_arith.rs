@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use vn_core::BinOp;
 use vn_tir::{BackendTy, DynReason};
 use vn_tir::{TirExpr, TirUnOp};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_binary(
@@ -45,7 +46,7 @@ impl<'m> Builder<'m> {
         let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(r));
         let sel = vn_types::ssa::select_bin(op, ty_slot, lhs_slot, rhs_slot);
         let result = self.emit(
-            InstKind::Binary {
+            SsaOp::Binary {
                 op: sel,
                 lhs: l,
                 rhs: r,
@@ -61,7 +62,7 @@ impl<'m> Builder<'m> {
 
     fn u64_convert(&mut self, v: Value, conv: vn_core::ValueConv) -> Value {
         let ty = crate::ssa::verify::convert_result_ty(conv);
-        self.emit(InstKind::Convert { operand: v, conv }, ty)
+        self.emit(SsaOp::Convert { operand: v, conv }, ty)
     }
 
     fn u64_binary(&mut self, op: BinOp, l: Value, r: Value, ty: BackendTy) -> Value {
@@ -70,7 +71,7 @@ impl<'m> Builder<'m> {
         let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(r));
         let sel = vn_types::ssa::select_bin(op, ty_slot, lhs_slot, rhs_slot);
         self.emit(
-            InstKind::Binary {
+            SsaOp::Binary {
                 op: sel,
                 lhs: l,
                 rhs: r,
@@ -97,7 +98,7 @@ impl<'m> Builder<'m> {
                     self.u64_convert(l, C::U64ToBigInt),
                     self.u64_convert(r, C::U64ToBigInt),
                 );
-                let two = self.emit(InstKind::ConstBigInt(std::sync::Arc::from("2")), boxed);
+                let two = self.emit(SsaOp::ConstBigInt(std::sync::Arc::from("2")), boxed);
                 let scale = self.u64_binary(BinOp::Pow, two, rb, boxed);
                 let product = self.u64_binary(BinOp::Mul, lb, scale, boxed);
                 self.narrow_to(product, ty)
@@ -112,7 +113,7 @@ impl<'m> Builder<'m> {
                 let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(rb));
                 let sel = vn_types::ssa::select_bin(op, ty_slot, lhs_slot, rhs_slot);
                 self.emit(
-                    InstKind::Binary {
+                    SsaOp::Binary {
                         op: sel,
                         lhs: lb,
                         rhs: rb,
@@ -142,8 +143,8 @@ impl<'m> Builder<'m> {
             return v;
         };
         match vn_core::ValueConv::narrow(kind) {
-            Some(conv) => self.emit(InstKind::Convert { operand: v, conv }, ty),
-            None if self.value_ty(v) != ty => self.emit(InstKind::Cast { operand: v }, ty),
+            Some(conv) => self.emit(SsaOp::Convert { operand: v, conv }, ty),
+            None if self.value_ty(v) != ty => self.emit(SsaOp::Cast { operand: v }, ty),
             None => v,
         }
     }
@@ -158,7 +159,7 @@ impl<'m> Builder<'m> {
         match op {
             TirUnOp::IsNull => match self.value_ty(v) {
                 BackendTy::Literal(_) | BackendTy::Num(_) | BackendTy::Bool => {
-                    Ok(self.emit(InstKind::ConstBool(false), BackendTy::Bool))
+                    Ok(self.emit(SsaOp::ConstBool(false), BackendTy::Bool))
                 }
                 BackendTy::Str
                 | BackendTy::Char
@@ -176,14 +177,14 @@ impl<'m> Builder<'m> {
                 | BackendTy::Tuple(_)
                 | BackendTy::Class(_)
                 | BackendTy::Nullable(_) => {
-                    Ok(self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool))
+                    Ok(self.emit(SsaOp::IsNull { operand: v }, BackendTy::Bool))
                 }
             },
             TirUnOp::Present => {
-                self.emit_effect(InstKind::AssertNotNull { operand: v });
+                self.emit_effect(SsaOp::AssertNotNull { operand: v });
                 Ok(v)
             }
-            TirUnOp::ToStr => Ok(self.emit(InstKind::ToString { operand: v }, BackendTy::Str)),
+            TirUnOp::ToStr => Ok(self.emit(SsaOp::ToString { operand: v }, BackendTy::Str)),
             TirUnOp::Scalar(vn_core::UnOp::BitNot)
                 if ty == BackendTy::Num(vn_core::NumKind::Int(vn_core::IntKind::U64)) =>
             {
@@ -194,7 +195,7 @@ impl<'m> Builder<'m> {
                         crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
                     })?;
                 let inverted = self.emit(
-                    InstKind::Unary {
+                    SsaOp::Unary {
                         op: sel,
                         operand: bits,
                     },
@@ -207,13 +208,13 @@ impl<'m> Builder<'m> {
                 let BackendTy::Num(vn_core::NumKind::Int(kind)) = ty else {
                     return Ok(v);
                 };
-                let mask = self.emit(InstKind::ConstInt(kind.max() as i64), ty);
+                let mask = self.emit(SsaOp::ConstInt(kind.max() as i64), ty);
                 let ty_slot = crate::ssa::emit::slot_kind_of(ty);
                 let lhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(v));
                 let rhs_slot = crate::ssa::emit::slot_kind_of(self.value_ty(mask));
                 let sel = vn_types::ssa::select_bin(BinOp::BitXor, ty_slot, lhs_slot, rhs_slot);
                 Ok(self.emit(
-                    InstKind::Binary {
+                    SsaOp::Binary {
                         op: sel,
                         lhs: v,
                         rhs: mask,
@@ -223,14 +224,14 @@ impl<'m> Builder<'m> {
             }
             TirUnOp::Scalar(op) => {
                 if op == vn_core::UnOp::KindOf {
-                    return Ok(self.emit(InstKind::KindOf { operand: v }, BackendTy::Str));
+                    return Ok(self.emit(SsaOp::KindOf { operand: v }, BackendTy::Str));
                 }
                 let slot = crate::ssa::emit::slot_kind_of(self.value_ty(v));
                 let sel = vn_types::ssa::select_un(op, slot).ok_or_else(|| {
                     crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
                 })?;
                 let result = self.emit(
-                    InstKind::Unary {
+                    SsaOp::Unary {
                         op: sel,
                         operand: v,
                     },
@@ -257,7 +258,7 @@ impl<'m> Builder<'m> {
             | BackendTy::Map(..)
             | BackendTy::Set(_)
             | BackendTy::Tuple(_)
-            | BackendTy::Class(_) => Some(self.emit(InstKind::ConstBool(true), BackendTy::Bool)),
+            | BackendTy::Class(_) => Some(self.emit(SsaOp::ConstBool(true), BackendTy::Bool)),
             BackendTy::Nullable(inner) => match self.tir.types.get(inner) {
                 BackendTy::Literal(_) => None,
                 BackendTy::Num(_)
@@ -267,11 +268,11 @@ impl<'m> Builder<'m> {
                 | BackendTy::Set(_)
                 | BackendTy::Tuple(_)
                 | BackendTy::Class(_) => {
-                    let absent = self.emit(InstKind::IsNull { operand: v }, BackendTy::Bool);
+                    let absent = self.emit(SsaOp::IsNull { operand: v }, BackendTy::Bool);
                     let slot = crate::ssa::emit::slot_kind_of(self.value_ty(absent));
                     let sel = vn_types::ssa::select_un(vn_core::UnOp::Not, slot)?;
                     Some(self.emit(
-                        InstKind::Unary {
+                        SsaOp::Unary {
                             op: sel,
                             operand: absent,
                         },
@@ -320,7 +321,7 @@ impl<'m> Builder<'m> {
                     crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
                 })?;
             let absent = self.emit(
-                InstKind::Unary {
+                SsaOp::Unary {
                     op: absent_sel,
                     operand: v,
                 },
@@ -332,7 +333,7 @@ impl<'m> Builder<'m> {
                     crate::OptError::Internal("from_tir: unsupported unary op".to_owned())
                 })?;
             return Ok(self.emit(
-                InstKind::Unary {
+                SsaOp::Unary {
                     op: double_sel,
                     operand: absent,
                 },
@@ -390,9 +391,9 @@ impl<'m> Builder<'m> {
         };
         if let Some(conv) = conv {
             let result_ty = crate::ssa::verify::convert_result_ty(conv);
-            let converted = self.emit(InstKind::Convert { operand: v, conv }, result_ty);
+            let converted = self.emit(SsaOp::Convert { operand: v, conv }, result_ty);
             return Ok(self.narrow_to(converted, node_ty));
         }
-        Ok(self.emit(InstKind::Cast { operand: v }, ty))
+        Ok(self.emit(SsaOp::Cast { operand: v }, ty))
     }
 }

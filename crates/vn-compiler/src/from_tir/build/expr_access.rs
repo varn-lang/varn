@@ -1,8 +1,9 @@
 use super::context::{Builder, Result};
-use crate::ssa::ir::{InstKind, Value};
+use crate::ssa::ir::Value;
 use crate::OptError;
 use vn_tir::BackendTy;
 use vn_tir::{Resolution, TirExpr};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn lower_field(
@@ -18,18 +19,18 @@ impl<'m> Builder<'m> {
         let obj = self.lower_expr(object)?;
         let kind = match res {
             Resolution::FieldSlot(slot) => match self.compact_field(object.ty, *slot) {
-                Some((offset, kind)) => InstKind::GetFixedField {
+                Some((offset, kind)) => SsaOp::GetFixedField {
                     object: obj,
                     slot: *slot,
                     offset,
                     access: vn_core::FieldAccess::Compact(kind),
                 },
-                None => InstKind::GetProperty {
+                None => SsaOp::GetProperty {
                     object: obj,
                     name: name.clone(),
                 },
             },
-            Resolution::StaticField(slot) => InstKind::GetFixedField {
+            Resolution::StaticField(slot) => SsaOp::GetFixedField {
                 object: obj,
                 slot: *slot,
                 offset: 0,
@@ -48,7 +49,7 @@ impl<'m> Builder<'m> {
             | Resolution::NativeOp(_)
             | Resolution::NativeDecode { .. }
             | Resolution::EnumVariant { .. }
-            | Resolution::ByName { .. } => InstKind::GetProperty {
+            | Resolution::ByName { .. } => SsaOp::GetProperty {
                 object: obj,
                 name: name.clone(),
             },
@@ -69,7 +70,7 @@ impl<'m> Builder<'m> {
             .and_then(|variant| info.variant_global(&variant.name))
             .ok_or_else(unsupported)?;
         let slot = self.gslot(&global).ok_or_else(unsupported)?;
-        Ok(self.emit(InstKind::LoadGlobalIdx(slot), ty))
+        Ok(self.emit(SsaOp::LoadGlobalIdx(slot), ty))
     }
 
     pub(super) fn lower_length(&mut self, operand: &TirExpr, ty: BackendTy) -> Result<Value> {
@@ -78,7 +79,7 @@ impl<'m> Builder<'m> {
             operand.ty.non_nullable(&self.tir.types),
             vn_tir::BackendTy::Bytes
         ) {
-            return Ok(self.emit(InstKind::BytesLength { operand: obj }, ty));
+            return Ok(self.emit(SsaOp::BytesLength { operand: obj }, ty));
         }
         let value_ty = self.value_ty(obj);
         let inner = if let BackendTy::Nullable(id) = value_ty {
@@ -87,11 +88,9 @@ impl<'m> Builder<'m> {
             value_ty
         };
         let kind = match inner {
-            BackendTy::Literal(vn_core::TypeLiteral::Str(_)) => {
-                InstKind::StrLength { operand: obj }
-            }
-            BackendTy::Str => InstKind::StrLength { operand: obj },
-            BackendTy::Array(_) | BackendTy::Tuple(_) => InstKind::ArrayLength { operand: obj },
+            BackendTy::Literal(vn_core::TypeLiteral::Str(_)) => SsaOp::StrLength { operand: obj },
+            BackendTy::Str => SsaOp::StrLength { operand: obj },
+            BackendTy::Array(_) | BackendTy::Tuple(_) => SsaOp::ArrayLength { operand: obj },
             BackendTy::Literal(
                 vn_core::TypeLiteral::Int(_)
                 | vn_core::TypeLiteral::Bool(_)
@@ -111,7 +110,7 @@ impl<'m> Builder<'m> {
             | BackendTy::Map(..)
             | BackendTy::Set(_)
             | BackendTy::Class(_)
-            | BackendTy::Nullable(_) => InstKind::GetProperty {
+            | BackendTy::Nullable(_) => SsaOp::GetProperty {
                 object: obj,
                 name: std::sync::Arc::from(vn_core::MemberKey::Length.name()),
             },
@@ -128,7 +127,7 @@ impl<'m> Builder<'m> {
         let obj = self.lower_expr(object)?;
         let idx = self.lower_expr(index)?;
         let kind = if self.value_ty(obj) == BackendTy::Str && self.value_ty(idx) == BackendTy::INT {
-            InstKind::CallNativeOp {
+            SsaOp::CallNativeOp {
                 object: obj,
                 args: vec![idx],
                 op_id: vn_core::runtime_ops::RuntimeOp::StrIndex.id(),
@@ -136,7 +135,7 @@ impl<'m> Builder<'m> {
         } else if matches!(object.ty, vn_tir::BackendTy::Bytes)
             && matches!(self.value_ty(idx), BackendTy::INT | BackendTy::Dynamic(_))
         {
-            InstKind::BytesGetIndex {
+            SsaOp::BytesGetIndex {
                 object: obj,
                 index: idx,
             }
@@ -144,12 +143,12 @@ impl<'m> Builder<'m> {
             self.value_ty(obj),
             BackendTy::Array(_) | BackendTy::Tuple(_)
         ) {
-            InstKind::ArrayGetIndex {
+            SsaOp::ArrayGetIndex {
                 object: obj,
                 index: idx,
             }
         } else {
-            InstKind::GetIndex {
+            SsaOp::GetIndex {
                 object: obj,
                 index: idx,
             }

@@ -1,7 +1,7 @@
-use crate::ssa::ir::InstKind;
+use vn_types::ssa::SsaOp;
 
-pub(crate) fn dest_droppable(kind: &InstKind) -> bool {
-    use InstKind::*;
+pub(crate) fn dest_droppable(kind: &SsaOp) -> bool {
+    use SsaOp::*;
     matches!(
         kind,
         SelfCall { .. }
@@ -13,8 +13,8 @@ pub(crate) fn dest_droppable(kind: &InstKind) -> bool {
     )
 }
 
-pub(crate) fn is_pure(kind: &InstKind) -> bool {
-    use InstKind::*;
+pub(crate) fn is_pure(kind: &SsaOp) -> bool {
+    use SsaOp::*;
     match kind {
         ConstInt(_)
         | ConstFloat(_)

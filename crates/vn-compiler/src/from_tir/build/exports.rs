@@ -1,7 +1,8 @@
 use super::context::Builder;
-use crate::ssa::ir::{InstKind, Terminator, Value};
+use crate::ssa::ir::{Terminator, Value};
 use std::sync::Arc;
 use vn_tir::{BackendTy, DynReason};
+use vn_types::ssa::SsaOp;
 
 impl<'m> Builder<'m> {
     pub(super) fn build_exports(&mut self, export_slots: &[Arc<str>]) {
@@ -17,7 +18,7 @@ impl<'m> Builder<'m> {
                 ),
                 Some(src) => {
                     let m = self.emit(
-                        InstKind::LoadModule {
+                        SsaOp::LoadModule {
                             source: src.clone(),
                         },
                         BackendTy::Dynamic(DynReason::Runtime),
@@ -26,7 +27,7 @@ impl<'m> Builder<'m> {
                         m
                     } else {
                         self.emit(
-                            InstKind::GetProperty {
+                            SsaOp::GetProperty {
                                 object: m,
                                 name: exp.local.clone(),
                             },
@@ -35,7 +36,7 @@ impl<'m> Builder<'m> {
                     }
                 }
             };
-            self.emit_effect(InstKind::StoreModuleSlot {
+            self.emit_effect(SsaOp::StoreModuleSlot {
                 value,
                 slot: slot as u16,
             });
@@ -48,7 +49,7 @@ impl<'m> Builder<'m> {
                 continue;
             }
             let mod_v = self.emit(
-                InstKind::LoadModule {
+                SsaOp::LoadModule {
                     source: imp.source.clone(),
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
@@ -60,7 +61,7 @@ impl<'m> Builder<'m> {
                 };
                 let val = match (imported_name, spec.slot) {
                     (Some(_), Some(slot)) => self.emit(
-                        InstKind::ModuleSlot {
+                        SsaOp::ModuleSlot {
                             object: mod_v,
                             slot,
                         },
@@ -76,7 +77,7 @@ impl<'m> Builder<'m> {
                             vn_tir::TirImportKind::Named(n) => n.clone(),
                         };
                         self.emit(
-                            InstKind::GetProperty {
+                            SsaOp::GetProperty {
                                 object: mod_v,
                                 name,
                             },
@@ -95,7 +96,7 @@ impl<'m> Builder<'m> {
         if variants.is_empty() {
             return;
         }
-        let absent = self.emit(InstKind::IsNull { operand: enum_v }, BackendTy::Bool);
+        let absent = self.emit(SsaOp::IsNull { operand: enum_v }, BackendTy::Bool);
         let bind_blk = self.new_block();
         let join_blk = self.new_block();
         let from = self.current;
@@ -111,7 +112,7 @@ impl<'m> Builder<'m> {
         self.current = bind_blk;
         for variant in variants {
             let value = self.emit(
-                InstKind::GetFixedField {
+                SsaOp::GetFixedField {
                     object: enum_v,
                     slot: variant.slot,
                     offset: 0,
@@ -119,7 +120,7 @@ impl<'m> Builder<'m> {
                 },
                 BackendTy::Dynamic(DynReason::Runtime),
             );
-            self.emit_effect(InstKind::StoreGlobalIdx {
+            self.emit_effect(SsaOp::StoreGlobalIdx {
                 slot: variant.global,
                 value,
             });
