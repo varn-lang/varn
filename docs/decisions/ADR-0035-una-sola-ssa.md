@@ -86,21 +86,29 @@ Orden de trabajo hecho: F5, F1b y limpieza previa de F3, de menor a mayor alcanc
 - [x] F5: operador tipado en `vn-types`; se borran `portable/ops.rs` y `lower`.
 - [x] F1b: `ValueId`/`BlockId` compartidos (62 ficheros entre `vn-types`,
   compilador y JIT).
-- F3 restante: fundir `InstKind` y `SsaOp` (unas 2700 referencias en el
-  compilador). Tras la limpieza previa, resueltas:
+- F3 restante: fundir `InstKind` y `SsaOp` en un unico `Op` generico por nivel.
+  Limpieza previa hecha (cada paso con puerta `-Min` en verde):
   - `CloseUpvalues`: `vars` en ambos (957481c8).
   - `MapGetIndex`/`MapSetIndex`: borrados, `GetIndex`/`SetIndex` para mapas
-    (8715602b).
+    (8715602b; se borra `emit_map_get_index`, que emitia un RRR sin opcode).
   - `KindOf`: variante propia en ambos (ade6cefc).
   - `ArrayExtend`, `BindMethod`, `WrapSpread`: borrados de `SsaOp`, nunca
     construidos (3f5c3236).
-  Quedan, medidas tras la limpieza:
-  - `Binary`/`Unary`: `vn_core::BinOp`/`UnOp` + `BackendTy` frente a
-    `SsaBinOp`/`SsaUnOp` (seleccion ya compartida por F5; falta guardar el
-    elegido en `from_tir`).
-  - `MakeClosure`: `func` + `Vec<vn_tir::TirUpvalue>` frente a `proto` (constante
-    del chunk) + `Vec<SsaUpvalue>`.
-  - `CallDirect`: el compilador lleva ademas `shape` (a `call_sites`).
+  - `Binary`/`Unary`: guardan el `SsaBinOp`/`SsaUnOp` ya elegido en `from_tir`;
+    emision mapea con `opcode_of_bin` y la proyeccion copia (c0f932d5; pureza
+    de `NegInt` a impura para no eliminar su trampa).
+  - `MakeClosure`: `SsaUpvalue` en ambos (af326aa8).
+  - `Call`/`CallDirect`: `shape` en ambos (639f0dec; la tabla `call_sites` se
+    mantiene para el JIT).
+  - `DefineMember` (`member`), `GetFixedField` (`access`), `SetFixedField`
+    (`kind`): nombres unificados; `Cast` pierde `ty` (e14e6cf1).
+  Tras esto ambos enums tienen 88 variantes. Quedan, para el `Op` generico:
+  - `MakeClosure`: `func` (id TIR, disponible al construir) frente a `proto`
+    (indice de constante, disponible tras emitir) como anotacion de backend.
+  - `Try`: `handler` + `dest` frente a `catch_value` sin `dest` + `resume`.
+  El `Op` pasa a ser `vn_types::ssa::Op<V, L>` con esas cargas en tipos
+  asociados al nivel; los pases hacen match sobre el; se borran `uses.rs` del
+  compilador y `ssa/portable/`.
 - Medir `vn bench` sobre `tests/benchmarks/vn` contra el binario previo para F4b y
   F4c, que pasaron la matriz completa sin esa medicion, y para F5, F1b y la
   limpieza de F3.
