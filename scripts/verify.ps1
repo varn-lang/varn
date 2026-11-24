@@ -9,12 +9,13 @@
     3. Auditoría de gobernanza de tamaño de archivos
     4. Compilación del binario de producción (cargo build --release --bin vn,
        con sccache automático si está instalado)
-    5. Suite tests/main.vn: el camino de producción (@embedded + JIT) con -Fast,
-       la matriz completa sin banderas (Q1-Q4 + estrés del GC en paralelo con
-       Start-Job, cada uno con su propio VN_HOME/VN_CACHE_DIR y directorio de
-       trabajo para evitar contención en caché y en los archivos temp_*.txt
-       de la suite), más el cuadrante 5 que verifica la caché JIT tibia de Q1
-       byte a byte (VN_JIT_CACHE=verify)
+    5. Suite de integracion con `vn test "tests/*.test.vn"`: el camino de
+       produccion (@embedded + JIT) con -Fast, la matriz completa sin
+       banderas (Q1-Q4 + estres del GC en paralelo con Start-Job, cada uno
+       con su propio VN_HOME/VN_CACHE_DIR; cada test corre ademas aislado
+       en su propio directorio temporal via sandbox fs, asi que el orden
+       de ejecucion no importa), mas el cuadrante 5 que verifica la cache
+       JIT tibia de Q1 byte a byte (VN_JIT_CACHE=verify)
     6. Benchmark de estabilidad (opcional con -Fast)
 
 .PARAMETER Fast
@@ -40,7 +41,7 @@
 .PARAMETER Min
     Ejecucion minima: perfil `quick`, sin lint, sin auditoria de tamano, sin
     goldens (debug goldens siguen huerfanos), y solo el cuadrante 1
-    (tests/main.vn con dev-checkout + JIT). Implica -Quick.
+    (`vn test "tests/*.test.vn"` con dev-checkout + JIT). Implica -Quick.
     El corpus tests/errors SI corre en -Min: es estatico y barato.
     Es lo mas barato que sigue ejecutando la suite de integracion.
 
@@ -336,7 +337,8 @@ function Run-Quadrant($name, $envVars, $argsList) {
     }
 }
 
-$VnTestFile = Join-Path $RootDir "tests\main.vn"
+$VnTestCmd = "test"
+$VnTestPattern = Join-Path $RootDir "tests\*.test.vn"
 
 function Get-MaxParallelism($count) {
     if ($NoParallel) { return 1 }
@@ -347,9 +349,10 @@ function Get-MaxParallelism($count) {
 }
 
 # Ejecuta los cuadrantes en paralelo con Start-Job. Cada trabajo recibe su
-# propio VN_HOME/VN_CACHE_DIR y su propio directorio de trabajo: sin eso los
-# trabajos contendrían en la caché en disco y en los temp_*.txt que la suite
-# escribe en el CWD. Devuelve @{ Failed = @(...); ScratchUsed = $bool }.
+# propio VN_HOME/VN_CACHE_DIR para no contener en la cache en disco; los
+# archivos temporales que escribe cada test ya van aislados por la sandbox
+# de `vn test`, asi que el CWD del trabajo no necesita aislarse por test.
+# Devuelve @{ Failed = @(...); ScratchUsed = $bool }.
 # Con -NoParallel o -Jobs 1 cae al camino en serie anterior.
 function Run-QuadrantsParallel($specs, $scratchRoot) {
     $failedNames = @()
@@ -364,7 +367,7 @@ function Run-QuadrantsParallel($specs, $scratchRoot) {
     New-Item -ItemType Directory -Force -Path $scratchRoot | Out-Null
 
     $worker = {
-        param($vnBin, $testFile, $envList, $workDir, $homeDir, $cacheDir)
+        param($vnBin, $testCmd, $testPattern, $envList, $workDir, $homeDir, $cacheDir)
         $envVars = @{}
         foreach ($kv in $envList) {
             $eq = $kv.IndexOf("=")
@@ -383,7 +386,7 @@ function Run-QuadrantsParallel($specs, $scratchRoot) {
         New-Item -ItemType Directory -Force -Path $workDir | Out-Null
         New-Item -ItemType Directory -Force -Path $cacheDir | Out-Null
         Set-Location $workDir
-        $out = & $vnBin run $testFile 2>&1 | Out-String
+        $out = & $vnBin $testCmd $testPattern 2>&1 | Out-String
         [PSCustomObject]@{ ExitCode = $LASTEXITCODE; Output = $out }
     }
 
@@ -399,7 +402,7 @@ function Run-QuadrantsParallel($specs, $scratchRoot) {
             $workDir = Join-Path $scratchRoot "q$tag-work"
             $homeDir = Join-Path $scratchRoot "q$tag-home"
             $cacheDir = Join-Path $homeDir "cache"
-            $job = Start-Job -ScriptBlock $worker -ArgumentList @($vnBin, $VnTestFile, $envList, $workDir, $homeDir, $cacheDir) -Name "verify-q$tag"
+            $job = Start-Job -ScriptBlock $worker -ArgumentList @($vnBin, $VnTestCmd, $VnTestPattern, $envList, $workDir, $homeDir, $cacheDir) -Name "verify-q$tag"
             $batch += [PSCustomObject]@{ Job = $job; Spec = $s; Tag = $tag }
             Write-Host "  [job $($job.Id)] $($s.Name)" -ForegroundColor DarkCyan
         }
@@ -434,27 +437,27 @@ function Run-QuadrantsParallel($specs, $scratchRoot) {
 
 # 5. Suite de integracion
 if ($Fast -and -not $Quick) {
-    Write-StepHeader "5/6: Camino de produccion (tests/main.vn con @embedded + JIT)"
-    $q3 = Run-Quadrant "[@embedded std] + [JIT Habilitado]" @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle } @("run", "tests/main.vn")
+    Write-StepHeader "5/6: Camino de produccion (vn test tests/*.test.vn con @embedded + JIT)"
+    $q3 = Run-Quadrant "[@embedded std] + [JIT Habilitado]" @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle } @($VnTestCmd, $VnTestPattern)
     if (-not $q3) { $failedSteps += "Camino de produccion (@embedded + JIT)" }
     Write-WarningMsg "Cuadrantes 1, 2, 4 y 5 los corre el CI; correr sin banderas al tocar JIT, su cache o el cargador de std."
 } else {
-Write-StepHeader "5/6: Matriz Obligatoria de 4 Cuadrantes (tests/main.vn)"
+Write-StepHeader "5/6: Matriz Obligatoria de 4 Cuadrantes (vn test tests/*.test.vn)"
 
 # Q1-Q4 + estres del GC: independientes entre si, corren en paralelo con
 # cachés y CWD aislados. Q5 (verificacion de la caché JIT) corre después,
 # reutilizando la caché tibia de Q1 para que el modo verify compare hits
 # reales en vez de una caché fría.
 $matrixSpecs = @(
-    @{ Name = "1/4: [dev-checkout] + [JIT Habilitado]"; Env = @{}; Args = @("run", $VnTestFile) },
-    @{ Name = "2/4: [dev-checkout] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_NO_JIT" = "1" }; Args = @("run", $VnTestFile) },
-    @{ Name = "3/4: [@embedded std] + [JIT Habilitado]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle }; Args = @("run", $VnTestFile) },
-    @{ Name = "4/4: [@embedded std] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle; "VN_NO_JIT" = "1" }; Args = @("run", $VnTestFile) },
-    @{ Name = "GC: [estres GC 256] + [verificador de invariantes]"; Env = @{ "VN_GC_STRESS" = "256"; "VN_GC_VERIFY" = "1" }; Args = @("run", $VnTestFile) }
+    @{ Name = "1/4: [dev-checkout] + [JIT Habilitado]"; Env = @{}; Args = @($VnTestCmd, $VnTestPattern) },
+    @{ Name = "2/4: [dev-checkout] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_NO_JIT" = "1" }; Args = @($VnTestCmd, $VnTestPattern) },
+    @{ Name = "3/4: [@embedded std] + [JIT Habilitado]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle }; Args = @($VnTestCmd, $VnTestPattern) },
+    @{ Name = "4/4: [@embedded std] + [Interprete Pure (VN_NO_JIT=1)]"; Env = @{ "VN_STD" = "@embedded"; "VN_STD_BUNDLE" = $stdBundle; "VN_NO_JIT" = "1" }; Args = @($VnTestCmd, $VnTestPattern) },
+    @{ Name = "GC: [estres GC 256] + [verificador de invariantes]"; Env = @{ "VN_GC_STRESS" = "256"; "VN_GC_VERIFY" = "1" }; Args = @($VnTestCmd, $VnTestPattern) }
 )
 
 if ($Quick) {
-    $q1 = Run-Quadrant "1/4: [dev-checkout] + [JIT Habilitado]" @{} @("run", "tests/main.vn")
+    $q1 = Run-Quadrant "1/4: [dev-checkout] + [JIT Habilitado]" @{} @($VnTestCmd, $VnTestPattern)
     if (-not $q1) { $failedSteps += "Cuadrante 1 (dev-checkout + JIT)" }
     Write-WarningMsg "Saltando cuadrantes 2-4 (-Quick activo): correr la matriz completa antes de commitear."
 } else {
@@ -469,7 +472,7 @@ if ($Quick) {
     # Q5 debe correr sobre la caché tibia de Q1: nunca limpiarla aquí.
     $cc = $CleanCache
     $CleanCache = $false
-    $q5 = Run-Quadrant "5: [cache JIT] + [VN_JIT_CACHE=verify]" $q5Env @("run", "tests/main.vn")
+    $q5 = Run-Quadrant "5: [cache JIT] + [VN_JIT_CACHE=verify]" $q5Env @($VnTestCmd, $VnTestPattern)
     $CleanCache = $cc
     if (-not $q5) { $failedSteps += "Cuadrante 5 (cache JIT verify)" }
 
@@ -505,7 +508,7 @@ Write-Host "  RESUMEN DE PRE-VERIFICACION LOCAL (Tiempo total: ${elapsed}s)" -Fo
 Write-Host ("=" * 70) -ForegroundColor Cyan
 
 if ($failedSteps.Count -eq 0) {
-    $scope = if ($Min) { "tests/main.vn (cuadrante 1)" } elseif ($Quick) { "el cuadrante 1" } elseif ($Fast) { "el camino de produccion (@embedded + JIT)" } else { "la matriz de 4 cuadrantes" }
+    $scope = if ($Min) { "vn test tests/*.test.vn (cuadrante 1)" } elseif ($Quick) { "el cuadrante 1" } elseif ($Fast) { "el camino de produccion (@embedded + JIT)" } else { "la matriz de 4 cuadrantes" }
     Write-Host "`n [TODO CORRECTO] Todas las verificaciones y $scope pasaron exitosamente." -ForegroundColor Green
     Write-Host " El codigo esta listo para produccion y es seguro hacer commit / push.`n" -ForegroundColor Green
     exit 0
