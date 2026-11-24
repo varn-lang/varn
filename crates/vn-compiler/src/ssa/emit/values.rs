@@ -148,23 +148,23 @@ pub(super) fn emit_value(
         InstKind::IntrinsicCall {
             object,
             args,
-            wire_byte,
+            wire,
         } if args.len() == 1
-            && vn_core::intrinsic_ops::math::is_unary_math(*wire_byte)
+            && vn_core::intrinsic_ops::math::is_unary_math(*wire)
             && matches!(
                 value_tys.get(args[0].0 as usize),
                 Some(BackendTy::Num(vn_core::NumKind::Float(_)))
             ) =>
         {
-            calls::emit_intrinsic_direct(chunk, d, args, *wire_byte, reg, line);
+            calls::emit_intrinsic_direct(chunk, d, args, *wire, reg, line);
         }
 
         InstKind::IntrinsicCall {
             object,
             args,
-            wire_byte,
+            wire,
         } => {
-            calls::emit_intrinsic(chunk, d, *object, args, *wire_byte, reg, call_base, line);
+            calls::emit_intrinsic(chunk, d, *object, args, *wire, reg, call_base, line);
         }
 
         InstKind::CallNativeOp {

@@ -161,9 +161,9 @@ pub fn inst_kind(kind: &InstKind) -> String {
         InstKind::IntrinsicCall {
             object,
             args,
-            wire_byte,
+            wire,
         } => {
-            format!("intrinsic#{wire_byte} {}{}", val(*object), args_list(args))
+            format!("intrinsic#{wire} {}{}", val(*object), args_list(args))
         }
         InstKind::CallNativeOp {
             object,

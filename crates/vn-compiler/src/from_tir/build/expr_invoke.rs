@@ -19,7 +19,7 @@ impl<'m> Builder<'m> {
                 InstKind::IntrinsicCall {
                     object,
                     args: argv,
-                    wire_byte: *wire as u8,
+                    wire: *wire as u8,
                 },
                 ty,
             ));

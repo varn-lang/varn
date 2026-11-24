@@ -58,11 +58,11 @@ pub(super) fn try_project(kind: &InstKind, site: &Site, captured: &mut Captured)
         InstKind::IntrinsicCall {
             object,
             args,
-            wire_byte,
+            wire,
         } => Some(SsaOp::IntrinsicCall {
             object: *object,
             args: args.iter().copied().collect(),
-            wire: *wire_byte,
+            wire: *wire,
         }),
         InstKind::SuperCall { args } => Some(SsaOp::SuperCall {
             args: args.iter().copied().collect(),

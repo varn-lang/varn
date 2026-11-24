@@ -271,7 +271,7 @@ pub enum InstKind {
     IntrinsicCall {
         object: Value,
         args: Vec<Value>,
-        wire_byte: u8,
+        wire: u8,
     },
 
     CallNativeOp {
