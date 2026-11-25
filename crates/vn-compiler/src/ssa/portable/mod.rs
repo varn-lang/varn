@@ -96,190 +96,23 @@ pub(crate) fn project(
                     .and_then(|c| c.get(i))
                     .copied()
                     .flatten(),
-                landing: match &inst.kind {
-                    SsaOp::Try { handler } => {
-                        let h = handler.0 as usize;
-                        let off = emitted.block_offset.get(h).copied();
-                        off.and_then(|o| u32::try_from(o).ok())
-                            .map(|o| (o, &lv.live_in[h]))
-                    }
-                    SsaOp::ConstInt(_)
-                    | SsaOp::ConstFloat(_)
-                    | SsaOp::ConstBool(_)
-                    | SsaOp::ConstStr(_)
-                    | SsaOp::ConstChar(_)
-                    | SsaOp::ConstDecimal(_)
-                    | SsaOp::ConstBigInt(_)
-                    | SsaOp::ConstNull
-                    | SsaOp::Binary { .. }
-                    | SsaOp::Unary { .. }
-                    | SsaOp::KindOf { .. }
-                    | SsaOp::LoadGlobal(_)
-                    | SsaOp::LoadGlobalIdx(_)
-                    | SsaOp::LoadNativeGlobalIdx(_)
-                    | SsaOp::LoadUpvalue(_)
-                    | SsaOp::StoreGlobal { .. }
-                    | SsaOp::StoreGlobalIdx { .. }
-                    | SsaOp::StoreUpvalue { .. }
-                    | SsaOp::Call { .. }
-                    | SsaOp::CallDirect { .. }
-                    | SsaOp::AllocInstance { .. }
-                    | SsaOp::SelfCall { .. }
-                    | SsaOp::GetProperty { .. }
-                    | SsaOp::GetSlotMethod { .. }
-                    | SsaOp::GetFixedField { .. }
-                    | SsaOp::GetIndex { .. }
-                    | SsaOp::ArrayGetIndex { .. }
-                    | SsaOp::BytesGetIndex { .. }
-                    | SsaOp::SetProperty { .. }
-                    | SsaOp::SetFixedField { .. }
-                    | SsaOp::SetIndex { .. }
-                    | SsaOp::ArraySetIndex { .. }
-                    | SsaOp::BytesSetIndex { .. }
-                    | SsaOp::ArrayPush { .. }
-                    | SsaOp::ObjectMerge { .. }
-                    | SsaOp::MethodCall { .. }
-                    | SsaOp::InvokeSlot { .. }
-                    | SsaOp::IsNull { .. }
-                    | SsaOp::TypeTest { .. }
-                    | SsaOp::Cast { .. }
-                    | SsaOp::Convert { .. }
-                    | SsaOp::BuildArray { .. }
-                    | SsaOp::BuildTuple { .. }
-                    | SsaOp::BuildObject { .. }
-                    | SsaOp::BuildMap { .. }
-                    | SsaOp::ObjectRest { .. }
-                    | SsaOp::ToString { .. }
-                    | SsaOp::BuildStr { .. }
-                    | SsaOp::MakeClosure { .. }
-                    | SsaOp::LoadCaptured { .. }
-                    | SsaOp::StoreCaptured { .. }
-                    | SsaOp::MakeClass { .. }
-                    | SsaOp::DeclareLayout { .. }
-                    | SsaOp::FreezeClass { .. }
-                    | SsaOp::DefineMember { .. }
-                    | SsaOp::MakeEnumVariant { .. }
-                    | SsaOp::PopTry
-                    | SsaOp::CatchParam { .. }
-                    | SsaOp::CloseUpvalues { .. }
-                    | SsaOp::LoadModule { .. }
-                    | SsaOp::StoreModuleSlot { .. }
-                    | SsaOp::Await { .. }
-                    | SsaOp::Spawn { .. }
-                    | SsaOp::Yield { .. }
-                    | SsaOp::IntrinsicCall { .. }
-                    | SsaOp::CallNativeOp { .. }
-                    | SsaOp::AssertNotNull { .. }
-                    | SsaOp::GetPropertyMaybe { .. }
-                    | SsaOp::ModuleSlot { .. }
-                    | SsaOp::GetEnumTag { .. }
-                    | SsaOp::IsArray { .. }
-                    | SsaOp::StrLength { .. }
-                    | SsaOp::ArrayLength { .. }
-                    | SsaOp::BytesLength { .. }
-                    | SsaOp::This
-                    | SsaOp::Range { .. }
-                    | SsaOp::ObjectKeys { .. }
-                    | SsaOp::GetSuper { .. }
-                    | SsaOp::GetSuperSlot { .. }
-                    | SsaOp::SuperCall { .. }
-                    | SsaOp::SuperMethodCall { .. }
-                    | SsaOp::SuperInvokeSlot { .. }
-                    | SsaOp::ExtensionCall { .. }
-                    | SsaOp::CallSpread { .. }
-                    | SsaOp::BuildArraySpread { .. }
-                    | SsaOp::BuildObjectSpread { .. } => None,
+                landing: if let SsaOp::Try { handler } = &inst.kind {
+                    let h = handler.0 as usize;
+                    let off = emitted.block_offset.get(h).copied();
+                    off.and_then(|o| u32::try_from(o).ok())
+                        .map(|o| (o, &lv.live_in[h]))
+                } else {
+                    None
                 },
                 own_ip: u32::try_from(own).unwrap_or(u32::MAX),
                 next_ip: u32::try_from(next).unwrap_or(u32::MAX),
-                resume_live: match &inst.kind {
-                    SsaOp::LoadModule { .. } | SsaOp::Await { .. } | SsaOp::Yield { .. } => {
-                        crate::ssa::suspend::resume_live(ssa, lv, &handlers, b, i)
-                    }
-                    SsaOp::ConstInt(_)
-                    | SsaOp::ConstFloat(_)
-                    | SsaOp::ConstBool(_)
-                    | SsaOp::ConstStr(_)
-                    | SsaOp::ConstChar(_)
-                    | SsaOp::ConstDecimal(_)
-                    | SsaOp::ConstBigInt(_)
-                    | SsaOp::ConstNull
-                    | SsaOp::Binary { .. }
-                    | SsaOp::Unary { .. }
-                    | SsaOp::KindOf { .. }
-                    | SsaOp::LoadGlobal(_)
-                    | SsaOp::LoadGlobalIdx(_)
-                    | SsaOp::LoadNativeGlobalIdx(_)
-                    | SsaOp::LoadUpvalue(_)
-                    | SsaOp::StoreGlobal { .. }
-                    | SsaOp::StoreGlobalIdx { .. }
-                    | SsaOp::StoreUpvalue { .. }
-                    | SsaOp::Call { .. }
-                    | SsaOp::CallDirect { .. }
-                    | SsaOp::AllocInstance { .. }
-                    | SsaOp::SelfCall { .. }
-                    | SsaOp::GetProperty { .. }
-                    | SsaOp::GetSlotMethod { .. }
-                    | SsaOp::GetFixedField { .. }
-                    | SsaOp::GetIndex { .. }
-                    | SsaOp::ArrayGetIndex { .. }
-                    | SsaOp::BytesGetIndex { .. }
-                    | SsaOp::SetProperty { .. }
-                    | SsaOp::SetFixedField { .. }
-                    | SsaOp::SetIndex { .. }
-                    | SsaOp::ArraySetIndex { .. }
-                    | SsaOp::BytesSetIndex { .. }
-                    | SsaOp::ArrayPush { .. }
-                    | SsaOp::ObjectMerge { .. }
-                    | SsaOp::MethodCall { .. }
-                    | SsaOp::InvokeSlot { .. }
-                    | SsaOp::IsNull { .. }
-                    | SsaOp::TypeTest { .. }
-                    | SsaOp::Cast { .. }
-                    | SsaOp::Convert { .. }
-                    | SsaOp::BuildArray { .. }
-                    | SsaOp::BuildTuple { .. }
-                    | SsaOp::BuildObject { .. }
-                    | SsaOp::BuildMap { .. }
-                    | SsaOp::ObjectRest { .. }
-                    | SsaOp::ToString { .. }
-                    | SsaOp::BuildStr { .. }
-                    | SsaOp::MakeClosure { .. }
-                    | SsaOp::LoadCaptured { .. }
-                    | SsaOp::StoreCaptured { .. }
-                    | SsaOp::MakeClass { .. }
-                    | SsaOp::DeclareLayout { .. }
-                    | SsaOp::FreezeClass { .. }
-                    | SsaOp::DefineMember { .. }
-                    | SsaOp::MakeEnumVariant { .. }
-                    | SsaOp::Try { .. }
-                    | SsaOp::PopTry
-                    | SsaOp::CatchParam { .. }
-                    | SsaOp::CloseUpvalues { .. }
-                    | SsaOp::StoreModuleSlot { .. }
-                    | SsaOp::Spawn { .. }
-                    | SsaOp::IntrinsicCall { .. }
-                    | SsaOp::CallNativeOp { .. }
-                    | SsaOp::AssertNotNull { .. }
-                    | SsaOp::GetPropertyMaybe { .. }
-                    | SsaOp::ModuleSlot { .. }
-                    | SsaOp::GetEnumTag { .. }
-                    | SsaOp::IsArray { .. }
-                    | SsaOp::StrLength { .. }
-                    | SsaOp::ArrayLength { .. }
-                    | SsaOp::BytesLength { .. }
-                    | SsaOp::This
-                    | SsaOp::Range { .. }
-                    | SsaOp::ObjectKeys { .. }
-                    | SsaOp::GetSuper { .. }
-                    | SsaOp::GetSuperSlot { .. }
-                    | SsaOp::SuperCall { .. }
-                    | SsaOp::SuperMethodCall { .. }
-                    | SsaOp::SuperInvokeSlot { .. }
-                    | SsaOp::ExtensionCall { .. }
-                    | SsaOp::CallSpread { .. }
-                    | SsaOp::BuildArraySpread { .. }
-                    | SsaOp::BuildObjectSpread { .. } => Vec::new(),
+                resume_live: if matches!(
+                    &inst.kind,
+                    SsaOp::LoadModule { .. } | SsaOp::Await { .. } | SsaOp::Yield { .. }
+                ) {
+                    crate::ssa::suspend::resume_live(ssa, lv, &handlers, b, i)
+                } else {
+                    Vec::new()
                 },
             };
             let site_ip = site.next_ip;

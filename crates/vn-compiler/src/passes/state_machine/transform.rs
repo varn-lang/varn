@@ -73,103 +73,15 @@ fn compute_preds(func: &mut SsaFunc) {
 fn find_suspend_inst(func: &SsaFunc, operand: Value) -> Option<(BlockId, usize)> {
     for (b_idx, block) in func.blocks.iter().enumerate() {
         for (i_idx, inst) in block.insts.iter().enumerate() {
-            match inst.kind {
-                SsaOp::Await { operand: op } | SsaOp::Yield { operand: op } => {
-                    if op == operand {
-                        return Some((BlockId(b_idx as u32), i_idx));
-                    }
-                }
-                SsaOp::ConstInt(_)
-                | SsaOp::ConstFloat(_)
-                | SsaOp::ConstBool(_)
-                | SsaOp::ConstStr(_)
-                | SsaOp::ConstChar(_)
-                | SsaOp::ConstDecimal(_)
-                | SsaOp::ConstBigInt(_)
-                | SsaOp::ConstNull
-                | SsaOp::Binary { .. }
-                | SsaOp::Unary { .. }
-                | SsaOp::KindOf { .. }
-                | SsaOp::LoadGlobal(_)
-                | SsaOp::LoadGlobalIdx(_)
-                | SsaOp::LoadNativeGlobalIdx(_)
-                | SsaOp::LoadUpvalue(_)
-                | SsaOp::StoreGlobal { .. }
-                | SsaOp::StoreGlobalIdx { .. }
-                | SsaOp::StoreUpvalue { .. }
-                | SsaOp::Call { .. }
-                | SsaOp::CallDirect { .. }
-                | SsaOp::AllocInstance { .. }
-                | SsaOp::SelfCall { .. }
-                | SsaOp::GetProperty { .. }
-                | SsaOp::GetSlotMethod { .. }
-                | SsaOp::GetFixedField { .. }
-                | SsaOp::GetIndex { .. }
-                | SsaOp::ArrayGetIndex { .. }
-                | SsaOp::BytesGetIndex { .. }
-                | SsaOp::SetProperty { .. }
-                | SsaOp::SetFixedField { .. }
-                | SsaOp::SetIndex { .. }
-                | SsaOp::ArraySetIndex { .. }
-                | SsaOp::BytesSetIndex { .. }
-                | SsaOp::ArrayPush { .. }
-                | SsaOp::ObjectMerge { .. }
-                | SsaOp::MethodCall { .. }
-                | SsaOp::InvokeSlot { .. }
-                | SsaOp::IsNull { .. }
-                | SsaOp::TypeTest { .. }
-                | SsaOp::Cast { .. }
-                | SsaOp::Convert { .. }
-                | SsaOp::BuildArray { .. }
-                | SsaOp::BuildTuple { .. }
-                | SsaOp::BuildObject { .. }
-                | SsaOp::BuildMap { .. }
-                | SsaOp::ObjectRest { .. }
-                | SsaOp::ToString { .. }
-                | SsaOp::BuildStr { .. }
-                | SsaOp::MakeClosure { .. }
-                | SsaOp::LoadCaptured { .. }
-                | SsaOp::StoreCaptured { .. }
-                | SsaOp::MakeClass { .. }
-                | SsaOp::DeclareLayout { .. }
-                | SsaOp::FreezeClass { .. }
-                | SsaOp::DefineMember { .. }
-                | SsaOp::MakeEnumVariant { .. }
-                | SsaOp::Try { .. }
-                | SsaOp::PopTry
-                | SsaOp::CatchParam { .. }
-                | SsaOp::CloseUpvalues { .. }
-                | SsaOp::LoadModule { .. }
-                | SsaOp::StoreModuleSlot { .. }
-                | SsaOp::Spawn { .. }
-                | SsaOp::IntrinsicCall { .. }
-                | SsaOp::CallNativeOp { .. }
-                | SsaOp::AssertNotNull { .. }
-                | SsaOp::GetPropertyMaybe { .. }
-                | SsaOp::ModuleSlot { .. }
-                | SsaOp::GetEnumTag { .. }
-                | SsaOp::IsArray { .. }
-                | SsaOp::StrLength { .. }
-                | SsaOp::ArrayLength { .. }
-                | SsaOp::BytesLength { .. }
-                | SsaOp::This
-                | SsaOp::Range { .. }
-                | SsaOp::ObjectKeys { .. }
-                | SsaOp::GetSuper { .. }
-                | SsaOp::GetSuperSlot { .. }
-                | SsaOp::SuperCall { .. }
-                | SsaOp::SuperMethodCall { .. }
-                | SsaOp::SuperInvokeSlot { .. }
-                | SsaOp::ExtensionCall { .. }
-                | SsaOp::CallSpread { .. }
-                | SsaOp::BuildArraySpread { .. }
-                | SsaOp::BuildObjectSpread { .. } => {}
+            if let SsaOp::Await { operand: op } | SsaOp::Yield { operand: op } = &inst.kind
+                && *op == operand
+            {
+                return Some((BlockId(b_idx as u32), i_idx));
             }
         }
     }
     None
 }
-
 fn reorder_blocks_rpo(func: &mut SsaFunc) {
     let order = crate::ssa::dom::reverse_postorder(func);
     let n = func.blocks.len();

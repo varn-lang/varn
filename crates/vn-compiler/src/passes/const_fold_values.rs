@@ -1,4 +1,4 @@
-use super::const_fold::is_constant_kind;
+use crate::ssa::ir::const_ty;
 use vn_core::{add_int, mul_int, neg_int, pow_int, sub_int};
 use vn_types::ssa::SsaOp;
 
@@ -145,7 +145,7 @@ pub(super) fn fold_binary(op: vn_types::ssa::SsaBinOp, lhs: &SsaOp, rhs: &SsaOp)
             | FloatLt | FloatLe | FloatGt | FloatGe | StrConcat | StrEq | StrNe | Dyn(_) => None,
         },
         (SsaOp::ConstNull, other) | (other, SsaOp::ConstNull) => {
-            if is_constant_kind(other) {
+            if const_ty(other).is_some() {
                 match op {
                     BitsEq | Dyn(vn_core::BinOp::Eq) => Some(SsaOp::ConstBool(false)),
                     BitsNe | Dyn(vn_core::BinOp::Ne) => Some(SsaOp::ConstBool(true)),

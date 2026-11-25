@@ -13,7 +13,7 @@ pub fn run(func: &mut SsaFunc) -> bool {
         for inst_idx in 0..func.blocks[b_id.0 as usize].insts.len() {
             let inst = &func.blocks[b_id.0 as usize].insts[inst_idx];
             if let Some(dest) = inst.dest {
-                if is_constant_kind(&inst.kind) {
+                if const_ty(&inst.kind).is_some() {
                     const_map.insert(dest, inst.kind.clone());
                     continue;
                 }
@@ -63,20 +63,6 @@ pub fn run(func: &mut SsaFunc) -> bool {
     }
 
     changed
-}
-
-pub(super) fn is_constant_kind(kind: &SsaOp) -> bool {
-    matches!(
-        kind,
-        SsaOp::ConstInt(_)
-            | SsaOp::ConstFloat(_)
-            | SsaOp::ConstBool(_)
-            | SsaOp::ConstStr(_)
-            | SsaOp::ConstChar(_)
-            | SsaOp::ConstDecimal(_)
-            | SsaOp::ConstBigInt(_)
-            | SsaOp::ConstNull
-    )
 }
 
 fn fold_inst(kind: &SsaOp, const_map: &FxHashMap<Value, SsaOp>) -> Option<SsaOp> {
