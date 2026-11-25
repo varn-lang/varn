@@ -1,6 +1,6 @@
-> Estado verificado 2026-11-13: VIGENTE — metodología (checksum antes que tiempo, `cargo run -p xtask -- compare`, re-medir siempre). Sin tabla de ratios históricos que borrar: no hay.
->
 # Benchmarks
+
+> Estado verificado 2026-11-13: VIGENTE — metodología (checksum antes que tiempo, `cargo run -p xtask -- compare`, re-medir siempre).
 
 Micro-benchmarks `.vn` con su contraparte TypeScript (`.ts`) para comparación
 pareada. La referencia es **Bun** (JavaScriptCore), no Node: los `.ts` se corren
