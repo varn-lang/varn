@@ -15,440 +15,287 @@ pub(super) fn emit(
     inst: &vn_types::ssa::SsaInst,
 ) -> Result<Option<Option<Out>>, String> {
     let (op, dest) = (&inst.op, inst.dest);
-    match op {
-        SsaOp::SetIndex {
-            object,
-            index,
-            value,
-        } => {
-            props::emit_set_index(b, ctx, values, *object, *index, *value)?;
-            return Ok(Some(None));
-        }
-        SsaOp::ArrayPush { array, value } => {
-            props::emit_array_push(b, ctx, values, *array, *value)?;
-            return Ok(Some(None));
-        }
-        SsaOp::SetFixedField {
-            object,
-            value,
-            slot,
-            offset,
-            kind,
-        } => {
-            props::emit_set_fixed_field(b, ctx, values, *object, *value, *slot, *offset, *kind)?;
-            return Ok(Some(None));
-        }
-        SsaOp::SetProperty {
-            object,
-            value,
+    if let SsaOp::SetIndex {
+        object,
+        index,
+        value,
+    } = op
+    {
+        props::emit_set_index(b, ctx, values, *object, *index, *value)?;
+        return Ok(Some(None));
+    } else if let SsaOp::ArrayPush { array, value } = op {
+        props::emit_array_push(b, ctx, values, *array, *value)?;
+        return Ok(Some(None));
+    } else if let SsaOp::SetFixedField {
+        object,
+        value,
+        slot,
+        offset,
+        kind,
+    } = op
+    {
+        props::emit_set_fixed_field(b, ctx, values, *object, *value, *slot, *offset, *kind)?;
+        return Ok(Some(None));
+    } else if let SsaOp::SetProperty {
+        object,
+        value,
+        name,
+    } = op
+    {
+        props::emit_set_property(b, ctx, values, *object, *value, name, inst.cache_slot()?)?;
+        return Ok(Some(None));
+    } else if let SsaOp::DeclareLayout { class, layout } = op {
+        classops::emit_declare_layout(b, ctx, values, *class, layout)?;
+        return Ok(Some(None));
+    } else if let SsaOp::FreezeClass { class } = op {
+        classops::emit_freeze_class(b, ctx, values, *class)?;
+        return Ok(Some(None));
+    } else if let SsaOp::DefineMember {
+        class,
+        name,
+        member,
+        kind,
+    } = op
+    {
+        classops::emit_define_member(
+            b,
+            ctx,
+            values,
+            *class,
             name,
-        } => {
-            props::emit_set_property(b, ctx, values, *object, *value, name, inst.cache_slot()?)?;
-            return Ok(Some(None));
-        }
-        SsaOp::DeclareLayout { class, layout } => {
-            classops::emit_declare_layout(b, ctx, values, *class, layout)?;
-            return Ok(Some(None));
-        }
-        SsaOp::FreezeClass { class } => {
-            classops::emit_freeze_class(b, ctx, values, *class)?;
-            return Ok(Some(None));
-        }
-        SsaOp::DefineMember {
-            class,
-            name,
-            member,
-            kind,
-        } => {
-            classops::emit_define_member(
-                b,
-                ctx,
-                values,
-                *class,
-                name,
-                *member,
-                i64::from(kind.wire()),
-            )?;
-            return Ok(Some(None));
-        }
-        SsaOp::ConstInt(_)
-        | SsaOp::ConstFloat(_)
-        | SsaOp::ConstBool(_)
-        | SsaOp::ConstNull
-        | SsaOp::ConstStr(_)
-        | SsaOp::Binary { .. }
-        | SsaOp::Unary { .. }
-        | SsaOp::SelfCall { .. }
-        | SsaOp::Call { .. }
-        | SsaOp::CallDirect { .. }
-        | SsaOp::AllocInstance { .. }
-        | SsaOp::LoadGlobalIdx(_)
-        | SsaOp::ArrayGetIndex { .. }
-        | SsaOp::BytesGetIndex { .. }
-        | SsaOp::ArraySetIndex { .. }
-        | SsaOp::BytesSetIndex { .. }
-        | SsaOp::ConstChar(_)
-        | SsaOp::ConstBigInt(_)
-        | SsaOp::ConstDecimal(_)
-        | SsaOp::MakeEnumVariant { .. }
-        | SsaOp::IntrinsicCall { .. }
-        | SsaOp::LoadNativeGlobalIdx(_)
-        | SsaOp::Try { .. }
-        | SsaOp::PopTry
-        | SsaOp::CatchParam { .. }
-        | SsaOp::StoreGlobalIdx { .. }
-        | SsaOp::MakeClosure { .. }
-        | SsaOp::LoadCaptured { .. }
-        | SsaOp::StoreCaptured { .. }
-        | SsaOp::LoadUpvalue(_)
-        | SsaOp::StoreUpvalue { .. }
-        | SsaOp::CloseUpvalues { .. }
-        | SsaOp::Cast { .. }
-        | SsaOp::Convert { .. }
-        | SsaOp::IsNull { .. }
-        | SsaOp::KindOf { .. }
-        | SsaOp::TypeTest { .. }
-        | SsaOp::ToString { .. }
-        | SsaOp::IsArray { .. }
-        | SsaOp::GetEnumTag { .. }
-        | SsaOp::ObjectKeys { .. }
-        | SsaOp::BuildStr { .. }
-        | SsaOp::BuildArray { .. }
-        | SsaOp::BuildMap { .. }
-        | SsaOp::BuildObject { .. }
-        | SsaOp::GetProperty { .. }
-        | SsaOp::GetSlotMethod { .. }
-        | SsaOp::GetIndex { .. }
-        | SsaOp::ArrayLength { .. }
-        | SsaOp::StrLength { .. }
-        | SsaOp::BytesLength { .. }
-        | SsaOp::MethodCall { .. }
-        | SsaOp::InvokeSlot { .. }
-        | SsaOp::CallNativeOp { .. }
-        | SsaOp::This
-        | SsaOp::GetFixedField { .. }
-        | SsaOp::MakeClass { .. }
-        | SsaOp::GetSuper { .. }
-        | SsaOp::GetSuperSlot { .. }
-        | SsaOp::LoadGlobal(_)
-        | SsaOp::StoreGlobal { .. }
-        | SsaOp::BuildTuple { .. }
-        | SsaOp::BuildArraySpread { .. }
-        | SsaOp::BuildObjectSpread { .. }
-        | SsaOp::ObjectMerge { .. }
-        | SsaOp::ObjectRest { .. }
-        | SsaOp::GetPropertyMaybe { .. }
-        | SsaOp::AssertNotNull { .. }
-        | SsaOp::Range { .. }
-        | SsaOp::SuperCall { .. }
-        | SsaOp::SuperMethodCall { .. }
-        | SsaOp::SuperInvokeSlot { .. }
-        | SsaOp::ExtensionCall { .. }
-        | SsaOp::CallSpread { .. }
-        | SsaOp::LoadModule { .. }
-        | SsaOp::ModuleSlot { .. }
-        | SsaOp::StoreModuleSlot { .. }
-        | SsaOp::Await { .. }
-        | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. } => {}
+            *member,
+            i64::from(kind.wire()),
+        )?;
+        return Ok(Some(None));
     }
 
-    let v = match op {
-        SsaOp::ConstNull => {
-            let tag = b.ins().iconst(
-                cranelift_codegen::ir::types::I64,
-                vn_types::vm_value::KIND_NULL as i64,
-            );
-            let payload = b.ins().iconst(cranelift_codegen::ir::types::I64, 0);
-            let boxed = b.ins().iconcat(tag, payload);
-            Out::Boxed(boxed)
-        }
-        SsaOp::ConstStr(s) => Out::Trusted(pool::literal(
+    let v = if let SsaOp::ConstNull = op {
+        let tag = b.ins().iconst(
+            cranelift_codegen::ir::types::I64,
+            vn_types::vm_value::KIND_NULL as i64,
+        );
+        let payload = b.ins().iconst(cranelift_codegen::ir::types::I64, 0);
+        let boxed = b.ins().iconcat(tag, payload);
+        Out::Boxed(boxed)
+    } else if let SsaOp::ConstStr(s) = op {
+        Out::Trusted(pool::literal(
             b,
             ctx,
             "string",
             |l| matches!(l, Literal::Str(t) if t.as_ref() == s.as_ref()),
-        )?),
-        SsaOp::ConstChar(c) => Out::Boxed(pool::literal(
+        )?)
+    } else if let SsaOp::ConstChar(c) = op {
+        Out::Boxed(pool::literal(
             b,
             ctx,
             "char",
             |l| matches!(l, Literal::Char(x) if x == c),
-        )?),
-        SsaOp::ConstBigInt(digits) => Out::Boxed(pool::literal(
+        )?)
+    } else if let SsaOp::ConstBigInt(digits) = op {
+        Out::Boxed(pool::literal(
             b,
             ctx,
             "bigint",
             |l| matches!(l, Literal::BigInt(n) if n.to_string() == digits.as_ref()),
-        )?),
-        SsaOp::ConstDecimal(value) => Out::Boxed(pool::literal(
+        )?)
+    } else if let SsaOp::ConstDecimal(value) = op {
+        Out::Boxed(pool::literal(
             b,
             ctx,
             "decimal",
             |l| matches!(l, Literal::Decimal(d) if d.as_bigint_and_scale() == value.as_bigint_and_scale()),
-        )?),
-        SsaOp::MakeEnumVariant { def } => {
-            Out::Boxed(classops::emit_make_enum_variant(b, ctx, def)?)
-        }
-        SsaOp::LoadGlobalIdx(slot) => {
-            let boxed = globals::emit_load(b, ctx, *slot, globals::Region::Module)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::LoadNativeGlobalIdx(slot) => {
-            let boxed = globals::emit_load(b, ctx, *slot, globals::Region::Native)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::This => {
-            let boxed = props::emit_this(ctx)?;
-            Out::Trusted(boxed)
-        }
-        SsaOp::Binary {
-            op: vn_types::ssa::SsaBinOp::StrConcat,
-            lhs,
-            rhs,
-        } => {
-            let boxed = heap::emit_str_concat(b, ctx, values, *lhs, *rhs)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::Binary {
-            op: vn_types::ssa::SsaBinOp::StrEq,
-            lhs,
-            rhs,
-        } => {
-            let a = heap::boxed_parts(b, ctx, values, *lhs)?;
-            let c = heap::boxed_parts(b, ctx, values, *rhs)?;
-            let constant = sso_operand(ctx, *lhs, *rhs);
-            if let Some(d) = dest
-                && ctx.fuse_ok.get()
-                && ctx.fusable_cmp.contains(&d)
-                && !ctx.try_live.contains(&d)
-            {
-                *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
-                    dest: d,
-                    is_eq: true,
-                    helper: ctx.helpers.eq,
-                    a,
-                    c,
-                    constant,
-                });
-                return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
-            }
-            let cond = super::super::generic::str_compare(
-                b,
-                ctx.cc,
-                ctx.helpers.eq,
-                ctx.exec_ctx,
-                true,
+        )?)
+    } else if let SsaOp::MakeEnumVariant { def } = op {
+        Out::Boxed(classops::emit_make_enum_variant(b, ctx, def)?)
+    } else if let SsaOp::LoadGlobalIdx(slot) = op {
+        let boxed = globals::emit_load(b, ctx, *slot, globals::Region::Module)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::LoadNativeGlobalIdx(slot) = op {
+        let boxed = globals::emit_load(b, ctx, *slot, globals::Region::Native)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::This = op {
+        let boxed = props::emit_this(ctx)?;
+        Out::Trusted(boxed)
+    } else if let SsaOp::Binary {
+        op: vn_types::ssa::SsaBinOp::StrConcat,
+        lhs,
+        rhs,
+    } = op
+    {
+        let boxed = heap::emit_str_concat(b, ctx, values, *lhs, *rhs)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::Binary {
+        op: vn_types::ssa::SsaBinOp::StrEq,
+        lhs,
+        rhs,
+    } = op
+    {
+        let a = heap::boxed_parts(b, ctx, values, *lhs)?;
+        let c = heap::boxed_parts(b, ctx, values, *rhs)?;
+        let constant = sso_operand(ctx, *lhs, *rhs);
+        if let Some(d) = dest
+            && ctx.fuse_ok.get()
+            && ctx.fusable_cmp.contains(&d)
+            && !ctx.try_live.contains(&d)
+        {
+            *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
+                dest: d,
+                is_eq: true,
+                helper: ctx.helpers.eq,
                 a,
                 c,
-                constant.as_ref(),
-            );
-            Out::Native(cond)
+                constant,
+            });
+            return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
         }
-        SsaOp::Binary {
-            op: vn_types::ssa::SsaBinOp::StrNe,
-            lhs,
-            rhs,
-        } => {
-            let a = heap::boxed_parts(b, ctx, values, *lhs)?;
-            let c = heap::boxed_parts(b, ctx, values, *rhs)?;
-            let constant = sso_operand(ctx, *lhs, *rhs);
-            if let Some(d) = dest
-                && ctx.fuse_ok.get()
-                && ctx.fusable_cmp.contains(&d)
-                && !ctx.try_live.contains(&d)
-            {
-                *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
-                    dest: d,
-                    is_eq: false,
-                    helper: ctx.helpers.neq,
-                    a,
-                    c,
-                    constant,
-                });
-                return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
-            }
-            let cond = super::super::generic::str_compare(
-                b,
-                ctx.cc,
-                ctx.helpers.neq,
-                ctx.exec_ctx,
-                false,
+        let cond = super::super::generic::str_compare(
+            b,
+            ctx.cc,
+            ctx.helpers.eq,
+            ctx.exec_ctx,
+            true,
+            a,
+            c,
+            constant.as_ref(),
+        );
+        Out::Native(cond)
+    } else if let SsaOp::Binary {
+        op: vn_types::ssa::SsaBinOp::StrNe,
+        lhs,
+        rhs,
+    } = op
+    {
+        let a = heap::boxed_parts(b, ctx, values, *lhs)?;
+        let c = heap::boxed_parts(b, ctx, values, *rhs)?;
+        let constant = sso_operand(ctx, *lhs, *rhs);
+        if let Some(d) = dest
+            && ctx.fuse_ok.get()
+            && ctx.fusable_cmp.contains(&d)
+            && !ctx.try_live.contains(&d)
+        {
+            *ctx.pending_cmp.borrow_mut() = Some(super::super::generic::PendingStrCmp {
+                dest: d,
+                is_eq: false,
+                helper: ctx.helpers.neq,
                 a,
                 c,
-                constant.as_ref(),
-            );
-            Out::Native(cond)
+                constant,
+            });
+            return Ok(Some(Some(Out::Native(b.ins().iconst(types::I64, 0)))));
         }
-        SsaOp::Binary {
-            op: op @ (vn_types::ssa::SsaBinOp::BitsEq | vn_types::ssa::SsaBinOp::BitsNe),
-            lhs,
-            rhs,
-        } => {
-            use cranelift_codegen::ir::condcodes::IntCC;
-            let (a_tag, a_payload) = heap::boxed_parts(b, ctx, values, *lhs)?;
-            let (c_tag, c_payload) = heap::boxed_parts(b, ctx, values, *rhs)?;
-            let tag_eq = b.ins().icmp(IntCC::Equal, a_tag, c_tag);
-            let payload_eq = b.ins().icmp(IntCC::Equal, a_payload, c_payload);
-            let same = b.ins().band(tag_eq, payload_eq);
-            let same = b.ins().uextend(cranelift_codegen::ir::types::I64, same);
-            let cond = if *op == vn_types::ssa::SsaBinOp::BitsEq {
-                same
-            } else {
-                b.ins().bxor_imm_u(same, 1)
-            };
-            Out::Native(cond)
-        }
-        SsaOp::BuildStr { parts } => {
-            let boxed = heap::emit_build_str(b, ctx, values, parts)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::BuildArray { elements, storage } => {
-            let boxed = heap::emit_build_array(b, ctx, values, elements, *storage)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::BuildMap { pairs } => {
-            let boxed = heap::emit_build_map(b, ctx, values, pairs)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::BuildObject { pairs } => {
-            let boxed = build_object::emit_build_object(b, ctx, values, pairs)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::GetIndex { object, index } => {
-            Out::Boxed(props::emit_get_index(b, ctx, values, *object, *index)?)
-        }
-        SsaOp::GetFixedField {
-            object,
-            slot,
-            offset,
-            access,
-        } => props::emit_get_fixed_field(b, ctx, values, *object, *slot, *offset, *access, dest)?,
-        SsaOp::GetProperty { object, name } => Out::Boxed(props::emit_get_property(
+        let cond = super::super::generic::str_compare(
+            b,
+            ctx.cc,
+            ctx.helpers.neq,
+            ctx.exec_ctx,
+            false,
+            a,
+            c,
+            constant.as_ref(),
+        );
+        Out::Native(cond)
+    } else if let SsaOp::Binary {
+        op: op @ (vn_types::ssa::SsaBinOp::BitsEq | vn_types::ssa::SsaBinOp::BitsNe),
+        lhs,
+        rhs,
+    } = op
+    {
+        use cranelift_codegen::ir::condcodes::IntCC;
+        let (a_tag, a_payload) = heap::boxed_parts(b, ctx, values, *lhs)?;
+        let (c_tag, c_payload) = heap::boxed_parts(b, ctx, values, *rhs)?;
+        let tag_eq = b.ins().icmp(IntCC::Equal, a_tag, c_tag);
+        let payload_eq = b.ins().icmp(IntCC::Equal, a_payload, c_payload);
+        let same = b.ins().band(tag_eq, payload_eq);
+        let same = b.ins().uextend(cranelift_codegen::ir::types::I64, same);
+        let cond = if *op == vn_types::ssa::SsaBinOp::BitsEq {
+            same
+        } else {
+            b.ins().bxor_imm_u(same, 1)
+        };
+        Out::Native(cond)
+    } else if let SsaOp::BuildStr { parts } = op {
+        let boxed = heap::emit_build_str(b, ctx, values, parts)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::BuildArray { elements, storage } = op {
+        let boxed = heap::emit_build_array(b, ctx, values, elements, *storage)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::BuildMap { pairs } = op {
+        let boxed = heap::emit_build_map(b, ctx, values, pairs)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::BuildObject { pairs } = op {
+        let boxed = build_object::emit_build_object(b, ctx, values, pairs)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::GetIndex { object, index } = op {
+        Out::Boxed(props::emit_get_index(b, ctx, values, *object, *index)?)
+    } else if let SsaOp::GetFixedField {
+        object,
+        slot,
+        offset,
+        access,
+    } = op
+    {
+        props::emit_get_fixed_field(b, ctx, values, *object, *slot, *offset, *access, dest)?
+    } else if let SsaOp::GetProperty { object, name } = op {
+        Out::Boxed(props::emit_get_property(
             b,
             ctx,
             values,
             *object,
             name,
             inst.cache_slot()?,
-        )?),
-        SsaOp::MakeClass { name, super_class } => {
-            let boxed = classops::emit_make_class(b, ctx, values, name, *super_class)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::GetSuper { name } => {
-            let boxed = classops::emit_get_super(b, ctx, name)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::KindOf { operand } => {
-            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.kind_of_val)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::TypeTest { value, class } => {
-            let a = heap::boxed_parts(b, ctx, values, *value)?;
-            let c = heap::boxed_parts(b, ctx, values, *class)?;
-            let cond = super::super::generic::boxed_compare(
-                b,
-                ctx.cc,
-                ctx.helpers.type_test,
-                ctx.exec_ctx,
-                None,
-                a,
-                c,
-            );
-            Out::Native(cond)
-        }
-        SsaOp::ToString { operand } => {
-            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.to_string)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::ObjectKeys { operand } => {
-            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.object_keys)?;
-            Out::Boxed(boxed)
-        }
-        SsaOp::IsArray { operand } => Out::Native(heap::emit_is_array(b, ctx, values, *operand)?),
-        SsaOp::GetEnumTag { operand } => {
-            let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.get_enum_tag)?;
-            Out::Native(unbox_int(b, boxed))
-        }
-        SsaOp::ArrayLength { operand } => props::emit_array_length(b, ctx, values, *operand)?,
-        SsaOp::BytesLength { operand } => {
-            let boxed = props::emit_bytes_length(b, ctx, values, *operand)?;
-            Out::Native(unbox_int(b, boxed))
-        }
-        SsaOp::StrLength { operand } => {
-            let boxed = props::emit_str_length(b, ctx, values, *operand)?;
-            Out::Native(unbox_int(b, boxed))
-        }
-        SsaOp::IsNull { operand } => {
-            let a = load_value(b, ctx, values, *operand)?;
-            let (tag, _) = b.ins().isplit(a);
-            let c = b.ins().icmp_imm_u(
-                cranelift_codegen::ir::condcodes::IntCC::Equal,
-                tag,
-                vn_types::vm_value::KIND_NULL as i64,
-            );
-            Out::Native(b.ins().uextend(cranelift_codegen::ir::types::I64, c))
-        }
-        SsaOp::ConstInt(_)
-        | SsaOp::ConstFloat(_)
-        | SsaOp::ConstBool(_)
-        | SsaOp::Binary { .. }
-        | SsaOp::Unary { .. }
-        | SsaOp::SelfCall { .. }
-        | SsaOp::Call { .. }
-        | SsaOp::CallDirect { .. }
-        | SsaOp::AllocInstance { .. }
-        | SsaOp::ArrayGetIndex { .. }
-        | SsaOp::BytesGetIndex { .. }
-        | SsaOp::ArraySetIndex { .. }
-        | SsaOp::BytesSetIndex { .. }
-        | SsaOp::IntrinsicCall { .. }
-        | SsaOp::Try { .. }
-        | SsaOp::PopTry
-        | SsaOp::CatchParam { .. }
-        | SsaOp::StoreGlobalIdx { .. }
-        | SsaOp::MakeClosure { .. }
-        | SsaOp::LoadCaptured { .. }
-        | SsaOp::StoreCaptured { .. }
-        | SsaOp::LoadUpvalue(_)
-        | SsaOp::StoreUpvalue { .. }
-        | SsaOp::CloseUpvalues { .. }
-        | SsaOp::Cast { .. }
-        | SsaOp::Convert { .. }
-        | SsaOp::SetProperty { .. }
-        | SsaOp::SetIndex { .. }
-        | SsaOp::MethodCall { .. }
-        | SsaOp::InvokeSlot { .. }
-        | SsaOp::CallNativeOp { .. }
-        | SsaOp::ArrayPush { .. }
-        | SsaOp::SetFixedField { .. }
-        | SsaOp::DeclareLayout { .. }
-        | SsaOp::FreezeClass { .. }
-        | SsaOp::DefineMember { .. }
-        | SsaOp::LoadGlobal(_)
-        | SsaOp::StoreGlobal { .. }
-        | SsaOp::BuildTuple { .. }
-        | SsaOp::BuildArraySpread { .. }
-        | SsaOp::BuildObjectSpread { .. }
-        | SsaOp::ObjectMerge { .. }
-        | SsaOp::ObjectRest { .. }
-        | SsaOp::GetPropertyMaybe { .. }
-        | SsaOp::AssertNotNull { .. }
-        | SsaOp::GetSlotMethod { .. }
-        | SsaOp::GetSuperSlot { .. }
-        | SsaOp::Range { .. }
-        | SsaOp::SuperCall { .. }
-        | SsaOp::SuperMethodCall { .. }
-        | SsaOp::SuperInvokeSlot { .. }
-        | SsaOp::ExtensionCall { .. }
-        | SsaOp::CallSpread { .. }
-        | SsaOp::LoadModule { .. }
-        | SsaOp::ModuleSlot { .. }
-        | SsaOp::StoreModuleSlot { .. }
-        | SsaOp::Await { .. }
-        | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. } => return Ok(None),
+        )?)
+    } else if let SsaOp::MakeClass { name, super_class } = op {
+        let boxed = classops::emit_make_class(b, ctx, values, name, *super_class)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::GetSuper { name } = op {
+        let boxed = classops::emit_get_super(b, ctx, name)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::KindOf { operand } = op {
+        let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.kind_of_val)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::TypeTest { value, class } = op {
+        let a = heap::boxed_parts(b, ctx, values, *value)?;
+        let c = heap::boxed_parts(b, ctx, values, *class)?;
+        let cond = super::super::generic::boxed_compare(
+            b,
+            ctx.cc,
+            ctx.helpers.type_test,
+            ctx.exec_ctx,
+            None,
+            a,
+            c,
+        );
+        Out::Native(cond)
+    } else if let SsaOp::ToString { operand } = op {
+        let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.to_string)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::ObjectKeys { operand } = op {
+        let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.object_keys)?;
+        Out::Boxed(boxed)
+    } else if let SsaOp::IsArray { operand } = op {
+        Out::Native(heap::emit_is_array(b, ctx, values, *operand)?)
+    } else if let SsaOp::GetEnumTag { operand } = op {
+        let boxed = heap::emit_unary_boxed(b, ctx, values, *operand, ctx.helpers.get_enum_tag)?;
+        Out::Native(unbox_int(b, boxed))
+    } else if let SsaOp::ArrayLength { operand } = op {
+        props::emit_array_length(b, ctx, values, *operand)?
+    } else if let SsaOp::BytesLength { operand } = op {
+        let boxed = props::emit_bytes_length(b, ctx, values, *operand)?;
+        Out::Native(unbox_int(b, boxed))
+    } else if let SsaOp::StrLength { operand } = op {
+        let boxed = props::emit_str_length(b, ctx, values, *operand)?;
+        Out::Native(unbox_int(b, boxed))
+    } else if let SsaOp::IsNull { operand } = op {
+        let a = load_value(b, ctx, values, *operand)?;
+        let (tag, _) = b.ins().isplit(a);
+        let c = b.ins().icmp_imm_u(
+            cranelift_codegen::ir::condcodes::IntCC::Equal,
+            tag,
+            vn_types::vm_value::KIND_NULL as i64,
+        );
+        Out::Native(b.ins().uextend(cranelift_codegen::ir::types::I64, c))
+    } else {
+        return Ok(None);
     };
     Ok(Some(Some(v)))
 }
