@@ -131,126 +131,60 @@ struct LoopFacts {
 }
 
 fn hoistable(kind: &SsaOp, facts: LoopFacts) -> bool {
-    match kind {
-        SsaOp::GetFixedField { .. } | SsaOp::ArrayGetIndex { .. } | SsaOp::BytesGetIndex { .. } => {
-            facts.memory_stable
-        }
-
-        SsaOp::Binary { op, .. } => {
-            matches!(
-                op,
-                vn_types::ssa::SsaBinOp::IntAdd
-                    | vn_types::ssa::SsaBinOp::IntSub
-                    | vn_types::ssa::SsaBinOp::IntMul
-                    | vn_types::ssa::SsaBinOp::IntEq
-                    | vn_types::ssa::SsaBinOp::IntNe
-                    | vn_types::ssa::SsaBinOp::IntLt
-                    | vn_types::ssa::SsaBinOp::IntLe
-                    | vn_types::ssa::SsaBinOp::IntGt
-                    | vn_types::ssa::SsaBinOp::IntGe
-                    | vn_types::ssa::SsaBinOp::FloatAdd
-                    | vn_types::ssa::SsaBinOp::FloatSub
-                    | vn_types::ssa::SsaBinOp::FloatMul
-                    | vn_types::ssa::SsaBinOp::FloatEq
-                    | vn_types::ssa::SsaBinOp::FloatNe
-                    | vn_types::ssa::SsaBinOp::FloatLt
-                    | vn_types::ssa::SsaBinOp::FloatLe
-                    | vn_types::ssa::SsaBinOp::FloatGt
-                    | vn_types::ssa::SsaBinOp::FloatGe
-            )
-        }
-        SsaOp::Unary { op, .. } => {
-            matches!(
-                op,
-                vn_types::ssa::SsaUnOp::NegInt
-                    | vn_types::ssa::SsaUnOp::NegFloat
-                    | vn_types::ssa::SsaUnOp::Not
-            )
-        }
-        SsaOp::KindOf { .. } => true,
-        SsaOp::LoadGlobal(_) | SsaOp::LoadGlobalIdx(_) | SsaOp::LoadNativeGlobalIdx(_) => {
-            facts.globals_stable
-        }
-
-        SsaOp::IsNull { .. }
-        | SsaOp::TypeTest { .. }
-        | SsaOp::IsArray { .. }
-        | SsaOp::GetEnumTag { .. }
-        | SsaOp::StrLength { .. } => true,
-        SsaOp::MakeClosure { upvalues, .. } => upvalues.is_empty(),
-        SsaOp::ConstInt(_)
-        | SsaOp::ConstFloat(_)
-        | SsaOp::ConstBool(_)
-        | SsaOp::ConstStr(_)
-        | SsaOp::ConstChar(_)
-        | SsaOp::ConstDecimal(_)
-        | SsaOp::ConstBigInt(_)
-        | SsaOp::ConstNull
-        | SsaOp::LoadUpvalue(_)
-        | SsaOp::StoreGlobal { .. }
-        | SsaOp::StoreGlobalIdx { .. }
-        | SsaOp::StoreUpvalue { .. }
-        | SsaOp::Call { .. }
-        | SsaOp::CallDirect { .. }
-        | SsaOp::AllocInstance { .. }
-        | SsaOp::SelfCall { .. }
-        | SsaOp::GetProperty { .. }
-        | SsaOp::GetSlotMethod { .. }
-        | SsaOp::GetIndex { .. }
-        | SsaOp::SetProperty { .. }
-        | SsaOp::SetFixedField { .. }
-        | SsaOp::SetIndex { .. }
-        | SsaOp::ArraySetIndex { .. }
-        | SsaOp::BytesSetIndex { .. }
-        | SsaOp::ArrayPush { .. }
-        | SsaOp::ObjectMerge { .. }
-        | SsaOp::MethodCall { .. }
-        | SsaOp::InvokeSlot { .. }
-        | SsaOp::Cast { .. }
-        | SsaOp::Convert { .. }
-        | SsaOp::BuildArray { .. }
-        | SsaOp::BuildTuple { .. }
-        | SsaOp::BuildObject { .. }
-        | SsaOp::BuildMap { .. }
-        | SsaOp::ObjectRest { .. }
-        | SsaOp::ToString { .. }
-        | SsaOp::BuildStr { .. }
-        | SsaOp::LoadCaptured { .. }
-        | SsaOp::StoreCaptured { .. }
-        | SsaOp::MakeClass { .. }
-        | SsaOp::DeclareLayout { .. }
-        | SsaOp::FreezeClass { .. }
-        | SsaOp::DefineMember { .. }
-        | SsaOp::MakeEnumVariant { .. }
-        | SsaOp::Try { .. }
-        | SsaOp::PopTry
-        | SsaOp::CatchParam { .. }
-        | SsaOp::CloseUpvalues { .. }
-        | SsaOp::LoadModule { .. }
-        | SsaOp::StoreModuleSlot { .. }
-        | SsaOp::Await { .. }
-        | SsaOp::Spawn { .. }
-        | SsaOp::Yield { .. }
-        | SsaOp::IntrinsicCall { .. }
-        | SsaOp::CallNativeOp { .. }
-        | SsaOp::AssertNotNull { .. }
-        | SsaOp::GetPropertyMaybe { .. }
-        | SsaOp::ModuleSlot { .. }
-        | SsaOp::ArrayLength { .. }
-        | SsaOp::BytesLength { .. }
-        | SsaOp::This
-        | SsaOp::Range { .. }
-        | SsaOp::ObjectKeys { .. }
-        | SsaOp::GetSuper { .. }
-        | SsaOp::GetSuperSlot { .. }
-        | SsaOp::SuperCall { .. }
-        | SsaOp::SuperMethodCall { .. }
-        | SsaOp::SuperInvokeSlot { .. }
-        | SsaOp::ExtensionCall { .. }
-        | SsaOp::CallSpread { .. }
-        | SsaOp::BuildArraySpread { .. }
-        | SsaOp::BuildObjectSpread { .. } => false,
+    if let SsaOp::GetFixedField { .. } | SsaOp::ArrayGetIndex { .. } | SsaOp::BytesGetIndex { .. } =
+        kind
+    {
+        return facts.memory_stable;
     }
+    if let SsaOp::Binary { op, .. } = kind {
+        return matches!(
+            op,
+            vn_types::ssa::SsaBinOp::IntAdd
+                | vn_types::ssa::SsaBinOp::IntSub
+                | vn_types::ssa::SsaBinOp::IntMul
+                | vn_types::ssa::SsaBinOp::IntEq
+                | vn_types::ssa::SsaBinOp::IntNe
+                | vn_types::ssa::SsaBinOp::IntLt
+                | vn_types::ssa::SsaBinOp::IntLe
+                | vn_types::ssa::SsaBinOp::IntGt
+                | vn_types::ssa::SsaBinOp::IntGe
+                | vn_types::ssa::SsaBinOp::FloatAdd
+                | vn_types::ssa::SsaBinOp::FloatSub
+                | vn_types::ssa::SsaBinOp::FloatMul
+                | vn_types::ssa::SsaBinOp::FloatEq
+                | vn_types::ssa::SsaBinOp::FloatNe
+                | vn_types::ssa::SsaBinOp::FloatLt
+                | vn_types::ssa::SsaBinOp::FloatLe
+                | vn_types::ssa::SsaBinOp::FloatGt
+                | vn_types::ssa::SsaBinOp::FloatGe
+        );
+    }
+    if let SsaOp::Unary { op, .. } = kind {
+        return matches!(
+            op,
+            vn_types::ssa::SsaUnOp::NegInt
+                | vn_types::ssa::SsaUnOp::NegFloat
+                | vn_types::ssa::SsaUnOp::Not
+        );
+    }
+    if let SsaOp::KindOf { .. } = kind {
+        return true;
+    }
+    if let SsaOp::LoadGlobal(_) | SsaOp::LoadGlobalIdx(_) | SsaOp::LoadNativeGlobalIdx(_) = kind {
+        return facts.globals_stable;
+    }
+    if let SsaOp::IsNull { .. }
+    | SsaOp::TypeTest { .. }
+    | SsaOp::IsArray { .. }
+    | SsaOp::GetEnumTag { .. }
+    | SsaOp::StrLength { .. } = kind
+    {
+        return true;
+    }
+    if let SsaOp::MakeClosure { upvalues, .. } = kind {
+        return upvalues.is_empty();
+    }
+    false
 }
 
 fn is_transparent(kind: &SsaOp) -> bool {
