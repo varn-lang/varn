@@ -26,99 +26,51 @@ impl ScratchWin {
     }
 }
 
+fn scratch_need(op: &vn_types::ssa::SsaOp) -> usize {
+    if let vn_types::ssa::SsaOp::Call { args, .. }
+    | vn_types::ssa::SsaOp::CallDirect { args, .. }
+    | vn_types::ssa::SsaOp::SelfCall { args }
+    | vn_types::ssa::SsaOp::SuperCall { args }
+    | vn_types::ssa::SsaOp::MethodCall { args, .. }
+    | vn_types::ssa::SsaOp::InvokeSlot { args, .. } = op
+    {
+        return args.len() + 1;
+    }
+    if let vn_types::ssa::SsaOp::CallNativeOp { args, .. }
+    | vn_types::ssa::SsaOp::SuperMethodCall { args, .. }
+    | vn_types::ssa::SsaOp::SuperInvokeSlot { args, .. }
+    | vn_types::ssa::SsaOp::ExtensionCall { args, .. } = op
+    {
+        return args.len() + 1;
+    }
+    if let vn_types::ssa::SsaOp::CallSpread { args, .. } = op {
+        return args.len();
+    }
+    if let vn_types::ssa::SsaOp::IntrinsicCall { args, .. } = op {
+        return args.len() + 1;
+    }
+    if let vn_types::ssa::SsaOp::BuildStr { parts }
+    | vn_types::ssa::SsaOp::BuildTuple { elements: parts } = op
+    {
+        return parts.len();
+    }
+    if let vn_types::ssa::SsaOp::BuildArray { elements, .. } = op {
+        return elements.len();
+    }
+    if let vn_types::ssa::SsaOp::BuildMap { pairs } = op {
+        return pairs.len() * 2;
+    }
+    if let vn_types::ssa::SsaOp::ObjectRest { skip_keys, .. } = op {
+        return skip_keys.len();
+    }
+    0
+}
+
 pub(crate) fn scratch_max(ssa: &SsaProto) -> usize {
-    use vn_types::ssa::SsaOp;
     let mut max = 0usize;
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            let need = match &inst.op {
-                SsaOp::Call { args, .. }
-                | SsaOp::CallDirect { args, .. }
-                | SsaOp::SelfCall { args }
-                | SsaOp::SuperCall { args }
-                | SsaOp::MethodCall { args, .. }
-                | SsaOp::InvokeSlot { args, .. } => args.len() + 1,
-                SsaOp::CallNativeOp { args, .. }
-                | SsaOp::SuperMethodCall { args, .. }
-                | SsaOp::SuperInvokeSlot { args, .. }
-                | SsaOp::ExtensionCall { args, .. } => args.len() + 1,
-                SsaOp::CallSpread { args, .. } => args.len(),
-                SsaOp::IntrinsicCall { args, .. } => args.len() + 1,
-                SsaOp::BuildStr { parts } | SsaOp::BuildTuple { elements: parts } => parts.len(),
-                SsaOp::BuildArray { elements, .. } => elements.len(),
-                SsaOp::BuildMap { pairs } => pairs.len() * 2,
-                SsaOp::ObjectRest { skip_keys, .. } => skip_keys.len(),
-                SsaOp::ConstInt(_)
-                | SsaOp::ConstFloat(_)
-                | SsaOp::ConstBool(_)
-                | SsaOp::ConstNull
-                | SsaOp::ConstStr(_)
-                | SsaOp::Binary { .. }
-                | SsaOp::Unary { .. }
-                | SsaOp::AllocInstance { .. }
-                | SsaOp::LoadGlobalIdx(_)
-                | SsaOp::ArrayGetIndex { .. }
-                | SsaOp::BytesGetIndex { .. }
-                | SsaOp::ArraySetIndex { .. }
-                | SsaOp::BytesSetIndex { .. }
-                | SsaOp::ConstChar(_)
-                | SsaOp::ConstBigInt(_)
-                | SsaOp::ConstDecimal(_)
-                | SsaOp::MakeEnumVariant { .. }
-                | SsaOp::LoadNativeGlobalIdx(_)
-                | SsaOp::Try { .. }
-                | SsaOp::PopTry
-                | SsaOp::CatchParam { .. }
-                | SsaOp::StoreGlobalIdx { .. }
-                | SsaOp::MakeClosure { .. }
-                | SsaOp::LoadCaptured { .. }
-                | SsaOp::StoreCaptured { .. }
-                | SsaOp::LoadUpvalue(_)
-                | SsaOp::StoreUpvalue { .. }
-                | SsaOp::CloseUpvalues { .. }
-                | SsaOp::Cast { .. }
-                | SsaOp::Convert { .. }
-                | SsaOp::IsNull { .. }
-                | SsaOp::KindOf { .. }
-                | SsaOp::TypeTest { .. }
-                | SsaOp::ToString { .. }
-                | SsaOp::IsArray { .. }
-                | SsaOp::GetEnumTag { .. }
-                | SsaOp::ObjectKeys { .. }
-                | SsaOp::BuildObject { .. }
-                | SsaOp::GetProperty { .. }
-                | SsaOp::SetProperty { .. }
-                | SsaOp::GetIndex { .. }
-                | SsaOp::SetIndex { .. }
-                | SsaOp::ArrayLength { .. }
-                | SsaOp::StrLength { .. }
-                | SsaOp::BytesLength { .. }
-                | SsaOp::ArrayPush { .. }
-                | SsaOp::This
-                | SsaOp::GetFixedField { .. }
-                | SsaOp::SetFixedField { .. }
-                | SsaOp::MakeClass { .. }
-                | SsaOp::DeclareLayout { .. }
-                | SsaOp::FreezeClass { .. }
-                | SsaOp::DefineMember { .. }
-                | SsaOp::GetSuper { .. }
-                | SsaOp::LoadGlobal(_)
-                | SsaOp::StoreGlobal { .. }
-                | SsaOp::BuildArraySpread { .. }
-                | SsaOp::BuildObjectSpread { .. }
-                | SsaOp::ObjectMerge { .. }
-                | SsaOp::GetPropertyMaybe { .. }
-                | SsaOp::AssertNotNull { .. }
-                | SsaOp::GetSlotMethod { .. }
-                | SsaOp::GetSuperSlot { .. }
-                | SsaOp::Range { .. }
-                | SsaOp::LoadModule { .. }
-                | SsaOp::ModuleSlot { .. }
-                | SsaOp::StoreModuleSlot { .. }
-                | SsaOp::Await { .. }
-                | SsaOp::Spawn { .. }
-                | SsaOp::Yield { .. } => 0,
-            };
+            let need = scratch_need(&inst.op);
             max = max.max(need);
         }
     }
