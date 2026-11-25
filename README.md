@@ -16,7 +16,7 @@ function area(f: Forma): float {
     }
 }
 
-async function total(formas: Forma[]): float {
+async function total(formas: Forma[]): Task<float> {
     return formas.map(area).reduce((acc, a) => acc + a, 0.0)
 }
 
@@ -28,7 +28,7 @@ await describe("formas", async () => {
 ```
 
 > Estado: pre-1.0 (`0.1.0`). APIs inestables; los cambios incompatibles se
-> aceptan cuando traen una ganancia medible ([`AGENTS.md`](AGENTS.md), Ley 10).
+> aceptan cuando traen una ganancia medible.
 
 ## Qué ofrece
 
@@ -89,9 +89,9 @@ medición están en el README de benchmarks.
 
 | Para | Leer |
 |---|---|
-| Aprender el lenguaje | [guía del lenguaje](https://varn.twwk.cc/lenguaje/indice/) — cada rasgo citado con su test; gramática en [gramática](https://varn.twwk.cc/lenguaje/grammar/) |
+| Aprender el lenguaje | [guía del lenguaje](https://varn.twwk.cc/lenguaje/indice/) — cada rasgo con ejemplos verificados; gramática en [gramática](https://varn.twwk.cc/lenguaje/grammar/) |
 | Usar el CLI | [referencia del CLI](https://varn.twwk.cc/guias/cli/), [inspección por fases](https://varn.twwk.cc/guias/inspeccion/) |
-| La biblioteca estándar | [biblioteca estándar](https://varn.twwk.cc/lenguaje/standard_library/), [arquitectura de la std](https://varn.twwk.cc/arquitectura/stdlib_architecture/) |
+| La biblioteca estándar | [biblioteca estándar](https://varn.twwk.cc/lenguaje/standard-library/), [arquitectura de la std](https://varn.twwk.cc/arquitectura/stdlib-architecture/) |
 | Entender el compilador y el runtime | [arquitectura](https://varn.twwk.cc/arquitectura/indice/) |
 | Decisiones de diseño | [`docs/decisions/`](docs/decisions/) (ADRs) |
 | Qué viene | [roadmap](https://varn.twwk.cc/guias/roadmap/) |
