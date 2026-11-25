@@ -179,120 +179,36 @@ pub(super) fn version_plans(
                     ok = false;
                     break;
                 }
-                match &inst.op {
-                    SsaOp::ArrayGetIndex { object, index }
-                    | SsaOp::BytesGetIndex { object, index }
-                    | SsaOp::ArraySetIndex { object, index, .. }
-                    | SsaOp::BytesSetIndex { object, index, .. } => {
-                        if ssa.value_ty(*index) != SlotKind::Int {
-                            ok = false;
-                            break;
-                        }
-                        if b == h {
-                            ok = false;
-                            break;
-                        }
-                        let Some((lo, hi)) = use_range(*index, b) else {
-                            ok = false;
-                            break;
-                        };
-                        if lo < 0 || hi + 1 > I64_HI {
-                            ok = false;
-                            break;
-                        }
-                        if dblk[object.0 as usize].is_none_or(|db| body.contains(&db)) {
-                            ok = false;
-                            break;
-                        }
-                        elide.insert(*index);
-                        arrays
-                            .entry(*object)
-                            .and_modify(|m| *m = (*m).max(hi + 1))
-                            .or_insert(hi + 1);
+                if let SsaOp::ArrayGetIndex { object, index }
+                | SsaOp::BytesGetIndex { object, index }
+                | SsaOp::ArraySetIndex { object, index, .. }
+                | SsaOp::BytesSetIndex { object, index, .. } = &inst.op
+                {
+                    if ssa.value_ty(*index) != SlotKind::Int {
+                        ok = false;
+                        break;
                     }
-                    SsaOp::ConstInt(_)
-                    | SsaOp::ConstFloat(_)
-                    | SsaOp::ConstBool(_)
-                    | SsaOp::ConstNull
-                    | SsaOp::ConstStr(_)
-                    | SsaOp::Binary { .. }
-                    | SsaOp::Unary { .. }
-                    | SsaOp::SelfCall { .. }
-                    | SsaOp::Call { .. }
-                    | SsaOp::CallDirect { .. }
-                    | SsaOp::AllocInstance { .. }
-                    | SsaOp::LoadGlobalIdx(_)
-                    | SsaOp::ConstChar(_)
-                    | SsaOp::ConstBigInt(_)
-                    | SsaOp::ConstDecimal(_)
-                    | SsaOp::MakeEnumVariant { .. }
-                    | SsaOp::IntrinsicCall { .. }
-                    | SsaOp::LoadNativeGlobalIdx(_)
-                    | SsaOp::Try { .. }
-                    | SsaOp::PopTry
-                    | SsaOp::CatchParam { .. }
-                    | SsaOp::StoreGlobalIdx { .. }
-                    | SsaOp::MakeClosure { .. }
-                    | SsaOp::LoadCaptured { .. }
-                    | SsaOp::StoreCaptured { .. }
-                    | SsaOp::LoadUpvalue(_)
-                    | SsaOp::StoreUpvalue { .. }
-                    | SsaOp::CloseUpvalues { .. }
-                    | SsaOp::Cast { .. }
-                    | SsaOp::Convert { .. }
-                    | SsaOp::IsNull { .. }
-                    | SsaOp::KindOf { .. }
-                    | SsaOp::TypeTest { .. }
-                    | SsaOp::ToString { .. }
-                    | SsaOp::IsArray { .. }
-                    | SsaOp::GetEnumTag { .. }
-                    | SsaOp::ObjectKeys { .. }
-                    | SsaOp::BuildStr { .. }
-                    | SsaOp::BuildArray { .. }
-                    | SsaOp::BuildMap { .. }
-                    | SsaOp::BuildObject { .. }
-                    | SsaOp::GetProperty { .. }
-                    | SsaOp::GetSlotMethod { .. }
-                    | SsaOp::SetProperty { .. }
-                    | SsaOp::GetIndex { .. }
-                    | SsaOp::SetIndex { .. }
-                    | SsaOp::ArrayLength { .. }
-                    | SsaOp::StrLength { .. }
-                    | SsaOp::BytesLength { .. }
-                    | SsaOp::MethodCall { .. }
-                    | SsaOp::InvokeSlot { .. }
-                    | SsaOp::CallNativeOp { .. }
-                    | SsaOp::ArrayPush { .. }
-                    | SsaOp::This
-                    | SsaOp::GetFixedField { .. }
-                    | SsaOp::SetFixedField { .. }
-                    | SsaOp::MakeClass { .. }
-                    | SsaOp::DeclareLayout { .. }
-                    | SsaOp::FreezeClass { .. }
-                    | SsaOp::DefineMember { .. }
-                    | SsaOp::GetSuper { .. }
-                    | SsaOp::GetSuperSlot { .. }
-                    | SsaOp::LoadGlobal(_)
-                    | SsaOp::StoreGlobal { .. }
-                    | SsaOp::BuildTuple { .. }
-                    | SsaOp::BuildArraySpread { .. }
-                    | SsaOp::BuildObjectSpread { .. }
-                    | SsaOp::ObjectMerge { .. }
-                    | SsaOp::ObjectRest { .. }
-                    | SsaOp::GetPropertyMaybe { .. }
-                    | SsaOp::AssertNotNull { .. }
-                    | SsaOp::Range { .. }
-                    | SsaOp::SuperCall { .. }
-                    | SsaOp::SuperMethodCall { .. }
-                    | SsaOp::SuperInvokeSlot { .. }
-                    | SsaOp::ExtensionCall { .. }
-                    | SsaOp::CallSpread { .. }
-                    | SsaOp::LoadModule { .. }
-                    | SsaOp::ModuleSlot { .. }
-                    | SsaOp::StoreModuleSlot { .. }
-                    | SsaOp::Await { .. }
-                    | SsaOp::Spawn { .. }
-                    | SsaOp::Yield { .. } => {}
+                    if b == h {
+                        ok = false;
+                        break;
+                    }
+                    let Some((lo, hi)) = use_range(*index, b) else {
+                        ok = false;
+                        break;
+                    };
+                    if lo < 0 || hi + 1 > I64_HI {
+                        ok = false;
+                        break;
+                    }
+                    if dblk[object.0 as usize].is_none_or(|db| body.contains(&db)) {
+                        ok = false;
+                        break;
+                    }
+                    elide.insert(*index);
+                    arrays
+                        .entry(*object)
+                        .and_modify(|m| *m = (*m).max(hi + 1))
+                        .or_insert(hi + 1);
                 }
             }
             if !ok {

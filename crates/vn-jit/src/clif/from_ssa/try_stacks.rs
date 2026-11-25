@@ -4,100 +4,7 @@ use vn_types::ssa::SsaProto;
 pub(super) fn block_exit(ssa: &SsaProto, entry: &[usize], b: usize) -> Option<Vec<usize>> {
     let mut stack = entry.to_vec();
     for inst in &ssa.blocks[b].insts {
-        match &inst.op {
-            vn_types::ssa::SsaOp::Try { .. } => {
-                let e = ssa.catch_at(inst.try_landing()?.ip as usize)?;
-                stack.push(e.block.0 as usize);
-            }
-            vn_types::ssa::SsaOp::PopTry => {
-                stack.pop()?;
-            }
-            vn_types::ssa::SsaOp::ConstInt(_)
-            | vn_types::ssa::SsaOp::ConstFloat(_)
-            | vn_types::ssa::SsaOp::ConstBool(_)
-            | vn_types::ssa::SsaOp::ConstNull
-            | vn_types::ssa::SsaOp::ConstStr(_)
-            | vn_types::ssa::SsaOp::Binary { .. }
-            | vn_types::ssa::SsaOp::Unary { .. }
-            | vn_types::ssa::SsaOp::SelfCall { .. }
-            | vn_types::ssa::SsaOp::Call { .. }
-            | vn_types::ssa::SsaOp::CallDirect { .. }
-            | vn_types::ssa::SsaOp::AllocInstance { .. }
-            | vn_types::ssa::SsaOp::LoadGlobalIdx(_)
-            | vn_types::ssa::SsaOp::ArrayGetIndex { .. }
-            | vn_types::ssa::SsaOp::BytesGetIndex { .. }
-            | vn_types::ssa::SsaOp::ArraySetIndex { .. }
-            | vn_types::ssa::SsaOp::BytesSetIndex { .. }
-            | vn_types::ssa::SsaOp::ConstChar(_)
-            | vn_types::ssa::SsaOp::ConstBigInt(_)
-            | vn_types::ssa::SsaOp::ConstDecimal(_)
-            | vn_types::ssa::SsaOp::MakeEnumVariant { .. }
-            | vn_types::ssa::SsaOp::IntrinsicCall { .. }
-            | vn_types::ssa::SsaOp::LoadNativeGlobalIdx(_)
-            | vn_types::ssa::SsaOp::CatchParam { .. }
-            | vn_types::ssa::SsaOp::StoreGlobalIdx { .. }
-            | vn_types::ssa::SsaOp::MakeClosure { .. }
-            | vn_types::ssa::SsaOp::LoadCaptured { .. }
-            | vn_types::ssa::SsaOp::StoreCaptured { .. }
-            | vn_types::ssa::SsaOp::LoadUpvalue(_)
-            | vn_types::ssa::SsaOp::StoreUpvalue { .. }
-            | vn_types::ssa::SsaOp::CloseUpvalues { .. }
-            | vn_types::ssa::SsaOp::Cast { .. }
-            | vn_types::ssa::SsaOp::Convert { .. }
-            | vn_types::ssa::SsaOp::IsNull { .. }
-            | vn_types::ssa::SsaOp::KindOf { .. }
-            | vn_types::ssa::SsaOp::TypeTest { .. }
-            | vn_types::ssa::SsaOp::ToString { .. }
-            | vn_types::ssa::SsaOp::IsArray { .. }
-            | vn_types::ssa::SsaOp::GetEnumTag { .. }
-            | vn_types::ssa::SsaOp::ObjectKeys { .. }
-            | vn_types::ssa::SsaOp::BuildStr { .. }
-            | vn_types::ssa::SsaOp::BuildArray { .. }
-            | vn_types::ssa::SsaOp::BuildMap { .. }
-            | vn_types::ssa::SsaOp::BuildObject { .. }
-            | vn_types::ssa::SsaOp::GetProperty { .. }
-            | vn_types::ssa::SsaOp::GetSlotMethod { .. }
-            | vn_types::ssa::SsaOp::SetProperty { .. }
-            | vn_types::ssa::SsaOp::GetIndex { .. }
-            | vn_types::ssa::SsaOp::SetIndex { .. }
-            | vn_types::ssa::SsaOp::ArrayLength { .. }
-            | vn_types::ssa::SsaOp::StrLength { .. }
-            | vn_types::ssa::SsaOp::BytesLength { .. }
-            | vn_types::ssa::SsaOp::MethodCall { .. }
-            | vn_types::ssa::SsaOp::InvokeSlot { .. }
-            | vn_types::ssa::SsaOp::CallNativeOp { .. }
-            | vn_types::ssa::SsaOp::ArrayPush { .. }
-            | vn_types::ssa::SsaOp::This
-            | vn_types::ssa::SsaOp::GetFixedField { .. }
-            | vn_types::ssa::SsaOp::SetFixedField { .. }
-            | vn_types::ssa::SsaOp::MakeClass { .. }
-            | vn_types::ssa::SsaOp::DeclareLayout { .. }
-            | vn_types::ssa::SsaOp::FreezeClass { .. }
-            | vn_types::ssa::SsaOp::DefineMember { .. }
-            | vn_types::ssa::SsaOp::GetSuper { .. }
-            | vn_types::ssa::SsaOp::GetSuperSlot { .. }
-            | vn_types::ssa::SsaOp::LoadGlobal(_)
-            | vn_types::ssa::SsaOp::StoreGlobal { .. }
-            | vn_types::ssa::SsaOp::BuildTuple { .. }
-            | vn_types::ssa::SsaOp::BuildArraySpread { .. }
-            | vn_types::ssa::SsaOp::BuildObjectSpread { .. }
-            | vn_types::ssa::SsaOp::ObjectMerge { .. }
-            | vn_types::ssa::SsaOp::ObjectRest { .. }
-            | vn_types::ssa::SsaOp::GetPropertyMaybe { .. }
-            | vn_types::ssa::SsaOp::AssertNotNull { .. }
-            | vn_types::ssa::SsaOp::Range { .. }
-            | vn_types::ssa::SsaOp::SuperCall { .. }
-            | vn_types::ssa::SsaOp::SuperMethodCall { .. }
-            | vn_types::ssa::SsaOp::SuperInvokeSlot { .. }
-            | vn_types::ssa::SsaOp::ExtensionCall { .. }
-            | vn_types::ssa::SsaOp::CallSpread { .. }
-            | vn_types::ssa::SsaOp::LoadModule { .. }
-            | vn_types::ssa::SsaOp::ModuleSlot { .. }
-            | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
-            | vn_types::ssa::SsaOp::Await { .. }
-            | vn_types::ssa::SsaOp::Spawn { .. }
-            | vn_types::ssa::SsaOp::Yield { .. } => {}
-        }
+        replay_try_inst(ssa, &mut stack, inst)?;
     }
     Some(stack)
 }
@@ -113,102 +20,23 @@ pub(super) fn stack_before_try(
         if i == try_idx {
             return Some(stack);
         }
-        match &inst.op {
-            vn_types::ssa::SsaOp::Try { .. } => {
-                let e = ssa.catch_at(inst.try_landing()?.ip as usize)?;
-                stack.push(e.block.0 as usize);
-            }
-            vn_types::ssa::SsaOp::PopTry => {
-                stack.pop()?;
-            }
-            vn_types::ssa::SsaOp::ConstInt(_)
-            | vn_types::ssa::SsaOp::ConstFloat(_)
-            | vn_types::ssa::SsaOp::ConstBool(_)
-            | vn_types::ssa::SsaOp::ConstNull
-            | vn_types::ssa::SsaOp::ConstStr(_)
-            | vn_types::ssa::SsaOp::Binary { .. }
-            | vn_types::ssa::SsaOp::Unary { .. }
-            | vn_types::ssa::SsaOp::SelfCall { .. }
-            | vn_types::ssa::SsaOp::Call { .. }
-            | vn_types::ssa::SsaOp::CallDirect { .. }
-            | vn_types::ssa::SsaOp::AllocInstance { .. }
-            | vn_types::ssa::SsaOp::LoadGlobalIdx(_)
-            | vn_types::ssa::SsaOp::ArrayGetIndex { .. }
-            | vn_types::ssa::SsaOp::BytesGetIndex { .. }
-            | vn_types::ssa::SsaOp::ArraySetIndex { .. }
-            | vn_types::ssa::SsaOp::BytesSetIndex { .. }
-            | vn_types::ssa::SsaOp::ConstChar(_)
-            | vn_types::ssa::SsaOp::ConstBigInt(_)
-            | vn_types::ssa::SsaOp::ConstDecimal(_)
-            | vn_types::ssa::SsaOp::MakeEnumVariant { .. }
-            | vn_types::ssa::SsaOp::IntrinsicCall { .. }
-            | vn_types::ssa::SsaOp::LoadNativeGlobalIdx(_)
-            | vn_types::ssa::SsaOp::CatchParam { .. }
-            | vn_types::ssa::SsaOp::StoreGlobalIdx { .. }
-            | vn_types::ssa::SsaOp::MakeClosure { .. }
-            | vn_types::ssa::SsaOp::LoadCaptured { .. }
-            | vn_types::ssa::SsaOp::StoreCaptured { .. }
-            | vn_types::ssa::SsaOp::LoadUpvalue(_)
-            | vn_types::ssa::SsaOp::StoreUpvalue { .. }
-            | vn_types::ssa::SsaOp::CloseUpvalues { .. }
-            | vn_types::ssa::SsaOp::Cast { .. }
-            | vn_types::ssa::SsaOp::Convert { .. }
-            | vn_types::ssa::SsaOp::IsNull { .. }
-            | vn_types::ssa::SsaOp::KindOf { .. }
-            | vn_types::ssa::SsaOp::TypeTest { .. }
-            | vn_types::ssa::SsaOp::ToString { .. }
-            | vn_types::ssa::SsaOp::IsArray { .. }
-            | vn_types::ssa::SsaOp::GetEnumTag { .. }
-            | vn_types::ssa::SsaOp::ObjectKeys { .. }
-            | vn_types::ssa::SsaOp::BuildStr { .. }
-            | vn_types::ssa::SsaOp::BuildArray { .. }
-            | vn_types::ssa::SsaOp::BuildMap { .. }
-            | vn_types::ssa::SsaOp::BuildObject { .. }
-            | vn_types::ssa::SsaOp::GetProperty { .. }
-            | vn_types::ssa::SsaOp::GetSlotMethod { .. }
-            | vn_types::ssa::SsaOp::SetProperty { .. }
-            | vn_types::ssa::SsaOp::GetIndex { .. }
-            | vn_types::ssa::SsaOp::SetIndex { .. }
-            | vn_types::ssa::SsaOp::ArrayLength { .. }
-            | vn_types::ssa::SsaOp::StrLength { .. }
-            | vn_types::ssa::SsaOp::BytesLength { .. }
-            | vn_types::ssa::SsaOp::MethodCall { .. }
-            | vn_types::ssa::SsaOp::InvokeSlot { .. }
-            | vn_types::ssa::SsaOp::CallNativeOp { .. }
-            | vn_types::ssa::SsaOp::ArrayPush { .. }
-            | vn_types::ssa::SsaOp::This
-            | vn_types::ssa::SsaOp::GetFixedField { .. }
-            | vn_types::ssa::SsaOp::SetFixedField { .. }
-            | vn_types::ssa::SsaOp::MakeClass { .. }
-            | vn_types::ssa::SsaOp::DeclareLayout { .. }
-            | vn_types::ssa::SsaOp::FreezeClass { .. }
-            | vn_types::ssa::SsaOp::DefineMember { .. }
-            | vn_types::ssa::SsaOp::GetSuper { .. }
-            | vn_types::ssa::SsaOp::GetSuperSlot { .. }
-            | vn_types::ssa::SsaOp::LoadGlobal(_)
-            | vn_types::ssa::SsaOp::StoreGlobal { .. }
-            | vn_types::ssa::SsaOp::BuildTuple { .. }
-            | vn_types::ssa::SsaOp::BuildArraySpread { .. }
-            | vn_types::ssa::SsaOp::BuildObjectSpread { .. }
-            | vn_types::ssa::SsaOp::ObjectMerge { .. }
-            | vn_types::ssa::SsaOp::ObjectRest { .. }
-            | vn_types::ssa::SsaOp::GetPropertyMaybe { .. }
-            | vn_types::ssa::SsaOp::AssertNotNull { .. }
-            | vn_types::ssa::SsaOp::Range { .. }
-            | vn_types::ssa::SsaOp::SuperCall { .. }
-            | vn_types::ssa::SsaOp::SuperMethodCall { .. }
-            | vn_types::ssa::SsaOp::SuperInvokeSlot { .. }
-            | vn_types::ssa::SsaOp::ExtensionCall { .. }
-            | vn_types::ssa::SsaOp::CallSpread { .. }
-            | vn_types::ssa::SsaOp::LoadModule { .. }
-            | vn_types::ssa::SsaOp::ModuleSlot { .. }
-            | vn_types::ssa::SsaOp::StoreModuleSlot { .. }
-            | vn_types::ssa::SsaOp::Await { .. }
-            | vn_types::ssa::SsaOp::Spawn { .. }
-            | vn_types::ssa::SsaOp::Yield { .. } => {}
-        }
+        replay_try_inst(ssa, &mut stack, inst)?;
     }
     None
+}
+
+fn replay_try_inst(
+    ssa: &SsaProto,
+    stack: &mut Vec<usize>,
+    inst: &vn_types::ssa::SsaInst,
+) -> Option<()> {
+    if let vn_types::ssa::SsaOp::Try { .. } = &inst.op {
+        let e = ssa.catch_at(inst.try_landing()?.ip as usize)?;
+        stack.push(e.block.0 as usize);
+    } else if matches!(&inst.op, vn_types::ssa::SsaOp::PopTry) {
+        stack.pop()?;
+    }
+    Some(())
 }
 
 pub(super) fn try_entry_stacks(
