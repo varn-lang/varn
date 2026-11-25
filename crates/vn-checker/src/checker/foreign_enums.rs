@@ -51,11 +51,13 @@ impl Checker<'_> {
                 .map(|members| {
                     members
                         .iter()
-                        .filter(|m| !m.is_static)
                         .map(|m| ForeignEnumMember {
                             kind: m.kind,
                             name: m.name.clone(),
                             ty: self.reintern_foreign_ty(owner, m.ty),
+                            offset: m.offset,
+                            is_static: m.is_static,
+                            is_abstract: m.is_abstract,
                         })
                         .collect()
                 })

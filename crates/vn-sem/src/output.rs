@@ -58,6 +58,9 @@ pub struct ForeignEnumMember {
     pub kind: crate::types::ClassMemberKind,
     pub name: Arc<str>,
     pub ty: Type,
+    pub offset: u32,
+    pub is_static: bool,
+    pub is_abstract: bool,
 }
 
 #[derive(Clone, Debug)]

@@ -275,7 +275,9 @@ pub fn build(bind: &BindResult, desugar: &vn_sem::output::Desugarings, tt: &mut 
             name: f.name.clone(),
             binding: f.binding.clone(),
             members: super::enums::enum_members(
-                f.members.iter().map(|m| (m.kind, &m.name, &m.ty)),
+                f.members
+                    .iter()
+                    .map(|m| (m.kind, &m.name, &m.ty, m.offset, m.is_static, m.is_abstract)),
                 &bind.ty_table,
                 &bind.interner,
                 tt,
