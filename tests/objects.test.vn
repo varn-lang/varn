@@ -60,7 +60,7 @@ await describe("23 Objects", async () => {
     });
     await it("get and set stay ordinary property names in object literals", () => {
         const set = 4;
-        const o = { get: 1, set, put() { return 2; } };
+        const o = #{ get: 1, set, put() { return 2; } };
         expect(o.get).toBe(1);
         expect(o.set).toBe(4);
         expect(o.put()).toBe(2);

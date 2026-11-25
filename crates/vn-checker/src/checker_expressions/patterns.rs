@@ -56,8 +56,39 @@ impl<'r> Checker<'r> {
                 }
             }
             Pattern::Object {
-                properties, rest, ..
+                properties,
+                rest,
+                is_hash,
+                ..
             } => {
+                let scrutinee_is_nominal = if value_ty.is_unresolved() {
+                    None
+                } else {
+                    let scrutinee =
+                        value_ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
+                    Some(matches!(
+                        self.ty_table.get(scrutinee.0),
+                        vn_core::TypeKind::Named(..) | vn_core::TypeKind::Generic(..)
+                    ))
+                };
+                if !is_hash && scrutinee_is_nominal == Some(false) {
+                    self.emit(
+                        vn_core::Diagnostic::error(
+                            vn_core::ErrorCode::RecordRequiresHash,
+                            "a record pattern is written `#{ x }`: `{ ... }` against a non-nominal type is a struct pattern, write it with `#`",
+                        )
+                        .with_range(*pattern.range()),
+                    );
+                }
+                if *is_hash && scrutinee_is_nominal == Some(true) {
+                    self.emit(
+                        vn_core::Diagnostic::error(
+                            vn_core::ErrorCode::RecordRequiresHash,
+                            "a struct pattern is written `{ x }`: `#{ ... }` is always a record pattern, write it without `#`",
+                        )
+                        .with_range(*pattern.range()),
+                    );
+                }
                 for prop in properties {
                     let key = bind.interner.resolve(prop.key);
                     let defaulted = matches!(prop.value, Pattern::Assignment { .. });

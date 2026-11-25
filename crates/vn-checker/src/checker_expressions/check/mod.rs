@@ -231,9 +231,12 @@ impl<'r> Checker<'r> {
                 }
             }
 
-            ExprKind::Object { properties, .. } => {
+            ExprKind::Object {
+                properties,
+                is_hash,
+            } => {
                 let properties = properties.clone();
-                self.check_object_with_context(rec, expr, &properties, bind)
+                self.check_object_with_context(rec, expr, &properties, *is_hash, bind)
             }
 
             ExprKind::Template { parts } => {

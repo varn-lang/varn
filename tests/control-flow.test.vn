@@ -45,7 +45,7 @@ await describe("09 Control Flow", async () => {
             forOfBreak = forOfBreak + n;
         }
         expect(forOfBreak).toBe(3);
-        const obj2 = { x: 1, y: 2, z: 3 };
+        const obj2 = #{ x: 1, y: 2, z: 3 };
         let keyCount = 0;
         for (const k in obj2) {
             keyCount = keyCount + 1;

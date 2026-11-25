@@ -97,8 +97,8 @@ await describe("93 match guards spread predicates", async () => {
         expect(describeHttpCode(999)).toBe("Unknown");
         
 
-        const defaults = { host: "127.0.0.1", port: 8080, debug: false };
-        const config = { ...(defaults with { port: 9000 }), secure: true };
+        const defaults = #{ host: "127.0.0.1", port: 8080, debug: false };
+        const config = #{ ...(defaults with { port: 9000 }), secure: true };
         expect(config.host).toBe("127.0.0.1");
         expect(config.port).toBe(9000);
         expect(config.debug).toBe(false);
@@ -107,9 +107,9 @@ await describe("93 match guards spread predicates", async () => {
     });
 
     await it("Multiple object spreads merging in ord / Array spread element merging and cloni", async () => {
-        const partA = { a: 1, shared: "fromA" };
-        const partB = { b: 2, other: "fromB" };
-        const combined = { ...partA, ...partB, c: 3 };
+        const partA = #{ a: 1, shared: "fromA" };
+        const partB = #{ b: 2, other: "fromB" };
+        const combined = #{ ...partA, ...partB, c: 3 };
         expect(combined.a).toBe(1);
         expect(combined.b).toBe(2);
         expect(combined.shared).toBe("fromA");

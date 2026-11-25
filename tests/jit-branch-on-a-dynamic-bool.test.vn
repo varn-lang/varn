@@ -22,7 +22,7 @@ let trues = 0
 let arrays = 0
 let checked = 0
 const flags: dynamic[] = [true, false, false, true, true]
-const probes: dynamic[] = ["1", "", [1, 2], 0, 7, 0.0, 2.5, null, false, true, { a: 1 }]
+const probes: dynamic[] = ["1", "", [1, 2], 0, 7, 0.0, 2.5, null, false, true, #{ a: 1 }]
 
 await describe("146 a compiled branch on a dynamic value branches on its bool", async () => {
     await it("branches past the tiering threshold", async () => {

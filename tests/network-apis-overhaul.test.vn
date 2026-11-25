@@ -25,7 +25,7 @@ function testNetIpUtils(): void {
 
 function testHttpServerAndClientApis(): void {
     // 1. Response and HttpStatus
-    let res = json({ message: "Success", code: 200 });
+    let res = json(#{ message: "Success", code: 200 });
         expect(res.status).toBe(200);;
         expect(res.ok).toBeTruthy();;
         expect(res.statusText).toBe("OK");;
@@ -42,19 +42,19 @@ function testHttpServerAndClientApis(): void {
     app.cors("*");
 
     app.get("/api/items", async (req: Request) => {
-        return json([{ id: 1, name: "Item1" }]);
+        return json([#{ id: 1, name: "Item1" }]);
     });
 
     app.post("/api/items", async (req: Request) => {
-        return json({ created: true });
+        return json(#{ created: true });
     });
 
     app.patch("/api/items/:id", async (req: Request) => {
-        return json({ updated: req.params["id"] });
+        return json(#{ updated: req.params["id"] });
     });
 
     app.delete("/api/items/:id", async (req: Request) => {
-        return json({ deleted: req.params["id"] });
+        return json(#{ deleted: req.params["id"] });
     });
 
         expect(app.port).toBe(0);;

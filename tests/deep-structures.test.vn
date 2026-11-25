@@ -10,8 +10,8 @@ function chain(depth: int): Link {
 }
 
 function nest(depth: int): dynamic {
-    let head: dynamic = { next: null };
-    for (let i = 0; i < depth; i = i + 1) { head = { next: head } }
+    let head: dynamic = #{ next: null };
+    for (let i = 0; i < depth; i = i + 1) { head = #{ next: head } }
     return head
 }
 

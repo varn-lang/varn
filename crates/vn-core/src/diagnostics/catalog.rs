@@ -54,6 +54,7 @@ crate::named_enum! {
         NotHashable = 3037 => "not-hashable",
         InvalidWithReceiver = 3038 => "invalid-with-receiver",
         AsyncReturnNotTask = 3039 => "async-return-not-task",
+        RecordRequiresHash = 3040 => "record-requires-hash",
         TypeArgInferenceFailed = 3201 => "type-arg-inference-failed",
         ConstraintViolation = 3202 => "constraint-violation",
         WrongTypeArgCount = 3203 => "wrong-type-arg-count",

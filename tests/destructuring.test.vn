@@ -2,16 +2,16 @@ import { describe, it, expect } from "std:test";
 
 await describe("06 Destructuring", async () => {
     await it("object patterns", () => {
-        const obj1 = { a: 1, b: 2, c: 3 };
-        const { a, b } = obj1;
+        const obj1 = #{ a: 1, b: 2, c: 3 };
+        const #{ a, b } = obj1;
         expect(a == 1 && b == 2).toBeTruthy();
-        const { a: renamed } = obj1;
+        const #{ a: renamed } = obj1;
         expect(renamed).toBe(1);
-        const { name = "default", age = 0 } = { name: "Alice" };
+        const #{ name = "default", age = 0 } = #{ name: "Alice" };
         expect(name).toBe("Alice");
         expect(age).toBe(0);
-        const nested = { point: { x: 10, y: 20 } };
-        const { point: { x: nx, y: ny } } = nested;
+        const nested = #{ point: #{ x: 10, y: 20 } };
+        const #{ point: #{ x: nx, y: ny } } = nested;
         expect(nx == 10 && ny == 20).toBeTruthy();
     });
 
@@ -24,18 +24,18 @@ await describe("06 Destructuring", async () => {
         expect(head).toBe(1);
         expect(tail.length).toBe(3);
         expect(tail[0]).toBe(2);
-        const data = { coords: [5, 6] };
-        const { coords: [cx, cy] } = data;
+        const data = #{ coords: [5, 6] };
+        const #{ coords: [cx, cy] } = data;
         expect(cx == 5 && cy == 6).toBeTruthy();
     });
 
     await it("spread and rest", () => {
-        const base = { x: 1, y: 2 };
-        const ext = { ...base, z: 3 };
+        const base = #{ x: 1, y: 2 };
+        const ext = #{ ...base, z: 3 };
         expect(ext.x).toBe(1);
         expect(ext.z).toBe(3);
-        const fullObj = { alpha: 10, beta: 20, gamma: 30, delta: 40 };
-        const { alpha, beta, ...restObj } = fullObj;
+        const fullObj = #{ alpha: 10, beta: 20, gamma: 30, delta: 40 };
+        const #{ alpha, beta, ...restObj } = fullObj;
         expect(alpha).toBe(10);
         expect(beta).toBe(20);
         expect(restObj.gamma).toBe(30);

@@ -1,4 +1,4 @@
 // expect: error[VN3004]
 // expect: suggestion: Did you mean `name`?
-const obj = { name: "Alice" }
+const obj = #{ name: "Alice" }
 print(obj.nme)

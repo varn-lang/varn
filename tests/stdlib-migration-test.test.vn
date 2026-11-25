@@ -69,7 +69,7 @@ await describe("31 stdlib migration test", async () => {
         expect(list.toArray()[2]).toBe("C")
         
         // ── std:json ──────────────────────────────────────────────────────
-        let obj = { name: "Varn", version: 1 };
+        let obj = #{ name: "Varn", version: 1 };
         let json_str = Json.stringify(obj);
         expect(json_str.length > 0).toBeTruthy()
         expect(json_str.includes("Varn")).toBeTruthy()

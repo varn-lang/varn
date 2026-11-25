@@ -14,7 +14,7 @@ function macName(algo: str): str {
 
 export namespace Jwt {
     export function sign(payload: JsonValue, secret: str, algo: str = "HS256"): str {
-        let hdr = Base64.encodeUrlBytes(Bytes.fromString(Json.stringify({ alg: algo, typ: "JWT" })));
+        let hdr = Base64.encodeUrlBytes(Bytes.fromString(Json.stringify(#{ alg: algo, typ: "JWT" })));
         let body = Base64.encodeUrlBytes(Bytes.fromString(Json.stringify(payload)));
         let input = hdr + "." + body;
         let sig = Base64.encodeUrlBytes(hmacBytes$(macName(algo), secret, input));

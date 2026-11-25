@@ -55,7 +55,7 @@ await describe("89 raw strings and with expressions", async () => {
         expect(u1.role).toBe("admin");
         });
         await it("`with` expression on Plain Objects", async () => {
-        let baseConfig = {
+        let baseConfig = #{
         host: "localhost",
         port: 3000,
         debug: true

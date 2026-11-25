@@ -4,6 +4,6 @@ class Dog extends Animal {}
 interface Slot {
     mut pet: Animal
 }
-const holder = { pet: new Dog() }
+const holder = #{ pet: new Dog() }
 function take(s: Slot) {}
 take(holder)

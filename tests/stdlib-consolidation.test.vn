@@ -59,7 +59,7 @@ function testLog(): void {
     logger.debug("should be filtered");
         expect(logCapturedLines.length).toBe(0);;
 
-    logger.info("service initialized", { "port": 3000 });
+    logger.info("service initialized", #{ "port": 3000 });
         expect(logCapturedLines.length).toBe(1);;
         expect(logCapturedLines[0].includes("[INFO]")).toBeTruthy();;
         expect(logCapturedLines[0].includes("(service)")).toBeTruthy();;
@@ -70,7 +70,7 @@ function testLog(): void {
     let jsonLogger = new Logger("jsonApp", LogLevel.Debug, true, false, (line: str): void => {
         logJsonLines.push(line);
     });
-    jsonLogger.debug("testing json", { "ok": true });
+    jsonLogger.debug("testing json", #{ "ok": true });
         expect(logJsonLines.length).toBe(1);;
 
     let parsedRecord = Json.parse<Map<str, JsonValue>>(logJsonLines[0]);

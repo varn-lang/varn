@@ -4,7 +4,7 @@ await describe("347 postfix update stays on its line", async () => {
     await it("a prefix update on the next line is a new statement, not a postfix on the previous value", () => {
         let a = 1
         let b = 1
-        const pair = { a, b }
+        const pair = #{ a, b }
         ++a
         --b
         expect(a).toBe(2)

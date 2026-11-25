@@ -65,7 +65,7 @@ export class Logger {
         let outputLine: str = "";
         if (this._jsonOutput) {
             if (meta != null) {
-                outputLine = Json.stringify({
+                outputLine = Json.stringify(#{
                     timestamp: timestampStr,
                     level: levelTag,
                     target: this._name,
@@ -73,7 +73,7 @@ export class Logger {
                     meta: meta
                 });
             } else {
-                outputLine = Json.stringify({
+                outputLine = Json.stringify(#{
                     timestamp: timestampStr,
                     level: levelTag,
                     target: this._name,

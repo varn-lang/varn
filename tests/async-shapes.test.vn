@@ -32,7 +32,7 @@ const localFnExpr = async function (): Task<int> { return 14 }
 // call site got `dynamic`. Pinned here for the signature, not the value.
 const syncFnExpr = function (x: int): int { return x * 2 }
 
-const literal = {
+const literal = #{
     async method(): Task<int> { return 15 },
     plainMethod(x: int): int { return x + 1 }
 }

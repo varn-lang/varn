@@ -17,12 +17,12 @@ function parses(text: str): bool {
 await describe("314 JSON keeps its text and its integers exactly", async () => {
     await it("object keys round-trip with non-ASCII characters", async () => {
         expect(roundTrip("{\"\u00e9\u20ac\":1}")).toBe("{\"\u00e9\u20ac\":1}");
-        expect(Json.stringify({ "\u00e9": 1, "plain": 2 })).toBe("{\"\u00e9\":1,\"plain\":2}");
+        expect(Json.stringify(#{ "\u00e9": 1, "plain": 2 })).toBe("{\"\u00e9\":1,\"plain\":2}");
     });
 
     await it("string literals process their escapes in object keys too", async () => {
         const keys: str[] = [];
-        for (const k in { "\u00e9": 1, "a\u0041": 2, "\n": 3, "\x41": 4, "\u{1F600}": 5 }) {
+        for (const k in #{ "\u00e9": 1, "a\u0041": 2, "\n": 3, "\x41": 4, "\u{1F600}": 5 }) {
             keys.push(k);
         }
         expect(keys.length).toBe(5);
@@ -34,9 +34,9 @@ await describe("314 JSON keeps its text and its integers exactly", async () => {
     });
 
     await it("keys and values are escaped by the same rules", async () => {
-        expect(Json.stringify({ "a\nb": 1 })).toBe("{\"a\\nb\":1}");
-        expect(Json.stringify({ "q\"r": 1 })).toBe("{\"q\\\"r\":1}");
-        expect(Json.stringify({ "\u0001c": 1 })).toBe("{\"\\u0001c\":1}");
+        expect(Json.stringify(#{ "a\nb": 1 })).toBe("{\"a\\nb\":1}");
+        expect(Json.stringify(#{ "q\"r": 1 })).toBe("{\"q\\\"r\":1}");
+        expect(Json.stringify(#{ "\u0001c": 1 })).toBe("{\"\\u0001c\":1}");
         expect(Json.stringify("tab\there")).toBe("\"tab\\there\"");
     });
 

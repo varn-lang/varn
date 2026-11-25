@@ -52,7 +52,7 @@ await describe("94 ecma features and meta reflection", async () => {
         expect(cls::name).toBe("SampleUser");
         
 
-        const plainObj = { x: 10, y: 20, label: "Point" };
+        const plainObj = #{ x: 10, y: 20, label: "Point" };
         expect(plainObj::type).toBe("Object");
         const keys = plainObj::keys();
         expect(keys.length).toBe(3);
@@ -102,7 +102,7 @@ await describe("94 ecma features and meta reflection", async () => {
         expect(arrVal::type).toBe("Array");
         
 
-        const obj = { a: 100, b: "test" };
+        const obj = #{ a: 100, b: "test" };
         expect(Reflect.typeOf(obj)).toBe("Object");
         const k = Reflect.keys(obj);
         expect(k.length).toBe(2);
@@ -177,7 +177,7 @@ await describe("94 ecma features and meta reflection", async () => {
         expect(nval).toBe("initialized");
     
 
-        const config: dynamic = { host: "127.0.0.1" };
+        const config: dynamic = #{ host: "127.0.0.1" };
         const { host = "localhost", port = 8080 } = config;
         expect(host).toBe("127.0.0.1");
         expect(port).toBe(8080);

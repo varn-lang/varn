@@ -1,0 +1,4 @@
+// expect: error[VN3040]
+const r = #{ x: 1 };
+const { x } = r;
+print(x);

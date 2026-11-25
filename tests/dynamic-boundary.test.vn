@@ -243,7 +243,7 @@ await describe("162 dynamic boundary", async () => {
         expect(optAnimal(null)).toBe(true)
         expect(optAnimal(new Dog())).toBe(false)
         expect(failed(() => { declAnimal(new Rock()) })).toBe(true)
-        expect(failed(() => { declAnimal({ legs: 4 }) })).toBe(true)
+        expect(failed(() => { declAnimal(#{ legs: 4 }) })).toBe(true)
         expect(failed(() => { declAnimal(null) })).toBe(true)
         expect(failed(() => { passAnimal(new Rock()) })).toBe(true)
         expect(failed(() => { castAnimal(5) })).toBe(true)
@@ -312,7 +312,7 @@ await describe("162 dynamic boundary", async () => {
     })
 
     await it("a dynamic value is tested explicitly, and interpolation takes any value", () => {
-        const d: dynamic = { a: 1 }
+        const d: dynamic = #{ a: 1 }
         let seen = false
         if (d != null) { seen = true }
         expect(seen).toBe(true)

@@ -49,7 +49,7 @@ function* yieldsArrays() {
 }
 
 function* yieldsObjects() {
-    yield { a: 1, b: 2 }
+    yield #{ a: 1, b: 2 }
 }
 
 function* inner() {

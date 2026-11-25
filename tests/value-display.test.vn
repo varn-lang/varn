@@ -7,8 +7,8 @@ class Point {
 
 await describe("266 value display", async () => {
     await it("objects show their fields", () => {
-        const o = { a: 1, b: "x", c: [1, 2] };
-        expect(`${o}`).toBe('{ a: 1, b: "x", c: [1, 2] }');
+        const o = #{ a: 1, b: "x", c: [1, 2] };
+        expect(`${o}`).toBe('#{ a: 1, b: "x", c: [1, 2] }');
         expect(`${new Point()}`).toBe('Point { x: 1, label: "p" }');
     });
 

@@ -26,7 +26,7 @@ let dStr = 0
 let dIntNot = 0
 let dIs = 0
 const dShape = new DynShape(4)
-const dObj: dynamic = { alpha: 1 }
+const dObj: dynamic = #{ alpha: 1 }
 
 await describe("142 jit operators beyond native types", async () => {
     await it("str equality, int? negation and is on a dynamic run compiled", async () => {

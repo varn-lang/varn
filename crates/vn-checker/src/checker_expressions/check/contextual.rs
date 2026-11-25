@@ -171,10 +171,35 @@ impl<'r> Checker<'r> {
         rec: &mut Recorder,
         expr: ExprId,
         properties: &[ObjectProp],
+        is_hash: bool,
         bind: &BindResult,
     ) {
-        let expected_members: Vec<ObjectTypeMember> = if let Some(t) = self.expected_for(expr) {
-            let ty = t.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
+        let expected = self
+            .expected_for(expr)
+            .map(|t| t.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table)));
+        let expected_is_nominal = matches!(
+            expected.map(|t| self.ty_table.get(t.0)),
+            Some(TypeKind::Named(..) | TypeKind::Generic(..))
+        );
+        if !is_hash && !expected_is_nominal {
+            self.emit(
+                Diagnostic::error(
+                    ErrorCode::RecordRequiresHash,
+                    "a record is written `#{ x: 1 }`: `{ ... }` without a nominal type in context is a struct literal, write it with `#`",
+                )
+                .with_range(self.ast_arena.expr(expr).range),
+            );
+        }
+        if is_hash && expected_is_nominal {
+            self.emit(
+                Diagnostic::error(
+                    ErrorCode::RecordRequiresHash,
+                    "a struct literal is written `{ x: 1 }`: `#{ ... }` is always a record, write it without `#`",
+                )
+                .with_range(self.ast_arena.expr(expr).range),
+            );
+        }
+        let expected_members: Vec<ObjectTypeMember> = if let Some(ty) = expected {
             if let Some(cached) = self.expected_object_members_cache.get(&ty) {
                 cached.clone()
             } else {

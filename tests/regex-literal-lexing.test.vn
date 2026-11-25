@@ -24,7 +24,7 @@ await describe("355 regex literal lexing", async () => {
     await it("a literal starts an expression after every operator that expects a value", async () => {
         const a = [/x/, /y/];
         expect(a.length).toBe(2);
-        const o = { re: /z/ };
+        const o = #{ re: /z/ };
         expect(o.re.test("z")).toBe(true);
         const negated = !/q/.test("a");
         expect(negated).toBe(true);

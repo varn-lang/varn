@@ -41,7 +41,7 @@ await describe("49 opt unsupported phase2", async () => {
         // Tests for Phase 2: Updates on Members and Indices
         
         // 1. Member updates
-        let obj = { x: 10, y: 20 };
+        let obj = #{ x: 10, y: 20 };
         let r1 = obj.x;
         obj.x++;
         expect(r1).toBe(10);
@@ -82,7 +82,7 @@ await describe("49 opt unsupported phase2", async () => {
         expect(arr[1]).toBe(198);
         
         // 3. Nested updates
-        let complex = { arr: [{ val: 5 }] };
+        let complex = #{ arr: [#{ val: 5 }] };
         let r9 = complex.arr[0].val;
         complex.arr[0].val++;
         expect(r9).toBe(5);

@@ -63,6 +63,7 @@ impl ErrorCode {
             | ErrorCode::InvalidWithEntry
             | ErrorCode::InvalidWithReceiver
             | ErrorCode::AsyncReturnNotTask
+            | ErrorCode::RecordRequiresHash
             | ErrorCode::DynamicNeedsCast
             | ErrorCode::TypeArgInferenceFailed
             | ErrorCode::ConstraintViolation
@@ -157,6 +158,7 @@ impl ErrorCode {
             ErrorCode::NotHashable => "A type that cannot be compared by value or by identity is used as the key of a Map or the element of a Set.",
             ErrorCode::InvalidWithReceiver => "A `with` expression copies a value whose fields are not a record: collections, primitives, tuples and functions have no fields to replace.",
             ErrorCode::AsyncReturnNotTask => "An `async` function declares a return type that is not `Task<T>`: the annotation must name the task the caller receives.",
+            ErrorCode::RecordRequiresHash => "A record is written `#{ x: 1 }`: `{ ... }` without a nominal type in context is not a record.",
             ErrorCode::TypeArgInferenceFailed => "The type arguments of a call could not be inferred.",
             ErrorCode::ConstraintViolation => "A type argument does not satisfy the constraint of its type parameter.",
             ErrorCode::WrongTypeArgCount => "A generic is given more or fewer type arguments than it declares.",

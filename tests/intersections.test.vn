@@ -27,11 +27,11 @@ class Child extends Base {
 
 interface Pos { x: int }
 interface Tagged { tag: str }
-const both: Pos & Tagged = { x: 1, tag: "p" }
+const both: Pos & Tagged = #{ x: 1, tag: "p" }
 
 interface Loose { id: int? }
 interface Strict { id: int }
-const narrowed: Loose & Strict = { id: 3 }
+const narrowed: Loose & Strict = #{ id: 3 }
 
 type Method = "GET" | "POST"
 const onlyGet: "GET" & str = "GET"

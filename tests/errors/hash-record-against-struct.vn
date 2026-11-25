@@ -1,0 +1,4 @@
+// expect: error[VN3040]
+struct Point { x: int; y: int; }
+const p: Point = #{ x: 1, y: 2 };
+print(p.x);
