@@ -1,7 +1,7 @@
 # docs/
 
 La documentación pública de Varn **ya no vive aquí**: se migró al sitio oficial,
-`varn-lang/varn-docs` (<https://varn.twwk.cc/>). Este directorio
+`varn-lang/docs` (<https://varn.twwk.cc/>). Este directorio
 conserva solo el registro interno.
 
 ## Dónde fue cada cosa
@@ -23,5 +23,5 @@ conserva solo el registro interno.
 - `dev/` — auditorías, notas y planes de trabajo. Registro interno, no es documentación.
 - `superpowers/` — especificaciones de trabajo internas.
 
-Regla: nada de `docs/` se publica salvo a través de `varn-docs`. Si un doc de aquí
+Regla: nada de `docs/` se publica salvo a través de `varn-lang/docs`. Si un doc de aquí
 vuelve a ser público, se mueve al sitio y se borra de aquí.

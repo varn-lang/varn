@@ -60,7 +60,7 @@ Versionado: ver [estabilidad y versionado](https://varn.twwk.cc/guias/estabilida
 
 ### Removed
 
-- The public documentation left this repo: guides, language reference and architecture now live at <https://varn.twwk.cc/> (source: `varn-lang/varn-docs`). `docs/` keeps only `decisions/`, `dev/` and `superpowers/` (internal record).
+- The public documentation left this repo: guides, language reference and architecture now live at <https://varn.twwk.cc/> (source: `varn-lang/docs`). `docs/` keeps only `decisions/`, `dev/` and `superpowers/` (internal record).
 
 Desde `v0.1.0` (2026-09-12) hay más de mil commits sin release. Las decisiones de
 diseño que cambiaron el lenguaje o el runtime están en [`docs/decisions/`](docs/decisions/).
