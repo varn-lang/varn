@@ -27,6 +27,9 @@ Versionado: ver [estabilidad y versionado](https://varn.twwk.cc/guias/estabilida
 - `vn fmt` and `vn test` fail on a path that does not exist, and `vn fmt` fails on a directory it cannot read.
 - `vn.toml` accepts `description`, `license`, `repository`, `homepage`, `authors` and `keywords` besides the fields listed in the CLI reference; every other unknown key is an error.
 - `vn debug`, `vn eval`, `vn repl` and `vn test` accept the same `--allow-*` and `--sandbox` flags as `vn run`, and a bad `--phase` spec exits with the usage code.
+- A user decorator on an `async` function must return a `Task` (a sync wrapper breaks `await`): `VN4401`.
+- A user decorator on an abstract member is an error (nothing to wrap; use a metadata decorator): `VN2013`.
+- A builtin decorator shadowed by a same-named binding in scope is an error (builtins always win in decorator position): `VN2013`.
 
 ### Added
 
