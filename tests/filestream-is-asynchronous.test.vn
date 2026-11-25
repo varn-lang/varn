@@ -2,8 +2,9 @@ import { describe, it, expect } from "std:test";
 import { sleep, spawn } from "std:task";
 import { FileStream, FileMode, tempDir, remove } from "std:fs";
 import { BadDescriptorError } from "std:error";
+import { Uuid } from "std:crypto";
 
-const path = tempDir() + "/varn-283-filestream.bin";
+const path = tempDir() + "/varn-283-filestream-" + Uuid.v4() + ".bin";
 
 await describe("283 FileStream is asynchronous", async () => {
     await it("writes, reads in chunks and reads everything", async () => {
