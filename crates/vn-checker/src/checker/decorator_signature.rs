@@ -16,14 +16,27 @@ impl<'r> Checker<'r> {
         target: DecoratorTarget,
         target_name: &str,
         bind: &BindResult,
+        is_async_target: bool,
+        is_abstract_target: bool,
     ) {
         let expected_arity = target.arity();
         let target_kind = target.name();
         let check_return = target.returns_value();
         let builtins = match_builtin(self.ast_arena, &bind.interner, decorators);
         for (d, b) in decorators.iter().zip(builtins.iter()) {
+            if is_abstract_target && b.result.is_none() {
+                self.emit(
+                    Diagnostic::error(
+                        ErrorCode::InvalidDecoratorTarget,
+                        format!("decorator on abstract {target_kind} '{target_name}' cannot wrap: abstract members have no body to wrap; use a metadata decorator instead"),
+                    )
+                    .with_range(d.range),
+                );
+                continue;
+            }
             if let Some(kind) = Self::builtin_kind(b) {
                 self.check_builtin_placement(&kind, &target, target_name, d.range);
+                self.check_no_shadowed_builtin(d, &kind, bind);
                 continue;
             }
             if let Some(Err(shape)) = &b.result {
@@ -41,6 +54,7 @@ impl<'r> Checker<'r> {
                 target_kind,
                 target_name,
                 bind,
+                is_async_target,
             );
         }
     }
@@ -54,6 +68,7 @@ impl<'r> Checker<'r> {
         target_kind: &str,
         target_name: &str,
         bind: &BindResult,
+        is_async_target: bool,
     ) {
         self.check_expr(rec, d.expression, bind);
         let deco_ty = self.infer_type(rec, d.expression, bind);
@@ -112,6 +127,21 @@ impl<'r> Checker<'r> {
         {
             return;
         }
+        let ret_ty = vn_sem::types::Type::resolved(ft.return_type);
+        if check_return
+            && is_async_target
+            && !ret_ty.is_unresolved()
+            && !vn_sem::types::is_awaitable(&ret_ty, &self.ty_table)
+        {
+            self.emit(
+                Diagnostic::error(
+                    ErrorCode::InvalidDecoratorSignature,
+                    format!("decorator on async {target_kind} '{target_name}' must return a Task: a sync wrapper breaks await"),
+                )
+                .with_range(d.range),
+            );
+            return;
+        }
         if !check_return || Self::is_callable_ty(&self.ty_table, ft.return_type) {
             return;
         }
@@ -147,6 +177,36 @@ impl<'r> Checker<'r> {
             format!("'{name}' is deprecated: {msg}")
         };
         self.emit(Diagnostic::warning(ErrorCode::DeprecatedUse, text).with_range(range));
+    }
+
+    fn check_no_shadowed_builtin(
+        &mut self,
+        d: &Decorator,
+        kind: &BuiltinDecoratorKind,
+        bind: &BindResult,
+    ) {
+        let Some(head) = vn_core::ast::decorators::decorator_head(self.ast_arena, &bind.interner, d)
+        else {
+            return;
+        };
+        if bind
+            .scopes
+            .get(self.current_scope)
+            .resolve(head, &bind.scopes)
+            .is_none()
+        {
+            return;
+        }
+        self.emit(
+            Diagnostic::error(
+                ErrorCode::InvalidDecoratorTarget,
+                format!(
+                    "decorator '@{}' is shadowed by a same-named binding in scope: builtins always win in decorator position, rename the local binding",
+                    kind.name(),
+                ),
+            )
+            .with_range(d.range),
+        );
     }
 
     fn builtin_kind(b: &vn_core::ast::decorators::BuiltinMatch) -> Option<BuiltinDecoratorKind> {

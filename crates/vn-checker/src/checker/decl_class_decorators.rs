@@ -21,6 +21,8 @@ impl<'r> Checker<'r> {
                 super::decorator_signature::DecoratorTarget::Class,
                 name,
                 bind,
+                false,
+                false,
             );
         }
         for member in &c.body {
@@ -53,6 +55,7 @@ impl<'r> Checker<'r> {
                     decorators,
                     body: Some(body),
                     params,
+                    modifiers,
                     range,
                     ..
                 } if !decorators.is_empty() => {
@@ -63,6 +66,8 @@ impl<'r> Checker<'r> {
                         super::decorator_signature::DecoratorTarget::Method,
                         key_str,
                         bind,
+                        modifiers.is_async,
+                        false,
                     );
                     if super::decorator_receiver::method_uses_receiver(
                         self.ast_arena,
@@ -95,6 +100,8 @@ impl<'r> Checker<'r> {
                         super::decorator_signature::DecoratorTarget::Constructor,
                         vn_core::TokenKind::Constructor.as_str(),
                         bind,
+                        false,
+                        false,
                     );
                     if super::decorator_receiver::method_uses_receiver(
                         self.ast_arena,
@@ -118,6 +125,7 @@ impl<'r> Checker<'r> {
                     key,
                     decorators,
                     body: Some(body),
+                    modifiers,
                     range,
                     ..
                 } if !decorators.is_empty() => {
@@ -128,6 +136,8 @@ impl<'r> Checker<'r> {
                         super::decorator_signature::DecoratorTarget::Getter,
                         key_str,
                         bind,
+                        modifiers.is_async,
+                        false,
                     );
                     if super::decorator_receiver::method_uses_receiver(self.ast_arena, &[], *body)
                         && vn_core::ast::decorators::wraps_at_runtime(
@@ -150,6 +160,7 @@ impl<'r> Checker<'r> {
                     decorators,
                     body: Some(body),
                     param,
+                    modifiers,
                     range,
                     ..
                 } if !decorators.is_empty() => {
@@ -160,6 +171,8 @@ impl<'r> Checker<'r> {
                         super::decorator_signature::DecoratorTarget::Setter,
                         key_str,
                         bind,
+                        modifiers.is_async,
+                        false,
                     );
                     if super::decorator_receiver::method_uses_receiver(
                         self.ast_arena,
@@ -178,6 +191,57 @@ impl<'r> Checker<'r> {
                             .with_range(*range),
                         );
                     }
+                }
+                ClassMember::Method {
+                    key,
+                    decorators,
+                    body: None,
+                    ..
+                } if !decorators.is_empty() => {
+                    let key_str = bind.interner.resolve(*key);
+                    self.check_decorator_signatures(
+                        rec,
+                        decorators,
+                        super::decorator_signature::DecoratorTarget::Method,
+                        key_str,
+                        bind,
+                        false,
+                        true,
+                    );
+                }
+                ClassMember::Getter {
+                    key,
+                    decorators,
+                    body: None,
+                    ..
+                } if !decorators.is_empty() => {
+                    let key_str = bind.interner.resolve(*key);
+                    self.check_decorator_signatures(
+                        rec,
+                        decorators,
+                        super::decorator_signature::DecoratorTarget::Getter,
+                        key_str,
+                        bind,
+                        false,
+                        true,
+                    );
+                }
+                ClassMember::Setter {
+                    key,
+                    decorators,
+                    body: None,
+                    ..
+                } if !decorators.is_empty() => {
+                    let key_str = bind.interner.resolve(*key);
+                    self.check_decorator_signatures(
+                        rec,
+                        decorators,
+                        super::decorator_signature::DecoratorTarget::Setter,
+                        key_str,
+                        bind,
+                        false,
+                        true,
+                    );
                 }
                 ClassMember::Constructor { .. }
                 | ClassMember::Method { .. }

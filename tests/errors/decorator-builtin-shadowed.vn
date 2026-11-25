@@ -1,0 +1,11 @@
+// expect: error[VN2013]
+function pure(n: int): int {
+    return n;
+}
+
+@pure
+function doble(n: int): int {
+    return n * 2;
+}
+
+print(doble(21));

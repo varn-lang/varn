@@ -68,8 +68,6 @@ class WithOld {
     }
 }
 
-let shadowLog: str[] = [];
-
 let ctxLog: str[] = [];
 
 function ctxMethod(fn: FunctionRef, ctx: MethodContext): FunctionRef {
@@ -120,20 +118,6 @@ class WithCtx {
     static sf: int = 4;
 }
 
-function shadowScope(): int {
-    function pure(fn: FunctionRef): FunctionRef {
-        shadowLog.push("wrapped");
-        return fn;
-    }
-
-    @pure
-    function shadowedFn(): int {
-        return 11;
-    }
-
-    return shadowedFn();
-}
-
 await describe("116 decorator builtins", async () => {
     await it("deprecated still runs", () => {
         expect(oldAdd(1, 2)).toBe(3);
@@ -159,11 +143,6 @@ await describe("116 decorator builtins", async () => {
     await it("test targets run", async () => {
         builtinSum();
         await builtinAsync();
-    });
-
-    await it("builtin names win in decorator position", () => {
-        expect(shadowScope()).toBe(11);
-        expect(shadowLog.length).toBe(0);
     });
 
     await it("typed decorator contexts", () => {

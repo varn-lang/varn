@@ -143,6 +143,8 @@ impl<'r> Checker<'r> {
                 super::decorator_signature::DecoratorTarget::Function,
                 name,
                 bind,
+                f.modifiers.is_async,
+                false,
             );
             let has_test = vn_core::ast::decorators::match_builtin(
                 self.ast_arena,

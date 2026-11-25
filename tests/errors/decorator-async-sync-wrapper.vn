@@ -1,0 +1,13 @@
+// expect: error[VN4401]
+import { FunctionRef } from "std:reflect";
+
+function envuelve(fn: FunctionRef, ctx: MethodContext): FunctionRef {
+    return fn;
+}
+
+class Taller {
+    @envuelve
+    async hacer(n: int): Task<int> {
+        return n * 2;
+    }
+}

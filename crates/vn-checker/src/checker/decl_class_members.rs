@@ -29,6 +29,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Property,
                             key_str,
                             bind,
+                            false,
+                            false,
                         );
                     }
                     if let Some(init_expr) = *init

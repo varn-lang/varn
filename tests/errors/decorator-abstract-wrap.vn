@@ -1,0 +1,11 @@
+// expect: error[VN2013]
+import { FunctionRef } from "std:reflect";
+
+function nota(fn: FunctionRef): FunctionRef {
+    return fn;
+}
+
+abstract class Base {
+    @nota
+    abstract trabajo(): int
+}

@@ -38,6 +38,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Property,
                             key_str,
                             bind,
+                            false,
+                            false,
                         );
                     }
                     if let Some(init_expr) = *init
@@ -81,6 +83,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Method,
                             key_str,
                             bind,
+                            modifiers.is_async,
+                            body.is_none(),
                         );
                         if let Some(body_stmt) = *body
                             && super::decorator_receiver::method_uses_receiver(
@@ -150,6 +154,7 @@ impl<'r> Checker<'r> {
                     range,
                     key,
                     decorators,
+                    modifiers,
                     ..
                 } => {
                     if !decorators.is_empty() {
@@ -160,6 +165,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Getter,
                             key_str,
                             bind,
+                            modifiers.is_async,
+                            body.is_none(),
                         );
                         if let Some(body_stmt) = *body
                             && super::decorator_receiver::method_uses_receiver(
@@ -215,6 +222,7 @@ impl<'r> Checker<'r> {
                     body,
                     range,
                     decorators,
+                    modifiers,
                     ..
                 } => {
                     if !decorators.is_empty() {
@@ -225,6 +233,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Setter,
                             key_str,
                             bind,
+                            modifiers.is_async,
+                            body.is_none(),
                         );
                         if let Some(body_stmt) = *body
                             && super::decorator_receiver::method_uses_receiver(
@@ -300,6 +310,8 @@ impl<'r> Checker<'r> {
                             super::decorator_signature::DecoratorTarget::Constructor,
                             vn_core::TokenKind::Constructor.as_str(),
                             bind,
+                            false,
+                            false,
                         );
                         if super::decorator_receiver::method_uses_receiver(
                             self.ast_arena,
