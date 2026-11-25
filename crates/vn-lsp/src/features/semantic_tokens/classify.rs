@@ -5,8 +5,8 @@ use vn_sem::types::Type;
 
 use super::context::TokenContext;
 use super::{
-    TT_CLASS, TT_DECORATOR, TT_ENUM, TT_ENUM_MEMBER, TT_FUNCTION, TT_INTERFACE, TT_KEYWORD,
-    TT_METHOD, TT_NAMESPACE, TT_NUMBER, TT_PARAMETER, TT_PROPERTY, TT_REGEXP, TT_STRING, TT_TYPE,
+    TT_CLASS, TT_ENUM, TT_ENUM_MEMBER, TT_FUNCTION, TT_INTERFACE, TT_KEYWORD, TT_METHOD,
+    TT_NAMESPACE, TT_NUMBER, TT_PARAMETER, TT_PROPERTY, TT_REGEXP, TT_STRING, TT_TYPE,
     TT_TYPE_PARAMETER, TT_VARIABLE,
 };
 use crate::document::{DocumentState, TokenRecord};
@@ -81,7 +81,7 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
     }
 
     if ctx.prev_is_at && tok.kind == Identifier {
-        return Some(TT_DECORATOR);
+        return Some(TT_ENUM_MEMBER);
     }
 
     let names_a_symbol = tok.kind.is_keyword()

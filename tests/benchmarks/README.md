@@ -98,8 +98,8 @@ en estado estable. Las cinco cargas sin par (`csv_etl`, `csv_pipeline`, `gpu_mat
 
 Mayores brechas en estado estable (vn / mejor rival): `sort_objects` 222 / 72,
 `polymorphism` 103 / 40, `generator` 15 / 6, `matrix_local` 13 / 8, `http_routing`
-135 / 109, `str_ops` 62 / 50. Las causas medidas y las palancas abiertas están en
-[`docs/ROADMAP.md`](../../docs/ROADMAP.md).
+135 / 109, `str_ops` 62 / 50. Las causas medidas y las palancas abiertas están en el
+[roadmap](https://varn.twwk.cc/guias/roadmap/).
 
 ---
 

@@ -22,6 +22,7 @@ impl<'r> super::super::Binder<'r> {
                 sym.doc = doc.map(|d| self.intern_local(&d));
                 sym.col = range.start.column;
                 sym.offset = range.start.offset;
+                sym.full_range = *range;
                 sym.has_explicit_type = explicit;
                 sym.ty = ty;
                 self.define(*name, sym);

@@ -135,18 +135,18 @@ fn merge_members(
         let existing = out
             .iter_mut()
             .find(|m| matches!(m, ObjectTypeMember::Property { name: n, .. } if n == name));
-        match existing {
-            Some(ObjectTypeMember::Property {
-                ty: prev_ty,
-                optional: prev_opt,
-                readonly: prev_ro,
-                ..
-            }) => {
-                *prev_ty = intersect_two(Type::resolved(*prev_ty), Type::resolved(*ty), table).0;
-                *prev_opt = *prev_opt && *optional;
-                *prev_ro = *prev_ro || *readonly;
-            }
-            _ => out.push(member),
+        if let Some(ObjectTypeMember::Property {
+            ty: prev_ty,
+            optional: prev_opt,
+            readonly: prev_ro,
+            ..
+        }) = existing
+        {
+            *prev_ty = intersect_two(Type::resolved(*prev_ty), Type::resolved(*ty), table).0;
+            *prev_opt = *prev_opt && *optional;
+            *prev_ro = *prev_ro || *readonly;
+        } else {
+            out.push(member);
         }
     }
     out

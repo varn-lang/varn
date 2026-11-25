@@ -9,6 +9,15 @@ pub fn build_code_lenses(
     analysis: &DocumentState,
     workspace: Option<&Workspace>,
 ) -> Vec<CodeLens> {
+    build_code_lenses_with_options(uri, analysis, workspace, true)
+}
+
+pub fn build_code_lenses_with_options(
+    uri: &Uri,
+    analysis: &DocumentState,
+    workspace: Option<&Workspace>,
+    references_enabled: bool,
+) -> Vec<CodeLens> {
     let mut lenses = Vec::new();
     let uri_str = uri.to_string();
     let uri_arg = || serde_json::Value::String(uri_str.clone());
@@ -154,9 +163,10 @@ pub fn build_code_lenses(
         if matches!(
             sym.kind(),
             SymbolKind::Function | SymbolKind::Class | SymbolKind::Interface
-        ) && let Some(ws) = workspace
+        ) && references_enabled
+            && let Some(ws) = workspace
         {
-            let ref_count = count_references(analysis, ws, sym.line(), sym.col());
+            let ref_count = count_external_references(analysis, ws, sym.line(), sym.col());
             if ref_count > 0 {
                 let title = if ref_count == 1 {
                     "1 reference".to_string()
@@ -184,10 +194,23 @@ pub fn build_code_lenses(
     lenses
 }
 
-fn count_references(state: &DocumentState, workspace: &Workspace, line: u32, col: u32) -> usize {
-    crate::features::references::build_references(state, workspace, line, col)
-        .map(|locs| locs.len())
-        .unwrap_or(0)
+fn count_external_references(
+    state: &DocumentState,
+    workspace: &Workspace,
+    line: u32,
+    col: u32,
+) -> usize {
+    let Some(locs) = crate::features::references::build_references(state, workspace, line, col)
+    else {
+        return 0;
+    };
+    locs.iter()
+        .filter(|loc| {
+            loc.uri.as_str() != state.uri.as_str()
+                || loc.range.start.line != line
+                || loc.range.start.character != col
+        })
+        .count()
 }
 
 fn entry_guards(state: &DocumentState) -> Vec<Range> {

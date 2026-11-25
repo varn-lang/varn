@@ -5,7 +5,6 @@ use std::time::Instant;
 use tower_lsp_f::lsp_types::*;
 
 use crate::backend::Backend;
-use crate::features::diagnostics::convert_diagnostics;
 
 const DEBOUNCE_MS: u64 = 150;
 
@@ -45,7 +44,6 @@ pub async fn analyze_and_publish(backend: &Backend, uri: Uri, source: String, is
                 let analysis = a.workspace.get(&uri_str)?;
                 let user_syms = analysis.symbols().filter(|s| s.line() != u32::MAX).count();
                 Some((
-                    convert_diagnostics(&analysis),
                     analysis.tokens.len(),
                     user_syms,
                     analysis.symbols.len() - user_syms,
@@ -55,7 +53,7 @@ pub async fn analyze_and_publish(backend: &Backend, uri: Uri, source: String, is
         .await
         .flatten();
 
-    let Some((diags, tokens, user_syms, stdlib_syms)) = report else {
+    let Some((tokens, user_syms, stdlib_syms)) = report else {
         return;
     };
 
@@ -64,7 +62,6 @@ pub async fn analyze_and_publish(backend: &Backend, uri: Uri, source: String, is
         .next()
         .unwrap_or(&uri_str)
         .to_owned();
-    backend.client.publish_diagnostics(uri, diags, None).await;
     if super::state::verbose() {
         backend
             .client

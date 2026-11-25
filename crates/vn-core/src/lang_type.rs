@@ -196,6 +196,107 @@ impl BuiltinType {
         }
     }
 
+    pub const fn is_readonly(self) -> bool {
+        match self {
+            Self::ReadonlyArray | Self::ReadonlyMap | Self::ReadonlySet => true,
+            Self::Array
+            | Self::Map
+            | Self::Set
+            | Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => false,
+        }
+    }
+
+    pub const fn unreadonly(self) -> Self {
+        match self {
+            Self::ReadonlyArray => Self::Array,
+            Self::ReadonlyMap => Self::Map,
+            Self::ReadonlySet => Self::Set,
+            Self::Array
+            | Self::Map
+            | Self::Set
+            | Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => self,
+        }
+    }
+
+    pub const fn readonly_counterpart(self) -> Option<Self> {
+        match self {
+            Self::Array => Some(Self::ReadonlyArray),
+            Self::Map => Some(Self::ReadonlyMap),
+            Self::Set => Some(Self::ReadonlySet),
+            Self::ReadonlyArray | Self::ReadonlyMap | Self::ReadonlySet => Some(self),
+            Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => None,
+        }
+    }
+
+    pub const fn is_array_family(self) -> bool {
+        match self {
+            Self::Array | Self::ReadonlyArray => true,
+            Self::Map
+            | Self::ReadonlyMap
+            | Self::Set
+            | Self::ReadonlySet
+            | Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => false,
+        }
+    }
+
+    pub const fn is_map_family(self) -> bool {
+        match self {
+            Self::Map | Self::ReadonlyMap => true,
+            Self::Array
+            | Self::ReadonlyArray
+            | Self::Set
+            | Self::ReadonlySet
+            | Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => false,
+        }
+    }
+
+    pub const fn is_set_family(self) -> bool {
+        match self {
+            Self::Set | Self::ReadonlySet => true,
+            Self::Array
+            | Self::ReadonlyArray
+            | Self::Map
+            | Self::ReadonlyMap
+            | Self::Range
+            | Self::Bytes
+            | Self::Task
+            | Self::TaskHandle
+            | Self::Generator
+            | Self::AsyncGenerator
+            | Self::Class => false,
+        }
+    }
+
     pub const fn core_module(self) -> &'static str {
         match self {
             Self::Array | Self::ReadonlyArray => "core:types/array",

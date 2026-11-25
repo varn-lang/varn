@@ -105,14 +105,11 @@ pub(super) fn compatible_named(
     let decl_members = named_members(bind, declared, origin_decl);
     let inf_members = named_members(bind, inferred, origin_inf);
 
-    match (decl_members, inf_members) {
-        (Some(decl), Some(inf)) => {
-            let instance_members: Vec<ClassMemberInfo> =
-                inf.into_iter().filter(|m| !m.is_static).collect();
-            class_members_compatible(&decl, &instance_members, bind, cache, in_progress, table)
-        }
-        _ => false,
-    }
+    let (Some(decl), Some(inf)) = (decl_members, inf_members) else {
+        return false;
+    };
+    let instance_members: Vec<ClassMemberInfo> = inf.into_iter().filter(|m| !m.is_static).collect();
+    class_members_compatible(&decl, &instance_members, bind, cache, in_progress, table)
 }
 
 pub fn class_declares(bind: &BindView, class: &str, origin: Option<&str>, interface: &str) -> bool {
@@ -157,40 +154,38 @@ pub(super) fn class_value_satisfies(
     {
         return false;
     }
-    match (
+    let (Some(decl), Some(inst)) = (
         named_members(bind, declared, origin_decl),
         named_members(bind, instance, origin_inst),
-    ) {
-        (Some(decl), Some(inst)) => {
-            let own_members = named_members(
-                bind,
-                vn_core::BuiltinType::Class.name(),
-                Some(vn_core::BuiltinType::Class.core_module()),
-            )
-            .unwrap_or_default();
-            let value_members: Vec<ClassMemberInfo> = own_members
-                .into_iter()
-                .chain(inst.into_iter().filter(|m| m.is_static))
-                .collect();
-            let mapping: FxHashMap<vn_core::Atom, Type> = bind
-                .type_param_names(declared, origin_decl)
-                .unwrap_or_default()
-                .iter()
-                .zip(declared_args)
-                .map(|(param, arg)| (vn_core::Atom::of(param), *arg))
-                .collect();
-            let mut scratch = table.clone();
-            let decl: Vec<ClassMemberInfo> = decl
-                .into_iter()
-                .map(|mut m| {
-                    m.ty = m.ty.map_generics(&mapping, &mut scratch);
-                    m
-                })
-                .collect();
-            class_members_compatible(&decl, &value_members, bind, cache, in_progress, &scratch)
-        }
-        _ => false,
-    }
+    ) else {
+        return false;
+    };
+    let own_members = named_members(
+        bind,
+        vn_core::BuiltinType::Class.name(),
+        Some(vn_core::BuiltinType::Class.core_module()),
+    )
+    .unwrap_or_default();
+    let value_members: Vec<ClassMemberInfo> = own_members
+        .into_iter()
+        .chain(inst.into_iter().filter(|m| m.is_static))
+        .collect();
+    let mapping: FxHashMap<vn_core::Atom, Type> = bind
+        .type_param_names(declared, origin_decl)
+        .unwrap_or_default()
+        .iter()
+        .zip(declared_args)
+        .map(|(param, arg)| (vn_core::Atom::of(param), *arg))
+        .collect();
+    let mut scratch = table.clone();
+    let decl: Vec<ClassMemberInfo> = decl
+        .into_iter()
+        .map(|mut m| {
+            m.ty = m.ty.map_generics(&mapping, &mut scratch);
+            m
+        })
+        .collect();
+    class_members_compatible(&decl, &value_members, bind, cache, in_progress, &scratch)
 }
 
 fn member_fits(

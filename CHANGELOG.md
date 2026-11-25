@@ -1,7 +1,7 @@
 # Changelog
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
-Versionado: ver [`docs/STABILITY.md`](docs/STABILITY.md).
+Versionado: ver [estabilidad y versionado](https://varn.twwk.cc/guias/estabilidad/).
 
 ## [Unreleased]
 
@@ -57,6 +57,10 @@ Versionado: ver [`docs/STABILITY.md`](docs/STABILITY.md).
 - `using a = x, b = y` binds both declarators.
 - A `match` guard such as `n if ok =>` no longer reads `ok =>` as an arrow function.
 - `x is T` is typed `bool` and `(a, b)` takes the type of `b`; both were `dynamic`.
+
+### Removed
+
+- The public documentation left this repo: guides, language reference and architecture now live at <https://varn.twwk.cc/> (source: `varn-lang/varn-docs`). `docs/` keeps only `decisions/`, `dev/` and `superpowers/` (internal record).
 
 Desde `v0.1.0` (2026-09-12) hay más de mil commits sin release. Las decisiones de
 diseño que cambiaron el lenguaje o el runtime están en [`docs/decisions/`](docs/decisions/).

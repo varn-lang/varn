@@ -5,10 +5,10 @@ use std::sync::Arc;
 use vn_core::TypeKind;
 
 pub(super) fn origin_matches(a: Option<&str>, b: Option<&str>) -> bool {
-    match (a, b) {
-        (Some(a), Some(b)) => a == b || a.ends_with(b) || b.ends_with(a),
-        _ => true,
-    }
+    let (Some(a), Some(b)) = (a, b) else {
+        return true;
+    };
+    a == b || a.ends_with(b) || b.ends_with(a)
 }
 
 fn is_closed(

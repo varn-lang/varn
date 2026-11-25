@@ -56,14 +56,14 @@ cargo build --profile quick --bin vn
 ./target/quick/vn debug -p bytecode hola.vn
 ```
 
-Guía paso a paso: [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md).
-Instalación y perfiles: [`docs/INSTALL.md`](docs/INSTALL.md).
+Guía paso a paso: [primeros pasos](https://varn.twwk.cc/guias/primeros-pasos/).
+Instalación y perfiles: [instalación](https://varn.twwk.cc/guias/instalacion/).
 
 ## Comandos
 
 `run`, `check`, `eval`, `repl`, `bench`, `debug`, `build`, `test`, `task`, `fmt`, `pkg`,
 `init`, `doctor`, `cache`, `lsp`, `completions`, `explain`, `dap`, `std-bundle`.
-Referencia completa y variables de entorno: [`docs/CLI_REFERENCE.md`](docs/CLI_REFERENCE.md).
+Referencia completa y variables de entorno: [CLI de `vn`](https://varn.twwk.cc/guias/cli/).
 
 ## Cómo está hecho
 
@@ -74,7 +74,7 @@ texto → tokens → AST → check → TIR tipado → SSA → pases → bytecode
 30 crates más `xtask` en un workspace (`vn-lexer`, `vn-parser`, `vn-checker`, `vn-emit`,
 `vn-compiler`, `vn-vm`, `vn-jit`, `vn-builtins`, `vn-lsp`…). Cada fase
 produce un artefacto inmutable que consume la siguiente, y las dependencias van en
-una sola dirección. Mapa completo: [`docs/internals/ARCHITECTURE.md`](docs/internals/ARCHITECTURE.md).
+una sola dirección. Mapa completo: [arquitectura del compilador](https://varn.twwk.cc/arquitectura/architecture/).
 
 ## Rendimiento
 
@@ -89,12 +89,12 @@ medición están en el README de benchmarks.
 
 | Para | Leer |
 |---|---|
-| Aprender el lenguaje | [`docs/lang/`](docs/lang/README.md) — cada rasgo citado con su test; gramática en [`grammar.md`](docs/lang/grammar.md) |
-| Usar el CLI | [`docs/CLI_REFERENCE.md`](docs/CLI_REFERENCE.md), [`docs/CLI_INSPECT.md`](docs/CLI_INSPECT.md) |
-| La biblioteca estándar | [`docs/lang/standard_library.md`](docs/lang/standard_library.md), [`docs/internals/STDLIB_ARCHITECTURE.md`](docs/internals/STDLIB_ARCHITECTURE.md) |
-| Entender el compilador y el runtime | [`docs/internals/`](docs/internals/README.md) |
+| Aprender el lenguaje | [guía del lenguaje](https://varn.twwk.cc/lenguaje/indice/) — cada rasgo citado con su test; gramática en [gramática](https://varn.twwk.cc/lenguaje/grammar/) |
+| Usar el CLI | [referencia del CLI](https://varn.twwk.cc/guias/cli/), [inspección por fases](https://varn.twwk.cc/guias/inspeccion/) |
+| La biblioteca estándar | [biblioteca estándar](https://varn.twwk.cc/lenguaje/standard_library/), [arquitectura de la std](https://varn.twwk.cc/arquitectura/stdlib_architecture/) |
+| Entender el compilador y el runtime | [arquitectura](https://varn.twwk.cc/arquitectura/indice/) |
 | Decisiones de diseño | [`docs/decisions/`](docs/decisions/) (ADRs) |
-| Qué viene | [`docs/ROADMAP.md`](docs/ROADMAP.md) |
+| Qué viene | [roadmap](https://varn.twwk.cc/guias/roadmap/) |
 
 `docs/dev/` (auditorías, notas, planes de trabajo) es registro interno, no
 especificación. Si un documento contradice al código, manda el código.

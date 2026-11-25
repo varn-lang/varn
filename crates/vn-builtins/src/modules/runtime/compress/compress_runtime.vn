@@ -4,7 +4,6 @@ export declare function gzip$(data: Bytes | str): Bytes;
 export declare function gunzip$(bytes: Bytes): Bytes;
 export declare function deflate$(data: Bytes | str): Bytes;
 export declare function inflate$(bytes: Bytes): Bytes;
-
 export declare function tarCreate$(sourceDir: str, tarPath: str): void;
 export declare function tarExtract$(tarPath: str, destDir: str): void;
 export declare function zipCreate$(sourceDir: str, zipPath: str): void;

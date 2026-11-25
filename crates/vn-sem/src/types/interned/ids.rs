@@ -70,6 +70,10 @@ impl CheckerTyId {
             NumKind::Float(FloatKind::F32) => CheckerTyId(20),
         }
     }
+
+    pub const fn is_numeric(self) -> bool {
+        self.num_kind().is_some() || matches!(self, Self::DECIMAL | Self::BIGINT)
+    }
 }
 
 impl CheckerTyId {

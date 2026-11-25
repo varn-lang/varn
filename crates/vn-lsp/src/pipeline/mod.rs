@@ -111,6 +111,20 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
         });
     }
 
+    {
+        let mut seen = std::collections::BTreeSet::new();
+        diagnostics.retain(|d| {
+            seen.insert((
+                d.line,
+                d.col,
+                d.end_line,
+                d.end_col,
+                d.code.map(|c| c.to_string()),
+                d.message.clone(),
+            ))
+        });
+    }
+
     if diagnostics
         .iter()
         .any(|d| d.message.starts_with("cannot resolve module 'std:"))

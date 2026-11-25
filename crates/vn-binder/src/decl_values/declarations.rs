@@ -126,6 +126,7 @@ impl<'r> super::super::Binder<'r> {
         let mut sym = Symbol::new(SymbolKind::Function, f.id, line).with_type(fn_type);
         sym.col = f.range.start.column + (f.id_offset - f.range.start.offset);
         sym.offset = f.id_offset;
+        sym.full_range = f.range;
         sym.has_explicit_type = f.return_type.is_some();
         sym.is_async = f.modifiers.is_async;
         sym.is_generator = f.modifiers.is_generator;

@@ -258,7 +258,7 @@ impl Type {
         matches!(self.num_kind(), Some(vn_core::NumKind::Int(_)))
     }
     pub fn is_numeric(&self) -> bool {
-        self.num_kind().is_some() || matches!(self.0, CheckerTyId::DECIMAL | CheckerTyId::BIGINT)
+        self.0.is_numeric()
     }
     pub fn is_str(&self) -> bool {
         self.0 == CheckerTyId::STR

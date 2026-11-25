@@ -26,9 +26,7 @@ impl<'r> super::Binder<'r> {
     }
 
     fn reject_reserved_name(&mut self, name: vn_core::Atom, sym: &Symbol) {
-        let in_core = self
-            .source_file
-            .starts_with(vn_core::ModuleKind::Core.prefix());
+        let in_core = super::core::loader::is_core_layer_file(self.source_file.as_ref());
         if in_core
             || sym.origin_module.is_some()
             || (sym.line == 0 && sym.full_range.start.line == 0)

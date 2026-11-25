@@ -4,13 +4,25 @@ use vn_sem::cores::{CoreExports, CoreMembers};
 use vn_sem::resolver::ImportResolver;
 
 pub fn is_core_file(filename: &str) -> bool {
-    filename.contains("vn-builtins") || vn_core::ModuleKind::Core.owns(filename)
+    is_core_layer_file(filename)
+}
+
+pub fn is_core_layer_file(filename: &str) -> bool {
+    if vn_core::ModuleKind::Core.owns(filename) {
+        return true;
+    }
+    if !filename.contains("vn-builtins") {
+        return false;
+    }
+    let mut normalized = filename.replace('\\', "/");
+    normalized.make_ascii_lowercase();
+    normalized.contains("/modules/core/")
 }
 
 const CORE_BASE: &str = vn_core::RuntimeErrorKind::MODULE;
 
 pub fn module_globals(filename: &str, resolver: &dyn ImportResolver) -> Option<Arc<CoreExports>> {
-    if !is_core_file(filename) {
+    if !is_core_layer_file(filename) {
         return Some(resolver.core_exports());
     }
     (filename != CORE_BASE).then(|| Arc::new(exports_of(resolver, [CORE_BASE])))

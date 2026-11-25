@@ -46,20 +46,22 @@ pub(super) fn class_value_arm(
         };
         return Some(match table.get(instance.0) {
             TypeKind::Named(inst, origin_i) | TypeKind::Generic(inst, _, origin_i) => {
-                match (resolve_atom(bind, dn), resolve_atom(bind, inst)) {
-                    (Some(declared_name), Some(instance_name)) => class_value_satisfies(
-                        &declared_name,
-                        origin_d.and_then(|o| resolve_atom(bind, o)).as_deref(),
-                        &declared_args,
-                        &instance_name,
-                        origin_i.and_then(|o| resolve_atom(bind, o)).as_deref(),
-                        bind,
-                        cache,
-                        in_progress,
-                        table,
-                    ),
-                    _ => false,
-                }
+                let (Some(declared_name), Some(instance_name)) =
+                    (resolve_atom(bind, dn), resolve_atom(bind, inst))
+                else {
+                    return Some(false);
+                };
+                class_value_satisfies(
+                    &declared_name,
+                    origin_d.and_then(|o| resolve_atom(bind, o)).as_deref(),
+                    &declared_args,
+                    &instance_name,
+                    origin_i.and_then(|o| resolve_atom(bind, o)).as_deref(),
+                    bind,
+                    cache,
+                    in_progress,
+                    table,
+                )
             }
             TypeKind::Primitive(_)
             | TypeKind::Literal(_)
@@ -109,19 +111,19 @@ pub(super) fn nominal_arms(
             ) {
                 return Some(by_alias);
             }
-            Some(match (resolve_atom(bind, dn), resolve_atom(bind, in_)) {
-                (Some(dn_s), Some(in_s)) => compatible_named(
-                    &dn_s,
-                    origin_d.and_then(|o| resolve_atom(bind, o)).as_deref(),
-                    &in_s,
-                    origin_i.and_then(|o| resolve_atom(bind, o)).as_deref(),
-                    bind,
-                    cache,
-                    in_progress,
-                    table,
-                ),
-                _ => dn == in_,
-            })
+            let (Some(dn_s), Some(in_s)) = (resolve_atom(bind, dn), resolve_atom(bind, in_)) else {
+                return Some(dn == in_);
+            };
+            Some(compatible_named(
+                &dn_s,
+                origin_d.and_then(|o| resolve_atom(bind, o)).as_deref(),
+                &in_s,
+                origin_i.and_then(|o| resolve_atom(bind, o)).as_deref(),
+                bind,
+                cache,
+                in_progress,
+                table,
+            ))
         }
         (TypeKind::Named(dn, origin_d), TypeKind::Fn(ft))
         | (TypeKind::Generic(dn, _, origin_d), TypeKind::Fn(ft)) => {

@@ -6,102 +6,113 @@ use tower_lsp_f::lsp_types::{
 };
 
 pub fn convert_diagnostics(state: &DocumentState) -> Vec<LspDiagnostic> {
-    state
-        .diagnostics
-        .iter()
-        .map(|d| {
-            let severity = match d.kind {
-                vn_core::DiagnosticKind::Error => DiagnosticSeverity::Error,
-                vn_core::DiagnosticKind::Warning => DiagnosticSeverity::Warning,
-                vn_core::DiagnosticKind::Hint => DiagnosticSeverity::Hint,
-            };
+    let mut seen = std::collections::BTreeSet::new();
+    let mut out = Vec::with_capacity(state.diagnostics.len());
+    for d in &state.diagnostics {
+        let key = (
+            d.line,
+            d.col,
+            d.end_line,
+            d.end_col,
+            d.code.map(|c| c.to_string()),
+            d.message.clone(),
+        );
+        if !seen.insert(key) {
+            continue;
+        }
+        let severity = match d.kind {
+            vn_core::DiagnosticKind::Error => DiagnosticSeverity::Error,
+            vn_core::DiagnosticKind::Warning => DiagnosticSeverity::Warning,
+            vn_core::DiagnosticKind::Hint => DiagnosticSeverity::Hint,
+        };
 
-            let related_information = if d.related.is_empty() {
-                None
-            } else {
-                let items: Vec<DiagnosticRelatedInformation> = d
-                    .related
-                    .iter()
-                    .filter_map(|r| {
-                        let uri = Uri::parse(&r.uri).ok()?;
-                        let pos = Position {
-                            line: r.line,
-                            character: r.col,
-                        };
-                        Some(DiagnosticRelatedInformation {
-                            location: Location::new(
-                                uri,
-                                Range {
-                                    start: pos,
-                                    end: pos,
-                                },
-                            ),
-                            message: r.message.clone(),
-                        })
+        let related_information = if d.related.is_empty() {
+            None
+        } else {
+            let items: Vec<DiagnosticRelatedInformation> = d
+                .related
+                .iter()
+                .filter_map(|r| {
+                    let uri = Uri::parse(&r.uri).ok()?;
+                    let pos = Position {
+                        line: r.line,
+                        character: r.col,
+                    };
+                    Some(DiagnosticRelatedInformation {
+                        location: Location::new(
+                            uri,
+                            Range {
+                                start: pos,
+                                end: pos,
+                            },
+                        ),
+                        message: r.message.clone(),
                     })
-                    .collect();
-                if items.is_empty() {
-                    None
-                } else {
-                    Some(items)
-                }
-            };
-
-            let data = if d.suggestions.is_empty() {
+                })
+                .collect();
+            if items.is_empty() {
                 None
             } else {
-                let json_suggestions: Vec<serde_json::Value> = d
-                    .suggestions
-                    .iter()
-                    .map(|s| {
-                        let mut obj = serde_json::Map::new();
+                Some(items)
+            }
+        };
+
+        let data = if d.suggestions.is_empty() {
+            None
+        } else {
+            let json_suggestions: Vec<serde_json::Value> = d
+                .suggestions
+                .iter()
+                .map(|s| {
+                    let mut obj = serde_json::Map::new();
+                    obj.insert(
+                        "message".to_string(),
+                        serde_json::Value::String(s.message.clone()),
+                    );
+                    if let Some(r) = &s.replacement {
                         obj.insert(
-                            "message".to_string(),
-                            serde_json::Value::String(s.message.clone()),
+                            "replacement".to_string(),
+                            serde_json::Value::String(r.clone()),
                         );
-                        if let Some(r) = &s.replacement {
-                            obj.insert(
-                                "replacement".to_string(),
-                                serde_json::Value::String(r.clone()),
-                            );
-                        }
-                        if let Some(range) = &s.range {
-                            obj.insert("range".to_string(), serde_json::json!({
+                    }
+                    if let Some(range) = &s.range {
+                        obj.insert("range".to_string(), serde_json::json!({
                             "start": { "line": range.start.line, "character": range.start.column },
                             "end": { "line": range.end.line, "character": range.end.column }
                         }));
-                        }
-                        serde_json::Value::Object(obj)
-                    })
-                    .collect();
-                Some(serde_json::json!({ "suggestions": json_suggestions }))
-            };
+                    }
+                    serde_json::Value::Object(obj)
+                })
+                .collect();
+            Some(serde_json::json!({ "suggestions": json_suggestions }))
+        };
 
-            let tags = if d.code == Some(vn_core::ErrorCode::DeprecatedUse) {
-                Some(vec![DiagnosticTag::Deprecated])
-            } else if d.code == Some(vn_core::ErrorCode::UnreachableCode) {
-                Some(vec![DiagnosticTag::Unnecessary])
-            } else {
-                None
-            };
-            let code = d
-                .code
-                .map(|c| tower_lsp_f::lsp_types::Code::String(c.to_string()));
+        let tags = if d.code == Some(vn_core::ErrorCode::DeprecatedUse) {
+            Some(vec![DiagnosticTag::Deprecated])
+        } else if d.code == Some(vn_core::ErrorCode::UnreachableCode) {
+            Some(vec![DiagnosticTag::Unnecessary])
+        } else {
+            None
+        };
+        let code = d
+            .code
+            .map(|c| tower_lsp_f::lsp_types::Code::String(c.to_string()));
 
-            LspDiagnostic {
-                range: Range {
-                    start: pos(d.line, d.col),
-                    end: pos(d.end_line, d.end_col),
-                },
-                severity: Some(severity),
-                code,
-                code_description: None,
-                message: d.message.clone().into(),
-                source: Some("vn".into()),
-                tags,
-                related_information,
-                data,
-            }
-        })
-        .collect()
+        let diag = LspDiagnostic {
+            range: Range {
+                start: pos(d.line, d.col),
+                end: pos(d.end_line, d.end_col),
+            },
+            severity: Some(severity),
+            code,
+            code_description: None,
+            message: d.message.clone().into(),
+            source: Some("vn".into()),
+            tags,
+            related_information,
+            data,
+        };
+        out.push(diag);
+    }
+    out
 }

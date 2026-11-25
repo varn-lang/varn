@@ -289,15 +289,17 @@ pub(crate) async fn code_lens(
     if !backend.settings.code_lens_enabled() {
         return Ok(Some(Vec::new()));
     }
+    let references_enabled = backend.settings.references_lens_enabled();
     let uri = params.text_document.uri;
     let uri_str = uri.to_string();
     Ok(backend
         .query("code_lens", move |an| {
             let state = an.workspace.get(&uri_str)?;
-            Some(crate::features::code_lens::build_code_lenses(
+            Some(crate::features::code_lens::build_code_lenses_with_options(
                 &uri,
                 &state,
                 Some(&an.workspace),
+                references_enabled,
             ))
         })
         .await)
