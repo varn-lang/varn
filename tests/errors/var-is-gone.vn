@@ -1,0 +1,3 @@
+// expect: error[VN2007]
+var x = 1;
+print(x);

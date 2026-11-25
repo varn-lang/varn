@@ -84,9 +84,7 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             TokenKind::Let => VarKind::Let,
             TokenKind::Const => VarKind::Const,
             TokenKind::Var => {
-                let err_range = s.range();
-                s.push_error(vn_core::ForeignForm::Var.message(), err_range);
-                VarKind::Let
+                return Err(ParseError::invalid(vn_core::ForeignForm::Var.message()));
             }
             TokenKind::EOF
             | TokenKind::Dynamic

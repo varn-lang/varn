@@ -40,10 +40,7 @@ pub(super) fn parse_var_decl_with_declare(
             VarKind::Const
         }
         TokenKind::Var => {
-            let err_range = s.range();
-            s.push_error(vn_core::ForeignForm::Var.message(), err_range);
-            s.advance();
-            VarKind::Let
+            return Err(ParseError::invalid(vn_core::ForeignForm::Var.message()));
         }
         TokenKind::EOF
         | TokenKind::Dynamic
