@@ -11,7 +11,13 @@ pub(super) fn parse_object_expr(s: &mut TokenStream) -> PResult<ExprId> {
     let properties = parse_object_body(s)?;
     s.expect(TokenKind::RBrace)?;
     let full_range = s.span_from(range);
-    Ok(s.expr(full_range, vn_core::ast::ExprKind::Object { properties }))
+    Ok(s.expr(
+        full_range,
+        vn_core::ast::ExprKind::Object {
+            properties,
+            is_hash: false,
+        },
+    ))
 }
 
 pub(crate) fn parse_object_body(s: &mut TokenStream) -> PResult<Vec<ObjectProp>> {

@@ -214,7 +214,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
             w.writeU8(0xDF);
             w.writeU32(len);
         }
-        for (const (k, v) in obj) {
+        for (const #[k, v] in obj) {
             encodeValue(w, k);
             encodeValue(w, v);
         }

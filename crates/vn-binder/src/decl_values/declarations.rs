@@ -35,7 +35,7 @@ impl<'r> super::super::Binder<'r> {
 
             if let Pattern::Identifier { name, .. } = &d.id
                 && let Some(init) = d.init
-                && let ExprKind::Object { properties } = &self.ast_arena.expr(init).kind
+                && let ExprKind::Object { properties, .. } = &self.ast_arena.expr(init).kind
             {
                 let fields = self.collect_object_members(properties);
                 if !fields.is_empty() {

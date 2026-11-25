@@ -96,7 +96,7 @@ impl<'r> Checker<'r> {
                 let f_ty = self.in_branch(rec, test, bind, false, |c, rec| {
                     c.infer_type(rec, alternate, bind)
                 });
-                let is_empty_object = |e: ExprId| matches!(&arena.expr(e).kind, ExprKind::Object { properties } if properties.is_empty());
+                let is_empty_object = |e: ExprId| matches!(&arena.expr(e).kind, ExprKind::Object { properties, .. } if properties.is_empty());
                 if self.source_file.as_ref() != bind.source_file.as_ref() {
                     t_ty
                 } else if is_empty_object(consequent) && !is_empty_object(alternate) {
@@ -157,7 +157,7 @@ impl<'r> Checker<'r> {
                 *is_generator,
                 bind,
             ),
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 let properties = properties.clone();
                 self.infer_object_type(rec, &properties, bind, expr)
             }

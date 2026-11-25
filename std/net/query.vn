@@ -17,7 +17,7 @@ export class Query {
         if (init is str) {
             this._parse(init);
         } else if (init != null) {
-            for (const (key, value) in init as Map<str, str | str[]>) {
+            for (const #[key, value] in init as Map<str, str | str[]>) {
                 if (value is str[]) {
                     for (const item in value) {
                         this.append(key, item);
@@ -104,7 +104,7 @@ export class Query {
 
     values(): str[] {
         let res: str[] = [];
-        for (const (key, bucket) in this.buckets) {
+        for (const #[key, bucket] in this.buckets) {
             for (const val in bucket) {
                 res.push(val);
             }
@@ -112,11 +112,11 @@ export class Query {
         return res;
     }
 
-    entries(): (str, str)[] {
-        let res: (str, str)[] = [];
-        for (const (key, bucket) in this.buckets) {
+    entries(): #[str, str][] {
+        let res: #[str, str][] = [];
+        for (const #[key, bucket] in this.buckets) {
             for (const val in bucket) {
-                res.push((key, val));
+                res.push(#[key, val]);
             }
         }
         return res;
@@ -128,7 +128,7 @@ export class Query {
 
     toString(): str {
         const parts: str[] = [];
-        for (const (key, bucket) in this.buckets) {
+        for (const #[key, bucket] in this.buckets) {
             const encodedKey = encodeURIComponent$(key);
             for (const value in bucket) {
                 parts.push(encodedKey + "=" + encodeURIComponent$(value));

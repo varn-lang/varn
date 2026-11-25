@@ -1,2 +1,0 @@
-// expect: error[VN2002]
-const r = #{ x: 1 }

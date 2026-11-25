@@ -272,17 +272,14 @@ impl fmt::Display for TypeDesc {
             TypeDesc::Map(k, v) => write!(f, "Map<{k}, {v}>"),
             TypeDesc::Set(el) => write!(f, "Set<{el}>"),
             TypeDesc::Tuple(els) => {
-                f.write_str("(")?;
+                f.write_str("#[")?;
                 for (i, el) in els.iter().enumerate() {
                     if i > 0 {
                         f.write_str(", ")?;
                     }
                     write!(f, "{el}")?;
                 }
-                if els.len() == 1 {
-                    f.write_str(",")?;
-                }
-                f.write_str(")")
+                f.write_str("]")
             }
             TypeDesc::Class { name, .. } => f.write_str(name),
             TypeDesc::Enum { name, .. } => f.write_str(name),
@@ -305,7 +302,7 @@ impl fmt::Display for TypeDesc {
             }
             TypeDesc::Enclosing { name, .. } => f.write_str(name),
             TypeDesc::Object(fields) => {
-                f.write_str("{ ")?;
+                f.write_str("#{ ")?;
                 for (i, field) in fields.iter().enumerate() {
                     if i > 0 {
                         f.write_str(", ")?;

@@ -80,7 +80,7 @@ fn collect_parts(arena: &AstArena, target: ExprId, out: &mut DestructureParts) {
                 collect_parts(arena, *e, out);
             }
         }
-        ExprKind::Object { properties } => {
+        ExprKind::Object { properties, .. } => {
             for property in properties {
                 match property {
                     ObjectProp::Property { key, value, .. } => {

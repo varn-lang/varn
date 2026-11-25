@@ -5,11 +5,16 @@ use vn_core::ast::{ArrayPatternEl, Decorator, ExprId, ExprKind, ObjPatternProp, 
 use vn_core::TokenKind;
 
 pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
+    if s.kind() == TokenKind::Hash {
+        return parse_hash_pattern(s);
+    }
     let range = s.range();
     match s.kind() {
         TokenKind::LBracket => parse_sequence_pattern(s, Sequence::Array),
-        TokenKind::LParen => parse_sequence_pattern(s, Sequence::Tuple),
         TokenKind::LBrace => parse_object_pattern(s),
+        TokenKind::LParen => Err(ParseError::invalid(
+            "a tuple pattern is written `#[a, b]`: `(a, b)` only groups an expression".to_owned(),
+        )),
         TokenKind::DotDotDot => {
             s.advance();
             let inner = parse_pattern(s)?;
@@ -198,9 +203,82 @@ impl Sequence {
     fn closing(self) -> TokenKind {
         match self {
             Self::Array => TokenKind::RBracket,
-            Self::Tuple => TokenKind::RParen,
+            Self::Tuple => TokenKind::RBracket,
         }
     }
+}
+
+fn parse_hash_pattern(s: &mut TokenStream) -> PResult<Pattern> {
+    let hash_range = s.range();
+    s.advance();
+    if s.check(TokenKind::LBracket) {
+        let pattern = parse_sequence_pattern(s, Sequence::Tuple)?;
+        let full_range = s.span_from(hash_range);
+        if let Pattern::Tuple { elements, rest, .. } = pattern {
+            return Ok(Pattern::Tuple {
+                elements,
+                rest,
+                range: full_range,
+            });
+        }
+        return Ok(pattern);
+    }
+    if s.check(TokenKind::LBrace) {
+        s.advance();
+        let mut properties = vec![];
+        let mut rest = None;
+        while !s.check(TokenKind::RBrace) && !s.is_eof() {
+            if s.check(TokenKind::DotDotDot) {
+                s.advance();
+                rest = Some(Box::new(parse_pattern(s)?));
+                s.eat(TokenKind::Comma);
+                break;
+            }
+            let prop_range = s.range();
+            let key = s.consume_lexeme();
+            let (value, shorthand) = if s.eat(TokenKind::Colon) {
+                (parse_pattern(s)?, false)
+            } else {
+                (
+                    Pattern::Identifier {
+                        name: key,
+                        range: prop_range,
+                    },
+                    true,
+                )
+            };
+            let value = if s.eat(TokenKind::Eq) {
+                let default = parse_expr(s)?;
+                let assign_range = s.span_from(prop_range);
+                Pattern::Assignment {
+                    left: Box::new(value),
+                    right: default,
+                    range: assign_range,
+                }
+            } else {
+                value
+            };
+            let full_prop_range = s.span_from(prop_range);
+            properties.push(ObjPatternProp {
+                key,
+                value,
+                shorthand,
+                range: full_prop_range,
+            });
+            s.eat(TokenKind::Comma);
+        }
+        s.expect(TokenKind::RBrace)?;
+        let full_range = s.span_from(hash_range);
+        return Ok(Pattern::Object {
+            properties,
+            rest,
+            is_hash: true,
+            range: full_range,
+        });
+    }
+    Err(ParseError::invalid(
+        "expected `#[...]` for a tuple pattern or `#{...}` for a record pattern".to_owned(),
+    ))
 }
 
 fn parse_sequence_pattern(s: &mut TokenStream, kind: Sequence) -> PResult<Pattern> {
@@ -311,6 +389,7 @@ fn parse_object_pattern(s: &mut TokenStream) -> PResult<Pattern> {
     Ok(Pattern::Object {
         properties,
         rest,
+        is_hash: false,
         range: full_range,
     })
 }

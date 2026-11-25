@@ -198,7 +198,7 @@ pub fn infer_expr_type(
             }
             expr_arm_ty.unwrap_or(Type::Dynamic)
         }
-        ExprKind::Object { properties } => {
+        ExprKind::Object { properties, .. } => {
             let members = infer_object_members(properties, arena, ctx, table);
             Type::record(members, table)
         }

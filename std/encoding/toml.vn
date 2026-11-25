@@ -151,7 +151,7 @@ export namespace Toml {
         let lines: str[] = [];
         let sectionKeys: str[] = [];
 
-        for (const (key, val) in value) {
+        for (const #[key, val] in value) {
             if (val::type == "Map") {
                 sectionKeys.push(key);
             } else {
@@ -166,7 +166,7 @@ export namespace Toml {
             }
             lines.push("[" + sectionName + "]");
             const sectionObj = value.get(sectionName) as Map<str, TomlValue>;
-            for (const (subKey, subVal) in sectionObj) {
+            for (const #[subKey, subVal] in sectionObj) {
                 lines.push(subKey + " = " + formatTomlValue(subVal));
             }
         }

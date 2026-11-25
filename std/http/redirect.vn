@@ -48,7 +48,7 @@ export function redirectedHeaders(
     crossOrigin: bool
 ): Map<str, str> {
     const out = new Map<str, str>();
-    for (const (key, value) in headers) {
+    for (const #[key, value] in headers) {
         const lower = key.toLowerCase();
         if (lower == "host") {
             continue;

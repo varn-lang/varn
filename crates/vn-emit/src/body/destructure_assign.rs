@@ -42,7 +42,7 @@ impl<'a> FnEmitter<'a> {
                     }
                 }
             }
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 let mut named: Vec<Arc<str>> = Vec::new();
                 for property in properties {
                     match property {

@@ -76,8 +76,9 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
                     let full_range = s.span_from(range);
                     return Ok(s.type_node(full_range, TypeKind::Fn((vec![], Box::new(ret)))));
                 }
-                let full_range = s.span_from(range);
-                return Ok(s.type_node(full_range, TypeKind::Tuple(vec![])));
+                return Err(ParseError::invalid(
+                    "unit is written `#[ ]`: `()` only groups a type".to_owned(),
+                ));
             }
 
             if (s.kind() == TokenKind::Identifier && s.peek_kind(1) == TokenKind::Colon)
@@ -101,27 +102,28 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
                     }
                 }
                 s.expect(TokenKind::RParen)?;
-                if !s.eat(TokenKind::FatArrow) {
+                if s.eat(TokenKind::FatArrow) {
+                    let ret = super::entry::parse_type(s)?;
                     let full_range = s.span_from(range);
-                    return Ok(s.type_node(full_range, TypeKind::Tuple(param_types)));
+                    let params = param_types
+                        .into_iter()
+                        .map(|ty| {
+                            let ty_range = *ty.range();
+                            TypeParam {
+                                variance: None,
+                                name: s.interner.intern(vn_core::TokenKind::Placeholder.as_str()),
+                                constraint: Some(ty),
+                                default: None,
+                                is_rest: false,
+                                range: ty_range,
+                            }
+                        })
+                        .collect();
+                    return Ok(s.type_node(full_range, TypeKind::Fn((params, Box::new(ret)))));
                 }
-                let ret = super::entry::parse_type(s)?;
-                let full_range = s.span_from(range);
-                let params = param_types
-                    .into_iter()
-                    .map(|ty| {
-                        let ty_range = *ty.range();
-                        TypeParam {
-                            variance: None,
-                            name: s.interner.intern(vn_core::TokenKind::Placeholder.as_str()),
-                            constraint: Some(ty),
-                            default: None,
-                            is_rest: false,
-                            range: ty_range,
-                        }
-                    })
-                    .collect();
-                return Ok(s.type_node(full_range, TypeKind::Fn((params, Box::new(ret)))));
+                return Err(ParseError::invalid(
+                    "a tuple type is written `#[A, B]`: `(A, B)` only groups a type".to_owned(),
+                ));
             }
 
             s.expect(TokenKind::RParen)?;
@@ -149,56 +151,12 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             Ok(first)
         }
 
-        TokenKind::LBrace => {
-            s.advance();
+        TokenKind::Hash => parse_hash_type(s, range),
 
-            let is_mapped = if s.check(TokenKind::Readonly) {
-                s.peek_kind(1) == TokenKind::LBracket
-                    && s.peek_kind(2) == TokenKind::Identifier
-                    && s.peek_kind(3) == TokenKind::In
-            } else {
-                s.check(TokenKind::LBracket)
-                    && s.peek_kind(1) == TokenKind::Identifier
-                    && s.peek_kind(2) == TokenKind::In
-            };
-
-            if is_mapped {
-                s.eat(TokenKind::Readonly);
-                s.advance();
-                s.advance();
-                s.advance();
-                super::entry::parse_type(s)?;
-                s.expect(TokenKind::RBracket)?;
-                s.eat(TokenKind::Question);
-                s.expect(TokenKind::Colon)?;
-                let value = super::entry::parse_type(s)?;
-                s.expect(TokenKind::RBrace)?;
-                s.push_error(
-                    vn_core::ForeignForm::MappedType.message(),
-                    s.span_from(range),
-                );
-                return Ok(value);
-            }
-
-            let mut members = vec![];
-            while !s.check(TokenKind::RBrace) && !s.is_eof() {
-                while s.eat(TokenKind::Semicolon) {}
-                if s.check(TokenKind::RBrace) {
-                    break;
-                }
-                members.push(crate::parser::decls::type_decls::parse_interface_member(
-                    s,
-                    crate::parser::decls::type_decls::MemberContext::Record,
-                )?);
-
-                if !s.eat(TokenKind::Comma) {
-                    s.eat(TokenKind::Semicolon);
-                }
-            }
-            s.expect(TokenKind::RBrace)?;
-            let full_range = s.span_from(range);
-            Ok(s.type_node(full_range, TypeKind::Record(members)))
-        }
+        TokenKind::LBrace => Err(ParseError::invalid(
+            "a record type is written `#{ x: int }`: `{ ... }` in type position is a record, write it with `#`"
+                .to_owned(),
+        )),
 
         TokenKind::Str
         | TokenKind::RawStr
@@ -352,7 +310,6 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         | TokenKind::Implements
         | TokenKind::Match
         | TokenKind::At
-        | TokenKind::Hash
         | TokenKind::Backslash
         | TokenKind::Dollar
         | TokenKind::Backtick
@@ -368,4 +325,76 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             vn_core::ForeignForm::TupleBrackets.message(),
         )),
     }
+}
+
+fn parse_hash_type(s: &mut TokenStream, hash_range: vn_core::SourceRange) -> PResult<TypeNode> {
+    s.advance();
+    if s.check(TokenKind::LBracket) {
+        s.advance();
+        if s.eat(TokenKind::RBracket) {
+            let full_range = s.span_from(hash_range);
+            return Ok(s.type_node(full_range, TypeKind::Tuple(vec![])));
+        }
+        let mut members = vec![];
+        while !s.check(TokenKind::RBracket) && !s.is_eof() {
+            members.push(super::entry::parse_type(s)?);
+            if !s.eat(TokenKind::Comma) {
+                break;
+            }
+        }
+        s.expect(TokenKind::RBracket)?;
+        let full_range = s.span_from(hash_range);
+        return Ok(s.type_node(full_range, TypeKind::Tuple(members)));
+    }
+    if s.check(TokenKind::LBrace) {
+        let brace_range = s.range();
+        s.advance();
+        let is_mapped = if s.check(TokenKind::Readonly) {
+            s.peek_kind(1) == TokenKind::LBracket
+                && s.peek_kind(2) == TokenKind::Identifier
+                && s.peek_kind(3) == TokenKind::In
+        } else {
+            s.check(TokenKind::LBracket)
+                && s.peek_kind(1) == TokenKind::Identifier
+                && s.peek_kind(2) == TokenKind::In
+        };
+        if is_mapped {
+            s.eat(TokenKind::Readonly);
+            s.advance();
+            s.advance();
+            s.advance();
+            super::entry::parse_type(s)?;
+            s.expect(TokenKind::RBracket)?;
+            s.eat(TokenKind::Question);
+            s.expect(TokenKind::Colon)?;
+            let value = super::entry::parse_type(s)?;
+            s.expect(TokenKind::RBrace)?;
+            s.push_error(
+                vn_core::ForeignForm::MappedType.message(),
+                s.span_from(hash_range),
+            );
+            return Ok(value);
+        }
+        let mut members = vec![];
+        while !s.check(TokenKind::RBrace) && !s.is_eof() {
+            while s.eat(TokenKind::Semicolon) {}
+            if s.check(TokenKind::RBrace) {
+                break;
+            }
+            members.push(crate::parser::decls::type_decls::parse_interface_member(
+                s,
+                crate::parser::decls::type_decls::MemberContext::Record,
+            )?);
+            if !s.eat(TokenKind::Comma) {
+                s.eat(TokenKind::Semicolon);
+            }
+        }
+        s.expect(TokenKind::RBrace)?;
+        let _ = brace_range;
+        let full_range = s.span_from(hash_range);
+        return Ok(s.type_node(full_range, TypeKind::Record(members)));
+    }
+    Err(ParseError::invalid(
+        "expected `#[...]` for a tuple type or `#{...}` for a record type".to_owned(),
+    ))
 }

@@ -131,16 +131,15 @@ impl HeapInner {
                 let items: Vec<VmValue> = (0..a.len()).filter_map(|i| a.get_vm(i)).collect();
                 self.write_list("[", "]", items.into_iter(), out, path);
             }
-            HeapObj::Tuple(a) if a.is_empty() => out.push_str("()"),
+            HeapObj::Tuple(a) if a.is_empty() => out.push_str("#[]"),
             HeapObj::Tuple(a) => {
                 let items: Vec<VmValue> = (0..a.len()).filter_map(|i| a.get_vm(i)).collect();
-                let close = if items.len() == 1 { ",)" } else { ")" };
-                self.write_list("(", close, items.into_iter(), out, path);
+                self.write_list("#[", "]", items.into_iter(), out, path);
             }
             HeapObj::Object(_) => {
                 let entries =
                     crate::exec::value_views::object_entries(self, nv).unwrap_or_default();
-                self.write_fields("{", entries.into_iter(), out, path);
+                self.write_fields("#{", entries.into_iter(), out, path);
             }
             HeapObj::Map(m) => {
                 let entries: Vec<(VmValue, VmValue)> =

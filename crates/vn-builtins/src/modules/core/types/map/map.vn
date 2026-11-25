@@ -5,7 +5,7 @@ import { Hashable } from "core:types/hashable";
  * Hash map from keys `K` to values `V`.
  */
 export declare class Map<K extends Hashable, V> {
-    constructor(entries?: (K, V)[]);
+    constructor(entries?: #[K, V][]);
     @throws(TypeError) get(key: K): V?;
     @throws(TypeError) set(key: K, value: V): void;
     @throws(TypeError) has(key: K): bool;
@@ -13,7 +13,7 @@ export declare class Map<K extends Hashable, V> {
     clear(): void;
     keys(): K[];
     values(): V[];
-    entries(): (K, V)[];
+    entries(): #[K, V][];
     @throws(Error) forEach(callback: (value: V, key: K, map: Map<K, V>) => void): void;
     readonly size: int;
 }
@@ -26,6 +26,6 @@ export interface ReadonlyMap<K extends Hashable, out V> {
     has(key: K): bool;
     keys(): ReadonlyArray<K>;
     values(): ReadonlyArray<V>;
-    entries(): ReadonlyArray<(K, V)>;
+    entries(): ReadonlyArray<#[K, V]>;
     forEach(callback: (value: V, key: K, map: ReadonlyMap<K, V>) => void): void;
 }

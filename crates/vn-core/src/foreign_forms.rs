@@ -219,7 +219,7 @@ impl ForeignForm {
             Self::Undefined => "absence is `null`, and an absent value has type `T?`",
             Self::Instanceof => "write `x is T`",
             Self::Typeof => "test the type with `x is T` or `match`",
-            Self::TupleBrackets => "a tuple type is written `(A, B)`",
+            Self::TupleBrackets => "a tuple type is written `#[A, B]`",
             Self::Overload => "use a union parameter or distinct function names",
             Self::Destructor => "implement `Disposable` and release with `using`",
             Self::ModuleBlock => "write `namespace Name { ... }`",

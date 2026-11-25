@@ -2,7 +2,7 @@ export class Headers {
     private _map: Map<str, str> = new Map<str, str>();
 
     constructor(init: Map<str, str> = new Map<str, str>()) {
-        for (const (name, value) in init) {
+        for (const #[name, value] in init) {
             this.set(name, value);
         }
     }

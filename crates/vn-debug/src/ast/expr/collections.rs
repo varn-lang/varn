@@ -56,7 +56,7 @@ pub(super) fn try_print(
             }
             true
         }
-        ExprKind::Object { properties } => {
+        ExprKind::Object { properties, .. } => {
             terminal::log(format!("{indent}{marker}{}", chalk("Object").bold()));
             for (i, p) in properties.iter().enumerate() {
                 let is_l = i == properties.len() - 1;

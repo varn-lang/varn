@@ -236,9 +236,9 @@ export function json<T>(data: T, status: int = 200, headers: Map<str, str> = new
 }
 
 export function redirect(url: str, status: int = 302): Response {
-    return new Response("", status, new Map<str, str>([("Location", url)]));
+    return new Response("", status, new Map<str, str>([#["Location", url]]));
 }
 
 export function error(status: int = 500, message: str = "Internal Server Error"): Response {
-    return new Response(message, status, new Map<str, str>([("Content-Type", "text/plain")]));
+    return new Response(message, status, new Map<str, str>([#["Content-Type", "text/plain"]]));
 }

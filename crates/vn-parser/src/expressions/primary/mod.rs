@@ -136,21 +136,15 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
             let start_range = s.range();
             s.advance();
             if s.eat(TokenKind::RParen) {
-                let full_range = s.span_from(start_range);
-                return Ok(s.expr(full_range, ExprKind::Tuple { elements: vec![] }));
+                return Err(ParseError::invalid(
+                    "unit is written `#[ ]`: `()` only groups an expression".to_owned(),
+                ));
             }
             let expr = parse_expr(s)?;
             if s.check(TokenKind::Comma) {
-                let mut elements = vec![expr];
-                while s.eat(TokenKind::Comma) {
-                    if s.check(TokenKind::RParen) {
-                        break;
-                    }
-                    elements.push(super::parse_assign_expr(s)?);
-                }
-                s.expect(TokenKind::RParen)?;
-                let full_range = s.span_from(start_range);
-                return Ok(s.expr(full_range, ExprKind::Tuple { elements }));
+                return Err(ParseError::invalid(
+                    "a tuple is written `#[a, b]`: `(a, b)` only groups an expression".to_owned(),
+                ));
             }
             s.expect(TokenKind::RParen)?;
             let full_range = s.span_from(start_range);
@@ -175,7 +169,7 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         TokenKind::Class => parse_class_expr(s),
         TokenKind::Match => parse_match_expr(s),
 
-        TokenKind::Hash => Err(ParseError::unexpected("unexpected `#` in an expression")),
+        TokenKind::Hash => parse_hash_expr(s),
 
         TokenKind::EOF
         | TokenKind::Dynamic
@@ -315,4 +309,50 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
             }
         }
     }
+}
+
+fn parse_hash_expr(s: &mut TokenStream) -> PResult<ExprId> {
+    let start_range = s.range();
+    s.advance();
+    if s.check(TokenKind::LBracket) {
+        s.advance();
+        let mut elements = vec![];
+        while !s.check(TokenKind::RBracket) && !s.is_eof() {
+            if s.check(TokenKind::Comma) {
+                s.advance();
+                continue;
+            }
+            if s.check(TokenKind::DotDotDot) {
+                s.advance();
+                let inner = super::parse_assign_expr(s)?;
+                let spread_range = s.span_from(start_range);
+                elements.push(s.expr(spread_range, ExprKind::Spread { argument: inner }));
+            } else {
+                elements.push(super::parse_assign_expr(s)?);
+            }
+            if !s.eat(TokenKind::Comma) {
+                break;
+            }
+        }
+        s.expect(TokenKind::RBracket)?;
+        let full_range = s.span_from(start_range);
+        return Ok(s.expr(full_range, ExprKind::Tuple { elements }));
+    }
+    if s.check(TokenKind::LBrace) {
+        s.advance();
+        let properties = parse_object_body(s)?;
+        s.expect(TokenKind::RBrace)?;
+        let full_range = s.span_from(start_range);
+        return Ok(s.expr(
+            full_range,
+            ExprKind::Object {
+                properties,
+                is_hash: true,
+            },
+        ));
+    }
+    Err(ParseError::invalid(
+        "expected `#[...]` for a tuple, `#{...}` for a record, or `#name(...)` for a macro"
+            .to_owned(),
+    ))
 }

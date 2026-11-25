@@ -76,7 +76,7 @@ impl Checker<'_> {
                     }
                 }
             }
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 for property in properties {
                     self.check_destructure_property(rec, property, &ty, bind);
                 }

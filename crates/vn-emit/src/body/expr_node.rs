@@ -191,7 +191,7 @@ impl<'a> FnEmitter<'a> {
             ExprKind::Tuple { elements } => {
                 return self.lower_tuple(elements, ty, span);
             }
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 return self.lower_object(properties, ty, span);
             }
             ExprKind::New { callee, args, .. } => {

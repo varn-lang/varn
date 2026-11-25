@@ -231,7 +231,7 @@ impl<'r> Checker<'r> {
                 }
             }
 
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 let properties = properties.clone();
                 self.check_object_with_context(rec, expr, &properties, bind)
             }

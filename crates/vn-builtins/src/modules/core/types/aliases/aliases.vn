@@ -1,4 +1,4 @@
 /**
- * The type with a single value, `()`: what a function returns when it has nothing to return.
+ * The type with a single value, `#[]`: what a function returns when it has nothing to return.
  */
-export type Unit = ()
+export type Unit = #[]

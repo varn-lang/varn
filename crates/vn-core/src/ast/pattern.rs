@@ -23,6 +23,7 @@ pub enum Pattern {
     Object {
         properties: Vec<ObjPatternProp>,
         rest: Option<Box<Pattern>>,
+        is_hash: bool,
         range: SourceRange,
     },
 

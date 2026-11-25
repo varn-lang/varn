@@ -15,22 +15,7 @@ pub(super) fn parse_match_expr(s: &mut TokenStream) -> PResult<ExprId> {
     }
     let open = s.range();
     s.advance();
-    let first = super::super::parse_expr(s)?;
-    let subject = if s.check(TokenKind::Comma) {
-        let mut elements = vec![first];
-        while s.eat(TokenKind::Comma) {
-            if s.check(TokenKind::RParen) {
-                break;
-            }
-            elements.push(super::super::parse_expr(s)?);
-        }
-        s.expect(TokenKind::RParen)?;
-        let tuple_range = s.span_from(open);
-        s.expr(tuple_range, vn_core::ast::ExprKind::Tuple { elements })
-    } else {
-        s.expect(TokenKind::RParen)?;
-        first
-    };
+    let subject = parse_match_subject_tuple(s, open)?;
 
     s.expect(TokenKind::LBrace)?;
     let mut cases = vec![];
@@ -40,6 +25,19 @@ pub(super) fn parse_match_expr(s: &mut TokenStream) -> PResult<ExprId> {
     s.expect(TokenKind::RBrace)?;
     let full_range = s.span_from(range);
     Ok(s.expr(full_range, vn_core::ast::ExprKind::Match { subject, cases }))
+}
+
+fn parse_match_subject_tuple(s: &mut TokenStream, open: vn_core::SourceRange) -> PResult<ExprId> {
+    let first = super::super::parse_expr(s)?;
+    if s.check(TokenKind::Comma) {
+        return Err(ParseError::invalid(
+            "a tuple subject is written `#[a, b]`: `match (a, b)` only takes one subject"
+                .to_owned(),
+        ));
+    }
+    s.expect(TokenKind::RParen)?;
+    let _ = open;
+    Ok(first)
 }
 
 fn parse_match_case(s: &mut TokenStream) -> PResult<Vec<MatchCase>> {
@@ -83,12 +81,15 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
             Ok(MatchPattern::Wildcard)
         }
         TokenKind::Identifier => parse_identifier_match_pattern(s),
-        TokenKind::LParen => parse_tuple_match_pattern(s),
+        TokenKind::LParen => Err(ParseError::invalid(
+            "a tuple pattern is written `#[...]`: `(...)` in pattern position groups".to_owned(),
+        )),
         TokenKind::LBracket => parse_array_match_pattern(s),
-        TokenKind::LBrace => {
-            let (fields, rest) = parse_match_fields(s)?;
-            Ok(MatchPattern::Record { fields, rest })
-        }
+        TokenKind::LBrace => Err(ParseError::invalid(
+            "a record pattern is written `#{...}`: `{...}` in pattern position needs `#`"
+                .to_owned(),
+        )),
+        TokenKind::Hash => parse_hash_match_pattern(s),
         TokenKind::EOF
         | TokenKind::Dynamic
         | TokenKind::IntegerLiteral
@@ -231,7 +232,6 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
         | TokenKind::Constructor
         | TokenKind::Match
         | TokenKind::At
-        | TokenKind::Hash
         | TokenKind::Backslash
         | TokenKind::Dollar
         | TokenKind::Backtick
@@ -327,22 +327,27 @@ fn parse_match_list(
     Ok(items)
 }
 
-fn parse_tuple_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
-    s.expect(TokenKind::LParen)?;
-    let mut items = Vec::new();
-    let mut trailing_comma = false;
-    while !s.check(TokenKind::RParen) && !s.is_eof() {
-        items.push(parse_match_pattern(s)?);
-        trailing_comma = s.eat(TokenKind::Comma);
-        if !trailing_comma {
-            break;
+fn parse_hash_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
+    s.expect(TokenKind::Hash)?;
+    if s.check(TokenKind::LBracket) {
+        s.expect(TokenKind::LBracket)?;
+        let mut items = vec![];
+        while !s.check(TokenKind::RBracket) && !s.is_eof() {
+            items.push(parse_match_pattern(s)?);
+            if !s.eat(TokenKind::Comma) {
+                break;
+            }
         }
+        s.expect(TokenKind::RBracket)?;
+        return Ok(MatchPattern::Tuple(items));
     }
-    s.expect(TokenKind::RParen)?;
-    if items.len() == 1 && !trailing_comma {
-        return Ok(items.remove(0));
+    if s.check(TokenKind::LBrace) {
+        let (fields, rest) = parse_match_fields(s)?;
+        return Ok(MatchPattern::Record { fields, rest });
     }
-    Ok(MatchPattern::Tuple(items))
+    Err(ParseError::invalid(
+        "expected `#[...]` for a tuple pattern or `#{...}` for a record pattern".to_owned(),
+    ))
 }
 
 fn parse_array_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {

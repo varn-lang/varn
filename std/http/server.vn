@@ -286,7 +286,7 @@ export class HttpServer {
         if (finalResp != null) {
             await self._sendWebResponse(connId, finalResp);
         } else {
-            let notFoundHeaders = new Map<str, str>([("Content-Type", "text/plain")]);
+            let notFoundHeaders = new Map<str, str>([#["Content-Type", "text/plain"]]);
             await sendHttpResponse$(connId, 404, "Not Found", notFoundHeaders, "Not Found", []);
         }
     }
@@ -299,11 +299,11 @@ export class HttpServer {
             try {
                 rawReq = await Task.timeout(readHttpRequest(wire, this._maxContentLength), this._readTimeoutMs);
             } catch (err: TimeoutError) {
-                let errHeaders = new Map<str, str>([("Content-Type", "text/plain"), ("Connection", "close")]);
+                let errHeaders = new Map<str, str>([#["Content-Type", "text/plain"], #["Connection", "close"]]);
                 await this._sendBestEffort(connId, 408, "Request Timeout", errHeaders, "Request Timeout");
                 break;
             } catch (err: HttpRejection) {
-                let errHeaders = new Map<str, str>([("Content-Type", "text/plain"), ("Connection", "close")]);
+                let errHeaders = new Map<str, str>([#["Content-Type", "text/plain"], #["Connection", "close"]]);
                 await this._sendBestEffort(connId, err.status, err.reason, errHeaders, err.reason);
                 break;
             } catch (err) {
@@ -318,14 +318,14 @@ export class HttpServer {
             }
             let method = rawReq.method;
             if (method == null) {
-                let errHeaders = new Map<str, str>([("Content-Type", "text/plain"), ("Connection", "close")]);
+                let errHeaders = new Map<str, str>([#["Content-Type", "text/plain"], #["Connection", "close"]]);
                 await sendHttpResponse$(connId, 501, "Not Implemented", errHeaders, "Not Implemented", []);
                 break;
             }
             try {
                 await this._respond(connId, rawReq, method);
             } catch (err) {
-                let errHeaders = new Map<str, str>([("Content-Type", "text/plain"), ("Connection", "close")]);
+                let errHeaders = new Map<str, str>([#["Content-Type", "text/plain"], #["Connection", "close"]]);
                 await this._sendBestEffort(connId, 500, "Internal Server Error", errHeaders, "Internal Server Error");
                 break;
             }

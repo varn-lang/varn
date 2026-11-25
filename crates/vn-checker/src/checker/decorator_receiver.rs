@@ -131,7 +131,9 @@ fn expr_uses_receiver(arena: &AstArena, id: ExprId) -> bool {
             ArrayEl::Expr(e) | ArrayEl::Spread(e) => expr_uses_receiver(arena, *e),
             ArrayEl::Hole => false,
         }),
-        ExprKind::Object { properties } => properties.iter().any(|p| prop_uses_receiver(arena, p)),
+        ExprKind::Object { properties, .. } => {
+            properties.iter().any(|p| prop_uses_receiver(arena, p))
+        }
         ExprKind::Tuple { elements } => elements.iter().any(|e| expr_uses_receiver(arena, *e)),
         ExprKind::Unary { operand, .. } | ExprKind::Update { operand, .. } => {
             expr_uses_receiver(arena, *operand)

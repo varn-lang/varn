@@ -234,7 +234,7 @@ impl<'r> super::Binder<'r> {
                     self.bind_expr(e);
                 }
             }
-            ExprKind::Object { properties } => {
+            ExprKind::Object { properties, .. } => {
                 for prop in properties {
                     match prop {
                         ObjectProp::Property { value, .. } => self.bind_expr(*value),

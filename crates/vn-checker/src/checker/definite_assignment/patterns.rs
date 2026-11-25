@@ -22,7 +22,7 @@ pub(crate) fn walk_expr_children(e: ExprId, arena: &AstArena, f: &mut dyn FnMut(
                 }
             }
         }
-        ExprKind::Object { properties } => {
+        ExprKind::Object { properties, .. } => {
             for p in properties {
                 match p {
                     ObjectProp::Property { value, .. } => f(*value),

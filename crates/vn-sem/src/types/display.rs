@@ -131,7 +131,11 @@ impl fmt::Display for TypeDisplay<'_> {
             }
             TypeKind::Record(mid) | TypeKind::Interface(mid) => {
                 let contract = matches!(table.get(self.ty.0), TypeKind::Interface(_));
-                write!(f, "{{ ")?;
+                if contract {
+                    write!(f, "{{ ")?;
+                } else {
+                    write!(f, "#{{ ")?;
+                }
                 for (i, m) in table.get_object_members(mid).iter().enumerate() {
                     if i > 0 {
                         write!(f, ", ")?;
@@ -220,9 +224,9 @@ impl fmt::Display for TypeDisplay<'_> {
                 }
                 Ok(())
             }
-            TypeKind::Tuple(list) if table.get_list(list).is_empty() => write!(f, "()"),
+            TypeKind::Tuple(list) if table.get_list(list).is_empty() => write!(f, "#[]"),
             TypeKind::Tuple(list) => {
-                write!(f, "(")?;
+                write!(f, "#[")?;
                 let members = table.get_list(list);
                 for (i, m) in members.iter().enumerate() {
                     if i > 0 {
@@ -230,10 +234,7 @@ impl fmt::Display for TypeDisplay<'_> {
                     }
                     write!(f, "{}", self.child(*m))?;
                 }
-                if members.len() == 1 {
-                    write!(f, ",")?;
-                }
-                write!(f, ")")
+                write!(f, "]")
             }
             TypeKind::EnumVariant { .. } => write!(f, "enum variant"),
             TypeKind::TypePredicate {

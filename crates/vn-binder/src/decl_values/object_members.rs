@@ -20,13 +20,14 @@ impl<'r> super::super::Binder<'r> {
                         PropKey::Int(_) | PropKey::Computed(_) => continue,
                     };
                     let ty = self.infer_expr_type_self(value);
-                    let nested_members =
-                        if let ExprKind::Object { properties } = &self.ast_arena.expr(value).kind {
-                            let properties = properties.clone();
-                            self.collect_object_members(&properties)
-                        } else {
-                            Vec::new()
-                        };
+                    let nested_members = if let ExprKind::Object { properties, .. } =
+                        &self.ast_arena.expr(value).kind
+                    {
+                        let properties = properties.clone();
+                        self.collect_object_members(&properties)
+                    } else {
+                        Vec::new()
+                    };
 
                     let kind = if matches!(self.ty_table.get(ty.0), TypeKind::Fn(_)) {
                         ClassMemberKind::Method

@@ -204,8 +204,10 @@ impl Checker<'_> {
                     .zip(&slots)
                     .all(|(element, slot)| self.part_fits(rec, slot, *element, bind, depth));
         }
-        if let (ExprKind::Object { properties }, TypeKind::Record(mid) | TypeKind::Interface(mid)) =
-            (&arena.expr(literal).kind, shape_kind)
+        if let (
+            ExprKind::Object { properties, .. },
+            TypeKind::Record(mid) | TypeKind::Interface(mid),
+        ) = (&arena.expr(literal).kind, shape_kind)
         {
             {
                 let members = self.ty_table.get_object_members(mid).to_vec();
@@ -252,7 +254,7 @@ impl Checker<'_> {
                 });
             }
         }
-        if let (ExprKind::Object { properties }, TypeKind::Named(..) | TypeKind::Generic(..)) =
+        if let (ExprKind::Object { properties, .. }, TypeKind::Named(..) | TypeKind::Generic(..)) =
             (&arena.expr(literal).kind, shape_kind)
         {
             let mut filled: Vec<ObjectTypeMember> = Vec::with_capacity(properties.len());

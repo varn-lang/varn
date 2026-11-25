@@ -50,6 +50,7 @@ pub enum ExprKind {
     },
     Object {
         properties: Vec<ObjectProp>,
+        is_hash: bool,
     },
     Tuple {
         elements: Vec<ExprId>,
