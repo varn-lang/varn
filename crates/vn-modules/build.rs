@@ -10,7 +10,6 @@ const CRATES_WITHOUT_ARTIFACT_OUTPUT: &[&str] = &[
     "vn-inspect",
     "vn-jit",
     "vn-lsp",
-    "vn-pm",
     "vn-shadow",
     "vn-ui",
     "vn-vm",

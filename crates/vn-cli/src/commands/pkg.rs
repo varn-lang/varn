@@ -34,9 +34,9 @@ fn execute_tree(project: &Project) -> Result<(), CliError> {
         project_root.display()
     ));
 
-    let lock_path = vn_pm::lockfile::lock_path(project_root);
+    let lock_path = crate::pm::lockfile::lock_path(project_root);
     if lock_path.exists()
-        && let Ok(lock) = vn_pm::PmLockfile::load(&lock_path)
+        && let Ok(lock) = crate::pm::PmLockfile::load(&lock_path)
     {
         let total = lock.packages.len();
         for (idx, pkg) in lock.packages.iter().enumerate() {
@@ -50,7 +50,7 @@ fn execute_tree(project: &Project) -> Result<(), CliError> {
         return Ok(());
     }
 
-    let deps = vn_pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
+    let deps = crate::pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
     let total = deps.len();
     for (idx, (alias, origin)) in deps.iter().enumerate() {
         let is_last = idx + 1 == total;
@@ -67,13 +67,13 @@ fn execute_doctor(project: &Project) -> Result<(), CliError> {
 
     terminal::log("Auditing project package integrity...");
 
-    let lock_path = vn_pm::lockfile::lock_path(project_root);
+    let lock_path = crate::pm::lockfile::lock_path(project_root);
     if !lock_path.exists() {
         terminal::info("No vn.lock found. Run `vn pkg install` to generate lockfile.");
         return Ok(());
     }
 
-    let lock = vn_pm::PmLockfile::load(&lock_path).map_err(CliError::fatal)?;
+    let lock = crate::pm::PmLockfile::load(&lock_path).map_err(CliError::fatal)?;
     let issues = lock.verify_project_integrity(project_root);
 
     if issues.is_empty() {
@@ -90,7 +90,7 @@ fn execute_doctor(project: &Project) -> Result<(), CliError> {
 
 fn execute_clean() -> Result<(), CliError> {
     terminal::log("Cleaning global package cache (~/.vn/cache)...");
-    match vn_pm::cache::clean_cache() {
+    match crate::pm::cache::clean_cache() {
         Ok(count) => {
             terminal::log(format!("✔ Cleaned {count} cached package(s)."));
             Ok(())

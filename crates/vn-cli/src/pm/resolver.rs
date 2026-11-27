@@ -1,6 +1,6 @@
 use semver::{Version, VersionReq};
 
-use crate::origin::DepOrigin;
+use crate::pm::origin::DepOrigin;
 
 #[derive(Debug, Clone)]
 pub struct ResolvedVersion {

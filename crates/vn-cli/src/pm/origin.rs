@@ -80,23 +80,6 @@ impl DepOrigin {
             DepOrigin::LocalPath { path } => format!("file://{}", path.display()),
         }
     }
-
-    pub fn local_name(&self) -> String {
-        match self {
-            DepOrigin::Remote {
-                host, user, repo, ..
-            } => {
-                format!("{}_{}_{}", host.replace('.', "_"), user, repo)
-            }
-            DepOrigin::LocalPath { path } => {
-                let name = path
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("local_pkg");
-                format!("local_{name}")
-            }
-        }
-    }
 }
 
 pub fn parse_dependencies(

@@ -1,7 +1,7 @@
 use rustc_hash::FxHashSet as HashSet;
 use std::path::Path;
 
-use crate::{
+use crate::pm::{
     cache, fetcher,
     lockfile::{LockPackage, PmLockfile},
     origin::{parse_dependencies, DepOrigin},
@@ -34,7 +34,7 @@ pub fn resolve_and_install(
 
     Ok(InstallResult {
         lock: PmLockfile {
-            version: crate::lockfile::LOCK_VERSION,
+            version: crate::pm::lockfile::LOCK_VERSION,
             packages,
         },
     })

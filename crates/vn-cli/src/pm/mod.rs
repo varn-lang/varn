@@ -5,5 +5,5 @@ pub mod lockfile;
 pub mod origin;
 pub mod resolver;
 
-pub use lockfile::{LockPackage, PmLockfile};
+pub use lockfile::PmLockfile;
 pub use origin::{parse_dependencies, DepOrigin};

@@ -23,6 +23,7 @@ mod formatter;
 mod ice;
 mod peak_memory;
 mod pipeline;
+mod pm;
 mod policy;
 mod source_name;
 mod standalone;

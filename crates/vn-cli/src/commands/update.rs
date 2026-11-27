@@ -1,14 +1,14 @@
 use crate::error::CliError;
+use crate::pm::{installer, lockfile};
 use vn_core::term::terminal;
 use vn_modules::project::Project;
-use vn_pm::{installer, lockfile};
 
 pub fn execute(project: &Project) -> Result<(), CliError> {
     super::pkg::manifest_path(project)?;
     let project_root = project.root.as_path();
 
     let deps =
-        vn_pm::parse_dependencies(&project.manifest.dependencies).map_err(CliError::fatal)?;
+        crate::pm::parse_dependencies(&project.manifest.dependencies).map_err(CliError::fatal)?;
 
     if deps.is_empty() {
         terminal::log("No dependencies to update.");

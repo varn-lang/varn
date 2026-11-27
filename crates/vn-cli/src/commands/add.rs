@@ -1,8 +1,8 @@
 use crate::cli::AddArgs;
 use crate::error::CliError;
+use crate::pm::{installer, lockfile, DepOrigin};
 use vn_core::term::terminal;
 use vn_modules::project::Project;
-use vn_pm::{installer, lockfile, DepOrigin};
 
 pub fn execute(project: &Project, args: AddArgs) -> Result<(), CliError> {
     let manifest_path = super::pkg::manifest_path(project)?;
@@ -17,7 +17,7 @@ pub fn execute(project: &Project, args: AddArgs) -> Result<(), CliError> {
         .insert(args.alias.clone(), args.origin.clone());
     manifest.save(manifest_path)?;
 
-    let deps = vn_pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
+    let deps = crate::pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
 
     let lock_path = lockfile::lock_path(&project_root);
     let existing_lock = if lock_path.exists() {

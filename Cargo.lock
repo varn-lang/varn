@@ -3771,12 +3771,18 @@ dependencies = [
  "clap",
  "clap_complete",
  "dhat",
+ "flate2",
+ "hex",
  "mimalloc",
  "postcard",
  "rustc-hash 1.1.0",
+ "semver",
  "serde",
  "serde_json",
+ "sha2",
  "shlex",
+ "tar",
+ "ureq",
  "vn-builtins",
  "vn-compiler",
  "vn-core",
@@ -3789,7 +3795,6 @@ dependencies = [
  "vn-modules",
  "vn-parser",
  "vn-pipeline",
- "vn-pm",
  "vn-sem",
  "vn-types",
  "vn-vm",
@@ -3991,23 +3996,6 @@ dependencies = [
  "vn-tir",
  "vn-types",
  "vn-vm",
-]
-
-[[package]]
-name = "vn-pm"
-version = "0.1.0"
-dependencies = [
- "flate2",
- "hex",
- "rustc-hash 1.1.0",
- "semver",
- "serde",
- "serde_json",
- "sha2",
- "tar",
- "ureq",
- "vn-core",
- "vn-modules",
 ]
 
 [[package]]

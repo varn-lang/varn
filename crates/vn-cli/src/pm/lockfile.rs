@@ -40,26 +40,10 @@ impl PmLockfile {
         self.packages.iter().map(|p| (p.name.as_str(), p)).collect()
     }
 
-    pub fn mismatch(&self, other: &Self) -> bool {
-        if self.packages.len() != other.packages.len() {
-            return true;
-        }
-        let mine = self.by_name();
-        let theirs = other.by_name();
-        mine.iter().any(|(name, a)| {
-            theirs.get(name).is_none_or(|b| {
-                a.origin != b.origin
-                    || a.version != b.version
-                    || a.commit != b.commit
-                    || a.integrity != b.integrity
-            })
-        })
-    }
-
     pub fn verify_project_integrity(&self, project_root: &Path) -> Vec<String> {
         let mut issues = Vec::new();
         for pkg in &self.packages {
-            let installed_path = crate::cache::local_package_path(project_root, &pkg.name);
+            let installed_path = crate::pm::cache::local_package_path(project_root, &pkg.name);
             if !installed_path.exists() {
                 issues.push(format!(
                     "missing package '{}' at {}",

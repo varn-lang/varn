@@ -1,7 +1,7 @@
 use crate::error::CliError;
+use crate::pm::{installer, lockfile};
 use vn_core::term::terminal;
 use vn_modules::project::Project;
-use vn_pm::{installer, lockfile};
 
 pub fn execute(project: &Project) -> Result<(), CliError> {
     super::pkg::manifest_path(project)?;
@@ -21,8 +21,8 @@ pub fn execute(project: &Project) -> Result<(), CliError> {
         ));
         installer::install_locked(&project_root, &lock).map_err(CliError::fatal)?;
     } else {
-        let deps =
-            vn_pm::parse_dependencies(&project.manifest.dependencies).map_err(CliError::fatal)?;
+        let deps = crate::pm::parse_dependencies(&project.manifest.dependencies)
+            .map_err(CliError::fatal)?;
         if deps.is_empty() {
             terminal::log("No dependencies declared in vn.toml.");
             return Ok(());

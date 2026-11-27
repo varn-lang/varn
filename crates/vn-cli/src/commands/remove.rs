@@ -1,8 +1,8 @@
 use crate::cli::RemoveArgs;
 use crate::error::CliError;
+use crate::pm::{installer, lockfile};
 use vn_core::term::terminal;
 use vn_modules::project::Project;
-use vn_pm::{installer, lockfile};
 
 pub fn execute(project: &Project, args: RemoveArgs) -> Result<(), CliError> {
     let manifest_path = super::pkg::manifest_path(project)?;
@@ -20,14 +20,14 @@ pub fn execute(project: &Project, args: RemoveArgs) -> Result<(), CliError> {
     manifest.dependencies.remove(&args.alias);
     manifest.save(manifest_path)?;
 
-    let local_pkg = vn_pm::cache::local_package_path(&project_root, &args.alias);
+    let local_pkg = crate::pm::cache::local_package_path(&project_root, &args.alias);
     if local_pkg.exists() {
         std::fs::remove_dir_all(&local_pkg)
             .map_err(|e| CliError::fatal(format!("cannot remove package dir: {e}")))?;
     }
 
     let lock_path = lockfile::lock_path(&project_root);
-    let deps = vn_pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
+    let deps = crate::pm::parse_dependencies(&manifest.dependencies).map_err(CliError::fatal)?;
 
     if deps.is_empty() {
         if lock_path.exists() {

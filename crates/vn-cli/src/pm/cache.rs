@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::origin::DepOrigin;
+use crate::pm::origin::DepOrigin;
 
 pub fn global_cache_root() -> PathBuf {
     vn_core::paths::vn_cache_dir()
@@ -31,7 +31,7 @@ pub fn is_cached(origin: &DepOrigin, version: &str, expected_integrity: &str) ->
         DepOrigin::LocalPath { path } => path.exists(),
         DepOrigin::Remote { .. } => {
             let path = cached_package_path(origin, version);
-            crate::fetcher::verify_cached(&path, expected_integrity)
+            crate::pm::fetcher::verify_cached(&path, expected_integrity)
         }
     }
 }
