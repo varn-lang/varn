@@ -46,7 +46,7 @@ await describe("350 read-only views", async () => {
     await it("entries gives the index and the item of a view", () => {
         const ro: readonly str[] = ["a", "b"]
         let seen = ""
-        for (const (i, v) in ro.entries()) { seen += `${i}${v}` }
+        for (const #[i, v] in ro.entries()) { seen += `${i}${v}` }
         expect(seen).toBe("0a1b")
         expect(ro.entries().length).toBe(2)
     })
@@ -68,8 +68,8 @@ await describe("350 read-only views", async () => {
         const floats: readonly float[] = [nan, 1.5]
         expect(floats.includes(nan)).toBe(false)
         expect(floats.indexOf(1.5)).toBe(1)
-        const pairs: readonly (int, int)[] = [(1, 2), (3, 4)]
-        expect(pairs.indexOf((3, 4))).toBe(1)
+        const pairs: readonly #[int, int][] = [#[1, 2], #[3, 4]]
+        expect(pairs.indexOf(#[3, 4])).toBe(1)
     })
 
     await it("a search through a covariant view takes the supertype", () => {
@@ -93,7 +93,7 @@ await describe("350 read-only views", async () => {
     })
 
     await it("a Map and a Set are read through their views", () => {
-        const m = new Map([("a", 1), ("b", 2)])
+        const m = new Map([#["a", 1], #["b", 2]])
         expect(lookup(m, "b")).toBe(2)
         expect(lookup(m, "z")).toBe(null)
         const view: ReadonlyMap<str, int> = m
@@ -101,7 +101,7 @@ await describe("350 read-only views", async () => {
         expect("a" in view).toBe(true)
         expect(view.keys().length).toBe(2)
         let seen = 0
-        for (const (k, v) in view) { seen += v }
+        for (const #[k, v] in view) { seen += v }
         expect(seen).toBe(3)
         const s = new Set([1, 2, 3])
         expect(sizeOf(s)).toBe(3)
@@ -113,13 +113,13 @@ await describe("350 read-only views", async () => {
     })
 
     await it("a key-value Map is read through a read-only view", () => {
-        const view: ReadonlyMap<str, int> = new Map([("a", 1), ("b", 2)])
+        const view: ReadonlyMap<str, int> = new Map([#["a", 1], #["b", 2]])
         expect(view.size).toBe(2)
         expect(view.get("b")).toBe(2)
     })
 
     await it("a view of values is covariant and a view of keys is not", () => {
-        const dogs = new Map([("rex", new Dog())])
+        const dogs = new Map([#["rex", new Dog()]])
         const animals: ReadonlyMap<str, Animal> = dogs
         expect(animals.get("rex")?.name).toBe("animal")
     })

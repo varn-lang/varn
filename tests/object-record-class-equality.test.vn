@@ -4,30 +4,30 @@ class Point { x: int; constructor(x: int) { this.x = x } }
 const p1 = new Point(1)
 const p2 = new Point(1)
 
-const o1 = { x: 1 }
+const o1 = #{ x: 1 }
 const alias = o1
 
 struct Cell { x: int }
-struct Holder { p: Cell; t: (int, (int, int)) }
-struct Bag { a: (int, int) }
-const r1 = new Holder(new Cell(1), (1, (2, 3)))
-const r2 = new Holder(new Cell(1), (1, (2, 3)))
+struct Holder { p: Cell; t: #[int, #[int, int]] }
+struct Bag { a: #[int, int] }
+const r1 = new Holder(new Cell(1), #[1, #[2, 3]])
+const r2 = new Holder(new Cell(1), #[1, #[2, 3]])
 
 enum Shape { Circle(float), Rect(float, float), Unit }
 await describe("131 object struct class equality", async () => {
         await it("group 1 part 1", async () => {
         expect(sameValue(p1, p1) && !(sameValue(p1, p2))).toBeTruthy();
-        expect(sameValue(o1, alias) && sameValue(o1, { x: 1 }) && !(sameValue(o1, { x: 2 }))).toBeTruthy();
-        expect(o1 == { x: 1 } && o1 != { x: 2 }).toBeTruthy();
+        expect(sameValue(o1, alias) && sameValue(o1, #{ x: 1 }) && !(sameValue(o1, #{ x: 2 }))).toBeTruthy();
+        expect(o1 == #{ x: 1 } && o1 != #{ x: 2 }).toBeTruthy();
         expect(r1 == r2).toBeTruthy();
         expect(r1).toBe(r2);
         expect(!(new Cell(1) == new Cell(2))).toBeTruthy();
     });
 
     await it("group 1 part 2", async () => {
-        expect((1, "a") == (1, "a") && !((1, 2) == (1, 3))).toBeTruthy();
-        expect(new Bag((1, 2)) == new Bag((1, 2))).toBeTruthy();
-        expect(!(new Bag((1, 2)) == new Bag((1, 3)))).toBeTruthy();
+        expect(#[1, "a"] == #[1, "a"] && !(#[1, 2] == #[1, 3])).toBeTruthy();
+        expect(new Bag(#[1, 2]) == new Bag(#[1, 2])).toBeTruthy();
+        expect(!(new Bag(#[1, 2]) == new Bag(#[1, 3]))).toBeTruthy();
         expect(!(sameValue([1], [1]))).toBeTruthy();
         expect(Shape.Circle(1.0) == Shape.Circle(1.0)).toBeTruthy();
     });

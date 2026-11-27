@@ -56,7 +56,7 @@ await describe("294 fetch follows redirects", async () => {
     });
 
     await it("credentials are sent to the same origin but dropped across origins", async () => {
-        const headers = new Map<str, str>([("Authorization", "Bearer secret")]);
+        const headers = new Map<str, str>([#["Authorization", "Bearer secret"]]);
         const same = await fetch(`http://127.0.0.1:${origin.port}/same`, new RequestInit(headers: headers));
         expect(same.text()).toBe("auth=Bearer secret");
         const cross = await fetch(`http://127.0.0.1:${origin.port}/to-other`, new RequestInit(headers: headers));

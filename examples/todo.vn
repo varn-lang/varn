@@ -7,7 +7,7 @@ import { Json } from "std:encoding";
 
 const FILE = "examples/todos.json";
 
-type Todo = { text: str, done: bool };
+type Todo = #{ text: str, done: bool };
 
 @capability("fs.read")
 function loadTodos(): Todo[] {
@@ -15,7 +15,7 @@ function loadTodos(): Todo[] {
         return [];
     }
     try {
-        return Json.parse<Todo[]>(readText(FILE)).map((t: Todo): Todo => ({ text: t.text, done: t.done == true }));
+        return Json.parse<Todo[]>(readText(FILE)).map((t: Todo): Todo => (#{ text: t.text, done: t.done == true }));
     } catch (e) {
         return [];
     }
@@ -32,12 +32,12 @@ function App(): Widget {
     const add = (): void => {
         const clean = draft.value.trim();
         if (clean != "") {
-            todos.update((all: Todo[]): Todo[] => [...all, { text: clean, done: false }]);
+            todos.update((all: Todo[]): Todo[] => [...all, #{ text: clean, done: false }]);
             draft.set("");
         }
     };
     const toggle = (at: int): void => todos.update((all: Todo[]): Todo[] =>
-        all.map((t: Todo, i: int): Todo => i == at ? { text: t.text, done: !t.done } : t)
+        all.map((t: Todo, i: int): Todo => i == at ? #{ text: t.text, done: !t.done } : t)
     );
     const remove = (at: int): void => todos.update((all: Todo[]): Todo[] =>
         all.filter((t: Todo, i: int): bool => i != at)

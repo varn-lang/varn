@@ -5,14 +5,14 @@ import { delay } from "std:task";
 
 
 // 1. Request Cookies parsing
-let reqWithCookies = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.GET, headers: new Map<str, str>([("cookie", "session_id=xyz789; theme=dark; logged_in=true")])));
+let reqWithCookies = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.GET, headers: new Map<str, str>([#["cookie", "session_id=xyz789; theme=dark; logged_in=true"]])));
 
 // 2. Request.json and Request.formData
-let reqJson = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([("content-type", "application/json")]), body: "{\"name\":\"Varn\",\"version\":1}"));
+let reqJson = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([#["content-type", "application/json"]]), body: "{\"name\":\"Varn\",\"version\":1}"));
 
 let parsedJson = reqJson.json() as Map<str, JsonValue>;
 
-let reqForm = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([("content-type", "application/x-www-form-urlencoded")]), body: "user=alice&action=login"));
+let reqForm = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([#["content-type", "application/x-www-form-urlencoded"]]), body: "user=alice&action=login"));
 
 let parsedForm = reqForm.formData();
 
@@ -45,7 +45,7 @@ await describe("100 stdlib http enrichments", async () => {
         });
         server.get("/test", async (req: Request) => {
         middlewareLog.push("handler");
-        return json({ ok: true });
+        return json(#{ ok: true });
         });
     });
 

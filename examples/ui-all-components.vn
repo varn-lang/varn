@@ -5,7 +5,7 @@ import {
     State, Signal, Effect, signal, computed, effect, component, run
 } from "std:ui";
 
-type Task = { id: int, title: str, done: bool };
+type Task = #{ id: int, title: str, done: bool };
 
 const name = signal("");
 const notes = signal("");
@@ -20,15 +20,15 @@ const scrollAt = signal(0.0);
 const count = signal(0);
 const toaster = new Toaster();
 const tasks = signal<Task[]>([
-    { id: 1, title: "wire the egui controls", done: true },
-    { id: 2, title: "port the text field", done: false },
-    { id: 3, title: "record the demo", done: false }
+    #{ id: 1, title: "wire the egui controls", done: true },
+    #{ id: 2, title: "port the text field", done: false },
+    #{ id: 3, title: "record the demo", done: false }
 ]);
 const remaining = computed(() => tasks.value.filter((t: Task): bool => !t.done).length);
 
 function toggleTask(id: int): void {
     tasks.update((all: Task[]): Task[] =>
-        all.map((t: Task): Task => t.id == id ? { id: t.id, title: t.title, done: !t.done } : t)
+        all.map((t: Task): Task => t.id == id ? #{ id: t.id, title: t.title, done: !t.done } : t)
     );
 }
 

@@ -9,7 +9,7 @@ function gcChurn(n: int): int {
 function buildMaps(n: int): Map<str, int>[] {
     let out: Map<str, int>[] = [];
     for (let i = 0; i < n; i = i + 1) {
-        out.push(new Map([("alpha", i), ("beta", i * 2), ("gamma", i * 3)]));
+        out.push(new Map([#["alpha", i], #["beta", i * 2], #["gamma", i * 3]]));
     }
     return out;
 }
@@ -70,7 +70,7 @@ await describe("160 Map/Set representation", async () => {
     });
 
     await it("runtime-built keys find literal entries", () => {
-        const m = new Map([("authorization", "Bearer t"), ("content-type", "json")]);
+        const m = new Map([#["authorization", "Bearer t"], #["content-type", "json"]]);
         let suffixes = ["type", "length"];
         let hits = 0;
         for (let i = 0; i < 20000; i = i + 1) {

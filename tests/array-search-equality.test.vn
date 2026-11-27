@@ -11,7 +11,7 @@ await describe("275 array search equality", async () => {
     });
 
     await it("structural values are found by value", () => {
-        expect([(1, 2), (3, 4)].indexOf((3, 4))).toBe(1);
+        expect([#[1, 2], #[3, 4]].indexOf(#[3, 4])).toBe(1);
         expect([new Key(1)].includes(new Key(1))).toBeTruthy();
     });
 

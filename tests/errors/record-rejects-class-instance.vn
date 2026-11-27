@@ -1,4 +1,4 @@
 // expect: error[VN3001]
 class Point { x: int = 1 }
-type Pt = { x: int }
+type Pt = #{ x: int }
 const p: Pt = new Point()

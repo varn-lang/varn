@@ -21,7 +21,7 @@ await describe("example std:http", async () => {
         ));
         expect(req.method).toBe(HttpMethod.POST);
         expect(req.text()).toBe("{\"name\":\"Varn\"}");
-        let res = json({ ok: true });
+        let res = json(#{ ok: true });
         expect(res.status).toBe(200);
         expect(res.ok).toBe(true);
         expect(redirect("https://example.com", 301).status).toBe(301);
@@ -39,8 +39,8 @@ await describe("example std:http", async () => {
 
     await it("registers routes with params", () => {
         let app = new HttpServer();
-        app.get("/users/:id", async (req: Request) => json({ id: req.params["id"] }));
-        app.post("/users", async (req: Request) => json({ created: true }, 201));
+        app.get("/users/:id", async (req: Request) => json(#{ id: req.params["id"] }));
+        app.post("/users", async (req: Request) => json(#{ created: true }, 201));
         expect(app.isListening).toBe(false);
     });
 

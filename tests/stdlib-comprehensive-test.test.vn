@@ -49,7 +49,7 @@ async function runComprehensiveTest(): Task<void> {
     expect(hash.length).toBe(64);
 
     // 4. std:json
-    let serialized = Json.stringify({ test: "json", value: 123 });
+    let serialized = Json.stringify(#{ test: "json", value: 123 });
     let parsed = Json.parse<Map<str, JsonValue>>(serialized);
     expect(parsed["test"]).toBe("json");
     expect(parsed["value"]).toBe(123);
@@ -207,11 +207,11 @@ async function runComprehensiveTest(): Task<void> {
     expect(777).toBe(777);
 
     // 18. std:types
-    let partialVar: { x?: int; y?: str } = { x: 42 };
-    let readonlyVar: { readonly a: bool } = { a: true };
-    let requiredVar: { x: int; y: str } = { x: 10, y: "yes" };
-    let mutableVar: { a: bool } = { a: false };
-    let recordVar = new Map([("tested", 100)]);
+    let partialVar: #{ x?: int; y?: str } = #{ x: 42 };
+    let readonlyVar: #{ readonly a: bool } = #{ a: true };
+    let requiredVar: #{ x: int; y: str } = #{ x: 10, y: "yes" };
+    let mutableVar: #{ a: bool } = #{ a: false };
+    let recordVar = new Map([#["tested", 100]]);
 
     expect(partialVar.x).toBe(42);
     expect(readonlyVar.a).toBe(true);

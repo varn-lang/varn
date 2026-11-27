@@ -30,12 +30,12 @@ function readId(v: HasId): int {
 }
 
 function twoFields() {
-    const o = { id: 7, extra: "z" }
+    const o = #{ id: 7, extra: "z" }
     expect(readId(o).toString()).toBe("7")
 }
 
 function threeFields() {
-    const o = { id: 41, extra: "z", other: true }
+    const o = #{ id: 41, extra: "z", other: true }
     expect(readId(o).toString()).toBe("41")
 }
 
@@ -44,7 +44,7 @@ function literalAtCallSite() {
 }
 
 function receiverOutlivesTheCall() {
-    const o = { id: 9, extra: "keep" }
+    const o = #{ id: 9, extra: "keep" }
     const text = readId(o).toString()
     expect(o.id).toBe(9)
     expect(text).toBe("9")
@@ -55,20 +55,20 @@ function addIds(a: HasId, b: HasId): int {
 }
 
 function twoObjectsOneCall() {
-    const left = { id: 3, extra: "l" }
-    const right = { id: 4, extra: "r" }
+    const left = #{ id: 3, extra: "l" }
+    const right = #{ id: 4, extra: "r" }
     expect(addIds(left, right).toString()).toBe("7")
 }
 
 function throughAnArray() {
-    const ids = [{ id: 1, extra: "a" }, { id: 2, extra: "b" }]
+    const ids = [#{ id: 1, extra: "a" }, #{ id: 2, extra: "b" }]
     expect(readId(ids[1]).toString()).toBe("2")
 }
 
 function throughATuple() {
-    const left = { id: 3, extra: "l" }
-    const right = { id: 4, extra: "r" }
-    const pair = (readId(left), readId(right))
+    const left = #{ id: 3, extra: "l" }
+    const right = #{ id: 4, extra: "r" }
+    const pair = #[readId(left), readId(right)]
     expect(pair[0] == 3 && pair[1] == 4).toBeTruthy()
 }
 await describe("74 regalloc interference", async () => {

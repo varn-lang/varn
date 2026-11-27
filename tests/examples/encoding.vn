@@ -39,7 +39,7 @@ await describe("example std:encoding", async () => {
     });
 
     await it("msgpack roundtrip", () => {
-        let back = MsgPack.decode(MsgPack.encode({ a: 1, b: "x" }));
+        let back = MsgPack.decode(MsgPack.encode(#{ a: 1, b: "x" }));
         expect(back["a"]).toBe(1);
         expect(back["b"]).toBe("x");
     });

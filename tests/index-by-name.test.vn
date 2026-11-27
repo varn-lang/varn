@@ -25,7 +25,7 @@ await describe("264 index by name", async () => {
     });
 
     await it("a map index yields an optional value", () => {
-        const settings: Settings = new Map([("retries", 3)]);
+        const settings: Settings = new Map([#["retries", 3]]);
         const retries: int? = settings["retries"];
         const missing: int? = settings["timeout"];
         expect(retries).toBe(3);

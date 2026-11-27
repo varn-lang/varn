@@ -1,3 +1,3 @@
 // expect: error[VN3001]
 // expect: error[VN3001]
-const ages: Map<str, int> = new Map([("ann", "thirty")])
+const ages: Map<str, int> = new Map([#["ann", "thirty"]])

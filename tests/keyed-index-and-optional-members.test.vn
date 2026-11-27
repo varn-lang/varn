@@ -1,6 +1,6 @@
 import { describe, it, expect } from "std:test";
 
-type Part = { name: str; tag?: str }
+type Part = #{ name: str; tag?: str }
 
 function tally(words: str[]): Map<str, int> {
     const seen = new Map<str, int>()
@@ -12,7 +12,7 @@ function ensure(seen: Map<str, int>, key: str): int { seen[key] ??= 10; return s
 function maybe(seen: Map<str, int>, key: str): int? { return seen[key] }
 function entryRead(d: Map<str, str>, key: str): str { return d[key] ?? "missing" }
 
-function makePart(tag: str?): Part { return { name: "p", tag: tag } }
+function makePart(tag: str?): Part { return #{ name: "p", tag: tag } }
 function tagOf(p: Part): str { return p.tag ?? "none" }
 
 function size(s: str): int { return s.length }
@@ -22,7 +22,7 @@ function describeValue(value: str | str[] | null): int {
 }
 function afterContinue(q: Map<str, str | str[]>): int {
     let n = 0
-    for (const (key, value) in q) {
+    for (const #[key, value] in q) {
         if (value is str[]) {
             for (const item in value) { n = n + size(item) }
         } else {
@@ -67,7 +67,7 @@ await describe("187 keyed index and optional members", async () => {
     })
 
     await it("a map built from entries reads a missing key as null", () => {
-        const d = new Map([("x", "1")])
+        const d = new Map([#["x", "1"]])
         expect(entryRead(d, "x")).toBe("1")
         expect(entryRead(d, "nope")).toBe("missing")
     })
@@ -75,8 +75,8 @@ await describe("187 keyed index and optional members", async () => {
     await it("an optional member accepts null and reads as nullable", () => {
         expect(tagOf(makePart(null))).toBe("none")
         expect(tagOf(makePart("t"))).toBe("t")
-        const bare: Part = { name: "q" }
-        const explicit: Part = { name: "q", tag: null }
+        const bare: Part = #{ name: "q" }
+        const explicit: Part = #{ name: "q", tag: null }
         expect(tagOf(bare)).toBe("none")
         expect(tagOf(explicit)).toBe("none")
     })
@@ -85,7 +85,7 @@ await describe("187 keyed index and optional members", async () => {
         expect(describeValue(null)).toBe(-1)
         expect(describeValue("abc")).toBe(3)
         expect(describeValue(["a", "b"])).toBe(2)
-        expect(afterContinue(new Map<str, str | str[]>([("a", "xx"), ("b", ["y", "zzz"])]))).toBe(6)
+        expect(afterContinue(new Map<str, str | str[]>([#["a", "xx"], #["b", ["y", "zzz"]]]))).toBe(6)
         expect(parenthesised("four")).toBe(4)
         expect(parenthesised(null)).toBe(0)
     })

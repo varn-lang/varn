@@ -4,8 +4,8 @@ interface Named { name: str }
 interface Located { name: str; address?: Place }
 interface Place { city: str }
 
-type Options = { retries: int; verbose?: bool }
-type Pair = { left: int; right: int }
+type Options = #{ retries: int; verbose?: bool }
+type Pair = #{ left: int; right: int }
 
 class Person implements Named { name: str = "ana" }
 
@@ -16,7 +16,7 @@ function sum(p: Pair): int { return p.left + p.right }
 
 await describe("339 record and interface types", async () => {
     await it("a record satisfies an interface structurally", () => {
-        const r = { name: "bo", extra: 1 }
+        const r = #{ name: "bo", extra: 1 }
         expect(nameOf(r)).toBe("bo")
         expect(nameOf({ name: "cy" })).toBe("cy")
     })
@@ -32,13 +32,13 @@ await describe("339 record and interface types", async () => {
     })
 
     await it("a literal omits the optional fields of the expected record", () => {
-        expect(retriesOf({ retries: 3 })).toBe(3)
-        expect(retriesOf({ retries: 4, verbose: true })).toBe(4)
+        expect(retriesOf(#{ retries: 3 })).toBe(3)
+        expect(retriesOf(#{ retries: 4, verbose: true })).toBe(4)
     })
 
     await it("records with the same fields are one type whatever the order", () => {
-        const a = { left: 1, right: 2 }
-        const b = { right: 2, left: 1 }
+        const a = #{ left: 1, right: 2 }
+        const b = #{ right: 2, left: 1 }
         expect(sum(a)).toBe(3)
         expect(sum(b)).toBe(3)
     })
@@ -60,7 +60,7 @@ function replace(s: Slot, a: Animal): void { s.pet = a }
 
 await describe("339 read-only and mut interface members", async () => {
     await it("a read-only member is covariant", () => {
-        const holder = { pet: new Dog() }
+        const holder = #{ pet: new Dog() }
         expect(petOf(holder)).toBe("dog")
         expect(petOf(new Kennel())).toBe("animal")
     })

@@ -10,12 +10,12 @@ await describe("363 discard in declarations", async () => {
     await it("_ discards a position in every pattern", () => {
         const [_, b] = [1, 2]
         const [_, c] = [3, 4]
-        const (_, d) = ("x", 5)
+        const #[_, d] = #["x", 5]
         expect(b + c + d).toBe(11)
     })
     await it("a discarded value is still evaluated", () => {
         const _ = bump()
-        const (_, e) = (bump(), 7)
+        const #[_, e] = #[bump(), 7]
         expect(calls).toBe(2)
         expect(e).toBe(7)
     })

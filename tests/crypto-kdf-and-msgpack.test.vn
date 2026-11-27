@@ -92,11 +92,11 @@ function testMsgPackStructured(): void {
 
     // Objects / Maps
     let user: MsgPackValue = new Map<str, MsgPackValue>([
-        ("name", "Alice"),
-        ("age", 30),
-        ("active", true),
-        ("skills", ["systems", "compilers"]),
-        ("meta", new Map<str, MsgPackValue>([("tier", 1)]))
+        #["name", "Alice"],
+        #["age", 30],
+        #["active", true],
+        #["skills", ["systems", "compilers"]],
+        #["meta", new Map<str, MsgPackValue>([#["tier", 1]])]
     ]);
 
     let userEnc = MsgPack.encode(user);

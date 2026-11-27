@@ -1,5 +1,5 @@
 // expect: error[VN3001]
-type Todo = {
+type Todo = #{
     id: int;
     title: str
 };
@@ -12,5 +12,5 @@ function applyBoth<T>(items: T[], key: (v: T) => dynamic, render: (v: T) => str)
     return out;
 }
 
-const todos: Todo[] = [{ id: 1, title: "a" }];
+const todos: Todo[] = [#{ id: 1, title: "a" }];
 applyBoth(todos, key: (t: int) => t, render: (t: Todo) => t.title);

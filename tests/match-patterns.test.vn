@@ -62,18 +62,18 @@ function circle(s: Shape): str {
     };
 }
 
-function pair(t: (int, str)): str {
+function pair(t: #[int, str]): str {
     return match (t) {
-        (0, _) => "zero",
-        (n, "a") => `a${n}`,
-        (_, s) => s,
+        #[0, _] => "zero",
+        #[n, "a"] => `a${n}`,
+        #[_, s] => s,
     };
 }
 
-function swapped(t: (int, int)): int {
+function swapped(t: #[int, int]): int {
     return match (t) {
-        (1, x) => x,
-        (a, b) => a + b,
+        #[1, x] => x,
+        #[a, b] => a + b,
     };
 }
 
@@ -110,25 +110,25 @@ function nullable(xs: int[]?): str {
 
 function onPoint(p: Point): str {
     return match (p) {
-        { x: 0, y } => `onY${y}`,
-        { x, y: 0 } => `onX${x}`,
-        { x, y } => `at${x},${y}`,
+        #{ x: 0, y } => `onY${y}`,
+        #{ x, y: 0 } => `onX${x}`,
+        #{ x, y } => `at${x},${y}`,
     };
 }
 
 function nullablePoint(p: Point?): int {
     return match (p) {
         null => -1,
-        { x: 0, y } => y,
-        { x, y } => x + y,
+        #{ x: 0, y } => y,
+        #{ x, y } => x + y,
     };
 }
 
-function both(t: (Opt, Opt)): int {
+function both(t: #[Opt, Opt]): int {
     return match (t) {
-        (Some(a), Some(b)) => a + b,
-        (Some(a), None) => a,
-        (None, _) => 0,
+        #[Some(a), Some(b)] => a + b,
+        #[Some(a), None] => a,
+        #[None, _] => 0,
     };
 }
 
@@ -155,17 +155,17 @@ function unwrap(b: Box<int>): int {
     };
 }
 
-function relation(t: (int, int)): str {
+function relation(t: #[int, int]): str {
     return match (t) {
-        (a, b) if a > b => "gt",
-        (a, b) if a < b => "lt",
+        #[a, b] if a > b => "gt",
+        #[a, b] if a < b => "lt",
         _ => "eq",
     };
 }
 
-function axis(t: (int, int)): str {
+function axis(t: #[int, int]): str {
     return match (t) {
-        (0, _) | (_, 0) => "axis",
+        #[0, _] | #[_, 0] => "axis",
         _ => "other",
     };
 }
@@ -177,9 +177,9 @@ function anything(s: Shape): str {
     };
 }
 
-function sum(t: (int, int)): int {
+function sum(t: #[int, int]): int {
     return match (t) {
-        (a, b) => a + b,
+        #[a, b] => a + b,
     };
 }
 
@@ -201,12 +201,12 @@ await describe("338 match patterns", async () => {
     });
 
     await it("tuple patterns match element by element", async () => {
-        expect(pair((0, "x"))).toBe("zero");
-        expect(pair((5, "a"))).toBe("a5");
-        expect(pair((7, "q"))).toBe("q");
-        expect(swapped((1, 9))).toBe(9);
-        expect(swapped((2, 3))).toBe(5);
-        expect(sum((4, 5))).toBe(9);
+        expect(pair(#[0, "x"])).toBe("zero");
+        expect(pair(#[5, "a"])).toBe("a5");
+        expect(pair(#[7, "q"])).toBe("q");
+        expect(swapped(#[1, 9])).toBe(9);
+        expect(swapped(#[2, 3])).toBe(5);
+        expect(sum(#[4, 5])).toBe(9);
     });
 
     await it("array patterns test the length", async () => {
@@ -237,9 +237,9 @@ await describe("338 match patterns", async () => {
     });
 
     await it("variants nest inside tuples and inside other variants", async () => {
-        expect(both((Opt.Some(1), Opt.Some(2)))).toBe(3);
-        expect(both((Opt.Some(3), Opt.None))).toBe(3);
-        expect(both((Opt.None, Opt.Some(9)))).toBe(0);
+        expect(both(#[Opt.Some(1), Opt.Some(2)])).toBe(3);
+        expect(both(#[Opt.Some(3), Opt.None])).toBe(3);
+        expect(both(#[Opt.None, Opt.Some(9)])).toBe(0);
         expect(nested(Wrapped.Just(Inner.A(5)))).toBe(5);
         expect(nested(Wrapped.Just(Inner.B))).toBe(-1);
         expect(nested(Wrapped.Nothing)).toBe(-2);
@@ -251,12 +251,12 @@ await describe("338 match patterns", async () => {
     });
 
     await it("guards, alternatives and binders compose with patterns", async () => {
-        expect(relation((2, 1))).toBe("gt");
-        expect(relation((1, 2))).toBe("lt");
-        expect(relation((1, 1))).toBe("eq");
-        expect(axis((0, 3))).toBe("axis");
-        expect(axis((3, 0))).toBe("axis");
-        expect(axis((1, 1))).toBe("other");
+        expect(relation(#[2, 1])).toBe("gt");
+        expect(relation(#[1, 2])).toBe("lt");
+        expect(relation(#[1, 1])).toBe("eq");
+        expect(axis(#[0, 3])).toBe("axis");
+        expect(axis(#[3, 0])).toBe("axis");
+        expect(axis(#[1, 1])).toBe("other");
         expect(anything(Shape.Dot)).toBe("dot");
         expect(anything(Shape.Circle(1.0))).toBe("shape");
     });
@@ -271,7 +271,7 @@ await describe("338 match patterns", async () => {
             viaBranches += xs.length == 0 ? -1 : xs[0] + xs.length - 1;
             const left: Opt = i % 3 == 0 ? Opt.None : Opt.Some(i % 5);
             const right: Opt = i % 2 == 0 ? Opt.None : Opt.Some(1);
-            viaPatterns += both((left, right));
+            viaPatterns += both(#[left, right]);
             viaBranches += (left == Opt.None) ? 0 : (right == Opt.None ? i % 5 : i % 5 + 1);
             const at: Point? = i % 4 == 0 ? null : new Point(i % 3, 2);
             viaPatterns += nullablePoint(at);

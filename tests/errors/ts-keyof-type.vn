@@ -1,2 +1,2 @@
 // expect: error[VN2002]
-type K = keyof { a: int }
+type K = keyof #{ a: int }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
-type Link = { value: int; next: Link? }
-type Branch = { label: str; kids: Branch[] }
+type Link = #{ value: int; next: Link? }
+type Branch = #{ label: str; kids: Branch[] }
 
 function length(head: Link?): int {
     let node: Link? = head
@@ -22,15 +22,15 @@ function leaves(tree: Branch): int {
 
 await describe("177 recursive type alias", async () => {
     await it("a recursive alias is assignable to itself through its fields", () => {
-        const list: Link = { value: 9, next: { value: 8, next: { value: 7, next: null } } }
+        const list: Link = #{ value: 9, next: { value: 8, next: #{ value: 7, next: null } } }
         expect(length(list)).toBe(3)
         expect(length(null)).toBe(0)
     })
 
     await it("a recursive alias through an array", () => {
-        const tree: Branch = {
+        const tree: Branch = #{
             label: "root",
-            kids: [{ label: "a", kids: [] }, { label: "b", kids: [{ label: "c", kids: [] }] }],
+            kids: [{ label: "a", kids: [] }, { label: "b", kids: [#{ label: "c", kids: [] }] }],
         }
         expect(leaves(tree)).toBe(2)
     })

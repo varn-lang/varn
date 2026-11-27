@@ -26,9 +26,9 @@ await describe("336 edge repairs", async () => {
         expect(lookup([5, 6], 1)).toBe(6);
         expect(slice(null)).toBe(null);
         expect(slice([1, 2, 3, 4])?.length).toBe(2);
-        const none: (int, int)? = null;
+        const none: #[int, int]? = null;
         expect(none?.[1]).toBe(null);
-        const some: (int, int)? = (1, 2);
+        const some: #[int, int]? = #[1, 2];
         expect(some?.[1]).toBe(2);
     });
 
@@ -64,9 +64,9 @@ await describe("336 edge repairs", async () => {
     });
 
     await it("a tuple parameter is destructured with parentheses", async () => {
-        const add = ((a, b): (int, int)) => a + b;
-        expect(add((1, 2))).toBe(3);
-        const sums = [(1, 2), (3, 4)].map(((a, b)) => a + b);
+        const add = (#[a, b]: #[int, int]) => a + b;
+        expect(add(#[1, 2])).toBe(3);
+        const sums = [#[1, 2], #[3, 4]].map((#[a, b]) => a + b);
         expect(sums[1]).toBe(7);
     });
 });

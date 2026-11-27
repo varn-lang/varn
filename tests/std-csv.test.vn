@@ -35,7 +35,7 @@ let jsonObj = Json.parse<Map<str, JsonValue>>("{\"message\": \"hello\", \"status
 let jsonStr = Json.stringify(jsonObj);
 
 // 9. Generic Typed Json.parse<T> & Csv.parse<T>
-type UserDto = {
+type UserDto = #{
     id: int;
     name: str;
     age: int;
@@ -44,7 +44,7 @@ type UserDto = {
 }
 let typedUsers = Csv.parse<UserDto>(csvBasic);
 
-type ApiResponse = {
+type ApiResponse = #{
     message: str;
     status: int
 }

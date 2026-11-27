@@ -23,7 +23,7 @@ await describe("example std:crypto", async () => {
     });
 
     await it("jwt signs and verifies", () => {
-        let token = Jwt.sign({ sub: "u1" }, "secret");
+        let token = Jwt.sign(#{ sub: "u1" }, "secret");
         let payload = Jwt.verify(token, "secret");
         expect(payload != null).toBe(true);
         expect(Jwt.verify(token, "other-secret") == null).toBe(true);

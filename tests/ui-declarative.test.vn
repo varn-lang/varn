@@ -49,7 +49,7 @@ function Stable(): Widget {
     return Text(`${kept.value}`);
 }
 
-type Todo = {
+type Todo = #{
     id: int;
     title: str
 };
@@ -144,7 +144,7 @@ await describe("220 ui declarative", async () => {
     });
 
     await it("each keeps stable order with keys", () => {
-        const todos: Todo[] = [{ id: 1, title: "a" }, { id: 2, title: "b" }];
+        const todos: Todo[] = [#{ id: 1, title: "a" }, #{ id: 2, title: "b" }];
         const list = Each(todos, (t: Todo): str => t.title, (t: Todo, index: int) => TodoRow(todo: t));
         expect(list is FlexNode).toBe(true);
         expect(flex(list).children.length).toBe(2);

@@ -3,7 +3,7 @@ import { sleep, Sender, Receiver } from "std:task";
 
 export enum Msg { Val(int), Exit }
 
-export type ValueMsg = { value: int }
+export type ValueMsg = #{ value: int }
 
 export async function workerMain(rx: Receiver<ValueMsg>, tx: Sender<int>) {
     const data = await rx.receive();
@@ -11,7 +11,7 @@ export async function workerMain(rx: Receiver<ValueMsg>, tx: Sender<int>) {
     await tx.send(data.value * 2);
 }
 
-export async function workerArgs(tx: Sender<str>, num: int, text: str, arr: Array<int>, obj: { x: str }) {
+export async function workerArgs(tx: Sender<str>, num: int, text: str, arr: Array<int>, obj: #{ x: str }) {
     expect(num).toBe(42);
     expect(text).toBe("hello");
     expect(arr.length).toBe(3);
@@ -46,12 +46,12 @@ export async function echoWorker(rx: Receiver<int>, tx: Sender<int>) {
     tx.close()
 }
 
-export async function replyThroughBox(box: { reply: Sender<int> }) {
+export async function replyThroughBox(box: #{ reply: Sender<int> }) {
     await box.reply.send(7)
     box.reply.close()
 }
 
-export async function echoShape(shape: { __chanEndpoint: str; __chanId: int }, tx: Sender<str>) {
+export async function echoShape(shape: #{ __chanEndpoint: str; __chanId: int }, tx: Sender<str>) {
     await tx.send(`${shape.__chanEndpoint}${shape.__chanId}`)
     tx.close()
 }

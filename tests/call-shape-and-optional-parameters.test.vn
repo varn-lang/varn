@@ -118,13 +118,13 @@ await describe("188 call shape and optional parameters", async () => {
     })
 
     await it("an imported class brings its constructor signature", () => {
-        const given = new Map([("a", "1")])
+        const given = new Map([#["a", "1"]])
         for (let i = 0; i < 300; i = i + 1) { imported(given) }
         expect(imported(given)).toBe("1")
         expect(imported(new Map<str, str>())).toBe("absent")
         expect(imported(null)).toBe("absent")
         expect(imported(5)).toBe("TypeError")
-        expect(imported({ a: "1" })).toBe("TypeError")
+        expect(imported(#{ a: "1" })).toBe("TypeError")
         expect(new Headers().get("a")).toBe(null)
     })
 

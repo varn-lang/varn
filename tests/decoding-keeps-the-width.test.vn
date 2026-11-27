@@ -39,7 +39,7 @@ await describe("370 decoding keeps the width of the target type", async () => {
     })
 
     await it("an object field checks its width", () => {
-        expect(outcome(() => { Json.parse<{ level: u8 }>("{\"level\": 999}") })).toBe("rejected")
-        expect(Json.parse<{ level: u8 }>("{\"level\": 9}").level).toBe(9)
+        expect(outcome(() => { Json.parse<#{ level: u8 }>("{\"level\": 999}") })).toBe("rejected")
+        expect(Json.parse<#{ level: u8 }>("{\"level\": 9}").level).toBe(9)
     })
 })

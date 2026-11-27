@@ -16,7 +16,7 @@ extension Tools<T> on readonly T[] {
 
 extension Pairs<K extends Hashable, V> on ReadonlyMap<K, V> {
     anyValue(): V? {
-        for (const (_, v) in this) { return v }
+        for (const #[_, v] in this) { return v }
         return null
     }
 }
@@ -36,7 +36,7 @@ await describe("351 generic extensions", async () => {
     })
 
     await it("several type parameters follow the receiver in order", () => {
-        const ages: ReadonlyMap<str, int> = new Map([("ann", 30)])
+        const ages: ReadonlyMap<str, int> = new Map([#["ann", 30]])
         expect(ages.anyValue()).toBe(30)
         const empty: ReadonlyMap<str, int> = new Map<str, int>()
         expect(empty.anyValue()).toBe(null)

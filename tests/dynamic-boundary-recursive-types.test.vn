@@ -1,13 +1,13 @@
 import { describe, it, expect } from "std:test";
 import { Json } from "std:encoding";
 
-type Chain = { value: int; next: Chain? }
+type Chain = #{ value: int; next: Chain? }
 
 class Link {
     value: int = 1
     next: Link? = null
 }
-type Folder = { label: str; kids: Folder[] }
+type Folder = #{ label: str; kids: Folder[] }
 
 function outcome(f: () => void): str {
     try {
@@ -37,7 +37,7 @@ function head(d: dynamic): int {
 await describe("178 dynamic boundary: recursive types", async () => {
     await it("a recursive object type is checked at every level", () => {
         expect(count(Json.parse("{\"value\":1,\"next\":{\"value\":2,\"next\":{\"value\":3,\"next\":null}}}"))).toBe(3)
-        const wanted = "type mismatch: expected '{ value: int, next: { value: int, next: Chain? }? }?', got 'object'"
+        const wanted = "type mismatch: expected '#{ value: int, next: #{ value: int, next: Chain? }? }?', got 'object'"
         expect(outcome(() => {
             count(Json.parse("{\"value\":1,\"next\":{\"value\":2,\"next\":{\"value\":\"x\",\"next\":null}}}"))
         })).toBe(wanted)
@@ -49,7 +49,7 @@ await describe("178 dynamic boundary: recursive types", async () => {
         expect(folder(Json.parse(good)).kids.length).toBe(2)
         expect(outcome(() => {
             folder(Json.parse("{\"label\":\"a\",\"kids\":[{\"label\":\"b\",\"kids\":[{\"label\":7,\"kids\":[]}]}]}"))
-        })).toBe("type mismatch: expected '{ label: str, kids: { label: str, kids: Folder[] }[] }', got 'object'")
+        })).toBe("type mismatch: expected '#{ label: str, kids: #{ label: str, kids: Folder[] }[] }', got 'object'")
     })
 
     await it("cyclic class data terminates", () => {

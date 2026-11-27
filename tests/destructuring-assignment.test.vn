@@ -9,7 +9,7 @@ class Point {
     x: int;
     y: int;
     constructor(a: int, b: int) {
-        ;(this.x, this.y) = (a, b);
+        ;#[this.x, this.y] = #[a, b];
     }
 }
 
@@ -18,21 +18,21 @@ struct Pair {
     right: int;
 }
 
-function pair(): (int, int) {
-    return (1, 2);
+function pair(): #[int, int] {
+    return #[1, 2];
 }
 
 let evaluations = 0;
-function counted(): (int, int) {
+function counted(): #[int, int] {
     evaluations = evaluations + 1;
-    return (1, 2);
+    return #[1, 2];
 }
 
 await describe("337 destructuring assignment", async () => {
     await it("swaps two variables through a tuple", async () => {
         let a = 1;
         let b = 2;
-        ;(a, b) = (b, a);
+        ;#[a, b] = #[b, a];
         expect(a).toBe(2);
         expect(b).toBe(1);
     });
@@ -49,7 +49,7 @@ await describe("337 destructuring assignment", async () => {
         let x = 0;
         let y = 0;
         let renamed = 0;
-        ;({ x, y } = { x: 3, y: 4 });
+        ;({ x, y } = #{ x: 3, y: 4 });
         expect(x + y).toBe(7);
         ;({ left: renamed } = new Pair(8, 9));
         expect(renamed).toBe(8);
@@ -68,7 +68,7 @@ await describe("337 destructuring assignment", async () => {
         ;[_, b] = [1, 2];
         expect(b).toBe(2);
         let a = 0;
-        ;(a, _) = (5, 6);
+        ;#[a, _] = #[5, 6];
         expect(a).toBe(5);
     });
 
@@ -84,24 +84,24 @@ await describe("337 destructuring assignment", async () => {
         let a = 0;
         let b = 0;
         let c = 0;
-        ;(a, (b, c)) = (1, (2, 3));
+        ;#[a, #[b, c]] = #[1, #[2, 3]];
         expect(a + b + c).toBe(6);
     });
 
     await it("assigns members and indexes", async () => {
         const cell = new Cell();
-        ;(cell.x, cell.y) = (5, 6);
+        ;#[cell.x, cell.y] = #[5, 6];
         expect(cell.x).toBe(5);
         expect(cell.y).toBe(6);
         const slots = [0, 0];
-        ;(slots[0], slots[1]) = (7, 8);
+        ;#[slots[0], slots[1]] = #[7, 8];
         expect(slots[1]).toBe(8);
     });
 
     await it("evaluates its right side once", async () => {
         let a = 0;
         let b = 0;
-        ;(a, b) = counted();
+        ;#[a, b] = counted();
         expect(evaluations).toBe(1);
         expect(a + b).toBe(3);
     });
@@ -110,13 +110,13 @@ await describe("337 destructuring assignment", async () => {
         let a = 0;
         let b = 1;
         for (let i = 0; i < 10; i++) {
-            ;(a, b) = (b, a + b);
+            ;#[a, b] = #[b, a + b];
         }
         expect(a).toBe(55);
         let x = 1;
         let y = 2;
         const swap = () => {
-            ;(x, y) = (y, x);
+            ;#[x, y] = #[y, x];
         };
         swap();
         expect(x).toBe(2);
@@ -127,7 +127,7 @@ await describe("337 destructuring assignment", async () => {
         expect(p.y).toBe(2);
         let l = 0;
         let r = 0;
-        ;(l, r) = pair();
+        ;#[l, r] = pair();
         expect(l + r).toBe(3);
     });
 });
