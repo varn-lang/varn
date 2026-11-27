@@ -14,7 +14,7 @@ class Payload {
 }
 
 const slow = async (): Task<Payload> => {
-    await delay(200);
+    await delay(2000);
     return new Payload("slow", 2);
 };
 const fast = async (): Task<Payload> => {
