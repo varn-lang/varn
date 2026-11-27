@@ -1,8 +1,8 @@
 #![allow(clippy::disallowed_methods)]
 use std::path::{Path, PathBuf};
 
-use crate::names::ENV_DIR_NAME;
-use crate::project::Project;
+use crate::project::model::Project;
+use crate::project::names::ENV_DIR_NAME;
 
 pub fn apply_env(project: &Project) {
     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));

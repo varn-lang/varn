@@ -1,8 +1,8 @@
 use crate::cli::Commands;
 use crate::error::CliError;
 
-pub fn init(project: &vn_project::Project) {
-    vn_project::apply_env(project);
+pub fn init(project: &vn_modules::project::Project) {
+    vn_modules::project::apply_env(project);
     vn_modules::std_root::pin_project(project);
     crate::std_source::register();
     crate::code_store::register();

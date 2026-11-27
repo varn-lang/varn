@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use crate::error::CliError;
-use vn_project::FileFilter;
+use vn_modules::project::FileFilter;
 
 const SKIPPED_DIRS: &[&str] = &["target", "node_modules"];
 

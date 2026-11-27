@@ -91,5 +91,7 @@ impl PmLockfile {
 }
 
 pub fn lock_path(project_root: &Path) -> PathBuf {
-    project_root.join(vn_project::ENV_DIR_NAME).join("vn.lock")
+    project_root
+        .join(vn_modules::project::ENV_DIR_NAME)
+        .join("vn.lock")
 }

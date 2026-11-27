@@ -78,7 +78,7 @@ pub enum Failure {
     Runtime(RuntimeFailure),
     Io(String),
     Internal(String),
-    Project(vn_project::ManifestError),
+    Project(vn_modules::project::ManifestError),
 }
 
 impl Failure {

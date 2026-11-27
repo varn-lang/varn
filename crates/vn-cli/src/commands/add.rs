@@ -1,8 +1,8 @@
 use crate::cli::AddArgs;
 use crate::error::CliError;
 use vn_core::term::terminal;
+use vn_modules::project::Project;
 use vn_pm::{installer, lockfile, DepOrigin};
-use vn_project::Project;
 
 pub fn execute(project: &Project, args: AddArgs) -> Result<(), CliError> {
     let manifest_path = super::pkg::manifest_path(project)?;

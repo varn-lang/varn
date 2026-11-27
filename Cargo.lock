@@ -3790,7 +3790,6 @@ dependencies = [
  "vn-parser",
  "vn-pipeline",
  "vn-pm",
- "vn-project",
  "vn-sem",
  "vn-types",
  "vn-vm",
@@ -3962,8 +3961,9 @@ version = "0.1.0"
 dependencies = [
  "rustc-hash 1.1.0",
  "semver",
+ "serde",
+ "toml",
  "vn-core",
- "vn-project",
 ]
 
 [[package]]
@@ -3986,7 +3986,6 @@ dependencies = [
  "vn-lexer",
  "vn-modules",
  "vn-parser",
- "vn-project",
  "vn-resolver",
  "vn-sem",
  "vn-tir",
@@ -4009,15 +4008,6 @@ dependencies = [
  "ureq",
  "vn-core",
  "vn-modules",
- "vn-project",
-]
-
-[[package]]
-name = "vn-project"
-version = "0.1.0"
-dependencies = [
- "serde",
- "toml",
 ]
 
 [[package]]

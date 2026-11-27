@@ -38,6 +38,6 @@ pub use request::{CachePolicy, Goal, Request};
 pub use session::Session;
 pub use source::Source;
 pub use vn_core::debug_flags::DebugFlags;
-pub use vn_project::Anchor;
+pub use vn_modules::project::Anchor;
 pub use vn_types::capabilities::CapabilitySet;
 pub use vn_types::TestEntry;

@@ -21,8 +21,8 @@ pub fn cached_package_path(origin: &DepOrigin, version: &str) -> PathBuf {
 
 pub fn local_package_path(project_root: &std::path::Path, alias: &str) -> PathBuf {
     project_root
-        .join(vn_project::ENV_DIR_NAME)
-        .join(vn_project::MODULES_DIR_NAME)
+        .join(vn_modules::project::ENV_DIR_NAME)
+        .join(vn_modules::project::MODULES_DIR_NAME)
         .join(alias)
 }
 

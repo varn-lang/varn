@@ -29,7 +29,7 @@ pub fn classify(path: &Path) -> Option<StdSource> {
 
 static PROJECT_STD: std::sync::OnceLock<Option<PathBuf>> = std::sync::OnceLock::new();
 
-pub fn pin_project(project: &vn_project::Project) {
+pub fn pin_project(project: &crate::project::Project) {
     let tree = project.manifest.std.as_ref().map(|rel| {
         let p = PathBuf::from(rel);
         if p.is_absolute() {

@@ -18,11 +18,11 @@ pub fn execute(args: InitArgs) -> Result<(), CliError> {
 
     let main_path = base.join("main.vn").to_string_lossy().to_string();
     let manifest_path = base
-        .join(vn_project::MANIFEST_FILE)
+        .join(vn_modules::project::MANIFEST_FILE)
         .to_string_lossy()
         .to_string();
     let wr_dir = base
-        .join(vn_project::ENV_DIR_NAME)
+        .join(vn_modules::project::ENV_DIR_NAME)
         .to_string_lossy()
         .to_string();
 

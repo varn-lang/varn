@@ -4,7 +4,7 @@ use crate::discover::{vn_files, Depth};
 use crate::exit::ExitCode;
 use crate::{cli::CheckArgs, debug_print, error::CliError, pipeline};
 use vn_core::term::terminal;
-use vn_project::FileFilter;
+use vn_modules::project::FileFilter;
 
 pub fn execute(session: &pipeline::Session, args: CheckArgs) -> Result<(), CliError> {
     let files = targets(session, &args.files)?;

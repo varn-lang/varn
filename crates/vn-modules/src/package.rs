@@ -1,7 +1,7 @@
 use super::ids::{DEFAULT_PACKAGE_VERSION, PKG_PREFIX, RELATIVE_EXPORT_PREFIX};
+use crate::project::{Anchor, Manifest, Project, ENV_DIR_NAME, MANIFEST_FILE, MODULES_DIR_NAME};
 use semver::{Version, VersionReq};
 use std::path::{Path, PathBuf};
-use vn_project::{Anchor, Manifest, Project, ENV_DIR_NAME, MANIFEST_FILE, MODULES_DIR_NAME};
 
 pub fn is_pkg_specifier(specifier: &str) -> bool {
     specifier.starts_with(PKG_PREFIX)

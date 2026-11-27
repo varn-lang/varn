@@ -1,7 +1,7 @@
 use crate::{cli::PkgCommands, error::CliError};
 use std::path::Path;
 use vn_core::term::terminal;
-use vn_project::Project;
+use vn_modules::project::Project;
 
 pub fn manifest_path(project: &Project) -> Result<&Path, CliError> {
     project

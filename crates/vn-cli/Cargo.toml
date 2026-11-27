@@ -36,7 +36,6 @@ vn-debug    = { path = "../vn-debug" }
 vn-lsp      = { path = "../vn-lsp" }
 vn-dap      = { path = "../vn-dap" }
 vn-pm       = { path = "../vn-pm" }
-vn-project  = { path = "../vn-project" }
 vn-modules  = { path = "../vn-modules" }
 vn-jit      = { path = "../vn-jit" }
 postcard      = { workspace = true }

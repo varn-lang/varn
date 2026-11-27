@@ -1,5 +1,5 @@
 use std::sync::Arc;
-use vn_project::{Anchor, Project};
+use vn_modules::project::{Anchor, Project};
 
 use crate::{Failure, ModuleResolver};
 

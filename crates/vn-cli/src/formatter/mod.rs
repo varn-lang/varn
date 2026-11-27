@@ -13,7 +13,7 @@ fn plural(count: usize) -> &'static str {
     }
 }
 
-pub fn run_fmt(project: &vn_project::Project, args: FmtArgs) -> Result<(), CliError> {
+pub fn run_fmt(project: &vn_modules::project::Project, args: FmtArgs) -> Result<(), CliError> {
     let start_time = Instant::now();
     let target = args.path.as_deref().unwrap_or(".");
     let files = crate::discover::vn_files(

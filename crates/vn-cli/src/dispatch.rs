@@ -4,7 +4,7 @@ use crate::error::CliError;
 use crate::pipeline::{Anchor, Session};
 use std::path::Path;
 use std::sync::Arc;
-use vn_project::Project;
+use vn_modules::project::Project;
 
 fn run_anchor<'a>(file: Option<&'a str>, eval: Option<&str>) -> Anchor<'a> {
     match (file, eval) {
@@ -72,7 +72,7 @@ pub fn run(cmd: Commands, session: &Arc<Session>) -> Result<(), CliError> {
         Commands::Explain(args) => commands::explain::execute(args),
         Commands::Dap => commands::dap::execute(),
         Commands::Pkg(sub) => {
-            let project = vn_project::Project::owning(vn_project::Anchor::Cwd)?;
+            let project = vn_modules::project::Project::owning(vn_modules::project::Anchor::Cwd)?;
             commands::pkg::execute(&project, sub)
         }
         Commands::StdBundle(args) => commands::std_bundle::execute(session, args),

@@ -6,7 +6,7 @@ fn canonicalize(path: &Path) -> PathBuf {
 }
 
 fn find_root_from(base_canon: &Path) -> (PathBuf, bool) {
-    let located = vn_project::nearest(base_canon);
+    let located = crate::project::nearest(base_canon);
     (canonicalize(&located.dir), located.manifest.is_some())
 }
 

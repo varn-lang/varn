@@ -1,7 +1,7 @@
 use crate::error::CliError;
 use vn_core::term::terminal;
+use vn_modules::project::Project;
 use vn_pm::{installer, lockfile};
-use vn_project::Project;
 
 pub fn execute(project: &Project) -> Result<(), CliError> {
     super::pkg::manifest_path(project)?;

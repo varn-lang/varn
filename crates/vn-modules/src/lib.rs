@@ -4,6 +4,7 @@ pub mod ids;
 pub mod layer;
 pub mod loader;
 pub mod package;
+pub mod project;
 pub mod provider;
 pub mod registry;
 pub mod resolver;

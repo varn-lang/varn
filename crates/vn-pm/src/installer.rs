@@ -106,10 +106,10 @@ fn resolve_recursive(
         });
 
         let installed_pkg_dir = cache::local_package_path(project_root, alias);
-        let child_manifest_path = installed_pkg_dir.join(vn_project::MANIFEST_FILE);
+        let child_manifest_path = installed_pkg_dir.join(vn_modules::project::MANIFEST_FILE);
         if child_manifest_path.exists() {
-            let child_manifest =
-                vn_project::Manifest::load(&child_manifest_path).map_err(|e| e.to_string())?;
+            let child_manifest = vn_modules::project::Manifest::load(&child_manifest_path)
+                .map_err(|e| e.to_string())?;
             let child_deps = parse_dependencies(&child_manifest.dependencies)?;
             resolve_recursive(
                 project_root,

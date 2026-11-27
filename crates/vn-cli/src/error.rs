@@ -1,7 +1,7 @@
 use crate::exit::ExitCode;
 use std::fmt;
+use vn_modules::project::ManifestError;
 use vn_pipeline::Failure;
-use vn_project::ManifestError;
 
 pub enum CliError {
     Failure(Failure),

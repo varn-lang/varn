@@ -17,7 +17,8 @@ pub fn resolve_version(origin: &DepOrigin) -> Result<ResolvedVersion, String> {
                     path.display()
                 ));
             }
-            let manifest = vn_project::Manifest::load_in(path).map_err(|e| e.to_string())?;
+            let manifest =
+                vn_modules::project::Manifest::load_in(path).map_err(|e| e.to_string())?;
             let version = manifest
                 .and_then(|m| m.version)
                 .unwrap_or_else(|| "0.0.0-local".to_owned());
