@@ -9,7 +9,7 @@ use vn_sem::resolver::ImportResolver;
 pub fn generate_auto_imports_action(
     state: &DocumentState,
     index: Option<&ProjectIndex>,
-    resolver: &vn_resolver::ModuleResolver,
+    resolver: &vn_pipeline::ModuleResolver,
     uri: &tower_lsp_f::lsp_types::Uri,
     diag: &Diagnostic,
 ) -> Vec<CodeActionResponse> {

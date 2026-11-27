@@ -13,7 +13,6 @@ vn-types    = { path = "../vn-types" }
 vn-compiler = { path = "../vn-compiler" }
 vn-tir      = { path = "../vn-tir" }
 vn-sem      = { path = "../vn-sem" }
-vn-resolver = { path = "../vn-resolver" }
 vn-pipeline = { path = "../vn-pipeline" }
 vn-debug    = { path = "../vn-debug", features = ["clif"] }
 vn-vm       = { path = "../vn-vm", features = ["clif"] }

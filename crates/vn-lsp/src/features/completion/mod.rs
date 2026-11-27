@@ -120,7 +120,7 @@ pub fn patched_source_for_word(
 
 pub fn build_completion_response(
     state: &DocumentState,
-    resolver: &vn_resolver::ModuleResolver,
+    resolver: &vn_pipeline::ModuleResolver,
     line: u32,
     col: u32,
     trigger_char: Option<&str>,

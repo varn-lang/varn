@@ -3912,7 +3912,6 @@ dependencies = [
  "vn-emit",
  "vn-modules",
  "vn-pipeline",
- "vn-resolver",
  "vn-sem",
  "vn-tir",
  "vn-types",
@@ -3954,8 +3953,10 @@ dependencies = [
 name = "vn-pipeline"
 version = "0.1.0"
 dependencies = [
+ "parking_lot",
  "postcard",
  "rustc-hash 1.1.0",
+ "vn-binder",
  "vn-checker",
  "vn-compiler",
  "vn-core",
@@ -3963,27 +3964,10 @@ dependencies = [
  "vn-lexer",
  "vn-modules",
  "vn-parser",
- "vn-resolver",
  "vn-sem",
  "vn-tir",
  "vn-types",
  "vn-vm",
-]
-
-[[package]]
-name = "vn-resolver"
-version = "0.1.0"
-dependencies = [
- "parking_lot",
- "postcard",
- "rustc-hash 1.1.0",
- "vn-binder",
- "vn-checker",
- "vn-core",
- "vn-lexer",
- "vn-modules",
- "vn-parser",
- "vn-sem",
 ]
 
 [[package]]

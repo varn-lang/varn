@@ -19,11 +19,12 @@ mod policy;
 pub mod portable;
 mod quiet_parse;
 mod request;
+mod resolver;
 mod session;
 mod source;
 pub mod stdlib_loader;
 
-pub use vn_resolver::ModuleResolver;
+pub use resolver::ModuleResolver;
 
 pub use analysis::Analysis;
 pub use compilation::{CacheStatus, Compilation, Stage};

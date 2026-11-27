@@ -9,8 +9,8 @@ use crate::pipeline::run_pipeline;
 use crate::query::exports::{ExportedSymbol, ModuleExports};
 use dashmap::DashMap;
 use std::sync::{Arc, RwLock};
+use vn_pipeline::ModuleResolver;
 use vn_pipeline::{Anchor, Failure, Session};
-use vn_resolver::ModuleResolver;
 
 pub use revision::{Cached, Revision};
 

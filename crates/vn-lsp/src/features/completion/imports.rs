@@ -107,7 +107,7 @@ fn relative_vn_completions(prefix: &str, doc_uri: &str) -> Vec<CompletionItem> {
 }
 
 pub fn build_module_export_completions(
-    resolver: &vn_resolver::ModuleResolver,
+    resolver: &vn_pipeline::ModuleResolver,
     module_path: &str,
     doc_uri: &str,
 ) -> Vec<CompletionItem> {
@@ -122,7 +122,7 @@ pub fn build_module_export_completions(
 }
 
 fn build_stdlib_export_completions(
-    resolver: &vn_resolver::ModuleResolver,
+    resolver: &vn_pipeline::ModuleResolver,
     module_path: &str,
 ) -> Vec<CompletionItem> {
     let exports = resolver.stdlib_exports(module_path).as_ref().clone();
@@ -143,7 +143,7 @@ fn build_stdlib_export_completions(
 }
 
 fn build_relative_export_completions(
-    resolver: &vn_resolver::ModuleResolver,
+    resolver: &vn_pipeline::ModuleResolver,
     module_path: &str,
     doc_uri: &str,
 ) -> Vec<CompletionItem> {

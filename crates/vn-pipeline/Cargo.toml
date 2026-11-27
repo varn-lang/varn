@@ -15,9 +15,10 @@ vn-vm          = { path = "../vn-vm" }
 vn-modules     = { path = "../vn-modules" }
 vn-types       = { path = "../vn-types" }
 vn-sem         = { path = "../vn-sem" }
-vn-resolver    = { path = "../vn-resolver" }
+vn-binder      = { path = "../vn-binder" }
 rustc-hash       = { workspace = true }
 postcard     = { workspace = true }
+parking_lot  = { workspace = true }
 
 [lints]
 workspace = true

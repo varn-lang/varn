@@ -132,7 +132,9 @@ pub(super) fn collect_exports(
                 }
                 if let Decl::Namespace(ns) = declaration.as_ref() {
                     let name = bind.interner.resolve(ns.id);
-                    crate::namespace_exports::export_declared(bind, name, name, abs_path, out);
+                    crate::resolver::namespace_exports::export_declared(
+                        bind, name, name, abs_path, out,
+                    );
                 }
                 if let Decl::Extension(ext) = declaration.as_ref() {
                     export_extension(bind, ext, abs_path, out);
@@ -157,7 +159,7 @@ pub(super) fn collect_exports(
                             .or_else(|| Some(intern_origin(out, abs_path)));
                         out.insert(exported_name.to_string(), s);
                         if declared_here {
-                            crate::namespace_exports::export_declared(
+                            crate::resolver::namespace_exports::export_declared(
                                 bind,
                                 local_name,
                                 exported_name,
@@ -172,7 +174,7 @@ pub(super) fn collect_exports(
                             .map(|ns| (ns.exported.clone(), ns.members.clone()))
                             .collect();
                         for (root, members) in carried {
-                            crate::namespace_exports::carry_imported(
+                            crate::resolver::namespace_exports::carry_imported(
                                 bind,
                                 sym,
                                 &root,
@@ -207,7 +209,7 @@ pub(super) fn collect_exports(
                         s.name = spec.exported;
                         s.re_export_path.push(intern_origin(out, abs_path));
                         out.insert(exported_name.to_string(), s);
-                        crate::namespace_exports::forward(
+                        crate::resolver::namespace_exports::forward(
                             &src_exports,
                             local_name,
                             exported_name,
