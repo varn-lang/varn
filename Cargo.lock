@@ -3782,12 +3782,12 @@ dependencies = [
  "sha2",
  "shlex",
  "tar",
+ "tower-lsp-f",
  "ureq",
  "vn-builtins",
  "vn-compiler",
  "vn-core",
  "vn-debug",
- "vn-inspect",
  "vn-jit",
  "vn-lexer",
  "vn-lsp",
@@ -3870,20 +3870,6 @@ dependencies = [
  "pollster",
  "rustc-hash 1.1.0",
  "wgpu",
-]
-
-[[package]]
-name = "vn-inspect"
-version = "0.1.0"
-dependencies = [
- "rustc-hash 1.1.0",
- "tower-lsp-f",
- "vn-core",
- "vn-debug",
- "vn-lsp",
- "vn-modules",
- "vn-pipeline",
- "vn-sem",
 ]
 
 [[package]]

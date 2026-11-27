@@ -22,6 +22,7 @@ mod exec;
 mod exit;
 mod formatter;
 mod ice;
+mod inspect;
 mod peak_memory;
 mod pipeline;
 mod pm;
