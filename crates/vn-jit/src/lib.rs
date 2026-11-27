@@ -3,6 +3,7 @@ pub mod aot;
 #[cfg(feature = "clif")]
 pub mod clif;
 pub mod config;
+mod host_abi;
 #[cfg(not(feature = "clif"))]
 pub mod clif {
     pub fn enabled() -> bool {
@@ -131,7 +132,7 @@ pub struct OwnedTargetIsa {
 
 use std::any::Any;
 use std::rc::Rc;
-pub use vn_jit_abi::{
+pub use host_abi::{
     JitArrayLayout, JitBufferLayout, JitCallLayout, JitFrameLayout, JitGetIndexArgs, JitHelpers,
     JitInstanceAlloc, JitInvokeVirtualArgs, JitObjectLayout, JitSetIndexArgs, JitSetPropertyArgs,
     JitStrLayout, JIT_HELPERS_VERSION, NATIVE_FRAMELESS,

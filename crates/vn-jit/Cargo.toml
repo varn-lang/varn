@@ -6,7 +6,6 @@ edition.workspace = true
 [dependencies]
 serde = { workspace = true }
 vn-core = { path = "../vn-core" }
-vn-jit-abi = { path = "../vn-jit-abi" }
 vn-types = { path = "../vn-types" }
 cranelift-codegen = { version = "0.136.2", default-features = false, features = ["x86", "arm64", "std"], optional = true }
 cranelift-frontend = { version = "0.136.2", optional = true }

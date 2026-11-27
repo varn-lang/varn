@@ -3909,14 +3909,6 @@ dependencies = [
  "rustc-hash 1.1.0",
  "serde",
  "vn-core",
- "vn-jit-abi",
- "vn-types",
-]
-
-[[package]]
-name = "vn-jit-abi"
-version = "0.1.0"
-dependencies = [
  "vn-types",
 ]
 
