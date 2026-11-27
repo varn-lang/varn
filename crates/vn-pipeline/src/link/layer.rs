@@ -10,7 +10,7 @@ pub fn verify_synthetic_imports(
     tir_sources: impl IntoIterator<Item = impl AsRef<str>>,
 ) -> Result<(), String> {
     let ast_sources: HashSet<String> =
-        crate::import_collector::collect_imports(program, ast_arena, interner);
+        crate::stages::imports::collect_imports(program, ast_arena, interner);
     for src in tir_sources {
         let src = src.as_ref();
         if ast_sources.contains(src) {

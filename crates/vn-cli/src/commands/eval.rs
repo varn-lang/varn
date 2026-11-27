@@ -1,11 +1,11 @@
-use crate::{cli::EvalArgs, error::CliError, pipeline};
+use crate::{cli::EvalArgs, error::CliError};
 
-pub fn execute(session: &pipeline::Session, args: EvalArgs) -> Result<(), CliError> {
-    let debug = pipeline::DebugFlags::default();
+pub fn execute(session: &vn_pipeline::Session, args: EvalArgs) -> Result<(), CliError> {
+    let debug = vn_pipeline::DebugFlags::default();
     let executable = crate::exec::compile(
         session,
-        pipeline::Source::virtual_source(crate::source_name::EVAL, &args.code),
-        pipeline::CachePolicy::Bypass,
+        vn_pipeline::Source::virtual_source(crate::source_name::EVAL, &args.code),
+        vn_pipeline::CachePolicy::Bypass,
         &debug,
         args.verbose,
     )?;

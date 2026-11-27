@@ -1,10 +1,10 @@
 use crate::cli::Commands;
 use crate::commands;
 use crate::error::CliError;
-use crate::pipeline::{Anchor, Session};
 use std::path::Path;
 use std::sync::Arc;
 use vn_modules::project::Project;
+use vn_pipeline::{Anchor, Session};
 
 fn run_anchor<'a>(file: Option<&'a str>, eval: Option<&str>) -> Anchor<'a> {
     match (file, eval) {

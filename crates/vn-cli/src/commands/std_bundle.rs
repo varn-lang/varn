@@ -10,7 +10,7 @@ pub fn execute(session: &vn_pipeline::Session, args: StdBundleArgs) -> Result<()
         std::fs::create_dir_all(parent)
             .map_err(|e| CliError::fatal(format!("cannot create '{}': {e}", parent.display())))?;
     }
-    let bytes = vn_pipeline::stdlib_loader::compile_stdlib_image(&std_dir, session.resolver())
+    let bytes = vn_pipeline::stdlib_image::compile_stdlib_image(&std_dir, session.resolver())
         .map_err(CliError::fatal)?;
     std::fs::write(&out, &bytes)
         .map_err(|e| CliError::fatal(format!("cannot write '{}': {e}", out.display())))?;

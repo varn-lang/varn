@@ -2,10 +2,11 @@ use std::io::{Read, Seek, SeekFrom};
 
 use std::path::Path;
 
+use crate::runtime::Policy;
 use vn_modules::artifact::{
     read_artifact, write_artifact, ArtifactClass, ArtifactKind, MAGIC_VEXE,
 };
-use vn_pipeline::{CapabilitySet, Executable, Policy, Session};
+use vn_pipeline::{CapabilitySet, Executable, Session};
 use vn_types::ModuleGraphArtifact;
 
 const TRAILER_LEN: u64 = 20;

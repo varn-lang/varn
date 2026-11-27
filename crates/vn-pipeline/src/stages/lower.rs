@@ -263,7 +263,7 @@ pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, Failure> {
     let export_names = sorted_export_names(&exports);
 
     let mut tir = emit_tir(program, arena, check);
-    crate::layer_link::verify_synthetic_imports(
+    crate::link::layer::verify_synthetic_imports(
         path,
         program,
         arena,

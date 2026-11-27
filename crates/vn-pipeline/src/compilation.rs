@@ -3,9 +3,9 @@ use std::time::{Duration, Instant};
 use vn_core::AtomInterner;
 
 use crate::cache::CacheLookup;
-use crate::lex::Tokens;
-use crate::parse::Parsed;
 use crate::request::{CachePolicy, Goal, Request};
+use crate::stages::lex::Tokens;
+use crate::stages::parse::Parsed;
 use crate::{Executable, Failure, ModuleResolver, Session, Source};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -110,7 +110,7 @@ impl Compilation {
 
         let source = self.source.clone();
         let (tokens, _, lex_diagnostics) = self.timed(Stage::Lex, || {
-            crate::lex::scan_tolerant(source.text(), source.path())
+            crate::stages::lex::scan_tolerant(source.text(), source.path())
         });
         let (token_vec, lexeme_buf) = (tokens.tokens.clone(), tokens.lexeme_buf.clone());
         self.tokens = Some(tokens);
@@ -127,7 +127,7 @@ impl Compilation {
         }
 
         let (parsed, mut diagnostics) = self.timed(Stage::Parse, || {
-            crate::parse::parse_tolerant(token_vec, lexeme_buf, source.path())
+            crate::stages::parse::parse_tolerant(token_vec, lexeme_buf, source.path())
         });
         diagnostics.extend(lex_diagnostics);
         if !diagnostics.is_empty() {
@@ -143,7 +143,7 @@ impl Compilation {
         }
 
         let checked = self.timed(Stage::Check, || {
-            crate::check::check_program(
+            crate::stages::check::check_program(
                 &parsed.program,
                 &parsed.arena,
                 parsed.interner.clone(),

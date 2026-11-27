@@ -24,7 +24,6 @@ mod formatter;
 mod ice;
 mod inspect;
 mod peak_memory;
-mod pipeline;
 mod pm;
 mod policy;
 mod runtime;
@@ -86,7 +85,7 @@ fn run_cli() {
         }
     };
     bootstrap::init(&project);
-    let session = std::sync::Arc::new(pipeline::Session::of(project));
+    let session = std::sync::Arc::new(vn_pipeline::Session::of(project));
 
     if let Err(e) = bootstrap::require_std(&cli.command) {
         terminal::error(&e);

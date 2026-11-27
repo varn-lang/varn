@@ -2,11 +2,11 @@ use std::path::{Path, PathBuf};
 
 use crate::discover::{vn_files, Depth};
 use crate::exit::ExitCode;
-use crate::{cli::CheckArgs, debug_print, error::CliError, pipeline};
+use crate::{cli::CheckArgs, debug_print, error::CliError};
 use vn_core::term::terminal;
 use vn_modules::project::FileFilter;
 
-pub fn execute(session: &pipeline::Session, args: CheckArgs) -> Result<(), CliError> {
+pub fn execute(session: &vn_pipeline::Session, args: CheckArgs) -> Result<(), CliError> {
     let files = targets(session, &args.files)?;
     let single = files.len() == 1;
     let mut diagnostics = 0usize;
@@ -45,7 +45,7 @@ pub fn execute(session: &pipeline::Session, args: CheckArgs) -> Result<(), CliEr
     })
 }
 
-fn targets(session: &pipeline::Session, requested: &[String]) -> Result<Vec<PathBuf>, CliError> {
+fn targets(session: &vn_pipeline::Session, requested: &[String]) -> Result<Vec<PathBuf>, CliError> {
     let project = session.project();
     if requested.is_empty() {
         let main = project
@@ -75,13 +75,13 @@ fn targets(session: &pipeline::Session, requested: &[String]) -> Result<Vec<Path
     Ok(files)
 }
 
-fn check_file(session: &pipeline::Session, file: &Path, verbose: bool) -> Result<(), CliError> {
+fn check_file(session: &vn_pipeline::Session, file: &Path, verbose: bool) -> Result<(), CliError> {
     let name = file.to_string_lossy();
-    if pipeline::portable::is_portable(&name) {
+    if vn_pipeline::portable::is_portable(&name) {
         return crate::exec::load(session, &name, &Default::default(), verbose).map(|_| ());
     }
-    let source = pipeline::Source::file(&name)?;
-    let compilation = session.compile(source, pipeline::Request::checked());
+    let source = vn_pipeline::Source::file(&name)?;
+    let compilation = session.compile(source, vn_pipeline::Request::checked());
     debug_print::report(&compilation, &Default::default(), verbose);
     match compilation.failure {
         Some(failure) => Err(CliError::from(failure)),

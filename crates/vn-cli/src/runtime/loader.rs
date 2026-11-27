@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use rustc_hash::FxHashMap;
 use vn_core::ModuleId;
 use vn_modules::loader::ModuleLoader as CanonicalLoader;
-use vn_pipeline::stdlib_loader::compile_source;
+use vn_pipeline::stdlib_image::compile_source;
 use vn_pipeline::ModuleResolver;
 use vn_types::FunctionProto;
 use vn_vm::loader::{ModuleError, ModuleLoader};

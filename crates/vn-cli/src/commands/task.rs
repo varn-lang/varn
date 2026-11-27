@@ -7,7 +7,7 @@ use vn_core::term::terminal;
 
 use crate::cli::{with_implicit_run, Cli, Commands, TaskArgs};
 use crate::error::CliError;
-use crate::pipeline::Session;
+use vn_pipeline::Session;
 
 pub fn execute(session: &Arc<Session>, args: TaskArgs) -> Result<(), CliError> {
     let tasks = &session.project().manifest.tasks;

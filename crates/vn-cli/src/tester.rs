@@ -1,6 +1,5 @@
 use crate::cli::TestArgs;
 use crate::error::CliError;
-use crate::pipeline;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
@@ -54,7 +53,7 @@ pub struct TestResult {
     pub output: String,
 }
 
-pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), CliError> {
+pub fn run_tests(session: Arc<vn_pipeline::Session>, args: TestArgs) -> Result<(), CliError> {
     let start_time = Instant::now();
 
     let root = PathBuf::from(args.path.as_deref().unwrap_or(DEFAULT_TEST_DIR));
@@ -167,14 +166,14 @@ pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), 
                     }
 
                     let file_session = session.isolated();
-                    let prepared = pipeline::Source::file(&path.to_string_lossy())
+                    let prepared = vn_pipeline::Source::file(&path.to_string_lossy())
                         .map_err(CliError::from)
                         .and_then(|source| {
                             crate::exec::compile(
                                 &file_session,
                                 source,
-                                pipeline::CachePolicy::Use,
-                                &pipeline::DebugFlags::default(),
+                                vn_pipeline::CachePolicy::Use,
+                                &vn_pipeline::DebugFlags::default(),
                                 false,
                             )
                         });
@@ -188,7 +187,7 @@ pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), 
                             Ok(executable) => crate::exec::run_unit(
                                 &file_session,
                                 executable,
-                                pipeline::Policy {
+                                crate::runtime::Policy {
                                     capabilities: capabilities.clone(),
                                     trace: false,
                                     gc: false,
@@ -298,9 +297,9 @@ pub fn run_tests(session: Arc<pipeline::Session>, args: TestArgs) -> Result<(), 
 }
 
 fn test_units(
-    prepared: &Result<pipeline::Executable, CliError>,
+    prepared: &Result<vn_pipeline::Executable, CliError>,
     display_name: &str,
-) -> Vec<(String, Option<pipeline::TestEntry>)> {
+) -> Vec<(String, Option<vn_pipeline::TestEntry>)> {
     let mut units = vec![(display_name.to_owned(), None)];
     if let Ok(executable) = prepared {
         units.extend(

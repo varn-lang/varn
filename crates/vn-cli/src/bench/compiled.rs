@@ -11,13 +11,13 @@ use crate::error::CliError;
 
 pub fn run(session: &vn_pipeline::Session, path: &str, opts: &BenchOpts) -> Result<(), CliError> {
     let runs = opts.runs;
-    let compiled = crate::pipeline::portable::read_portable(path)?;
-    let compile_output = crate::pipeline::Executable::from_graph(compiled)?;
+    let compiled = vn_pipeline::portable::read_portable(path)?;
+    let compile_output = vn_pipeline::Executable::from_graph(compiled)?;
 
     let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
 
     let load_samples = time_n(runs, opts.warmup, || {
-        crate::pipeline::portable::read_portable(path)
+        vn_pipeline::portable::read_portable(path)
             .map(|_| ())
             .map_err(|e| e.to_string())
     })?;

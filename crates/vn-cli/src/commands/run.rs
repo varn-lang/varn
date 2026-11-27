@@ -1,6 +1,6 @@
-use crate::{cli::RunArgs, error::CliError, pipeline};
+use crate::{cli::RunArgs, error::CliError};
 
-pub fn execute(session: &pipeline::Session, args: RunArgs) -> Result<(), CliError> {
+pub fn execute(session: &vn_pipeline::Session, args: RunArgs) -> Result<(), CliError> {
     let (file_path, eval) = match (args.file.as_ref(), args.eval.as_ref()) {
         (_, Some(code)) => (crate::source_name::EVAL.to_owned(), Some(code.clone())),
         (Some(file), None) => (file.clone(), None),

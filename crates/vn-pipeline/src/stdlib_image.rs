@@ -24,7 +24,7 @@ fn compile_source_inner(
     session: &crate::ModuleResolver,
 ) -> Result<(FunctionProto, vn_tir::package::ModuleTemplates), String> {
     let (program, arena, interner) =
-        crate::quiet_parse::parse_module(source, path).map_err(|f| f.to_string())?;
+        crate::stages::quiet_parse::parse_module(source, path).map_err(|f| f.to_string())?;
     let check = vn_checker::Checker::check(&program, &arena, interner, session);
     if reject_type_errors && check.diagnostics.has_errors() {
         let mut msg = String::new();
@@ -36,13 +36,13 @@ fn compile_source_inner(
         }
         return Err(format!("type errors in stdlib module:{msg}"));
     }
-    crate::lower::lower_module(crate::lower::LowerInput {
+    crate::stages::lower::lower_module(crate::stages::lower::LowerInput {
         program: &program,
         arena: &arena,
         check: &check,
         resolver: session,
         source,
-        library: &crate::lower::TemplateLibrary::default(),
+        library: &crate::stages::lower::TemplateLibrary::default(),
         measure: false,
     })
     .map(|lowered| (lowered.proto, lowered.templates))
@@ -51,9 +51,9 @@ fn compile_source_inner(
 
 fn std_imports_are_pure(id: &str, source: &str) -> Result<bool, String> {
     let (program, arena, interner) =
-        crate::quiet_parse::parse_module(source, id).map_err(|f| f.to_string())?;
+        crate::stages::quiet_parse::parse_module(source, id).map_err(|f| f.to_string())?;
     let mut pure = true;
-    for spec in crate::import_collector::collect_imports(&program, &arena, &interner) {
+    for spec in crate::stages::imports::collect_imports(&program, &arena, &interner) {
         vn_modules::layer::check_import(vn_modules::layer::Layer::Std, &spec)
             .map_err(|message| format!("{id}: {message}"))?;
         pure &= !vn_core::ModuleKind::Runtime.owns(&spec);

@@ -24,15 +24,15 @@ pub fn run(
 ) -> Result<(), CliError> {
     let runs = opts.runs;
     let loaded = match eval {
-        Some(code) => crate::pipeline::Source::virtual_source(crate::source_name::EVAL, code),
-        None => crate::pipeline::Source::file(path)?,
+        Some(code) => vn_pipeline::Source::virtual_source(crate::source_name::EVAL, code),
+        None => vn_pipeline::Source::file(path)?,
     };
     let path = loaded.path();
     let source = loaded.text();
 
     let read_samples = time_n(runs, opts.warmup, || {
         if eval.is_none() {
-            crate::pipeline::Source::file(path).map_err(|e| e.to_string())?;
+            vn_pipeline::Source::file(path).map_err(|e| e.to_string())?;
         }
         Ok(())
     })?;

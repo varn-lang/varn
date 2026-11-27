@@ -1,10 +1,11 @@
 use super::failure::runtime_failure;
 use super::loader::PipelineLoader;
+use super::policy::Policy;
 use rustc_hash::FxHashMap;
 use std::rc::Rc;
 use vn_compiler::FunctionProto;
 use vn_core::ModuleId;
-use vn_pipeline::{core_protos_owned, Executable, Failure, Policy, Session};
+use vn_pipeline::{Executable, Failure, Session};
 use vn_types::capabilities::CapabilitySet;
 use vn_types::TestEntry;
 use vn_vm::Vm;
@@ -81,23 +82,6 @@ pub fn boot_machine(
     machine.ctx.capabilities = Rc::new(capabilities);
     vn_vm::prefill_native_modules(&mut machine);
 
-    if trace {
-        vn_core::term::terminal::tagged("pipeline:execute", "starting builtin initialization");
-    }
-
-    for builtin_proto in core_protos_owned()? {
-        if trace {
-            let name = builtin_proto.name.as_deref().unwrap_or("<builtin>");
-            vn_core::term::terminal::tagged(
-                "pipeline:execute",
-                format_args!("running builtin {name}"),
-            );
-        }
-        let closure = Rc::new(builtin_proto);
-        machine
-            .run(closure)
-            .map_err(|e| Failure::internal(format!("failed to run builtin: {}", e)))?;
-    }
     Ok(machine)
 }
 

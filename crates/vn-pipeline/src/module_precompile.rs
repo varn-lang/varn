@@ -16,7 +16,7 @@ pub struct ModuleGraphBuild {
     pub package_nodes: Vec<vn_types::PackageNode>,
 
     pub deps: HashMap<String, Vec<String>>,
-    pub class_tables: HashMap<String, crate::class_link::ModuleClasses>,
+    pub class_tables: HashMap<String, crate::link::class::ModuleClasses>,
     pub warnings: Vec<crate::DiagnosticReport>,
 }
 
@@ -54,7 +54,7 @@ pub(crate) fn discover(
         .unwrap_or_else(|| Path::new("."));
 
     let mut entry_deps = Vec::new();
-    for spec in crate::import_collector::collect_imports(entry_program, entry_arena, entry_interner)
+    for spec in crate::stages::imports::collect_imports(entry_program, entry_arena, entry_interner)
     {
         if let Some(dep_path) = resolve_import_specifier(&spec, entry_dir, &mut package_nodes)
             .map_err(|e| format!("{e}\n  imported from: {entry_path}"))?
@@ -85,14 +85,15 @@ pub(crate) fn discover(
             .map_err(|e| format!("cannot read module '{module_path}': {e}"))?;
         source_hashes.insert(module_path.clone(), fingerprint(source.as_bytes()));
 
-        let (program, arena, interner) = crate::quiet_parse::parse_module(&source, &module_path)?;
+        let (program, arena, interner) =
+            crate::stages::quiet_parse::parse_module(&source, &module_path)?;
 
         let module_dir = Path::new(&module_path)
             .parent()
             .unwrap_or_else(|| Path::new("."));
 
         let mut deps = Vec::new();
-        for child_spec in crate::import_collector::collect_imports(&program, &arena, &interner) {
+        for child_spec in crate::stages::imports::collect_imports(&program, &arena, &interner) {
             if let Some(child_path) =
                 resolve_import_specifier(&child_spec, module_dir, &mut package_nodes)
                     .map_err(|e| format!("{e}\n  imported from: {module_path}"))?
@@ -232,11 +233,11 @@ pub fn check_module_graph(
         };
         let check = check_node(program, arena, interner, session);
         if let Some(report) =
-            crate::check::warnings_of(&check.diagnostics, &program.filename, module_source)?
+            crate::stages::check::warnings_of(&check.diagnostics, &program.filename, module_source)?
         {
             warnings.push(report);
         }
-        crate::lower::check_exports(program, session)?;
+        crate::stages::lower::check_exports(program, session)?;
     }
     Ok(warnings)
 }
@@ -258,9 +259,9 @@ fn check_node(
 
 pub(crate) struct Dependencies {
     modules: HashMap<String, FunctionProto>,
-    class_tables: HashMap<String, crate::class_link::ModuleClasses>,
+    class_tables: HashMap<String, crate::link::class::ModuleClasses>,
     warnings: Vec<crate::DiagnosticReport>,
-    pub(crate) library: crate::lower::TemplateLibrary,
+    pub(crate) library: crate::stages::lower::TemplateLibrary,
 }
 
 pub(crate) fn lower_dependencies(
@@ -271,7 +272,7 @@ pub(crate) fn lower_dependencies(
         modules: HashMap::default(),
         class_tables: HashMap::default(),
         warnings: Vec::new(),
-        library: crate::lower::TemplateLibrary::default(),
+        library: crate::stages::lower::TemplateLibrary::default(),
     };
 
     for module_path in found.sorted.iter().rev() {
@@ -286,11 +287,11 @@ pub(crate) fn lower_dependencies(
         let check = check_node(program, arena, interner, session);
 
         if let Some(report) =
-            crate::check::warnings_of(&check.diagnostics, &program.filename, module_source)?
+            crate::stages::check::warnings_of(&check.diagnostics, &program.filename, module_source)?
         {
             dependencies.warnings.push(report);
         }
-        let lowered = crate::lower::lower_module(crate::lower::LowerInput {
+        let lowered = crate::stages::lower::lower_module(crate::stages::lower::LowerInput {
             program,
             arena,
             check: &check,
@@ -302,7 +303,7 @@ pub(crate) fn lower_dependencies(
         .map_err(|e| crate::Failure::internal(format!("compile error in '{module_path}': {e}")))?;
         dependencies.class_tables.insert(
             module_path.clone(),
-            crate::class_link::ModuleClasses {
+            crate::link::class::ModuleClasses {
                 classes: lowered.tir.classes.clone(),
                 origins: lowered
                     .tir

@@ -1,9 +1,9 @@
 use crate::cli::PermissionArgs;
 use crate::debug_print;
 use crate::error::CliError;
-use crate::runtime::Unit;
+use crate::runtime::{Policy, Unit};
 use vn_pipeline::{
-    portable, CachePolicy, DebugFlags, Executable, Policy, Request, Session, Source, TestEntry,
+    portable, CachePolicy, DebugFlags, Executable, Request, Session, Source, TestEntry,
 };
 
 pub fn cache_policy(debug: &DebugFlags) -> CachePolicy {

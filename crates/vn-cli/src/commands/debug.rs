@@ -1,6 +1,6 @@
-use crate::{cli::DebugArgs, error::CliError, pipeline};
+use crate::{cli::DebugArgs, error::CliError};
 
-pub fn execute(session: &pipeline::Session, args: DebugArgs) -> Result<(), CliError> {
+pub fn execute(session: &vn_pipeline::Session, args: DebugArgs) -> Result<(), CliError> {
     if args.list_phases {
         vn_debug::print_phases();
         return Ok(());
@@ -29,8 +29,8 @@ pub fn execute(session: &pipeline::Session, args: DebugArgs) -> Result<(), CliEr
     let executable = match eval {
         Some(code) => crate::exec::compile(
             session,
-            pipeline::Source::virtual_source(&file_path, &code),
-            pipeline::CachePolicy::Bypass,
+            vn_pipeline::Source::virtual_source(&file_path, &code),
+            vn_pipeline::CachePolicy::Bypass,
             &debug,
             false,
         )?,
@@ -46,6 +46,6 @@ pub fn execute(session: &pipeline::Session, args: DebugArgs) -> Result<(), CliEr
     Ok(())
 }
 
-fn parse_debug_opt(spec: &str) -> Result<pipeline::DebugFlags, CliError> {
+fn parse_debug_opt(spec: &str) -> Result<vn_pipeline::DebugFlags, CliError> {
     vn_debug::flags::parse_debug_flags(spec).map_err(|e| CliError::usage(e.message))
 }

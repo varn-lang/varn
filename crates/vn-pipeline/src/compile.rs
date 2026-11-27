@@ -1,5 +1,5 @@
 use crate::executable::precompiled_modules;
-use crate::lower::{lower_module, LowerInput, Lowered};
+use crate::stages::lower::{lower_module, LowerInput, Lowered};
 use crate::{Executable, Failure};
 use std::time::{Duration, Instant};
 use vn_core::ast::{AstArena, Program};
@@ -79,7 +79,7 @@ pub(crate) fn build_executable(
     let mut class_tables = graph_build.class_tables.clone();
     class_tables.insert(
         program.filename.to_string(),
-        crate::class_link::ModuleClasses {
+        crate::link::class::ModuleClasses {
             classes: tir.classes.clone(),
             origins: tir
                 .class_origins
@@ -89,7 +89,7 @@ pub(crate) fn build_executable(
             types: tir.types.clone(),
         },
     );
-    crate::class_link::verify_foreign_layouts(&class_tables).map_err(Failure::internal)?;
+    crate::link::class::verify_foreign_layouts(&class_tables).map_err(Failure::internal)?;
 
     let mut hash_keys: Vec<&String> = graph_build.source_hashes.keys().collect();
     hash_keys.sort();

@@ -1,19 +1,18 @@
 use crate::cli::{BuildArgs, Target};
 use crate::error::CliError;
-use crate::pipeline;
 use vn_core::term::terminal;
 
 use std::path::{Path, PathBuf};
 
 const RUNTIME_LIB: &str = "vn_rt.lib";
 
-pub fn execute(session: &pipeline::Session, args: BuildArgs) -> Result<(), CliError> {
-    let source = pipeline::Source::file(&args.file)?;
+pub fn execute(session: &vn_pipeline::Session, args: BuildArgs) -> Result<(), CliError> {
+    let source = vn_pipeline::Source::file(&args.file)?;
 
     let compiled = crate::exec::compile(
         session,
         source,
-        pipeline::CachePolicy::Bypass,
+        vn_pipeline::CachePolicy::Bypass,
         &Default::default(),
         args.verbose,
     )?;
@@ -22,7 +21,7 @@ pub fn execute(session: &pipeline::Session, args: BuildArgs) -> Result<(), CliEr
 
     match args.target {
         Target::Bytecode => {
-            pipeline::portable::write_portable(&out_path, &compiled.graph_artifact)?
+            vn_pipeline::portable::write_portable(&out_path, &compiled.graph_artifact)?
         }
         Target::Exe => build_exe(&compiled, &out_path)?,
         Target::Native => build_native(&compiled, &out_path, args.verbose)?,
@@ -40,7 +39,7 @@ pub fn execute(session: &pipeline::Session, args: BuildArgs) -> Result<(), CliEr
     Ok(())
 }
 
-fn build_exe(compiled: &pipeline::Executable, out_path: &str) -> Result<(), CliError> {
+fn build_exe(compiled: &vn_pipeline::Executable, out_path: &str) -> Result<(), CliError> {
     let runtime = std::env::current_exe()
         .map_err(|e| CliError::fatal(format!("cannot locate the vn runtime: {e}")))?;
     let std_image = crate::std_source::current_image().map_err(CliError::fatal)?;
@@ -54,7 +53,7 @@ fn build_exe(compiled: &pipeline::Executable, out_path: &str) -> Result<(), CliE
 }
 
 fn build_native(
-    compiled: &pipeline::Executable,
+    compiled: &vn_pipeline::Executable,
     out_path: &str,
     verbose: bool,
 ) -> Result<(), CliError> {

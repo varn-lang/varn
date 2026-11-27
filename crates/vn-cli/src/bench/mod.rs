@@ -39,7 +39,7 @@ pub fn run_bench(
     eval: Option<&str>,
     opts: &BenchOpts,
 ) -> Result<(), CliError> {
-    if eval.is_none() && crate::pipeline::portable::is_portable(path) {
+    if eval.is_none() && vn_pipeline::portable::is_portable(path) {
         return compiled::run(session, path, opts);
     }
     source::run(session, path, eval, opts)

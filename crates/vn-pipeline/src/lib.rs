@@ -1,43 +1,32 @@
 mod analysis;
-pub mod cache;
-mod check;
-mod class_link;
+mod cache;
 mod compilation;
 mod compile;
-mod core;
 mod error;
 mod executable;
-pub mod fmt;
-pub mod import_collector;
-mod layer_link;
-mod lex;
-mod lower;
-pub mod module_precompile;
-mod parse;
-mod policy;
+mod link;
+mod module_precompile;
 pub mod portable;
-mod quiet_parse;
 mod request;
 mod resolver;
 mod session;
 mod source;
-pub mod stdlib_loader;
+mod stages;
+pub mod stdlib_image;
 
 pub use resolver::ModuleResolver;
 
 pub use analysis::Analysis;
 pub use compilation::{CacheStatus, Compilation, Stage};
-pub use core::core_protos_owned;
 pub use error::{
     relative_path, DiagnosticFailure, DiagnosticReport, Failure, RuntimeFailure, StackFrame,
 };
 pub use executable::Executable;
-pub use lex::Tokens;
-pub use parse::Parsed;
-pub use policy::Policy;
 pub use request::{CachePolicy, Goal, Request};
 pub use session::Session;
 pub use source::Source;
+pub use stages::lex::Tokens;
+pub use stages::parse::Parsed;
 pub use vn_core::debug_flags::DebugFlags;
 pub use vn_modules::project::Anchor;
 pub use vn_types::capabilities::CapabilitySet;
