@@ -11,7 +11,6 @@ vn-checker     = { path = "../vn-checker" }
 vn-emit        = { path = "../vn-emit" }
 vn-tir         = { path = "../vn-tir" }
 vn-compiler    = { path = "../vn-compiler" }
-vn-vm          = { path = "../vn-vm" }
 vn-modules     = { path = "../vn-modules" }
 vn-types       = { path = "../vn-types" }
 vn-sem         = { path = "../vn-sem" }

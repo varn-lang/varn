@@ -3967,7 +3967,6 @@ dependencies = [
  "vn-sem",
  "vn-tir",
  "vn-types",
- "vn-vm",
 ]
 
 [[package]]

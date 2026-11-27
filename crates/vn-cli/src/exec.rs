@@ -1,9 +1,9 @@
 use crate::cli::PermissionArgs;
 use crate::debug_print;
 use crate::error::CliError;
+use crate::runtime::Unit;
 use vn_pipeline::{
     portable, CachePolicy, DebugFlags, Executable, Policy, Request, Session, Source, TestEntry,
-    Unit,
 };
 
 pub fn cache_policy(debug: &DebugFlags) -> CachePolicy {
@@ -60,9 +60,9 @@ pub fn run_unit(
         Some(test) => Unit::Test(test),
         None => Unit::Module,
     };
-    vn_pipeline::execute_unit(session, executable, policy, unit).map_err(CliError::from)
+    crate::runtime::execute_unit(session, executable, policy, unit).map_err(CliError::from)
 }
 
 pub fn run(session: &Session, executable: Executable, policy: Policy) -> Result<(), CliError> {
-    vn_pipeline::execute(session, executable, policy).map_err(CliError::from)
+    crate::runtime::execute(session, executable, policy).map_err(CliError::from)
 }

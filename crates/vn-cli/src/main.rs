@@ -27,6 +27,7 @@ mod peak_memory;
 mod pipeline;
 mod pm;
 mod policy;
+mod runtime;
 mod source_name;
 mod standalone;
 mod std_source;

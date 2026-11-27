@@ -51,14 +51,14 @@ impl<'a> VmFactory<'a> {
     }
 
     fn try_build(&self) -> Result<Vm, CliError> {
-        let mut machine = vn_pipeline::boot_machine(
+        let mut machine = crate::runtime::boot_machine(
             self.session,
             Rc::clone(&self.precompiled),
             self.capabilities.clone(),
             false,
         )?;
         machine.ctx.print_silent = self.print_silent;
-        vn_pipeline::enter_main(&mut machine, Rc::clone(&self.proto));
+        crate::runtime::enter_main(&mut machine, Rc::clone(&self.proto));
         Ok(machine)
     }
 
@@ -74,7 +74,7 @@ impl<'a> VmFactory<'a> {
 }
 
 pub fn run_vm_to_completion(machine: &mut Vm, entry: Rc<FunctionProto>) -> Result<(), String> {
-    vn_pipeline::drive_entry(machine, &entry).map_err(|failure| failure.to_string())
+    crate::runtime::drive_entry(machine, &entry).map_err(|failure| failure.to_string())
 }
 
 fn compiled_keys() -> std::collections::BTreeSet<(String, usize)> {

@@ -1,9 +1,10 @@
-use crate::core;
-use crate::{Executable, Failure, Policy, RuntimeFailure, Session};
+use super::failure::runtime_failure;
+use super::loader::PipelineLoader;
 use rustc_hash::FxHashMap;
 use std::rc::Rc;
 use vn_compiler::FunctionProto;
 use vn_core::ModuleId;
+use vn_pipeline::{core_protos_owned, Executable, Failure, Policy, Session};
 use vn_types::capabilities::CapabilitySet;
 use vn_types::TestEntry;
 use vn_vm::Vm;
@@ -51,7 +52,7 @@ pub fn execute_unit(
         && let Err(e) = machine.call_main_global(test.global)
     {
         machine.abandon_heap_at_exit();
-        return Err(Failure::Runtime(RuntimeFailure::of(e)));
+        return Err(Failure::Runtime(runtime_failure(e)));
     }
     if policy.gc {
         eprintln!("{}", machine.gc_report());
@@ -64,7 +65,7 @@ pub fn drive_entry(machine: &mut Vm, main_proto: &Rc<FunctionProto>) -> Result<(
     let mut resume = |_: &mut Vm| vn_vm::debug::BreakAction::Resume;
     match vn_vm::debug::drive_main(machine, main_proto, &mut resume) {
         vn_vm::debug::DriveResult::Done(_) | vn_vm::debug::DriveResult::Stopped => Ok(()),
-        vn_vm::debug::DriveResult::Failed(e) => Err(Failure::Runtime(RuntimeFailure::of(e))),
+        vn_vm::debug::DriveResult::Failed(e) => Err(Failure::Runtime(runtime_failure(e))),
     }
 }
 
@@ -74,9 +75,7 @@ pub fn boot_machine(
     capabilities: CapabilitySet,
     trace: bool,
 ) -> PipelineResult<Vm> {
-    let loader = std::sync::Arc::new(crate::stdlib_loader::PipelineLoader::new(
-        session.shared_resolver(),
-    ));
+    let loader = std::sync::Arc::new(PipelineLoader::new(session.shared_resolver()));
     let settings = vn_vm::ExecSettings::of(vn_core::env::process(), trace);
     let mut machine = Vm::new(precompiled.clone(), settings).with_loader(loader);
     machine.ctx.capabilities = Rc::new(capabilities);
@@ -86,7 +85,7 @@ pub fn boot_machine(
         vn_core::term::terminal::tagged("pipeline:execute", "starting builtin initialization");
     }
 
-    for builtin_proto in core::core_protos_owned()? {
+    for builtin_proto in core_protos_owned()? {
         if trace {
             let name = builtin_proto.name.as_deref().unwrap_or("<builtin>");
             vn_core::term::terminal::tagged(

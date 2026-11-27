@@ -55,22 +55,17 @@ impl DiagnosticFailure {
     }
 }
 
+pub struct StackFrame {
+    pub fn_name: String,
+    pub file: String,
+    pub line: u32,
+}
+
 pub struct RuntimeFailure {
     pub class: String,
     pub message: String,
-    pub frames: Vec<vn_vm::FrameInfo>,
+    pub frames: Vec<StackFrame>,
     pub cause: Option<Box<RuntimeFailure>>,
-}
-
-impl RuntimeFailure {
-    pub fn of(error: vn_vm::RuntimeError) -> Self {
-        Self {
-            class: error.class,
-            message: error.message,
-            frames: error.frames,
-            cause: error.cause.map(|inner| Box::new(Self::of(*inner))),
-        }
-    }
 }
 
 pub enum Failure {

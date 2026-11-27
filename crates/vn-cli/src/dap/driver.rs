@@ -1,7 +1,8 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use vn_pipeline::{boot_machine, enter_main, CachePolicy, CapabilitySet, Request};
+use crate::runtime::{boot_machine, enter_main};
+use vn_pipeline::{CachePolicy, CapabilitySet, Request};
 use vn_types::FunctionProto;
 use vn_vm::debug::{self, BreakAction, StepKind, StepState};
 use vn_vm::Vm;

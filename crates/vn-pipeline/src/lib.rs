@@ -7,7 +7,6 @@ mod compile;
 mod core;
 mod error;
 mod executable;
-mod execute;
 pub mod fmt;
 pub mod import_collector;
 mod layer_link;
@@ -29,9 +28,10 @@ pub use resolver::ModuleResolver;
 pub use analysis::Analysis;
 pub use compilation::{CacheStatus, Compilation, Stage};
 pub use core::core_protos_owned;
-pub use error::{relative_path, DiagnosticFailure, DiagnosticReport, Failure, RuntimeFailure};
+pub use error::{
+    relative_path, DiagnosticFailure, DiagnosticReport, Failure, RuntimeFailure, StackFrame,
+};
 pub use executable::Executable;
-pub use execute::{boot_machine, drive_entry, enter_main, execute, execute_unit, Unit};
 pub use lex::Tokens;
 pub use parse::Parsed;
 pub use policy::Policy;

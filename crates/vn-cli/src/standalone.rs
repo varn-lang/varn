@@ -61,7 +61,7 @@ pub fn run(embedded: Embedded) -> i32 {
         }
     };
     let policy = Policy::new(CapabilitySet::allow_all());
-    match vn_pipeline::execute(&Session::detached(), executable, policy) {
+    match crate::runtime::execute(&Session::detached(), executable, policy) {
         Ok(()) => 0,
         Err(e) => {
             eprintln!("Standalone runtime error: {e}");
