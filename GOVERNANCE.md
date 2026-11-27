@@ -11,7 +11,7 @@
 |---|---|
 | Fix, refactor interno, std sin cambio de contrato | PR, revisión del mantenedor |
 | Cambio en sintaxis, semántica, tipos o API pública de `std:*` | [RFC](rfcs/README.md) antes del PR |
-| Decisión de arquitectura del compilador o runtime | ADR en [`docs/decisions/`](docs/decisions/) |
+| Decisión de arquitectura del compilador o runtime | RFC en [`rfcs/`](rfcs/) |
 
 Los ADR cerrados no se reabren sin evidencia nueva. Un cambio incompatible exige
 declarar ganancia, cómo se verifica y qué se borra (Ley 10 de [`AGENTS.md`](AGENTS.md)).

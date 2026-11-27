@@ -84,7 +84,7 @@ texto → tokens → AST → check → TIR tipado → SSA → pases → bytecode
 
 30 crates más `xtask` en un workspace (`vn-lexer`, `vn-parser`, `vn-checker`, `vn-emit`, `vn-compiler`, `vn-vm`, `vn-jit`, `vn-builtins`, `vn-lsp`…). Cada fase produce un artefacto inmutable que consume la siguiente, y las dependencias van en una sola dirección.
 
-Mapa completo: [arquitectura del compilador](https://varn.twwk.cc/arquitectura/architecture/). Decisiones: [`docs/decisions/`](docs/decisions/) y [`rfcs/`](rfcs/) (ver RFC 0002 para `#[...]`/`#{...}` y RFC 0003 para macros `#nombre`).
+Mapa completo: [arquitectura del compilador](https://varn.twwk.cc/arquitectura/architecture/). Decisiones: [`rfcs/`](rfcs/) (ver RFC 0002 para `#[...]`/`#{...}` y RFC 0003 para macros `#nombre`).
 
 ## Rendimiento
 
@@ -98,10 +98,10 @@ Medido el 2026-11-13 con los benchmarks de [`tests/benchmarks/`](tests/benchmark
 | Usar el CLI | [referencia del CLI](https://varn.twwk.cc/guias/cli/), [inspección por fases](https://varn.twwk.cc/guias/inspeccion/) |
 | La biblioteca estándar | [biblioteca estándar](https://varn.twwk.cc/lenguaje/standard-library/), [arquitectura de la std](https://varn.twwk.cc/arquitectura/stdlib-architecture/) |
 | Entender el compilador y el runtime | [arquitectura](https://varn.twwk.cc/arquitectura/indice/) |
-| Decisiones de diseño | [`docs/decisions/`](docs/decisions/) (ADRs), [`rfcs/`](rfcs/) |
+| Decisiones de diseño | [`rfcs/`](rfcs/) |
 | Qué viene | [roadmap](https://varn.twwk.cc/guias/roadmap/) |
 
-`docs/dev/` (auditorías, notas, planes de trabajo) es registro interno, no especificación. Si un documento contradice al código, manda el código.
+Si un documento contradice al código, manda el código.
 
 ## Contribuir
 
