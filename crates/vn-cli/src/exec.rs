@@ -1,10 +1,10 @@
 use crate::cli::PermissionArgs;
 use crate::debug_print;
 use crate::error::CliError;
-use crate::runtime::{Policy, Unit};
 use vn_pipeline::{
     portable, CachePolicy, DebugFlags, Executable, Request, Session, Source, TestEntry,
 };
+use vn_runtime::{Policy, Unit};
 
 pub fn cache_policy(debug: &DebugFlags) -> CachePolicy {
     if debug.any() {
@@ -60,9 +60,9 @@ pub fn run_unit(
         Some(test) => Unit::Test(test),
         None => Unit::Module,
     };
-    crate::runtime::execute_unit(session, executable, policy, unit).map_err(CliError::from)
+    vn_runtime::execute_unit(session, executable, policy, unit).map_err(CliError::from)
 }
 
 pub fn run(session: &Session, executable: Executable, policy: Policy) -> Result<(), CliError> {
-    crate::runtime::execute(session, executable, policy).map_err(CliError::from)
+    vn_runtime::execute(session, executable, policy).map_err(CliError::from)
 }

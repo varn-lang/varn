@@ -1,6 +1,6 @@
 use crate::executable::precompiled_modules;
 use crate::stages::lower::{lower_module, LowerInput, Lowered};
-use crate::{Executable, Failure};
+use crate::{Executable, PipelineError};
 use std::time::{Duration, Instant};
 use vn_core::ast::{AstArena, Program};
 use vn_types::{ModuleGraphArtifact, TestEntry};
@@ -16,7 +16,7 @@ pub(crate) struct Built {
 fn test_entries(
     check: &vn_sem::output::CheckResult,
     tir: &vn_tir::TirModule,
-) -> Result<Vec<TestEntry>, Failure> {
+) -> Result<Vec<TestEntry>, PipelineError> {
     check
         .test_targets
         .iter()
@@ -26,7 +26,7 @@ fn test_entries(
                 .iter()
                 .position(|name| name == &target.name)
                 .ok_or_else(|| {
-                    Failure::internal(format!(
+                    PipelineError::internal(format!(
                         "test function '{}' has no module global",
                         target.name
                     ))
@@ -47,7 +47,7 @@ pub(crate) fn build_executable(
     check: &vn_sem::output::CheckResult,
     resolver: &crate::ModuleResolver,
     measure: bool,
-) -> Result<Built, Failure> {
+) -> Result<Built, PipelineError> {
     let lowering = Instant::now();
     let found = crate::module_precompile::discover(
         program,
@@ -89,7 +89,7 @@ pub(crate) fn build_executable(
             types: tir.types.clone(),
         },
     );
-    crate::link::class::verify_foreign_layouts(&class_tables).map_err(Failure::internal)?;
+    crate::link::class::verify_foreign_layouts(&class_tables).map_err(PipelineError::internal)?;
 
     let mut hash_keys: Vec<&String> = graph_build.source_hashes.keys().collect();
     hash_keys.sort();

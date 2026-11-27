@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::Failure;
+use crate::PipelineError;
 
 #[derive(Clone)]
 pub enum Source {
@@ -9,13 +9,13 @@ pub enum Source {
 }
 
 impl Source {
-    pub fn file(path: &str) -> Result<Source, Failure> {
+    pub fn file(path: &str) -> Result<Source, PipelineError> {
         use vn_modules::loader::ModuleLoader;
         let id = vn_core::ModuleId::local_str(path);
         let text = vn_modules::loader::default_registry()
             .source(&id)
             .map(|s| Arc::<str>::from(s.text.as_ref()))
-            .map_err(|e| Failure::io(format!("error[io]: {e}")))?;
+            .map_err(|e| PipelineError::io(format!("error[io]: {e}")))?;
         let canonical = std::fs::canonicalize(path)
             .map(|p| p.to_string_lossy().into_owned())
             .unwrap_or_else(|_| path.to_owned());

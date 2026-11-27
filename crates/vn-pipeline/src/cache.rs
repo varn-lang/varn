@@ -1,8 +1,8 @@
-use crate::Failure;
+use crate::PipelineError;
 use std::path::Path;
 use vn_types::ModuleGraphArtifact;
 
-type PipelineResult<T> = Result<T, Failure>;
+type PipelineResult<T> = Result<T, PipelineError>;
 
 pub fn compile_cache_path(file_path: &str) -> std::path::PathBuf {
     let path = Path::new(file_path);
@@ -80,7 +80,7 @@ pub fn load_cached_graph(cache_path: &Path, entry_source: &str) -> Result<CacheL
 pub fn store_cached_graph(cache_path: &Path, graph: &ModuleGraphArtifact) -> PipelineResult<()> {
     if let Some(parent) = cache_path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| {
-            Failure::internal(format!(
+            PipelineError::internal(format!(
                 "{}{}error[cache]{}: cannot create cache dir: {}",
                 vn_core::term::colors::BOLD,
                 vn_core::term::colors::C_ERRORS,
@@ -90,7 +90,7 @@ pub fn store_cached_graph(cache_path: &Path, graph: &ModuleGraphArtifact) -> Pip
         })?;
     }
     let payload = postcard::to_allocvec(graph).map_err(|e| {
-        Failure::internal(format!(
+        PipelineError::internal(format!(
             "{}{}error[cache]{}: serialize failed: {}",
             vn_core::term::colors::BOLD,
             vn_core::term::colors::C_ERRORS,
@@ -104,7 +104,7 @@ pub fn store_cached_graph(cache_path: &Path, graph: &ModuleGraphArtifact) -> Pip
         &payload,
     );
     vn_modules::artifact::write_artifact_file(cache_path, &bytes).map_err(|e| {
-        Failure::internal(format!(
+        PipelineError::internal(format!(
             "{}{}error[cache]{}: write failed: {}",
             vn_core::term::colors::BOLD,
             vn_core::term::colors::C_ERRORS,

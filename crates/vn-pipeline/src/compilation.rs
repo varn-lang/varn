@@ -6,7 +6,7 @@ use crate::cache::CacheLookup;
 use crate::request::{CachePolicy, Goal, Request};
 use crate::stages::lex::Tokens;
 use crate::stages::parse::Parsed;
-use crate::{Executable, Failure, ModuleResolver, Session, Source};
+use crate::{Executable, ModuleResolver, PipelineError, Session, Source};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Stage {
@@ -33,7 +33,7 @@ pub struct Compilation {
     pub parsed: Option<Parsed>,
     pub checked: Option<vn_sem::output::CheckResult>,
     pub executable: Option<Executable>,
-    pub failure: Option<Failure>,
+    pub failure: Option<PipelineError>,
     pub dependency_warnings: Vec<crate::DiagnosticReport>,
     pub timings: Vec<(Stage, Duration)>,
     pub cache: CacheStatus,
@@ -74,12 +74,12 @@ impl Compilation {
         }
     }
 
-    pub fn into_executable(self) -> Result<Executable, Failure> {
+    pub fn into_executable(self) -> Result<Executable, PipelineError> {
         if let Some(failure) = self.failure {
             return Err(failure);
         }
         self.executable
-            .ok_or_else(|| Failure::internal("the compilation stopped before the executable"))
+            .ok_or_else(|| PipelineError::internal("the compilation stopped before the executable"))
     }
 
     fn timed<T>(&mut self, stage: Stage, work: impl FnOnce() -> T) -> T {
@@ -89,7 +89,11 @@ impl Compilation {
         out
     }
 
-    fn advance(&mut self, resolver: &ModuleResolver, request: Request) -> Result<(), Failure> {
+    fn advance(
+        &mut self,
+        resolver: &ModuleResolver,
+        request: Request,
+    ) -> Result<(), PipelineError> {
         let cacheable = request.goal == Goal::Executable
             && request.cache == CachePolicy::Use
             && matches!(self.source, Source::File { .. });
@@ -118,7 +122,7 @@ impl Compilation {
             return if lex_diagnostics.is_empty() {
                 Ok(())
             } else {
-                Err(Failure::diagnostics(
+                Err(PipelineError::diagnostics(
                     source.path(),
                     source.text(),
                     lex_diagnostics,
@@ -131,7 +135,7 @@ impl Compilation {
         });
         diagnostics.extend(lex_diagnostics);
         if !diagnostics.is_empty() {
-            return Err(Failure::diagnostics(
+            return Err(PipelineError::diagnostics(
                 source.path(),
                 source.text(),
                 diagnostics,
@@ -157,7 +161,7 @@ impl Compilation {
             let parsed = self
                 .parsed
                 .as_ref()
-                .ok_or_else(|| Failure::internal("the checked stage left no parse"))?;
+                .ok_or_else(|| PipelineError::internal("the checked stage left no parse"))?;
             let start = Instant::now();
             let reports = crate::module_precompile::check_module_graph(
                 &parsed.program,
@@ -175,7 +179,9 @@ impl Compilation {
         let (parsed, checked) = match (&self.parsed, &self.checked) {
             (Some(parsed), Some(checked)) => (parsed, checked),
             (None, _) | (_, None) => {
-                return Err(Failure::internal("the checked stage left no products"));
+                return Err(PipelineError::internal(
+                    "the checked stage left no products",
+                ));
             }
         };
         let built = crate::compile::build_executable(

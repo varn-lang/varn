@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use crate::runtime::{boot_machine, enter_main};
 use vn_pipeline::{CachePolicy, CapabilitySet, Request};
+use vn_runtime::{boot_machine, enter_main};
 use vn_types::FunctionProto;
 use vn_vm::debug::{self, BreakAction, StepKind, StepState};
 use vn_vm::Vm;
@@ -47,8 +47,7 @@ impl Driver {
             compiled.precompiled,
             CapabilitySet::allow_all(),
             false,
-        )
-        .map_err(|e| format!("boot failed: {e}"))?;
+        );
         machine.ctx.settings.no_jit = true;
         let main = enter_main(&mut machine, std::rc::Rc::new(compiled.entry_proto));
         self.protos = collect_protos(&main, &machine.ctx.precompiled);

@@ -1,23 +1,21 @@
-use super::failure::runtime_failure;
-use super::loader::PipelineLoader;
-use super::policy::Policy;
+use crate::error::ExecError;
+use crate::loader::PipelineLoader;
+use crate::policy::Policy;
 use rustc_hash::FxHashMap;
 use std::rc::Rc;
-use vn_compiler::FunctionProto;
 use vn_core::ModuleId;
-use vn_pipeline::{Executable, Failure, Session};
+use vn_pipeline::{Executable, Session};
 use vn_types::capabilities::CapabilitySet;
+use vn_types::FunctionProto;
 use vn_types::TestEntry;
 use vn_vm::Vm;
-
-type PipelineResult<T> = Result<T, Failure>;
 
 pub enum Unit<'a> {
     Module,
     Test(&'a TestEntry),
 }
 
-pub fn execute(session: &Session, executable: Executable, policy: Policy) -> Result<(), Failure> {
+pub fn execute(session: &Session, executable: Executable, policy: Policy) -> Result<(), ExecError> {
     execute_unit(session, &executable, policy, Unit::Module)
 }
 
@@ -26,13 +24,13 @@ pub fn execute_unit(
     executable: &Executable,
     policy: Policy,
     unit: Unit<'_>,
-) -> Result<(), Failure> {
+) -> Result<(), ExecError> {
     let mut machine = boot_machine(
         session,
         Rc::clone(&executable.precompiled),
         policy.capabilities,
         policy.trace,
-    )?;
+    );
     machine.ctx.print_silent = policy.silent;
     machine.ctx.fs_root = policy.fs_root.clone();
     let main_proto = enter_main(&mut machine, Rc::new(executable.entry_proto.clone()));
@@ -53,7 +51,7 @@ pub fn execute_unit(
         && let Err(e) = machine.call_main_global(test.global)
     {
         machine.abandon_heap_at_exit();
-        return Err(Failure::Runtime(runtime_failure(e)));
+        return Err(ExecError::from(e));
     }
     if policy.gc {
         eprintln!("{}", machine.gc_report());
@@ -62,11 +60,11 @@ pub fn execute_unit(
     Ok(())
 }
 
-pub fn drive_entry(machine: &mut Vm, main_proto: &Rc<FunctionProto>) -> Result<(), Failure> {
+pub fn drive_entry(machine: &mut Vm, main_proto: &Rc<FunctionProto>) -> Result<(), ExecError> {
     let mut resume = |_: &mut Vm| vn_vm::debug::BreakAction::Resume;
     match vn_vm::debug::drive_main(machine, main_proto, &mut resume) {
         vn_vm::debug::DriveResult::Done(_) | vn_vm::debug::DriveResult::Stopped => Ok(()),
-        vn_vm::debug::DriveResult::Failed(e) => Err(Failure::Runtime(runtime_failure(e))),
+        vn_vm::debug::DriveResult::Failed(e) => Err(ExecError::from(e)),
     }
 }
 
@@ -75,14 +73,14 @@ pub fn boot_machine(
     precompiled: Rc<FxHashMap<ModuleId, Rc<FunctionProto>>>,
     capabilities: CapabilitySet,
     trace: bool,
-) -> PipelineResult<Vm> {
+) -> Vm {
     let loader = std::sync::Arc::new(PipelineLoader::new(session.shared_resolver()));
     let settings = vn_vm::ExecSettings::of(vn_core::env::process(), trace);
     let mut machine = Vm::new(precompiled.clone(), settings).with_loader(loader);
     machine.ctx.capabilities = Rc::new(capabilities);
     vn_vm::prefill_native_modules(&mut machine);
 
-    Ok(machine)
+    machine
 }
 
 pub fn enter_main(machine: &mut Vm, main_proto: Rc<FunctionProto>) -> Rc<FunctionProto> {

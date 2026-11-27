@@ -187,7 +187,7 @@ pub fn run_tests(session: Arc<vn_pipeline::Session>, args: TestArgs) -> Result<(
                             Ok(executable) => crate::exec::run_unit(
                                 &file_session,
                                 executable,
-                                crate::runtime::Policy {
+                                vn_runtime::Policy {
                                     capabilities: capabilities.clone(),
                                     trace: false,
                                     gc: false,

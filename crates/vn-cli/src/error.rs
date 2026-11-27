@@ -1,10 +1,12 @@
 use crate::exit::ExitCode;
 use std::fmt;
 use vn_modules::project::ManifestError;
-use vn_pipeline::Failure;
+use vn_pipeline::PipelineError;
+use vn_runtime::ExecError;
 
 pub enum CliError {
-    Failure(Failure),
+    Pipeline(PipelineError),
+    Exec(ExecError),
     Fatal(String),
     Usage(String),
     Summary { message: String, exit: ExitCode },
@@ -21,9 +23,11 @@ impl CliError {
 
     pub fn exit_code(&self) -> ExitCode {
         match self {
-            CliError::Failure(Failure::Diagnostics(_)) => ExitCode::Diagnostics,
-            CliError::Failure(Failure::Runtime(_)) => ExitCode::Uncaught,
-            CliError::Failure(Failure::Io(_) | Failure::Internal(_) | Failure::Project(_))
+            CliError::Pipeline(PipelineError::Diagnostics(_)) => ExitCode::Diagnostics,
+            CliError::Exec(_) => ExitCode::Uncaught,
+            CliError::Pipeline(
+                PipelineError::Io(_) | PipelineError::Internal(_) | PipelineError::Project(_),
+            )
             | CliError::Fatal(_) => ExitCode::Fatal,
             CliError::Usage(_) => ExitCode::Usage,
             CliError::Summary { exit, .. } => *exit,
@@ -34,7 +38,8 @@ impl CliError {
 impl fmt::Display for CliError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            CliError::Failure(failure) => write!(f, "{failure}"),
+            CliError::Pipeline(error) => write!(f, "{error}"),
+            CliError::Exec(error) => write!(f, "{error}"),
             CliError::Fatal(message)
             | CliError::Usage(message)
             | CliError::Summary { message, .. } => write!(f, "{message}"),
@@ -42,9 +47,15 @@ impl fmt::Display for CliError {
     }
 }
 
-impl From<Failure> for CliError {
-    fn from(failure: Failure) -> Self {
-        CliError::Failure(failure)
+impl From<PipelineError> for CliError {
+    fn from(error: PipelineError) -> Self {
+        CliError::Pipeline(error)
+    }
+}
+
+impl From<ExecError> for CliError {
+    fn from(error: ExecError) -> Self {
+        CliError::Exec(error)
     }
 }
 

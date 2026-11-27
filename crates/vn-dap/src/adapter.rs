@@ -2,8 +2,8 @@ use std::io::{BufRead, Write};
 
 use serde_json::{json, Value};
 
-use crate::dap::driver::{Driver, ResumeOutcome};
-use crate::dap::protocol::{Event, LaunchArgs, Request, Response, SetBreakpointsArgs};
+use crate::driver::{Driver, ResumeOutcome};
+use crate::protocol::{Event, LaunchArgs, Request, Response, SetBreakpointsArgs};
 
 pub fn run_stdio() {
     let stdin = std::io::stdin();

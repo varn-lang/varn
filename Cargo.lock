@@ -3787,6 +3787,7 @@ dependencies = [
  "vn-builtins",
  "vn-compiler",
  "vn-core",
+ "vn-dap",
  "vn-debug",
  "vn-jit",
  "vn-lexer",
@@ -3794,6 +3795,7 @@ dependencies = [
  "vn-modules",
  "vn-parser",
  "vn-pipeline",
+ "vn-runtime",
  "vn-sem",
  "vn-types",
  "vn-vm",
@@ -3832,6 +3834,20 @@ dependencies = [
  "rustc-hash 1.1.0",
  "serde",
  "xxhash-rust",
+]
+
+[[package]]
+name = "vn-dap"
+version = "0.1.0"
+dependencies = [
+ "rustc-hash 1.1.0",
+ "serde",
+ "serde_json",
+ "vn-core",
+ "vn-pipeline",
+ "vn-runtime",
+ "vn-types",
+ "vn-vm",
 ]
 
 [[package]]
@@ -3972,6 +3988,19 @@ dependencies = [
 [[package]]
 name = "vn-rt"
 version = "0.1.0"
+
+[[package]]
+name = "vn-runtime"
+version = "0.1.0"
+dependencies = [
+ "postcard",
+ "rustc-hash 1.1.0",
+ "vn-core",
+ "vn-modules",
+ "vn-pipeline",
+ "vn-types",
+ "vn-vm",
+]
 
 [[package]]
 name = "vn-sem"

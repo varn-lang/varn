@@ -18,9 +18,7 @@ pub use resolver::ModuleResolver;
 
 pub use analysis::Analysis;
 pub use compilation::{CacheStatus, Compilation, Stage};
-pub use error::{
-    relative_path, DiagnosticFailure, DiagnosticReport, Failure, RuntimeFailure, StackFrame,
-};
+pub use error::{relative_path, DiagnosticFailure, DiagnosticReport, PipelineError};
 pub use executable::Executable;
 pub use request::{CachePolicy, Goal, Request};
 pub use session::Session;

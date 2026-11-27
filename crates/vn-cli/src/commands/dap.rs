@@ -1,6 +1,6 @@
 use crate::error::CliError;
 
 pub fn execute() -> Result<(), CliError> {
-    crate::dap::adapter::run_stdio();
+    vn_dap::adapter::run_stdio();
     Ok(())
 }

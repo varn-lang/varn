@@ -1,4 +1,4 @@
-use crate::Failure;
+use crate::PipelineError;
 use vn_compiler::FunctionProto;
 use vn_core::ast::{AstArena, Program};
 use vn_sem::resolver::ImportResolver;
@@ -241,12 +241,12 @@ fn exports_of(
 pub(crate) fn check_exports(
     program: &Program,
     resolver: &crate::ModuleResolver,
-) -> Result<(), Failure> {
+) -> Result<(), PipelineError> {
     let exports = exports_of(program, resolver);
-    report_export_collisions(&exports, program.filename.as_ref()).map_err(Failure::internal)
+    report_export_collisions(&exports, program.filename.as_ref()).map_err(PipelineError::internal)
 }
 
-pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, Failure> {
+pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, PipelineError> {
     let LowerInput {
         program,
         arena,
@@ -259,7 +259,7 @@ pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, Failure> {
     let path = program.filename.as_ref();
 
     let exports = exports_of(program, resolver);
-    report_export_collisions(&exports, path).map_err(Failure::internal)?;
+    report_export_collisions(&exports, path).map_err(PipelineError::internal)?;
     let export_names = sorted_export_names(&exports);
 
     let mut tir = emit_tir(program, arena, check);
@@ -270,7 +270,7 @@ pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, Failure> {
         &check.bind.interner,
         written_import_sources(&tir).iter().map(|s| s.as_ref()),
     )
-    .map_err(Failure::internal)?;
+    .map_err(PipelineError::internal)?;
     inject_star_reexports(&mut tir, &exports);
     resolve_import_slots(&mut tir, resolver, path);
     vn_tir::link::link(
@@ -284,7 +284,7 @@ pub(crate) fn lower_module(input: LowerInput<'_>) -> Result<Lowered, Failure> {
     let templates = vn_tir::package::extract(&tir);
     let (proto, optimize) = compile_tir(&tir, export_names, source, measure);
     let proto = proto.map_err(|e| {
-        Failure::internal(format!(
+        PipelineError::internal(format!(
             "{}: {e}",
             vn_core::term::chalk::chalk("error[emit:tir]").red().bold()
         ))

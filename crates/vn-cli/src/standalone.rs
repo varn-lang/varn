@@ -2,11 +2,11 @@ use std::io::{Read, Seek, SeekFrom};
 
 use std::path::Path;
 
-use crate::runtime::Policy;
 use vn_modules::artifact::{
     read_artifact, write_artifact, ArtifactClass, ArtifactKind, MAGIC_VEXE,
 };
 use vn_pipeline::{CapabilitySet, Executable, Session};
+use vn_runtime::Policy;
 use vn_types::ModuleGraphArtifact;
 
 const TRAILER_LEN: u64 = 20;
@@ -62,7 +62,7 @@ pub fn run(embedded: Embedded) -> i32 {
         }
     };
     let policy = Policy::new(CapabilitySet::allow_all());
-    match crate::runtime::execute(&Session::detached(), executable, policy) {
+    match vn_runtime::execute(&Session::detached(), executable, policy) {
         Ok(()) => 0,
         Err(e) => {
             eprintln!("Standalone runtime error: {e}");

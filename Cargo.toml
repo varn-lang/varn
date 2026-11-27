@@ -22,6 +22,8 @@ members = [
     "crates/vn-compiler",
     "crates/vn-gpu",
     "crates/vn-ui",
+    "crates/vn-runtime",
+    "crates/vn-dap",
     "crates/vn-rt",
     "crates/vn-shadow",
     "crates/xtask",
@@ -50,6 +52,8 @@ default-members = [
     "crates/vn-compiler",
     "crates/vn-gpu",
     "crates/vn-ui",
+    "crates/vn-runtime",
+    "crates/vn-dap",
 ]
 
 [workspace.package]

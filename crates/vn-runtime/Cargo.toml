@@ -1,0 +1,19 @@
+[package]
+name = "vn-runtime"
+version.workspace = true
+edition.workspace = true
+
+[features]
+clif = ["vn-vm/clif"]
+
+[dependencies]
+vn-core     = { path = "../vn-core" }
+vn-types    = { path = "../vn-types" }
+vn-modules  = { path = "../vn-modules" }
+vn-pipeline = { path = "../vn-pipeline" }
+vn-vm       = { path = "../vn-vm" }
+rustc-hash  = { workspace = true }
+postcard    = { workspace = true }
+
+[lints]
+workspace = true

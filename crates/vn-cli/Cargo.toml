@@ -10,7 +10,7 @@ path = "src/main.rs"
 
 [features]
 default = ["clif"]
-clif = ["vn-jit/clif", "vn-vm/clif", "vn-debug/clif"]
+clif = ["vn-jit/clif", "vn-vm/clif", "vn-debug/clif", "vn-runtime/clif"]
 embed-std = []
 # Real heap profiling (dhat-rs), for when RSS doesn't add up to counted
 # structures — mimalloc retains freed pages instead of returning them to the
@@ -34,6 +34,8 @@ vn-sem      = { path = "../vn-sem" }
 vn-debug    = { path = "../vn-debug" }
 vn-lsp      = { path = "../vn-lsp", features = ["machine-view"] }
 vn-modules  = { path = "../vn-modules" }
+vn-runtime  = { path = "../vn-runtime" }
+vn-dap      = { path = "../vn-dap" }
 vn-jit      = { path = "../vn-jit" }
 postcard      = { workspace = true }
 serde         = { workspace = true }

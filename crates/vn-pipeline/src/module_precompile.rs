@@ -35,7 +35,7 @@ pub(crate) fn discover(
     entry_source: &str,
     entry_path: &str,
     entry_interner: &vn_core::AtomInterner,
-) -> Result<Discovered, crate::Failure> {
+) -> Result<Discovered, crate::PipelineError> {
     let canonical_entry = vn_modules::canonical_or_original(Path::new(entry_path));
 
     let mut graph: HashMap<String, Vec<String>> = HashMap::default();
@@ -185,12 +185,12 @@ pub(crate) fn discover(
             }
         }
         return if cycle_path.is_empty() {
-            Err(crate::Failure::internal(format!(
+            Err(crate::PipelineError::internal(format!(
                 "circular dependency detected involving: {}",
                 cycle_nodes.join(", ")
             )))
         } else {
-            Err(crate::Failure::internal(format!(
+            Err(crate::PipelineError::internal(format!(
                 "circular dependency detected: {}",
                 cycle_path.join(" → ")
             )))
@@ -214,7 +214,7 @@ pub fn check_module_graph(
     entry_path: &str,
     entry_interner: &vn_core::AtomInterner,
     session: &crate::ModuleResolver,
-) -> Result<Vec<crate::DiagnosticReport>, crate::Failure> {
+) -> Result<Vec<crate::DiagnosticReport>, crate::PipelineError> {
     let found = discover(
         entry_program,
         entry_arena,
@@ -267,7 +267,7 @@ pub(crate) struct Dependencies {
 pub(crate) fn lower_dependencies(
     found: &Discovered,
     session: &crate::ModuleResolver,
-) -> Result<Dependencies, crate::Failure> {
+) -> Result<Dependencies, crate::PipelineError> {
     let mut dependencies = Dependencies {
         modules: HashMap::default(),
         class_tables: HashMap::default(),
@@ -300,7 +300,9 @@ pub(crate) fn lower_dependencies(
             library: &dependencies.library,
             measure: false,
         })
-        .map_err(|e| crate::Failure::internal(format!("compile error in '{module_path}': {e}")))?;
+        .map_err(|e| {
+            crate::PipelineError::internal(format!("compile error in '{module_path}': {e}"))
+        })?;
         dependencies.class_tables.insert(
             module_path.clone(),
             crate::link::class::ModuleClasses {

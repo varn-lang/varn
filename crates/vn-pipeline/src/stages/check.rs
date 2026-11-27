@@ -2,7 +2,7 @@ use vn_checker::Checker;
 use vn_core::ast::{AstArena, Program};
 use vn_core::{AtomInterner, DiagnosticBag};
 
-use crate::{DiagnosticReport, Failure};
+use crate::{DiagnosticReport, PipelineError};
 
 pub(crate) fn check_program(
     program: &Program,
@@ -10,7 +10,7 @@ pub(crate) fn check_program(
     interner: AtomInterner,
     source: &str,
     resolver: &crate::ModuleResolver,
-) -> Result<vn_sem::output::CheckResult, Failure> {
+) -> Result<vn_sem::output::CheckResult, PipelineError> {
     let result = Checker::check_with(
         program,
         arena,
@@ -25,7 +25,10 @@ pub(crate) fn check_program(
             result.diagnostics.clone(),
         )];
         reports.extend(dependency_syntax_reports(&result.bind.deps, resolver));
-        return Err(Failure::diagnostics_across(&program.filename, reports));
+        return Err(PipelineError::diagnostics_across(
+            &program.filename,
+            reports,
+        ));
     }
     Ok(result)
 }
@@ -75,9 +78,13 @@ pub(crate) fn reject_errors(
     diagnostics: &DiagnosticBag,
     filename: &str,
     source: &str,
-) -> Result<(), Failure> {
+) -> Result<(), PipelineError> {
     if diagnostics.has_errors() {
-        return Err(Failure::diagnostics(filename, source, diagnostics.clone()));
+        return Err(PipelineError::diagnostics(
+            filename,
+            source,
+            diagnostics.clone(),
+        ));
     }
     Ok(())
 }
@@ -86,7 +93,7 @@ pub(crate) fn warnings_of(
     diagnostics: &DiagnosticBag,
     filename: &str,
     source: &str,
-) -> Result<Option<DiagnosticReport>, Failure> {
+) -> Result<Option<DiagnosticReport>, PipelineError> {
     reject_errors(diagnostics, filename, source)?;
     if diagnostics.is_empty() {
         return Ok(None);

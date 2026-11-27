@@ -4,7 +4,7 @@ use vn_compiler::FunctionProto;
 use vn_core::ModuleId;
 use vn_types::{ModuleGraphArtifact, TestEntry};
 
-use crate::Failure;
+use crate::PipelineError;
 
 pub struct Executable {
     pub entry_proto: FunctionProto,
@@ -27,11 +27,11 @@ pub(crate) fn precompiled_modules(
 }
 
 impl Executable {
-    pub fn from_graph(graph: ModuleGraphArtifact) -> Result<Executable, Failure> {
+    pub fn from_graph(graph: ModuleGraphArtifact) -> Result<Executable, PipelineError> {
         let entry_proto = graph
             .entry_proto()
             .cloned()
-            .ok_or_else(|| Failure::internal("entry module not found in graph"))?;
+            .ok_or_else(|| PipelineError::internal("entry module not found in graph"))?;
 
         Ok(Executable {
             entry_proto,

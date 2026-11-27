@@ -10,7 +10,7 @@ use crate::query::exports::{ExportedSymbol, ModuleExports};
 use dashmap::DashMap;
 use std::sync::{Arc, RwLock};
 use vn_pipeline::ModuleResolver;
-use vn_pipeline::{Anchor, Failure, Session};
+use vn_pipeline::{Anchor, PipelineError, Session};
 
 pub use revision::{Cached, Revision};
 
@@ -35,7 +35,7 @@ impl Workspace {
         }
     }
 
-    pub fn reopen(&mut self, anchor: Anchor<'_>) -> Result<(), Failure> {
+    pub fn reopen(&mut self, anchor: Anchor<'_>) -> Result<(), PipelineError> {
         self.session = Session::open(anchor)?;
         Ok(())
     }

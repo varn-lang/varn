@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use vn_modules::project::{Anchor, Project};
 
-use crate::{Failure, ModuleResolver};
+use crate::{ModuleResolver, PipelineError};
 
 pub struct Session {
     project: Project,
@@ -9,8 +9,8 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn open(anchor: Anchor<'_>) -> Result<Session, Failure> {
-        let project = Project::discover(anchor).map_err(Failure::Project)?;
+    pub fn open(anchor: Anchor<'_>) -> Result<Session, PipelineError> {
+        let project = Project::discover(anchor).map_err(PipelineError::Project)?;
         Ok(Session::of(project))
     }
 

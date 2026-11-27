@@ -1,6 +1,5 @@
 use std::fmt;
 use std::sync::Arc;
-use vn_core::term::chalk::chalk;
 use vn_core::DiagnosticBag;
 
 pub struct DiagnosticReport {
@@ -55,42 +54,31 @@ impl DiagnosticFailure {
     }
 }
 
-pub struct StackFrame {
-    pub fn_name: String,
-    pub file: String,
-    pub line: u32,
-}
-
-pub struct RuntimeFailure {
-    pub class: String,
-    pub message: String,
-    pub frames: Vec<StackFrame>,
-    pub cause: Option<Box<RuntimeFailure>>,
-}
-
-pub enum Failure {
+pub enum PipelineError {
     Diagnostics(DiagnosticFailure),
-    Runtime(RuntimeFailure),
     Io(String),
     Internal(String),
     Project(vn_modules::project::ManifestError),
 }
 
-impl Failure {
+impl PipelineError {
     pub fn io(message: impl Into<String>) -> Self {
-        Failure::Io(message.into())
+        PipelineError::Io(message.into())
     }
 
     pub fn internal(message: impl Into<String>) -> Self {
-        Failure::Internal(message.into())
+        PipelineError::Internal(message.into())
     }
 
     pub fn diagnostics(file: &str, source: &str, diagnostics: DiagnosticBag) -> Self {
-        Failure::diagnostics_across(file, vec![DiagnosticReport::new(file, source, diagnostics)])
+        PipelineError::diagnostics_across(
+            file,
+            vec![DiagnosticReport::new(file, source, diagnostics)],
+        )
     }
 
     pub fn diagnostics_across(subject: &str, reports: Vec<DiagnosticReport>) -> Self {
-        Failure::Diagnostics(DiagnosticFailure {
+        PipelineError::Diagnostics(DiagnosticFailure {
             subject: Arc::from(relative_path(subject)),
             reports,
         })
@@ -108,63 +96,10 @@ pub fn relative_path(file: &str) -> String {
         .unwrap_or(cleaned)
 }
 
-const FRAMES_SHOWN_FIRST: usize = 12;
-const FRAMES_SHOWN_LAST: usize = 6;
-
-impl RuntimeFailure {
-    fn write_chain(&self, f: &mut fmt::Formatter<'_>, label: &str) -> fmt::Result {
-        let class = if self.class == vn_core::RuntimeErrorKind::Error.name() {
-            String::new()
-        } else {
-            format!("{}: ", self.class)
-        };
-        write!(
-            f,
-            "{}{}",
-            chalk(label).red().bold(),
-            chalk(format!(": {class}{}", self.message)).bold()
-        )?;
-        let omitted = self
-            .frames
-            .len()
-            .saturating_sub(FRAMES_SHOWN_FIRST + FRAMES_SHOWN_LAST);
-        for (at, frame) in self.frames.iter().enumerate() {
-            if omitted > 0 && at >= FRAMES_SHOWN_FIRST && at < FRAMES_SHOWN_FIRST + omitted {
-                if at == FRAMES_SHOWN_FIRST {
-                    write!(
-                        f,
-                        "\n    {}",
-                        chalk(format!("... {omitted} more frames")).dim()
-                    )?;
-                }
-                continue;
-            }
-            write!(
-                f,
-                "\n    {} {} {}",
-                chalk("at").dim(),
-                frame.fn_name,
-                chalk(format!("({}:{})", relative_path(&frame.file), frame.line)).dim()
-            )?;
-        }
-        if let Some(cause) = &self.cause {
-            writeln!(f)?;
-            cause.write_chain(f, "caused by")?;
-        }
-        Ok(())
-    }
-}
-
-impl fmt::Display for RuntimeFailure {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.write_chain(f, "error")
-    }
-}
-
-impl fmt::Display for Failure {
+impl fmt::Display for PipelineError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Failure::Diagnostics(failure) => {
+            PipelineError::Diagnostics(failure) => {
                 for report in &failure.reports {
                     writeln!(
                         f,
@@ -186,21 +121,20 @@ impl fmt::Display for Failure {
                     )
                 )
             }
-            Failure::Runtime(failure) => write!(f, "{failure}"),
-            Failure::Io(message) | Failure::Internal(message) => write!(f, "{message}"),
-            Failure::Project(error) => write!(f, "{error}"),
+            PipelineError::Io(message) | PipelineError::Internal(message) => write!(f, "{message}"),
+            PipelineError::Project(error) => write!(f, "{error}"),
         }
     }
 }
 
-impl From<String> for Failure {
+impl From<String> for PipelineError {
     fn from(message: String) -> Self {
-        Failure::internal(message)
+        PipelineError::internal(message)
     }
 }
 
-impl From<std::io::Error> for Failure {
+impl From<std::io::Error> for PipelineError {
     fn from(error: std::io::Error) -> Self {
-        Failure::io(error.to_string())
+        PipelineError::io(error.to_string())
     }
 }
