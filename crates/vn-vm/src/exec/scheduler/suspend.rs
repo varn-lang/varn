@@ -9,7 +9,7 @@ use crate::value::VmValue;
 use vn_types::register_meta::SlotClass;
 
 pub(crate) struct FrozenFrame {
-    closure: Rc<VmClosure>,
+    closure: Option<Rc<VmClosure>>,
     ip: usize,
     return_reg: u16,
     awaited: bool,
@@ -24,6 +24,23 @@ pub(crate) struct FrozenFrame {
 }
 
 impl FrozenFrame {
+    pub(crate) fn empty() -> Self {
+        Self {
+            closure: None,
+            ip: 0,
+            return_reg: 0,
+            awaited: false,
+            current_class: None,
+            compact: false,
+            gpr_len: 0,
+            plain: Vec::new(),
+            refs: Vec::new(),
+            dyn_: Vec::new(),
+            open: Vec::new(),
+            handlers: Vec::new(),
+        }
+    }
+
     pub(crate) fn trace(&self, value: &mut dyn FnMut(VmValue)) {
         self.dyn_.iter().for_each(|&v| value(v));
         self.refs
@@ -33,17 +50,12 @@ impl FrozenFrame {
         for (_, _, uv) in &self.open {
             value(uv.inner.borrow().value);
         }
-        for uv in &self.closure.upvalues {
-            value(uv.inner.borrow().value);
+        if let Some(closure) = &self.closure {
+            for uv in &closure.upvalues {
+                value(uv.inner.borrow().value);
+            }
         }
     }
-}
-
-#[derive(Default)]
-pub(crate) struct FrameBuffers {
-    plain: Vec<u64>,
-    refs: Vec<Option<vn_types::HeapRef>>,
-    dyn_: Vec<VmValue>,
 }
 
 pub(crate) struct Frozen {
@@ -83,46 +95,91 @@ fn keeps(
     }
 }
 
-pub(crate) fn freeze_frame(
+fn freeze_frame(
     ctx: &mut ExecCtx,
     index: usize,
     compact: bool,
-    buffers: FrameBuffers,
 ) -> Result<FrozenFrame, &'static str> {
-    let frame = &ctx.frames[index];
-    let closure = frame
-        ._owned_closure
-        .clone()
-        .ok_or("frame does not own its closure")?;
+    let mut sf = FrozenFrame::empty();
+    freeze_into(ctx, index, compact, &mut sf, false)?;
+    Ok(sf)
+}
+
+pub(crate) fn freeze_into(
+    ctx: &mut ExecCtx,
+    index: usize,
+    compact: bool,
+    sf: &mut FrozenFrame,
+    hand_over: bool,
+) -> Result<(), &'static str> {
+    let frame = &mut ctx.frames[index];
+    if frame._owned_closure.is_none() {
+        return Err("frame does not own its closure");
+    }
     let alloc = frame.base;
-    let ip = frame.ip;
-    let return_reg = frame.return_reg;
-    let awaited = frame.awaited;
-    let current_class = frame.current_class.clone();
+    sf.ip = frame.ip;
+    sf.return_reg = frame.return_reg;
+    sf.awaited = frame.awaited;
+    if hand_over {
+        sf.closure = frame._owned_closure.take();
+        sf.current_class = frame.current_class.take();
+    } else {
+        let owned = frame._owned_closure.as_ref();
+        let same = matches!((&sf.closure, owned), (Some(a), Some(b)) if Rc::ptr_eq(a, b));
+        if !same {
+            sf.closure = owned.cloned();
+        }
+        sf.current_class = frame.current_class.clone();
+    }
     let bases = ctx.stack.allocs[alloc].bases;
-    let layout = Rc::clone(&ctx.stack.allocs[alloc].layout);
+    let counts = ctx.stack.allocs[alloc].layout.counts;
     let owns = |s: &SlotAddr| {
         let c = s.class.index();
-        s.idx >= bases[c] && s.idx < bases[c] + layout.counts[c]
+        s.idx >= bases[c] && s.idx < bases[c] + counts[c]
     };
-    let mut open = Vec::new();
-    for (s, uv) in &ctx.open_upvalues {
-        if owns(s) {
-            uv.close(&ctx.stack);
-            open.push((s.class, s.idx - bases[s.class.index()], uv.clone()));
+    sf.open.clear();
+    if !ctx.open_upvalues.is_empty() {
+        for (s, uv) in &ctx.open_upvalues {
+            if owns(s) {
+                uv.close(&ctx.stack);
+                sf.open
+                    .push((s.class, s.idx - bases[s.class.index()], uv.clone()));
+            }
+        }
+        if !sf.open.is_empty() {
+            ctx.open_upvalues.retain(|(s, _)| !owns(s));
         }
     }
-    ctx.open_upvalues.retain(|(s, _)| !owns(s));
     let depth = index + 1;
-    let handlers = ctx
-        .try_handlers
-        .iter()
-        .filter(|h| h.frame_depth == depth)
-        .map(|h| (h.catch_ip, h.err_reg))
-        .collect();
-    ctx.try_handlers.retain(|h| h.frame_depth != depth);
+    sf.handlers.clear();
+    if !ctx.try_handlers.is_empty() {
+        sf.handlers.extend(
+            ctx.try_handlers
+                .iter()
+                .filter(|h| h.frame_depth == depth)
+                .map(|h| (h.catch_ip, h.err_reg)),
+        );
+        if !sf.handlers.is_empty() {
+            ctx.try_handlers.retain(|h| h.frame_depth != depth);
+        }
+    }
+    let ip = sf.ip;
+    let FrozenFrame {
+        closure,
+        compact: compact_out,
+        gpr_len: gpr_len_out,
+        plain,
+        refs,
+        dyn_,
+        open,
+        ..
+    } = sf;
+    plain.clear();
+    refs.clear();
+    dyn_.clear();
     let regs = if compact {
-        let found = live_regs(&closure, ip);
+        let closure = closure.as_ref().ok_or("frame does not own its closure")?;
+        let found = live_regs(closure, ip);
         let stat = match found {
             Some(_) => &crate::profile::TASK_STATS.prune_hit,
             None => &crate::profile::TASK_STATS.prune_miss,
@@ -132,14 +189,9 @@ pub(crate) fn freeze_frame(
     } else {
         None
     };
-    let FrameBuffers {
-        mut plain,
-        mut refs,
-        mut dyn_,
-    } = buffers;
     let gpr_len = match regs {
         None => {
-            let range = |c: usize| bases[c] as usize..(bases[c] + layout.counts[c]) as usize;
+            let range = |c: usize| bases[c] as usize..(bases[c] + counts[c]) as usize;
             plain.extend(ctx.stack.gpr[range(0)].iter().map(|&v| v as u64));
             let gpr_len = plain.len() as u32;
             plain.extend(ctx.stack.fpr[range(1)].iter().map(|v| v.to_bits()));
@@ -148,14 +200,15 @@ pub(crate) fn freeze_frame(
             gpr_len
         }
         Some(_) => {
+            let layout = Rc::clone(&ctx.stack.allocs[alloc].layout);
             for (r, &(class, idx)) in layout.slots.iter().enumerate() {
-                if class == SlotClass::Gpr && keeps(regs, &open, r, class, idx) {
+                if class == SlotClass::Gpr && keeps(regs, open, r, class, idx) {
                     plain.push(ctx.stack.gpr[(bases[0] + idx) as usize] as u64);
                 }
             }
             let gpr_len = plain.len() as u32;
             for (r, &(class, idx)) in layout.slots.iter().enumerate() {
-                if !keeps(regs, &open, r, class, idx) {
+                if !keeps(regs, open, r, class, idx) {
                     continue;
                 }
                 match class {
@@ -170,24 +223,17 @@ pub(crate) fn freeze_frame(
             gpr_len
         }
     };
-    let compact = regs.is_some();
-    Ok(FrozenFrame {
-        closure,
-        ip,
-        return_reg,
-        awaited,
-        current_class,
-        compact,
-        gpr_len,
-        plain,
-        refs,
-        dyn_,
-        open,
-        handlers,
-    })
+    *compact_out = regs.is_some();
+    *gpr_len_out = gpr_len;
+    Ok(())
 }
 
-pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
+fn thaw_frame(ctx: &mut ExecCtx, mut sf: FrozenFrame) {
+    thaw_from(ctx, &mut sf);
+}
+
+pub(crate) fn thaw_from(ctx: &mut ExecCtx, sf: &mut FrozenFrame) {
+    let closure = sf.closure.take().expect("a frozen frame owns its closure");
     let id = ctx.stack.allocs.len();
     let bases = [
         ctx.stack.gpr.len() as u32,
@@ -195,7 +241,7 @@ pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
         ctx.stack.refs.len() as u32,
         ctx.stack.dyn_.len() as u32,
     ];
-    let layout = sf.closure.proto.frame_layout();
+    let layout = closure.proto.frame_layout();
     if sf.compact {
         ctx.stack
             .gpr
@@ -210,7 +256,7 @@ pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
             ctx.stack.dyn_.len() + layout.counts[3] as usize,
             VmValue::null(),
         );
-        let regs = live_regs(&sf.closure, sf.ip);
+        let regs = live_regs(&closure, sf.ip);
         let (gpr_vals, fpr_vals) = sf.plain.split_at(sf.gpr_len as usize);
         let mut gpr_it = gpr_vals.iter();
         let mut fpr_it = fpr_vals.iter();
@@ -254,7 +300,7 @@ pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
         ctx.stack.dyn_.extend_from_slice(&sf.dyn_);
     }
     ctx.stack.allocs.push(FrameAlloc { bases, layout });
-    for (class, rel, uv) in sf.open {
+    for (class, rel, uv) in sf.open.drain(..) {
         let slot = SlotAddr {
             class,
             idx: bases[class.index()] + rel,
@@ -262,25 +308,23 @@ pub(crate) fn thaw_frame(ctx: &mut ExecCtx, sf: FrozenFrame) -> FrameBuffers {
         uv.reopen(slot, &mut ctx.stack);
         ctx.open_upvalues.push((slot, uv));
     }
-    let mut frame = CallFrame::new_owned(sf.closure, id);
+    let mut frame = CallFrame::new_owned(closure, id);
     frame.ip = sf.ip;
     frame.return_reg = sf.return_reg;
     frame.awaited = sf.awaited;
-    frame.current_class = sf.current_class;
+    frame.current_class = sf.current_class.take();
     ctx.frames.push(frame);
     let depth = ctx.frames.len();
-    for (catch_ip, err_reg) in sf.handlers {
+    for (catch_ip, err_reg) in sf.handlers.drain(..) {
         ctx.try_handlers.push(TryHandler {
             catch_ip,
             frame_depth: depth,
             err_reg,
         });
     }
-    let (mut plain, mut refs, mut dyn_) = (sf.plain, sf.refs, sf.dyn_);
-    plain.clear();
-    refs.clear();
-    dyn_.clear();
-    FrameBuffers { plain, refs, dyn_ }
+    sf.plain.clear();
+    sf.refs.clear();
+    sf.dyn_.clear();
 }
 
 fn check_contiguous(ctx: &ExecCtx) -> Result<(), &'static str> {
@@ -310,7 +354,7 @@ pub(crate) fn freeze(ctx: &mut ExecCtx, dest_reg: u16) -> Result<Box<Frozen>, &'
     let n = ctx.frames.len();
     let mut frames = Vec::with_capacity(n);
     for i in 0..n {
-        frames.push(freeze_frame(ctx, i, i + 1 == n, FrameBuffers::default())?);
+        frames.push(freeze_frame(ctx, i, i + 1 == n)?);
     }
     let jit_error_flag = std::mem::replace(&mut ctx.jit_error_flag, 0);
     let jit_native_result = std::mem::replace(&mut ctx.jit_native_result, VmValue::null());

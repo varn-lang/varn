@@ -1,33 +1,35 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use crate::closure::VmClosure;
 use crate::error::{RuntimeError, VmResult};
-use crate::exec::scheduler::{freeze_frame, thaw_frame, FrameBuffers, FrozenFrame};
+use crate::exec::scheduler::{freeze_into, thaw_from, FrozenFrame};
 use crate::exec::{ExecCtx, VmSuspend};
 use crate::frame::CallFrame;
 use crate::value::VmValue;
 
-enum Phase {
-    Fresh {
-        closure: Rc<VmClosure>,
-        args: Vec<VmValue>,
-        current_class: Option<Rc<vn_types::ClassObj>>,
-    },
-    Suspended {
-        frame: FrozenFrame,
-        dest_reg: u8,
-    },
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Status {
+    Fresh,
+    Suspended,
     Running,
     Done,
 }
 
+struct Start {
+    closure: Rc<VmClosure>,
+    args: Vec<VmValue>,
+    current_class: Option<Rc<vn_types::ClassObj>>,
+}
+
 pub struct GenState {
-    phase: RefCell<Phase>,
-    spare: RefCell<FrameBuffers>,
+    status: Cell<Status>,
+    start: RefCell<Option<Start>>,
+    saved: RefCell<FrozenFrame>,
+    resume_reg: Cell<u8>,
     pub(crate) is_async: bool,
-    closing: std::cell::Cell<bool>,
-    owner: std::cell::Cell<u64>,
+    closing: Cell<bool>,
+    owner: Cell<u64>,
 }
 
 impl std::fmt::Debug for GenState {
@@ -44,15 +46,17 @@ impl GenState {
     ) -> Rc<Self> {
         let is_async = closure.proto.is_async;
         Rc::new(GenState {
-            phase: RefCell::new(Phase::Fresh {
+            status: Cell::new(Status::Fresh),
+            start: RefCell::new(Some(Start {
                 closure,
                 args,
                 current_class,
-            }),
-            spare: RefCell::new(FrameBuffers::default()),
+            })),
+            saved: RefCell::new(FrozenFrame::empty()),
+            resume_reg: Cell::new(0),
             is_async,
-            closing: std::cell::Cell::new(false),
-            owner: std::cell::Cell::new(0),
+            closing: Cell::new(false),
+            owner: Cell::new(0),
         })
     }
 
@@ -65,7 +69,7 @@ impl GenState {
     }
 
     pub(crate) fn is_suspended(&self) -> bool {
-        matches!(&*self.phase.borrow(), Phase::Suspended { .. })
+        self.status.get() == Status::Suspended
     }
 
     pub(crate) fn begin_close(&self) {
@@ -77,22 +81,38 @@ impl GenState {
     }
 
     pub(crate) fn close(&self) {
-        *self.phase.borrow_mut() = Phase::Done;
+        self.finish();
+    }
+
+    fn finish(&self) {
+        self.status.set(Status::Done);
+        if let Ok(mut start) = self.start.try_borrow_mut() {
+            *start = None;
+        }
+        if let Ok(mut saved) = self.saved.try_borrow_mut() {
+            *saved = FrozenFrame::empty();
+        }
     }
 
     pub(crate) fn trace(&self, value: &mut dyn FnMut(VmValue)) {
-        let Ok(phase) = self.phase.try_borrow() else {
-            return;
-        };
-        match &*phase {
-            Phase::Fresh { closure, args, .. } => {
-                args.iter().for_each(|&v| value(v));
-                for uv in &closure.upvalues {
-                    value(uv.inner.borrow().value);
+        match self.status.get() {
+            Status::Fresh => {
+                let Ok(start) = self.start.try_borrow() else {
+                    return;
+                };
+                if let Some(start) = &*start {
+                    start.args.iter().for_each(|&v| value(v));
+                    for uv in &start.closure.upvalues {
+                        value(uv.inner.borrow().value);
+                    }
                 }
             }
-            Phase::Suspended { frame, .. } => frame.trace(value),
-            Phase::Running | Phase::Done => {}
+            Status::Suspended => {
+                if let Ok(saved) = self.saved.try_borrow() {
+                    saved.trace(value);
+                }
+            }
+            Status::Running | Status::Done => {}
         }
     }
 }
@@ -119,21 +139,26 @@ impl ExecCtx {
         generator: &Rc<GenState>,
         input: VmValue,
     ) -> VmResult<Entry> {
-        let phase = std::mem::replace(&mut *generator.phase.borrow_mut(), Phase::Running);
+        let status = generator.status.replace(Status::Running);
         let depth = self.frames.len();
-        match phase {
-            Phase::Done => {
-                *generator.phase.borrow_mut() = Phase::Done;
+        match status {
+            Status::Done => {
+                generator.status.set(Status::Done);
                 Ok(Entry::Done(VmValue::null()))
             }
-            Phase::Running => Err(RuntimeError::new("generator is already running")),
-            Phase::Fresh {
-                closure,
-                args,
-                current_class,
-            } => {
+            Status::Running => Err(RuntimeError::new("generator is already running")),
+            Status::Fresh => {
+                let Some(Start {
+                    closure,
+                    args,
+                    current_class,
+                }) = generator.start.borrow_mut().take()
+                else {
+                    generator.status.set(Status::Done);
+                    return Ok(Entry::Done(VmValue::null()));
+                };
                 if self.call_depth() >= crate::frame::MAX_CALL_DEPTH {
-                    *generator.phase.borrow_mut() = Phase::Done;
+                    generator.finish();
                     return Err(crate::frame::call_depth_exceeded());
                 }
                 let alloc = self.stack.push_frame(&closure.proto);
@@ -144,10 +169,12 @@ impl ExecCtx {
                 self.frames.push(frame);
                 Ok(Entry::Mounted(depth))
             }
-            Phase::Suspended { frame, dest_reg } => {
-                *generator.spare.borrow_mut() = thaw_frame(self, frame);
+            Status::Suspended => {
+                thaw_from(self, &mut generator.saved.borrow_mut());
                 let base = self.frames[depth].base;
-                let _ = self.stack.unbox_into_reg(base, dest_reg as usize, input);
+                let _ = self
+                    .stack
+                    .unbox_into_reg(base, generator.resume_reg.get() as usize, input);
                 Ok(Entry::Mounted(depth))
             }
         }
@@ -179,7 +206,7 @@ impl ExecCtx {
                 }
                 Some(VmSuspend::DebugBreak) => {}
                 None => {
-                    *generator.phase.borrow_mut() = Phase::Done;
+                    generator.finish();
                     return Ok(VmValue::null());
                 }
             }
@@ -277,11 +304,12 @@ impl ExecCtx {
                 "a generator cannot yield null: null marks the end of the iteration",
             ));
         }
-        let buffers = std::mem::take(&mut *generator.spare.borrow_mut());
-        let frame = freeze_frame(self, depth, false, buffers).map_err(RuntimeError::new)?;
+        freeze_into(self, depth, false, &mut generator.saved.borrow_mut(), true)
+            .map_err(RuntimeError::new)?;
         self.frames.pop();
         self.stack.pop_frame();
-        *generator.phase.borrow_mut() = Phase::Suspended { frame, dest_reg };
+        generator.resume_reg.set(dest_reg);
+        generator.status.set(Status::Suspended);
         if generator.owner() != 0 {
             self.heap
                 .remember(unsafe { vn_types::HeapRef::from_addr_unchecked(generator.owner()) });
@@ -295,6 +323,6 @@ impl ExecCtx {
             self.drop_frame_storage(frame.base);
         }
         self.try_handlers.retain(|h| h.frame_depth <= depth);
-        *generator.phase.borrow_mut() = Phase::Done;
+        generator.finish();
     }
 }
