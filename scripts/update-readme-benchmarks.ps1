@@ -69,9 +69,9 @@ $rows = New-Object System.Collections.Generic.List[string]
 $comparable = 0
 $fastest = 0
 foreach ($bench in ($data.benchmarks | Sort-Object name)) {
-    $vn = Get-Median $bench.stats 'vn'
-    $bun = Get-Median $bench.stats 'bun'
-    $node = Get-Median $bench.stats 'node'
+    $vn = Get-Median $bench.work_stats 'vn'
+    $bun = Get-Median $bench.work_stats 'bun'
+    $node = Get-Median $bench.work_stats 'node'
     $verdict = [string]$bench.verdict
     $isComparable = $bench.output_ok -and $null -ne $bench.work_ratio
     if ($isComparable) {
@@ -88,7 +88,13 @@ foreach ($bench in ($data.benchmarks | Sort-Object name)) {
     } else {
         $result = $verdict
     }
-    $rows.Add(('| `{0}` | {1} | {2} | {3} | {4} |' -f $bench.name, (Format-Ms $vn), (Format-Ms $bun), (Format-Ms $node), $result))
+    $times = @($vn, $bun, $node) | Where-Object { $null -ne $_ }
+    $best = if ($times) { ($times | Measure-Object -Minimum).Minimum } else { $null }
+    $cells = foreach ($t in @($vn, $bun, $node)) {
+        $cell = Format-Ms $t
+        if ($null -ne $t -and $t -eq $best -and $result -notlike 'tie*') { '`' + $cell + '`' } else { $cell }
+    }
+    $rows.Add(('| `{0}` | {1} | {2} | {3} | {4} |' -f $bench.name, $cells[0], $cells[1], $cells[2], $result))
 }
 
 function Get-ToolVersion($exe, $versionArgs) {
@@ -122,7 +128,7 @@ $nodeVersion = Get-ToolVersion 'node' @('--version')
 
 $date = (Get-Date).ToString('yyyy-MM-dd')
 $os = [System.Runtime.InteropServices.RuntimeInformation]::OSDescription
-$summary = "Varn is the fastest runtime in **$fastest of $comparable** comparable workloads (steady state, work time without process startup)."
+$summary = "Varn is the fastest runtime in **$fastest of $comparable** comparable workloads (steady-state time, i.e. process time minus runtime startup)."
 
 $block = @(
     $startMarker
@@ -144,7 +150,7 @@ $block = @(
     "| OS | $os |"
     "| Runtimes | Varn ``$vnVersion``, Bun ``$bunVersion``, Node ``$nodeVersion`` |"
     ''
-    'Times are whole-process medians. A row only counts when every runtime prints the same checksum; rows that do not are listed as `output mismatch` and carry no timings. A tie means the steady-state difference is under 5% or inside the run-to-run range. Methodology and caveats: [`tests/benchmarks/README.md`](tests/benchmarks/README.md).'
+    'Times are steady-state medians (process time minus runtime startup); the fastest time in each row is highlighted. A row only counts when every runtime prints the same checksum; rows that do not are listed as `output mismatch` and carry no timings. A tie means the steady-state difference is under 5% or inside the run-to-run range. Methodology and caveats: [`tests/benchmarks/README.md`](tests/benchmarks/README.md).'
     $endMarker
 )
 
