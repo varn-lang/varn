@@ -1,119 +1,148 @@
 # Varn
 
+**High-level syntax, low-level performance.**
+
 [![CI](https://github.com/varn-lang/varn/actions/workflows/ci.yml/badge.svg)](https://github.com/varn-lang/varn/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-orange.svg)](Cargo.toml)
 
-**Sintaxis de alto nivel, rendimiento de bajo nivel.**
-
-Varn es un lenguaje estáticamente tipado con sintaxis familiar al estilo TypeScript, compilado a bytecode de registros con VM propia y JIT Cranelift. El tipo que ve el checker es el tipo que ejecuta el runtime: sin `any` implícitos, sin coerciones ocultas, sin `undefined`.
+Varn is a statically typed programming language with a TypeScript-like surface and its own strict semantics. Source is compiled to register bytecode and runs on a custom VM with a Cranelift JIT. The type the checker sees is the type the runtime executes: no implicit `any`, no hidden coercions, no `undefined`.
 
 ```vn
-import { describe, it, expect } from "std:test"
+enum Shape { Circle(float), Rect(float, float) }
 
-enum Forma { Circulo(float), Rect(float, float) }
-
-function area(f: Forma): float {
-    return match (f) {
-        Circulo(r) => 3.14159 * r * r,
+function area(shape: Shape): float {
+    return match (shape) {
+        Circle(r) => 3.14159 * r * r,
         Rect(w, h) => w * h,
     }
 }
 
-const par: #[int, str] = #[1, "a"]
-const punto: #{ x: int, y: int } = #{ x: 10, y: 20 }
+const pair: #[int, str] = #[1, "a"]
+const point: #{ x: int, y: int } = #{ x: 10, y: 20 }
 
-await describe("formas", async () => {
-    await it("suma áreas", async () => {
-        expect(area(Forma.Rect(2.0, 3.0))).toBe(6.0)
-        expect(par[0]).toBe(1)
-        expect(punto.x + punto.y).toBe(30)
-    })
-})
+print(area(Shape.Rect(2.0, 3.0)))   // 6.0
+print(pair[0] + point.x + point.y)  // 31
 ```
 
-> Estado: pre-1.0 (`0.1.0`). APIs inestables por diseño: un *breaking change* se acepta cuando trae ganancia medible en corrección, determinismo o simplicidad.
+> **Status:** pre-1.0 (`0.1.0`). APIs are unstable by design: a breaking change is accepted when it brings a measurable gain in correctness, determinism or simplicity.
 
----
+## Why Varn
 
-## Por qué Varn
+- **Static from end to end.** The checker's type flows into the typed IR, the bytecode and the JIT. `dynamic` exists, but only at explicit, cast-guarded boundaries.
+- **Unambiguous syntax.** Tuples are `#[a, b]`, records are `#{ x: 1 }`, arrays are `[x]`. Parentheses only group; braces are a block or a `struct` literal. No magic trailing comma, no unit `()`.
+- **Explicit nulls and errors.** `T?`, `?.`, `??` and flow-sensitive narrowing. Typed `try`/`catch`/`finally`, plus a `try` operator over `Result`, `Option` and nullables.
+- **Controlled low level.** Deno-style host permissions (`--sandbox`, `--allow-read/write/net/env/ffi/ui`), real tasks and isolates, and `Regex` as a language type.
 
-| Pilar | Qué significa en la práctica |
-|---|---|
-| **Estático de punta a punta** | El tipo del checker viaja al TIR, al bytecode y al JIT. `dynamic` existe, pero solo en fronteras explícitas con cast. |
-| **Sintaxis sin ambigüedad** | Tuplas `#[a, b]`, records `#{ x: 1 }`, arrays `[x]`. `()` agrupa, `{ }` es bloque o literal de `struct`. Sin coma mágica `(x,)`, sin unidad `()`. |
-| **Nulos y errores explícitos** | `T?`, `?.`, `??`, estrechamiento por flujo. `try`/`catch`/`finally` tipado más operador `try` sobre `Result`/`Option`/nulables. |
-| **Bajo nivel controlado** | Permisos de host al estilo Deno (`--sandbox`, `--allow-read/write/net/env/ffi/ui`), tareas e isolates reales, `Regex` como tipo del lenguaje. |
+## Features
 
-## Qué ofrece
+- **Types:** fixed-width primitives (`int`, `float`, `str`, `bool`, ...), unions, tuples, records, enums with payloads, exhaustive `match` with guards, generics with variance.
+- **Objects:** classes, inheritance, abstract classes, primary constructors, immutable `struct`s with structural equality, interfaces, extensions, and the `@throws` / `@capability` / `@pure` decorators.
+- **Concurrency:** `async`/`await`, generators and async generators, `Task`, `TaskGroup`, channels, and isolates on OS threads.
+- **Standard library:** `fs`, `http`, `ws`, `net`, `sqlite`, `crypto`, `encoding` (JSON, CSV, TOML, msgpack, ...), `time`, `task`, `signals`, `test`, `gpu`, `ui`.
+- **Tooling:** language server (LSP), debug adapter (DAP), formatter, package manager, phase-by-phase inspection with `vn debug`, and `vn test`.
 
-- **Tipos**: primitivos fijos (`int`, `float`, `str`, `bool`, …), uniones, tuplas `#[T, U]`, records `#{ x: T }`, enums con payload, `match` exhaustivo con guardas, genéricos con varianza.
-- **Objetos**: clases, herencia, abstractas, constructores primarios, `struct` inmutables con igualdad estructural, interfaces, extensiones, decoradores `@throws` / `@capability` / `@pure`.
-- **Async real**: `async`/`await`, generadores y generadores async, `Task`, `TaskGroup`, canales, isolates en hilos del SO.
-- **Std amplia**: `fs`, `http`, `ws`, `net`, `sqlite`, `crypto`, `encoding` (JSON, CSV, TOML, msgpack…), `time`, `task`, `signals`, `test`, `gpu`, `ui`.
-- **Tooling**: LSP, DAP, formateador, gestor de paquetes, `vn debug` por fases, `vn test` con cuadrantes JIT/intérprete.
+## Getting started
 
-## Empezar en 60 segundos
-
-Requiere Rust (la toolchain está fijada en `rust-toolchain.toml`; rustup la instala sola).
+Varn is built from source for now. You need [Rust](https://rustup.rs); the exact toolchain is pinned in `rust-toolchain.toml` and rustup installs it automatically.
 
 ```bash
 git clone https://github.com/varn-lang/varn
 cd varn
 cargo build --profile quick --bin vn
-
-./target/quick/vn run hola.vn
-./target/quick/vn check hola.vn
-./target/quick/vn debug -p bytecode hola.vn
 ```
 
-- Primeros pasos: [primeros pasos](https://varn.twwk.cc/guias/primeros-pasos/).
-- Instalación y perfiles: [instalación](https://varn.twwk.cc/guias/instalacion/).
+Create `hello.vn`:
 
-## CLI
+```vn
+const name: str = "Varn"
+print(`Hello, ${name}!`)
+```
+
+Then run, check and inspect it:
+
+```bash
+./target/quick/vn run hello.vn
+./target/quick/vn check hello.vn
+./target/quick/vn debug -p bytecode hello.vn
+```
+
+See the [getting started guide](https://varn.twwk.cc/guias/primeros-pasos/) and the [installation guide](https://varn.twwk.cc/guias/instalacion/) for build profiles and platform notes.
+
+## The `vn` CLI
 
 `run`, `check`, `eval`, `repl`, `bench`, `debug`, `build`, `test`, `task`, `fmt`, `pkg`, `init`, `doctor`, `cache`, `lsp`, `completions`, `explain`, `dap`, `std-bundle`.
 
-Referencia completa y variables de entorno (`VN_*`, `VN_NO_JIT`, `VN_STD`, `VN_CACHE_DIR`): [CLI de `vn`](https://varn.twwk.cc/guias/cli/).
+The full reference, including environment variables (`VN_*`, `VN_NO_JIT`, `VN_STD`, `VN_CACHE_DIR`), is in the [CLI guide](https://varn.twwk.cc/guias/cli/).
 
-## Cómo está hecho
+## How it works
 
 ```text
-texto → tokens → AST → check → TIR tipado → SSA → pases → bytecode → VM ⇄ JIT (Cranelift)
+text → tokens → AST → check → typed TIR → SSA → passes → bytecode → VM ⇄ JIT (Cranelift)
 ```
 
-30 crates más `xtask` en un workspace (`vn-lexer`, `vn-parser`, `vn-checker`, `vn-emit`, `vn-compiler`, `vn-vm`, `vn-jit`, `vn-builtins`, `vn-lsp`…). Cada fase produce un artefacto inmutable que consume la siguiente, y las dependencias van en una sola dirección.
+The compiler is a Cargo workspace of 30+ crates (`vn-lexer`, `vn-parser`, `vn-checker`, `vn-emit`, `vn-compiler`, `vn-vm`, `vn-jit`, `vn-builtins`, `vn-lsp`, ...). Each phase produces an immutable artifact consumed by the next, and dependencies flow in a single direction. Compilation is deterministic: the same source always yields the same bytecode.
 
-Mapa completo: [arquitectura del compilador](https://varn.twwk.cc/arquitectura/architecture/). Decisiones: [`rfcs/`](rfcs/) (ver RFC 0002 para `#[...]`/`#{...}` y RFC 0003 para macros `#nombre`).
+Read more in the [architecture overview](https://varn.twwk.cc/arquitectura/architecture/). Design decisions are recorded as RFCs in [`rfcs/`](rfcs/).
 
-## Rendimiento
+## Performance
 
-Medido el 2026-11-13 con los benchmarks de [`tests/benchmarks/`](tests/benchmarks/README.md) (binario `release`, Windows x64, una corrida, contra Node y Bun): Varn es el más rápido en 14 de 23 cargas comparables en tiempo de proceso y en 15 de 23 en estado estable. Pierde con claridad en ordenar objetos con comparador (`sort_objects`), en llamadas por interfaz con asignación (`polymorphism`) y en generadores. La tabla completa y el método de medición están en el README de benchmarks.
+How Varn compares with Bun and Node on the same workloads. The table below is regenerated by `scripts/verify.ps1` (full run) or by hand with `scripts/update-readme-benchmarks.ps1`, so it always reflects the latest measurement.
 
-## Documentación
+<!-- BENCHMARKS:START -->
+_Generated by `scripts/verify.ps1` on 2026-11-27 from commit `d266f72d` — Intel(R) Core(TM) Ultra 7 255H, Microsoft Windows 10.0.26300. Median of 7 runs (2 warmup), release build, single machine._
 
-| Para | Leer |
+Varn is the fastest runtime in **7 of 15** comparable workloads (steady state, work time without process startup).
+
+| Benchmark | Varn (ms) | Bun (ms) | Node (ms) | Varn vs. best rival |
+|---|--:|--:|--:|---|
+| `class_fields` | 19.9 | 18.2 | 66.4 | 1.36x faster |
+| `collection_pipeline` | 28.0 | 37.3 | 89.2 | 2.12x faster |
+| `csv_etl` | 33.2 | 31.2 | 75.6 | tie (within noise) |
+| `csv_pipeline` | 110.6 | 74.6 | 132.3 | 1.56x slower |
+| `dto` | 27.3 | 33.2 | 79.2 | 1.86x faster |
+| `fib` | 47.7 | 47.8 | 113.3 | 1.09x faster |
+| `gc_alloc` | 39.6 | 55.0 | 88.8 | 1.44x faster |
+| `generator` | 49.8 | 23.2 | 65.6 | 3.85x slower |
+| `http_routing` | 142.2 | 81.6 | 129.4 | 1.85x slower |
+| `json_api_payloads` | 31.0 | 28.2 | 75.4 | tie (within noise) |
+| `json_native` | 37.8 | 35.6 | 91.6 | tie (within noise) |
+| `json_pure` | 248.0 | 216.5 | 286.2 | 1.15x slower |
+| `matrix` | 22.0 | 22.0 | 65.7 | 1.57x faster |
+| `new_retained` | 22.2 | 26.5 | 73.4 | 2.44x faster |
+| `str_ops` | 66.7 | 83.9 | 107.5 | tie (within noise) |
+
+Times are whole-process medians. A row only counts when every runtime prints the same checksum; rows that do not are listed as `output mismatch` and carry no timings. A tie means the steady-state difference is under 5% or inside the run-to-run range. Methodology and caveats: [`tests/benchmarks/README.md`](tests/benchmarks/README.md).
+<!-- BENCHMARKS:END -->
+
+## Documentation
+
+The documentation site is currently written in Spanish; an English version is planned.
+
+| To | Read |
 |---|---|
-| Aprender el lenguaje | [guía del lenguaje](https://varn.twwk.cc/lenguaje/indice/) — cada rasgo con ejemplos verificados; gramática en [gramática](https://varn.twwk.cc/lenguaje/grammar/) |
-| Usar el CLI | [referencia del CLI](https://varn.twwk.cc/guias/cli/), [inspección por fases](https://varn.twwk.cc/guias/inspeccion/) |
-| La biblioteca estándar | [biblioteca estándar](https://varn.twwk.cc/lenguaje/standard-library/), [arquitectura de la std](https://varn.twwk.cc/arquitectura/stdlib-architecture/) |
-| Entender el compilador y el runtime | [arquitectura](https://varn.twwk.cc/arquitectura/indice/) |
-| Decisiones de diseño | [`rfcs/`](rfcs/) |
-| Qué viene | [roadmap](https://varn.twwk.cc/guias/roadmap/) |
+| Learn the language | [Language guide](https://varn.twwk.cc/lenguaje/indice/) and [grammar](https://varn.twwk.cc/lenguaje/grammar/) |
+| Use the CLI | [CLI reference](https://varn.twwk.cc/guias/cli/), [phase inspection](https://varn.twwk.cc/guias/inspeccion/) |
+| Use the standard library | [Standard library](https://varn.twwk.cc/lenguaje/standard-library/), [std architecture](https://varn.twwk.cc/arquitectura/stdlib-architecture/) |
+| Understand the compiler and runtime | [Architecture](https://varn.twwk.cc/arquitectura/indice/) |
+| Follow design decisions | [`rfcs/`](rfcs/) |
+| See what is next | [Roadmap](https://varn.twwk.cc/guias/roadmap/) |
 
-Si un documento contradice al código, manda el código.
+If a document contradicts the code, the code wins.
 
-## Contribuir
+## Contributing
 
-Lee [`AGENTS.md`](AGENTS.md) (contrato de arquitectura) y [`CONTRIBUTING.md`](CONTRIBUTING.md). La prueba canónica es la suite `tests/main.vn` (más de 5600 casos), no `cargo test`:
+Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), and see [`GOVERNANCE.md`](GOVERNANCE.md) and [`SECURITY.md`](SECURITY.md) for how decisions are made and how to report vulnerabilities.
+
+The canonical test is the integration suite `tests/main.vn` (over 5,600 cases), not `cargo test`:
 
 ```powershell
-.\scripts\verify.ps1 -Quick   # iteración: build quick + un cuadrante
-.\scripts\verify.ps1 -Fast    # antes de commitear: fmt + clippy + release + 5 cuadrantes
+.\scripts\verify.ps1 -Quick   # iteration: quick build + one quadrant
+.\scripts\verify.ps1 -Fast    # before committing: fmt + clippy + release + 5 quadrants
 ```
 
-Los cuadrantes cruzan la procedencia de la std (`dev-checkout` / `@embedded`) con JIT / intérprete (`VN_NO_JIT=1`), más la verificación de la caché JIT.
+The quadrants cross the origin of the standard library (`dev-checkout` / `@embedded`) with JIT / interpreter (`VN_NO_JIT=1`), plus JIT cache verification.
 
-## Licencia
+## License
 
-Apache-2.0. Ver [`LICENSE`](LICENSE).
+Apache-2.0. See [`LICENSE`](LICENSE).
