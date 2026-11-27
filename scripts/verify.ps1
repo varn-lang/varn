@@ -315,6 +315,16 @@ if (-not $Quick) {
     } else {
         Write-Success "Bails del JIT: solo los previstos (scripts/jit-bails.allow)."
     }
+
+    Write-StepHeader "4f/6: Capas del workspace (dependencias entre crates)"
+    $layersOut = & (Join-Path $PSScriptRoot "layers.ps1") 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Write-Failure "Hay dependencias fuera del contrato de capas."
+        Write-Host $layersOut -ForegroundColor Red
+        $failedSteps += "Capas del workspace"
+    } else {
+        Write-Success "Capas del workspace: solo las dependencias previstas (scripts/layers.allow)."
+    }
 }
 
 # Helper para ejecutar un cuadrante

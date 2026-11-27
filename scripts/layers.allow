@@ -1,0 +1,27 @@
+# Workspace crate -> workspace crates it may depend on (transitively).
+# Checked by scripts/layers.ps1; regenerate with -Update after a deliberate change.
+vn-binder: vn-core vn-modules vn-sem
+vn-builtins: vn-core vn-modules
+vn-checker: vn-binder vn-core vn-modules vn-sem
+vn-cli: vn-binder vn-builtins vn-checker vn-compiler vn-contract vn-core vn-debug vn-emit vn-gpu vn-jit vn-lexer vn-lsp vn-macros vn-modules vn-parser vn-pipeline vn-sem vn-tir vn-types vn-ui vn-vm
+vn-compiler: vn-core vn-tir vn-types
+vn-contract: vn-core vn-lexer vn-parser
+vn-core:
+vn-debug: vn-compiler vn-core vn-emit vn-jit vn-modules vn-sem vn-tir vn-types
+vn-emit: vn-core vn-modules vn-sem vn-tir
+vn-gpu:
+vn-jit: vn-core vn-types
+vn-lexer: vn-core
+vn-lsp: vn-binder vn-builtins vn-checker vn-compiler vn-core vn-emit vn-lexer vn-modules vn-parser vn-pipeline vn-sem vn-tir vn-types
+vn-macros: vn-contract vn-core vn-lexer vn-parser
+vn-modules: vn-core
+vn-parser: vn-core
+vn-pipeline: vn-binder vn-checker vn-compiler vn-core vn-emit vn-lexer vn-modules vn-parser vn-sem vn-tir vn-types
+vn-rt:
+vn-sem: vn-core
+vn-shadow:
+vn-tir: vn-core
+vn-types: vn-core
+vn-ui:
+vn-vm: vn-builtins vn-contract vn-core vn-gpu vn-jit vn-lexer vn-macros vn-modules vn-parser vn-types vn-ui
+xtask: vn-core
