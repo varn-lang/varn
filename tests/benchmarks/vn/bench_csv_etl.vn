@@ -1,6 +1,6 @@
 import { Csv } from "std:encoding";
 
-type Row = {
+type Row = #{
     id: int,
     customer_id: str,
     product_category: str,
@@ -9,7 +9,7 @@ type Row = {
     status: str,
     created_at: str
 };
-type Enriched = {
+type Enriched = #{
     id: int,
     customer_id: str,
     category: str,
@@ -59,7 +59,7 @@ for (let i = 0; i < parsedRows.length; i = i + 1) {
         }
         totalCompletedRevenue = totalCompletedRevenue + finalTotal;
 
-        enrichedRows.push({
+        enrichedRows.push(#{
             id: row.id,
             customer_id: row.customer_id,
             category: row.product_category,

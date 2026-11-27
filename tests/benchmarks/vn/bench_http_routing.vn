@@ -113,7 +113,7 @@ class Router {
         // 1. Auth Middleware
         let auth = req.headers["authorization"];
         if (auth == null || !auth.startsWith("Bearer ")) {
-            return new ResContext(401, Json.stringify({ error: "Unauthorized" }), new Map([("Content-Type", "application/json")]));
+            return new ResContext(401, Json.stringify(#{ error: "Unauthorized" }), new Map([#["Content-Type", "application/json"]]));
         }
         req.user = "user_" + auth.slice(7, 12);
 
@@ -137,7 +137,7 @@ class Router {
             }
         }
 
-        return new ResContext(404, Json.stringify({ error: "Not Found" }), new Map([("Content-Type", "application/json")]));
+        return new ResContext(404, Json.stringify(#{ error: "Not Found" }), new Map([#["Content-Type", "application/json"]]));
     }
 }
 
@@ -146,31 +146,31 @@ let router = new Router();
 
 function jsonRes<T>(status: int, data: T): ResContext {
     return new ResContext(status, Json.stringify(data), new Map([
-        ("Content-Type", "application/json"),
-        ("X-Powered-By", "Varn-Native-Router")
+        #["Content-Type", "application/json"],
+        #["X-Powered-By", "Varn-Native-Router"]
     ]));
 }
 
-router.add("GET", "/api/v1/health", (req: ReqContext) => jsonRes(200, { status: "OK", uptime: 3600 }));
-router.add("GET", "/api/v1/users", (req: ReqContext) => jsonRes(200, { users: ["Alice", "Bob"], page: req.query["page"] }));
-router.add("POST", "/api/v1/users", (req: ReqContext) => jsonRes(201, { created: true, id: 999 }));
-router.add("GET", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, { id: req.params["id"], name: "User_" + (req.params["id"] as str) }));
-router.add("PUT", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, { updated: true, id: req.params["id"] }));
-router.add("DELETE", "/api/v1/users/:id", (req: ReqContext) => jsonRes(204, { deleted: true }));
-router.add("GET", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(200, { userId: req.params["id"], count: 5 }));
-router.add("POST", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(201, { orderId: 888, userId: req.params["id"] }));
-router.add("GET", "/api/v1/users/:id/orders/:orderId", (req: ReqContext) => jsonRes(200, { userId: req.params["id"], orderId: req.params["orderId"], status: "shipped" }));
-router.add("GET", "/api/v1/products", (req: ReqContext) => jsonRes(200, { products: [1, 2, 3] }));
-router.add("GET", "/api/v1/products/:id", (req: ReqContext) => jsonRes(200, { productId: req.params["id"], inStock: true }));
-router.add("POST", "/api/v1/products", (req: ReqContext) => jsonRes(201, { created: true }));
-router.add("GET", "/api/v1/categories", (req: ReqContext) => jsonRes(200, { categories: ["A", "B"] }));
-router.add("GET", "/api/v1/categories/:id/products", (req: ReqContext) => jsonRes(200, { categoryId: req.params["id"], items: 10 }));
-router.add("GET", "/api/v1/cart/:userId", (req: ReqContext) => jsonRes(200, { cart: req.params["userId"], items: 2 }));
-router.add("POST", "/api/v1/cart/:userId/items", (req: ReqContext) => jsonRes(201, { added: true }));
-router.add("DELETE", "/api/v1/cart/:userId/items/:itemId", (req: ReqContext) => jsonRes(200, { removed: req.params["itemId"] }));
-router.add("POST", "/api/v1/checkout/:userId", (req: ReqContext) => jsonRes(200, { invoice: 12345, user: req.params["userId"] }));
-router.add("GET", "/api/v1/analytics/overview", (req: ReqContext) => jsonRes(200, { activeUsers: 1500, sales: 45000 }));
-router.add("GET", "/api/v1/system/metrics", (req: ReqContext) => jsonRes(200, { cpu: 12.5, memoryMb: 64 }));
+router.add("GET", "/api/v1/health", (req: ReqContext) => jsonRes(200, #{ status: "OK", uptime: 3600 }));
+router.add("GET", "/api/v1/users", (req: ReqContext) => jsonRes(200, #{ users: ["Alice", "Bob"], page: req.query["page"] }));
+router.add("POST", "/api/v1/users", (req: ReqContext) => jsonRes(201, #{ created: true, id: 999 }));
+router.add("GET", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, #{ id: req.params["id"], name: "User_" + (req.params["id"] as str) }));
+router.add("PUT", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, #{ updated: true, id: req.params["id"] }));
+router.add("DELETE", "/api/v1/users/:id", (req: ReqContext) => jsonRes(204, #{ deleted: true }));
+router.add("GET", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(200, #{ userId: req.params["id"], count: 5 }));
+router.add("POST", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(201, #{ orderId: 888, userId: req.params["id"] }));
+router.add("GET", "/api/v1/users/:id/orders/:orderId", (req: ReqContext) => jsonRes(200, #{ userId: req.params["id"], orderId: req.params["orderId"], status: "shipped" }));
+router.add("GET", "/api/v1/products", (req: ReqContext) => jsonRes(200, #{ products: [1, 2, 3] }));
+router.add("GET", "/api/v1/products/:id", (req: ReqContext) => jsonRes(200, #{ productId: req.params["id"], inStock: true }));
+router.add("POST", "/api/v1/products", (req: ReqContext) => jsonRes(201, #{ created: true }));
+router.add("GET", "/api/v1/categories", (req: ReqContext) => jsonRes(200, #{ categories: ["A", "B"] }));
+router.add("GET", "/api/v1/categories/:id/products", (req: ReqContext) => jsonRes(200, #{ categoryId: req.params["id"], items: 10 }));
+router.add("GET", "/api/v1/cart/:userId", (req: ReqContext) => jsonRes(200, #{ cart: req.params["userId"], items: 2 }));
+router.add("POST", "/api/v1/cart/:userId/items", (req: ReqContext) => jsonRes(201, #{ added: true }));
+router.add("DELETE", "/api/v1/cart/:userId/items/:itemId", (req: ReqContext) => jsonRes(200, #{ removed: req.params["itemId"] }));
+router.add("POST", "/api/v1/checkout/:userId", (req: ReqContext) => jsonRes(200, #{ invoice: 12345, user: req.params["userId"] }));
+router.add("GET", "/api/v1/analytics/overview", (req: ReqContext) => jsonRes(200, #{ activeUsers: 1500, sales: 45000 }));
+router.add("GET", "/api/v1/system/metrics", (req: ReqContext) => jsonRes(200, #{ cpu: 12.5, memoryMb: 64 }));
 
 // Generate 100,000 realistic requests
 let samplePaths = [
@@ -192,9 +192,9 @@ let reqs: ReqContext[] = [];
 for (let i = 0; i < 100000; i = i + 1) {
     let idx = i % 10;
     const hdrs = new Map([
-        ("authorization", `Bearer token_secret_${(i % 1000)}`),
-        ("content-type", "application/json"),
-        ("user-agent", "VarnBench/1.0")
+        #["authorization", `Bearer token_secret_${(i % 1000)}`],
+        #["content-type", "application/json"],
+        #["user-agent", "VarnBench/1.0"]
     ]);
     reqs.push(new ReqContext(methods[idx], samplePaths[idx], hdrs));
 }

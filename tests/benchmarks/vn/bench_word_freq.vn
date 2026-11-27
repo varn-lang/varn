@@ -16,7 +16,7 @@ for (let i = 0; i < tokens.length; i = i + 1) {
 let best = "";
 let bestCount = 0;
 let total = 0;
-for (const (word, n) in counts) {
+for (const #[word, n] in counts) {
     total = total + n;
     if (n > bestCount || (n == bestCount && word < best)) {
         best = word;
