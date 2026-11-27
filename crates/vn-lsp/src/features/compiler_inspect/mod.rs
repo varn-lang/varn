@@ -1,5 +1,6 @@
 mod ast_json;
 mod cfg;
+mod machine_view;
 
 use vn_sem::resolver::ImportResolver;
 use vn_tir::TirModule;
@@ -32,17 +33,9 @@ pub fn execute_command(
         "vn.showSSA" => Ok(Some(serde_json::Value::String(compile_and_dump_ssa(
             &*document()?,
         )?))),
-        "vn.showMachineCode" => {
-            let with_wrapper = arguments.get(1).and_then(|v| v.as_bool()).unwrap_or(false);
-            Ok(Some(serde_json::Value::String(compile_machine_code(
-                &*document()?,
-                MachineView::Assembly { with_wrapper },
-            )?)))
-        }
-        "vn.showClif" => Ok(Some(serde_json::Value::String(compile_machine_code(
-            &*document()?,
-            MachineView::Clif,
-        )?))),
+        "vn.showMachineCode" | "vn.showClif" => Ok(Some(serde_json::Value::String(
+            machine_view::command(command, &arguments, &*document()?)?,
+        ))),
         "vn.getCFG" => Ok(Some(compile_and_get_cfg_json(&*document()?)?)),
         "vn.memoryStats" => Ok(Some(memory_stats(workspace))),
         "vn.stdList" => Ok(Some(std_list())),
@@ -156,7 +149,7 @@ fn memory_stats(workspace: &Workspace) -> serde_json::Value {
     })
 }
 
-fn emit_tir(state: &DocumentState) -> Result<TirModule, String> {
+pub(super) fn emit_tir(state: &DocumentState) -> Result<TirModule, String> {
     let program = state
         .ast
         .as_ref()
@@ -197,32 +190,4 @@ pub fn compile_and_dump_ssa(state: &DocumentState) -> Result<String, String> {
         out.push('\n');
     }
     Ok(out)
-}
-
-enum MachineView {
-    Assembly { with_wrapper: bool },
-    Clif,
-}
-
-fn compile_machine_code(state: &DocumentState, view: MachineView) -> Result<String, String> {
-    let proto =
-        vn_compiler::from_tir::compile_module(&emit_tir(state)?, Vec::new(), &state.source, false)
-            .0
-            .map_err(|e| format!("Compilation failed: {e:?}"))?;
-    let settings = vn_vm::ExecSettings::default();
-    let helpers = vn_vm::jit::table_build::build_jit_helpers(&settings);
-    let policy = vn_debug::machine::TierPolicy {
-        calls_with_loops: settings.tier_loop,
-        calls_without_loops: settings.tier_straight,
-    };
-    let functions = vn_debug::machine::collect(&proto, &helpers, policy);
-    if functions.is_empty() {
-        return Err("the host has no Cranelift target".to_string());
-    }
-    Ok(match view {
-        MachineView::Assembly { with_wrapper } => {
-            vn_debug::machine::render_machine_code(&functions, with_wrapper)
-        }
-        MachineView::Clif => vn_debug::machine::render_clif(&functions),
-    })
 }

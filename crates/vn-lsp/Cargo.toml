@@ -3,19 +3,22 @@ name = "vn-lsp"
 version.workspace = true
 edition.workspace = true
 
+[features]
+machine-view = ["dep:vn-vm", "dep:vn-debug"]
+
 [dependencies]
 vn-core    = { path = "../vn-core" }
 vn-checker = { path = "../vn-checker" }
 vn-emit    = { path = "../vn-emit" }
 vn-modules  = { path = "../vn-modules" }
-vn-builtins = { path = "../vn-builtins", features = ["runtime"] }
+vn-builtins = { path = "../vn-builtins" }
 vn-types    = { path = "../vn-types" }
 vn-compiler = { path = "../vn-compiler" }
 vn-tir      = { path = "../vn-tir" }
 vn-sem      = { path = "../vn-sem" }
 vn-pipeline = { path = "../vn-pipeline" }
-vn-debug    = { path = "../vn-debug", features = ["clif"] }
-vn-vm       = { path = "../vn-vm", features = ["clif"] }
+vn-debug    = { path = "../vn-debug", features = ["clif"], optional = true }
+vn-vm       = { path = "../vn-vm", features = ["clif"], optional = true }
 
 tower-lsp-f  = { workspace = true }
 tokio      = { workspace = true }
