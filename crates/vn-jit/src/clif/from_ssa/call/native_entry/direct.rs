@@ -2,8 +2,7 @@ use cranelift_codegen::ir::{condcodes::IntCC, types, InstBuilder, MemFlagsData, 
 use cranelift_frontend::FunctionBuilder;
 use vn_types::register_meta::SlotKind;
 
-use super::super::super::super::emit::{call_helper_void, HEAP_KIND, KIND_MASK};
-use super::super::super::super::native_abi::{NativeClass, NativeShape};
+use super::super::super::super::native_abi::NativeShape;
 use super::super::super::store::{clif_ty, drop_home_addrs};
 use super::super::super::{heap, load_value, stack_exit, Ctx, Out};
 use crate::NATIVE_FRAMELESS;

@@ -1,15 +1,9 @@
 use cranelift_codegen::ir::{condcodes::IntCC, types, InstBuilder, MemFlagsData, Value};
 use cranelift_frontend::FunctionBuilder;
-use vn_types::register_meta::SlotKind;
 
-use super::super::super::super::emit::{call_helper_void, HEAP_KIND, KIND_MASK};
-use super::super::super::super::native_abi::{NativeClass, NativeShape};
-use super::super::super::store::{clif_ty, drop_home_addrs};
-use super::super::super::{heap, load_value, stack_exit, Ctx, Out};
-use crate::NATIVE_FRAMELESS;
-use vn_types::ssa::ValueId;
+use super::super::super::super::emit::call_helper_void;
+use super::super::super::{stack_exit, Ctx};
 
-use super::*;
 pub(super) fn emit_pop_for(b: &mut FunctionBuilder, ctx: &Ctx<'_>, ectx: Value, frameless: Value) {
     let pop = b.create_block();
     let after = b.create_block();
