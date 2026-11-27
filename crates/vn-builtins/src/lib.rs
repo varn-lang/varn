@@ -1,6 +1,7 @@
 #![allow(refining_impl_trait)]
 pub mod provider_impl;
 pub mod registry;
+#[cfg(feature = "runtime")]
 pub mod runtime;
 
 pub use provider_impl::{register_provider, register_std, std_load_error, StdInput};

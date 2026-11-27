@@ -6,6 +6,9 @@ edition.workspace = true
 [features]
 runtime = [
     "dep:vn-macros",
+    "dep:vn-types",
+    "dep:regex",
+    "dep:rustc-hash",
     "dep:vn-gpu",
     "dep:vn-ui",
     "dep:parking_lot",
@@ -35,7 +38,7 @@ runtime = [
 
 [dependencies]
 vn-core      = { path = "../vn-core" }
-vn-types     = { path = "../vn-types" }
+vn-types     = { path = "../vn-types", optional = true }
 vn-modules   = { path = "../vn-modules" }
 vn-macros    = { path = "../vn-macros", optional = true }
 vn-gpu       = { path = "../vn-gpu", optional = true }
@@ -52,7 +55,7 @@ base64       = { version = "0.21", optional = true }
 hex          = { workspace = true, optional = true }
 urlencoding  = { version = "2", optional = true }
 chrono       = { version = "0.4", optional = true }
-regex        = { workspace = true }
+regex        = { workspace = true, optional = true }
 flate2       = { workspace = true, optional = true }
 rusqlite     = { workspace = true, optional = true }
 tar          = { workspace = true, optional = true }
@@ -64,7 +67,7 @@ socket2      = { workspace = true, optional = true }
 httparse     = { workspace = true, optional = true }
 rustls       = { version = "0.23", default-features = false, features = ["std", "ring", "tls12"], optional = true }
 webpki-roots = { version = "1", optional = true }
-rustc-hash   = { workspace = true }
+rustc-hash   = { workspace = true, optional = true }
 parking_lot  = { workspace = true, optional = true }
 
 [build-dependencies]
