@@ -26,10 +26,10 @@ impl Views {
         let mut global_src = BTreeMap::new();
         let mut this_values = BTreeSet::new();
         for inst in ssa.blocks.iter().flat_map(|blk| &blk.insts) {
-            if let (Some(d), SsaOp::LoadGlobalIdx(slot)) = (inst.dest, &inst.op) {
+            if let (Some(d), SsaOp::LoadGlobalIdx(slot)) = (inst.def(), &inst.op) {
                 global_src.insert(d, *slot);
             }
-            if let (Some(d), SsaOp::This) = (inst.dest, &inst.op) {
+            if let (Some(d), SsaOp::This) = (inst.def(), &inst.op) {
                 this_values.insert(d);
             }
         }

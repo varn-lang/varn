@@ -41,7 +41,7 @@ pub(super) fn capture_kinds_ssa(debug: &mut Option<&mut ClifDebugSink>, ssa: &Ss
                 vals.extend(
                     blk.insts
                         .iter()
-                        .filter_map(|inst| inst.dest.map(|v| val_class(ssa, v))),
+                        .filter_map(|inst| inst.def().map(|v| val_class(ssa, v))),
                 );
                 (!vals.is_empty()).then_some((i, vals))
             })

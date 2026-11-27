@@ -19,7 +19,7 @@ fn def_map(ssa: &SsaProto) -> Vec<Option<&SsaOp>> {
     let mut def = vec![None; ssa.values.len()];
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            if let Some(d) = inst.dest {
+            if let Some(d) = inst.def() {
                 def[d.0 as usize] = Some(&inst.op);
             }
         }
@@ -34,7 +34,7 @@ fn def_block(ssa: &SsaProto) -> Vec<Option<usize>> {
             def[p.0 as usize] = Some(b);
         }
         for inst in &blk.insts {
-            if let Some(d) = inst.dest {
+            if let Some(d) = inst.def() {
                 def[d.0 as usize] = Some(b);
             }
         }
@@ -71,7 +71,7 @@ pub(super) fn loop_sets(
         if !body.contains(&(then_blk.0 as usize)) || body.contains(&(else_blk.0 as usize)) {
             continue;
         }
-        if !blk.insts.iter().any(|i| i.dest == Some(*cond)) {
+        if !blk.insts.iter().any(|i| i.def() == Some(*cond)) {
             continue;
         }
         if !matches!(
@@ -240,7 +240,7 @@ pub(super) fn analyze(
                 }
             }
             for inst in &blk.insts {
-                let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.dest, &inst.op) else {
+                let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.def(), &inst.op) else {
                     continue;
                 };
                 if ssa.value_ty(d) != SlotKind::Int {

@@ -147,7 +147,7 @@ pub(super) fn per_block_facts(
                 ..
             } = &ssa.blocks[*p].term
             && then_blk != else_blk
-            && ssa.blocks[*p].insts.iter().any(|i| i.dest == Some(*cond))
+            && ssa.blocks[*p].insts.iter().any(|i| i.def() == Some(*cond))
         {
             let on_then = then_blk.0 as usize == b;
             if let Some(f) = compare_fact(ssa, def, consts, *cond, on_then) {

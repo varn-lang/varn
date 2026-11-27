@@ -67,6 +67,14 @@ pub struct SsaResume {
 }
 
 impl SsaInst {
+    pub fn def(&self) -> Option<ValueId> {
+        if matches!(self.op, SsaOp::Try { .. }) {
+            None
+        } else {
+            self.dest
+        }
+    }
+
     pub fn cache_slot(&self) -> Result<u16, String> {
         self.cache
             .ok_or_else(|| format!("ssa: {:?} has no cache slot", self.op))

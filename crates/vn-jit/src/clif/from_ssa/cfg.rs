@@ -178,7 +178,7 @@ pub(super) fn def_blocks(ssa: &SsaProto) -> Vec<Option<usize>> {
         for &p in &blk.params {
             def[p.0 as usize] = Some(b);
         }
-        for d in blk.insts.iter().filter_map(|i| i.dest) {
+        for d in blk.insts.iter().filter_map(|i| i.def()) {
             def[d.0 as usize] = Some(b);
         }
     }

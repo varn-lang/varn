@@ -8,7 +8,7 @@ pub(super) fn global_sources(ssa: &SsaProto) -> BTreeMap<ValueId, u32> {
     let mut global_src: BTreeMap<ValueId, u32> = Default::default();
     for blk in &ssa.blocks {
         for inst in &blk.insts {
-            if let (Some(d), vn_types::ssa::SsaOp::LoadGlobalIdx(slot)) = (inst.dest, &inst.op) {
+            if let (Some(d), vn_types::ssa::SsaOp::LoadGlobalIdx(slot)) = (inst.def(), &inst.op) {
                 global_src.insert(d, *slot);
             }
         }

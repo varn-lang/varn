@@ -56,7 +56,7 @@ pub(super) fn version_plans(
                 }
                 let blk = &ssa.blocks[b];
                 for inst in &blk.insts {
-                    let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.dest, &inst.op) else {
+                    let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.def(), &inst.op) else {
                         continue;
                     };
                     if ssa.value_ty(d) != SlotKind::Int {

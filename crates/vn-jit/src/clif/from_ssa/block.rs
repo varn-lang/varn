@@ -119,7 +119,7 @@ pub(super) fn lower_block(
     for inst in &blk.insts {
         if let vn_types::ssa::SsaOp::GetFixedField { object, slot, .. } = &inst.op {
             let k = (canon(*object), *slot);
-            if let (Some(d), Some(&src)) = (inst.dest, fwd.get(&k))
+            if let (Some(d), Some(&src)) = (inst.def(), fwd.get(&k))
                 && ctx.ssa.value_ty(d) == ctx.ssa.value_ty(src)
             {
                 let v = store::load_value(b, ctx, values, src)?;
@@ -128,7 +128,7 @@ pub(super) fn lower_block(
                 continue;
             }
         }
-        if let (Some(d), vn_types::ssa::SsaOp::LoadGlobalIdx(slot)) = (inst.dest, &inst.op) {
+        if let (Some(d), vn_types::ssa::SsaOp::LoadGlobalIdx(slot)) = (inst.def(), &inst.op) {
             let mut best: Option<(Value, usize)> = None;
             for ((h, s), v) in hoisted.iter() {
                 if *s != *slot {
@@ -150,17 +150,17 @@ pub(super) fn lower_block(
                 continue;
             }
         }
-        if let (vn_types::ssa::SsaOp::Call { .. }, Some(d)) = (&inst.op, inst.dest)
+        if let (vn_types::ssa::SsaOp::Call { .. }, Some(d)) = (&inst.op, inst.def())
             && ctx.fused_awaits.contains_key(&d)
         {
             continue;
         }
-        if let (vn_types::ssa::SsaOp::CallDirect { .. }, Some(d)) = (&inst.op, inst.dest)
+        if let (vn_types::ssa::SsaOp::CallDirect { .. }, Some(d)) = (&inst.op, inst.def())
             && ctx.fused_awaits.contains_key(&d)
         {
             continue;
         }
-        if let Some(d) = inst.dest {
+        if let Some(d) = inst.def() {
             ctx.views.forget(b, d);
         }
         ctx.site_ip.set(inst.ip);
@@ -169,13 +169,13 @@ pub(super) fn lower_block(
             super::exceptions::note_site(b, ctx);
         }
         match scalar::emit_inst(b, ctx, values, inst)? {
-            Some(out) => store::land(b, ctx, values, inst.dest, out)?,
-            None if inst.dest.is_some() => {
+            Some(out) => store::land(b, ctx, values, inst.def(), out)?,
+            None if inst.def().is_some() => {
                 return Err(format!("from_ssa: {:?} defines no value", inst.op));
             }
             None => {}
         }
-        if let Some(d) = inst.dest
+        if let Some(d) = inst.def()
             && ctx.try_live.contains(&d)
         {
             debug_assert!(ctx.frame.is_some());
@@ -183,7 +183,7 @@ pub(super) fn lower_block(
             store::home_store(b, ctx, ctx.ssa.reg(d), boxed)?;
         }
         if let vn_types::ssa::SsaOp::GetFixedField { object, slot, .. } = &inst.op {
-            if let Some(d) = inst.dest {
+            if let Some(d) = inst.def() {
                 fwd.insert((canon(*object), *slot), d);
             }
         } else if let vn_types::ssa::SsaOp::SetFixedField {

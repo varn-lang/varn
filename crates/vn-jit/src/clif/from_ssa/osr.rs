@@ -46,7 +46,7 @@ pub(super) fn versioned(
                 .params
                 .iter()
                 .copied()
-                .chain(blk.insts.iter().filter_map(|inst| inst.dest));
+                .chain(blk.insts.iter().filter_map(|inst| inst.def()));
             for v in defined {
                 let kind = ssa.value_ty(v);
                 if let Some(ty) = clif_ty(kind) {
@@ -80,7 +80,7 @@ pub(super) fn emit_entry(
                 SsaOp::ConstInt(_) | SsaOp::ConstFloat(_) | SsaOp::ConstBool(_)
             )
         })
-        .filter_map(|inst| Some((inst.dest?, inst)))
+        .filter_map(|inst| Some((inst.def()?, inst)))
         .collect();
     for &v in &header.live {
         if let Some(inst) = consts.get(&v) {

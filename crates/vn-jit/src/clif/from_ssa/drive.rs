@@ -149,7 +149,7 @@ pub(in crate::clif) fn try_lower(
             .blocks
             .iter()
             .flat_map(|blk| &blk.insts)
-            .filter_map(|inst| match (inst.dest, &inst.op) {
+            .filter_map(|inst| match (inst.def(), &inst.op) {
                 (Some(d), vn_types::ssa::SsaOp::ConstStr(text)) => {
                     VmValue::try_from_sso(text).map(|v| {
                         (

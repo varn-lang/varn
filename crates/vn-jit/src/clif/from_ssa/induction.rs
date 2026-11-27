@@ -18,7 +18,7 @@ pub(super) fn in_range_steps(
 ) -> FxHashSet<ValueId> {
     let mut def: Vec<Option<&SsaOp>> = vec![None; ssa.values.len()];
     for inst in ssa.blocks.iter().flat_map(|blk| &blk.insts) {
-        if let Some(d) = inst.dest {
+        if let Some(d) = inst.def() {
             def[d.0 as usize] = Some(&inst.op);
         }
     }
@@ -39,7 +39,7 @@ pub(super) fn in_range_steps(
             continue;
         };
 
-        let in_header = blk.insts.iter().any(|i| i.dest == Some(*cond));
+        let in_header = blk.insts.iter().any(|i| i.def() == Some(*cond));
         let Some(SsaOp::Binary { op, lhs, rhs }) = def[cond.0 as usize] else {
             continue;
         };
@@ -102,7 +102,7 @@ pub(super) fn in_range_steps(
         }
         for &b in body.iter().filter(|&&b| b != header) {
             for inst in &ssa.blocks[b].insts {
-                let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.dest, &inst.op) else {
+                let (Some(d), SsaOp::Binary { op, lhs, rhs }) = (inst.def(), &inst.op) else {
                     continue;
                 };
                 let proven = match op {

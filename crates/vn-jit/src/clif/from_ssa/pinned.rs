@@ -19,7 +19,7 @@ pub(super) fn compute(
             continue;
         }
         for inst in &blk.insts {
-            if let Some(d) = inst.dest {
+            if let Some(d) = inst.def() {
                 def_block.insert(d, b);
             }
         }

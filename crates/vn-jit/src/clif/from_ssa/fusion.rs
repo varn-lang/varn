@@ -14,7 +14,7 @@ pub(super) fn fusable_compares(ssa: &SsaProto) -> FxHashSet<ValueId> {
         .iter()
         .filter_map(|blk| {
             let last = blk.insts.last()?;
-            let d = last.dest?;
+            let d = last.def()?;
             let is_str_compare = matches!(
                 last.op,
                 SsaOp::Binary {
