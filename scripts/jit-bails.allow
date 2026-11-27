@@ -1,0 +1,7 @@
+# Functions the JIT is expected to leave to the interpreter: file|function.
+# Anything else rejected by the JIT fails scripts/jit-bails.ps1.
+# Functions that use dynamic operations with no portable SSA form are
+# accepted everywhere and need no entry here.
+jit-optional-chains.test.vn|ocOn
+jit-optional-chains.test.vn|<closure>
+large-module-compiles.test.vn|<module>

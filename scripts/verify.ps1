@@ -305,6 +305,18 @@ if ($corpusFailures.Count -gt 0) {
     Write-Success "Corpus de errores: todas las fixtures conformes."
 }
 
+if (-not $Quick) {
+    Write-StepHeader "4e/6: Bails del JIT (funciones que el JIT deja al interprete)"
+    $bailsOut = & (Join-Path $PSScriptRoot "jit-bails.ps1") -VnBin $vnBin 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        Write-Failure "El JIT rechazo funciones que debia compilar."
+        Write-Host $bailsOut -ForegroundColor Red
+        $failedSteps += "Bails del JIT"
+    } else {
+        Write-Success "Bails del JIT: solo los previstos (scripts/jit-bails.allow)."
+    }
+}
+
 # Helper para ejecutar un cuadrante
 function Run-Quadrant($name, $envVars, $argsList) {
     Write-Host "`n--- Ejecutando Cuadrante: $name ---" -ForegroundColor Yellow
