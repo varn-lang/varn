@@ -185,7 +185,8 @@ impl<'r> Checker<'r> {
         kind: &BuiltinDecoratorKind,
         bind: &BindResult,
     ) {
-        let Some(head) = vn_core::ast::decorators::decorator_head(self.ast_arena, &bind.interner, d)
+        let Some(head) =
+            vn_core::ast::decorators::decorator_head(self.ast_arena, &bind.interner, d)
         else {
             return;
         };
