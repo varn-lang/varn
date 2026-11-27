@@ -191,14 +191,14 @@ impl SsaOp {
             | SsaOp::Spawn { operand } => f(operand),
             SsaOp::AllocInstance { class, .. } => f(class),
             SsaOp::SelfCall { args } | SsaOp::SuperCall { args } => {
-                args.iter_mut().for_each(|a| f(a))
+                args.iter_mut().for_each(&mut f)
             }
             SsaOp::SuperMethodCall { args, .. } | SsaOp::SuperInvokeSlot { args, .. } => {
-                args.iter_mut().for_each(|a| f(a))
+                args.iter_mut().for_each(&mut f)
             }
             SsaOp::Call { callee, args, .. } | SsaOp::CallDirect { callee, args, .. } => {
                 f(callee);
-                args.iter_mut().for_each(|a| f(a));
+                args.iter_mut().for_each(&mut f);
             }
             SsaOp::ArrayGetIndex { object, index }
             | SsaOp::BytesGetIndex { object, index }
@@ -228,7 +228,7 @@ impl SsaOp {
             SsaOp::IntrinsicCall { object, args, .. }
             | SsaOp::CallNativeOp { object, args, .. } => {
                 f(object);
-                args.iter_mut().for_each(|a| f(a));
+                args.iter_mut().for_each(&mut f);
             }
             SsaOp::CatchParam { try_val } => f(try_val),
             SsaOp::StoreGlobalIdx { value, .. }
@@ -242,9 +242,9 @@ impl SsaOp {
                 f(value);
                 f(class);
             }
-            SsaOp::BuildStr { parts } => parts.iter_mut().for_each(|a| f(a)),
+            SsaOp::BuildStr { parts } => parts.iter_mut().for_each(&mut f),
             SsaOp::BuildArray { elements, .. } | SsaOp::BuildTuple { elements } => {
-                elements.iter_mut().for_each(|a| f(a))
+                elements.iter_mut().for_each(&mut f)
             }
             SsaOp::BuildMap { pairs } => pairs.iter_mut().for_each(|(k, v)| {
                 f(k);
@@ -266,7 +266,7 @@ impl SsaOp {
             | SsaOp::InvokeSlot { recv, args, .. }
             | SsaOp::ExtensionCall { recv, args, .. } => {
                 f(recv);
-                args.iter_mut().for_each(|a| f(a));
+                args.iter_mut().for_each(&mut f);
             }
             SsaOp::ArrayPush { array, value } => {
                 f(array);
