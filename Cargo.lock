@@ -3748,7 +3748,6 @@ dependencies = [
  "vn-gpu",
  "vn-macros",
  "vn-modules",
- "vn-text",
  "vn-types",
  "vn-ui",
  "webpki-roots 1.0.6",
@@ -4057,13 +4056,6 @@ name = "vn-shadow"
 version = "0.1.0"
 
 [[package]]
-name = "vn-text"
-version = "0.1.0"
-dependencies = [
- "egui",
-]
-
-[[package]]
 name = "vn-tir"
 version = "0.1.0"
 dependencies = [
@@ -4093,7 +4085,6 @@ dependencies = [
  "parking_lot",
  "pollster",
  "rustc-hash 1.1.0",
- "vn-text",
  "wgpu",
  "winit",
 ]

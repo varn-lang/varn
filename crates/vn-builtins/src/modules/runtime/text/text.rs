@@ -12,10 +12,10 @@ vn_macros::vn_record! {
 
 natives! {
     class ShapedRun {}
-    fontCount() => vn_text::fonts().len() as i64,
-    fonts() => vn_text::fonts(),
+    fontCount() => vn_ui::text::fonts().len() as i64,
+    fonts() => vn_ui::text::fonts(),
     shape(ctx, text, size) => {
-        let run = vn_text::shape_run(text, size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))?;
+        let run = vn_ui::text::shape_run(text, size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))?;
         let chars: Vec<VmValue> = run
             .glyphs
             .iter()
@@ -44,9 +44,9 @@ natives! {
         .alloc(ctx)
         .map_err(NativeError::failure)?)
     },
-    ascent(size) => vn_text::font_ascent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
-    descent(size) => vn_text::font_descent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
+    ascent(size) => vn_ui::text::font_ascent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
+    descent(size) => vn_ui::text::font_descent(size as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))? as f64,
     wrap(text, size, max) => {
-        vn_text::wrap_lines(text, size as f32, max as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))
+        vn_ui::text::wrap_lines(text, size as f32, max as f32).map_err(|e| NativeError::std(StdErrorClass::Parse, e))
     },
 }

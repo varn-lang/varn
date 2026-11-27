@@ -26,7 +26,7 @@ pub struct Canvas {
 impl Canvas {
     pub fn new() -> Self {
         let ctx = Context::default();
-        ctx.set_fonts(vn_text::font_definitions());
+        ctx.set_fonts(crate::text::font_definitions());
         let warm = ctx.run_ui(egui::RawInput::default(), |_| {});
         Self {
             ctx,

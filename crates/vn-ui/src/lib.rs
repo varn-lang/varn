@@ -6,6 +6,7 @@ mod paint;
 mod present;
 mod quad;
 mod render;
+pub mod text;
 mod window;
 
 pub use canvas::Canvas;
