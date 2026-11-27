@@ -26,7 +26,6 @@ members = [
     "crates/vn-ui",
     "crates/vn-rt",
     "crates/vn-shadow",
-    "crates/vn-dap",
     "crates/xtask",
 ]
 resolver = "2"
@@ -55,7 +54,6 @@ default-members = [
     "crates/vn-compiler",
     "crates/vn-gpu",
     "crates/vn-ui",
-    "crates/vn-dap",
 ]
 
 [workspace.package]

@@ -30,31 +30,7 @@ pub struct Event {
     pub body: Option<Value>,
 }
 
-impl Response {
-    pub fn ok(seq: i64, request_seq: i64, command: &str, body: Option<Value>) -> Self {
-        Self {
-            seq,
-            r#type: "response",
-            request_seq,
-            success: true,
-            command: command.to_owned(),
-            message: None,
-            body,
-        }
-    }
-
-    pub fn err(seq: i64, request_seq: i64, command: &str, message: String) -> Self {
-        Self {
-            seq,
-            r#type: "response",
-            request_seq,
-            success: false,
-            command: command.to_owned(),
-            message: Some(message),
-            body: None,
-        }
-    }
-}
+impl Response {}
 
 impl Event {
     pub fn new(seq: i64, event: &'static str, body: Option<Value>) -> Self {

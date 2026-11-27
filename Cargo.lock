@@ -3786,7 +3786,6 @@ dependencies = [
  "vn-builtins",
  "vn-compiler",
  "vn-core",
- "vn-dap",
  "vn-debug",
  "vn-inspect",
  "vn-jit",
@@ -3833,19 +3832,6 @@ dependencies = [
  "rustc-hash 1.1.0",
  "serde",
  "xxhash-rust",
-]
-
-[[package]]
-name = "vn-dap"
-version = "0.1.0"
-dependencies = [
- "rustc-hash 1.1.0",
- "serde",
- "serde_json",
- "vn-core",
- "vn-pipeline",
- "vn-types",
- "vn-vm",
 ]
 
 [[package]]

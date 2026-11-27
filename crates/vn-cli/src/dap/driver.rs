@@ -111,7 +111,7 @@ impl Driver {
 
     pub fn resume(&mut self) -> ResumeOutcome {
         if self.machine.is_none() {
-            return ResumeOutcome::Error("not launched".to_string());
+            return ResumeOutcome::NotLaunched;
         }
         if self.finished {
             return ResumeOutcome::Terminated;
@@ -125,7 +125,7 @@ impl Driver {
     pub fn step(&mut self, kind: StepKind) -> ResumeOutcome {
         let (depth, line) = match self.machine.as_ref() {
             Some(m) => (m.ctx.frames.len(), current_line(m)),
-            None => return ResumeOutcome::Error("not launched".to_string()),
+            None => return ResumeOutcome::NotLaunched,
         };
         if self.finished {
             return ResumeOutcome::Terminated;
@@ -140,11 +140,11 @@ impl Driver {
     fn drive_once(&mut self) -> ResumeOutcome {
         let main = match self.main.clone() {
             Some(m) => m,
-            None => return ResumeOutcome::Error("not launched".to_string()),
+            None => return ResumeOutcome::NotLaunched,
         };
         let machine = match self.machine.as_mut() {
             Some(m) => m,
-            None => return ResumeOutcome::Error("not launched".to_string()),
+            None => return ResumeOutcome::NotLaunched,
         };
         let mut on_break = |_: &mut Vm| BreakAction::Halt;
         match debug::drive_main(machine, &main, &mut on_break) {
@@ -240,5 +240,5 @@ pub enum ResumeOutcome {
     Stopped,
     Terminated,
     RuntimeError(String),
-    Error(String),
+    NotLaunched,
 }

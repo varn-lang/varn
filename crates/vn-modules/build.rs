@@ -4,7 +4,6 @@ use std::path::Path;
 
 const CRATES_WITHOUT_ARTIFACT_OUTPUT: &[&str] = &[
     "vn-cli",
-    "vn-dap",
     "vn-debug",
     "vn-gpu",
     "vn-inspect",

@@ -12,6 +12,7 @@ mod cli;
 mod code_store;
 mod commands;
 mod cpu_freq;
+mod dap;
 mod debug_print;
 mod discover;
 mod dispatch;
