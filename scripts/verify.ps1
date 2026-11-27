@@ -494,6 +494,14 @@ if (-not $Fast) {
     } else {
         Write-Success "Benchmark de estabilidad completado satisfactoriamente."
     }
+
+    Write-StepHeader "6b/6: Tabla comparativa del README (xtask compare: Varn vs Bun vs Node)"
+    try {
+        & (Join-Path $PSScriptRoot "update-readme-benchmarks.ps1")
+        Write-Success "README.md actualizado con las metricas actuales."
+    } catch {
+        Write-WarningMsg "No se pudo actualizar la tabla del README: $($_.Exception.Message)"
+    }
 } else {
     Write-WarningMsg "Saltando paso de benchmark (-Fast activo)."
 }
