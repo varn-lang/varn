@@ -594,7 +594,7 @@ impl Checker<'_> {
                 vn_core::Diagnostic::error(
                     vn_core::ErrorCode::TypeMismatch,
                     format!(
-                        "'{}' is an array: destructure it with [a, b], not (a, b)",
+                        "'{}' is an array: destructure it with [a, b], not #[a, b]",
                         value_ty.display(&self.ty_table, &bind.interner)
                     ),
                 )
@@ -605,7 +605,7 @@ impl Checker<'_> {
                 vn_core::Diagnostic::error(
                     vn_core::ErrorCode::TypeMismatch,
                     format!(
-                        "'{}' is a tuple: destructure it with (a, b), not [a, b]",
+                        "'{}' is a tuple: destructure it with #[a, b], not [a, b]",
                         value_ty.display(&self.ty_table, &bind.interner)
                     ),
                 )
