@@ -1,5 +1,4 @@
 // runtime:time — low-level host time operations.
-
 export struct TimeParts implements RuntimeTimeParts {
     year: int;
     month: int;

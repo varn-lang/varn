@@ -8,7 +8,7 @@ export declare class Set<T extends Hashable> {
     constructor(items?: T[]);
     @throws(TypeError) add(value: T): void;
     @throws(TypeError) has(value: T): bool;
-    @throws(TypeError) delete(value: T): bool;
+    @throws(TypeError) delete (value: T): bool;
     clear(): void;
     values(): T[];
     @throws(Error) forEach(callback: (value: T, value2: T, s: Set<T>) => void): void;

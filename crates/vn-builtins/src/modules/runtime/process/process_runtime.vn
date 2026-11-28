@@ -1,5 +1,4 @@
 // runtime:process — low-level host process execution operations.
-
 export interface ProcessOutput {
     exitCode: int;
     stdout: str;

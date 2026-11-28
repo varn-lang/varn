@@ -1,5 +1,4 @@
 // runtime:compress — low-level host compression, decompression and archive operations.
-
 export declare function gzip$(data: Bytes | str): Bytes;
 export declare function gunzip$(bytes: Bytes): Bytes;
 export declare function deflate$(data: Bytes | str): Bytes;

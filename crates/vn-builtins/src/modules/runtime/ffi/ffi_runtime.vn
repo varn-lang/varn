@@ -1,5 +1,4 @@
 // runtime:ffi — native host Foreign Function Interface (FFI) operations.
-
 @capability("sys.ffi")
 export declare function dlopen$(path: str): int;
 @capability("sys.ffi")
@@ -7,7 +6,12 @@ export declare function dlclose$(libHandle: int): bool;
 @capability("sys.ffi")
 export declare function dlsym$(libHandle: int, symbol: str): int;
 @capability("sys.ffi")
-export declare function call$(fnPtr: int, retType: int, paramTypes: int[], args: (int | float | str | bool | null)[]): int | float | str | bool | null;
+export declare function call$(
+    fnPtr: int,
+    retType: int,
+    paramTypes: int[],
+    args: (int | float | str | bool | null)[],
+): int | float | str | bool | null;
 export declare function kindName$(raw: int): str;
 @capability("sys.ffi")
 export declare function alloc$(size: int): int;
@@ -25,4 +29,3 @@ export declare function writeFloat$(ptr: int, offset: int, val: float, isDouble:
 export declare function readCString$(ptr: int, offset: int): str;
 @capability("sys.ffi")
 export declare function allocCString$(s: str): int;
-

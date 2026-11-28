@@ -1,5 +1,4 @@
 // runtime:math — low-level host math operations.
-
 export declare function abs$(x: float): float;
 export declare function sqrt$(x: float): float;
 export declare function sin$(x: float): float;

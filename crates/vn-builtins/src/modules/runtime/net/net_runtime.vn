@@ -1,5 +1,4 @@
 // runtime:net — low-level host network operations.
-
 export declare enum HttpMethod {
     GET,
     HEAD,
@@ -24,9 +23,20 @@ export declare function tcpAccept$(listenerId: int): TaskHandle<int>;
 @capability("net.client")
 export declare function tcpConnect$(host: str, port: int): TaskHandle<int>;
 @capability("net.client")
-export declare function tcpConnectTls$(host: str, port: int, ca?: str, identity?: str): TaskHandle<int>;
+export declare function tcpConnectTls$(
+    host: str,
+    port: int,
+    ca?: str,
+    identity?: str,
+): TaskHandle<int>;
 @capability("net.server")
-export declare function tcpListenTls$(port: int, host: str, cert: str, key: str, clientCa?: str): int;
+export declare function tcpListenTls$(
+    port: int,
+    host: str,
+    cert: str,
+    key: str,
+    clientCa?: str,
+): int;
 export declare function tcpRead$(connId: int, len: int): TaskHandle<Bytes?>;
 export declare function tcpWrite$(connId: int, data: Bytes | str): TaskHandle<int>;
 export declare function tcpClose$(connId: int): void;
@@ -44,9 +54,24 @@ export declare function httpMethodName$(method: HttpMethod): str;
 export declare function isHttpToken$(name: str): bool;
 export declare function isHttpFieldValue$(value: str): bool;
 @throws(TypeError, RangeError)
-export declare function sendHttpResponse$(connId: int, status: int, statusText: str, headers: Map<str, str>, body: str, cookies: str[]): TaskHandle<int>;
+export declare function sendHttpResponse$(
+    connId: int,
+    status: int,
+    statusText: str,
+    headers: Map<str,
+    str>,
+    body: str,
+    cookies: str[],
+): TaskHandle<int>;
 @throws(TypeError, RangeError)
-export declare function sendHttpHead$(connId: int, status: int, statusText: str, headers: Map<str, str>, cookies: str[]): TaskHandle<int>;
+export declare function sendHttpHead$(
+    connId: int,
+    status: int,
+    statusText: str,
+    headers: Map<str,
+    str>,
+    cookies: str[],
+): TaskHandle<int>;
 
 @capability("net.server")
 export declare function udpBind$(host: str, port: int): int;

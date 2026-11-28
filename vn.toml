@@ -1,8 +1,8 @@
 [fmt]
 exclude = [
     "target/**",
-    "crates/**",
     "dist/**",
+    "crates/**/fixtures/**",
     "tests/errors/**",
     "tests/planned/**",
     "tests/helpers/broken-escape.vn",
@@ -11,8 +11,8 @@ exclude = [
 [lint]
 exclude = [
     "target/**",
-    "crates/**",
     "dist/**",
+    "crates/**/fixtures/**",
     "tests/errors/**",
     "tests/planned/**",
     "tests/helpers/broken-escape.vn",

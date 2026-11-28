@@ -1,6 +1,5 @@
 // runtime:gpu — device-owned buffers + lazy graph. Single path.
 // Host float[] only at upload/download border. Compute stays device-side.
-
 export declare function backend$(): str;
 export declare function deviceCount$(): int;
 export declare function adapterName$(i: int): str;

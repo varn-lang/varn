@@ -1,7 +1,6 @@
 // runtime:ui — headless window/event/draw backend (v1, no winit).
 // Single event queue + command log per window. Real backend feeds the same
 // queue and draws instead of logging. Same API, no dual paths.
-
 export declare enum UiEventKind {
     Key,
     Mouse,
@@ -41,7 +40,6 @@ export struct UiEvent {
     h: int;
 }
 
-
 export declare function open$(title: str, w: int, h: int, headless: bool): int;
 export declare function close$(id: int): void;
 export declare function setDark$(id: int, dark: bool): void;
@@ -49,13 +47,34 @@ export declare function shouldClose$(id: int): bool;
 export declare function size$(id: int): int[];
 export declare function inject$(id: int, kind: UiInjectKind, a: int, b: int, c: int): void;
 export declare function poll$(id: int): UiEvent[];
-export declare function rect$(id: int, x: float, y: float, w: float, h: float, color: int, radius: float): void;
+export declare function rect$(
+    id: int,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    color: int,
+    radius: float,
+): void;
 export declare function text$(id: int, x: float, y: float, s: str, size: float, color: int): void;
 export declare function clip$(id: int, x: float, y: float, w: float, h: float): void;
 export declare function unclip$(id: int): void;
 export declare function clear$(id: int, color: int): void;
 export declare function present$(id: int): int;
-export declare function control$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, value: float, low: float, high: float): void;
+export declare function control$(
+    window: int,
+    cid: int,
+    kind: UiControlKind,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    color: int,
+    flag: bool,
+    value: float,
+    low: float,
+    high: float,
+): void;
 export declare function activated$(id: int): float[];
 export declare function drawn$(id: int): DrawnItem[];
 export declare function real$(id: int): bool;
@@ -76,7 +95,19 @@ export struct TypedText {
     text: str;
 }
 
-
-export declare function field$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float): void;
+export declare function field$(
+    window: int,
+    cid: int,
+    kind: UiControlKind,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    color: int,
+    focused: bool,
+    text: str,
+    hint: str,
+    size: float,
+): void;
 export declare function typed$(window: int): TypedText[];
 export declare function textWidth$(window: int, text: str, size: float): float;

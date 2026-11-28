@@ -1,6 +1,5 @@
 // runtime:text — font discovery + shaping (fontdb + egui fonts).
 // Glyphs are chars; tests assert structure, never font-specific values.
-
 export struct ShapedRun {
     glyphs: int[];
     advances: float[];
@@ -8,7 +7,6 @@ export struct ShapedRun {
     width: float;
     count: int;
 }
-
 
 export declare function fontCount$(): int;
 export declare function fonts$(): str[];

@@ -9,7 +9,7 @@ export declare class Map<K extends Hashable, V> {
     @throws(TypeError) get(key: K): V?;
     @throws(TypeError) set(key: K, value: V): void;
     @throws(TypeError) has(key: K): bool;
-    @throws(TypeError) delete(key: K): bool;
+    @throws(TypeError) delete (key: K): bool;
     clear(): void;
     keys(): K[];
     values(): V[];

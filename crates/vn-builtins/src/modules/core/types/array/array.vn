@@ -21,7 +21,10 @@ export declare class Array<T> {
     @throws(Error) flatMap<U>(callback: (item: T, index: int, array: T[]) => U[]): U[];
     @throws(Error) forEach(callback: (item: T, index: int, array: T[]) => void): void;
     @throws(Error) map<U>(callback: (item: T, index: int, array: T[]) => U): U[];
-    @throws(Error) reduce<U>(callback: (acc: U, item: T, index: int, array: T[]) => U, initial?: U): U;
+    @throws(Error) reduce<U>(
+        callback: (acc: U, item: T, index: int, array: T[]) => U,
+        initial?: U,
+    ): U;
     reverse(): this;
     @throws(Error) sort(compareFn?: (a: T, b: T) => int): this;
     splice(start: int, deleteCount?: int, ...items: T[]): T[];
@@ -31,7 +34,6 @@ export declare class Array<T> {
     indexOf(search: T): int?;
     lastIndexOf(search: T): int?;
     toString(): str;
-
 }
 
 /**
@@ -60,7 +62,10 @@ export interface ReadonlyArray<out T> {
     flatMap<U>(callback: (item: T, index: int, array: ReadonlyArray<T>) => U[]): U[];
     forEach(callback: (item: T, index: int, array: ReadonlyArray<T>) => void): void;
     map<U>(callback: (item: T, index: int, array: ReadonlyArray<T>) => U): U[];
-    reduce<U>(callback: (acc: U, item: T, index: int, array: ReadonlyArray<T>) => U, initial?: U): U;
+    reduce<U>(
+        callback: (acc: U, item: T, index: int, array: ReadonlyArray<T>) => U,
+        initial?: U,
+    ): U;
     every(predicate: (item: T, index: int, array: ReadonlyArray<T>) => bool): bool;
     some(predicate: (item: T, index: int, array: ReadonlyArray<T>) => bool): bool;
     toString(): str;
@@ -75,8 +80,8 @@ export extension<U> on U[][] {
 export extension<U> on ReadonlyArray<U[]> {
     flat(): ReadonlyArray<U> {
         const out: U[] = [];
-        for (const items in this) {
-            for (const item in items) {
+        for(const items in this) {
+            for(const item in items) {
                 out.push(item);
             }
         }

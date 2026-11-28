@@ -1,5 +1,4 @@
 // runtime:sqlite — host SQLite connections. Handles are never reused, so a closed id stays closed.
-
 export type SqlValue = str | int | float | Bytes | null;
 export type SqlParam = SqlValue | bool;
 export type SqlRow = Map<str, SqlValue>;
@@ -11,4 +10,9 @@ export declare function script$(dbId: int, sql: str): void;
 export declare function execute$(dbId: int, sql: str, params: SqlParam[]): int;
 export declare function executeAsync$(dbId: int, sql: str, params: SqlParam[]): TaskHandle<int>;
 export declare function query$(dbId: int, sql: str, params: SqlParam[], limit: int): SqlRow[];
-export declare function queryAsync$(dbId: int, sql: str, params: SqlParam[], limit: int): TaskHandle<SqlRow[]>;
+export declare function queryAsync$(
+    dbId: int,
+    sql: str,
+    params: SqlParam[],
+    limit: int,
+): TaskHandle<SqlRow[]>;

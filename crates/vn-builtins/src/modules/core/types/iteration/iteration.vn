@@ -53,5 +53,4 @@ export interface TaskHandle<out T> {
  * An asynchronous computation that settles with a `T`; `await` suspends
  * until it does, without blocking the scheduler.
  */
-export interface Task<out T> {
-}
+export interface Task<out T> {}

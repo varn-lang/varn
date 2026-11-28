@@ -6,10 +6,8 @@ export interface AsyncDisposable {
     disposeAsync(): void;
 }
 
-
 // Standard capabilities (spec §33). Structural: a type satisfies one by
 // having the member, with no `implements` needed.
-
 export interface Equatable<T> {
     equals(other: T): bool;
 }
