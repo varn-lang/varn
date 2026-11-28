@@ -144,7 +144,7 @@ If a document contradicts the code, the code wins.
 
 Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), and see [`GOVERNANCE.md`](GOVERNANCE.md) and [`SECURITY.md`](SECURITY.md) for how decisions are made and how to report vulnerabilities.
 
-The canonical test is the integration suite, `vn test "tests/*.test.vn"` (over 5,600 cases), not `cargo test`:
+The canonical test is the integration suite, `vn test "tests/*.test.vn"`, not `cargo test`:
 
 ```powershell
 .\scripts\verify.ps1 -Quick   # iteration: quick build + one quadrant
