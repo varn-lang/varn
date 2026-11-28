@@ -21,10 +21,10 @@ async function wrapTask<T>(task: Task<T>, group: TaskGroup<T>): Task<T> {
 }
 
 export class TaskGroup<T> {
-    tasks: Array<Task<T >>;
+    tasks: Array<Task<T>>;
     isCancelled: bool;
     private _finallyCbs: Array<() => void>;
-    private _inflight: Array<TaskHandle<Array<T >>>;
+    private _inflight: Array<TaskHandle<Array<T>>>;
     private _finalized: bool;
 
     constructor() {
@@ -44,7 +44,7 @@ export class TaskGroup<T> {
         return wrapped;
     }
 
-    async runAll(): Task<Array<T >> {
+    async runAll(): Task<Array<T>> {
         try {
             const res = await parallel$(this.tasks);
             this._runFinally();
@@ -56,7 +56,7 @@ export class TaskGroup<T> {
         }
     }
 
-    async joinInner(): Task<Array<T >> {
+    async joinInner(): Task<Array<T>> {
         const driver = spawn(this.runAll());
         this._inflight.push(driver);
         try {
@@ -68,7 +68,7 @@ export class TaskGroup<T> {
         }
     }
 
-    async join(timeoutMs?: int): Task<Array<T >> {
+    async join(timeoutMs?: int): Task<Array<T>> {
         if(this.isCancelled) {
             throw new CancelledError("TaskGroup is cancelled");
         }
@@ -76,7 +76,7 @@ export class TaskGroup<T> {
             return await this.joinInner();
         }
         try {
-            const res = await Task.race([this.joinInner(), timeoutJoin<Array<T >> (timeoutMs)]);
+            const res = await Task.race([this.joinInner(), timeoutJoin<Array<T>>(timeoutMs)]);
             this._cancelInflight();
             return res;
         } catch (e) {

@@ -1,0 +1,32 @@
+import { describe, it, expect } from "std:test";
+import { Json } from "std:encoding";
+
+class Point {
+    constructor(public x: int, public y: int) {}
+}
+
+await describe("Json.stringify space indents the output", async () => {
+    await it("keeps the compact form without space", () => {
+        expect(Json.stringify([1, 2])).toBe("[1,2]")
+        expect(Json.stringify([1, 2], 0)).toBe("[1,2]")
+    })
+
+    await it("indents arrays and objects by the requested width", () => {
+        expect(Json.stringify([1, 2], 2)).toBe("[\n  1,\n  2\n]")
+        expect(Json.stringify(new Point(1, 2), 4)).toBe("{\n    \"x\": 1,\n    \"y\": 2\n}")
+    })
+
+    await it("nests the indentation and keeps empty containers inline", () => {
+        const empty: int[] = []
+        expect(Json.stringify([[1], empty], 1)).toBe("[\n [\n  1\n ],\n []\n]")
+    })
+
+    await it("leaves structural characters inside strings alone", () => {
+        expect(Json.stringify(["a,b:{c}\"d"], 2)).toBe("[\n  \"a,b:{c}\\\"d\"\n]")
+    })
+
+    await it("rejects a width outside 0 to 10", () => {
+        expect(() => Json.stringify([1], 11)).toThrow()
+        expect(() => Json.stringify([1], -1)).toThrow()
+    })
+})

@@ -1,7 +1,7 @@
 import { ComponentScope, View } from "std:ui/state";
 import { Widget } from "std:ui/widget/base";
 
-const views = new Map<ComponentScope, View<Widget >> ();
+const views = new Map<ComponentScope, View<Widget>>();
 
 export function viewAt(scope: ComponentScope): View<Widget> {
     const existing = views.get(scope);

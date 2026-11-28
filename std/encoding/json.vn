@@ -2,6 +2,52 @@ import { parse$, stringify$ } from "runtime:json";
 
 export type JsonValue = int | float | str | bool | null | JsonValue[] | Map<str, JsonValue>;
 
+const MAX_INDENT: int = 10;
+
+function indentCompact(compact: str, space: int): str {
+    const unit = " ".repeat(space);
+    const length: int = compact.length;
+    let out = "";
+    let depth = 0;
+    let inString = false;
+    let index = 0;
+    while(index < length) {
+        const ch = compact[index];
+        if(inString) {
+            out = out + ch;
+            if(ch == "\\") {
+                index = index + 1;
+                out = out + compact[index];
+            } else if (ch == "\"") {
+                inString = false;
+            }
+        } else if (ch == "\"") {
+            inString = true;
+            out = out + ch;
+        } else if (ch == "{" || ch == "[") {
+            const closer = ch == "{" ? "}" : "]";
+            if(index + 1 < length && compact[index + 1] == closer) {
+                out = out + ch + closer;
+                index = index + 1;
+            } else {
+                depth = depth + 1;
+                out = out + ch + "\n" + unit.repeat(depth);
+            }
+        } else if (ch == "}" || ch == "]") {
+            depth = depth - 1;
+            out = out + "\n" + unit.repeat(depth) + ch;
+        } else if (ch == ",") {
+            out = out + ",\n" + unit.repeat(depth);
+        } else if (ch == ":") {
+            out = out + ": ";
+        } else {
+            out = out + ch;
+        }
+        index = index + 1;
+    }
+    return out;
+}
+
 export namespace Json {
     export function parse<T = JsonValue>(text: str): T {
         return parse$(text) as T;
@@ -15,8 +61,14 @@ export namespace Json {
         }
     }
 
-    // vn-lint-ignore unused-binding
     export function stringify<T>(value: T, space?: int): str {
-        return stringify$(value);
+        const compact = stringify$(value);
+        if(space == null || space == 0) {
+            return compact;
+        }
+        if(space < 0 || space > MAX_INDENT) {
+            throw new RangeError("Json.stringify: space must be between 0 and 10");
+        }
+        return indentCompact(compact, space);
     }
 }

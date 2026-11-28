@@ -9,7 +9,7 @@ import {
 } from "runtime:task";
 import { TimeoutError } from "std:error";
 
-export function parallel<T>(tasks: Array<Task<T >>): TaskHandle<Array<T >> {
+export function parallel<T>(tasks: Array<Task<T>>): TaskHandle<Array<T>> {
     return parallel$(tasks);
 }
 
@@ -25,7 +25,7 @@ export function cancel<T>(handle: TaskHandle<T>): void {
     cancelTask$(handle);
 }
 
-async function wrapSettledOne<T>(task: Task<T>): Task<Result<T, Error >> {
+async function wrapSettledOne<T>(task: Task<T>): Task<Result<T, Error>> {
     try {
         return Result.Ok(await task);
     } catch (err) {
@@ -66,12 +66,12 @@ export namespace Task {
         await yieldTask$();
     }
 
-    export async function all<T>(tasks: Array<Task<T >>): Task<Array<T >> {
+    export async function all<T>(tasks: Array<Task<T>>): Task<Array<T>> {
         return await parallel$(tasks);
     }
 
-    export async function allSettled<T>(tasks: Array<Task<T >>): Task<Array<Result<T, Error >>> {
-        const wrappedTasks: Array<Task<Result<T, Error >>> = [];
+    export async function allSettled<T>(tasks: Array<Task<T>>): Task<Array<Result<T, Error>>> {
+        const wrappedTasks: Array<Task<Result<T, Error>>> = [];
         for(let i = 0; i < tasks.length; i = i + 1) {
             wrappedTasks.push(wrapSettledOne(tasks[i]));
         }
@@ -94,13 +94,13 @@ export namespace Task {
         }
     }
 
-    export async function race<T>(tasks: Array<Task<T >>): Task<T> {
+    export async function race<T>(tasks: Array<Task<T>>): Task<T> {
         if(tasks.length == 0) {
             throw new RangeError("Task.race requires at least one task");
         }
         const done = channel$<int>(tasks.length);
         const settled: Settled<T>[] = [];
-        const handles: Array<TaskHandle<T >> = [];
+        const handles: Array<TaskHandle<T>> = [];
         for(let i = 0; i < tasks.length; i = i + 1) {
             settled.push(new Settled<T>());
             handles.push(spawn(tasks[i]));
