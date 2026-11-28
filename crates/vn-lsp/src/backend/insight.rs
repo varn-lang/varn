@@ -138,7 +138,7 @@ pub(crate) async fn diagnostic(
     let items = backend
         .query("diagnostic_pull", move |an| {
             an.workspace
-                .get(&uri_str)
+                .get_fresh(&uri_str)
                 .map(|doc| convert_diagnostics(&doc))
         })
         .await
