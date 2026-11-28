@@ -1,4 +1,5 @@
 mod facts;
+mod fixes;
 mod naming;
 mod rules;
 mod scope;
