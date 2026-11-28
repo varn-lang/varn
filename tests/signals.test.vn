@@ -229,7 +229,7 @@ await describe("235 signals", async () => {
 
     await it("typed handles retain state within an owner", () => {
         const slots = new Slots()
-        const retained = new State<Signal<int >> ()
+        const retained = new State<Signal<int>>()
         const build = (): Signal<int> => withOwner(slots, () => retained.get(() => signal(7)))
         const first = build()
         first.value = 8

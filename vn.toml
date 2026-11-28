@@ -6,6 +6,7 @@ exclude = [
     "tests/errors/**",
     "tests/planned/**",
     "tests/helpers/broken-escape.vn",
+    "tests/helpers/compact-generic-close.vn",
 ]
 
 [lint]

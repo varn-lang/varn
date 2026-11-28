@@ -1,6 +1,24 @@
 use super::kind::TokenKind;
 
 impl TokenKind {
+    pub fn angle_pieces(self) -> &'static [TokenKind] {
+        const R: TokenKind = TokenKind::RAngle;
+        const E: TokenKind = TokenKind::Eq;
+        if self == TokenKind::GtGt {
+            &[R, R]
+        } else if self == TokenKind::GtGtGt {
+            &[R, R, R]
+        } else if self == TokenKind::GtEq {
+            &[R, E]
+        } else if self == TokenKind::GtGtEq {
+            &[R, R, E]
+        } else if self == TokenKind::GtGtGtEq {
+            &[R, R, R, E]
+        } else {
+            &[]
+        }
+    }
+
     pub fn is_keyword(self) -> bool {
         (self as u32) >= (TokenKind::Let as u32) && (self as u32) <= (TokenKind::Match as u32)
     }

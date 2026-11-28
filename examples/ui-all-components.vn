@@ -201,7 +201,7 @@ function overlays(): Widget {
 }
 
 const galleryEffect = new State<Effect>();
-const galleryScroll = new State<Signal<float >> ();
+const galleryScroll = new State<Signal<float>>();
 
 @component()
 function Gallery(): Widget {

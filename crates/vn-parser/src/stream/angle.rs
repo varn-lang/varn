@@ -4,8 +4,11 @@ use vn_core::TokenKind;
 
 impl TokenStream {
     pub fn eat_rangle(&mut self) -> bool {
-        if self.split_count > 0 {
-            self.split_count -= 1;
+        if self.piece > 0 {
+            if self.kind() != TokenKind::RAngle {
+                return false;
+            }
+            self.advance();
             return true;
         }
         match self.token().kind {
@@ -13,14 +16,13 @@ impl TokenStream {
                 self.pos += 1;
                 true
             }
-            TokenKind::GtGt => {
-                self.split_count = 1;
-                self.pos += 1;
-                true
-            }
-            TokenKind::GtGtGt => {
-                self.split_count = 2;
-                self.pos += 1;
+            TokenKind::GtGt
+            | TokenKind::GtGtGt
+            | TokenKind::GtEq
+            | TokenKind::GtGtEq
+            | TokenKind::GtGtGtEq => {
+                self.split_tokens.push(self.token().range.start.offset);
+                self.piece = 1;
                 true
             }
             TokenKind::EOF
@@ -87,8 +89,6 @@ impl TokenStream {
             | TokenKind::Tilde
             | TokenKind::LtLt
             | TokenKind::LtLtEq
-            | TokenKind::GtGtEq
-            | TokenKind::GtGtGtEq
             | TokenKind::Eq
             | TokenKind::EqEq
             | TokenKind::EqEqEq
@@ -96,7 +96,6 @@ impl TokenStream {
             | TokenKind::BangEq
             | TokenKind::BangEqEq
             | TokenKind::LtEq
-            | TokenKind::GtEq
             | TokenKind::Arrow
             | TokenKind::FatArrow
             | TokenKind::Let
@@ -192,7 +191,8 @@ impl TokenStream {
     pub fn save(&self) -> StreamState {
         StreamState {
             pos: self.pos,
-            split_count: self.split_count,
+            piece: self.piece,
+            splits: self.split_tokens.len(),
             diagnostics: self.errors.len(),
         }
     }
@@ -200,7 +200,8 @@ impl TokenStream {
     #[inline]
     pub fn restore(&mut self, state: StreamState) {
         self.pos = state.pos;
-        self.split_count = state.split_count;
+        self.piece = state.piece;
+        self.split_tokens.truncate(state.splits);
         self.errors.truncate(state.diagnostics);
     }
 }
@@ -208,6 +209,7 @@ impl TokenStream {
 #[derive(Clone, Copy)]
 pub struct StreamState {
     pos: usize,
-    split_count: u8,
+    piece: u8,
+    splits: usize,
     diagnostics: usize,
 }

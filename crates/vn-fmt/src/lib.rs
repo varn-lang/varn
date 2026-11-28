@@ -39,10 +39,15 @@ fn located(error: &vn_core::Diagnostic) -> String {
 }
 
 pub fn render_unchecked(source: &str, filename: &str) -> Result<String, FormatError> {
-    render(source, filename)
+    render(source, filename).map(|rendered| rendered.text)
 }
 
-fn render(source: &str, filename: &str) -> Result<String, FormatError> {
+struct Rendered {
+    text: String,
+    split_tokens: Vec<u32>,
+}
+
+fn render(source: &str, filename: &str) -> Result<Rendered, FormatError> {
     let (tokens, buffer, errors, trivia) = vn_lexer::scan_with_trivia(source, filename);
     if let Some(error) = errors.first() {
         return Err(FormatError::Syntax(located(error)));
@@ -52,15 +57,19 @@ fn render(source: &str, filename: &str) -> Result<String, FormatError> {
     if let Some(error) = diagnostics.iter().next() {
         return Err(FormatError::Syntax(located(error)));
     }
-    let Some(stream) = tokens::TokenStream::build(source, &tokens, &trivia) else {
+    let Some(stream) = tokens::TokenStream::build(source, &tokens, &trivia, &program.split_tokens)
+    else {
         return Err(FormatError::Syntax("unbalanced brackets".to_string()));
     };
     let facts = facts::collect(&stream, &program, &arena);
     let document = layout::Layout::new(&stream, &facts).root();
-    Ok(printer::Printer::new(LINE_WIDTH, INDENT_WIDTH).print(&document))
+    Ok(Rendered {
+        text: printer::Printer::new(LINE_WIDTH, INDENT_WIDTH).print(&document),
+        split_tokens: program.split_tokens,
+    })
 }
 
-fn significant(tokens: &[Token], source: &str) -> Vec<(TokenKind, String)> {
+fn significant(tokens: &[Token], source: &str, split_tokens: &[u32]) -> Vec<(TokenKind, String)> {
     let mut out: Vec<(TokenKind, String)> = Vec::new();
     for (index, token) in tokens.iter().enumerate() {
         if token.kind == TokenKind::EOF {
@@ -77,7 +86,16 @@ fn significant(tokens: &[Token], source: &str) -> Vec<(TokenKind, String)> {
         }
         let start = token.range.start.offset as usize;
         let end = token.range.end.offset as usize;
-        out.push((token.kind, source[start..end].to_string()));
+        if split_tokens
+            .binary_search(&token.range.start.offset)
+            .is_ok()
+        {
+            for (piece, kind) in token.kind.angle_pieces().iter().enumerate() {
+                out.push((*kind, source[start + piece..start + piece + 1].to_string()));
+            }
+        } else {
+            out.push((token.kind, source[start..end].to_string()));
+        }
     }
     out
 }
@@ -128,20 +146,23 @@ fn comments(source: &str, filename: &str) -> Vec<String> {
 
 fn check(source: &str, filename: &str) -> Result<String, FormatError> {
     let formatted = render(source, filename)?;
+    let again = render(&formatted.text, filename)?;
     let (before, _, _) = vn_lexer::scan(source, filename);
-    let (after, _, _) = vn_lexer::scan(&formatted, filename);
-    if significant(&before, source) != significant(&after, &formatted) {
+    let (after, _, _) = vn_lexer::scan(&formatted.text, filename);
+    if significant(&before, source, &formatted.split_tokens)
+        != significant(&after, &formatted.text, &again.split_tokens)
+    {
         return Err(FormatError::Altered(
             "the formatted code does not have the same tokens as the source".to_string(),
         ));
     }
-    if comments(source, filename) != comments(&formatted, filename) {
+    if comments(source, filename) != comments(&formatted.text, filename) {
         return Err(FormatError::Altered(
             "the formatted code does not keep the comments of the source".to_string(),
         ));
     }
-    if render(&formatted, filename)? != formatted {
+    if again.text != formatted.text {
         return Err(FormatError::Unstable);
     }
-    Ok(formatted)
+    Ok(formatted.text)
 }

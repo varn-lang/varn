@@ -1,0 +1,16 @@
+import { describe, it, expect } from "std:test";
+import { single, nested, triple } from "./helpers/compact-generic-close.vn";
+
+await describe("a closing angle followed by an equals sign splits the compound token", async () => {
+    await it("splits >= after a generic", () => {
+        expect(single[0]).toBe(1)
+    })
+
+    await it("splits >>= after a nested generic", () => {
+        expect(nested[0][0]).toBe(2)
+    })
+
+    await it("splits >>>= after a triple nested generic", () => {
+        expect(triple[0][0][0]).toBe(3)
+    })
+})

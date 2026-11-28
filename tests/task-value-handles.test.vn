@@ -35,7 +35,7 @@ async function tvChurnTask(): Task<TvBox> {
 
 await describe("157 task value handles", async () => {
     await it("1. an instance passed to a lazy task survives a collection before it starts", async () => {
-        const batch: Array<Task<int >> = []
+        const batch: Array<Task<int>> = []
         for(let i = 0; i < 2000; i = i + 1) {
             batch.push(tvUseArg(new TvBox(i)))
         }
@@ -64,7 +64,7 @@ await describe("157 task value handles", async () => {
     })
 
     await it("3. parallel keeps instance results across a collection run by a sibling", async () => {
-        const batch: Array<Task<TvBox >> = []
+        const batch: Array<Task<TvBox>> = []
         for(let i = 0; i < 2000; i = i + 1) {
             batch.push(tvMake(i))
         }

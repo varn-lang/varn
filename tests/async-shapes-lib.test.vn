@@ -12,7 +12,7 @@ export class ImportedAsyncBox<T = int> {
         return 9;
     }
 
-    async all(): Task<Array<int >> {
+    async all(): Task<Array<int>> {
         return [10];
     }
 }

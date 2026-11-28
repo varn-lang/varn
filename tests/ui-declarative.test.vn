@@ -44,12 +44,12 @@ import { MOUSE_LEFT, UiInjectKind, expanded } from "std:ui";
 import { beginFrame, endFrame } from "std:ui/state";
 
 let boots = 0;
-const clickState = new State<Signal<int >> ();
-const labelState = new State<Computed<str >> ();
+const clickState = new State<Signal<int>>();
+const labelState = new State<Computed<str>>();
 const bootState = new State<Effect>();
-const reorderState = new State<Signal<int >> ();
-const conditionalState = new State<Computed<int >> ();
-const stableState = new State<Signal<int >> ();
+const reorderState = new State<Signal<int>>();
+const conditionalState = new State<Computed<int>>();
+const stableState = new State<Signal<int>>();
 
 @component()
 function Clicker(): Widget {

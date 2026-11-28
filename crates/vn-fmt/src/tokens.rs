@@ -52,22 +52,39 @@ pub fn is_close(kind: TokenKind) -> bool {
 }
 
 impl TokenStream {
-    pub fn build(source: &str, tokens: &[Token], trivia: &[Trivia]) -> Option<TokenStream> {
+    pub fn build(
+        source: &str,
+        tokens: &[Token],
+        trivia: &[Trivia],
+        split_tokens: &[u32],
+    ) -> Option<TokenStream> {
         let mut toks: Vec<Tok> = tokens
             .iter()
-            .map(|t| {
+            .flat_map(|t| {
                 let start = t.range.start.offset;
                 let end = t.range.end.offset.max(start);
-                Tok {
-                    kind: t.kind,
-                    start,
-                    end,
-                    text: source[start as usize..end as usize].to_string(),
-                    leading: Vec::new(),
-                    trailing: Vec::new(),
-                    blank_before: false,
-                    newline_before: false,
-                }
+                let kinds: Vec<TokenKind> = if split_tokens.binary_search(&start).is_ok() {
+                    t.kind.angle_pieces().to_vec()
+                } else {
+                    vec![t.kind]
+                };
+                kinds.into_iter().enumerate().map(move |(piece, kind)| {
+                    let (from, to) = if split_tokens.binary_search(&start).is_ok() {
+                        (start + piece as u32, start + piece as u32 + 1)
+                    } else {
+                        (start, end)
+                    };
+                    Tok {
+                        kind,
+                        start: from,
+                        end: to,
+                        text: source[from as usize..to as usize].to_string(),
+                        leading: Vec::new(),
+                        trailing: Vec::new(),
+                        blank_before: false,
+                        newline_before: false,
+                    }
+                })
             })
             .collect();
         if toks.is_empty() {

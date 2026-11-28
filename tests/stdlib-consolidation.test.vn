@@ -70,7 +70,7 @@ function testLog(): void {
     jsonLogger.debug("testing json", #{ "ok": true });
     expect(logJsonLines.length).toBe(1);;
 
-    const parsedRecord = Json.parse<Map<str, JsonValue >> (logJsonLines[0]);
+    const parsedRecord = Json.parse<Map<str, JsonValue>>(logJsonLines[0]);
     expect(parsedRecord.get("level")).toBe("DEBUG");;
     expect(parsedRecord.get("target")).toBe("jsonApp");;
     expect(parsedRecord.get("message")).toBe("testing json");;

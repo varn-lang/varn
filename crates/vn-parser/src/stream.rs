@@ -5,7 +5,7 @@ mod regex_literals;
 use crate::ParseProfile;
 use std::sync::Arc;
 use vn_core::ast::{AstArena, AstId, AstTypeKind, ExprId, ExprKind, StmtId, StmtKind, TypeNode};
-use vn_core::{ErrorCode, ParsedNumber, SourceRange, Token, TokenKind};
+use vn_core::{ErrorCode, ParsedNumber, SourceLocation, SourceRange, Token, TokenKind};
 
 static EOF_SENTINEL: Token = Token {
     kind: TokenKind::EOF,
@@ -26,6 +26,18 @@ static EOF_SENTINEL: Token = Token {
     lex_len: 0,
 };
 
+fn piece_range(token: SourceRange, piece: u8) -> SourceRange {
+    let at = |extra: u32| SourceLocation {
+        offset: token.start.offset + extra,
+        line: token.start.line,
+        column: token.start.column + extra,
+    };
+    SourceRange {
+        start: at(u32::from(piece)),
+        end: at(u32::from(piece) + 1),
+    }
+}
+
 pub struct TokenStream {
     tokens: Vec<Token>,
     lexeme_buf: Arc<[u8]>,
@@ -38,7 +50,8 @@ pub struct TokenStream {
     pub profile: ParseProfile,
     pub async_body: bool,
 
-    split_count: u8,
+    piece: u8,
+    pub(crate) split_tokens: Vec<u32>,
     next_ast_id: AstId,
     regex_literals: Vec<regex_literals::RegexLiteral>,
 
@@ -63,7 +76,8 @@ impl TokenStream {
             errors: vn_core::DiagnosticBag::new(),
             profile: ParseProfile::default(),
             async_body: false,
-            split_count: 0,
+            piece: 0,
+            split_tokens: Vec::new(),
             next_ast_id: 1,
             regex_literals: Vec::new(),
             interner,
@@ -123,8 +137,8 @@ impl TokenStream {
 
     #[inline]
     pub fn kind(&self) -> TokenKind {
-        if self.split_count > 0 {
-            return TokenKind::RAngle;
+        if self.piece > 0 {
+            return self.token().kind.angle_pieces()[usize::from(self.piece)];
         }
         self.token().kind
     }
@@ -146,13 +160,13 @@ impl TokenStream {
 
     #[inline]
     pub fn line(&self) -> u32 {
-        self.token().range.start.line
+        self.range().start.line
     }
 
     #[inline]
     pub fn prev_line(&self) -> u32 {
-        if self.pos > 0 {
-            self.tokens[self.pos - 1].range.end.line
+        if self.pos > 0 || self.piece > 0 {
+            self.prev_range().end.line
         } else {
             0
         }
@@ -160,20 +174,20 @@ impl TokenStream {
 
     #[inline]
     pub fn prev_end_range(&self) -> SourceRange {
-        if self.pos == 0 {
-            return self.range();
-        }
-        let end = self.tokens[self.pos - 1].range.end;
+        let end = self.prev_range().end;
         SourceRange { start: end, end }
     }
 
     #[inline]
     pub fn column(&self) -> u32 {
-        self.token().range.start.column
+        self.range().start.column
     }
 
     #[inline]
     pub fn prev_range(&self) -> SourceRange {
+        if self.piece > 0 {
+            return piece_range(self.token().range, self.piece - 1);
+        }
         if self.pos > 0 {
             self.tokens[self.pos - 1].range
         } else {
@@ -206,7 +220,11 @@ impl TokenStream {
 
     #[inline]
     pub fn range(&self) -> SourceRange {
-        self.token().range
+        let range = self.token().range;
+        if self.piece > 0 {
+            return piece_range(range, self.piece);
+        }
+        range
     }
 
     #[inline]
@@ -228,10 +246,11 @@ impl TokenStream {
 
     #[inline]
     pub fn advance(&mut self) {
-        if self.split_count > 0 {
-            self.split_count -= 1;
+        if self.piece > 0 && usize::from(self.piece) + 1 < self.token().kind.angle_pieces().len() {
+            self.piece += 1;
             return;
         }
+        self.piece = 0;
         if self.pos < self.tokens.len() {
             self.pos += 1;
         }

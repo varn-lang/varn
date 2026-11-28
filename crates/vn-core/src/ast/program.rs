@@ -7,4 +7,5 @@ pub struct Program {
     pub filename: Arc<str>,
     pub body: Vec<StmtId>,
     pub range: SourceRange,
+    pub split_tokens: Vec<u32>,
 }

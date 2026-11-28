@@ -170,7 +170,7 @@ await describe("example std:task", async () => {
     await it("cancel propagates through TaskGroup", async () => {
         const group = new TaskGroup<int>();
         _ = group.spawn(slowWork(4));
-        const canceller = (async (): Task<Array<int >> => {
+        const canceller = (async (): Task<Array<int>> => {
             await sleep(50);
             group.cancel();
             return [];

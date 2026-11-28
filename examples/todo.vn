@@ -45,7 +45,7 @@ function loadTodos(): Todo[] {
 
 const todos = signal<Todo[]>(loadTodos());
 effect(() => writeText(FILE, Json.stringify(todos.value)));
-const draftState = new State<Signal<str >> ();
+const draftState = new State<Signal<str>>();
 
 @component()
 function App(): Widget {

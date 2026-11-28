@@ -43,7 +43,7 @@ await describe("154 task GC roots", async () => {
     await it("1. parked tasks and the awaiting root survive a collection run by another task", async () => {
         const rootBox = new TaskGcBox(777)
         const rootItems: Array<int> = [1, 2, 3]
-        const batch: Array<Task<int >> = []
+        const batch: Array<Task<int>> = []
         for(let i = 0; i < 300; i = i + 1) {
             batch.push(holdAcrossSuspend(i))
         }
@@ -59,7 +59,7 @@ await describe("154 task GC roots", async () => {
     })
 
     await it("2. a rejection delivered to a parked task reaches its handler with its locals intact", async () => {
-        const batch: Array<Task<int >> = []
+        const batch: Array<Task<int>> = []
         for(let i = 0; i < 200; i = i + 1) {
             batch.push(catchesAfterSuspend(i))
         }
@@ -73,7 +73,7 @@ await describe("154 task GC roots", async () => {
     })
 
     await it("3. thousands of parked tasks resume with their own state", async () => {
-        const batch: Array<Task<int >> = []
+        const batch: Array<Task<int>> = []
         for(let i = 0; i < 5000; i = i + 1) {
             batch.push(holdAcrossSuspend(i))
         }

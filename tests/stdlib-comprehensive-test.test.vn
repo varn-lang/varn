@@ -53,7 +53,7 @@ async function runComprehensiveTest(): Task<void> {
 
     // 4. std:json
     const serialized = Json.stringify(#{ test: "json", value: 123 });
-    const parsed = Json.parse<Map<str, JsonValue >> (serialized);
+    const parsed = Json.parse<Map<str, JsonValue>>(serialized);
     expect(parsed["test"]).toBe("json");
     expect(parsed["value"]).toBe(123);
 
@@ -121,11 +121,11 @@ async function runComprehensiveTest(): Task<void> {
 
     // 11. std:reflect
     defineMetadata("my_key", "my_val", list);
-    expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
+    expect(getMetadata<str, str, List<str>>("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
     const _mkey = MetaKey.create<int[], str>();
-    expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
+    expect(getMetadata<str, str, List<str>>("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
     // 12. std:http

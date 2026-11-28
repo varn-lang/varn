@@ -120,10 +120,14 @@ impl Parser {
         let errors = self.diagnostics.clone();
         let profile = self.stream.profile.clone();
 
+        let mut split_tokens = std::mem::take(&mut self.stream.split_tokens);
+        split_tokens.sort_unstable();
+        split_tokens.dedup();
         let prog = Program {
             filename: self.stream.filename.clone(),
             body,
             range,
+            split_tokens,
         };
         (prog, errors, profile)
     }
