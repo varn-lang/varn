@@ -72,11 +72,10 @@ pub(super) fn compute(
                     if let SsaOp::ArraySetIndex { object: o, .. }
                     | SsaOp::BytesSetIndex { object: o, .. }
                     | SsaOp::ArrayPush { array: o, .. } = &inst.op
+                        && o == object
                     {
-                        if o == object {
-                            ok = false;
-                            break;
-                        }
+                        ok = false;
+                        break;
                     }
                 }
                 if !ok {
