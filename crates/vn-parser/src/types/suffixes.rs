@@ -1,6 +1,6 @@
+use super::TypeContext;
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
-use super::TypeContext;
 use vn_core::ast::TypeNode;
 use vn_core::{TokenKind, TypeKind};
 

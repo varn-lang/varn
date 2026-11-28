@@ -24,7 +24,10 @@ pub fn parse_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::ast::TypeP
         let variance = parse_declared_variance(s);
         let name = s.expect_id()?;
         let constraint = if s.eat(TokenKind::Extends) {
-            Some(super::combinators::parse_union_type(s, super::TypeContext::Annotation)?)
+            Some(super::combinators::parse_union_type(
+                s,
+                super::TypeContext::Annotation,
+            )?)
         } else {
             None
         };

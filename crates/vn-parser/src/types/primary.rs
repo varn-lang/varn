@@ -3,7 +3,10 @@ use crate::stream::TokenStream;
 use vn_core::ast::{FnTypeParam, TypeNode};
 use vn_core::{ContextualKeyword, TokenKind, TypeKind};
 
-pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -> PResult<TypeNode> {
+pub(crate) fn parse_primary_type(
+    s: &mut TokenStream,
+    ctx: super::TypeContext,
+) -> PResult<TypeNode> {
     let range = s.range();
 
     match s.kind() {

@@ -1,7 +1,7 @@
+use super::TypeContext;
 use crate::error::PResult;
 use crate::stream::TokenStream;
 use vn_core::ast::TypeNode;
-use super::TypeContext;
 use vn_core::{TokenKind, TypeKind};
 
 pub fn parse_type(s: &mut TokenStream) -> PResult<TypeNode> {
