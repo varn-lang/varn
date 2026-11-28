@@ -40,6 +40,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
         }
 
         let mem_range = s.range();
+        let name_range = s.range();
         let name = s.expect_id()?;
 
         let mut payload_fields: Vec<EnumField> = Vec::new();
@@ -48,15 +49,16 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
             let mut idx = 0;
             while !s.check(TokenKind::RParen) && !s.is_eof() {
                 let field_range = s.range();
-                let field_name =
+                let (field_name, field_name_range) =
                     if s.check(TokenKind::Identifier) && s.peek_kind(1) == TokenKind::Colon {
+                        let range = s.range();
                         let name = s.consume_lexeme();
                         s.expect(TokenKind::Colon)?;
-                        name
+                        (name, range)
                     } else {
                         let n = s.interner.intern(&format!("value{idx}"));
                         idx += 1;
-                        n
+                        (n, field_range)
                     };
                 let (ty, init) = match s.kind() {
                     TokenKind::IntegerLiteral => {
@@ -256,6 +258,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                 let f_full_range = s.span_from(field_range);
                 payload_fields.push(EnumField {
                     name: field_name,
+                    name_range: field_name_range,
                     ty,
                     init,
                     range: f_full_range,
@@ -276,6 +279,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
         let full_mem_range = s.span_from(mem_range);
         members.push(EnumMember {
             id: name,
+            id_range: name_range,
             init,
             payload_fields,
             range: full_mem_range,

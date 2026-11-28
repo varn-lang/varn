@@ -103,7 +103,7 @@ pub fn parse_class_member(
 
     if is_get {
         s.advance();
-        let key = member_key_name(s)?;
+        let (key, key_range) = member_key_name(s)?;
         s.expect(TokenKind::LParen)?;
         s.expect(TokenKind::RParen)?;
         let return_type = if s.eat(TokenKind::Colon) {
@@ -124,7 +124,8 @@ pub fn parse_class_member(
         };
         let full_range = s.span_from(range);
         return Ok(ClassMember::Getter {
-            key: s.interner.intern(&key),
+            key,
+            key_range,
             return_type,
             body,
             modifiers: mods,
@@ -135,7 +136,7 @@ pub fn parse_class_member(
     }
     if is_set {
         s.advance();
-        let key = member_key_name(s)?;
+        let (key, key_range) = member_key_name(s)?;
         s.expect(TokenKind::LParen)?;
         let param = super::super::params::parse_single_param(s)?;
         s.expect(TokenKind::RParen)?;
@@ -152,7 +153,8 @@ pub fn parse_class_member(
         };
         let full_range = s.span_from(range);
         return Ok(ClassMember::Setter {
-            key: s.interner.intern(&key),
+            key,
+            key_range,
             param,
             body,
             modifiers: mods,
@@ -162,7 +164,7 @@ pub fn parse_class_member(
         });
     }
 
-    let key = member_key_name(s)?;
+    let (key, key_range) = member_key_name(s)?;
     let type_params = if s.check(TokenKind::LAngle) {
         parse_type_params(s)?
     } else {
@@ -189,7 +191,8 @@ pub fn parse_class_member(
         };
         let full_range = s.span_from(range);
         return Ok(ClassMember::Method {
-            key: s.interner.intern(&key),
+            key,
+            key_range,
             type_params,
             params,
             return_type,
@@ -219,7 +222,8 @@ pub fn parse_class_member(
     s.eat_semicolon();
     let full_range = s.span_from(range);
     Ok(ClassMember::Property {
-        key: s.interner.intern(&key),
+        key,
+        key_range,
         type_ann,
         init,
         modifiers: mods,

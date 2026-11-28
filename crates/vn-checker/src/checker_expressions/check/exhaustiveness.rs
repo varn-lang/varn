@@ -35,7 +35,7 @@ impl<'r> Checker<'r> {
             c.guard.is_none()
                 && matches!(
                     c.pattern,
-                    MatchPattern::Wildcard | MatchPattern::Identifier(_)
+                    MatchPattern::Wildcard | MatchPattern::Identifier { .. }
                 )
         });
         if !catch_all && !self.matrix_exhaustive(cases, subject_ty, bind) {
@@ -261,7 +261,7 @@ fn pattern_covers(
     bind: &BindResult,
 ) -> bool {
     match pattern {
-        MatchPattern::Wildcard | MatchPattern::Identifier(_) => true,
+        MatchPattern::Wildcard | MatchPattern::Identifier { .. } => true,
         MatchPattern::Literal(e) => {
             let member_ty = table.get(member.0);
             let expr_kind = &arena.expr(*e).kind;

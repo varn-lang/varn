@@ -67,14 +67,14 @@ impl Collector<'_> {
         match pattern {
             MatchPattern::Wildcard => {}
             MatchPattern::Literal(e) => self.expr(*e),
-            MatchPattern::Identifier(name) => {
+            MatchPattern::Identifier { name, .. } => {
                 self.declared.insert(*name);
             }
             MatchPattern::Record { fields, .. } => self.match_fields(fields),
             MatchPattern::Tuple(items) => items.iter().for_each(|p| self.match_bindings(p)),
             MatchPattern::Array { elements, rest } => {
                 elements.iter().for_each(|p| self.match_bindings(p));
-                if let vn_core::ast::SequenceRest::Bind(name) = rest {
+                if let vn_core::ast::SequenceRest::Bind { name, .. } = rest {
                     self.declared.insert(*name);
                 }
             }

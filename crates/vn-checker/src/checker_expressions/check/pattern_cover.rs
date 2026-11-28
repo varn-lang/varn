@@ -71,7 +71,7 @@ impl Checker<'_> {
     ) -> bool {
         match pattern {
             MatchPattern::Wildcard => true,
-            MatchPattern::Identifier(name) => match self.type_variant_names(ty, bind) {
+            MatchPattern::Identifier { name, .. } => match self.type_variant_names(ty, bind) {
                 Some(variants) => !variants.iter().any(|v| v == bind.interner.resolve(*name)),
                 None => true,
             },
@@ -138,7 +138,7 @@ impl Checker<'_> {
     ) -> Cover {
         match pattern {
             MatchPattern::Wildcard => Cover::All,
-            MatchPattern::Identifier(name) => {
+            MatchPattern::Identifier { name, .. } => {
                 let name = bind.interner.resolve(*name);
                 match self.type_variant_names(subject_ty, bind) {
                     Some(variants) if variants.iter().any(|v| v == name) => {
@@ -182,7 +182,7 @@ impl Checker<'_> {
                     (true, vn_core::ast::SequenceRest::Closed) => Cover::Exact(elements.len()),
                     (
                         true,
-                        vn_core::ast::SequenceRest::Open | vn_core::ast::SequenceRest::Bind(_),
+                        vn_core::ast::SequenceRest::Open | vn_core::ast::SequenceRest::Bind { .. },
                     ) => Cover::AtLeast(elements.len()),
                 }
             }

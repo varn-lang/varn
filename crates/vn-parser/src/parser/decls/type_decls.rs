@@ -104,6 +104,7 @@ pub fn parse_interface_member(
         );
         return Ok(InterfaceMember::Property {
             key: s.interner.intern(TokenKind::Placeholder.as_str()),
+            key_range: full_range,
             type_ann: value_type,
             optional: false,
             readonly: false,
@@ -124,7 +125,7 @@ pub fn parse_interface_member(
         });
     }
 
-    let key = member_key_name(s)?;
+    let (key, key_range) = member_key_name(s)?;
     let optional = s.eat(TokenKind::Question);
 
     if s.check(TokenKind::LParen) || s.check(TokenKind::LAngle) {
@@ -143,7 +144,8 @@ pub fn parse_interface_member(
         let full_range = s.span_from(mem_range);
         reject_mut_on_callable_member(s, mutable, mem_range);
         return Ok(InterfaceMember::Method {
-            key: s.interner.intern(&key),
+            key,
+            key_range,
             type_params,
             params,
             return_type,
@@ -158,7 +160,8 @@ pub fn parse_interface_member(
     s.eat_semicolon();
     let full_range = s.span_from(mem_range);
     Ok(InterfaceMember::Property {
-        key: s.interner.intern(&key),
+        key,
+        key_range,
         type_ann,
         optional,
         readonly: match context {

@@ -111,7 +111,10 @@ pub struct Param {
 pub enum MatchPattern {
     Wildcard,
     Literal(ExprId),
-    Identifier(Atom),
+    Identifier {
+        name: Atom,
+        range: SourceRange,
+    },
     Tuple(Vec<MatchPattern>),
     Array {
         elements: Vec<MatchPattern>,
@@ -132,7 +135,7 @@ pub enum MatchPattern {
 pub enum SequenceRest {
     Closed,
     Open,
-    Bind(Atom),
+    Bind { name: Atom, range: SourceRange },
 }
 
 #[derive(Clone, Debug)]
@@ -144,6 +147,7 @@ pub enum VariantPayload {
 #[derive(Clone, Debug)]
 pub struct MatchField {
     pub name: Atom,
+    pub name_range: SourceRange,
     pub pattern: Option<MatchPattern>,
     pub range: SourceRange,
 }

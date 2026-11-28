@@ -305,7 +305,10 @@ fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> 
         );
         return Ok(MatchPattern::Literal(expr));
     }
-    Ok(MatchPattern::Identifier(name))
+    Ok(MatchPattern::Identifier {
+        name,
+        range: id_range,
+    })
 }
 
 fn parse_match_list(
@@ -355,7 +358,11 @@ fn parse_array_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
     while !s.check(TokenKind::RBracket) && !s.is_eof() {
         if s.eat(TokenKind::DotDotDot) {
             rest = if s.check(TokenKind::Identifier) {
-                SequenceRest::Bind(s.consume_lexeme())
+                let range = s.range();
+                SequenceRest::Bind {
+                    name: s.consume_lexeme(),
+                    range,
+                }
             } else {
                 s.eat(TokenKind::Placeholder);
                 SequenceRest::Open
@@ -407,6 +414,7 @@ fn parse_match_fields(s: &mut TokenStream) -> PResult<(Vec<MatchField>, bool)> {
         };
         fields.push(MatchField {
             name,
+            name_range: s.prev_range(),
             pattern,
             range,
         });

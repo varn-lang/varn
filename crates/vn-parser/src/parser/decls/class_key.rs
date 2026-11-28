@@ -2,7 +2,15 @@ use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
 use vn_core::TokenKind;
 
-pub(super) fn member_key_name(s: &mut TokenStream) -> PResult<String> {
+pub(super) fn member_key_name(
+    s: &mut TokenStream,
+) -> PResult<(vn_core::Atom, vn_core::SourceRange)> {
+    let range = s.range();
+    let name = member_key_text(s)?;
+    Ok((s.interner.intern(&name), range))
+}
+
+fn member_key_text(s: &mut TokenStream) -> PResult<String> {
     match s.kind() {
         TokenKind::Identifier => Ok(s.consume_str()),
         TokenKind::Str => {

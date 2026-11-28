@@ -117,8 +117,8 @@ fn bind_typed_pattern_vars(b: &mut Binder, pattern: &MatchPattern, ty: Option<Ty
     match pattern {
         MatchPattern::Wildcard => {}
         MatchPattern::Literal(expr) => b.bind_expr(*expr),
-        MatchPattern::Identifier(name) => {
-            define_pattern_var(b, *name, None, ty.unwrap_or(Type::Error));
+        MatchPattern::Identifier { name, range } => {
+            define_pattern_var(b, *name, Some(*range), ty.unwrap_or(Type::Error));
         }
         MatchPattern::Tuple(items) => {
             for item in items {
@@ -129,8 +129,8 @@ fn bind_typed_pattern_vars(b: &mut Binder, pattern: &MatchPattern, ty: Option<Ty
             for element in elements {
                 bind_typed_pattern_vars(b, element, None);
             }
-            if let vn_core::ast::SequenceRest::Bind(name) = rest {
-                define_pattern_var(b, *name, None, Type::Error);
+            if let vn_core::ast::SequenceRest::Bind { name, range } = rest {
+                define_pattern_var(b, *name, Some(*range), Type::Error);
             }
         }
         MatchPattern::Record { fields, .. } => {
@@ -177,6 +177,6 @@ fn bind_typed_pattern_vars(b: &mut Binder, pattern: &MatchPattern, ty: Option<Ty
 fn bind_field_vars(b: &mut Binder, field: &vn_core::ast::MatchField, ty: Type) {
     match &field.pattern {
         Some(sub) => bind_typed_pattern_vars(b, sub, Some(ty)),
-        None => define_pattern_var(b, field.name, Some(field.range), ty),
+        None => define_pattern_var(b, field.name, Some(field.name_range), ty),
     }
 }

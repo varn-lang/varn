@@ -103,6 +103,7 @@ fn parse_extension_member(s: &mut TokenStream) -> PResult<ExtensionMember> {
             ));
         }
         s.advance();
+        let key_range = s.range();
         let key = s.expect_id()?;
         s.expect(TokenKind::LParen)?;
         s.expect(TokenKind::RParen)?;
@@ -115,6 +116,7 @@ fn parse_extension_member(s: &mut TokenStream) -> PResult<ExtensionMember> {
         let full_range = s.span_from(range);
         return Ok(ExtensionMember::Getter {
             key,
+            key_range,
             return_type,
             body,
             modifiers: Modifiers::default(),
@@ -129,6 +131,7 @@ fn parse_extension_member(s: &mut TokenStream) -> PResult<ExtensionMember> {
             ));
         }
         s.advance();
+        let key_range = s.range();
         let key = s.expect_id()?;
         s.expect(TokenKind::LParen)?;
         let param = super::super::params::parse_single_param(s)?;
@@ -137,6 +140,7 @@ fn parse_extension_member(s: &mut TokenStream) -> PResult<ExtensionMember> {
         let full_range = s.span_from(range);
         return Ok(ExtensionMember::Setter {
             key,
+            key_range,
             param,
             body,
             modifiers: Modifiers::default(),

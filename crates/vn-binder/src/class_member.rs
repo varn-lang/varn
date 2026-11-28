@@ -130,6 +130,7 @@ impl<'r> Binder<'r> {
                 init,
                 modifiers,
                 range,
+                key_range,
                 decorators,
                 ..
             } => {
@@ -152,9 +153,9 @@ impl<'r> Binder<'r> {
                 };
 
                 let mut sym =
-                    Symbol::new(SymbolKind::Property, *key, range.start.line).with_type(ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Property, *key, key_range.start.line).with_type(ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = type_ann.is_some();
                 let symbol_id = self.arena.push(sym);
                 crate::decorator_attrs::record_decorators(self, symbol_id, decorators);
@@ -166,9 +167,9 @@ impl<'r> Binder<'r> {
                     is_generator: false,
                     is_static: modifiers.is_static,
                     is_optional: false,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty,
                     members: Vec::new(),
                     visibility: modifiers.visibility,
@@ -186,7 +187,7 @@ impl<'r> Binder<'r> {
                 params,
                 return_type,
                 modifiers,
-                range,
+                key_range,
                 decorators,
                 ..
             } => {
@@ -235,9 +236,9 @@ impl<'r> Binder<'r> {
                 );
 
                 let mut sym =
-                    Symbol::new(SymbolKind::Method, *key, range.start.line).with_type(fn_ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Method, *key, key_range.start.line).with_type(fn_ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = return_type.is_some();
                 sym.is_async = modifiers.is_async;
                 sym.is_generator = modifiers.is_generator;
@@ -251,9 +252,9 @@ impl<'r> Binder<'r> {
                     is_generator: modifiers.is_generator,
                     is_static: modifiers.is_static,
                     is_optional: false,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty: fn_ty,
                     members: Vec::new(),
                     visibility: modifiers.visibility,
@@ -268,7 +269,7 @@ impl<'r> Binder<'r> {
                 key,
                 return_type,
                 modifiers,
-                range,
+                key_range,
                 decorators,
                 ..
             } => {
@@ -279,9 +280,9 @@ impl<'r> Binder<'r> {
                     .unwrap_or(Type::Error);
 
                 let mut sym =
-                    Symbol::new(SymbolKind::Property, *key, range.start.line).with_type(ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Property, *key, key_range.start.line).with_type(ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = return_type.is_some();
                 let symbol_id = self.arena.push(sym);
                 crate::decorator_attrs::record_decorators(self, symbol_id, decorators);
@@ -293,9 +294,9 @@ impl<'r> Binder<'r> {
                     is_generator: false,
                     is_static: modifiers.is_static,
                     is_optional: false,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty,
                     members: Vec::new(),
                     visibility: modifiers.visibility,
@@ -310,7 +311,7 @@ impl<'r> Binder<'r> {
                 key,
                 param,
                 modifiers,
-                range,
+                key_range,
                 decorators,
                 ..
             } => {
@@ -320,9 +321,9 @@ impl<'r> Binder<'r> {
                 let has_explicit = param.type_ann.is_some();
 
                 let mut sym =
-                    Symbol::new(SymbolKind::Property, *key, range.start.line).with_type(ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Property, *key, key_range.start.line).with_type(ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = has_explicit;
                 let symbol_id = self.arena.push(sym);
                 crate::decorator_attrs::record_decorators(self, symbol_id, decorators);
@@ -334,9 +335,9 @@ impl<'r> Binder<'r> {
                     is_generator: false,
                     is_static: modifiers.is_static,
                     is_optional: false,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty,
                     members: Vec::new(),
                     visibility: modifiers.visibility,

@@ -73,16 +73,16 @@ impl<'r> super::Binder<'r> {
                 type_ann,
                 optional,
                 readonly,
-                range,
+                key_range,
                 ..
             } => {
                 let ty = self.resolve_type(type_ann);
                 let key_rc: Arc<str> = Arc::from(self.interner.resolve(*key));
 
                 let mut sym =
-                    Symbol::new(SymbolKind::Property, *key, range.start.line).with_type(ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Property, *key, key_range.start.line).with_type(ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = true;
                 let symbol_id = self.arena.push(sym);
 
@@ -93,9 +93,9 @@ impl<'r> super::Binder<'r> {
                     is_generator: false,
                     is_static: false,
                     is_optional: *optional,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty,
                     members: Vec::new(),
                     visibility: None,
@@ -114,6 +114,7 @@ impl<'r> super::Binder<'r> {
                 optional,
                 is_async,
                 range,
+                key_range,
             } => {
                 let declared = match return_type {
                     Some(node) => self.resolve_type(node),
@@ -168,9 +169,9 @@ impl<'r> super::Binder<'r> {
 
                 let key_rc: Arc<str> = Arc::from(self.interner.resolve(*key));
                 let mut sym =
-                    Symbol::new(SymbolKind::Method, *key, range.start.line).with_type(fn_type);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
+                    Symbol::new(SymbolKind::Method, *key, key_range.start.line).with_type(fn_type);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
                 sym.has_explicit_type = return_type.is_some();
                 let symbol_id = self.arena.push(sym);
 
@@ -181,9 +182,9 @@ impl<'r> super::Binder<'r> {
                     is_generator: false,
                     is_static: false,
                     is_optional: *optional,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
                     ty: fn_type,
                     members: Vec::new(),
                     visibility: None,

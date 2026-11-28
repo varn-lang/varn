@@ -223,7 +223,7 @@ fn key_uses_receiver(arena: &AstArena, k: &PropKey) -> bool {
 fn match_pattern_uses_receiver(arena: &AstArena, p: &MatchPattern) -> bool {
     match p {
         MatchPattern::Literal(e) => expr_uses_receiver(arena, *e),
-        MatchPattern::Wildcard | MatchPattern::Identifier(_) => false,
+        MatchPattern::Wildcard | MatchPattern::Identifier { .. } => false,
         MatchPattern::Tuple(items) => items.iter().any(|i| match_pattern_uses_receiver(arena, i)),
         MatchPattern::Array { elements, .. } => elements
             .iter()

@@ -168,7 +168,7 @@ impl Checker<'_> {
         };
         match pattern {
             MatchPattern::Wildcard => Head::Wild,
-            MatchPattern::Identifier(name) => {
+            MatchPattern::Identifier { name, .. } => {
                 let text = bind.interner.resolve(*name);
                 match self.type_variant_names(ty, bind) {
                     Some(variants) if variants.iter().any(|v| v == text) => {

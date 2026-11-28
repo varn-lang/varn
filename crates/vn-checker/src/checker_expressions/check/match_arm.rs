@@ -80,7 +80,7 @@ impl<'r> Checker<'r> {
                     | vn_core::ast::ExprKind::MetaAccess { .. } => None,
                 },
                 vn_core::ast::MatchPattern::Wildcard
-                | vn_core::ast::MatchPattern::Identifier(_)
+                | vn_core::ast::MatchPattern::Identifier { .. }
                 | vn_core::ast::MatchPattern::Tuple(_)
                 | vn_core::ast::MatchPattern::Array { .. }
                 | vn_core::ast::MatchPattern::Record { .. }

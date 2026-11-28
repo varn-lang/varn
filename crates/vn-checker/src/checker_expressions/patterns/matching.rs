@@ -16,7 +16,7 @@ impl<'r> Checker<'r> {
         use vn_core::ast::{MatchPattern, SequenceRest, VariantPayload};
         match pattern {
             MatchPattern::Wildcard => {}
-            MatchPattern::Identifier(name) => {
+            MatchPattern::Identifier { name, .. } => {
                 if bind.interner.resolve(*name) == vn_core::TokenKind::Placeholder.as_str() {
                     return;
                 }
@@ -53,7 +53,7 @@ impl<'r> Checker<'r> {
                     };
                     self.check_pattern_match(rec, item, &item_ty, range, bind);
                 }
-                if let SequenceRest::Bind(name) = rest {
+                if let SequenceRest::Bind { name, .. } = rest {
                     let rest_ty =
                         Type::array(shape.element, std::sync::Arc::make_mut(&mut self.ty_table));
                     let scope = bind.scopes.get(self.current_scope);

@@ -100,6 +100,7 @@ pub enum ClassMember {
     },
     Method {
         key: Atom,
+        key_range: SourceRange,
         type_params: Vec<TypeParam>,
         params: Vec<Param>,
         return_type: Option<TypeNode>,
@@ -111,6 +112,7 @@ pub enum ClassMember {
     },
     Property {
         key: Atom,
+        key_range: SourceRange,
         type_ann: Option<TypeNode>,
         init: Option<ExprId>,
         modifiers: Modifiers,
@@ -120,6 +122,7 @@ pub enum ClassMember {
     },
     Getter {
         key: Atom,
+        key_range: SourceRange,
         return_type: Option<TypeNode>,
         body: Option<StmtId>,
         modifiers: Modifiers,
@@ -129,6 +132,7 @@ pub enum ClassMember {
     },
     Setter {
         key: Atom,
+        key_range: SourceRange,
         param: Param,
         body: Option<StmtId>,
         modifiers: Modifiers,
@@ -159,6 +163,7 @@ pub struct InterfaceDecl {
 pub enum InterfaceMember {
     Property {
         key: Atom,
+        key_range: SourceRange,
         type_ann: TypeNode,
         optional: bool,
         readonly: bool,
@@ -166,6 +171,7 @@ pub enum InterfaceMember {
     },
     Method {
         key: Atom,
+        key_range: SourceRange,
         type_params: Vec<TypeParam>,
         params: Vec<Param>,
         return_type: Option<TypeNode>,
@@ -209,6 +215,7 @@ pub struct EnumDecl {
 #[derive(Clone, Debug)]
 pub struct EnumMember {
     pub id: Atom,
+    pub id_range: SourceRange,
     pub init: Option<ExprId>,
 
     pub payload_fields: Vec<EnumField>,
@@ -218,6 +225,7 @@ pub struct EnumMember {
 #[derive(Clone, Debug)]
 pub struct EnumField {
     pub name: Atom,
+    pub name_range: SourceRange,
     pub ty: TypeNode,
     pub init: Option<ExprId>,
     pub range: SourceRange,
@@ -249,6 +257,7 @@ pub enum ExtensionMember {
     Method(FunctionDecl),
     Getter {
         key: Atom,
+        key_range: SourceRange,
         return_type: Option<TypeNode>,
         body: StmtId,
         modifiers: Modifiers,
@@ -256,6 +265,7 @@ pub enum ExtensionMember {
     },
     Setter {
         key: Atom,
+        key_range: SourceRange,
         param: Param,
         body: StmtId,
         modifiers: Modifiers,

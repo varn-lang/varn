@@ -21,7 +21,7 @@ impl<'a> FnEmitter<'a> {
     ) -> (TirExpr, Vec<TirStmt>) {
         match pat {
             MatchPattern::Wildcard => (bool_lit(true), vec![]),
-            MatchPattern::Identifier(name) => {
+            MatchPattern::Identifier { name, .. } => {
                 let name_str = self.m.interner.resolve(*name);
                 if let BackendTy::Enum(eid) = s.ty.non_nullable(self.tt)
                     && let Some(info) = self.m.enums.get(eid.0 as usize)
@@ -69,7 +69,7 @@ impl<'a> FnEmitter<'a> {
                 );
                 let op = match rest {
                     SequenceRest::Closed => BinOp::Eq,
-                    SequenceRest::Open | SequenceRest::Bind(_) => BinOp::Ge,
+                    SequenceRest::Open | SequenceRest::Bind { .. } => BinOp::Ge,
                 };
                 let length_test = TirExpr {
                     kind: TirExprKind::Binary {
@@ -89,7 +89,7 @@ impl<'a> FnEmitter<'a> {
                     cond = self.and_cond(cond, test);
                     binds.append(&mut bound);
                 }
-                if let SequenceRest::Bind(name) = rest
+                if let SequenceRest::Bind { name, .. } = rest
                     && self.m.interner.resolve(*name) != vn_core::TokenKind::Placeholder.as_str()
                 {
                     let tail = self.tail_read(s, elements.len());
