@@ -25,7 +25,7 @@ class ToggleState {
 
 await describe("219 widgets", async () => {
     await it("renders a tree headless", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const ed = new TextEdit();
@@ -43,7 +43,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("button fires onPress on click", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const hits: bool[] = [];
@@ -63,7 +63,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("field types through render", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const ed = new TextEdit();
@@ -90,7 +90,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("row distributes widget widths", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const left: bool[] = [];
@@ -112,7 +112,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("checkbox toggles on click", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const state = new ToggleState();
@@ -130,7 +130,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("each builds one row per item", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const seen: int[] = [];
@@ -155,7 +155,7 @@ await describe("219 widgets", async () => {
     });
 
     await it("field submits and clears on enter", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const got: str[] = [];

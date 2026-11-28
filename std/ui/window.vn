@@ -36,7 +36,7 @@ export class UiWindow {
     }
 
     @capability("ui")
-    static open(title: str, w: int, h: int, headless: bool = false): UiWindow {
+    static open(title: str, w: int, h: int, headless: bool = true): UiWindow {
         return new UiWindow(open$(title, w, h, headless));
     }
 

@@ -17,8 +17,8 @@ const GREEN = 4278255360;
 const WHITE = 4294967295;
 const GRAY = 4287137928;
 
-using win = UiWindow.open("Varn ui demo", W, H, args().indexOf("--headless") != null);
-print(`real window: ${win.real() ? "yes" : "no (headless: --headless flag)"}`);
+using win = UiWindow.open("Varn ui demo", W, H, args().indexOf("--window") == null);
+print(`real window: ${win.real() ? "yes" : "no (headless: pass --window)"}`);
 
 const fr = new UiFrame(W, H);
 const focus = new Focus();

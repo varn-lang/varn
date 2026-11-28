@@ -19,7 +19,7 @@ function paint(win: UiWindow, fr: UiFrame, focus: Focus, root: Readable<Widget>)
 
 await describe("254 reactive layout", async () => {
     await it("root rebuilds only when a signal its build read changes", () => {
-        using win = UiWindow.open("t", 300, 200, true);
+        using win = UiWindow.open("t", 300, 200);
         const fr = new UiFrame(300, 200);
         const focus = new Focus();
         const read = signal(0);
@@ -43,7 +43,7 @@ await describe("254 reactive layout", async () => {
     });
 
     await it("a component re-expands when a signal its body reads changes", () => {
-        using win = UiWindow.open("t", 300, 200, true);
+        using win = UiWindow.open("t", 300, 200);
         const fr = new UiFrame(300, 200);
         const focus = new Focus();
         const tree = Column([Greeting()]);

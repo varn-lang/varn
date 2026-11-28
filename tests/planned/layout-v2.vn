@@ -10,7 +10,7 @@ function frameAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, w: floa
 
 await describe("layout v2 (planned)", async () => {
     await it("a field outside Responsive keeps its text when the class changes", () => {
-        using win = UiWindow.open("t", 960, 300, true);
+        using win = UiWindow.open("t", 960, 300);
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
         const ed = new TextEdit();
@@ -29,7 +29,7 @@ await describe("layout v2 (planned)", async () => {
     });
 
     await it("each keeps item state when the list is reordered", () => {
-        using win = UiWindow.open("t", 960, 300, true);
+        using win = UiWindow.open("t", 960, 300);
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
         const items = signal(["a", "b"]);
@@ -45,7 +45,7 @@ await describe("layout v2 (planned)", async () => {
     });
 
     await it("box minW and maxW bound the child size", () => {
-        using win = UiWindow.open("t", 960, 300, true);
+        using win = UiWindow.open("t", 960, 300);
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
         const tree = Box(w: 1000.0, minW: 0.0, maxW: 200.0, child: Text("x"));

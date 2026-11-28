@@ -31,7 +31,7 @@ function leafRects(p: Placement, ox: float, oy: float, out: float[][]): void {
 
 @capability("ui")
 function assertParity(tree: Widget, w: float, h: float): void {
-    using win = UiWindow.open("parity", 800, 600, true);
+    using win = UiWindow.open("parity", 800, 600);
     const fr = new UiFrame(800, 600);
     const focus = new Focus();
     win.clear(0);

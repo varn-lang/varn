@@ -154,7 +154,7 @@ await describe("220 ui declarative", async () => {
     });
 
     await it("disabled button ignores clicks", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const hits: bool[] = [];
@@ -192,7 +192,7 @@ await describe("220 ui declarative", async () => {
     });
 
     await it("input echoes typed text into signal", () => {
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const name = signal("");
@@ -268,7 +268,7 @@ await describe("220 ui declarative", async () => {
         );
         expect(tree is BoxNode).toBe(true);
         expect((tree as BoxNode).child is PaddingNode).toBe(true);
-        using win = UiWindow.open("t", 800, 600, true);
+        using win = UiWindow.open("t", 800, 600);
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         win.clear(Theme.colors.surface);

@@ -46,7 +46,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("a switch flips the signal it is bound to", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         const on = signal(false);
@@ -56,7 +56,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("a checkbox calls its callback when it holds a plain value", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         const seen: bool[] = [];
@@ -66,7 +66,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("a click on the checkbox label toggles it once", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         const seen: bool[] = [];
@@ -86,7 +86,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("a slider follows the pointer", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         const level = signal(0.0);
@@ -106,7 +106,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("segmented picks the option that was clicked", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         const choice = signal(0);
@@ -166,7 +166,7 @@ await describe("241 ui controls", async () => {
     });
 
     await it("a button kind picks its colors", () => {
-        using win = UiWindow.open("t", 400, 200, true);
+        using win = UiWindow.open("t", 400, 200);
         const fr = new UiFrame(400, 200);
         const focus = new Focus();
         win.clear(0);
