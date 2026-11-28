@@ -63,15 +63,16 @@ if [ $SKIP_LINT -eq 0 ]; then
     if cargo fmt --all -- --check; then
         pass "Formato de código correcto."
     else
-        warn "El código tiene diferencias de formateo con cargo fmt."
+        fail "El código tiene diferencias de formateo con cargo fmt."
+        FAILED_STEPS+=("cargo fmt --check")
     fi
 
     # 2. Clippy
     header "2/6: Análisis Estático con Clippy (cargo clippy)"
-    if cargo clippy --workspace --all-targets; then
+    if cargo clippy --workspace --all-targets -- -D warnings; then
         pass "Clippy completado exitosamente."
     else
-        fail "Clippy encontró errores de compilación."
+        fail "Clippy encontró avisos o errores."
         FAILED_STEPS+=("cargo clippy")
     fi
 else
@@ -121,6 +122,38 @@ else
 fi
 STD_BUNDLE="$PWD/dist/std.vnb"
 
+header "4d/6: Corpus de errores (tests/errors)"
+if pwsh -NoProfile -File scripts/error-corpus.ps1 -VnBin "$VN_BIN"; then
+    pass "Corpus de errores: todas las fixtures conformes."
+else
+    fail "Corpus de errores en rojo."
+    FAILED_STEPS+=("Corpus de errores (tests/errors)")
+fi
+
+header "4d/6: Formato del código Varn (vn fmt --check)"
+if $VN_BIN fmt --check; then
+    pass "Formato del código Varn: todo conforme a vn fmt."
+else
+    fail "Hay código Varn sin formatear."
+    FAILED_STEPS+=("Formato del código Varn")
+fi
+
+header "4e/6: Bails del JIT"
+if pwsh -NoProfile -File scripts/jit-bails.ps1 -VnBin "$VN_BIN"; then
+    pass "Bails del JIT: solo los previstos (scripts/jit-bails.allow)."
+else
+    fail "El JIT rechazó funciones que debía compilar."
+    FAILED_STEPS+=("Bails del JIT")
+fi
+
+header "4f/6: Capas del workspace"
+if pwsh -NoProfile -File scripts/layers.ps1; then
+    pass "Capas del workspace: solo las dependencias previstas (scripts/layers.allow)."
+else
+    fail "Hay dependencias fuera del contrato de capas."
+    FAILED_STEPS+=("Capas del workspace")
+fi
+
 # Helper cuadrante
 run_quadrant() {
     local name="$1"
@@ -166,10 +199,20 @@ if ! run_quadrant "4/4: [@embedded std] + [Intérprete Pure (VN_NO_JIT=1)]" "VN_
     FAILED_STEPS+=("Cuadrante 4 (@embedded + No-JIT)")
 fi
 
+# Q5: caché JIT tibia de Q1 verificada byte a byte
+if ! run_quadrant "5: [cache JIT] + [VN_JIT_CACHE=verify]" "VN_JIT_CACHE=verify" "test \"tests/*.test.vn\""; then
+    FAILED_STEPS+=("Cuadrante 5 (cache JIT verify)")
+fi
+
+# GC: estrés con verificador de invariantes
+if ! run_quadrant "GC: [estrés GC 256] + [verificador de invariantes]" "VN_GC_STRESS=256 VN_GC_VERIFY=1" "test \"tests/*.test.vn\""; then
+    FAILED_STEPS+=("GC estrés + verificador")
+fi
+
 # 6. Benchmark
 if [ $FAST -eq 0 ]; then
-    header "6/6: Benchmark de Estabilidad (vn bench tests/benchmarks/bench_fib.vn -v)"
-    if $VN_BIN bench tests/benchmarks/bench_fib.vn -v; then
+    header "6/6: Benchmark de Estabilidad (vn bench tests/benchmarks/vn/bench_fib.vn -v)"
+    if $VN_BIN bench tests/benchmarks/vn/bench_fib.vn -v; then
         pass "Benchmark de estabilidad completado satisfactoriamente."
     else
         fail "El benchmark de estabilidad reportó errores."

@@ -127,9 +127,9 @@ if (-not $SkipLint) {
 
     # 2. Linter Clippy
     Write-StepHeader "2/6: Analisis Estatico con Clippy (cargo clippy)"
-    cargo clippy --workspace --all-targets
+    cargo clippy --workspace --all-targets -- -D warnings
     if ($LASTEXITCODE -ne 0) {
-        Write-Failure "Clippy encontro errores de compilacion."
+        Write-Failure "Clippy encontro avisos o errores."
         $failedSteps += "cargo clippy"
     } else {
         Write-Success "Analisis de Clippy completado exitosamente."
@@ -199,107 +199,11 @@ if (-not $Quick) {
     }
 }
 
-# 4d. Corpus de errores estaticos (tests/errors/*.vn, pending/ excluido).
-# Semantica del runner borrado en c97f47a0 (error_corpus.rs), reenganchada
-# como script: cabecera `// expect:`, `vn check` (y `vn run` si el check pasa
-# para fixtures de fallo), tokens ordenados, `help: ` presente, posiciones
-# validas y exit code acorde. Corre en todos los modos: es estatico y barato.
-function Test-ErrorCorpus($vnBin) {
-    $errDir = Join-Path $RootDir "tests\errors"
-    $fixtures = Get-ChildItem -Path $errDir -Filter *.vn | Sort-Object Name
-    $cacheDir = Join-Path ([System.IO.Path]::GetTempPath()) ("vn-error-corpus-" + $PID)
-    New-Item -ItemType Directory -Force -Path $cacheDir | Out-Null
-    $prevCache = [System.Environment]::GetEnvironmentVariable("VN_CACHE_DIR", "Process")
-    $prevNoColor = [System.Environment]::GetEnvironmentVariable("NO_COLOR", "Process")
-    $prevOutEnc = [Console]::OutputEncoding
-    [System.Environment]::SetEnvironmentVariable("VN_CACHE_DIR", $cacheDir, "Process")
-    [System.Environment]::SetEnvironmentVariable("NO_COLOR", "1", "Process")
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-    $failures = @()
-    try {
-        foreach ($f in $fixtures) {
-            $rel = "tests/errors/" + $f.Name
-            $head = @()
-            foreach ($line in [System.IO.File]::ReadLines($f.FullName)) {
-                $t = $line.Trim()
-                if ($t.StartsWith("// expect: ")) { $head += $t.Substring("// expect: ".Length) }
-                elseif ($head.Count -gt 0) { break }
-            }
-            $tokens = @(); $suggestions = @(); $fragments = @(); $badHeader = $false
-            foreach ($h in $head) {
-                if ($h.StartsWith("suggestion: ")) { $suggestions += $h.Substring("suggestion: ".Length); continue }
-                $m = [regex]::Match($h, '^(error|warning)\[(.+)\]$')
-                if ($m.Success -and ($m.Groups[2].Value.StartsWith("VN"))) {
-                    $tokens += "$($m.Groups[1].Value)[$($m.Groups[2].Value)]"; continue
-                }
-                $m2 = [regex]::Match($h, '^error\[(.+)\]$')
-                if ($m2.Success -and -not ($m2.Groups[1].Value.StartsWith("VN"))) {
-                    $fragments += $m2.Groups[1].Value; continue
-                }
-                $badHeader = $true
-            }
-            if ($badHeader -or (($tokens.Count -eq 0) -and ($fragments.Count -eq 0)) -or (($tokens.Count -gt 0) -and ($fragments.Count -gt 0))) {
-                $failures += "${rel}: cabecera invalida"; continue
-            }
-            $runOut = & $vnBin check $rel 2>&1 | Out-String
-            $runCode = $LASTEXITCODE
-            if ($fragments.Count -eq 0) {
-                $emitted = @()
-                foreach ($line in $runOut -split "`r?`n") {
-                    $t = $line.Trim()
-                    $m = [regex]::Match($t, '^(error|warning)\[VN[^\]]*\]')
-                    if ($m.Success) { $emitted += $m.Value }
-                }
-                $emitted = @($emitted | Sort-Object)
-                $declared = @($tokens | Sort-Object)
-                if (($emitted -join "`n") -ne ($declared -join "`n")) {
-                    $failures += "${rel}: declarados [$($declared -join ', ')] emitidos [$($emitted -join ', ')]"; continue
-                }
-                $miss = $false
-                foreach ($s in $suggestions) {
-                    if (-not $runOut.Contains('help: ' + $s)) { $failures += "${rel}: falta sugerencia [$s]"; $miss = $true; break }
-                }
-                if ($miss) { continue }
-                $badLoc = $false
-                foreach ($line in $runOut -split "`r?`n") {
-                    $t = $line.Trim()
-                    if ($t.StartsWith([char]0x250C + "─ ")) {
-                        $loc = $t.Substring(3)
-                        $m = [regex]::Match($loc, ':(\d+):(\d+)\s*$')
-                        if (-not $m.Success -or $m.Groups[1].Value -eq "0" -or $m.Groups[2].Value -eq "0") {
-                            $failures += "${rel}: posicion invalida [$t]"; $badLoc = $true; break
-                        }
-                    }
-                }
-                if ($badLoc) { continue }
-                if (($declared | Where-Object { $_ -like "error*" }).Count -gt 0 -and $runCode -eq 0) {
-                    $failures += "${rel}: hay errores declarados pero `vn check` salio con 0"
-                }
-            } else {
-                if ($runCode -eq 0) {
-                    $runOut = & $vnBin run $rel 2>&1 | Out-String
-                    $runCode = $LASTEXITCODE
-                }
-                if ($runCode -eq 0) { $failures += "${rel}: esperaba fallo y salio con 0"; continue }
-                foreach ($frag in $fragments) {
-                    if (-not $runOut.Contains($frag)) { $failures += "${rel}: falta fragmento [$frag]"; break }
-                }
-            }
-        }
-    } finally {
-        [System.Environment]::SetEnvironmentVariable("VN_CACHE_DIR", $prevCache, "Process")
-        [System.Environment]::SetEnvironmentVariable("NO_COLOR", $prevNoColor, "Process")
-        [Console]::OutputEncoding = $prevOutEnc
-        Remove-Item -Recurse -Force -Path $cacheDir -ErrorAction SilentlyContinue
-    }
-    return $failures
-}
-
-Write-StepHeader "4d/6: Corpus de errores (tests/errors, $($((Get-ChildItem -Path (Join-Path $RootDir 'tests\errors') -Filter *.vn).Count)) fixtures)"
-$corpusFailures = Test-ErrorCorpus $vnBin
-if ($corpusFailures.Count -gt 0) {
-    Write-Failure "Corpus de errores: $($corpusFailures.Count) fixtures en rojo (primeras 15):"
-    $corpusFailures | Select-Object -First 15 | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+Write-StepHeader "4d/6: Corpus de errores (tests/errors)"
+$corpusOut = & (Join-Path $PSScriptRoot "error-corpus.ps1") -VnBin $vnBin 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+    Write-Failure "Corpus de errores en rojo."
+    Write-Host $corpusOut -ForegroundColor Red
     $failedSteps += "Corpus de errores (tests/errors)"
 } else {
     Write-Success "Corpus de errores: todas las fixtures conformes."

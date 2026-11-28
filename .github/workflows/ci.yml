@@ -33,10 +33,10 @@ jobs:
           workspaces: "."
 
       - name: Verify Formatting (cargo fmt)
-        run: cargo fmt --all -- --check || echo "Formatting differences noted."
+        run: cargo fmt --all -- --check
 
       - name: Lint Workspace (cargo clippy)
-        run: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Anti-God File Governance Check
         run: |
@@ -98,6 +98,21 @@ jobs:
       - name: Bundle std for @embedded quadrants
         run: ${{ matrix.bin_path }} std-bundle --std-dir "std" --out dist/std.vnb
 
+      - name: Error corpus (tests/errors)
+        shell: pwsh
+        run: ./scripts/error-corpus.ps1 -VnBin "${{ matrix.bin_path }}"
+
+      - name: Varn formatting (vn fmt --check)
+        run: ${{ matrix.bin_path }} fmt --check
+
+      - name: JIT bails
+        shell: pwsh
+        run: ./scripts/jit-bails.ps1 -VnBin "${{ matrix.bin_path }}"
+
+      - name: Workspace layers
+        shell: pwsh
+        run: ./scripts/layers.ps1
+
       - name: Quadrant 1 (dev-checkout + JIT)
         run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
@@ -119,12 +134,16 @@ jobs:
           VN_NO_JIT: "1"
         run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
-      - name: Quadrant 5 (GC stress 256 + verifier)
+      - name: Quadrant 5 (warm JIT cache verify)
+        env:
+          VN_JIT_CACHE: "verify"
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
+
+      - name: GC stress 256 + verifier
         env:
           VN_GC_STRESS: "256"
           VN_GC_VERIFY: "1"
         run: ${{ matrix.bin_path }} test "tests/*.test.vn"
-
 
       - name: Stability Benchmark
         run: ${{ matrix.bin_path }} bench ./tests/benchmarks/vn/bench_fib.vn -v
