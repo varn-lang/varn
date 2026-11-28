@@ -64,18 +64,18 @@ Ninguna tarea o Pull Request se considera completada sin pasar la matriz de 4 cu
 
 | Procedencia Std | Modo JIT / Intérprete | Comando de Validación |
 |---|---|---|
-| `dev-checkout` | **JIT Activado** | `./target/release/vn run ./tests/main.vn` |
-| `dev-checkout` | **Intérprete Pure (`VN_NO_JIT=1`)** | `VN_NO_JIT=1 ./target/release/vn run ./tests/main.vn` |
-| `@embedded` | **JIT Activado** | `VN_STD=@embedded ./target/release/vn run ./tests/main.vn` |
-| `@embedded` | **Intérprete Pure (`VN_NO_JIT=1`)** | `VN_STD=@embedded VN_NO_JIT=1 ./target/release/vn run ./tests/main.vn` |
+| `dev-checkout` | **JIT Activado** | `./target/release/vn test "tests/*.test.vn"` |
+| `dev-checkout` | **Intérprete Pure (`VN_NO_JIT=1`)** | `VN_NO_JIT=1 ./target/release/vn test "tests/*.test.vn"` |
+| `@embedded` | **JIT Activado** | `VN_STD=@embedded ./target/release/vn test "tests/*.test.vn"` |
+| `@embedded` | **Intérprete Pure (`VN_NO_JIT=1`)** | `VN_STD=@embedded VN_NO_JIT=1 ./target/release/vn test "tests/*.test.vn"` |
 
-`verify.ps1` añade un **cuadrante 5**: `VN_JIT_CACHE=verify ./target/release/vn run ./tests/main.vn` recompila el código JIT cacheado en los cuadrantes 1/3 y lo compara byte a byte. `verify.sh` y CI aún no lo corren.
+`verify.ps1` añade un **cuadrante 5**: `VN_JIT_CACHE=verify ./target/release/vn test "tests/*.test.vn"` recompila el código JIT cacheado en los cuadrantes 1/3 y lo compara byte a byte. `verify.sh` y CI aún no lo corren.
 
 > [!NOTE]
 > En Windows el binario es `./target/release/vn.exe`. En Linux/macOS es `./target/release/vn` (ver matriz multi-SO en `.github/workflows/ci.yml`).
 
 > [!IMPORTANT]
-> `cargo test` no ejercita la suite de integración completa del compilador. La prueba canónica del sistema es la ejecución de `tests/main.vn`.
+> `cargo test` no ejercita la suite de integración completa del compilador. La prueba canónica del sistema es `vn test "tests/*.test.vn"`.
 
 ### Scripts de Pre-verificación Automatizada
 

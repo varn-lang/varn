@@ -14,7 +14,7 @@ function Invoke-Mode($arguments, $variables) {
         Set-Item -Path "Env:$key" -Value $variables[$key]
     }
     try {
-        $lines = & $vn run @arguments 2>&1 | ForEach-Object { "$_" }
+        $lines = & $vn @arguments 2>&1 | ForEach-Object { "$_" }
         $code = $LASTEXITCODE
     } finally {
         foreach ($key in $saved.Keys) {
@@ -28,12 +28,16 @@ function Invoke-Mode($arguments, $variables) {
     [pscustomobject]@{ Lines = @($lines); Code = $code }
 }
 
+function Get-Verdicts($lines) {
+    $lines | ForEach-Object { if ($_ -match '^\s+(ok|FAILED)\s+(\S+)') { "$($Matches[1]) $($Matches[2])" } } | Sort-Object
+}
+
 function Test-Case($name, $arguments, $canonical) {
     $plain = Invoke-Mode $arguments @{}
     $stressVars = @{ VN_GC_STRESS = "$Stress"; VN_GC_VERIFY = '1' }
     $stress = Invoke-Mode $arguments $stressVars
-    $left = if ($canonical) { $plain.Lines | Where-Object { $_ -match '^(=== Suite:|PASSED:|FAILED:|ALL TESTS PASSED)' -or $_ -match '^\s*[✖x]' -or $_ -match '^error:' } } else { $plain.Lines }
-    $right = if ($canonical) { $stress.Lines | Where-Object { $_ -match '^(=== Suite:|PASSED:|FAILED:|ALL TESTS PASSED)' -or $_ -match '^\s*[✖x]' -or $_ -match '^error:' } } else { $stress.Lines }
+    $left = if ($canonical) { Get-Verdicts $plain.Lines } else { $plain.Lines }
+    $right = if ($canonical) { Get-Verdicts $stress.Lines } else { $stress.Lines }
     $diff = Compare-Object @($left) @($right) -SyncWindow 0
     if ($plain.Code -ne $stress.Code) {
         Write-Host "[FAIL] $name : exit codes differ ($($plain.Code) vs $($stress.Code))" -ForegroundColor Red
@@ -49,8 +53,8 @@ function Test-Case($name, $arguments, $canonical) {
 }
 
 $ok = $true
-$ok = (Test-Case 'corpus' @('tests/main.vn') $true) -and $ok
-$ok = (Test-Case 'object graphs' @('tests/gc/graphs.vn') $false) -and $ok
+$ok = (Test-Case 'corpus' @('test', 'tests/*.test.vn') $true) -and $ok
+$ok = (Test-Case 'object graphs' @('run', 'tests/gc/graphs.vn') $false) -and $ok
 if (-not $ok) {
     Write-Host "GC differential verification failed." -ForegroundColor Red
     exit 1

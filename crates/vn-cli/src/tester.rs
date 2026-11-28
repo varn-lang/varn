@@ -7,6 +7,7 @@ use std::time::{Duration, Instant};
 use vn_core::term::{chalk, log, Section};
 
 const DEFAULT_TEST_DIR: &str = "tests";
+const TEST_SUFFIX: &str = ".test.vn";
 
 pub(super) fn sandbox_dir(file_idx: usize) -> PathBuf {
     let nanos = std::time::SystemTime::now()
@@ -68,6 +69,15 @@ pub fn run_tests(session: Arc<vn_pipeline::Session>, args: TestArgs) -> Result<(
             "No test files (.vn) found matching the specified path",
         ));
     }
+
+    let test_files: Vec<PathBuf> = if root.is_file() {
+        test_files
+    } else {
+        test_files
+            .into_iter()
+            .filter(|p| p.to_string_lossy().ends_with(TEST_SUFFIX))
+            .collect()
+    };
 
     let filtered_files: Vec<PathBuf> = if let Some(ref filter) = args.filter {
         let filter_lc = filter.to_lowercase();

@@ -99,31 +99,31 @@ jobs:
         run: ${{ matrix.bin_path }} std-bundle --std-dir "std" --out dist/std.vnb
 
       - name: Quadrant 1 (dev-checkout + JIT)
-        run: ${{ matrix.bin_path }} run ./tests/main.vn
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
       - name: Quadrant 2 (dev-checkout + No-JIT)
         env:
           VN_NO_JIT: "1"
-        run: ${{ matrix.bin_path }} run ./tests/main.vn
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
       - name: Quadrant 3 (@embedded + JIT)
         env:
           VN_STD: "@embedded"
           VN_STD_BUNDLE: "dist/std.vnb"
-        run: ${{ matrix.bin_path }} run ./tests/main.vn
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
       - name: Quadrant 4 (@embedded + No-JIT)
         env:
           VN_STD: "@embedded"
           VN_STD_BUNDLE: "dist/std.vnb"
           VN_NO_JIT: "1"
-        run: ${{ matrix.bin_path }} run ./tests/main.vn
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
       - name: Quadrant 5 (GC stress 256 + verifier)
         env:
           VN_GC_STRESS: "256"
           VN_GC_VERIFY: "1"
-        run: ${{ matrix.bin_path }} run ./tests/main.vn
+        run: ${{ matrix.bin_path }} test "tests/*.test.vn"
 
 
       - name: Stability Benchmark
@@ -201,7 +201,7 @@ jobs:
         shell: pwsh
         run: |
           & "target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" --version
-          & "target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" run ./tests/main.vn
+          & "target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" test "tests/*.test.vn"
 
       - name: Smoke test (Unix)
         if: steps.ver.outputs.exists == 'false' && matrix.archive_type == 'tar.gz'
@@ -209,7 +209,7 @@ jobs:
         run: |
           chmod +x "target/${{ matrix.target }}/dist/${{ matrix.bin_name }}"
           "./target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" --version
-          "./target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" run ./tests/main.vn
+          "./target/${{ matrix.target }}/dist/${{ matrix.bin_name }}" test "tests/*.test.vn"
 
       - name: Package (Unix)
         if: steps.ver.outputs.exists == 'false' && matrix.archive_type == 'tar.gz'

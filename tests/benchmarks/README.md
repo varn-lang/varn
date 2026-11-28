@@ -162,5 +162,5 @@ para saber cuánto del tiempo es codegen y cuánto es representación.
 
 ---
 
-La suite amplia de correctitud + timing vive en `tests/main.vn`
-(`vn bench tests/main.vn`), no aquí.
+La suite amplia de correctitud + timing vive en `tests/*.test.vn`
+(`vn test "tests/*.test.vn"`), no aquí.

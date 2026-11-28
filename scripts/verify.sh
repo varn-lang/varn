@@ -144,25 +144,25 @@ run_quadrant() {
 }
 
 # 5. Matriz de Validación de 4 Cuadrantes
-header "5/6: Matriz Obligatoria de 4 Cuadrantes (tests/main.vn)"
+header "5/6: Matriz Obligatoria de 4 Cuadrantes (tests/*.test.vn)"
 
 # Q1: dev-checkout + JIT
-if ! run_quadrant "1/4: [dev-checkout] + [JIT Habilitado]" "" "run tests/main.vn"; then
+if ! run_quadrant "1/4: [dev-checkout] + [JIT Habilitado]" "" "test \"tests/*.test.vn\""; then
     FAILED_STEPS+=("Cuadrante 1 (dev-checkout + JIT)")
 fi
 
 # Q2: dev-checkout + No-JIT
-if ! run_quadrant "2/4: [dev-checkout] + [Intérprete Pure (VN_NO_JIT=1)]" "VN_NO_JIT=1" "run tests/main.vn"; then
+if ! run_quadrant "2/4: [dev-checkout] + [Intérprete Pure (VN_NO_JIT=1)]" "VN_NO_JIT=1" "test \"tests/*.test.vn\""; then
     FAILED_STEPS+=("Cuadrante 2 (dev-checkout + No-JIT)")
 fi
 
 # Q3: @embedded + JIT
-if ! run_quadrant "3/4: [@embedded std] + [JIT Habilitado]" "VN_STD=@embedded VN_STD_BUNDLE=$STD_BUNDLE" "run tests/main.vn"; then
+if ! run_quadrant "3/4: [@embedded std] + [JIT Habilitado]" "VN_STD=@embedded VN_STD_BUNDLE=$STD_BUNDLE" "test \"tests/*.test.vn\""; then
     FAILED_STEPS+=("Cuadrante 3 (@embedded + JIT)")
 fi
 
 # Q4: @embedded + No-JIT
-if ! run_quadrant "4/4: [@embedded std] + [Intérprete Pure (VN_NO_JIT=1)]" "VN_STD=@embedded VN_STD_BUNDLE=$STD_BUNDLE VN_NO_JIT=1" "run tests/main.vn"; then
+if ! run_quadrant "4/4: [@embedded std] + [Intérprete Pure (VN_NO_JIT=1)]" "VN_STD=@embedded VN_STD_BUNDLE=$STD_BUNDLE VN_NO_JIT=1" "test \"tests/*.test.vn\""; then
     FAILED_STEPS+=("Cuadrante 4 (@embedded + No-JIT)")
 fi
 
