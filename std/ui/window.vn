@@ -35,12 +35,10 @@ export class UiWindow {
         this.id = id;
     }
 
-    @capability("ui")
     static open(title: str, w: int, h: int, headless: bool = true): UiWindow {
         return new UiWindow(open$(title, w, h, headless));
     }
 
-    @capability("ui")
     close(): void {
         close$(this.id);
     }
@@ -49,57 +47,46 @@ export class UiWindow {
         setDark$(this.id, dark);
     }
 
-    @capability("ui")
     dispose(): void {
         close$(this.id);
     }
 
-    @capability("ui")
     shouldClose(): bool {
         return shouldClose$(this.id);
     }
 
-    @capability("ui")
     size(): int[] {
         return size$(this.id);
     }
 
-    @capability("ui")
     inject(kind: UiInjectKind, a: int, b: int, c: int): void {
         inject$(this.id, kind, a, b, c);
     }
 
-    @capability("ui")
     poll(): UiEvent[] {
         return poll$(this.id);
     }
 
-    @capability("ui")
     rect(x: float, y: float, w: float, h: float, color: int, radius: float = 0.0): void {
         rect$(this.id, x, y, w, h, color, radius);
     }
 
-    @capability("ui")
     text(x: float, y: float, s: str, size: float, color: int): void {
         text$(this.id, x, y, s, size, color);
     }
 
-    @capability("ui")
     clip(x: float, y: float, w: float, h: float): void {
         clip$(this.id, x, y, w, h);
     }
 
-    @capability("ui")
     unclip(): void {
         unclip$(this.id);
     }
 
-    @capability("ui")
     clear(color: int): void {
         clear$(this.id, color);
     }
 
-    @capability("ui")
     control(
         cid: int,
         kind: UiControlKind,
@@ -116,7 +103,6 @@ export class UiWindow {
         control$(this.id, cid, kind, x, y, w, h, color, flag, value, low, high);
     }
 
-    @capability("ui")
     field(
         cid: int,
         kind: UiControlKind,
@@ -133,27 +119,22 @@ export class UiWindow {
         field$(this.id, cid, kind, x, y, w, h, color, focused, text, hint, size);
     }
 
-    @capability("ui")
     typed(): TypedText[] {
         return typed$(this.id);
     }
 
-    @capability("ui")
     activated(): float[] {
         return activated$(this.id);
     }
 
-    @capability("ui")
     real(): bool {
         return real$(this.id);
     }
 
-    @capability("ui")
     textWidth(text: str, size: float): float {
         return textWidth$(this.id, text, size);
     }
 
-    @capability("ui")
     drawn(): DrawnItem[] {
         return drawn$(this.id);
     }

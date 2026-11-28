@@ -27,7 +27,6 @@ function Greeting(): Widget {
     return Text(name.value);
 }
 
-@capability("ui")
 function paint(win: UiWindow, fr: UiFrame, focus: Focus, root: Readable<Widget>): void {
     win.clear(0);
     beginFrame();

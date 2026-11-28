@@ -40,7 +40,6 @@ export class DialogNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(0.0, 0.0)), []);
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const _w = p.size.w;
         const _h = p.size.h;
@@ -53,7 +52,6 @@ export class DialogNode extends Widget {
     }
 }
 
-@capability("ui")
 function paintDialog(cx: PaintContext, open: Signal<bool>, title: str, body: Widget[]): void {
     const fr = cx.fr;
     const vw = fr.w as float;
@@ -163,7 +161,6 @@ export class SelectNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(c.maxW, this.h)), []);
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const _h = p.size.h;
@@ -187,7 +184,6 @@ export class SelectNode extends Widget {
     }
 }
 
-@capability("ui")
 function selectRow(
     cx: PaintContext,
     value: Signal<int>,
@@ -203,7 +199,6 @@ function selectRow(
     });
 }
 
-@capability("ui")
 function paintOptions(
     cx: PaintContext,
     options: str[],

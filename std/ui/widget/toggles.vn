@@ -52,7 +52,6 @@ export class CheckboxNode extends Widget {
         );
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const top = y + (p.size.h - this.size) / 2.0;
         const edge = this.checked ? Theme.colors.primary : Theme.colors.muted;
@@ -118,7 +117,6 @@ export class SwitchNode extends Widget {
         );
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const top = y + (p.size.h - this.trackH) / 2.0;
         cx.click(

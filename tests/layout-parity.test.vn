@@ -22,7 +22,6 @@ import {
     signal,
 } from "std:ui";
 
-@capability("ui")
 function paintedRects(win: UiWindow): float[][] {
     const out: float[][] = [];
     for(const cmd in win.drawn()) {
@@ -47,7 +46,6 @@ function leafRects(p: Placement, ox: float, oy: float, out: float[][]): void {
     }
 }
 
-@capability("ui")
 function assertParity(tree: Widget, w: float, h: float): void {
     using win = UiWindow.open("parity", 800, 600);
     const fr = new UiFrame(800, 600);

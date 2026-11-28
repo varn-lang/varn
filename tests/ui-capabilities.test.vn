@@ -2,46 +2,37 @@ import { describe, it, expect } from "std:test";
 import { Process } from "std:process";
 
 const vnBin = Process.currentExe();
+const headlessProbe = `${import.meta.dirname}/helpers/ui_open_probe.vn`;
+const realProbe = `${import.meta.dirname}/helpers/ui_open_real_probe.vn`;
+
+@capability("sys.exec")
+function run(args: str[], probe: str): bool {
+    const proc = Process.spawn(vnBin, ["run", ...args, probe]);
+    return proc.wait().success;
+}
 
 await describe("217 ui capabilities", async () => {
-    await it("sandbox denies window open", async () => {
-        const proc = Process.spawn(
-            vnBin,
-            ["run", "--sandbox", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
-        );
-        const r = proc.wait();
-        expect(r.success).toBe(false);
+    await it("sandbox allows headless window open", async () => {
+        expect(run(["--sandbox"], headlessProbe)).toBe(true);
     });
 
-    await it("restrictive flags without ui deny window open", async () => {
-        const proc = Process.spawn(
-            vnBin,
-            ["run", "--allow-read=.", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
-        );
-        const r = proc.wait();
-        expect(r.success).toBe(false);
+    await it("sandbox denies real window open", async () => {
+        expect(run(["--sandbox"], realProbe)).toBe(false);
     });
 
-    await it("--allow-ui grants window open under restrictive flags", async () => {
-        const proc = Process.spawn(
-            vnBin,
-            [
-                "run",
-                "--allow-read=.",
-                "--allow-ui",
-                `${import.meta.dirname}/helpers/ui_open_probe.vn`,
-            ],
-        );
-        const r = proc.wait();
-        expect(r.success).toBe(true);
+    await it("restrictive flags without ui deny real window open", async () => {
+        expect(run(["--allow-read=."], realProbe)).toBe(false);
     });
 
-    await it("default run allows window open", async () => {
-        const proc = Process.spawn(
-            vnBin,
-            ["run", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
-        );
-        const r = proc.wait();
-        expect(r.success).toBe(true);
+    await it("restrictive flags without ui allow headless window open", async () => {
+        expect(run(["--allow-read=."], headlessProbe)).toBe(true);
+    });
+
+    await it("--allow-ui grants real window open under restrictive flags", async () => {
+        expect(run(["--allow-read=.", "--allow-ui"], realProbe)).toBe(true);
+    });
+
+    await it("default run allows real window open", async () => {
+        expect(run([], realProbe)).toBe(true);
     });
 });

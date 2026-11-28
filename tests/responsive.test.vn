@@ -15,7 +15,6 @@ import {
     DrawnItem,
 } from "std:ui";
 
-@capability("ui")
 function frameAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, w: float): DrawnItem[] {
     fr.update(win);
     fr.w = w as int;

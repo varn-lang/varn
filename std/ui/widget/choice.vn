@@ -39,7 +39,6 @@ export function Segmented(
     return Row(cells, gap: 4.0);
 }
 
-@capability("ui")
 export function Tabs(
     labels: str[],
     pages: Widget[],

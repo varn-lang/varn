@@ -42,40 +42,23 @@ export struct UiEvent {
 }
 
 
-@capability("ui")
 export declare function open$(title: str, w: int, h: int, headless: bool): int;
-@capability("ui")
 export declare function close$(id: int): void;
 export declare function setDark$(id: int, dark: bool): void;
-@capability("ui")
 export declare function shouldClose$(id: int): bool;
-@capability("ui")
 export declare function size$(id: int): int[];
-@capability("ui")
 export declare function inject$(id: int, kind: UiInjectKind, a: int, b: int, c: int): void;
-@capability("ui")
 export declare function poll$(id: int): UiEvent[];
-@capability("ui")
 export declare function rect$(id: int, x: float, y: float, w: float, h: float, color: int, radius: float): void;
-@capability("ui")
 export declare function text$(id: int, x: float, y: float, s: str, size: float, color: int): void;
-@capability("ui")
 export declare function clip$(id: int, x: float, y: float, w: float, h: float): void;
-@capability("ui")
 export declare function unclip$(id: int): void;
-@capability("ui")
 export declare function clear$(id: int, color: int): void;
-@capability("ui")
 export declare function present$(id: int): int;
-@capability("ui")
 export declare function control$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, value: float, low: float, high: float): void;
-@capability("ui")
 export declare function activated$(id: int): float[];
-@capability("ui")
 export declare function drawn$(id: int): DrawnItem[];
-@capability("ui")
 export declare function real$(id: int): bool;
-@capability("ui")
 export declare function keyCode$(name: str): int;
 
 export interface DrawnItem {
@@ -94,9 +77,6 @@ export struct TypedText {
 }
 
 
-@capability("ui")
 export declare function field$(window: int, cid: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float): void;
-@capability("ui")
 export declare function typed$(window: int): TypedText[];
-@capability("ui")
 export declare function textWidth$(window: int, text: str, size: float): float;

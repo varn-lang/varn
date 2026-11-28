@@ -40,7 +40,6 @@ function text(w: Widget): TextNode {
     return w as TextNode
 }
 
-@capability("ui")
 function drawFrame(
     win: UiWindow,
     fr: UiFrame,
@@ -55,7 +54,6 @@ function drawFrame(
     present(win, fr);
 }
 
-@capability("ui")
 function tap(
     win: UiWindow,
     fr: UiFrame,

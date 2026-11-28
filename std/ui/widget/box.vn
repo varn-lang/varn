@@ -104,7 +104,6 @@ export class BoxNode extends Widget {
         );
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
@@ -303,7 +302,6 @@ export class SpacerNode extends Widget {
 export class DividerNode extends Widget {
     color: int;
 
-    @capability("ui")
     constructor(color: int) {
         super();
         this.color = color;
@@ -313,7 +311,6 @@ export class DividerNode extends Widget {
         return new Placement(this, fixedSize(this, c, new Size(c.maxW, 1.0)), []);
     }
 
-    @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const _h = p.size.h;
@@ -396,7 +393,6 @@ export function Expanded(child: Widget, flex: float = 1.0): Widget {
     return new ExpandedNode(child, flex);
 }
 
-@capability("ui")
 export function Divider(color: int = Theme.colors.outline): Widget {
     return new DividerNode(color);
 }

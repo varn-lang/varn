@@ -14,7 +14,6 @@ import {
     MOUSE_LEFT,
 } from "std:ui";
 
-@capability("ui")
 function drawFrame(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     fr.update(win);
     win.clear(0xFF000000);

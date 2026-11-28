@@ -1,6 +1,7 @@
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::OnceLock;
+use vn_core::sandbox::Capability;
 use vn_core::StdErrorClass;
 use vn_macros::natives;
 use vn_types::NativeError;
@@ -110,9 +111,12 @@ vn_macros::vn_record! {
 natives! {
     class UiEvent {}
     class TypedText {}
-    open(title, w, h, headless) => {
+    open(ctx, title, w, h, headless) => {
         if w <= 0 || h <= 0 {
             return Err(NativeError::range_error(format!("ui.open: bad size ({w}x{h})")));
+        }
+        if !headless && !ctx.has_capability(Capability::Ui) {
+            return Err(NativeError::capability(Capability::Ui.name(), title));
         }
         let mut all = windows().lock();
         let real = if !headless && w <= u32::MAX as i64 && h <= u32::MAX as i64 {

@@ -9,7 +9,6 @@ import { args } from "std:sys/args";
 import { Theme } from "std:ui/style";
 import { computed } from "std:signals";
 
-@capability("ui")
 export function present(win: UiWindow, fr: UiFrame): void {
     win.setDark(Theme.dark.peek());
     present$(win.id);
@@ -40,7 +39,6 @@ export function render(
 const HEADLESS_FRAMES: int = 5;
 const WINDOW_FLAG: str = "--window";
 
-@capability("ui")
 export function run(
     title: str,
     build: (fr: UiFrame, focus: Focus) => Widget,

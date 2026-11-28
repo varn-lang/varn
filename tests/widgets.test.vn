@@ -21,7 +21,6 @@ import {
     UiInjectKind,
 } from "std:ui";
 
-@capability("ui")
 function tapEnter(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     win.inject(UiInjectKind.Key, 13, 1, 0);
     fr.update(win);

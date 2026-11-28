@@ -22,7 +22,6 @@ function rows(n: int): Widget[] {
     return out;
 }
 
-@capability("ui")
 function frameAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     fr.update(win);
     win.clear(0xFF000000);
@@ -30,7 +29,6 @@ function frameAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     present(win, fr);
 }
 
-@capability("ui")
 function settle(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
     for(let i = 0; i < 120; i = i + 1) {
         frameAt(win, fr, focus, tree);
