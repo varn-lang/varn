@@ -16,7 +16,7 @@ pub(super) fn parse_function_expr_inner_with_start(
 ) -> PResult<ExprId> {
     let is_generator = s.eat(TokenKind::Star);
     let id = if s.check(TokenKind::Identifier) {
-        Some(s.consume_lexeme())
+        Some(s.consume_name())
     } else {
         None
     };

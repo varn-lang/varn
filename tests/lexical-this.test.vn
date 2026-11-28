@@ -11,14 +11,14 @@ class Counter {
     }
 
     bump(): () => int {
-        return() => {
+        return () => {
             this.count = this.count + 1;
             return this.count;
         };
     }
 
     nested(): () => () => int {
-        return() => () => this.count;
+        return () => () => this.count;
     }
 
     each(items: int[]): int {
@@ -46,7 +46,7 @@ class Derived extends Base {
         return "derived"
     }
     viaArrow(): () => str {
-        return() => super.name() + "/" + this.name();
+        return () => super.name() + "/" + this.name();
     }
 }
 
@@ -56,7 +56,7 @@ class Cell<T> {
         this.held = held
     }
     reader(): () => T {
-        return() => this.held
+        return () => this.held
     }
 }
 
@@ -64,7 +64,7 @@ enum Level {
     low,
     high;
     label(): () => str {
-        return() => this == Level.low ? "low" : "high";
+        return () => this == Level.low ? "low" : "high";
     }
 }
 

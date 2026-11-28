@@ -191,7 +191,7 @@ export function toPlainText(ast: MarkdownNode): str {
     function walk(n: MarkdownNode): void {
         if(n.kind == MarkdownNodeKind.Text || n.kind == MarkdownNodeKind.InlineCode) {
             out.push(n.text);
-        } else if (n.kind == MarkdownNodeKind.CodeBlock) {
+        } else if(n.kind == MarkdownNodeKind.CodeBlock) {
             out.push(n.text + "\n");
         } else {
             for(let c in n.children) {
@@ -234,7 +234,7 @@ export function extractLinks(ast: MarkdownNode): MarkdownLink[] {
     function walk(n: MarkdownNode): void {
         if(n.kind == MarkdownNodeKind.Link) {
             links.push(new MarkdownLink(text: n.text, url: n.url, title: n.title, isImage: false));
-        } else if (n.kind == MarkdownNodeKind.Image) {
+        } else if(n.kind == MarkdownNodeKind.Image) {
             links.push(new MarkdownLink(text: n.text, url: n.url, title: n.title, isImage: true));
         }
         for(let c in n.children) {

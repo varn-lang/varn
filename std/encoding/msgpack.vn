@@ -76,7 +76,7 @@ class ByteReader {
     readU16(): int {
         const b1 = this.readU8();
         const b2 = this.readU8();
-        return(b1 << 8) | b2;
+        return (b1 << 8) | b2;
     }
 
     readU32(): int {
@@ -84,7 +84,7 @@ class ByteReader {
         const b2 = this.readU8();
         const b3 = this.readU8();
         const b4 = this.readU8();
-        return(b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+        return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
     }
 
     readI64(): int {
@@ -122,24 +122,24 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
         const n = val;
         if(n >= 0 && n <= 127) {
             w.writeU8(n);
-        } else if (n < 0 && n >= -32) {
+        } else if(n < 0 && n >= -32) {
             w.writeU8(0xE0 | (n & 0x1F));
-        } else if (n >= 0 && n <= 255) {
+        } else if(n >= 0 && n <= 255) {
             w.writeU8(0xCC);
             w.writeU8(n);
-        } else if (n >= 0 && n <= 65535) {
+        } else if(n >= 0 && n <= 65535) {
             w.writeU8(0xCD);
             w.writeU16(n);
-        } else if (n >= 0 && n <= 4294967295) {
+        } else if(n >= 0 && n <= 4294967295) {
             w.writeU8(0xCE);
             w.writeU32(n);
-        } else if (n >= -128 && n < 0) {
+        } else if(n >= -128 && n < 0) {
             w.writeU8(0xD0);
             w.writeU8(n & 0xFF);
-        } else if (n >= -32768 && n < 0) {
+        } else if(n >= -32768 && n < 0) {
             w.writeU8(0xD1);
             w.writeU16(n & 0xFFFF);
-        } else if (n >= -2147483648 && n < 0) {
+        } else if(n >= -2147483648 && n < 0) {
             w.writeU8(0xD2);
             w.writeU32(n & 0xFFFFFFFF);
         } else {
@@ -154,10 +154,10 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
         const len = raw.length;
         if(len <= 31) {
             w.writeU8(0xA0 | len);
-        } else if (len <= 255) {
+        } else if(len <= 255) {
             w.writeU8(0xD9);
             w.writeU8(len);
-        } else if (len <= 65535) {
+        } else if(len <= 65535) {
             w.writeU8(0xDA);
             w.writeU16(len);
         } else {
@@ -174,7 +174,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
         if(len <= 255) {
             w.writeU8(0xC4);
             w.writeU8(len);
-        } else if (len <= 65535) {
+        } else if(len <= 65535) {
             w.writeU8(0xC5);
             w.writeU16(len);
         } else {
@@ -190,7 +190,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
         const len = arr.length;
         if(len <= 15) {
             w.writeU8(0x90 | len);
-        } else if (len <= 65535) {
+        } else if(len <= 65535) {
             w.writeU8(0xDC);
             w.writeU16(len);
         } else {
@@ -208,7 +208,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
         const len = obj.size;
         if(len <= 15) {
             w.writeU8(0x80 | len);
-        } else if (len <= 65535) {
+        } else if(len <= 65535) {
             w.writeU8(0xDE);
             w.writeU16(len);
         } else {

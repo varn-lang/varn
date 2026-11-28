@@ -6,7 +6,7 @@ function failure(run: () => dynamic): str {
     try {
         run()
         return ""
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }
@@ -15,7 +15,7 @@ function netFailure(run: () => dynamic): NetError? {
     try {
         run()
         return null
-    } catch (e: NetError) {
+    } catch(e: NetError) {
         return e
     }
 }

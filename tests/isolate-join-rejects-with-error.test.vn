@@ -9,7 +9,7 @@ await describe("280 isolate join rejects with the worker error", async () => {
         let message = ""
         try {
             await handle.join()
-        } catch (e) {
+        } catch(e) {
             message = e.message
         }
         expect(message).toBe("worker-failed")

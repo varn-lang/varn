@@ -10,7 +10,7 @@ function pair(ok: bool): Pair? {
     return ok ? #{ a: 1, b: "x" } : null;
 }
 function run(cb: ((x: int) => int)?, x: int): int {
-    return(cb?.(x)) ?? -1;
+    return (cb?.(x)) ?? -1;
 }
 
 function describeFind(xs: int[], n: int): str {
@@ -24,7 +24,7 @@ function describeFind(xs: int[], n: int): str {
 function chain(xs: int[], first: int, second: int): str {
     if(const i = find(xs, first)) {
         return "first " + i.toString();
-    } else if (const j = find(xs, second)) {
+    } else if(const j = find(xs, second)) {
         return "second " + j.toString();
     }
     return "neither";
@@ -64,9 +64,9 @@ await describe("318 binding conditions, entries and optional calls", async () =>
         const q2: int[] = [1, 2, 3, 4, 5];
         let seen = "";
         while(const x = q2.shift()) {
-            if (x == 2) {
+            if(x == 2) {
                 continue;
-            } if (x == 4) {
+            } if(x == 4) {
                 break;
             } seen = seen + x.toString();
         }

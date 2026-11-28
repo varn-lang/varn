@@ -7,7 +7,7 @@ const INF: float = 1.0 / 0.0;
 function outcome(f: () => str): str {
     try {
         return f();
-    } catch (e) {
+    } catch(e) {
         return e is RangeError ? "range" :
             e is IntegerOverflow ? "overflow" : e is ParseError ? "parse" : "other:" + e.name;
     }

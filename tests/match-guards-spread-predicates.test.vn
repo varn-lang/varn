@@ -25,7 +25,7 @@ function isInt(val: dynamic): val is int {
 function processValue(val: dynamic): str {
     if(isStr(val)) {
         return `string: ${val.toUpperCase()}`;
-    } else if (isInt(val)) {
+    } else if(isInt(val)) {
         return `int: ${val * 2}`;
     } else {
         return "other";

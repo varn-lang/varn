@@ -21,8 +21,8 @@ function alOutOfBounds(): str {
     const r: Array<int> = [1, 2, 3]
     try {
         return `${r[5]}`
-    } catch (e) {
-        return(e as Error).name
+    } catch(e) {
+        return (e as Error).name
     }
 }
 

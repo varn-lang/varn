@@ -14,7 +14,7 @@ async function wrapTask<T>(task: Task<T>, group: TaskGroup<T>): Task<T> {
             throw new CancelledError("TaskGroup cancelled");
         }
         return res;
-    } catch (e) {
+    } catch(e) {
         group.cancel();
         throw e;
     }
@@ -49,7 +49,7 @@ export class TaskGroup<T> {
             const res = await parallel$(this.tasks);
             this._runFinally();
             return res;
-        } catch (e) {
+        } catch(e) {
             this.cancel();
             this._runFinally();
             throw e;
@@ -61,7 +61,7 @@ export class TaskGroup<T> {
         this._inflight.push(driver);
         try {
             return await driver;
-        } catch (e) {
+        } catch(e) {
             this.cancel();
             this._runFinally();
             throw e;
@@ -79,7 +79,7 @@ export class TaskGroup<T> {
             const res = await Task.race([this.joinInner(), timeoutJoin<Array<T>>(timeoutMs)]);
             this._cancelInflight();
             return res;
-        } catch (e) {
+        } catch(e) {
             this._cancelInflight();
             throw e;
         }

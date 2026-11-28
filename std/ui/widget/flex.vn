@@ -117,15 +117,15 @@ export class FlexNode extends Widget {
         if(flexTotal == 0.0) {
             if(this.mainAxis == MainAxis.center) {
                 offset = leftover / 2.0;
-            } else if (this.mainAxis == MainAxis.end) {
+            } else if(this.mainAxis == MainAxis.end) {
                 offset = leftover;
-            } else if (this.mainAxis == MainAxis.spaceBetween && count > 1) {
+            } else if(this.mainAxis == MainAxis.spaceBetween && count > 1) {
                 spacing = gap + leftover / ((count - 1) as float);
-            } else if (this.mainAxis == MainAxis.spaceAround && count > 0) {
+            } else if(this.mainAxis == MainAxis.spaceAround && count > 0) {
                 const unit = leftover / (count as float);
                 offset = unit / 2.0;
                 spacing = gap + unit;
-            } else if (this.mainAxis == MainAxis.spaceEvenly && count > 0) {
+            } else if(this.mainAxis == MainAxis.spaceEvenly && count > 0) {
                 const unit = leftover / ((count + 1) as float);
                 offset = unit;
                 spacing = gap + unit;
@@ -153,7 +153,7 @@ export class FlexNode extends Widget {
                 thick = thick < across ? thick : across;
                 if(this.crossAxis == CrossAxis.center) {
                     shift = (across - thick) / 2.0;
-                } else if (this.crossAxis == CrossAxis.end) {
+                } else if(this.crossAxis == CrossAxis.end) {
                     shift = across - thick;
                 }
             }

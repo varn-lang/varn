@@ -18,7 +18,7 @@ pub fn parse_class_decl(
 
     let (id, id_offset) = if s.check(TokenKind::Identifier) {
         let id_offset = s.token().range.start.offset;
-        let id = s.consume_lexeme();
+        let id = s.consume_name();
         (Some(id), id_offset)
     } else {
         (None, 0)

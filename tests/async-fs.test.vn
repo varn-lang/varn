@@ -21,7 +21,7 @@ async function codeOf(run: () => Task<str>): Task<str> {
     try {
         await run()
         return ""
-    } catch (e) {
+    } catch(e) {
         if(e is FsNotFoundError) {
             return e.code + ":" + e.path
         }

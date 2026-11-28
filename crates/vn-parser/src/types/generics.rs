@@ -61,7 +61,7 @@ pub(crate) fn parse_fn_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::
         let is_rest = s.eat(TokenKind::DotDotDot);
 
         let name = if s.kind() == TokenKind::Identifier && s.peek_kind(1) == TokenKind::Colon {
-            let n = s.consume_lexeme();
+            let n = s.consume_name();
             s.advance();
             Some(n)
         } else {

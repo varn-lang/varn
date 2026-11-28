@@ -4,7 +4,7 @@ function outcome(f: () => void): str {
     try {
         f()
         return "ok"
-    } catch (e) {
+    } catch(e) {
         if(e is TypeError) {
             return e.message
         }

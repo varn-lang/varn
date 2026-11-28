@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 function outcome(f: () => int): str {
     try {
         return f().toString();
-    } catch (e) {
+    } catch(e) {
         return e.message.indexOf("shift") != null
             ? "range"
             : e.message.indexOf("overflow") != null ? "overflow" : "other:" + e.message;
@@ -100,7 +100,7 @@ function fieldBump(times: int): int {
 }
 function makeCounter(start: int): () => int {
     let c = start;
-    return(): int => {
+    return (): int => {
         c += 1;
         return c;
     };

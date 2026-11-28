@@ -192,18 +192,18 @@ async function runComprehensiveTest(): Task<void> {
     // 16. std:result (Result)
     const resOk = Ok<str, int>("success");
     const resErr = Err<str, int>(500);
-    match(resOk) {
+    match (resOk) {
         Ok(v) => expect(v).toBe("success"),
         Err(_) => expect(false).toBeTruthy(),
     }
-    match(resErr) {
+    match (resErr) {
         Ok(_) => expect(false).toBeTruthy(),
         Err(e) => expect(e).toBe(500),
     }
     const resTry = Result.catching<int>(() => {
         return 888;
     });
-    match(resTry) {
+    match (resTry) {
         Ok(v) => expect(v).toBe(888),
         Err(_) => expect(false).toBeTruthy(),
     }

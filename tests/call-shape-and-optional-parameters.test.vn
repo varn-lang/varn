@@ -29,7 +29,7 @@ class Acc {
 }
 class Wide extends Acc {
     override maybe(n: int?): int {
-        return(n ?? 100) * 2
+        return (n ?? 100) * 2
     }
 }
 class Pt {
@@ -145,8 +145,8 @@ function imported(init: dynamic): str {
     try {
         const h = new Headers(init as Map<str, str>?);
         return h.get("a") ?? "absent"
-    } catch (e) {
-        return(e as Error).name
+    } catch(e) {
+        return (e as Error).name
     }
 }
 function build(i: int): int {

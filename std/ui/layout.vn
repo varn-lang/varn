@@ -85,9 +85,9 @@ function rowCol(
         let cw = 0.0;
         if(weights[i] < 0.0) {
             cw = 0.0 - weights[i];
-        } else if (flexTotal > 0.0) {
+        } else if(flexTotal > 0.0) {
             cw = flexBase * weights[i] / flexTotal;
-        } else if (flexCount > 0) {
+        } else if(flexCount > 0) {
             cw = flexBase / (flexCount as float);
         }
         if(cw < 0.0) {

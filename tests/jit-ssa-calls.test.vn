@@ -90,18 +90,18 @@ const sscXs = [1, 2, 3]
 let sscParamSum = 0
 
 // 31 chars of prefix plus the digits of 0..2999: 10 + 90*2 + 900*3 + 2000*4.
-for (let sscI = 0; sscI < 3000; sscI = sscI + 1) {
+for(let sscI = 0; sscI < 3000; sscI = sscI + 1) {
     sscLastDecorated = sscDecorated(sscI)
     sscBoxedSum = sscBoxedSum + (sscBoxed(sscI) as int)
     sscLastJoined = sscJoinCaller(sscI)
     sscIgnore(1)
     sscLengths = sscLengths + sscLabelLength(sscI)
 }
-for (let sscJ = 0; sscJ < 2000; sscJ = sscJ + 1) {
+for(let sscJ = 0; sscJ < 2000; sscJ = sscJ + 1) {
     const sscParts: str[] = []
     sscChainLast = sscChain("c", sscParts, 20)
 }
-for (let sscK = 0; sscK < 3000; sscK = sscK + 1) {
+for(let sscK = 0; sscK < 3000; sscK = sscK + 1) {
     sscParamSum = sscParamSum + sscHeapParams("abc", sscPoint, sscXs)
 }
 await describe("141 jit ssa calls", async () => {

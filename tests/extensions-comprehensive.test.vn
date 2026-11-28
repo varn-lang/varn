@@ -22,7 +22,7 @@ extension StringUtils on str {
             if(ch != " " && !inWord) {
                 count = count + 1;
                 inWord = true;
-            } else if (ch == " ") {
+            } else if(ch == " ") {
                 inWord = false;
             }
             i = i + 1;
@@ -59,7 +59,7 @@ extension PointOps on Point {
     distanceTo(other: Point): float {
         const dx: float = (this.x - other.x) as float;
         const dy: float = (this.y - other.y) as float;
-        return(dx * dx + dy * dy) ** 0.5;
+        return (dx * dx + dy * dy) ** 0.5;
     }
     isOrigin(): bool {
         return this.x == 0 && this.y == 0;

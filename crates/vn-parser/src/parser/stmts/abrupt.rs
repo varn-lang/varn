@@ -68,7 +68,7 @@ pub(super) fn parse_break_stmt(s: &mut TokenStream) -> PResult<StmtId> {
         && !s.check(TokenKind::Semicolon)
         && s.peek_line(0) == s.prev_line()
     {
-        Some(s.consume_lexeme())
+        Some(s.consume_name())
     } else {
         None
     };
@@ -85,7 +85,7 @@ pub(super) fn parse_continue_stmt(s: &mut TokenStream) -> PResult<StmtId> {
         && !s.check(TokenKind::Semicolon)
         && s.peek_line(0) == s.prev_line()
     {
-        Some(s.consume_lexeme())
+        Some(s.consume_name())
     } else {
         None
     };

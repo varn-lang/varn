@@ -46,7 +46,7 @@ await describe("283 FileStream is asynchronous", async () => {
         let code = "";
         try {
             await stream.readAll();
-        } catch (e: BadDescriptorError) {
+        } catch(e: BadDescriptorError) {
             code = e.code;
         }
         expect(code).toBe("io.bad_descriptor");

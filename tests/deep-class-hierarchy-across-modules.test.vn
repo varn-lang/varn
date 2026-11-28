@@ -31,7 +31,7 @@ await describe("297 deep class hierarchy across modules", async () => {
         let seen = "";
         try {
             throw new LeafError("boom");
-        } catch (e: RootError) {
+        } catch(e: RootError) {
             seen = e.message;
         }
         expect(seen).toBe("boom");

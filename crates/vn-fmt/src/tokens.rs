@@ -57,6 +57,7 @@ impl TokenStream {
         tokens: &[Token],
         trivia: &[Trivia],
         split_tokens: &[u32],
+        name_tokens: &[u32],
     ) -> Option<TokenStream> {
         let mut toks: Vec<Tok> = tokens
             .iter()
@@ -73,6 +74,11 @@ impl TokenStream {
                         (start + piece as u32, start + piece as u32 + 1)
                     } else {
                         (start, end)
+                    };
+                    let kind = if name_tokens.binary_search(&start).is_ok() {
+                        TokenKind::Identifier
+                    } else {
+                        kind
                     };
                     Tok {
                         kind,

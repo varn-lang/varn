@@ -13,7 +13,7 @@ class LoopProbe {
 let andFrames = 0;
 const andGo = true;
 using andProbe = new LoopProbe();
-while (andGo && andFrames < 5) {
+while(andGo && andFrames < 5) {
     if(andFrames > 2) {
         break;
     }
@@ -22,7 +22,7 @@ while (andGo && andFrames < 5) {
 
 let fieldFrames = 0;
 using fieldProbe = new LoopProbe();
-while (!fieldProbe.closed && fieldFrames < 5) {
+while(!fieldProbe.closed && fieldFrames < 5) {
     if(fieldFrames > 2) {
         break;
     }

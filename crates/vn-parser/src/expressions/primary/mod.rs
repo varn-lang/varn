@@ -297,7 +297,7 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::DocComment => {
             let kind = s.kind();
             if kind.can_be_identifier() {
-                let name = s.consume_lexeme();
+                let name = s.consume_name();
                 Ok(s.expr(range, ExprKind::Identifier { name }))
             } else {
                 Err(ParseError::unexpected(format!(

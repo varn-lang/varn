@@ -53,7 +53,7 @@ function parseFails(text: str): bool {
     try {
         Url.parse(text);
         return false;
-    } catch (e) {
+    } catch(e) {
         return e is ParseError;
     }
 }

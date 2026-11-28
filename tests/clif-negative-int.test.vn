@@ -50,7 +50,7 @@ function negFloat(f: float): float {
 }
 
 function negMixed(a: int, f: float): float {
-    return((-a) as float) + (-f)
+    return ((-a) as float) + (-f)
 }
 await describe("59 clif negative int", async () => {
     await it("tests", async () => {

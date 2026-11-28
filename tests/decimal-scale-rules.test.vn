@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
 function product(a: decimal, b: decimal): str {
-    return(a * b).toString();
+    return (a * b).toString();
 }
 function power(a: decimal, n: int): str {
     return a.pow(n).toString();

@@ -49,7 +49,7 @@ export class TextNode extends Widget {
         const ty = textY(y, h, this.size);
         if(this.align == TextAlign.center) {
             cx.win.text(textX(x, w, this.text, this.size), ty, this.text, this.size, this.color);
-        } else if (this.align == TextAlign.right) {
+        } else if(this.align == TextAlign.right) {
             cx.win.text(
                 x + w - measure(this.text, this.size),
                 ty,

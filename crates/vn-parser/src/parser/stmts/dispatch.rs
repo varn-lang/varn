@@ -81,7 +81,7 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
 
         TokenKind::Identifier if next_kind == TokenKind::Colon => {
             let start_range = s.range();
-            let label = s.consume_lexeme();
+            let label = s.consume_name();
             s.advance();
             let body = parse_stmt_or_decl_inner(s)?;
             let range = s.span_from(start_range);

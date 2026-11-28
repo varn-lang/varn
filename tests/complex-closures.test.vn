@@ -62,7 +62,7 @@ function makeMultipliers(count: int): ((n: int) => int)[] {
 
 // ── Partial application ──────────────────────────────────────────
 function partial<A, B, C>(f: (A, B) => C, a: A): (b: B) => C {
-    return(b: B) => f(a, b)
+    return (b: B) => f(a, b)
 }
 
 function add3(x: int, y: int): int {
@@ -75,7 +75,7 @@ function concat(a: str, b: str): str {
 
 // ── Curried function ─────────────────────────────────────────────
 function curry<A, B, C>(f: (A, B) => C): (a: A) => (b: B) => C {
-    return(a: A) => (b: B) => f(a, b)
+    return (a: A) => (b: B) => f(a, b)
 }
 
 function mul(x: int, y: int): int {

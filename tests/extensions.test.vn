@@ -22,7 +22,7 @@ extension StringUtils on str {
             if(ch != " " && !inWord) {
                 count = count + 1;
                 inWord = true;
-            } else if (ch == " ") {
+            } else if(ch == " ") {
                 inWord = false;
             }
             i = i + 1;

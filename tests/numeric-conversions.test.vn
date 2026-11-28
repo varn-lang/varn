@@ -11,7 +11,7 @@ function faultOf(f: () => int): str {
     try {
         f();
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is IntegerOverflow) {
             return "ovf"
         }
@@ -35,7 +35,7 @@ function bigKind(f: () => bigint): str {
     try {
         f();
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is IntegerOverflow) {
             return "ovf"
         }

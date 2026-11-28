@@ -193,6 +193,7 @@ impl TokenStream {
             pos: self.pos,
             piece: self.piece,
             splits: self.split_tokens.len(),
+            names: self.name_tokens.len(),
             diagnostics: self.errors.len(),
         }
     }
@@ -202,6 +203,7 @@ impl TokenStream {
         self.pos = state.pos;
         self.piece = state.piece;
         self.split_tokens.truncate(state.splits);
+        self.name_tokens.truncate(state.names);
         self.errors.truncate(state.diagnostics);
     }
 }
@@ -211,5 +213,6 @@ pub struct StreamState {
     pos: usize,
     piece: u8,
     splits: usize,
+    names: usize,
     diagnostics: usize,
 }

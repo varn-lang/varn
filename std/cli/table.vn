@@ -25,7 +25,7 @@ export class Table {
                 const cellLen = Color.stripAnsi(row[c]).length;
                 if(c >= colWidths.length) {
                     colWidths.push(cellLen);
-                } else if (cellLen > colWidths[c]) {
+                } else if(cellLen > colWidths[c]) {
                     colWidths[c] = cellLen;
                 }
             }

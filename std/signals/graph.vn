@@ -160,7 +160,7 @@ function flush(): void {
             for(let ob in due) {
                 try {
                     ob.run();
-                } catch (e) {
+                } catch(e) {
                     if(failure == null) {
                         failure = e as Error;
                     }

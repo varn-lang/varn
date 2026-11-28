@@ -36,7 +36,7 @@ const toggle = (): void => {
 let frames = 0;
 const t0 = now();
 const budgetMs = 25000;
-while (!fr.closed) {
+while(!fr.closed) {
     fr.update(win);
     if(fr.held(KEY_ESCAPE)) {
         break;

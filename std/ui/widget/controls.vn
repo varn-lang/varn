@@ -49,11 +49,11 @@ function paintText(
         (value: float) => {
             if(value == FOCUS_GAINED) {
                 cx.focus.claim(slot);
-            } else if (value == FOCUS_LOST) {
+            } else if(value == FOCUS_LOST) {
                 if(cx.focus.current() == slot) {
                     cx.focus.clear();
                 }
-            } else if (value == SUBMITTED && submit != null) {
+            } else if(value == SUBMITTED && submit != null) {
                 submit(ed.text);
             }
         },

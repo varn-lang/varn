@@ -19,7 +19,7 @@ function decKind(f: () => decimal): str {
     try {
         f();
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is DivisionByZero) {
             return "zero"
         }

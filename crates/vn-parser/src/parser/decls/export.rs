@@ -54,7 +54,7 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             ));
         }
         let alias = if s.eat(TokenKind::As) {
-            Some(s.consume_lexeme())
+            Some(s.consume_name())
         } else {
             None
         };
@@ -80,9 +80,9 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
         let mut specifiers = vec![];
         while !s.check(TokenKind::RBrace) && !s.is_eof() {
             let spec_range = s.range();
-            let local = s.consume_lexeme();
+            let local = s.consume_name();
             let exported = if s.eat(TokenKind::As) {
-                s.consume_lexeme()
+                s.consume_name()
             } else {
                 local
             };

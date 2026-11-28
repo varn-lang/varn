@@ -18,7 +18,7 @@ function* guarded() {
     try {
         yield 1
         throw new Error("inside")
-    } catch (e) {
+    } catch(e) {
         caught = e.message
     }
     yield caught
@@ -88,7 +88,7 @@ await describe("225 generators as frames", async () => {
             g.next()
             try {
                 g.next()
-            } catch (e) {
+            } catch(e) {
                 msg = e.message
             }
             after = g.next() == null

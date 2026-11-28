@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 function kind(n: int): str {
     let out = ""
-    match(n) {
+    match (n) {
         1 => {
             out = out + "one"
         },
@@ -19,7 +19,7 @@ function kind(n: int): str {
 function walk(limit: int): str {
     let seen = ""
     for(let i = 0; i < limit; i = i + 1) {
-        match(i) {
+        match (i) {
             1 => {
                 continue
             },
@@ -35,7 +35,7 @@ function walk(limit: int): str {
 
 function inner(n: int): int {
     let total = 0
-    match(n) {
+    match (n) {
         1 => {
             for(let i = 0; i < 9; i = i + 1) {
                 if(i == 3) {
@@ -54,7 +54,7 @@ function inner(n: int): int {
 function stop(limit: int): int {
     let reached = 0
     for(let i = 0; i < limit; i = i + 1) {
-        match(i) {
+        match (i) {
             3 => {
                 break
             },

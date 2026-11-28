@@ -28,7 +28,7 @@ export namespace Cli {
                 } else {
                     flags.set(body, "true");
                 }
-            } else if (arg.startsWith("-")) {
+            } else if(arg.startsWith("-")) {
                 const flag = arg.slice(1);
                 flags.set(flag, "true");
             } else {

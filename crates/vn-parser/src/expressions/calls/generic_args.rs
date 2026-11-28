@@ -38,7 +38,7 @@ pub fn parse_call_args(
             s.advance();
             args.push(Arg::Spread(parse_assign_expr(s)?));
         } else if s.check(TokenKind::Identifier) && s.peek_kind(1) == TokenKind::Colon {
-            let label = s.consume_lexeme();
+            let label = s.consume_name();
             s.advance();
             let label = s.interner.resolve(label).to_string();
             args.push(Arg::Named {

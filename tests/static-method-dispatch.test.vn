@@ -36,7 +36,7 @@ class Kid extends Base {
 }
 
 function callDyn(f: dynamic, x: int, y: int): int {
-    return(f as (a: int, b: int) => int)(x, y)
+    return (f as (a: int, b: int) => int)(x, y)
 }
 
 await describe("211 static methods dispatch direct", async () => {

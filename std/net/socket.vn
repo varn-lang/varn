@@ -68,7 +68,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
                         ? await tcpConnectTls$(host, port, ca, identity)
                         : await tcpConnect$(host, port);
                 return new TcpStream(connId, host, port);
-            } catch (e: NetError) {
+            } catch(e: NetError) {
                 last = e;
             }
             attempt = attempt + 1;
@@ -143,7 +143,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
         const b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
         try {
             return await tcpWrite$(this._connId, b);
-        } catch (e) {
+        } catch(e) {
             this.close();
             throw e;
         }

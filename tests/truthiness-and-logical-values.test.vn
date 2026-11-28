@@ -80,17 +80,17 @@ function counted(v: bool): bool {
 function orShort(): int {
     calls = 0;
     const r = counted(true) || counted(false);
-    return(r ? 10 : 0) + calls
+    return (r ? 10 : 0) + calls
 }
 function orBoth(): int {
     calls = 0;
     const r = counted(false) || counted(true);
-    return(r ? 10 : 0) + calls
+    return (r ? 10 : 0) + calls
 }
 function andShort(): int {
     calls = 0;
     const r = counted(false) && counted(true);
-    return(r ? 10 : 0) + calls
+    return (r ? 10 : 0) + calls
 }
 
 await describe("186 conditions are booleans", async () => {

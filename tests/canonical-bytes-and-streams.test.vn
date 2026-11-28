@@ -117,7 +117,7 @@ async function testTcpBinaryRoundtrip(): Task<void> {
         client.close();
         const exitInfo = proc.wait();
         expect(exitInfo.exitCode).toBe(0);
-    } catch (e) {
+    } catch(e) {
         proc.kill();
         throw e;
     }

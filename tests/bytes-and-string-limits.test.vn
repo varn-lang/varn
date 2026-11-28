@@ -6,7 +6,7 @@ const MIN: int = -9223372036854775807 - 1;
 function outcome(f: () => str): str {
     try {
         return f();
-    } catch (e) {
+    } catch(e) {
         return e is RangeError ? "range" : e is TypeError ? "type" : "other:" + e.name;
     }
 }

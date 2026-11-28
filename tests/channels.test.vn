@@ -17,12 +17,12 @@ async function testTypedClose(): Task<void> {
     let sendClosed = false
     try {
         await ch.rx.receive()
-    } catch (e) {
+    } catch(e) {
         typed = e is ChannelClosed
     }
     try {
         await ch.tx.send("nope")
-    } catch (e) {
+    } catch(e) {
         sendClosed = e is ChannelClosed
     }
     expect(typed).toBeTruthy()
@@ -52,7 +52,7 @@ async function testUsingDispose(): Task<void> {
     let closed = false
     try {
         await ch.rx.receive()
-    } catch (e) {
+    } catch(e) {
         closed = e is ChannelClosed
     }
     expect(closed).toBeTruthy()
@@ -69,7 +69,7 @@ async function testCrossIsolate(): Task<void> {
     let done = false
     try {
         await b.rx.receive()
-    } catch (e) {
+    } catch(e) {
         done = e is ChannelClosed
     }
     expect(done).toBeTruthy()

@@ -10,7 +10,7 @@ function sources(dir: str): str[] {
             for(const inner in sources(path)) {
                 found.push(inner);
             }
-        } else if (name.endsWith(".vn")) {
+        } else if(name.endsWith(".vn")) {
             found.push(path);
         }
     }

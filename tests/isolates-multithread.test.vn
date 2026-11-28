@@ -38,7 +38,7 @@ async function testIsolates() {
     let dialogClosed = false
     try {
         await out3.rx.receive()
-    } catch (e) {
+    } catch(e) {
         dialogClosed = e is ChannelClosed
     }
     expect(dialogClosed).toBeTruthy()
@@ -59,7 +59,7 @@ async function testIsolates() {
     let threwAnon = false
     try {
         await spawnIsolate(anonymousWorkerRef(), #[spare.tx])
-    } catch (e) {
+    } catch(e) {
         threwAnon = true
         expect(e.message.indexOf("must be a function reference") != null).toBeTruthy()
     }
@@ -68,7 +68,7 @@ async function testIsolates() {
     let threwUnexported = false
     try {
         await spawnIsolate(unexportedWorkerRef(), #[spare.tx])
-    } catch (e) {
+    } catch(e) {
         threwUnexported = true
         expect(e.message.indexOf("is not a top-level exported function") != null).toBeTruthy()
     }

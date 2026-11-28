@@ -246,7 +246,7 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
 
 fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
     let id_range = s.range();
-    let name = s.consume_lexeme();
+    let name = s.consume_name();
     if s.check(TokenKind::LParen) {
         let payload =
             VariantPayload::Positional(parse_match_list(s, TokenKind::LParen, TokenKind::RParen)?);
@@ -268,7 +268,7 @@ fn parse_identifier_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> 
     if s.check(TokenKind::Dot) {
         let id_expr = s.expr(id_range, vn_core::ast::ExprKind::Identifier { name });
         s.advance();
-        let prop_name = s.consume_lexeme();
+        let prop_name = s.consume_name();
         let prop_range = s.prev_range();
         if s.check(TokenKind::LParen) {
             let payload = VariantPayload::Positional(parse_match_list(

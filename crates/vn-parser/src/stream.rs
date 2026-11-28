@@ -52,6 +52,7 @@ pub struct TokenStream {
 
     piece: u8,
     pub(crate) split_tokens: Vec<u32>,
+    pub(crate) name_tokens: Vec<u32>,
     next_ast_id: AstId,
     regex_literals: Vec<regex_literals::RegexLiteral>,
 
@@ -78,6 +79,7 @@ impl TokenStream {
             async_body: false,
             piece: 0,
             split_tokens: Vec::new(),
+            name_tokens: Vec::new(),
             next_ast_id: 1,
             regex_literals: Vec::new(),
             interner,
@@ -339,11 +341,21 @@ impl TokenStream {
 
     pub fn expect_id(&mut self) -> PResult<vn_core::Atom> {
         if self.kind().can_be_identifier() {
-            let id = self.consume_lexeme();
-            Ok(id)
+            Ok(self.consume_name())
         } else {
             Err(self.mismatch(TokenKind::Identifier))
         }
+    }
+
+    pub fn note_name_token(&mut self) {
+        if self.kind() != TokenKind::Identifier {
+            self.name_tokens.push(self.range().start.offset);
+        }
+    }
+
+    pub fn consume_name(&mut self) -> vn_core::Atom {
+        self.note_name_token();
+        self.consume_lexeme()
     }
 
     pub fn consume_lexeme(&mut self) -> vn_core::Atom {
@@ -361,13 +373,12 @@ impl TokenStream {
 
     #[inline]
     pub fn span_from(&self, start: SourceRange) -> SourceRange {
-        if self.pos == 0 {
+        if self.pos == 0 && self.piece == 0 {
             return start;
         }
-        let prev = &self.tokens[self.pos - 1];
         SourceRange {
             start: start.start,
-            end: prev.range.end,
+            end: self.prev_range().end,
         }
     }
 

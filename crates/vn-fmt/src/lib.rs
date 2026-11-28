@@ -57,8 +57,13 @@ fn render(source: &str, filename: &str) -> Result<Rendered, FormatError> {
     if let Some(error) = diagnostics.iter().next() {
         return Err(FormatError::Syntax(located(error)));
     }
-    let Some(stream) = tokens::TokenStream::build(source, &tokens, &trivia, &program.split_tokens)
-    else {
+    let Some(stream) = tokens::TokenStream::build(
+        source,
+        &tokens,
+        &trivia,
+        &program.split_tokens,
+        &program.name_tokens,
+    ) else {
         return Err(FormatError::Syntax("unbalanced brackets".to_string()));
     };
     let facts = facts::collect(&stream, &program, &arena);

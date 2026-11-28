@@ -81,13 +81,13 @@ class GcScalars {
 const gcScalars: GcScalars[] = []
 let gcScalarSum = 0
 
-for (let i = 0; i < 2000; i = i + 1) {
+for(let i = 0; i < 2000; i = i + 1) {
     gcMixed.push(new GcMixed(i))
 }
 gcChurn(60000)
 const gcMixedSum = gcMixedChecksum(gcMixed)
 gcChurn(60000)
-for (let round = 0; round < 20; round = round + 1) {
+for(let round = 0; round < 20; round = round + 1) {
     gcOld.leaf = new GcLeaf(round)
     gcOld.items = [round, round, round]
     gcOld.label = `rewritten-label-long-enough-for-the-heap-${round}`
@@ -98,11 +98,11 @@ const gcOldLeafN = gcOld.leaf.n
 const gcOldItem1 = gcOld.items[1]
 const gcOldLabel = gcOld.label
 const gcOldAnyN = (gcOld.any as GcLeaf).n
-for (let i = 0; i < 5000; i = i + 1) {
+for(let i = 0; i < 5000; i = i + 1) {
     gcScalars.push(new GcScalars(i))
 }
 gcChurn(60000)
-for (const s in gcScalars) {
+for(const s in gcScalars) {
     gcScalarSum = gcScalarSum + s.a + s.b
 }
 

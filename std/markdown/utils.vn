@@ -31,7 +31,7 @@ export function slugify(text: str): str {
         const isAlphaNum = (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
         if(isAlphaNum) {
             out = out + s[i];
-        } else if (code == 32 || code == 45 || code == 95) {
+        } else if(code == 32 || code == 45 || code == 95) {
             if(!out.endsWith("-") && out.length > 0) {
                 out = out + "-";
             }

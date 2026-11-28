@@ -12,7 +12,6 @@ pub struct Context<'a> {
     pub toks: &'a [Tok],
     pub ternary: &'a HashSet<usize>,
     pub comparisons: &'a HashSet<usize>,
-    pub member_names: &'a HashSet<usize>,
 }
 
 pub fn ends_operand(prev: &Tok, before: Option<&Tok>) -> bool {
@@ -39,16 +38,6 @@ pub fn ends_operand(prev: &Tok, before: Option<&Tok>) -> bool {
             | K::True
             | K::False
             | K::Null
-            | K::Get
-            | K::Set
-            | K::Of
-            | K::From
-            | K::Type
-            | K::On
-            | K::Out
-            | K::Mut
-            | K::Native
-            | K::Constructor
             | K::Dynamic
     ) {
         return true;
@@ -328,9 +317,11 @@ impl Context<'_> {
         let prev = &toks[prev_index];
         let named = prev_index
             .checked_sub(1)
-            .is_some_and(|b| matches!(toks[b].kind, K::Dot | K::QuestionDot))
-            || self.member_names.contains(&prev_index);
+            .is_some_and(|b| matches!(toks[b].kind, K::Dot | K::QuestionDot));
         if named {
+            return Gap::None;
+        }
+        if matches!(prev.kind, K::If | K::For | K::While | K::Switch | K::Catch) {
             return Gap::None;
         }
         if is_control_keyword(prev.kind) || matches!(prev.kind, K::LBrace | K::RBrace) {

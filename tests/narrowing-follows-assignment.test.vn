@@ -58,7 +58,7 @@ function name(x: int | str | bool): str {
         const flag: bool = x
         return flag ? "yes" : "no"
     }
-    return(x + 1).toString()
+    return (x + 1).toString()
 }
 function reset(x: str?): int {
     if(x == null) {

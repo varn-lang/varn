@@ -7,7 +7,6 @@ use vn_core::ast::{
 use vn_core::{BinOp, TokenKind};
 
 pub struct Facts {
-    pub member_names: HashSet<usize>,
     pub chains: std::collections::HashMap<usize, Vec<crate::chains::Chain>>,
     pub assigns: std::collections::HashMap<usize, usize>,
     pub containers: BTreeMap<usize, Vec<u32>>,
@@ -324,21 +323,7 @@ pub fn collect(stream: &TokenStream, program: &Program, arena: &AstArena) -> Fac
         .map(|item| extend_start(stream, &spans, item))
         .collect();
 
-    let mut member_names = HashSet::new();
-    for items in containers.values() {
-        for item in items {
-            let mut index = stream.index_at_or_after(*item);
-            while index < stream.toks.len() && is_modifier(stream.toks[index].kind) {
-                index += 1;
-            }
-            if index + 1 < stream.toks.len() && stream.toks[index + 1].kind == TokenKind::LParen {
-                member_names.insert(index);
-            }
-        }
-    }
-
     Facts {
-        member_names,
         containers,
         root_items,
         ternary: shapes.ternary,
@@ -376,23 +361,4 @@ fn extend_start(stream: &TokenStream, decorators: &[(u32, u32)], start: u32) -> 
         index = stream.index_at_or_after(*decorator_start);
     }
     stream.toks[index.min(stream.toks.len() - 1)].start
-}
-
-fn is_modifier(kind: TokenKind) -> bool {
-    matches!(
-        kind,
-        TokenKind::Public
-            | TokenKind::Private
-            | TokenKind::Protected
-            | TokenKind::Static
-            | TokenKind::Abstract
-            | TokenKind::Override
-            | TokenKind::Readonly
-            | TokenKind::Async
-            | TokenKind::Declare
-            | TokenKind::Native
-            | TokenKind::Star
-            | TokenKind::At
-            | TokenKind::DocComment
-    )
 }

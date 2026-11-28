@@ -11,12 +11,12 @@ function valueOr(q: Leaf?): int {
 }
 
 let moduleTotal = 0
-for (let i = 0; i < 5; i = i + 1) {
+for(let i = 0; i < 5; i = i + 1) {
     moduleTotal = moduleTotal + valueOr(leaf)
 }
 
 let moduleNulls = 0
-for (let i = 0; i < 5; i = i + 1) {
+for(let i = 0; i < 5; i = i + 1) {
     moduleNulls = moduleNulls + valueOr(null) + 1
 }
 

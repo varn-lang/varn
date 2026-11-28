@@ -127,7 +127,7 @@ class Log implements Sink<Animal> {
 }
 
 function pull(s: Source<Animal>): str {
-    return(s.next() ?? new Animal()).name
+    return (s.next() ?? new Animal()).name
 }
 function push(s: Sink<Dog>): void {
     s.put(new Dog())

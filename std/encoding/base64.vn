@@ -9,7 +9,7 @@ function fromUrlSafe(s: str): str {
     const rem = out.length % 4;
     if(rem == 2) {
         out = out + "==";
-    } else if (rem == 3) {
+    } else if(rem == 3) {
         out = out + "=";
     }
     return out;

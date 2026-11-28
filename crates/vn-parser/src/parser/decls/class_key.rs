@@ -91,7 +91,10 @@ fn member_key_text(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::Set
         | TokenKind::Constructor
         | TokenKind::Match
-        | TokenKind::Placeholder => Ok(s.consume_str()),
+        | TokenKind::Placeholder => {
+            s.note_name_token();
+            Ok(s.consume_str())
+        }
         TokenKind::EOF
         | TokenKind::Dynamic
         | TokenKind::FloatLiteral

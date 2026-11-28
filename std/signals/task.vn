@@ -126,7 +126,7 @@ export class Resource<S, T> {
                     this._loading.set(false);
                 });
             }
-        } catch (e) {
+        } catch(e) {
             if(mine == this._generation) {
                 batch(() => {
                     this._error.set(e as Error);

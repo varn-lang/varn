@@ -16,7 +16,7 @@ export class Query {
     constructor(init?: str | Map<str, str | str[]>) {
         if(init is str) {
             this._parse(init);
-        } else if (init != null) {
+        } else if(init != null) {
             for(const #[key, value] in init as Map<str, str | str[]>) {
                 if(value is str[]) {
                     for(const item in value) {

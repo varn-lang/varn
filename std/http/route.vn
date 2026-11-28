@@ -63,7 +63,7 @@ export class Route {
                 if(paramName != null) {
                     params.set(paramName, reqSeg);
                 }
-            } else if (seg != reqSeg) {
+            } else if(seg != reqSeg) {
                 return null;
             }
         }

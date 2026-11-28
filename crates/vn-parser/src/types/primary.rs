@@ -29,7 +29,7 @@ pub(crate) fn parse_primary_type(
                 && s.peek_kind(1) == TokenKind::Identifier
             {
                 s.advance();
-                let name = s.consume_lexeme();
+                let name = s.consume_name();
                 let full_range = s.span_from(range);
                 s.push_error(vn_core::ForeignForm::InferType.message(), full_range);
                 return Ok(s.type_node(full_range, TypeKind::Named(name, None)));
@@ -187,7 +187,7 @@ pub(crate) fn parse_primary_type(
         | TokenKind::Out
         | TokenKind::Native
         | TokenKind::Constructor => {
-            let name = s.consume_lexeme();
+            let name = s.consume_name();
             Ok(s.type_node(range, TypeKind::Named(name, None)))
         }
 

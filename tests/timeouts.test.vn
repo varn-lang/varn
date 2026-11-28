@@ -23,7 +23,7 @@ await describe("299 timeouts", async () => {
         let code = "";
         try {
             await Task.timeout(slow(), 30);
-        } catch (e: TimeoutError) {
+        } catch(e: TimeoutError) {
             code = e.code;
         }
         expect(code).toBe("timeout");
@@ -63,7 +63,7 @@ await describe("299 timeouts", async () => {
         let code = "";
         try {
             await fetch(`http://127.0.0.1:${server.port}/slow`, new RequestInit(timeoutMs: 100));
-        } catch (e: TimeoutError) {
+        } catch(e: TimeoutError) {
             code = e.code;
         }
         expect(code).toBe("timeout");

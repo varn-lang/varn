@@ -32,7 +32,7 @@ class Vec2 {
         return this.x == o.x && this.y == o.y
     }
     compare(o: Vec2): int {
-        return(this.x * this.x + this.y * this.y) - (o.x * o.x + o.y * o.y)
+        return (this.x * this.x + this.y * this.y) - (o.x * o.x + o.y * o.y)
     }
 }
 

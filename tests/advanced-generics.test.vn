@@ -89,18 +89,18 @@ const arr = list.toArray()
 
 // ── Generic HOF (higher-order functions) ─────────────────────────
 function pipe<A, B, C>(f: (A) => B, g: (B) => C): (A) => C {
-    return(x: A) => g(f(x))
+    return (x: A) => g(f(x))
 }
 
 function flip<A, B, C>(f: (A, B) => C): (B, A) => C {
-    return(b: B, a: A) => f(a, b)
+    return (b: B, a: A) => f(a, b)
 }
 
 // ── Generic memoize ──────────────────────────────────────────────
 function memoize<T>(f: (a: int) => T): (int) => T {
     const cache: T[] = []
     const seen: bool[] = []
-    return(n: int) => {
+    return (n: int) => {
         if(n < seen.length && seen[n]) return cache[n]
         const result = f(n)
         while(cache.length <= n) {
@@ -116,7 +116,7 @@ function memoize<T>(f: (a: int) => T): (int) => T {
 // ── Generic counter factory ───────────────────────────────────────
 function makeAccumulator<T>(init: T, combine: (T, T) => T): (v: T) => T {
     let state = init
-    return(v: T) => {
+    return (v: T) => {
         state = combine(state, v)
         return state
     }

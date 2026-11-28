@@ -80,7 +80,7 @@ async function doFetch(
 
     try {
         await tcpWrite$(connId, requestStr);
-    } catch (e) {
+    } catch(e) {
         tcpClose$(connId);
         throw e;
     }
@@ -88,7 +88,7 @@ async function doFetch(
     let rawResp: RawResponse? = null;
     try {
         rawResp = await readHttpResponse(connId, method == HttpMethod.HEAD);
-    } catch (e) {
+    } catch(e) {
         tcpClose$(connId);
         throw e;
     }
@@ -194,7 +194,7 @@ export async function fetch(url: str, init: RequestInit = new RequestInit()): Ta
     }
     try {
         return await Task.timeout(fetchFollowing(url, init, state), limit);
-    } catch (e: TimeoutError) {
+    } catch(e: TimeoutError) {
         if(state.connId >= 0) {
             tcpClose$(state.connId);
         }

@@ -14,16 +14,16 @@ function dot(): str {
 function thrown(msg: str): str {
     try {
         throw new TypeError(msg)
-    } catch (e) {
-        return(e as Error).name + ":" + (e as Error).message
+    } catch(e) {
+        return (e as Error).name + ":" + (e as Error).message
     }
 }
 
 function ranged(msg: str): bool {
     try {
         throw new RangeError(msg)
-    } catch (e) {
-        return(e as Error) is RangeError
+    } catch(e) {
+        return (e as Error) is RangeError
     }
 }
 

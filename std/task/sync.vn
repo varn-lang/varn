@@ -30,7 +30,7 @@ export class Mutex {
             const result = await action();
             this.unlock();
             return result;
-        } catch (error) {
+        } catch(error) {
             this.unlock();
             throw error;
         }
@@ -73,7 +73,7 @@ export class Semaphore {
             const result = await action();
             this.release();
             return result;
-        } catch (error) {
+        } catch(error) {
             this.release();
             throw error;
         }

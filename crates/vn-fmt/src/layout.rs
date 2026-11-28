@@ -111,7 +111,6 @@ impl<'a> Layout<'a> {
             toks,
             ternary: &self.facts.ternary,
             comparisons: &self.facts.comparisons,
-            member_names: &self.facts.member_names,
         };
         match context.gap(next, had_space) {
             Gap::None => Doc::Nil,

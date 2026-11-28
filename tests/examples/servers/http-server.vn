@@ -2,7 +2,7 @@ import { serve, Request, json } from "std:http";
 import { sleep } from "std:task";
 
 const app = serve(async (req: Request) => json(#{ hello: "world", path: req.path }), 19882);
-if (!app.isListening) {
+if(!app.isListening) {
     throw new Error("example server failed to listen");
 }
 await sleep(30000);

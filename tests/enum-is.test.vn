@@ -36,7 +36,7 @@ await describe("175 enum is", async () => {
         let caught = ""
         try {
             asHue(Figure.Square)
-        } catch (e) {
+        } catch(e) {
             caught = e.message
         }
         expect(caught).toBe("type mismatch: expected 'Hue', got 'enum'")

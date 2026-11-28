@@ -123,11 +123,15 @@ impl Parser {
         let mut split_tokens = std::mem::take(&mut self.stream.split_tokens);
         split_tokens.sort_unstable();
         split_tokens.dedup();
+        let mut name_tokens = std::mem::take(&mut self.stream.name_tokens);
+        name_tokens.sort_unstable();
+        name_tokens.dedup();
         let prog = Program {
             filename: self.stream.filename.clone(),
             body,
             range,
             split_tokens,
+            name_tokens,
         };
         (prog, errors, profile)
     }

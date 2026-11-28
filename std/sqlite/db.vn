@@ -93,7 +93,7 @@ export class Database {
             const result = body();
             script$(id, "COMMIT");
             return result;
-        } catch (err) {
+        } catch(err) {
             script$(id, "ROLLBACK");
             throw err;
         }
@@ -106,7 +106,7 @@ export class Database {
             const result = await body();
             script$(id, "COMMIT");
             return result;
-        } catch (err) {
+        } catch(err) {
             script$(id, "ROLLBACK");
             throw err;
         }

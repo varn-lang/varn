@@ -11,7 +11,7 @@ function kindOf(f: () => int): str {
     try {
         f()
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is IntegerOverflow) {
             return "IntegerOverflow"
         }
@@ -44,7 +44,7 @@ await describe("119 numeric errors", async () => {
         expect(kindOf(() => quo(1, 0))).toBe("DivisionByZero");
         try {
             mul(9223372036854775807, 2)
-        } catch (e) {
+        } catch(e) {
             caught = e is Error && e.name == "IntegerOverflow"
         }
         expect(caught).toBeTruthy();
@@ -55,13 +55,13 @@ await describe("119 numeric errors", async () => {
         expect(rem(0 - 7, 2)).toBe(0 - 1);
         try {
             mulDiscard(4000000000, 4000000000)
-        } catch (e) {
+        } catch(e) {
             discardedCaught = e is IntegerOverflow
         }
         expect(discardedCaught).toBeTruthy();
         try {
             negDiscard(0 - 9223372036854775807 - 1)
-        } catch (e) {
+        } catch(e) {
             negCaught = e is IntegerOverflow
         }
         expect(negCaught).toBeTruthy();

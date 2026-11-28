@@ -83,7 +83,7 @@ export namespace Color {
             const character = text[index];
             if(character == "\x1b") {
                 inEscape = true;
-            } else if (inEscape) {
+            } else if(inEscape) {
                 if(character == "m") {
                     inEscape = false;
                 }

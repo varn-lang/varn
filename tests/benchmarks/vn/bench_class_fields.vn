@@ -13,7 +13,7 @@ const iterations = 1000000;
 let i = 0;
 let sum = 0;
 
-while (i < iterations) {
+while(i < iterations) {
     pt.x = pt.x + 1;
     pt.y = pt.y + 2;
     sum = sum + pt.x + pt.y;

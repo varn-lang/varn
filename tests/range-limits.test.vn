@@ -19,7 +19,7 @@ function items(r: Range<int>): str {
 function outcome(f: () => str): str {
     try {
         return f();
-    } catch (e) {
+    } catch(e) {
         return e is IntegerOverflow ? "overflow" : e is RangeError ? "range" : "other:" + e.name;
     }
 }

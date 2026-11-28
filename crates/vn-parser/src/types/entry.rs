@@ -16,7 +16,7 @@ pub(super) fn parse_type_in(s: &mut TokenStream, ctx: TypeContext) -> PResult<Ty
     let start = s.range();
 
     if s.check(TokenKind::Identifier) && s.peek_kind(1) == TokenKind::Is {
-        let param_name = s.consume_lexeme();
+        let param_name = s.consume_name();
         s.advance();
         let target_ty = parse_type_in(s, ctx)?;
         let full_range = s.span_from(start);

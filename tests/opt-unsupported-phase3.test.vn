@@ -71,7 +71,7 @@ class CustomError extends Error {
 function testCatchDestructure(): void {
     try {
         throw new CustomError("process failed", 500);
-    } catch (e) {
+    } catch(e) {
         if(e is CustomError) {
             const { message, code } = e;
             expect(message).toBe("process failed");

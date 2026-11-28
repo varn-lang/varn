@@ -78,8 +78,8 @@ function held(h: Held?): int {
 function claims(run: () => int): str {
     try {
         return run().toString()
-    } catch (e) {
-        return(e as Error).message
+    } catch(e) {
+        return (e as Error).message
     }
 }
 

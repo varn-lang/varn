@@ -18,13 +18,13 @@ function indentCompact(compact: str, space: int): str {
             if(ch == "\\") {
                 index = index + 1;
                 out = out + compact[index];
-            } else if (ch == "\"") {
+            } else if(ch == "\"") {
                 inString = false;
             }
-        } else if (ch == "\"") {
+        } else if(ch == "\"") {
             inString = true;
             out = out + ch;
-        } else if (ch == "{" || ch == "[") {
+        } else if(ch == "{" || ch == "[") {
             const closer = ch == "{" ? "}" : "]";
             if(index + 1 < length && compact[index + 1] == closer) {
                 out = out + ch + closer;
@@ -33,12 +33,12 @@ function indentCompact(compact: str, space: int): str {
                 depth = depth + 1;
                 out = out + ch + "\n" + unit.repeat(depth);
             }
-        } else if (ch == "}" || ch == "]") {
+        } else if(ch == "}" || ch == "]") {
             depth = depth - 1;
             out = out + "\n" + unit.repeat(depth) + ch;
-        } else if (ch == ",") {
+        } else if(ch == ",") {
             out = out + ",\n" + unit.repeat(depth);
-        } else if (ch == ":") {
+        } else if(ch == ":") {
             out = out + ": ";
         } else {
             out = out + ch;

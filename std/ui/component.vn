@@ -35,9 +35,9 @@ export class ComponentNode extends Widget {
 }
 
 export function component(): (fn: (...args: int[]) => Widget) => (...args: int[]) => Widget {
-    return(fn: (...args: int[]) => Widget) => {
+    return (fn: (...args: int[]) => Widget) => {
         const definition = newComponentDefinition();
-        return(...args: int[]) => new ComponentNode(definition, () => fn(...args));
+        return (...args: int[]) => new ComponentNode(definition, () => fn(...args));
     };
 }
 

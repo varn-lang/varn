@@ -56,9 +56,9 @@ pub fn parse_import_decl(s: &mut TokenStream) -> PResult<ImportDecl> {
         s.advance();
         while !s.check(TokenKind::RBrace) && !s.is_eof() {
             let spec_range = s.range();
-            let imported = s.consume_lexeme();
+            let imported = s.consume_name();
             let local = if s.eat(TokenKind::As) {
-                s.consume_lexeme()
+                s.consume_name()
             } else {
                 imported
             };

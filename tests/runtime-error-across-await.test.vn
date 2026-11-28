@@ -15,7 +15,7 @@ async function describeFailure(f: () => Task<int>): Task<str> {
     try {
         await f()
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is TypeError) {
             return "TypeError: " + e.message
         }

@@ -47,13 +47,13 @@ function nrSum(head: NrNode): int {
 const nrLists: NrNode[] = []
 const nrJunk: str[] = []
 let nrTotal = 0
-for (let round = 0; round < 20; round = round + 1) {
+for(let round = 0; round < 20; round = round + 1) {
     nrLists.push(nrBuild(3000))
 }
-for (let i = 0; i < 60000; i = i + 1) {
+for(let i = 0; i < 60000; i = i + 1) {
     nrJunk.push(`junk-${i}`)
 }
-for (const l in nrLists) {
+for(const l in nrLists) {
     nrTotal = nrTotal + nrSum(l)
 }
 await describe("140 nullable ref fields", async () => {

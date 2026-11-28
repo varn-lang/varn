@@ -28,7 +28,7 @@ export function cancel<T>(handle: TaskHandle<T>): void {
 async function wrapSettledOne<T>(task: Task<T>): Task<Result<T, Error>> {
     try {
         return Result.Ok(await task);
-    } catch (err) {
+    } catch(err) {
         return Result.Err(err as Error);
     }
 }
@@ -45,7 +45,7 @@ async function raceOne<T>(
 ): Task<void> {
     try {
         settled[index].result = Result.Ok(await handle);
-    } catch (err) {
+    } catch(err) {
         settled[index].result = Result.Err(err as Error);
     }
     await done.tx.send(index);
@@ -62,7 +62,7 @@ async function expire<T>(deadline: Deadline, target: TaskHandle<T>, ms: int): Ta
 }
 
 export namespace Task {
-    export async function yield (): Task<void> {
+    export async function yield(): Task<void> {
         await yieldTask$();
     }
 
@@ -84,7 +84,7 @@ export namespace Task {
         const timer = spawn$(expire(deadline, target, ms));
         try {
             return await target;
-        } catch (err) {
+        } catch(err) {
             if(deadline.expired) {
                 throw new TimeoutError(`timed out after ${ms}ms`);
             }

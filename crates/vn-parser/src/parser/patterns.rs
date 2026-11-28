@@ -181,7 +181,7 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::DocComment
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => {
-            let name = s.consume_lexeme();
+            let name = s.consume_name();
             let full_range = s.span_from(range);
             Ok(Pattern::Identifier {
                 name,
@@ -233,7 +233,7 @@ fn parse_hash_pattern(s: &mut TokenStream) -> PResult<Pattern> {
                 break;
             }
             let prop_range = s.range();
-            let key = s.consume_lexeme();
+            let key = s.consume_name();
             let (value, shorthand) = if s.eat(TokenKind::Colon) {
                 (parse_pattern(s)?, false)
             } else {
@@ -340,12 +340,12 @@ fn parse_object_pattern(s: &mut TokenStream) -> PResult<Pattern> {
             break;
         }
         let prop_range = s.range();
-        let key = s.consume_lexeme();
+        let key = s.consume_name();
         let (value, shorthand) = if s.eat(TokenKind::Colon) {
             (parse_pattern(s)?, false)
         } else if s.eat(TokenKind::As) {
             let alias_range = s.range();
-            let alias = s.consume_lexeme();
+            let alias = s.consume_name();
             (
                 Pattern::Identifier {
                     name: alias,

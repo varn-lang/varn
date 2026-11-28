@@ -128,9 +128,9 @@ export namespace Cron {
             let dayOk = false;
             if(domOpen && dowOpen) {
                 dayOk = true;
-            } else if (!domOpen && !dowOpen) {
+            } else if(!domOpen && !dowOpen) {
                 dayOk = spec.days[parts.day - 1] || spec.weekdays[dow];
-            } else if (!domOpen) {
+            } else if(!domOpen) {
                 dayOk = spec.days[parts.day - 1];
             } else {
                 dayOk = spec.weekdays[dow];

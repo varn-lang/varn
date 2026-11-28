@@ -89,12 +89,12 @@ export class UiFrame {
                         this.leftPressed = true;
                         this.downX = e.x;
                         this.downY = e.y;
-                    } else if (!e.pressed && this.left) {
+                    } else if(!e.pressed && this.left) {
                         this.left = false;
                         this.leftReleased = true;
                     }
                 }
-            } else if (e.kind == UiEventKind.Key) {
+            } else if(e.kind == UiEventKind.Key) {
                 if(e.pressed) {
                     if(!UiFrame.contains(this.keys, e.key)) {
                         this.keys.push(e.key);
@@ -105,13 +105,13 @@ export class UiFrame {
                 } else {
                     UiFrame.drop(this.keys, e.key);
                 }
-            } else if (e.kind == UiEventKind.Resize) {
+            } else if(e.kind == UiEventKind.Resize) {
                 this.resized = true;
                 this.w = e.w;
                 this.h = e.h;
-            } else if (e.kind == UiEventKind.Wheel) {
+            } else if(e.kind == UiEventKind.Wheel) {
                 this.wheel = this.wheel + e.y;
-            } else if (e.kind == UiEventKind.Close) {
+            } else if(e.kind == UiEventKind.Close) {
                 this.closed = true;
             }
         }

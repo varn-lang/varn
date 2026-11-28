@@ -32,7 +32,7 @@ export async function workerArgs(
 export async function workerDialog(rx: Receiver<Msg>, tx: Sender<int>) {
     let open = true
     for await (const msg in rx) {
-        match(msg) {
+        match (msg) {
             Val(n) => await tx.send(n + 1),
             Msg.Exit => open = false,
         }
@@ -81,5 +81,5 @@ export function unexportedWorkerRef(): (tx: Sender<str>) => void {
 }
 
 export function anonymousWorkerRef(): (tx: Sender<str>) => void {
-    return(_tx: Sender<str>) => {};
+    return (_tx: Sender<str>) => {};
 }

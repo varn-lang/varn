@@ -8,4 +8,5 @@ pub struct Program {
     pub body: Vec<StmtId>,
     pub range: SourceRange,
     pub split_tokens: Vec<u32>,
+    pub name_tokens: Vec<u32>,
 }

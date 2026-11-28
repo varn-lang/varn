@@ -166,7 +166,7 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
             Ok(PropKey::Computed(expr))
         }
         _ if s.kind().can_be_identifier() || s.kind().is_keyword() => {
-            let atom = s.consume_lexeme();
+            let atom = s.consume_name();
             Ok(PropKey::Identifier(s.interner.resolve(atom).to_string()))
         }
         TokenKind::EOF

@@ -17,7 +17,7 @@ function parseInteger(digits: str): int {
     if(digits.startsWith("-")) {
         sign = -1;
         start = 1;
-    } else if (digits.startsWith("+")) {
+    } else if(digits.startsWith("+")) {
         start = 1;
     }
     for(let index = start; index < digits.length; index = index + 1) {

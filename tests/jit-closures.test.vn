@@ -45,7 +45,7 @@ function clPerIteration(n: int): int {
 function clNested(tag: str): str {
     let label = tag + "-"
     const outer = () => {
-        return() => label + "in"
+        return () => label + "in"
     }
     label = label + "x"
     return outer()()

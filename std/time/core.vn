@@ -43,7 +43,7 @@ export function isoYear(year: int): str {
     const magnitude = year < 0 ? -year : year;
     const digits = `${magnitude}`;
     const padded = "0".repeat(6 - digits.length) + digits;
-    return(year < 0 ? "-" : "+") + padded;
+    return (year < 0 ? "-" : "+") + padded;
 }
 
 export function now(): int {

@@ -60,7 +60,7 @@ function mapNullish(): int {
     m.set("a", 3)
     const n = new Map<str, int>()
     n.set("c", 5)
-    return(m["a"] ?? 0) * 1000 + (m["b"] ?? 4) * 100 + (n.get("c") ?? 0) * 10 + (n.get("d") ?? 6)
+    return (m["a"] ?? 0) * 1000 + (m["b"] ?? 4) * 100 + (n.get("c") ?? 0) * 10 + (n.get("d") ?? 6)
 }
 
 class Inner {

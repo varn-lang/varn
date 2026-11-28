@@ -1,17 +1,17 @@
 import { describe, it, expect } from "std:test";
 
 function makeAdder(n: int): (a: int) => int {
-    return(x: int) => x + n;
+    return (x: int) => x + n;
 }
 function makeCounter(): () => int {
     let c = 0;
-    return() => {
+    return () => {
         c = c + 1;
         return c;
     };
 }
 function compose<A, B, C>(f: (a: B) => C, g: (b: A) => B): (c: A) => C {
-    return(x: A) => f(g(x));
+    return (x: A) => f(g(x));
 }
 
 await describe("07 Closures", async () => {

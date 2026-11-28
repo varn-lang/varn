@@ -25,7 +25,7 @@ async function outcome(f: () => Task<dynamic>): Task<str> {
     try {
         const r = await f()
         return `ok ${r}`
-    } catch (e) {
+    } catch(e) {
         if(e is TypeError) {
             return e.message
         }
@@ -40,7 +40,7 @@ function sum(d: dynamic): str {
             total = total + n
         }
         return `sum ${total}`
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }
@@ -52,7 +52,7 @@ async function join(d: dynamic): Task<str> {
             text = text + w
         }
         return "text " + text
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }

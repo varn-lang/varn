@@ -29,7 +29,7 @@ function processTruthy(val: str?): bool {
 function processTypeof(val: dynamic): str {
     if(val is str) {
         return val.toUpperCase();
-    } else if (val is int) {
+    } else if(val is int) {
         return `number:${val}`;
     }
     return "other";

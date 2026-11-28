@@ -8,7 +8,7 @@ async function messageOf(run: () => Task<dynamic>): Task<str> {
     try {
         await run()
         return ""
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }
@@ -17,7 +17,7 @@ async function connectFailure(run: () => Task<dynamic>): Task<ConnectError?> {
     try {
         await run()
         return null
-    } catch (e: ConnectError) {
+    } catch(e: ConnectError) {
         return e
     }
 }
@@ -41,7 +41,7 @@ await describe("288 network failures carry their cause", async () => {
         let code = "";
         try {
             TcpListener.listen(70000)
-        } catch (e: NetError) {
+        } catch(e: NetError) {
             code = e.code
         }
         expect(code).toBe("net");

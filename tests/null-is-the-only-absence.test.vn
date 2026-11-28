@@ -44,7 +44,7 @@ await describe("319 null is the only absent value", async () => {
         let message = "none";
         try {
             passes(null).next();
-        } catch (e) {
+        } catch(e) {
             message = e.message;
         }
         expect(message.includes("cannot yield null")).toBe(true);

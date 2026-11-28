@@ -44,7 +44,7 @@ function pickFloat(i: int): float {
     if(i % 2 == 0) {
         return -1;
     }
-    return(i as float) * 1.5;
+    return (i as float) * 1.5;
 }
 
 await describe("222 native lowering edges", async () => {

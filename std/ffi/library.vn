@@ -123,7 +123,7 @@ export class Ffi {
     @capability("sys.ffi")
     static readCString(ptr: Pointer | int, offset: int = 0): str {
         if(ptr is Pointer) {
-            return(ptr as Pointer).readCString(offset);
+            return (ptr as Pointer).readCString(offset);
         }
         return readCString$(ptr as int, offset);
     }

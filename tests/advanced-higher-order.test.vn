@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 // ── compose: right-to-left function composition ──────────────────
 function compose<A, B, C>(f: (b: B) => C, g: (a: A) => B): (a: A) => C {
-    return(x: A) => f(g(x))
+    return (x: A) => f(g(x))
 }
 
 function double(n: int): int {
@@ -25,7 +25,7 @@ function pipe<A>(val: A, fns: ((A) => A)[]): A {
 // ── memoize: closure capturing cache ─────────────────────────────
 function memoize<A, B>(f: (A) => B): (A) => B {
     const cache = new Map<str, B>()
-    return(arg: A) => {
+    return (arg: A) => {
         const key = "" + arg
         const hit = cache[key]
         if(hit != null) return hit
@@ -44,7 +44,7 @@ function expensiveDouble(n: int): int {
 // ── once: run function at most once ──────────────────────────────
 function once<T>(f: () => T): () => T {
     const cell: T[] = []
-    return() => {
+    return () => {
         if(cell.length == 0) {
             cell.push(f())
         }
@@ -61,7 +61,7 @@ const init = once(() => {
 // ── throttle-like: skip calls after first N ───────────────────────
 function takeFirst<T>(f: (T) => void, n: int): (T) => void {
     let count = 0
-    return(x: T) => {
+    return (x: T) => {
         if(count < n) {
             f(x)
             count = count + 1

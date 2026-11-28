@@ -27,7 +27,7 @@ function caught(f: () => void): str {
     try {
         f();
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is IntegerOverflow) {
             return "overflow"
         }

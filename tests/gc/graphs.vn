@@ -16,7 +16,7 @@ function nextSeed(): int {
 }
 
 let checksum = 0
-for (let round = 0; round < 8; round = round + 1) {
+for(let round = 0; round < 8; round = round + 1) {
     const count = 2000 + (nextSeed() % 3000)
     const nodes: Node[] = []
     for(let i = 0; i < count; i = i + 1) {

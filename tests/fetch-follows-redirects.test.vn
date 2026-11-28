@@ -6,7 +6,7 @@ async function failureOf(run: () => Task<dynamic>): Task<str> {
     try {
         await run()
         return ""
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }
