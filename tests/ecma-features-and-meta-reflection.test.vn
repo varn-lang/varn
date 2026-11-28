@@ -111,7 +111,7 @@ await describe("94 ecma features and meta reflection", async () => {
         do {
             count = count + 1;
             // vn-lint-ignore constant-condition
-        } while (false);
+        } while(false);
         expect(count).toBe(1);
     });
 
@@ -121,7 +121,7 @@ await describe("94 ecma features and meta reflection", async () => {
         do {
             sum = sum + i;
             i = i + 1;
-        } while (i <= 5);
+        } while(i <= 5);
         expect(sum).toBe(15);
 
         let sum2 = 0;
@@ -135,7 +135,7 @@ await describe("94 ecma features and meta reflection", async () => {
                 break;
             }
             sum2 = sum2 + j;
-        } while (j < 10);
+        } while(j < 10);
         expect(sum2).toBe(1 + 2 + 4 + 5);; // 12
 
         let a = true;

@@ -14,14 +14,14 @@ const words = [
 ];
 const parts: str[] = [];
 let seed = 7;
-for (let i = 0; i < 300000; i = i + 1) {
+for(let i = 0; i < 300000; i = i + 1) {
     seed = (seed * 1103515245 + 12345) % 2147483648;
     parts.push(words[seed % 12] + (seed % 50).toString());
 }
 const text = parts.join(" ");
 const counts = new Map<str, int>();
 const tokens = text.split(" ");
-for (let i = 0; i < tokens.length; i = i + 1) {
+for(let i = 0; i < tokens.length; i = i + 1) {
     const t = tokens[i];
     const c = counts.get(t);
     counts.set(t, (c ?? 0) + 1);
@@ -29,7 +29,7 @@ for (let i = 0; i < tokens.length; i = i + 1) {
 let best = "";
 let bestCount = 0;
 let total = 0;
-for (const #[word, n] in counts) {
+for(const #[word, n] in counts) {
     total = total + n;
     if(n > bestCount || (n == bestCount && word < best)) {
         best = word;

@@ -26,7 +26,7 @@ async function rethrown(s: str): Task<int> {
     await ready();
     try {
         return int.parse(s);
-    } catch (err) {
+    } catch(err) {
         throw err;
     }
 }
@@ -34,7 +34,7 @@ async function rethrown(s: str): Task<int> {
 async function messageOf(run: () => Task<int>): Task<str> {
     try {
         return "value " + (await run()).toString();
-    } catch (e) {
+    } catch(e) {
         return e.message;
     }
 }

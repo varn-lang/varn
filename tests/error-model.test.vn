@@ -124,9 +124,9 @@ await describe("296 error model", async () => {
         try {
             try {
                 throw new ConnectError("h", 1);
-            } catch (_e: FsError) {
+            } catch(_e: FsError) {
                 seen = "wrong";
-            } catch (e: NetError) {
+            } catch(e: NetError) {
                 seen = e.code;
             }
         } catch {
@@ -139,7 +139,7 @@ await describe("296 error model", async () => {
         let parse = "";
         try {
             Json.parse("{");
-        } catch (e: ParseError) {
+        } catch(e: ParseError) {
             parse = e.code;
         }
         expect(parse).toBe("parse");
@@ -147,7 +147,7 @@ await describe("296 error model", async () => {
         let time = "";
         try {
             fromISO("not a date");
-        } catch (e: ParseError) {
+        } catch(e: ParseError) {
             time = e.code;
         }
         expect(time).toBe("parse");
@@ -155,7 +155,7 @@ await describe("296 error model", async () => {
         let path = "";
         try {
             readText("/definitely/not/here");
-        } catch (e: FsNotFoundError) {
+        } catch(e: FsNotFoundError) {
             path = e.path;
         }
         expect(path).toBe("/definitely/not/here");
@@ -167,7 +167,7 @@ await describe("296 error model", async () => {
         let code = "";
         try {
             await handle.join();
-        } catch (e: FsNotFoundError) {
+        } catch(e: FsNotFoundError) {
             path = e.path;
             code = e.code;
         }
@@ -195,7 +195,7 @@ await describe("296 error model", async () => {
         for(let i = 0; i < 5000; i++) {
             try {
                 total += outer(i);
-            } catch (e: Error) {
+            } catch(e: Error) {
                 stack = e.stack;
             }
         }
@@ -210,7 +210,7 @@ await describe("296 error model", async () => {
         let path = "";
         try {
             await Task.race([failing()]);
-        } catch (e: FsNotFoundError) {
+        } catch(e: FsNotFoundError) {
             path = e.path;
         }
         expect(path).toBe("/definitely/not/here");

@@ -24,24 +24,24 @@ await describe("90 multi catch", async () => {
             try {
                 if(mode == 1) {
                     throw new TypeError("bad type argument");
-                } else if (mode == 2) {
+                } else if(mode == 2) {
                     throw new RangeError("index out of bounds");
-                } else if (mode == 3) {
+                } else if(mode == 3) {
                     throw new CustomNetworkError(503, "service unavailable");
-                } else if (mode == 4) {
+                } else if(mode == 4) {
                     throw new CustomDatabaseError("ERR_CONN", "db timeout");
                 } else {
                     return "success";
                 }
-            } catch (e: TypeError) {
+            } catch(e: TypeError) {
                 return `caught TypeError: ${e.message}`;
-            } catch (e: RangeError) {
+            } catch(e: RangeError) {
                 return `caught RangeError: ${e.message}`;
-            } catch (e: CustomNetworkError) {
+            } catch(e: CustomNetworkError) {
                 return `caught NetworkError ${e.statusCode}: ${e.message}`;
-            } catch (e: CustomDatabaseError) {
+            } catch(e: CustomDatabaseError) {
                 return `caught DatabaseError ${e.dbCode}: ${e.message}`;
-            } catch (e: Error) {
+            } catch(e: Error) {
                 return `caught general Error: ${e.message}`;
             }
         }
@@ -55,14 +55,14 @@ await describe("90 multi catch", async () => {
             try {
                 if(mode == 1) {
                     throw new TypeError("type fault");
-                } else if (mode == 2) {
+                } else if(mode == 2) {
                     throw new RangeError("range fault");
                 } else {
                     throw new CustomNetworkError(404, "not found");
                 }
-            } catch (e: TypeError | RangeError) {
+            } catch(e: TypeError | RangeError) {
                 return `caught TypeOrRange: ${e.name}`;
-            } catch (e: CustomNetworkError) {
+            } catch(e: CustomNetworkError) {
                 return `caught Network: ${e.statusCode}`;
             }
         }
@@ -79,9 +79,9 @@ await describe("90 multi catch", async () => {
                 } else {
                     throw new CustomDatabaseError("SQL_ERR", "query failed");
                 }
-            } catch (_e: TypeError) {
+            } catch(_e: TypeError) {
                 return "handled TypeError";
-            } catch (e) {
+            } catch(e) {
                 return `handled fallback: ${e.name}`;
             }
         }
@@ -102,12 +102,12 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomDatabaseError("ERR_DEADLOCK", "deadlock detected");
-            } catch (_e: TypeError) {
+            } catch(_e: TypeError) {
                 outerCaught = "wrongly caught by inner TypeError";
-            } catch (_e: RangeError) {
+            } catch(_e: RangeError) {
                 outerCaught = "wrongly caught by inner RangeError";
             }
-        } catch (e: CustomDatabaseError) {
+        } catch(e: CustomDatabaseError) {
             outerCaught = `properly propagated to outer: ${e.dbCode}`;
         }
         expect(outerCaught).toBe("properly propagated to outer: ERR_DEADLOCK");
@@ -117,9 +117,9 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomNetworkError(500, "internal server error");
-            } catch (_e: TypeError) {
+            } catch(_e: TypeError) {
                 result = "TypeError";
-            } catch (e: CustomNetworkError) {
+            } catch(e: CustomNetworkError) {
                 result = `NetworkError: ${e.statusCode}`;
             } finally {
                 finallyRan = true;
@@ -137,12 +137,12 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomDatabaseError("ERR_AUTH", "bad credentials");
-            } catch (_e: TypeError) {
+            } catch(_e: TypeError) {
                 outerCaught = "inner TypeError";
             } finally {
                 finallyRan = true;
             }
-        } catch (e: CustomDatabaseError) {
+        } catch(e: CustomDatabaseError) {
             outerCaught = `outer caught after finally: ${e.dbCode}`;
         }
         expect(finallyRan).toBe(true);

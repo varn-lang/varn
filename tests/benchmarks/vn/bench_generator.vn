@@ -64,7 +64,7 @@ const PING_N = 100000;
 let t0 = now();
 const pp = pingpong();
 let last = pp.next()!;
-for (let i = 1; i <= PING_N; i = i + 1) {
+for(let i = 1; i <= PING_N; i = i + 1) {
     last = pp.next()!;
 }
 let t1 = now();
@@ -76,7 +76,7 @@ let mapSum = 0;
 let filtSum = 0;
 const rg = rangeGen(0, MAP_N);
 while(const v = rg.next()) {
-    mapSum = mapSum + v * 2; if ((v % 2) == 0) {
+    mapSum = mapSum + v * 2; if((v % 2) == 0) {
         filtSum = filtSum + v;
     }
 }
@@ -87,7 +87,7 @@ const FIB_N = 80;
 t0 = now();
 let fibCarry = 0;
 const fg = fibGen();
-for (let i = 0; i < FIB_N; i = i + 1) {
+for(let i = 0; i < FIB_N; i = i + 1) {
     fibCarry = fg.next()!;
 }
 t1 = now();

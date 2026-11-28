@@ -41,7 +41,7 @@ await describe("311 Task.race carries any result", async () => {
         let path = "";
         try {
             await Task.race([failing(), slow()]);
-        } catch (e: FsNotFoundError) {
+        } catch(e: FsNotFoundError) {
             path = e.path;
         }
         expect(path).toBe("/definitely/not/here");
@@ -56,7 +56,7 @@ await describe("311 Task.race carries any result", async () => {
         let refused = false;
         try {
             await Task.race<int>([]);
-        } catch (_e: RangeError) {
+        } catch(_e: RangeError) {
             refused = true;
         }
         expect(refused).toBe(true);

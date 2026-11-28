@@ -16,7 +16,7 @@ function raisesBoom(f: () => void): bool {
     try {
         f();
         return false
-    } catch (e) {
+    } catch(e) {
         return e is Boom && e.message == "boom"
     }
 }

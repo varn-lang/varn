@@ -15,7 +15,7 @@ await describe("example std:error", async () => {
         let seen = "";
         try {
             throw new FsNotFoundError("/missing");
-        } catch (e: IoError) {
+        } catch(e: IoError) {
             seen = e.code;
         }
         expect(seen).toBe("fs.not_found");
@@ -26,10 +26,10 @@ await describe("example std:error", async () => {
         try {
             try {
                 throw new ParseError("bad input");
-            } catch (_e: FsError) {
+            } catch(_e: FsError) {
                 outer = "wrong";
             }
-        } catch (e: StdError) {
+        } catch(e: StdError) {
             outer = e.code;
         }
         expect(outer).toBe("parse");
@@ -39,7 +39,7 @@ await describe("example std:error", async () => {
         let path = "";
         try {
             readText("/definitely/not/here");
-        } catch (e: FsNotFoundError) {
+        } catch(e: FsNotFoundError) {
             path = e.path;
         }
         expect(path).toBe("/definitely/not/here");

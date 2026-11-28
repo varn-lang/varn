@@ -12,7 +12,7 @@ type Payload = #{ requestId: str, organization: Org, user: User, auditEvents: Au
 const rawPayloads: str[] = [];
 
 // 1. Generate 5,000 nested JSON documents
-for (let i = 0; i < 5000; i = i + 1) {
+for(let i = 0; i < 5000; i = i + 1) {
     const orgId = `org_${(i % 50)}`;
     const doc = #{
         "requestId": `req_${i}`,
@@ -52,7 +52,7 @@ let totalLogins = 0;
 let enterpriseCount = 0;
 let totalFeaturesCount = 0;
 
-for (let i = 0; i < rawPayloads.length; i = i + 1) {
+for(let i = 0; i < rawPayloads.length; i = i + 1) {
     const parsed = Json.parse<Payload>(rawPayloads[i]);
 
     if(parsed.organization.tier == "enterprise") {

@@ -18,7 +18,7 @@ const statuses = ["COMPLETED", "PENDING", "CANCELLED", "COMPLETED", "COMPLETED"]
 const rows: str[] = [];
 rows.push("id,customer,product,category,quantity,unitPrice,status,timestamp");
 
-for (let i = 0; i < 50000; i = i + 1) {
+for(let i = 0; i < 50000; i = i + 1) {
     const cat = categories[i % 5];
     const stat = statuses[i % 5];
     const qty = (i % 10) + 1;
@@ -37,7 +37,7 @@ const completedSales: Sale[] = [];
 const categoryRevenue = new Map<str, float>();
 let totalRevenue = 0.0;
 
-for (let i = 0; i < parsed.length; i = i + 1) {
+for(let i = 0; i < parsed.length; i = i + 1) {
     const row = parsed[i];
     if(row.status == "COMPLETED") {
         const lineTotal: float = (row.quantity as float) * row.unitPrice;

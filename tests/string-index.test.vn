@@ -16,8 +16,8 @@ function failure(run: () => dynamic): str {
     try {
         run();
         return "no error"
-    } catch (e) {
-        return(e as Error).name + ": " + (e as Error).message
+    } catch(e) {
+        return (e as Error).name + ": " + (e as Error).message
     }
 }
 function typedHot(text: str, i: int): str {

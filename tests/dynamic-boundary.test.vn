@@ -96,7 +96,7 @@ function optBool(d: dynamic): bool {
 }
 
 function optArg(s: str?): int {
-    return(s ?? "").length
+    return (s ?? "").length
 }
 function passOpt(d: dynamic): int {
     return optArg(d as str?)
@@ -109,7 +109,7 @@ function messageOf(f: () => void): str {
     try {
         f()
         return "none"
-    } catch (e) {
+    } catch(e) {
         return e.message
     }
 }
@@ -118,7 +118,7 @@ function kindOf(f: () => void): str {
     try {
         f()
         return "none"
-    } catch (e) {
+    } catch(e) {
         if(e is TypeError) {
             return "TypeError"
         }
@@ -149,7 +149,7 @@ function passAnimal(d: dynamic): int {
     return legsOf(d as Animal)
 }
 function castAnimal(d: dynamic): int {
-    return(d as Animal).legs
+    return (d as Animal).legs
 }
 function optAnimal(d: dynamic): bool {
     const a: Animal? = d as Animal?

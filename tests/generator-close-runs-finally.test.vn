@@ -96,7 +96,7 @@ await describe("317 closing a generator runs the finally blocks it is suspended 
         let message = "none";
         try {
             g.close();
-        } catch (e) {
+        } catch(e) {
             message = e.message;
         }
         expect(message).toBe("from finally");
@@ -126,7 +126,7 @@ await describe("317 closing a generator runs the finally blocks it is suspended 
 
     await it("a labelled continue closes the inner generator each time", async () => {
         log = [];
-        outer: for (let i = 0; i < 3; i++) {
+        outer: for(let i = 0; i < 3; i++) {
             for(const v in counted("in" + i.toString())) {
                 if(v == 0) {
                     continue outer;

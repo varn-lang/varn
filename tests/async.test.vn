@@ -12,7 +12,7 @@ async function asyncChain(): Task<str> {
 async function asyncError(): Task<str> {
     try {
         throw new Error("async fail");
-    } catch (e) {
+    } catch(e) {
         return "caught:" + e.message;
     }
 }

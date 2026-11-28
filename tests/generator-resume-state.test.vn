@@ -102,7 +102,7 @@ await describe("generator resume state", async () => {
         let caught = "";
         try {
             g.next()
-        } catch (e) {
+        } catch(e) {
             caught = e.message
         }
         expect(caught).toBe("boom");

@@ -20,7 +20,7 @@ const FL: float[] = [0.0, 1.0, -0.0, 2.0];
 function kind(f: () => int): str {
     try {
         return f().toString();
-    } catch (e) {
+    } catch(e) {
         return e is RangeError ? "range" : e is IntegerOverflow ? "overflow" : "other:" + e.name;
     }
 }
@@ -96,14 +96,14 @@ await describe("303 power, shifts and float extremes", async () => {
         let negative = "";
         try {
             (two ** (-one)).toString();
-        } catch (_e: RangeError) {
+        } catch(_e: RangeError) {
             negative = "range";
         }
         expect(negative).toBe("range");
         let tooBig = "";
         try {
             (two ** huge).toString();
-        } catch (_e: RangeError) {
+        } catch(_e: RangeError) {
             tooBig = "range";
         }
         expect(tooBig).toBe("range");
@@ -121,14 +121,14 @@ await describe("303 power, shifts and float extremes", async () => {
         let fractional = "";
         try {
             (two ** half).toString();
-        } catch (_e: RangeError) {
+        } catch(_e: RangeError) {
             fractional = "range";
         }
         expect(fractional).toBe("range");
         let division = "";
         try {
             (zero ** (-1d)).toString();
-        } catch (_e: DivisionByZero) {
+        } catch(_e: DivisionByZero) {
             division = "zero";
         }
         expect(division).toBe("zero");

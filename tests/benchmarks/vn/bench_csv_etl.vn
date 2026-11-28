@@ -26,7 +26,7 @@ const csvLines: str[] = ["id,customer_id,product_category,amount,tax_rate,status
 const categories = ["Electronics", "Fashion", "Home", "Automotive", "Garden"];
 const statuses = ["completed", "refunded", "completed", "pending", "completed"];
 
-for (let i = 1; i <= 10000; i = i + 1) {
+for(let i = 1; i <= 10000; i = i + 1) {
     const cat = categories[i % 5];
     const stat = statuses[i % 5];
     const amt = ((i * 17) % 1000) + 15;
@@ -46,7 +46,7 @@ const enrichedRows: Enriched[] = [];
 let totalCompletedRevenue = 0.0;
 let vipCount = 0;
 
-for (let i = 0; i < parsedRows.length; i = i + 1) {
+for(let i = 0; i < parsedRows.length; i = i + 1) {
     const row = parsedRows[i];
     if(row.status == "completed") {
         const amt = row.amount as float;

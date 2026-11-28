@@ -113,7 +113,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
         const full = join(dir, entry);
         if(idx == segs.length - 1) {
             out.push(full);
-        } else if (isDir(full)) {
+        } else if(isDir(full)) {
             walk(full, segs, idx + 1, out);
         }
     }

@@ -98,9 +98,9 @@ async function readBody(wire: WireReader, req: RawRequest, maxContentLength: int
     if(chunked) {
         try {
             return await readChunkedBody(wire, maxContentLength);
-        } catch (_err: BodyTooLargeError) {
+        } catch(_err: BodyTooLargeError) {
             throw new HttpRejection(413, "Payload Too Large");
-        } catch (_err: ProtocolError) {
+        } catch(_err: ProtocolError) {
             throw new HttpRejection(400, "Bad Request");
         }
     }
@@ -133,7 +133,7 @@ export async function readHttpRequest(
     let head: str? = null;
     try {
         head = await readHead(wire);
-    } catch (_err: LineTooLongError) {
+    } catch(_err: LineTooLongError) {
         throw new HttpRejection(431, "Request Header Fields Too Large");
     }
     if(head == null) {

@@ -88,7 +88,7 @@ await describe("300 sqlite contract", async () => {
         let code = "";
         try {
             db.exec("INSERT INTO pet (id, name) VALUES (?, ?)", 2, "rex");
-        } catch (e: SqlConstraintError) {
+        } catch(e: SqlConstraintError) {
             sql = e.sql;
             code = e.code;
         }
@@ -102,7 +102,7 @@ await describe("300 sqlite contract", async () => {
         let rejected = false;
         try {
             db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 1, "rex", 42);
-        } catch (_e: SqlConstraintError) {
+        } catch(_e: SqlConstraintError) {
             rejected = true;
         }
         expect(rejected).toBe(true);
@@ -115,9 +115,9 @@ await describe("300 sqlite contract", async () => {
         let plain = false;
         try {
             db.all("SELEC nothing");
-        } catch (_e: SqlConstraintError) {
+        } catch(_e: SqlConstraintError) {
             constraint = true;
-        } catch (_e: SqlError) {
+        } catch(_e: SqlError) {
             plain = true;
         }
         expect(constraint).toBe(false);
@@ -132,17 +132,17 @@ await describe("300 sqlite contract", async () => {
         let closed = 0;
         try {
             db.exec("DELETE FROM pet");
-        } catch (_e: ClosedError) {
+        } catch(_e: ClosedError) {
             closed = closed + 1;
         }
         try {
             db.all("SELECT 1");
-        } catch (_e: ClosedError) {
+        } catch(_e: ClosedError) {
             closed = closed + 1;
         }
         try {
             db.get("SELECT 1");
-        } catch (_e: ClosedError) {
+        } catch(_e: ClosedError) {
             closed = closed + 1;
         }
         expect(closed).toBe(3);
@@ -159,7 +159,7 @@ await describe("300 sqlite contract", async () => {
                 db.exec("INSERT INTO pet (id, name) VALUES (?, ?)", 2, "undone");
                 db.exec("INSERT INTO pet (id, name) VALUES (?, ?)", 3, "kept");
             });
-        } catch (_e: SqlConstraintError) {
+        } catch(_e: SqlConstraintError) {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -178,7 +178,7 @@ await describe("300 sqlite contract", async () => {
         let code = "";
         try {
             await db.execAsync("INSERT INTO pet (id, name) VALUES (?, ?)", 2, "rex");
-        } catch (e: SqlConstraintError) {
+        } catch(e: SqlConstraintError) {
             code = e.code;
         }
         expect(code).toBe("sql.constraint");

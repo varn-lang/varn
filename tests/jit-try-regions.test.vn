@@ -37,14 +37,14 @@ class Reader {
             let frame: Frame? = null;
             try {
                 frame = parse(this.buf);
-            } catch (e) {
+            } catch(e) {
                 throw e;
             }
             if(frame == null) {
                 let more: Bytes?;
                 try {
                     more = await chunk(round);
-                } catch (e) {
+                } catch(e) {
                     this.notify();
                     throw e;
                 }

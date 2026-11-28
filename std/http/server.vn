@@ -231,7 +231,7 @@ export class HttpServer {
             const chunk = await reader.read(8192);
             if(chunk == null) {
                 reading = false;
-            } else if (chunk.length == 0) {
+            } else if(chunk.length == 0) {
                 reading = false;
             } else {
                 const hexLen = chunk.length.toHex();
@@ -343,7 +343,7 @@ export class HttpServer {
                     readHttpRequest(wire, this._maxContentLength),
                     this._readTimeoutMs,
                 );
-            } catch (_err: TimeoutError) {
+            } catch(_err: TimeoutError) {
                 const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
@@ -356,7 +356,7 @@ export class HttpServer {
                     "Request Timeout",
                 );
                 break;
-            } catch (err: HttpRejection) {
+            } catch(err: HttpRejection) {
                 const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],

@@ -47,7 +47,7 @@ export class WsServer {
             const ws = new WebSocket(conn, "", true);
             ws.absorb(head.rest);
             return ws;
-        } catch (e) {
+        } catch(e) {
             try {
                 tcpClose$(conn);
             } catch {

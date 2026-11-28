@@ -99,7 +99,7 @@ function guarded(n: int): int {
 function rethrown(n: int): int {
     try {
         return boom(n)
-    } catch (e) {
+    } catch(e) {
         throw new Error("envuelto: " + (e as Error).message)
     }
 }
@@ -160,7 +160,7 @@ await describe("185 compiled defaults, try/catch and fixed-bound loops", async (
         let caught = ""
         try {
             stepInt(1, loose as int?)
-        } catch (e) {
+        } catch(e) {
             caught = (e as Error).name
         }
         expect(caught).toBe("TypeError")
@@ -187,7 +187,7 @@ await describe("185 compiled defaults, try/catch and fixed-bound loops", async (
         for(let i = 1; i <= 3000; i = i + 1) {
             try {
                 rethrown(i)
-            } catch (e) {
+            } catch(e) {
                 if((e as Error).message == `envuelto: no ${i}`) {
                     wrapped = wrapped + 1
                 }

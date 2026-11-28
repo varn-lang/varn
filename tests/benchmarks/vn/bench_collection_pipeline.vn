@@ -48,7 +48,7 @@ const categories = ["Electronics", "Apparel", "Home", "Books", "Sports"];
 const statuses = ["completed", "pending", "cancelled", "completed", "completed"];
 
 const orders: OrderItem[] = [];
-for (let i = 0; i < 100000; i = i + 1) {
+for(let i = 0; i < 100000; i = i + 1) {
     const cat = categories[i % 5];
     const stat = statuses[i % 5];
     const qty = (i % 8) + 1;
@@ -61,7 +61,7 @@ for (let i = 0; i < 100000; i = i + 1) {
 
 // Stage 1: Filter active completed orders
 const validOrders: OrderItem[] = [];
-for (let i = 0; i < orders.length; i = i + 1) {
+for(let i = 0; i < orders.length; i = i + 1) {
     const o = orders[i];
     if(o.status == "completed" && o.quantity > 0) {
         validOrders.push(o);
@@ -70,7 +70,7 @@ for (let i = 0; i < orders.length; i = i + 1) {
 
 // Stage 2: Map to financial summaries with tax and discounts
 const summaries: OrderSummary[] = [];
-for (let i = 0; i < validOrders.length; i = i + 1) {
+for(let i = 0; i < validOrders.length; i = i + 1) {
     const o = validOrders[i];
     let gross = (o.quantity as float) * o.unitPrice;
     if(o.isDiscounted) {
@@ -83,7 +83,7 @@ for (let i = 0; i < validOrders.length; i = i + 1) {
 
 // Stage 3: Filter high value summaries
 const highValueSummaries: OrderSummary[] = [];
-for (let i = 0; i < summaries.length; i = i + 1) {
+for(let i = 0; i < summaries.length; i = i + 1) {
     const s = summaries[i];
     if(s.netTotal >= 50.0) {
         highValueSummaries.push(s);
@@ -95,7 +95,7 @@ let totalGross = 0.0;
 let totalTax = 0.0;
 let totalNet = 0.0;
 
-for (let i = 0; i < highValueSummaries.length; i = i + 1) {
+for(let i = 0; i < highValueSummaries.length; i = i + 1) {
     const s = highValueSummaries[i];
     totalGross = totalGross + s.grossTotal;
     totalTax = totalTax + s.tax;
@@ -105,7 +105,7 @@ for (let i = 0; i < highValueSummaries.length; i = i + 1) {
 // Stage 5: Find & Verification
 let foundItem: OrderSummary? = null;
 const targetId = 4242;
-for (let i = 0; i < highValueSummaries.length; i = i + 1) {
+for(let i = 0; i < highValueSummaries.length; i = i + 1) {
     if(highValueSummaries[i].id == targetId) {
         foundItem = highValueSummaries[i];
         break;

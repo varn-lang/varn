@@ -8,7 +8,7 @@ function trackClass(cls: ClassRef): void {
 @trackClass
 class DecoratedA {}
 function markDeco(label: str) {
-    return(cls: ClassRef) => {
+    return (cls: ClassRef) => {
         decoLog.push(label + ":" + cls.name);
     };
 }
@@ -26,12 +26,12 @@ class DecoratedC {
 const RouteKey = MetaKey.create<ClassRef, str>();
 const RolesKey = MetaKey.create<ClassRef, str[]>();
 function routeDeco(path: str) {
-    return(cls: ClassRef) => {
+    return (cls: ClassRef) => {
         RouteKey.set(cls, path);
     };
 }
 function rolesDeco(...r: str[]) {
-    return(cls: ClassRef) => {
+    return (cls: ClassRef) => {
         RolesKey.set(cls, r);
     };
 }
@@ -41,9 +41,9 @@ const methodLog: str[] = [];
 function logMethod(fn: FunctionRef, ctx: MethodContext): FunctionRef {
     const name = ctx.name;
     const isStatic = ctx.isStatic;
-    return(...args: int[]) => {
+    return (...args: int[]) => {
         methodLog.push(`${name}:static=${isStatic}`);
-        return(fn as (...args: int[]) => int)(...args);
+        return (fn as (...args: int[]) => int)(...args);
     };
 }
 class DecoratedCalc {
@@ -61,7 +61,7 @@ class DecoratedPassthrough {
 }
 const fnLog: str[] = [];
 function tagFn(label: str) {
-    return(fn: FunctionRef): FunctionRef => {
+    return (fn: FunctionRef): FunctionRef => {
         fnLog.push(label);
         return fn;
     };

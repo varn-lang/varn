@@ -138,7 +138,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             const ws = new WebSocket(conn, url);
             ws.absorb(head.rest);
             return ws;
-        } catch (e) {
+        } catch(e) {
             tcpClose$(conn);
             throw e;
         }
@@ -230,7 +230,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             }
             await tcpWrite$(this._conn, wsFrameBytes$(data, opcode, !this._server));
             return data.length;
-        } catch (e) {
+        } catch(e) {
             this._notifyError(e.message);
             throw e;
         }
@@ -297,7 +297,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             let frame: WsFrame? = null;
             try {
                 frame = wsParseFrame$(this._recvBuf, this._server, this._maxMessage);
-            } catch (e) {
+            } catch(e) {
                 await this._reject(
                     e.message.indexOf("exceeds the limit") != null ? 1009 : 1002,
                     e.message,
@@ -310,7 +310,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                 let chunk: Bytes?;
                 try {
                     chunk = await tcpRead$(this._conn, 8192);
-                } catch (e) {
+                } catch(e) {
                     this._notifyError(e.message);
                     throw e;
                 }
@@ -329,7 +329,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             if(opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
                 try {
                     await this._pumpControl(opcode, payload);
-                } catch (e) {
+                } catch(e) {
                     this._notifyError(e.message);
                     throw e;
                 }

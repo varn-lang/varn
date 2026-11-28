@@ -31,7 +31,7 @@ class UserDTO {
 const count = 100000
 
 const users: User[] = []
-for (let i = 0; i < count; i = i + 1) {
+for(let i = 0; i < count; i = i + 1) {
     users.push(new User(i, `User_${i}`, (i % 60) + 10, (i % 2) == 0, ((i % 100) as float) * 1.5))
 }
 
@@ -40,7 +40,7 @@ const start = now()
 const activeAdults: UserDTO[] = []
 let totalScore = 0.0
 
-for (let i = 0; i < count; i = i + 1) {
+for(let i = 0; i < count; i = i + 1) {
     const u = users[i]
     if(u.isActive && u.age >= 18) {
         const dto = new UserDTO(u.id, u.name, u.score)

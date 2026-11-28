@@ -3,7 +3,7 @@ import { Json } from "std:encoding";
 type Item = #{ id: int, name: str, active: bool, score: float };
 
 const items: Item[] = [];
-for (let i = 0; i < 50000; i = i + 1) {
+for(let i = 0; i < 50000; i = i + 1) {
     items.push(#{
         id: i,
         name: `Item_${i}`,
@@ -17,7 +17,7 @@ const parsed = Json.parse<Item[]>(jsonStr);
 
 print(parsed.length);
 let totalScore = 0.0;
-for (let i = 0; i < parsed.length; i = i + 1) {
+for(let i = 0; i < parsed.length; i = i + 1) {
     totalScore = totalScore + parsed[i].score;
 }
 print((totalScore as int).toString());
