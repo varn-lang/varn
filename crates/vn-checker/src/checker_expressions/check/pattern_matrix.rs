@@ -182,8 +182,7 @@ impl Checker<'_> {
                 payload,
                 ..
             } => {
-                let full = bind.interner.resolve(*variant_name);
-                let name = full.rsplit('.').next().unwrap_or(full).to_owned();
+                let name = bind.interner.resolve(*variant_name).to_owned();
                 match payload {
                     VariantPayload::Positional(items) => {
                         Head::Variant(name, items.iter().map(Cell::Pat).collect(), Vec::new())

@@ -41,10 +41,10 @@ pub fn resolve_type_node(
         TypeKind::Literal(l) => scalar::resolve_literal_type(*l, ctx, interner, table),
         TypeKind::Array(inner) => compound::resolve_array_type(inner, ctx, table),
         TypeKind::Union(members) => compound::resolve_union_type(members, ctx, table),
-        TypeKind::Generic(name, args, _) => {
-            nominal::resolve_generic_type(*name, args, ctx, interner, table)
+        TypeKind::Generic(path, args, ()) => {
+            nominal::resolve_generic_type(path, args, ctx, interner, table)
         }
-        TypeKind::Named(name, _) => nominal::resolve_named_type(*name, ctx, interner, table),
+        TypeKind::Named(path, ()) => nominal::resolve_named_type(path, ctx, interner, table),
         TypeKind::Fn((params, ret)) => {
             functions::resolve_fn_type(params, ret, ctx, interner, table)
         }

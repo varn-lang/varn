@@ -31,7 +31,6 @@ pub(super) fn scoped_lookup<T>(
     written: &str,
     find: impl Fn(&str) -> Option<T>,
 ) -> Option<T> {
-    let written = written.replace('.', "::");
     let mut rest = scope;
     while let Some(outer) = rest {
         if let Some(found) = find(&format!("{outer}::{written}")) {

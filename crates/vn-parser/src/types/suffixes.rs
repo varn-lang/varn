@@ -1,7 +1,7 @@
 use super::TypeContext;
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
-use vn_core::ast::TypeNode;
+use vn_core::ast::{QualifiedName, TypeNode};
 use vn_core::{TokenKind, TypeKind};
 
 fn starts_ternary(s: &TokenStream, ctx: TypeContext) -> bool {
@@ -56,7 +56,10 @@ pub(crate) fn parse_array_type(s: &mut TokenStream, ctx: TypeContext) -> PResult
             .interner
             .intern(vn_core::BuiltinType::ReadonlyArray.name());
         let full_range = s.span_from(start);
-        return Ok(s.type_node(full_range, TypeKind::Generic(name, vec![*element], ())));
+        return Ok(s.type_node(
+            full_range,
+            TypeKind::Generic(QualifiedName::single(name, start), vec![*element], ()),
+        ));
     }
     let mut ty = super::primary::parse_primary_type(s, ctx)?;
     if matches!(ty.kind, TypeKind::Literal(_)) && s.check(TokenKind::LBracket) {

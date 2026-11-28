@@ -160,7 +160,7 @@ impl<'a> Scopes<'a> {
                 enum_name, payload, ..
             } => {
                 if let Some(name) = enum_name {
-                    self.read_qualified(*name);
+                    self.read(*name);
                 }
                 match payload {
                     VariantPayload::Positional(items) => {

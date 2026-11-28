@@ -6,17 +6,19 @@ const MAX_ALIAS_EXPANSION: usize = 64;
 
 use super::aliases::try_stdlib_generic_alias;
 use super::contexts::AliasSubstitutionContext;
-use super::names::resolve_atom_name;
+use super::names::written_name;
 use super::resolve_type_node;
 
 pub(super) fn resolve_generic_type(
-    name: vn_core::Atom,
+    path: &vn_core::ast::QualifiedName,
     args: &[TypeNode],
     ctx: Option<&dyn TypeContext>,
     interner: &vn_core::AtomInterner,
     table: &mut CheckerTyTable,
 ) -> Type {
-    let name_str = resolve_atom_name(name, ctx, interner);
+    let written = written_name(path, ctx, interner, table);
+    let name = written.atom;
+    let name_str = written.text.clone();
     if name_str.as_ref() == vn_core::well_known::RECORD
         && ctx.and_then(|c| c.symbol_kind(&name_str)).is_none()
     {
@@ -27,7 +29,7 @@ pub(super) fn resolve_generic_type(
         .map(|m| resolve_type_node(m, ctx, table))
         .collect();
 
-    if let Some(member) = super::qualified::qualified_type(&name_str, ctx, table) {
+    if let Some(member) = super::qualified::qualified_type(&written.segments, ctx, table) {
         if let TypeKind::Named(declared, origin) = table.get(member.0) {
             return Type::generic_atom(declared, resolved_args, origin, table);
         }
@@ -102,14 +104,15 @@ fn core_type_origin(name_str: &str, ctx: Option<&dyn TypeContext>) -> Option<vn_
 }
 
 pub(super) fn resolve_named_type(
-    name: vn_core::Atom,
+    path: &vn_core::ast::QualifiedName,
     ctx: Option<&dyn TypeContext>,
     interner: &vn_core::AtomInterner,
     table: &mut CheckerTyTable,
 ) -> Type {
     use super::aliases::resolve_primitive;
-    let name_str = resolve_atom_name(name, ctx, interner);
-    if let Some(member) = super::qualified::qualified_type(&name_str, ctx, table) {
+    let written = written_name(path, ctx, interner, table);
+    let name_str = written.text.clone();
+    if let Some(member) = super::qualified::qualified_type(&written.segments, ctx, table) {
         return member;
     }
     let prim = resolve_primitive(&name_str, ctx, table);

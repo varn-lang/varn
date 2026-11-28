@@ -1,6 +1,6 @@
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
-use vn_core::ast::{FnTypeParam, TypeNode};
+use vn_core::ast::{FnTypeParam, NameSegment, QualifiedName, TypeNode};
 use vn_core::{ContextualKeyword, TokenKind, TypeKind};
 
 pub(crate) fn parse_primary_type(
@@ -29,26 +29,30 @@ pub(crate) fn parse_primary_type(
                 && s.peek_kind(1) == TokenKind::Identifier
             {
                 s.advance();
+                let name_range = s.range();
                 let name = s.consume_name();
                 let full_range = s.span_from(range);
                 s.push_error(vn_core::ForeignForm::InferType.message(), full_range);
-                return Ok(s.type_node(full_range, TypeKind::Named(name, ())));
+                return Ok(s.type_node(
+                    full_range,
+                    TypeKind::Named(QualifiedName::single(name, name_range), ()),
+                ));
             }
 
-            let mut name_buf = s.lexeme().to_owned();
-            s.advance();
-
-            while s.check(TokenKind::Dot) {
-                s.advance();
-                if s.check(TokenKind::Identifier) {
-                    name_buf.push('.');
-                    name_buf.push_str(s.lexeme());
+            let mut segments = Vec::new();
+            loop {
+                let segment_range = s.range();
+                segments.push(NameSegment {
+                    name: s.consume_lexeme(),
+                    range: segment_range,
+                });
+                if s.check(TokenKind::Dot) && s.peek_kind(1) == TokenKind::Identifier {
                     s.advance();
                 } else {
                     break;
                 }
             }
-            let name = s.interner.intern(&name_buf);
+            let name = QualifiedName { segments };
 
             let type_args = if s.check(TokenKind::LAngle) {
                 super::generics::parse_type_args(s)?
@@ -188,7 +192,10 @@ pub(crate) fn parse_primary_type(
         | TokenKind::Native
         | TokenKind::Constructor => {
             let name = s.consume_name();
-            Ok(s.type_node(range, TypeKind::Named(name, ())))
+            Ok(s.type_node(
+                range,
+                TypeKind::Named(QualifiedName::single(name, range), ()),
+            ))
         }
 
         TokenKind::EOF

@@ -29,20 +29,19 @@ pub enum ContractTy {
 impl ContractTy {
     pub fn from_node(node: &TypeNode, interner: &AtomInterner) -> Self {
         match &node.kind {
-            TypeKind::Named(name, _) => {
-                let name = interner.resolve(*name);
-                LangPrimitive::of(name)
+            TypeKind::Named(path, ()) => {
+                let name = path.dotted(interner);
+                LangPrimitive::of(&name)
                     .map(Self::of_primitive)
-                    .unwrap_or_else(|| Self::Named(name.to_string()))
+                    .unwrap_or(Self::Named(name))
             }
             TypeKind::Primitive(p) => Self::of_primitive(*p),
             TypeKind::TypePredicate { .. } => Self::Bool,
             TypeKind::Array(inner) => Self::Array(Box::new(Self::from_node(inner, interner))),
             TypeKind::Tuple(items) => Self::Tuple(Self::all(items, interner)),
-            TypeKind::Generic(name, args, _) => Self::Generic(
-                interner.resolve(*name).to_string(),
-                Self::all(args, interner),
-            ),
+            TypeKind::Generic(path, args, ()) => {
+                Self::Generic(path.dotted(interner), Self::all(args, interner))
+            }
             TypeKind::Union(members) => Self::union(members, interner),
             TypeKind::Fn(_) => Self::Fn,
             TypeKind::Literal(_)

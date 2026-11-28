@@ -17,8 +17,11 @@ impl<'r> Binder<'r> {
     pub(crate) fn reject_forbidden_type_forms(&mut self, node: &TypeNode) {
         use vn_core::TypeKind as K;
         let children: Vec<&TypeNode> = match &node.kind {
-            K::Generic(name, args, _) => {
-                if self.interner.try_resolve(*name) == Some(vn_core::well_known::RECORD)
+            K::Generic(path, args, ()) => {
+                if path
+                    .simple()
+                    .and_then(|name| self.interner.try_resolve(name))
+                    == Some(vn_core::well_known::RECORD)
                     && self.symbol_kind(vn_core::well_known::RECORD).is_none()
                     && self.reported_type_forms.insert(node.range.start.offset)
                 {

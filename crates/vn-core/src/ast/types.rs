@@ -12,8 +12,69 @@ pub type AstTypeKind = TypeKind<
     (Vec<FnTypeParam>, Box<TypeNode>),
     Vec<InterfaceMember>,
     std::convert::Infallible,
+    QualifiedName,
     (),
 >;
+
+#[derive(Clone, Debug)]
+pub struct NameSegment {
+    pub name: Atom,
+    pub range: SourceRange,
+}
+
+#[derive(Clone, Debug)]
+pub struct QualifiedName {
+    pub segments: Vec<NameSegment>,
+}
+
+impl QualifiedName {
+    pub fn single(name: Atom, range: SourceRange) -> Self {
+        QualifiedName {
+            segments: vec![NameSegment { name, range }],
+        }
+    }
+
+    pub fn simple(&self) -> Option<Atom> {
+        match self.segments.as_slice() {
+            [only] => Some(only.name),
+            _ => None,
+        }
+    }
+
+    pub fn root(&self) -> Atom {
+        self.segments[0].name
+    }
+
+    pub fn last(&self) -> Atom {
+        self.segments[self.segments.len() - 1].name
+    }
+
+    pub fn range(&self) -> SourceRange {
+        SourceRange {
+            start: self.segments[0].range.start,
+            end: self.segments[self.segments.len() - 1].range.end,
+        }
+    }
+
+    pub fn joined(&self, interner: &crate::AtomInterner, separator: &str) -> String {
+        let mut text = String::new();
+        for (at, segment) in self.segments.iter().enumerate() {
+            if at > 0 {
+                text.push_str(separator);
+            }
+            text.push_str(interner.resolve(segment.name));
+        }
+        text
+    }
+
+    pub fn dotted(&self, interner: &crate::AtomInterner) -> String {
+        self.joined(interner, ".")
+    }
+
+    pub fn scoped(&self, interner: &crate::AtomInterner) -> String {
+        self.joined(interner, "::")
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct TypeNode {

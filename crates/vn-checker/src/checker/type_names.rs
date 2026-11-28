@@ -42,8 +42,8 @@ impl<'r> Checker<'r> {
         seen: &mut Vec<String>,
     ) -> Option<AliasCycle> {
         match &node.kind {
-            TypeKind::Named(name, _) | TypeKind::Generic(name, _, _) => {
-                let text = self.resolve_bind_atom(bind, *name).to_string();
+            TypeKind::Named(path, ()) | TypeKind::Generic(path, _, ()) => {
+                let text = path.dotted(&bind.interner);
                 let generic = matches!(node.kind, TypeKind::Generic(..));
                 if text == target {
                     return Some(if generic {
@@ -88,9 +88,9 @@ impl<'r> Checker<'r> {
             return false;
         }
         match &node.kind {
-            TypeKind::Named(name, _) => self.check_type_name(*name, node, bind),
-            TypeKind::Generic(name, args, _) => {
-                let mut known = self.check_type_name(*name, node, bind);
+            TypeKind::Named(path, ()) => self.check_type_name(path, node, bind),
+            TypeKind::Generic(path, args, ()) => {
+                let mut known = self.check_type_name(path, node, bind);
                 for arg in args {
                     known &= self.check_type_names(arg, bind);
                 }
@@ -156,16 +156,24 @@ impl<'r> Checker<'r> {
         false
     }
 
-    fn check_type_name(&mut self, name: vn_core::Atom, node: &TypeNode, bind: &BindResult) -> bool {
-        let text = self.resolve_bind_atom(bind, name);
-        if TypeKind::<(), (), (), (), (), (), ()>::of_primitive_name(&text).is_some()
+    fn check_type_name(
+        &mut self,
+        path: &vn_core::ast::QualifiedName,
+        node: &TypeNode,
+        bind: &BindResult,
+    ) -> bool {
+        let text: Arc<str> = Arc::from(path.dotted(&bind.interner).as_str());
+        if TypeKind::<(), (), (), (), (), (), (), ()>::of_primitive_name(&text).is_some()
             || text.as_ref() == vn_core::well_known::RECORD
             || self.active_type_params.contains(text.as_ref())
         {
             return true;
         }
         let scope = bind.scopes.get(self.current_scope);
-        if scope.resolve(name, &bind.scopes).is_some() {
+        if path
+            .simple()
+            .is_some_and(|name| scope.resolve(name, &bind.scopes).is_some())
+        {
             return true;
         }
         let view = BindView::new(bind, self.resolver).at(self.current_scope);
@@ -173,10 +181,19 @@ impl<'r> Checker<'r> {
             return true;
         }
         let table = std::sync::Arc::make_mut(&mut self.ty_table);
-        if vn_sem::resolve::qualified_type(&text, Some(&view), table).is_some() {
+        let segments: Vec<Arc<str>> = path
+            .segments
+            .iter()
+            .map(|segment| Arc::from(bind.interner.resolve(segment.name)))
+            .collect();
+        if vn_sem::resolve::qualified_type(&segments, Some(&view), table).is_some() {
             return true;
         }
-        self.unknown_type_names.insert(name);
+        let unknown = match path.simple() {
+            Some(name) => name,
+            None => table.intern_name(&text),
+        };
+        self.unknown_type_names.insert(unknown);
         let message = vn_core::ForeignForm::of_type_name(&text).map_or_else(
             || format!("unknown type: {text}"),
             |form| form.message_as(&text),

@@ -88,8 +88,9 @@ impl<'a> FnEmitter<'a> {
             }
         };
         match &type_ann.kind {
-            vn_core::TypeKind::Named(n, _) | vn_core::TypeKind::Generic(n, _, _) => {
-                let written = self.m.interner.resolve(*n);
+            vn_core::TypeKind::Named(path, ()) | vn_core::TypeKind::Generic(path, _, ()) => {
+                let written = path.scoped(self.m.interner);
+                let written = written.as_str();
                 if let Some(class) = self.class_named(written) {
                     return Some(TirExpr {
                         kind: TirExprKind::TypeTest {
@@ -168,8 +169,9 @@ impl<'a> FnEmitter<'a> {
         if let Some(name) = type_ann.kind.lang_name() {
             return Some(name);
         }
-        if let vn_core::TypeKind::Named(n, _) = &type_ann.kind
-            && let Some(primitive) = vn_core::LangPrimitive::of(self.m.interner.resolve(*n))
+        if let vn_core::TypeKind::Named(path, ()) = &type_ann.kind
+            && let Some(name) = path.simple()
+            && let Some(primitive) = vn_core::LangPrimitive::of(self.m.interner.resolve(name))
         {
             return Some(primitive.name());
         }

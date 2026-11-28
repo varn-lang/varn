@@ -10,9 +10,9 @@ impl<'a> Scopes<'a> {
                     self.ty(item);
                 }
             }
-            TypeKind::Named(name, ()) => self.read_qualified(*name),
-            TypeKind::Generic(name, args, ()) => {
-                self.read_qualified(*name);
+            TypeKind::Named(path, ()) => self.read(path.root()),
+            TypeKind::Generic(path, args, ()) => {
+                self.read(path.root());
                 for arg in args {
                     self.ty(arg);
                 }
@@ -34,7 +34,7 @@ impl<'a> Scopes<'a> {
                 payload_ty,
                 ..
             } => {
-                self.read_qualified(*enum_name);
+                self.read(*enum_name);
                 for arg in type_args {
                     self.ty(arg);
                 }
@@ -44,7 +44,7 @@ impl<'a> Scopes<'a> {
                 parameter_name,
                 target_type,
             } => {
-                self.read_qualified(*parameter_name);
+                self.read(*parameter_name);
                 self.ty(target_type);
             }
             TypeKind::Interface(never) => match *never {},

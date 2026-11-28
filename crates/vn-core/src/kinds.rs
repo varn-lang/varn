@@ -25,7 +25,7 @@ impl<N> TypeLiteral<N> {
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
 )]
 
-pub enum TypeKind<T, N, C, F, O, I, M> {
+pub enum TypeKind<T, N, C, F, O, I, P, M> {
     Primitive(LangPrimitive),
     Literal(TypeLiteral<N>),
     This,
@@ -33,8 +33,8 @@ pub enum TypeKind<T, N, C, F, O, I, M> {
     Union(C),
     Intersection(C),
     Tuple(C),
-    Named(N, M),
-    Generic(N, C, M),
+    Named(P, M),
+    Generic(P, C, M),
     Fn(F),
     Record(O),
     Interface(I),
@@ -52,7 +52,7 @@ pub enum TypeKind<T, N, C, F, O, I, M> {
     },
 }
 
-impl<T, N, C, F, O, I, M> TypeKind<T, N, C, F, O, I, M> {
+impl<T, N, C, F, O, I, P, M> TypeKind<T, N, C, F, O, I, P, M> {
     pub fn lang_name(&self) -> Option<&'static str> {
         match self {
             TypeKind::Primitive(p) => Some(p.name()),

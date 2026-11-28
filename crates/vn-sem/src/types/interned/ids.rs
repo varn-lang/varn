@@ -27,6 +27,7 @@ pub type InternedTypeKind = TypeKind<
     FunctionTypeId,
     ObjectMembersId,
     ObjectMembersId,
+    Atom,
     Option<Atom>,
 >;
 

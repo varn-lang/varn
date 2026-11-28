@@ -152,8 +152,7 @@ impl Checker<'_> {
                 payload,
                 ..
             } => {
-                let full = bind.interner.resolve(*variant_name);
-                let name = full.rsplit('.').next().unwrap_or(full).to_owned();
+                let name = bind.interner.resolve(*variant_name).to_owned();
                 if self.payload_irrefutable(&name, payload, subject_ty, bind) {
                     Cover::Variant(name)
                 } else {

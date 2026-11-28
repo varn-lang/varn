@@ -146,20 +146,6 @@ impl<'a> Scopes<'a> {
             self.bindings[index].reads += 1;
         }
     }
-    pub(super) fn read_qualified(&mut self, name: Atom) {
-        let text = self.interner.resolve(name);
-        let root = text.split('.').next().unwrap_or(text);
-        let interner = self.interner;
-        let found = self.stack.iter().rev().find_map(|scope| {
-            scope
-                .iter()
-                .find(|(atom, _)| interner.resolve(**atom) == root)
-                .map(|(_, index)| *index)
-        });
-        if let Some(index) = found {
-            self.bindings[index].reads += 1;
-        }
-    }
     pub(super) fn write(&mut self, name: Atom) {
         if let Some(index) = self.lookup(name) {
             self.bindings[index].writes += 1;

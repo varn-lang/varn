@@ -49,8 +49,8 @@ impl DocumentState {
 impl DocumentState {
     pub fn type_node_decl_name(&self, node: &vn_core::ast::TypeNode) -> Option<&str> {
         match &node.kind {
-            vn_core::TypeKind::Named(name, _) | vn_core::TypeKind::Generic(name, _, _) => {
-                Some(self.name(*name))
+            vn_core::TypeKind::Named(path, ()) | vn_core::TypeKind::Generic(path, _, ()) => {
+                path.simple().map(|name| self.name(name))
             }
             vn_core::TypeKind::Primitive(_)
             | vn_core::TypeKind::Literal(_)

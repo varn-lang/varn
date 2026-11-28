@@ -10,7 +10,7 @@ impl<'a> FnEmitter<'a> {
     pub(super) fn catch_type_names(&self, t: &vn_core::ast::TypeNode) -> Vec<Arc<str>> {
         use vn_core::TypeKind;
         match &t.kind {
-            TypeKind::Named(n, _) => vec![Arc::from(self.m.interner.resolve(*n))],
+            TypeKind::Named(path, ()) => vec![Arc::from(path.scoped(self.m.interner).as_str())],
             TypeKind::Union(items) | TypeKind::Intersection(items) => items
                 .iter()
                 .flat_map(|x| self.catch_type_names(x))
