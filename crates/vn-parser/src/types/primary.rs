@@ -3,7 +3,7 @@ use crate::stream::TokenStream;
 use vn_core::ast::{TypeNode, TypeParam};
 use vn_core::{ContextualKeyword, TokenKind, TypeKind};
 
-pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
+pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -> PResult<TypeNode> {
     let range = s.range();
 
     match s.kind() {
@@ -14,7 +14,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
         TokenKind::Identifier => {
             if ContextualKeyword::of(s.lexeme()) == Some(ContextualKeyword::Keyof) {
                 s.advance();
-                let inner = super::suffixes::parse_array_type(s)?;
+                let inner = super::suffixes::parse_array_type(s, super::TypeContext::Annotation)?;
                 s.push_error(
                     vn_core::ForeignForm::KeyofType.message(),
                     s.span_from(range),
@@ -72,7 +72,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
             if s.check(TokenKind::RParen) {
                 s.advance();
                 if s.eat(TokenKind::FatArrow) {
-                    let ret = super::entry::parse_type(s)?;
+                    let ret = super::entry::parse_type_in(s, ctx)?;
                     let full_range = s.span_from(range);
                     return Ok(s.type_node(full_range, TypeKind::Fn((vec![], Box::new(ret)))));
                 }
@@ -87,7 +87,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
                 let params = super::generics::parse_fn_type_params(s)?;
                 s.expect(TokenKind::RParen)?;
                 s.expect(TokenKind::FatArrow)?;
-                let ret = super::entry::parse_type(s)?;
+                let ret = super::entry::parse_type_in(s, ctx)?;
                 let full_range = s.span_from(range);
                 return Ok(s.type_node(full_range, TypeKind::Fn((params, Box::new(ret)))));
             }
@@ -103,7 +103,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
                 }
                 s.expect(TokenKind::RParen)?;
                 if s.eat(TokenKind::FatArrow) {
-                    let ret = super::entry::parse_type(s)?;
+                    let ret = super::entry::parse_type_in(s, ctx)?;
                     let full_range = s.span_from(range);
                     let params = param_types
                         .into_iter()
@@ -128,7 +128,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream) -> PResult<TypeNode> {
 
             s.expect(TokenKind::RParen)?;
             if s.eat(TokenKind::FatArrow) {
-                let ret = super::entry::parse_type(s)?;
+                let ret = super::entry::parse_type_in(s, ctx)?;
                 let full_range = s.span_from(range);
                 let first_range = *first.range();
                 let underscore = s.interner.intern(vn_core::TokenKind::Placeholder.as_str());

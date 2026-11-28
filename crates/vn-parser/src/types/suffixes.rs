@@ -1,23 +1,19 @@
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
+use super::TypeContext;
 use vn_core::ast::TypeNode;
 use vn_core::{TokenKind, TypeKind};
 
-pub(crate) fn is_ternary_at(s: &TokenStream) -> bool {
-    if s.kind() != TokenKind::Question {
+fn starts_ternary(s: &TokenStream, ctx: TypeContext) -> bool {
+    if ctx == TypeContext::Annotation || s.kind() != TokenKind::Question {
         return false;
     }
-    let start_line = s.peek_line(0);
     let mut off = 1;
-    let next = s.peek_kind(off);
-    if next == TokenKind::Colon {
+    if s.peek_kind(off) == TokenKind::Colon {
         return false;
     }
     let mut depth = 0usize;
     loop {
-        if s.peek_line(off) != start_line {
-            return false;
-        }
         let kind = s.peek_kind(off);
         let opens = matches!(
             kind,
@@ -46,11 +42,11 @@ pub(crate) fn is_ternary_at(s: &TokenStream) -> bool {
     }
 }
 
-pub(crate) fn parse_array_type(s: &mut TokenStream) -> PResult<TypeNode> {
+pub(crate) fn parse_array_type(s: &mut TokenStream, ctx: TypeContext) -> PResult<TypeNode> {
     let start = s.range();
     if s.check(TokenKind::Readonly) {
         s.advance();
-        let inner = parse_array_type(s)?;
+        let inner = parse_array_type(s, ctx)?;
         let TypeKind::Array(element) = inner.kind else {
             return Err(ParseError::invalid(
                 "`readonly` applies to an array type: write `readonly T[]`".to_owned(),
@@ -62,7 +58,7 @@ pub(crate) fn parse_array_type(s: &mut TokenStream) -> PResult<TypeNode> {
         let full_range = s.span_from(start);
         return Ok(s.type_node(full_range, TypeKind::Generic(name, vec![*element], None)));
     }
-    let mut ty = super::primary::parse_primary_type(s)?;
+    let mut ty = super::primary::parse_primary_type(s, ctx)?;
     if matches!(ty.kind, TypeKind::Literal(_)) && s.check(TokenKind::LBracket) {
         return Err(ParseError::invalid(
             "literal types cannot be used as array element types or indexed".to_owned(),
@@ -91,7 +87,7 @@ pub(crate) fn parse_array_type(s: &mut TokenStream) -> PResult<TypeNode> {
                     s.span_from(start),
                 );
             }
-        } else if s.check(TokenKind::Question) && !is_ternary_at(s) {
+        } else if s.check(TokenKind::Question) && !starts_ternary(s, ctx) {
             let q_range = s.range();
             s.advance();
             let full_range = s.span_from(start);

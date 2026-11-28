@@ -33,6 +33,11 @@ function fn(x: int | (() => int)): str {
 function nullable(x: int?): str {
     return x is int ? "int" : "null"
 }
+function broken(x: int | str): str {
+    return x is str
+        ? "str"
+        : "other"
+}
 function imported<T>(x: T | Signal<T>): str {
     return x is Signal<T> ? "signal" : "plain"
 }
@@ -66,6 +71,11 @@ await describe("240 is type tests", async () => {
         expect(nullable(null)).toBe("null")
         expect(text(3)).toBe("other")
         expect(text("a")).toBe("str")
+    })
+
+    await it("a ternary may start on the line after the tested type", () => {
+        expect(broken("a")).toBe("str")
+        expect(broken(1)).toBe("other")
     })
 
     await it("a union tests every member", () => {

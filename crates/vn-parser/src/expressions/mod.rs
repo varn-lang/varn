@@ -19,7 +19,7 @@ use logical_ops::token_to_logical_op;
 pub(crate) use precedence::{binary_prec, Prec};
 
 use crate::stream::TokenStream;
-use crate::types::parse_type;
+use crate::types::parse_operand_type;
 use arrow_lookahead::could_be_arrow;
 use arrow_parse::try_parse_arrow;
 use vn_core::ast::{ExprId, ExprKind};
@@ -176,7 +176,7 @@ pub(super) fn parse_binary_expr(s: &mut TokenStream, min_prec: Prec) -> PResult<
                 && ContextualKeyword::of(s.lexeme()) == Some(ContextualKeyword::Satisfies))
         {
             s.advance();
-            let ty = parse_type(s)?;
+            let ty = parse_operand_type(s)?;
             let ty_range = *ty.clone().range();
             let range = s.expr_range(left).to(ty_range);
             left = if kind == TokenKind::As {
