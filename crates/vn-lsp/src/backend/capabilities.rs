@@ -103,7 +103,18 @@ pub fn server_capabilities() -> ServerCapabilities {
             resolve_provider: Some(true),
             work_done_progress_options: Default::default(),
         })),
-        code_action_provider: Some(CodeActionProvider::Bool(true)),
+        code_action_provider: Some(CodeActionProvider::CodeActionOptions(CodeActionOptions {
+            code_action_kinds: Some(vec![
+                CodeActionKind::QuickFix,
+                CodeActionKind::RefactorExtract,
+                CodeActionKind::RefactorRewrite,
+                CodeActionKind::SourceOrganizeImports,
+                CodeActionKind::new(crate::features::code_action::fix_all::KIND),
+            ]),
+            documentation: None,
+            resolve_provider: None,
+            work_done_progress_options: Default::default(),
+        })),
         document_formatting_provider: Some(DocumentFormattingProvider::Bool(true)),
         code_lens_provider: Some(CodeLensOptions {
             resolve_provider: Some(true),

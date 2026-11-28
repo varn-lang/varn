@@ -89,7 +89,9 @@ pub fn convert_diagnostics(state: &DocumentState) -> Vec<LspDiagnostic> {
 
         let tags = if d.code == Some(vn_core::ErrorCode::DeprecatedUse) {
             Some(vec![DiagnosticTag::Deprecated])
-        } else if d.code == Some(vn_core::ErrorCode::UnreachableCode) {
+        } else if d.code == Some(vn_core::ErrorCode::UnreachableCode)
+            || d.code == Some(vn_core::ErrorCode::LintUnusedBinding)
+        {
             Some(vec![DiagnosticTag::Unnecessary])
         } else {
             None
@@ -107,7 +109,11 @@ pub fn convert_diagnostics(state: &DocumentState) -> Vec<LspDiagnostic> {
             code,
             code_description: None,
             message: d.message.clone().into(),
-            source: Some("vn".into()),
+            source: Some(if d.code.is_some_and(|c| c.is_lint()) {
+                "vn-lint".into()
+            } else {
+                "vn".into()
+            }),
             tags,
             related_information,
             data,

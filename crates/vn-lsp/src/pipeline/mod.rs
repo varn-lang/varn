@@ -35,7 +35,9 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
     let path = uri_to_path(&uri);
     let resolver = session.shared_resolver();
 
-    let analysis = session.analyze(&Source::virtual_source(&path, &source));
+    let unit = Source::virtual_source(&path, &source);
+    let analysis = session.analyze(&unit);
+    let linted = lint_outcome(session, &unit, &analysis);
     let raw_tokens = analysis.tokens.tokens;
     let trivia = analysis.trivia;
     let program = analysis.parsed.program;
@@ -107,6 +109,21 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
             kind: d.kind,
             code: Some(d.code),
             related,
+            suggestions: d.suggestions.clone(),
+        });
+    }
+
+    for d in &linted {
+        let (line, col, end_line, end_col) = span_of(&source, &line_starts, d.range);
+        diagnostics.push(LspDiag {
+            message: d.message.clone(),
+            line,
+            col,
+            end_line,
+            end_col,
+            kind: d.kind,
+            code: Some(d.code),
+            related: Vec::new(),
             suggestions: d.suggestions.clone(),
         });
     }
@@ -222,6 +239,20 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
         ast: Some(program),
         ast_arena,
     }
+}
+
+fn lint_outcome(
+    session: &Session,
+    unit: &Source,
+    analysis: &vn_pipeline::Analysis,
+) -> Vec<vn_core::Diagnostic> {
+    if !session.lint_admits(std::path::Path::new(unit.path())) {
+        return Vec::new();
+    }
+    let policy = session.lint_policy().unwrap_or_default();
+    session
+        .lint_analysis(unit, analysis, &policy)
+        .unwrap_or_default()
 }
 
 fn build_related_locations(d: &vn_core::Diagnostic, current_uri: &str) -> Vec<RelatedLocation> {

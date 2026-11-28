@@ -1,6 +1,7 @@
 pub mod auto_import;
 pub mod extract_function;
 pub mod extract_variable;
+pub mod fix_all;
 pub mod generate_members;
 pub mod interface_impl;
 pub mod match_arms;
@@ -18,6 +19,7 @@ pub fn build_code_action(
     state: Option<&DocumentState>,
     index: Option<&ProjectIndex>,
     resolver: &vn_pipeline::ModuleResolver,
+    session: &vn_pipeline::Session,
 ) -> Option<Vec<CodeActionResponse>> {
     let mut actions = Vec::new();
     let uri = &params.text_document.uri;
@@ -116,6 +118,12 @@ pub fn build_code_action(
             interface_impl::generate_interface_impl_action(st, index, uri, cursor_line, cursor_col)
         {
             actions.push(iface_action);
+        }
+
+        if let Some(fix_all_action) =
+            fix_all::generate_fix_all_action(st, session, uri, params.context.only.as_deref())
+        {
+            actions.push(fix_all_action);
         }
 
         if let Some(organize_action) = organize_imports::generate_organize_imports_action(st, uri) {

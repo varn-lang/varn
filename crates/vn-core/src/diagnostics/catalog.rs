@@ -114,6 +114,10 @@ impl ErrorCode {
         }
     }
 
+    pub fn is_lint(self) -> bool {
+        matches!(self as u32, 6000..=6999)
+    }
+
     pub fn code_number(self) -> u32 {
         self as u32
     }

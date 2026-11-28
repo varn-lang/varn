@@ -133,6 +133,7 @@ pub(crate) async fn code_action(
                 state.as_deref(),
                 index.as_deref(),
                 an.workspace.resolver(),
+                an.workspace.session(),
             )
         })
         .await)
