@@ -20,8 +20,8 @@ impl<'r> super::Binder<'r> {
             origin_rc,
             &mut *std::sync::Arc::make_mut(&mut self.ty_table),
         ));
-        sym.col = i.range.start.column;
-        sym.offset = i.range.start.offset;
+        sym.col = i.range.start.column + (i.id_offset - i.range.start.offset);
+        sym.offset = i.id_offset;
         sym.doc = i.doc.as_ref().map(|s| self.intern_local(s.as_str()));
         sym.type_params = i.type_params.iter().map(|t| t.name).collect();
         sym.type_param_variances = i.type_params.iter().map(|t| t.variance).collect();

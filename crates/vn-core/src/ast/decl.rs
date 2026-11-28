@@ -145,6 +145,7 @@ pub enum ClassMember {
 #[derive(Clone, Debug)]
 pub struct InterfaceDecl {
     pub id: Atom,
+    pub id_offset: u32,
     pub ast_id: AstId,
     pub type_params: Vec<TypeParam>,
     pub extends: Vec<TypeNode>,
@@ -183,6 +184,7 @@ pub enum InterfaceMember {
 #[derive(Clone, Debug)]
 pub struct TypeAliasDecl {
     pub id: Atom,
+    pub id_offset: u32,
     pub ast_id: AstId,
     pub type_params: Vec<TypeParam>,
     pub alias: TypeNode,
@@ -193,6 +195,7 @@ pub struct TypeAliasDecl {
 #[derive(Clone, Debug)]
 pub struct EnumDecl {
     pub id: Atom,
+    pub id_offset: u32,
     pub ast_id: AstId,
     pub type_params: Vec<TypeParam>,
     pub implements: Vec<TypeNode>,
@@ -223,6 +226,7 @@ pub struct EnumField {
 #[derive(Clone, Debug)]
 pub struct NamespaceDecl {
     pub id: Atom,
+    pub id_offset: u32,
     pub ast_id: AstId,
     pub body: Vec<Decl>,
     pub is_declare: bool,

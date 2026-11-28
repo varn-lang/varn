@@ -8,6 +8,7 @@ use vn_core::TokenKind;
 pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
     let range = s.range();
     s.expect(TokenKind::Enum)?;
+    let id_offset = s.range().start.offset;
     let id = s.expect_id()?;
 
     let type_params = if s.check(TokenKind::LAngle) {
@@ -302,6 +303,7 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
     let full_range = s.span_from(range);
     Ok(EnumDecl {
         id,
+        id_offset,
         ast_id: s.next_ast_id(),
         type_params,
         implements,

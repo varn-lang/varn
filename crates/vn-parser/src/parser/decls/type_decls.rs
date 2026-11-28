@@ -9,6 +9,7 @@ use vn_core::{ErrorCode, TokenKind};
 pub fn parse_interface_decl(s: &mut TokenStream) -> PResult<InterfaceDecl> {
     let range = s.range();
     s.expect(TokenKind::Interface)?;
+    let id_offset = s.range().start.offset;
     let id = s.expect_id()?;
     let type_params = if s.check(TokenKind::LAngle) {
         parse_type_params(s)?
@@ -39,6 +40,7 @@ pub fn parse_interface_decl(s: &mut TokenStream) -> PResult<InterfaceDecl> {
     let full_range = s.span_from(range);
     Ok(InterfaceDecl {
         id,
+        id_offset,
         ast_id: s.next_ast_id(),
         type_params,
         extends,
@@ -170,6 +172,7 @@ pub fn parse_interface_member(
 pub fn parse_type_alias_decl(s: &mut TokenStream) -> PResult<Decl> {
     let range = s.range();
     s.expect(TokenKind::Type)?;
+    let id_offset = s.range().start.offset;
     let id = s.expect_id()?;
 
     let type_params = if s.check(TokenKind::LAngle) {
@@ -185,6 +188,7 @@ pub fn parse_type_alias_decl(s: &mut TokenStream) -> PResult<Decl> {
     let full_range = s.span_from(range);
     Ok(Decl::TypeAlias(TypeAliasDecl {
         id,
+        id_offset,
         ast_id: s.next_ast_id(),
         type_params,
         alias,
@@ -196,6 +200,7 @@ pub fn parse_type_alias_decl(s: &mut TokenStream) -> PResult<Decl> {
 pub fn parse_namespace_decl(s: &mut TokenStream, is_declare: bool) -> PResult<NamespaceDecl> {
     let range = s.range();
     s.advance();
+    let id_offset = s.range().start.offset;
     let id = s.expect_id()?;
     s.expect(TokenKind::LBrace)?;
     let mut body = vec![];
@@ -213,6 +218,7 @@ pub fn parse_namespace_decl(s: &mut TokenStream, is_declare: bool) -> PResult<Na
     let full_range = s.span_from(range);
     Ok(NamespaceDecl {
         id,
+        id_offset,
         ast_id: s.next_ast_id(),
         body,
         is_declare,

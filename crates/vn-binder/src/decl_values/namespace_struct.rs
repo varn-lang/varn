@@ -18,6 +18,8 @@ impl<'r> super::super::Binder<'r> {
         );
         let mut sym =
             Symbol::new(SymbolKind::Namespace, n.id, n.range.start.line).with_type(namespace_ty);
+        sym.offset = n.id_offset;
+        sym.col = n.range.start.column + (n.id_offset - n.range.start.offset);
         sym.doc = n.doc.as_ref().map(|s| self.intern_local(s.as_str()));
         self.define(n.id, sym);
 
