@@ -73,7 +73,7 @@ impl<'a> Scopes<'a> {
         self.decorators(&function.decorators);
         self.stack.push(HashMap::new());
         self.type_params(&function.type_params);
-        self.params(&function.params, true, false);
+        self.params(&function.params, !function.modifiers.is_declare, false);
         if let Some(ty) = &function.return_type {
             self.ty(ty);
         }

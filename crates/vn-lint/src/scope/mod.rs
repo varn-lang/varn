@@ -66,6 +66,7 @@ pub struct Scopes<'a> {
     pub(super) stack: Vec<HashMap<Atom, usize>>,
 }
 
+#[derive(Clone)]
 pub(super) struct Declare {
     kind: Kind,
     exported: bool,
@@ -75,6 +76,13 @@ pub(super) struct Declare {
     renamable: bool,
     shorthand: bool,
     import: Option<(usize, usize)>,
+}
+
+pub(super) fn positional(pattern: &Pattern) -> bool {
+    matches!(
+        pattern,
+        Pattern::Identifier { .. } | Pattern::Array { .. } | Pattern::Tuple { .. }
+    )
 }
 
 mod decl;
@@ -238,7 +246,7 @@ impl<'a> Scopes<'a> {
                             initialized: declarator.init.is_some(),
                             group: Some(group),
                             param_of: None,
-                            renamable: matches!(declarator.id, Pattern::Identifier { .. }),
+                            renamable: positional(&declarator.id),
                             shorthand: false,
                             import: None,
                         },
@@ -375,8 +383,12 @@ impl<'a> Scopes<'a> {
             Pattern::Object {
                 properties, rest, ..
             } => {
+                let keyed = Declare {
+                    renamable: false,
+                    ..how.clone()
+                };
                 for property in properties {
-                    self.declare_pattern(&property.value, how);
+                    self.declare_pattern(&property.value, &keyed);
                 }
                 if let Some(rest) = rest {
                     self.declare_pattern(rest, how);
