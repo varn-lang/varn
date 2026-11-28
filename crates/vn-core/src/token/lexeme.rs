@@ -159,8 +159,7 @@ impl TokenKind {
             | TokenKind::Dollar
             | TokenKind::Backtick
             | TokenKind::Newline
-            | TokenKind::Whitespace
-            | TokenKind::DocComment => crate::UNKNOWN,
+            | TokenKind::Whitespace => crate::UNKNOWN,
         }
     }
 }

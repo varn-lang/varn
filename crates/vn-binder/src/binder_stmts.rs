@@ -1,5 +1,4 @@
 use super::Binder;
-use std::sync::Arc;
 use vn_core::ast::{ExprKind, ForInit, Pattern, StmtId, StmtKind, VarDeclarator, VarKind};
 use vn_sem::scope::ScopeKind;
 use vn_sem::symbol::SymbolKind;
@@ -11,12 +10,7 @@ impl<'r> Binder<'r> {
         }
     }
 
-    pub(super) fn bind_var_declarators(
-        &mut self,
-        declarators: &[VarDeclarator],
-        kind: VarKind,
-        doc: Option<&Arc<str>>,
-    ) {
+    pub(super) fn bind_var_declarators(&mut self, declarators: &[VarDeclarator], kind: VarKind) {
         let sym_kind = match kind {
             VarKind::Const => SymbolKind::Const,
             VarKind::Let => SymbolKind::Let,
@@ -33,7 +27,7 @@ impl<'r> Binder<'r> {
                 &declarator.id,
                 sym_kind,
                 line,
-                doc.as_ref().map(|s| s.to_string()),
+                None,
                 ty,
                 declarator.type_ann.is_some(),
             );
@@ -95,7 +89,7 @@ impl<'r> Binder<'r> {
                 if let Some(init) = init {
                     match init.as_ref() {
                         ForInit::Var { kind, declarators } => {
-                            self.bind_var_declarators(declarators, *kind, None);
+                            self.bind_var_declarators(declarators, *kind);
                         }
                         ForInit::Expr(e) => {
                             self.bind_expr(*e);
@@ -163,7 +157,7 @@ impl<'r> Binder<'r> {
                 self.bind_expr(*argument);
             }
             StmtKind::Using { declarations, .. } => {
-                self.bind_var_declarators(declarations, VarKind::Const, None);
+                self.bind_var_declarators(declarations, VarKind::Const);
             }
             StmtKind::Empty
             | StmtKind::Error

@@ -292,7 +292,6 @@ pub fn build_semantic_tokens(state: &DocumentState) -> Vec<u32> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => (tok.col, tok.length),

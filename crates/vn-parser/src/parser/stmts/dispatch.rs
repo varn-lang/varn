@@ -10,12 +10,7 @@ use vn_core::ast::{StmtId, StmtKind};
 use vn_core::TokenKind;
 
 pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
-    let start = s.range();
-    while s.check(TokenKind::DocComment) {
-        let lexeme: std::sync::Arc<str> = std::sync::Arc::from(s.lexeme());
-        s.advance();
-        s.store_pending_doc(lexeme);
-    }
+    let start = s.range_with_doc();
 
     let decorators = if s.check(TokenKind::At) {
         super::super::patterns::parse_decorator_list(s)?
@@ -36,8 +31,6 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
             "expected a declaration after decorators".to_owned(),
         ));
     }
-
-    let _ = s.current_doc();
 
     match kind {
         TokenKind::LBrace => parse_block(s),
@@ -226,7 +219,6 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => {

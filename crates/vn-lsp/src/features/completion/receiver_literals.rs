@@ -155,7 +155,6 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::RawStr => return None,
     };

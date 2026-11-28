@@ -76,3 +76,13 @@ impl<'r> Binder<'r> {
         );
     }
 }
+
+impl Binder<'_> {
+    pub(crate) fn doc_at(&self, start: u32) -> Option<Arc<str>> {
+        let at = self
+            .docs
+            .binary_search_by_key(&start, |doc| doc.range.start.offset)
+            .ok()?;
+        Some(self.docs[at].text.clone())
+    }
+}

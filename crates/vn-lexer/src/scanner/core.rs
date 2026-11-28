@@ -1,9 +1,8 @@
 use crate::char_class::{is_digit, is_identifier_start, is_identifier_start_char};
 use crate::token_kind::{
-    BIGINT_LITERAL, BINARY_LITERAL, CHAR_TOK, DECIMAL_LITERAL, DOC_COMMENT, EOF, FALSE,
-    FLOAT_LITERAL, HEX_LITERAL, IDENTIFIER, INTEGER_LITERAL, LBRACE, MINUSMINUS, NULL,
-    OCTAL_LITERAL, PLUSPLUS, RBRACE, RBRACKET, REGEX, RPAREN, STR, SUPER, TEMPLATE, TEMPLATE_TAIL,
-    THIS, TRUE,
+    BIGINT_LITERAL, BINARY_LITERAL, CHAR_TOK, DECIMAL_LITERAL, EOF, FALSE, FLOAT_LITERAL,
+    HEX_LITERAL, IDENTIFIER, INTEGER_LITERAL, LBRACE, MINUSMINUS, NULL, OCTAL_LITERAL, PLUSPLUS,
+    RBRACE, RBRACKET, REGEX, RPAREN, STR, SUPER, TEMPLATE, TEMPLATE_TAIL, THIS, TRUE,
 };
 use crate::token_record::{push_token, TokenRecord};
 
@@ -69,10 +68,8 @@ impl super::Scanner<'_> {
                     let comment_start = self.pos;
                     self.advance_bytes(2);
 
-                    if self.config.emit_doc_comments && self.peek(0) == b'*' && self.peek(1) != b'/'
-                    {
-                        self.scan_doc_comment(&mut tokens, &mut lexemes);
-                        self.last_kind = DOC_COMMENT;
+                    if self.peek(0) == b'*' && self.peek(1) != b'/' {
+                        self.scan_doc_comment(comment_start);
                     } else {
                         self.skip_block_comment();
                         self.push_trivia(vn_core::TriviaKind::Block, comment_start);

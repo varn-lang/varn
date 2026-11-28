@@ -18,7 +18,9 @@ impl<'r> super::super::Binder<'r> {
         let mut sym = Symbol::new(SymbolKind::TypeAlias, t.id, t.range.start.line).with_type(ty);
         sym.offset = t.id_offset;
         sym.col = t.range.start.column + (t.id_offset - t.range.start.offset);
-        sym.doc = t.doc.as_ref().map(|s| self.intern_local(s.as_str()));
+        sym.doc = self
+            .doc_at(t.range.start.offset)
+            .map(|s| self.intern_local(&s));
         sym.type_params = t.type_params.iter().map(|tp| tp.name).collect();
         sym.type_param_constraints = t
             .type_params
@@ -52,7 +54,9 @@ impl<'r> super::super::Binder<'r> {
         ));
         sym.offset = e.id_offset;
         sym.col = e.range.start.column + (e.id_offset - e.range.start.offset);
-        sym.doc = e.doc.as_ref().map(|s| self.intern_local(s.as_str()));
+        sym.doc = self
+            .doc_at(e.range.start.offset)
+            .map(|s| self.intern_local(&s));
         sym.type_params = e.type_params.iter().map(|t| t.name).collect();
         sym.type_param_variances = e.type_params.iter().map(|t| t.variance).collect();
         sym.type_param_constraints = e

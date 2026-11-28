@@ -21,7 +21,6 @@ pub struct VariableDecl {
     pub ast_id: AstId,
     pub declarators: Vec<VarDeclarator>,
     pub is_declare: bool,
-    pub doc: Option<String>,
     pub range: SourceRange,
 }
 

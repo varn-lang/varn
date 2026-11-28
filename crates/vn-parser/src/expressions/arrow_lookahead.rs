@@ -184,7 +184,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::Backtick
                                 | TokenKind::Newline
                                 | TokenKind::Whitespace
-                                | TokenKind::DocComment
                                 | TokenKind::Placeholder
                                 | TokenKind::DecimalLiteral
                                 | TokenKind::RawStr => {}
@@ -341,7 +340,6 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => {}

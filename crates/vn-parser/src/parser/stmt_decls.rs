@@ -38,35 +38,27 @@ pub(super) fn try_parse_decl_stmt_mode(
 ) -> Option<PResult<StmtId>> {
     let result = match kind {
         TokenKind::Function => {
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_function_decl(s, decorators, false, is_declare)
-            {
+            let decl = match super::decls::parse_function_decl(s, decorators, false, is_declare) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Function(decl)))))
         }
         TokenKind::Async if next_kind == TokenKind::Function => {
             s.advance();
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_function_decl(s, decorators, true, is_declare)
-            {
+            let decl = match super::decls::parse_function_decl(s, decorators, true, is_declare) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Function(decl)))))
         }
         TokenKind::Class | TokenKind::Abstract => {
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_class_decl(s, decorators, is_declare) {
+            let decl = match super::decls::parse_class_decl(s, decorators, is_declare) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Class(decl)))))
         }
@@ -76,12 +68,10 @@ pub(super) fn try_parse_decl_stmt_mode(
                     "decorators are not supported on interfaces".to_owned(),
                 )));
             }
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_interface_decl(s) {
+            let decl = match super::decls::parse_interface_decl(s) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Interface(decl)))))
         }
@@ -91,14 +81,10 @@ pub(super) fn try_parse_decl_stmt_mode(
                     "decorators are not supported on type aliases".to_owned(),
                 )));
             }
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_type_alias_decl(s) {
+            let decl = match super::decls::parse_type_alias_decl(s) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            if let Decl::TypeAlias(d) = &mut decl {
-                d.doc = doc.clone();
-            }
             let range = *decl.range();
             Ok(s.stmt(range, StmtKind::Decl(Box::new(decl))))
         }
@@ -108,12 +94,10 @@ pub(super) fn try_parse_decl_stmt_mode(
                     "decorators are not supported on enums".to_owned(),
                 )));
             }
-            let doc = s.current_doc();
             let mut decl = match super::decls::parse_enum_decl(s) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             decl.is_declare = is_declare;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Enum(decl)))))
@@ -124,22 +108,18 @@ pub(super) fn try_parse_decl_stmt_mode(
                     "decorators are not supported on namespaces".to_owned(),
                 )));
             }
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_namespace_decl(s, is_declare) {
+            let decl = match super::decls::parse_namespace_decl(s, is_declare) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Namespace(decl)))))
         }
         TokenKind::Struct => {
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_struct_decl(s, decorators) {
+            let decl = match super::decls::parse_struct_decl(s, decorators) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Class(decl)))))
         }
@@ -162,12 +142,10 @@ pub(super) fn try_parse_decl_stmt_mode(
                     "decorators are not supported on variable declarations".to_owned(),
                 )));
             }
-            let doc = s.current_doc();
-            let mut decl = match super::decls::parse_var_decl_with_declare(s, is_declare) {
+            let decl = match super::decls::parse_var_decl_with_declare(s, is_declare) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            decl.doc = doc;
             s.eat_semicolon();
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Variable(decl)))))
@@ -183,17 +161,15 @@ pub(super) fn try_parse_decl_stmt_mode(
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            let _ = s.current_doc();
             s.eat_semicolon();
             let range = decl.range;
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Import(decl)))))
         }
         TokenKind::Export => {
-            let decl = match super::decls::parse_export_decl(s, decorators) {
+            let decl = match super::decls::parse_export_decl(s, decorators, start) {
                 Ok(decl) => decl,
                 Err(err) => return Some(Err(err)),
             };
-            let _ = s.current_doc();
             s.eat_semicolon();
             let range = *decl.range();
             Ok(s.stmt(range, StmtKind::Decl(Box::new(Decl::Export(decl)))))
@@ -334,7 +310,6 @@ pub(super) fn try_parse_decl_stmt_mode(
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => return None,

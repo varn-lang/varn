@@ -41,9 +41,20 @@ impl Parser {
         lexeme_buf: Arc<[u8]>,
         filename: Arc<str>,
         interner: vn_core::AtomInterner,
+        trivia: &[vn_core::Trivia],
     ) -> Self {
+        let docs = trivia
+            .iter()
+            .filter_map(|item| match &item.kind {
+                vn_core::TriviaKind::Doc(text) => Some(vn_core::ast::DocBlock {
+                    range: item.range,
+                    text: text.clone(),
+                }),
+                vn_core::TriviaKind::Line | vn_core::TriviaKind::Block => None,
+            })
+            .collect();
         Parser {
-            stream: TokenStream::new(tokens, lexeme_buf, filename, interner),
+            stream: TokenStream::new(tokens, lexeme_buf, filename, interner, docs),
             diagnostics: vn_core::DiagnosticBag::new(),
         }
     }
@@ -132,6 +143,7 @@ impl Parser {
             range,
             split_tokens,
             name_tokens,
+            docs: self.stream.take_docs(),
         };
         (prog, errors, profile)
     }
@@ -317,7 +329,6 @@ impl Parser {
                 | TokenKind::Backtick
                 | TokenKind::Newline
                 | TokenKind::Whitespace
-                | TokenKind::DocComment
                 | TokenKind::Placeholder
                 | TokenKind::DecimalLiteral
                 | TokenKind::RawStr => {

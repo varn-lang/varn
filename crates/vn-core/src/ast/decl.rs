@@ -82,7 +82,6 @@ pub struct FunctionDecl {
     pub body: StmtId,
     pub modifiers: Modifiers,
     pub decorators: Vec<Decorator>,
-    pub doc: Option<String>,
     pub range: SourceRange,
 }
 
@@ -99,7 +98,6 @@ pub struct ClassDecl {
     pub body: Vec<ClassMember>,
     pub modifiers: Modifiers,
     pub decorators: Vec<Decorator>,
-    pub doc: Option<String>,
     pub range: SourceRange,
     pub is_struct: bool,
 }
@@ -110,7 +108,6 @@ pub enum ClassMember {
         params: Vec<Param>,
         body: StmtId,
         decorators: Vec<Decorator>,
-        doc: Option<String>,
         range: SourceRange,
     },
     Method {
@@ -122,7 +119,6 @@ pub enum ClassMember {
         body: Option<StmtId>,
         modifiers: Modifiers,
         decorators: Vec<Decorator>,
-        doc: Option<String>,
         range: SourceRange,
     },
     Property {
@@ -132,7 +128,6 @@ pub enum ClassMember {
         init: Option<ExprId>,
         modifiers: Modifiers,
         decorators: Vec<Decorator>,
-        doc: Option<String>,
         range: SourceRange,
     },
     Getter {
@@ -142,7 +137,6 @@ pub enum ClassMember {
         body: Option<StmtId>,
         modifiers: Modifiers,
         decorators: Vec<Decorator>,
-        doc: Option<String>,
         range: SourceRange,
     },
     Setter {
@@ -152,7 +146,6 @@ pub enum ClassMember {
         body: Option<StmtId>,
         modifiers: Modifiers,
         decorators: Vec<Decorator>,
-        doc: Option<String>,
         range: SourceRange,
     },
     StaticBlock {
@@ -165,7 +158,6 @@ pub enum ClassMember {
         type_ann: TypeNode,
         default: Option<ExprId>,
         visibility: Option<Visibility>,
-        doc: Option<String>,
         range: SourceRange,
     },
 }
@@ -236,7 +228,6 @@ pub struct InterfaceDecl {
     pub type_params: Vec<TypeParam>,
     pub extends: Vec<TypeNode>,
     pub body: Vec<InterfaceMember>,
-    pub doc: Option<String>,
     pub range: SourceRange,
 }
 
@@ -276,7 +267,6 @@ pub struct TypeAliasDecl {
     pub ast_id: AstId,
     pub type_params: Vec<TypeParam>,
     pub alias: TypeNode,
-    pub doc: Option<String>,
     pub range: SourceRange,
 }
 
@@ -289,7 +279,6 @@ pub struct EnumDecl {
     pub implements: Vec<TypeNode>,
     pub members: Vec<EnumMember>,
     pub body: Vec<ClassMember>,
-    pub doc: Option<String>,
     pub is_declare: bool,
     pub range: SourceRange,
 }
@@ -320,7 +309,6 @@ pub struct NamespaceDecl {
     pub ast_id: AstId,
     pub body: Vec<Decl>,
     pub is_declare: bool,
-    pub doc: Option<String>,
     pub range: SourceRange,
 }
 

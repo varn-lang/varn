@@ -188,7 +188,6 @@ pub fn parse_new_callee_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => break,

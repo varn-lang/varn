@@ -1,4 +1,4 @@
-use vn_core::{DiagnosticBag, Trivia};
+use vn_core::DiagnosticBag;
 
 use crate::stages::lex::Tokens;
 use crate::stages::parse::Parsed;
@@ -6,7 +6,6 @@ use crate::{Session, Source};
 
 pub struct Analysis {
     pub tokens: Tokens,
-    pub trivia: Vec<Trivia>,
     pub parsed: Parsed,
     pub checked: vn_sem::output::CheckResult,
     pub syntax: DiagnosticBag,
@@ -14,11 +13,11 @@ pub struct Analysis {
 
 impl Session {
     pub fn analyze(&self, source: &Source) -> Analysis {
-        let (tokens, trivia, mut syntax) =
-            crate::stages::lex::scan_tolerant(source.text(), source.path());
+        let (tokens, mut syntax) = crate::stages::lex::scan_tolerant(source.text(), source.path());
         let (parsed, syntactic) = crate::stages::parse::parse_tolerant(
             tokens.tokens.clone(),
             tokens.lexeme_buf.clone(),
+            &tokens.trivia,
             source.path(),
         );
         syntax.extend(syntactic);
@@ -30,7 +29,6 @@ impl Session {
         );
         Analysis {
             tokens,
-            trivia,
             parsed,
             checked,
             syntax,

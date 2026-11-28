@@ -153,7 +153,6 @@ pub(crate) fn token_to_logical_op(kind: TokenKind) -> Option<LogicalOp> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => None,

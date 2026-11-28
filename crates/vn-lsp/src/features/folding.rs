@@ -17,8 +17,8 @@ pub fn fold_comments(trivia: &[Trivia]) -> Vec<FoldingRange> {
         let start = t.range.start.line.saturating_sub(1);
         let end = t.range.end.line.saturating_sub(1);
 
-        match t.kind {
-            TriviaKind::Block => {
+        match &t.kind {
+            TriviaKind::Block | TriviaKind::Doc(_) => {
                 if let Some((s, e)) = run.take() {
                     push_comment_fold(&mut ranges, s, e);
                 }
@@ -221,7 +221,6 @@ pub fn fold_tokens(tokens: &[TokenRecord]) -> Vec<FoldingRange> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => {}

@@ -4,22 +4,6 @@ mod literals;
 mod operators;
 mod templates;
 
-#[derive(Clone, Copy, Debug)]
-pub struct LexerConfig {
-    pub emit_doc_comments: bool,
-
-    pub emit_trivia: bool,
-}
-
-impl Default for LexerConfig {
-    fn default() -> Self {
-        Self {
-            emit_doc_comments: true,
-            emit_trivia: false,
-        }
-    }
-}
-
 pub(crate) struct Scanner<'a> {
     pub(super) src: &'a [u8],
     pub(super) pos: usize,
@@ -27,7 +11,6 @@ pub(crate) struct Scanner<'a> {
     pub(super) template_depth: usize,
     pub(super) brace_depth: Vec<usize>,
     pub(super) last_kind: u32,
-    pub(super) config: LexerConfig,
     pub diagnostics: vn_core::DiagnosticBag,
     pub(super) cur_line: u32,
     pub(super) cur_col: u32,
@@ -36,7 +19,7 @@ pub(crate) struct Scanner<'a> {
 }
 
 impl<'a> Scanner<'a> {
-    pub(crate) fn with_config(src: &'a [u8], config: LexerConfig) -> Self {
+    pub(crate) fn new(src: &'a [u8]) -> Self {
         let mut line_starts = Vec::with_capacity(64);
         line_starts.push(0usize);
         for (i, &b) in src.iter().enumerate() {
@@ -51,7 +34,6 @@ impl<'a> Scanner<'a> {
             template_depth: 0,
             brace_depth: Vec::new(),
             last_kind: u32::MAX,
-            config,
             diagnostics: vn_core::DiagnosticBag::new(),
             cur_line: 1,
             cur_col: 0,
@@ -60,9 +42,6 @@ impl<'a> Scanner<'a> {
     }
 
     pub(super) fn push_trivia(&mut self, kind: vn_core::TriviaKind, start: usize) {
-        if !self.config.emit_trivia {
-            return;
-        }
         let (sl, sc) = self.location_at(start);
         let (el, ec) = self.location();
         self.trivia.push(vn_core::Trivia {

@@ -185,7 +185,6 @@ pub fn build_signature_help(state: &DocumentState, line: u32, col: u32) -> Optio
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => {}

@@ -20,7 +20,9 @@ impl<'r> super::super::Binder<'r> {
             Symbol::new(SymbolKind::Namespace, n.id, n.range.start.line).with_type(namespace_ty);
         sym.offset = n.id_offset;
         sym.col = n.range.start.column + (n.id_offset - n.range.start.offset);
-        sym.doc = n.doc.as_ref().map(|s| self.intern_local(s.as_str()));
+        sym.doc = self
+            .doc_at(n.range.start.offset)
+            .map(|s| self.intern_local(&s));
         self.define(n.id, sym);
 
         let child = self.scopes.child(ScopeKind::Namespace, self.current);

@@ -17,12 +17,12 @@ impl<'r> Binder<'r> {
     ) {
         let first = members.len();
         self.collect_member_entries(member, class_is_declare, members);
-        if let Some(doc) = member_doc(member)
+        if let Some(doc) = self.doc_at(member_start(member))
             && let Some(entry) = members.get_mut(first)
         {
-            entry.doc = Some(Arc::from(doc));
+            entry.doc = Some(doc.clone());
             if let Some(id) = entry.symbol_id {
-                let atom = self.intern_local(doc);
+                let atom = self.intern_local(&doc);
                 self.arena.get_mut(id).doc = Some(atom);
             }
         }
@@ -398,14 +398,14 @@ impl<'r> Binder<'r> {
     }
 }
 
-fn member_doc(member: &ClassMember) -> Option<&str> {
+fn member_start(member: &ClassMember) -> u32 {
     match member {
-        ClassMember::Constructor { doc, .. }
-        | ClassMember::Method { doc, .. }
-        | ClassMember::Property { doc, .. }
-        | ClassMember::Getter { doc, .. }
-        | ClassMember::Setter { doc, .. }
-        | ClassMember::Field { doc, .. } => doc.as_deref(),
-        ClassMember::StaticBlock { .. } => None,
+        ClassMember::Constructor { range, .. }
+        | ClassMember::Method { range, .. }
+        | ClassMember::Property { range, .. }
+        | ClassMember::Getter { range, .. }
+        | ClassMember::Setter { range, .. }
+        | ClassMember::Field { range, .. }
+        | ClassMember::StaticBlock { range, .. } => range.start.offset,
     }
 }

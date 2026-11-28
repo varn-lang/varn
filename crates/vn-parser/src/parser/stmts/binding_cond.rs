@@ -53,7 +53,6 @@ fn variable(
             range,
         }],
         is_declare: false,
-        doc: None,
         range,
     };
     s.stmt(range, StmtKind::Decl(Box::new(Decl::Variable(decl))))

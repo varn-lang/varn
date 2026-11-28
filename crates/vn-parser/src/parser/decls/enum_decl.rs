@@ -246,7 +246,6 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
                     | TokenKind::Backtick
                     | TokenKind::Newline
                     | TokenKind::Whitespace
-                    | TokenKind::DocComment
                     | TokenKind::Placeholder
                     | TokenKind::DecimalLiteral
                     | TokenKind::RawStr => {
@@ -296,16 +295,14 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
 
     while !s.check(TokenKind::RBrace) && !s.is_eof() {
         while s.eat(TokenKind::Semicolon) {}
-        let member_start = s.range();
-        let doc = super::class_member::member_doc(s);
         if s.check(TokenKind::RBrace) {
             break;
         }
+        let member_start = s.range_with_doc();
         body.push(super::class_member::parse_class_member(
             s,
             false,
             member_start,
-            doc,
         )?);
     }
 
@@ -319,7 +316,6 @@ pub fn parse_enum_decl(s: &mut TokenStream) -> PResult<EnumDecl> {
         implements,
         members,
         body,
-        doc: None,
         is_declare: false,
         range: full_range,
     })

@@ -1,4 +1,4 @@
-use super::class_member::{member_doc, parse_class_member};
+use super::class_member::parse_class_member;
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
 use crate::types::{parse_type, parse_type_params};
@@ -37,12 +37,11 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
     let mut body: Vec<ClassMember> = vec![];
     while !s.check(TokenKind::RBrace) && !s.is_eof() {
         while s.eat(TokenKind::Semicolon) || s.eat(TokenKind::Comma) {}
-        let member_start = s.range();
-        let doc = member_doc(s);
         if s.check(TokenKind::RBrace) {
             break;
         }
-        match parse_class_member(s, false, member_start, doc)? {
+        let member_start = s.range_with_doc();
+        match parse_class_member(s, false, member_start)? {
             ClassMember::Property {
                 key,
                 key_range,
@@ -50,7 +49,6 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
                 init,
                 modifiers,
                 decorators,
-                doc,
                 range: field_range,
             } if !modifiers.is_static => {
                 if !decorators.is_empty() {
@@ -79,7 +77,6 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
                     type_ann,
                     default: init,
                     visibility: modifiers.visibility,
-                    doc,
                     range: field_range,
                 });
             }
@@ -115,7 +112,6 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
         body,
         modifiers: Modifiers::default(),
         decorators,
-        doc: None,
         range: full_range,
         is_struct: true,
     })

@@ -151,7 +151,6 @@ pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinOp> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => None,

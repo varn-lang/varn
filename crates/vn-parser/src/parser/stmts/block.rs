@@ -176,7 +176,6 @@ pub fn parse_block(s: &mut TokenStream) -> PResult<StmtId> {
                         | TokenKind::Backtick
                         | TokenKind::Newline
                         | TokenKind::Whitespace
-                        | TokenKind::DocComment
                         | TokenKind::Placeholder
                         | TokenKind::DecimalLiteral
                         | TokenKind::RawStr => {

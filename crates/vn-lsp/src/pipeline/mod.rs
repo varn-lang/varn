@@ -39,7 +39,7 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
     let analysis = session.analyze(&unit);
     let linted = lint_outcome(session, &unit, &analysis);
     let raw_tokens = analysis.tokens.tokens;
-    let trivia = analysis.trivia;
+    let trivia = analysis.tokens.trivia;
     let program = analysis.parsed.program;
     let ast_arena = analysis.parsed.arena;
     let result = analysis.checked;
@@ -72,11 +72,7 @@ pub fn run_pipeline(source: String, uri: String, session: &Session) -> DocumentA
         .filter(|t| {
             !matches!(
                 t.kind,
-                TokenKind::Whitespace
-                    | TokenKind::Newline
-                    | TokenKind::EOF
-                    | TokenKind::DocComment
-                    | TokenKind::Dynamic
+                TokenKind::Whitespace | TokenKind::Newline | TokenKind::EOF | TokenKind::Dynamic
             )
         })
         .map(|t| {

@@ -72,15 +72,6 @@ impl<'a> Layout<'a> {
 
     fn core(&self, index: usize) -> Doc {
         let tok = &self.stream.toks[index];
-        if tok.kind == K::DocComment {
-            return comment_doc(&Comment {
-                text: tok.text.clone(),
-                line: false,
-                start: tok.start,
-                blank_before: false,
-                newline_after: false,
-            });
-        }
         if tok.text.contains('\n') {
             Doc::Raw(tok.text.clone())
         } else {
@@ -99,7 +90,7 @@ impl<'a> Layout<'a> {
     fn separation(&self, next: usize) -> Doc {
         let toks = &self.stream.toks;
         let previous = next - 1;
-        if toks[previous].kind == K::DocComment || self.facts.decorator_ends.contains(&previous) {
+        if self.facts.decorator_ends.contains(&previous) {
             return if toks[next].newline_before {
                 Doc::Hard
             } else {

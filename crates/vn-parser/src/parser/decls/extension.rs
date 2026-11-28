@@ -189,7 +189,6 @@ fn parse_extension_member(s: &mut TokenStream) -> PResult<ExtensionMember> {
             ..Default::default()
         },
         decorators: vec![],
-        doc: None,
         range: full_range,
     }))
 }

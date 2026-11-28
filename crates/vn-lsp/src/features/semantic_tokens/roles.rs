@@ -236,7 +236,7 @@ fn at_member_slot(tokens: &[TokenRecord], index: usize) -> bool {
     cursor == 0
         || matches!(
             tokens[cursor - 1].kind,
-            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon | TokenKind::DocComment
+            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon
         )
         || tokens[cursor - 1].line < tokens[cursor].line
 }

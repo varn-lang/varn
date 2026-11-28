@@ -189,7 +189,6 @@ pub(super) fn parse_var_decl_with_declare(
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => {
@@ -229,7 +228,6 @@ pub(super) fn parse_var_decl_after_head(
         ast_id: s.next_ast_id(),
         declarators,
         is_declare,
-        doc: None,
         range: full_range,
     })
 }
@@ -326,7 +324,6 @@ pub(super) fn parse_function_decl(
             ..Default::default()
         },
         decorators,
-        doc: None,
         range: full_range,
     })
 }

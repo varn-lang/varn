@@ -150,17 +150,15 @@ pub enum TokenKind {
     Newline = 148,
     Whitespace = 149,
 
-    DocComment = 150,
+    Placeholder = 150,
 
-    Placeholder = 151,
+    DecimalLiteral = 151,
 
-    DecimalLiteral = 152,
+    RawStr = 152,
 
-    RawStr = 153,
+    Mut = 153,
 
-    Mut = 154,
-
-    Out = 155,
+    Out = 154,
 }
 
 impl TokenKind {

@@ -233,7 +233,7 @@ impl Session {
             program: &analysis.parsed.program,
             arena: &analysis.parsed.arena,
             interner: &analysis.parsed.interner,
-            trivia: &analysis.trivia,
+            trivia: &analysis.tokens.trivia,
         };
         Ok(policy.apply(vn_lint::lint(&unit, &facts)))
     }

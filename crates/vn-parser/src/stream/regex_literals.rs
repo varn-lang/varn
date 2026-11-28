@@ -78,7 +78,6 @@ impl TokenStream {
                     range,
                 }],
                 is_declare: false,
-                doc: None,
                 range,
             };
             hoisted.push(self.stmt(range, StmtKind::Decl(Box::new(Decl::Variable(decl)))));

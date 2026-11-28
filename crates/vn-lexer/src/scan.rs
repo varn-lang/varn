@@ -1,37 +1,5 @@
 use crate::scanner::Scanner;
 
-pub fn scan(
-    source: &str,
-    filename: &str,
-) -> (
-    Vec<vn_core::Token>,
-    std::sync::Arc<[u8]>,
-    Vec<vn_core::Diagnostic>,
-) {
-    let (tokens, buf, diags, _) =
-        scan_inner(source, filename, crate::scanner::LexerConfig::default());
-    (tokens, buf, diags)
-}
-
-pub fn scan_with_trivia(
-    source: &str,
-    filename: &str,
-) -> (
-    Vec<vn_core::Token>,
-    std::sync::Arc<[u8]>,
-    Vec<vn_core::Diagnostic>,
-    Vec<vn_core::Trivia>,
-) {
-    scan_inner(
-        source,
-        filename,
-        crate::scanner::LexerConfig {
-            emit_trivia: true,
-            ..Default::default()
-        },
-    )
-}
-
 fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::ParsedNumber> {
     use vn_core::{ParsedNumber, TokenKind};
     let cleaned = lexeme.replace('_', "");
@@ -201,30 +169,15 @@ fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::P
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => None,
     }
 }
 
-pub fn scan_with_config(
+pub fn scan(
     source: &str,
     filename: &str,
-    config: crate::scanner::LexerConfig,
-) -> (
-    Vec<vn_core::Token>,
-    std::sync::Arc<[u8]>,
-    Vec<vn_core::Diagnostic>,
-) {
-    let (tokens, buf, diags, _) = scan_inner(source, filename, config);
-    (tokens, buf, diags)
-}
-
-fn scan_inner(
-    source: &str,
-    filename: &str,
-    config: crate::scanner::LexerConfig,
 ) -> (
     Vec<vn_core::Token>,
     std::sync::Arc<[u8]>,
@@ -235,7 +188,7 @@ fn scan_inner(
 
     let src_bytes = source.as_bytes();
 
-    let mut scanner = Scanner::with_config(src_bytes, config);
+    let mut scanner = Scanner::new(src_bytes);
     let (records, lexeme_buf) = scanner.scan_all();
     let file: std::sync::Arc<str> = std::sync::Arc::from(filename);
     let diagnostics: Vec<vn_core::Diagnostic> = scanner

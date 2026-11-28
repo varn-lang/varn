@@ -308,7 +308,6 @@ pub(crate) fn parse_primary_type(
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral => Err(ParseError::unexpected(format!(
             "unexpected {} in a type",

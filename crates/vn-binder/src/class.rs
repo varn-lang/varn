@@ -20,7 +20,9 @@ impl<'r> super::Binder<'r> {
         let mut sym = Symbol::new(SymbolKind::Class, name_atom, line).with_type(cls_type);
         sym.col = c.range.start.column;
         sym.offset = c.range.start.offset;
-        sym.doc = c.doc.as_ref().map(|s| self.intern_local(s.as_str()));
+        sym.doc = self
+            .doc_at(c.range.start.offset)
+            .map(|s| self.intern_local(&s));
         sym.type_params = c.type_params.iter().map(|t| t.name).collect();
         sym.type_param_variances = c.type_params.iter().map(|t| t.variance).collect();
         sym.type_param_constraints = c

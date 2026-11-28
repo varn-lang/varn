@@ -183,7 +183,6 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => None,

@@ -89,6 +89,5 @@ pub(crate) const BACKSLASH: u32 = TokenKind::Backslash as u32;
 pub(crate) const DOLLAR: u32 = TokenKind::Dollar as u32;
 pub(crate) const BACKTICK: u32 = TokenKind::Backtick as u32;
 pub(crate) const NEWLINE: u32 = TokenKind::Newline as u32;
-pub(crate) const DOC_COMMENT: u32 = TokenKind::DocComment as u32;
 pub(crate) const DECIMAL_LITERAL: u32 = TokenKind::DecimalLiteral as u32;
 pub(crate) const RAW_STR: u32 = TokenKind::RawStr as u32;

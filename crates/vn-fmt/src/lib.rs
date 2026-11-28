@@ -48,12 +48,17 @@ struct Rendered {
 }
 
 fn render(source: &str, filename: &str) -> Result<Rendered, FormatError> {
-    let (tokens, buffer, errors, trivia) = vn_lexer::scan_with_trivia(source, filename);
+    let (tokens, buffer, errors, trivia) = vn_lexer::scan(source, filename);
     if let Some(error) = errors.first() {
         return Err(FormatError::Syntax(located(error)));
     }
-    let (program, diagnostics, arena, _) =
-        vn_parser::parse_partial(tokens.clone(), buffer, filename, AtomInterner::new());
+    let (program, diagnostics, arena, _) = vn_parser::parse_partial(
+        tokens.clone(),
+        buffer,
+        filename,
+        AtomInterner::new(),
+        &trivia,
+    );
     if let Some(error) = diagnostics.iter().next() {
         return Err(FormatError::Syntax(located(error)));
     }
@@ -124,7 +129,7 @@ pub fn format_source(original: &str, filename: &str) -> Result<String, FormatErr
 }
 
 fn comments(source: &str, filename: &str) -> Vec<String> {
-    let (tokens, _, _, trivia) = vn_lexer::scan_with_trivia(source, filename);
+    let (_, _, _, trivia) = vn_lexer::scan(source, filename);
     let mut found: Vec<(u32, String)> = trivia
         .iter()
         .map(|item| (item.range.start.offset, item.range))
@@ -135,13 +140,6 @@ fn comments(source: &str, filename: &str) -> Vec<String> {
             )
         })
         .collect();
-    for token in tokens.iter().filter(|t| t.kind == TokenKind::DocComment) {
-        let start = token.range.start.offset as usize;
-        found.push((
-            token.range.start.offset,
-            source[start..token.range.end.offset as usize].to_string(),
-        ));
-    }
     found.sort_by_key(|(at, _)| *at);
     found
         .into_iter()
@@ -152,8 +150,8 @@ fn comments(source: &str, filename: &str) -> Vec<String> {
 fn check(source: &str, filename: &str) -> Result<String, FormatError> {
     let formatted = render(source, filename)?;
     let again = render(&formatted.text, filename)?;
-    let (before, _, _) = vn_lexer::scan(source, filename);
-    let (after, _, _) = vn_lexer::scan(&formatted.text, filename);
+    let (before, _, _, _) = vn_lexer::scan(source, filename);
+    let (after, _, _, _) = vn_lexer::scan(&formatted.text, filename);
     if significant(&before, source, &formatted.split_tokens)
         != significant(&after, &formatted.text, &again.split_tokens)
     {

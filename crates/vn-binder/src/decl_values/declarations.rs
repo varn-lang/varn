@@ -31,7 +31,10 @@ impl<'r> super::super::Binder<'r> {
             };
             let needs_enrich = !has_explicit_ann
                 && (ty.is_none() || ty.as_ref().is_some_and(|t| t.is_unresolved()));
-            self.bind_pattern(&d.id, sym_kind, line, v.doc.clone(), ty, has_explicit_ann);
+            let doc = self
+                .doc_at(v.range.start.offset)
+                .map(|text| text.to_string());
+            self.bind_pattern(&d.id, sym_kind, line, doc, ty, has_explicit_ann);
 
             if let Pattern::Identifier { name, .. } = &d.id
                 && let Some(init) = d.init
@@ -130,7 +133,9 @@ impl<'r> super::super::Binder<'r> {
         sym.has_explicit_type = f.return_type.is_some();
         sym.is_async = f.modifiers.is_async;
         sym.is_generator = f.modifiers.is_generator;
-        sym.doc = f.doc.as_ref().map(|s| self.intern_local(s.as_str()));
+        sym.doc = self
+            .doc_at(f.range.start.offset)
+            .map(|s| self.intern_local(&s));
         sym.type_params = f.type_params.iter().map(|t| t.name).collect();
         sym.type_param_constraints = f
             .type_params
@@ -164,7 +169,7 @@ impl<'r> super::super::Binder<'r> {
                 &p.pattern,
                 SymbolKind::Parameter,
                 line,
-                f.doc.clone(),
+                None,
                 Some(ty),
                 p.type_ann.is_some(),
             );

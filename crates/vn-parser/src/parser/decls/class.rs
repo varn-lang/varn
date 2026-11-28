@@ -61,12 +61,11 @@ pub fn parse_class_decl(
         let mut parsed = vec![];
         while !s.check(TokenKind::RBrace) && !s.is_eof() {
             while s.eat(TokenKind::Semicolon) {}
-            let member_start = s.range();
-            let doc = super::class_member::member_doc(s);
             if s.check(TokenKind::RBrace) {
                 break;
             }
-            parsed.push(parse_class_member(s, is_declare, member_start, doc)?);
+            let member_start = s.range_with_doc();
+            parsed.push(parse_class_member(s, is_declare, member_start)?);
         }
         parsed
     };
@@ -88,7 +87,6 @@ pub fn parse_class_decl(
             params,
             body: empty_body,
             decorators: vec![],
-            doc: None,
             range: full_range,
         });
         desugared.extend(body);
@@ -112,7 +110,6 @@ pub fn parse_class_decl(
             ..Default::default()
         },
         decorators,
-        doc: None,
         range: full_range,
         is_struct: false,
     })

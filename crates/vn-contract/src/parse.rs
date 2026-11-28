@@ -9,9 +9,9 @@ use crate::model::{ClassContract, ContractError, Kind, Member, ModuleContract, P
 use crate::ContractTy;
 
 pub fn parse(source: &str, name: &str) -> Result<ModuleContract, ContractError> {
-    let (tokens, lexeme_buf, _) = vn_lexer::scan(source, name);
+    let (tokens, lexeme_buf, _, trivia) = vn_lexer::scan(source, name);
     let (program, interner, arena) =
-        vn_parser::parse(tokens, lexeme_buf, name, AtomInterner::new())
+        vn_parser::parse(tokens, lexeme_buf, name, AtomInterner::new(), &trivia)
             .map_err(|_| ContractError::Unparsable(format!("cannot parse contract `{name}`")))?;
     let mut contract = ModuleContract::default();
     for &stmt in &program.body {

@@ -113,10 +113,14 @@ impl Compilation {
         }
 
         let source = self.source.clone();
-        let (tokens, _, lex_diagnostics) = self.timed(Stage::Lex, || {
+        let (tokens, lex_diagnostics) = self.timed(Stage::Lex, || {
             crate::stages::lex::scan_tolerant(source.text(), source.path())
         });
-        let (token_vec, lexeme_buf) = (tokens.tokens.clone(), tokens.lexeme_buf.clone());
+        let (token_vec, lexeme_buf, trivia) = (
+            tokens.tokens.clone(),
+            tokens.lexeme_buf.clone(),
+            tokens.trivia.clone(),
+        );
         self.tokens = Some(tokens);
         if request.goal == Goal::Tokens {
             return if lex_diagnostics.is_empty() {
@@ -131,7 +135,7 @@ impl Compilation {
         }
 
         let (parsed, mut diagnostics) = self.timed(Stage::Parse, || {
-            crate::stages::parse::parse_tolerant(token_vec, lexeme_buf, source.path())
+            crate::stages::parse::parse_tolerant(token_vec, lexeme_buf, &trivia, source.path())
         });
         diagnostics.extend(lex_diagnostics);
         if !diagnostics.is_empty() {

@@ -233,7 +233,6 @@ pub(super) fn parse_for_stmt(s: &mut TokenStream) -> PResult<StmtId> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => {

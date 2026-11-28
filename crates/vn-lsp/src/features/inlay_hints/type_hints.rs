@@ -254,7 +254,6 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::Backtick
             | vn_core::TokenKind::Newline
             | vn_core::TokenKind::Whitespace
-            | vn_core::TokenKind::DocComment
             | vn_core::TokenKind::Placeholder
             | vn_core::TokenKind::DecimalLiteral
             | vn_core::TokenKind::RawStr => {}

@@ -201,7 +201,6 @@ pub(super) fn parse_member_mods(s: &mut TokenStream) -> Modifiers {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => break,

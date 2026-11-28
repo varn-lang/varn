@@ -293,8 +293,7 @@ pub fn parse_primary_expr(s: &mut TokenStream) -> PResult<ExprId> {
         | TokenKind::Dollar
         | TokenKind::Backtick
         | TokenKind::Newline
-        | TokenKind::Whitespace
-        | TokenKind::DocComment => {
+        | TokenKind::Whitespace => {
             let kind = s.kind();
             if kind.can_be_identifier() {
                 let name = s.consume_name();

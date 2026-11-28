@@ -12,7 +12,7 @@ pub mod stmt;
 pub mod types;
 
 pub use arena::{AstArena, ExprId, StmtId};
-pub use program::Program;
+pub use program::{DocBlock, Program};
 
 pub use decl::{
     ClassDecl, ClassMember, Decl, EnumDecl, EnumField, EnumMember, ExtensionDecl, ExtensionMember,

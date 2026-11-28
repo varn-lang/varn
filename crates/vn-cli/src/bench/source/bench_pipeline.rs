@@ -72,8 +72,13 @@ pub(super) fn profile_inputs<'a>(
         .checked
         .as_ref()
         .ok_or_else(|| CliError::fatal("the compilation kept no check result"))?;
-    let (_, profile, _, _) = parse_shared(tokens.tokens.clone(), tokens.lexeme_buf.clone(), path)
-        .map_err(|errs| {
+    let (_, profile, _, _) = parse_shared(
+        tokens.tokens.clone(),
+        tokens.lexeme_buf.clone(),
+        &tokens.trivia,
+        path,
+    )
+    .map_err(|errs| {
         CliError::fatal(format!(
             "parse errors while profiling: {} found",
             errs.len()
@@ -85,6 +90,7 @@ pub(super) fn profile_inputs<'a>(
 pub(super) fn parse_shared(
     tokens: Vec<vn_core::Token>,
     lexeme_buf: std::sync::Arc<[u8]>,
+    trivia: &[vn_core::Trivia],
     path: &str,
 ) -> Result<
     (
@@ -95,5 +101,11 @@ pub(super) fn parse_shared(
     ),
     vn_core::DiagnosticBag,
 > {
-    vn_parser::parse_with_profile(tokens, lexeme_buf, path, vn_core::AtomInterner::new())
+    vn_parser::parse_with_profile(
+        tokens,
+        lexeme_buf,
+        path,
+        vn_core::AtomInterner::new(),
+        trivia,
+    )
 }

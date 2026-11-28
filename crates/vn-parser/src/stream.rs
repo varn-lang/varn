@@ -44,7 +44,7 @@ pub struct TokenStream {
     pos: usize,
     pub filename: Arc<str>,
 
-    pending_doc: Option<Arc<str>>,
+    docs: Vec<vn_core::ast::DocBlock>,
 
     pub errors: vn_core::DiagnosticBag,
     pub profile: ParseProfile,
@@ -67,13 +67,14 @@ impl TokenStream {
         lexeme_buf: Arc<[u8]>,
         filename: Arc<str>,
         interner: vn_core::AtomInterner,
+        docs: Vec<vn_core::ast::DocBlock>,
     ) -> Self {
         TokenStream {
             tokens,
             lexeme_buf,
             pos: 0,
             filename,
-            pending_doc: None,
+            docs,
             errors: vn_core::DiagnosticBag::new(),
             profile: ParseProfile::default(),
             async_body: false,
@@ -386,11 +387,22 @@ impl TokenStream {
         while self.eat(TokenKind::Semicolon) {}
     }
 
-    pub fn store_pending_doc(&mut self, doc: Arc<str>) {
-        self.pending_doc = Some(doc);
+    pub fn range_with_doc(&self) -> SourceRange {
+        let current = self.range();
+        let previous_end = self.prev_range().end.offset;
+        let before = self
+            .docs
+            .partition_point(|doc| doc.range.end.offset <= current.start.offset);
+        match before.checked_sub(1).map(|at| &self.docs[at]) {
+            Some(doc) if doc.range.start.offset >= previous_end || self.pos == 0 => SourceRange {
+                start: doc.range.start,
+                end: current.end,
+            },
+            Some(_) | None => current,
+        }
     }
 
-    pub fn current_doc(&mut self) -> Option<String> {
-        self.pending_doc.take().map(|rc| rc.to_string())
+    pub fn take_docs(&mut self) -> Vec<vn_core::ast::DocBlock> {
+        std::mem::take(&mut self.docs)
     }
 }

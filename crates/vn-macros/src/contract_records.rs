@@ -17,9 +17,9 @@ pub(crate) fn record_fields(
     kind: &RecordSource,
     name: &str,
 ) -> Result<Fields, String> {
-    let (tokens, lexeme_buf, _) = vn_lexer::scan(source, path);
+    let (tokens, lexeme_buf, _, trivia) = vn_lexer::scan(source, path);
     let (program, interner, arena) =
-        vn_parser::parse(tokens, lexeme_buf, path, AtomInterner::new())
+        vn_parser::parse(tokens, lexeme_buf, path, AtomInterner::new(), &trivia)
             .map_err(|_| format!("cannot parse contract `{path}`"))?;
     for &stmt in &program.body {
         let StmtKind::Decl(decl) = &arena.stmt(stmt).kind else {
@@ -115,9 +115,9 @@ pub(crate) fn declared_enum_variants(
     path: &str,
     name: &str,
 ) -> Result<Vec<(String, i64)>, String> {
-    let (tokens, lexeme_buf, _) = vn_lexer::scan(source, path);
+    let (tokens, lexeme_buf, _, trivia) = vn_lexer::scan(source, path);
     let (program, interner, arena) =
-        vn_parser::parse(tokens, lexeme_buf, path, AtomInterner::new())
+        vn_parser::parse(tokens, lexeme_buf, path, AtomInterner::new(), &trivia)
             .map_err(|_| format!("cannot parse contract `{path}`"))?;
     for &stmt in &program.body {
         let StmtKind::Decl(decl) = &arena.stmt(stmt).kind else {

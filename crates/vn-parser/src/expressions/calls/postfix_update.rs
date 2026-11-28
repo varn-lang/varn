@@ -188,7 +188,6 @@ pub(super) fn parse_postfix_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => break,

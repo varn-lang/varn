@@ -45,7 +45,6 @@ pub fn parse_interface_decl(s: &mut TokenStream) -> PResult<InterfaceDecl> {
         type_params,
         extends,
         body,
-        doc: None,
         range: full_range,
     })
 }
@@ -195,7 +194,6 @@ pub fn parse_type_alias_decl(s: &mut TokenStream) -> PResult<Decl> {
         ast_id: s.next_ast_id(),
         type_params,
         alias,
-        doc: None,
         range: full_range,
     }))
 }
@@ -225,7 +223,6 @@ pub fn parse_namespace_decl(s: &mut TokenStream, is_declare: bool) -> PResult<Na
         ast_id: s.next_ast_id(),
         body,
         is_declare,
-        doc: None,
         range: full_range,
     })
 }

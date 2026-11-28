@@ -74,6 +74,7 @@ impl<'r> Binder<'r> {
             match_arm_scopes: FxHashMap::default(),
             ty_table: Arc::new(vn_sem::types::CheckerTyTable::new()),
             source_file: Arc::from(program.filename.as_ref()),
+            docs: program.docs.clone(),
             decl_kinds: FxHashMap::default(),
             sum_type_variants: FxHashMap::default(),
             enum_variant_tags: FxHashMap::default(),

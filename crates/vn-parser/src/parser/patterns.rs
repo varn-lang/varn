@@ -179,7 +179,6 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => {
             let name = s.consume_name();

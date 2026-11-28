@@ -192,7 +192,6 @@ fn parse_param(s: &mut TokenStream) -> PResult<Param> {
             | TokenKind::Backtick
             | TokenKind::Newline
             | TokenKind::Whitespace
-            | TokenKind::DocComment
             | TokenKind::Placeholder
             | TokenKind::DecimalLiteral
             | TokenKind::RawStr => break,

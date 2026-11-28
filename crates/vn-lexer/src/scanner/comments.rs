@@ -1,6 +1,3 @@
-use crate::token_kind::DOC_COMMENT;
-use crate::token_record::{push_token, TokenRecord};
-
 impl super::Scanner<'_> {
     pub(super) fn skip_line_comment(&mut self) {
         while !self.is_eof() && self.peek(0) != b'\n' {
@@ -26,15 +23,7 @@ impl super::Scanner<'_> {
         );
     }
 
-    pub(super) fn scan_doc_comment(
-        &mut self,
-        tokens: &mut Vec<TokenRecord>,
-        lexemes: &mut Vec<u8>,
-    ) {
-        let tok_start = self.pos - 2;
-        let (sl, sc) = self.location_at(tok_start);
-        let so = tok_start as u32;
-
+    pub(super) fn scan_doc_comment(&mut self, comment_start: usize) {
         self.cur_col += 1;
         self.pos += 1;
 
@@ -51,29 +40,15 @@ impl super::Scanner<'_> {
             self.report_unterminated(
                 vn_core::ErrorCode::UnterminatedBlockComment,
                 "unterminated block comment",
-                tok_start,
+                comment_start,
             );
         } else {
             self.cur_col += 2;
             self.pos += 2;
         }
 
-        let (el, ec) = self.location();
-        let eo = self.pos as u32;
-
-        push_token(
-            tokens,
-            lexemes,
-            self.src,
-            DOC_COMMENT,
-            sl,
-            sc,
-            so,
-            el,
-            ec,
-            eo,
-            content_start,
-            content_end,
-        );
+        let text: std::sync::Arc<str> =
+            String::from_utf8_lossy(&self.src[content_start..content_end]).into();
+        self.push_trivia(vn_core::TriviaKind::Doc(text), comment_start);
     }
 }

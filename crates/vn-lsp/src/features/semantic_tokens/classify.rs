@@ -39,7 +39,7 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         | Super | Delete | In | Of | Is | Public | Private | Protected | Static | Abstract
         | Override | Readonly | Mut | Out | Declare | Native | Extends | Implements | Get | Set
         | Constructor | Match | At | Hash | Backslash | Dollar | Backtick | Newline
-        | Whitespace | DocComment | Placeholder | RawStr => {}
+        | Whitespace | Placeholder | RawStr => {}
     }
 
     if tok.kind == Identifier

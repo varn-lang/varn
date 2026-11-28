@@ -14,7 +14,7 @@ pub(super) fn is_declaration_slot(tokens: &[&TokenRecord], name: usize) -> bool 
     i == 0
         || matches!(
             tokens[i - 1].kind,
-            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon | TokenKind::DocComment
+            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon
         )
         || tokens[i - 1].line < tokens[name].line
 }
@@ -77,7 +77,7 @@ pub(super) fn default_site(tokens: &[&TokenRecord], last: usize) -> CompletionSi
     }
     let slot_start = matches!(
         kind,
-        TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon | TokenKind::DocComment
+        TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon
     ) || is_modifier(kind)
         || matches!(kind, TokenKind::Async | TokenKind::Get | TokenKind::Set);
     match type_body_kind(tokens, last + 1) {
@@ -93,7 +93,6 @@ pub(super) fn default_site(tokens: &[&TokenRecord], last: usize) -> CompletionSi
             | TokenKind::Semicolon
             | TokenKind::Else
             | TokenKind::Do
-            | TokenKind::DocComment
     ) {
         return CompletionSite::Statement;
     }
@@ -180,7 +179,7 @@ pub(super) fn is_declaration_slot_name(tokens: &[&TokenRecord], name: usize) -> 
     i == 0
         || matches!(
             tokens[i - 1].kind,
-            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon | TokenKind::DocComment
+            TokenKind::LBrace | TokenKind::RBrace | TokenKind::Semicolon
         )
         || tokens[i - 1].line < tokens[name].line
 }

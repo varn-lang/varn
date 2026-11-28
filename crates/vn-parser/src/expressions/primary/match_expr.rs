@@ -235,7 +235,6 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => {
             let expr = super::parse_primary_expr(s)?;

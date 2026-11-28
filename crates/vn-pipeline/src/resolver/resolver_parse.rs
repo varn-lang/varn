@@ -13,23 +13,28 @@ pub(super) struct ParsedModule {
 
 impl ModuleResolver {
     pub(super) fn parse_and_cache(&self, source: &str, key: &str) -> Option<ParsedModule> {
-        let (tokens, lexeme_buf, lex_errs) = vn_lexer::scan(source, key);
-        let (program, interner, arena) =
-            match vn_parser::parse(tokens, lexeme_buf, key, vn_core::AtomInterner::new()) {
-                Ok(parsed) => parsed,
-                Err(errors) => {
-                    let diagnostics: Vec<vn_core::Diagnostic> =
-                        lex_errs.iter().cloned().chain(errors).collect();
-                    self.syntax_failures.lock().insert(
-                        key.to_owned(),
-                        Arc::new(vn_sem::resolver::SyntaxFailure {
-                            source: Arc::from(source),
-                            diagnostics,
-                        }),
-                    );
-                    return None;
-                }
-            };
+        let (tokens, lexeme_buf, lex_errs, trivia) = vn_lexer::scan(source, key);
+        let (program, interner, arena) = match vn_parser::parse(
+            tokens,
+            lexeme_buf,
+            key,
+            vn_core::AtomInterner::new(),
+            &trivia,
+        ) {
+            Ok(parsed) => parsed,
+            Err(errors) => {
+                let diagnostics: Vec<vn_core::Diagnostic> =
+                    lex_errs.iter().cloned().chain(errors).collect();
+                self.syntax_failures.lock().insert(
+                    key.to_owned(),
+                    Arc::new(vn_sem::resolver::SyntaxFailure {
+                        source: Arc::from(source),
+                        diagnostics,
+                    }),
+                );
+                return None;
+            }
+        };
         let program = Arc::new(program);
         let arena = Arc::new(arena);
         self.store_program(key.to_owned(), Arc::clone(&program));

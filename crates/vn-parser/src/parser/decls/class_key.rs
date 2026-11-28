@@ -177,7 +177,6 @@ fn member_key_text(s: &mut TokenStream) -> PResult<String> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => Err(ParseError::expected(format!(
             "expected a class member name, found {}",

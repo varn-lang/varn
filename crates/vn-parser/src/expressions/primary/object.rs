@@ -315,7 +315,6 @@ fn parse_prop_key(s: &mut TokenStream) -> PResult<PropKey> {
         | TokenKind::Backtick
         | TokenKind::Newline
         | TokenKind::Whitespace
-        | TokenKind::DocComment
         | TokenKind::Placeholder
         | TokenKind::DecimalLiteral
         | TokenKind::RawStr => Err(ParseError::expected(format!(
