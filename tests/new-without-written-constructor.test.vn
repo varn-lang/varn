@@ -11,7 +11,9 @@ class Root {
 
 class Kid extends Root {
     tag: str = "t"
-    constructor() { super() }
+    constructor() {
+        super()
+    }
 }
 
 class Box2<T> {
@@ -21,7 +23,9 @@ class Box2<T> {
 await describe("206 new without a written constructor", async () => {
     await it("a class with only field initialisers builds empty", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + new Bare().count + new Kid().tag.length }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + new Bare().count + new Kid().tag.length
+        }
         const bare = new Bare()
         expect(bare.items.length).toBe(0)
         expect(bare.count).toBe(3)

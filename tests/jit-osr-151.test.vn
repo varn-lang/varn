@@ -5,16 +5,17 @@ import { describe, it, expect } from "std:test";
 // The values live into the header must be read from where the interpreter
 // left them, and a value the resumed body also redefines — the outer counter
 // of a nested loop — must keep changing.
-
 function osSingle(n: int): str {
     let count = 0
     let total = 0.0
     let text = ""
     const xs: int[] = [1, 2, 3]
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         count = count + xs[i % 3]
         total = total + 0.5
-        if (i % 10000 == 0) { text = text + "." }
+        if(i % 10000 == 0) {
+            text = text + "."
+        }
     }
     return `${count}/${total}/${text}`
 }
@@ -23,9 +24,9 @@ function osSingle(n: int): str {
 // resumed body runs again.
 function osNested(n: int): int {
     let sum = 0
-    for (let row = 0; row < n; row = row + 1) {
+    for(let row = 0; row < n; row = row + 1) {
         let inner = 0
-        for (let k = 0; k < n; k = k + 1) {
+        for(let k = 0; k < n; k = k + 1) {
             inner = inner + row * k
         }
         sum = sum + inner + row
@@ -36,9 +37,9 @@ function osNested(n: int): int {
 // Three levels, the middle counter also carried.
 function osTriple(n: int): int {
     let s = 0
-    for (let a = 0; a < n; a = a + 1) {
-        for (let b = 0; b < n; b = b + 1) {
-            for (let c = 0; c < n; c = c + 1) {
+    for(let a = 0; a < n; a = a + 1) {
+        for(let b = 0; b < n; b = b + 1) {
+            for(let c = 0; c < n; c = c + 1) {
                 s = s + a + b * c
             }
         }
@@ -48,7 +49,7 @@ function osTriple(n: int): int {
 
 function osDown(n: int): int {
     let s = 0
-    for (let i = n; i > 0; i = i - 1) {
+    for(let i = n; i > 0; i = i - 1) {
         s = s + i
     }
     return s
@@ -70,7 +71,7 @@ const tri = n * (n - 1) / 2
 const m = 60
 const trm = m * (m - 1) / 2
 await describe("151 jit osr", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(single == "60000/15000.0/...").toBeTruthy();
         expect(callNested(n)).toBe(tri * tri + tri);
     });
@@ -79,6 +80,4 @@ await describe("151 jit osr", async () => {
         expect(callTriple(m)).toBe(m * m * trm + m * trm * trm);
         expect(callDown(50000)).toBe(50000 * 50001 / 2);
     });
-
-
 });

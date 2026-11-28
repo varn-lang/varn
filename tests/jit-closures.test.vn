@@ -17,8 +17,10 @@ function clAdder(base: int): int {
 // The closure writes the parent's variable; the parent sees the write.
 function clCounter(n: int): int {
     let count = 0
-    const bump = (): void => { count = count + 1 }
-    for (let i = 0; i < n; i = i + 1) {
+    const bump = (): void => {
+        count = count + 1
+    }
+    for(let i = 0; i < n; i = i + 1) {
         bump()
     }
     return count
@@ -27,12 +29,12 @@ function clCounter(n: int): int {
 // Per-iteration bindings: each closure keeps its own `k`.
 function clPerIteration(n: int): int {
     const fns: (() => int)[] = []
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         const k = i * 3
         fns.push(() => k)
     }
     let sum = 0
-    for (let j = 0; j < fns.length; j = j + 1) {
+    for(let j = 0; j < fns.length; j = j + 1) {
         sum = sum + fns[j]()
     }
     return sum
@@ -43,7 +45,7 @@ function clPerIteration(n: int): int {
 function clNested(tag: str): str {
     let label = tag + "-"
     const outer = () => {
-        return () => label + "in"
+        return() => label + "in"
     }
     label = label + "x"
     return outer()()
@@ -51,7 +53,9 @@ function clNested(tag: str): str {
 
 // A captured parameter, written by the closure.
 function clParam(p: int): int {
-    const twice = (): void => { p = p * 2 }
+    const twice = (): void => {
+        p = p * 2
+    }
     twice()
     return p + 1
 }
@@ -74,14 +78,14 @@ let cStatic = 0
 // n = 0..3: 0, 0, 3, 9 — 500 times each.
 // 0..9 squared is 285, 200 times.
 await describe("145 jit closures", async () => {
-        await it("group 1 part 1", async () => {
-        for (let i = 0; i < 2000; i = i + 1) {
-        cAdd = cAdd + clAdder(i)
-        cCount = cCount + clCounter(i % 5)
-        cIter = cIter + clPerIteration(i % 4)
-        cNested = clNested(`t${(i % 3)}`)
-        cParam = cParam + clParam(i)
-        cStatic = cStatic + clStatic(i % 10)
+    await it("group 1 part 1", async () => {
+        for(let i = 0; i < 2000; i = i + 1) {
+            cAdd = cAdd + clAdder(i)
+            cCount = cCount + clCounter(i % 5)
+            cIter = cIter + clPerIteration(i % 4)
+            cNested = clNested(`t${(i % 3)}`)
+            cParam = cParam + clParam(i)
+            cStatic = cStatic + clStatic(i % 10)
         }
         expect(cAdd).toBe(2 * 1999000 + 11 * 2000);
         expect(cCount).toBe(400 * 10);
@@ -93,6 +97,4 @@ await describe("145 jit closures", async () => {
         expect(cParam).toBe(2 * 1999000 + 2000);
         expect(cStatic).toBe(200 * 285);
     });
-
-
 });

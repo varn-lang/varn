@@ -2,16 +2,32 @@ import { describe, it, expect } from "std:test";
 import { max, min, sign } from "std:math";
 
 const BASE: int[] = [-1, 1, 0, 2, -2];
-const EXPS: int[] = [0, 1, 2, 3, 2147483648, 4294967296, 4294967297, 9007199254740992, 9007199254740993, 4611686018427387904, 9223372036854775807];
+const EXPS: int[] = [
+    0,
+    1,
+    2,
+    3,
+    2147483648,
+    4294967296,
+    4294967297,
+    9007199254740992,
+    9007199254740993,
+    4611686018427387904,
+    9223372036854775807,
+];
 const FL: float[] = [0.0, 1.0, -0.0, 2.0];
 
 function kind(f: () => int): str {
-    try { return f().toString(); } catch (e) {
+    try {
+        return f().toString();
+    } catch (e) {
         return e is RangeError ? "range" : e is IntegerOverflow ? "overflow" : "other:" + e.name;
     }
 }
 
-function floatKind(v: float): str { return v.toString(); }
+function floatKind(v: float): str {
+    return v.toString();
+}
 
 await describe("303 power, shifts and float extremes", async () => {
     await it("an integer power uses the whole exponent, not its low 32 bits", async () => {
@@ -78,10 +94,18 @@ await describe("303 power, shifts and float extremes", async () => {
         expect(((-one) ** (huge + one)).toString()).toBe("-1");
         expect((one ** huge).toString()).toBe("1");
         let negative = "";
-        try { (two ** (-one)).toString(); } catch (e: RangeError) { negative = "range"; }
+        try {
+            (two ** (-one)).toString();
+        } catch (e: RangeError) {
+            negative = "range";
+        }
         expect(negative).toBe("range");
         let tooBig = "";
-        try { (two ** huge).toString(); } catch (e: RangeError) { tooBig = "range"; }
+        try {
+            (two ** huge).toString();
+        } catch (e: RangeError) {
+            tooBig = "range";
+        }
         expect(tooBig).toBe("range");
     });
     await it("a decimal power is exact for integral exponents and refuses the rest", async () => {
@@ -95,10 +119,18 @@ await describe("303 power, shifts and float extremes", async () => {
         expect((half ** 2d).toString()).toBe("0.25");
         expect((zero ** zero).toString()).toBe("1");
         let fractional = "";
-        try { (two ** half).toString(); } catch (e: RangeError) { fractional = "range"; }
+        try {
+            (two ** half).toString();
+        } catch (e: RangeError) {
+            fractional = "range";
+        }
         expect(fractional).toBe("range");
         let division = "";
-        try { (zero ** (-1d)).toString(); } catch (e: DivisionByZero) { division = "zero"; }
+        try {
+            (zero ** (-1d)).toString();
+        } catch (e: DivisionByZero) {
+            division = "zero";
+        }
         expect(division).toBe("zero");
     });
 });

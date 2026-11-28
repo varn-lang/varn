@@ -1,6 +1,9 @@
 import { describe, it, expect } from "std:test";
 
-enum R { A(int), B(str) }
+enum R {
+    A(int),
+    B(str)
+}
 
 await describe("29 Option Destructuring", async () => {
     await it("enum match", () => {
@@ -9,7 +12,7 @@ await describe("29 Option Destructuring", async () => {
             A(n) => n,
             B(_) => -1,
         };
-        if (v != 42) {
+        if(v != 42) {
             throw new Error(`DEBUG FAIL: v is not 42, it is: ${v}`);
         }
         expect(v).toBe(42);

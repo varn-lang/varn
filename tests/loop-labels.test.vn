@@ -3,9 +3,13 @@ import { describe, it, expect } from "std:test";
 function nested(): str {
     let out = ""
     outer: for (let i = 0; i < 3; i = i + 1) {
-        for (let j = 0; j < 3; j = j + 1) {
-            if (j == 1) { continue outer }
-            if (i == 2) { break outer }
+        for(let j = 0; j < 3; j = j + 1) {
+            if(j == 1) {
+                continue outer
+            }
+            if(i == 2) {
+                break outer
+            }
             out = out + (i * 10 + j).toString() + " "
         }
         out = out + "x "
@@ -15,8 +19,10 @@ function nested(): str {
 function overItems(): str {
     let out = ""
     outer: for (const p in [1, 2, 3]) {
-        for (const q in [1, 2, 3]) {
-            if (q == 2) { continue outer }
+        for(const q in [1, 2, 3]) {
+            if(q == 2) {
+                continue outer
+            }
             out = out + (p * 10 + q).toString() + " "
         }
     }
@@ -28,9 +34,11 @@ function whileLoops(): str {
     w: while (k < 3) {
         k = k + 1
         let m = 0
-        while (m < 3) {
+        while(m < 3) {
             m = m + 1
-            if (m == 2) { continue w }
+            if(m == 2) {
+                continue w
+            }
             out = out + (k * 10 + m).toString() + " "
         }
     }
@@ -39,10 +47,14 @@ function whileLoops(): str {
 function threeDeep(): int {
     let n = 0
     top: for (let i = 0; i < 5; i = i + 1) {
-        for (let j = 0; j < 5; j = j + 1) {
-            for (let k = 0; k < 5; k = k + 1) {
-                if (k == 2) { continue top }
-                if (i == 3) { break top }
+        for(let j = 0; j < 5; j = j + 1) {
+            for(let k = 0; k < 5; k = k + 1) {
+                if(k == 2) {
+                    continue top
+                }
+                if(i == 3) {
+                    break top
+                }
                 n = n + 1
             }
         }
@@ -53,21 +65,29 @@ function throughFinally(): str {
     let out = ""
     outer: for (let i = 0; i < 3; i = i + 1) {
         try {
-            for (let j = 0; j < 3; j = j + 1) {
-                if (j == 1) { continue outer }
+            for(let j = 0; j < 3; j = j + 1) {
+                if(j == 1) {
+                    continue outer
+                }
                 out = out + j.toString()
             }
-        } finally { out = out + "f" }
+        } finally {
+            out = out + "f"
+        }
     }
     return out
 }
 function withClosures(): str {
     const fs: (() => int)[] = []
     outer: for (let i = 0; i < 4; i = i + 1) {
-        for (let j = 0; j < 2; j = j + 1) {
-            if (i == 1) { continue outer }
+        for(let j = 0; j < 2; j = j + 1) {
+            if(i == 1) {
+                continue outer
+            }
             fs.push(() => i * 10 + j)
-            if (j == 0 && i == 3) { break outer }
+            if(j == 0 && i == 3) {
+                break outer
+            }
         }
     }
     return fs.map((g) => g().toString()).join(",")
@@ -91,7 +111,9 @@ await describe("201 loop labels", async () => {
 
     await it("the jumps hold in compiled code", () => {
         let last = ""
-        for (let r = 0; r < 300; r = r + 1) { last = nested() + threeDeep().toString() }
+        for(let r = 0; r < 300; r = r + 1) {
+            last = nested() + threeDeep().toString()
+        }
         expect(last).toBe("0 10 6")
     })
 })

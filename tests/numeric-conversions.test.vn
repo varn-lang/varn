@@ -1,11 +1,20 @@
 import { describe, it, expect } from "std:test";
 
-function f2i(x: float): int { return x as int }
-function i2f(x: int): float { return x as float }
+function f2i(x: float): int {
+    return x as int
+}
+function i2f(x: int): float {
+    return x as float
+}
 
 function faultOf(f: () => int): str {
-    try { f(); return "none" } catch (e) {
-        if (e is IntegerOverflow) { return "ovf" }
+    try {
+        f();
+        return "none"
+    } catch (e) {
+        if(e is IntegerOverflow) {
+            return "ovf"
+        }
         return "other"
     }
 }
@@ -23,14 +32,19 @@ let acc = 0
 
 const bigF: bigint = 12345678901234567890n
 function bigKind(f: () => bigint): str {
-    try { f(); return "none" } catch (e) {
-        if (e is IntegerOverflow) { return "ovf" }
+    try {
+        f();
+        return "none"
+    } catch (e) {
+        if(e is IntegerOverflow) {
+            return "ovf"
+        }
         return "other"
     }
 }
 const dynBig: dynamic = 5n
 await describe("122 numeric conversions", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(f2i(3.9)).toBe(3);
         expect(f2i(0.0 - 3.9)).toBe(0 - 3);
         expect(i2f(2)).toBe(2.0);
@@ -46,7 +60,10 @@ await describe("122 numeric conversions", async () => {
         expect((dec as int)).toBe(7);
         expect((fromDyn as float)::type).toBe("float");
         expect((fromDynF as int)).toBe(5);
-        while (i < 500) { acc = acc + f2i(2.5); i = i + 1 }
+        while(i < 500) {
+            acc = acc + f2i(2.5);
+            i = i + 1
+        }
         expect(acc).toBe(1000);
         expect((bigF as float)).toBe(12345678901234567000.0);
     });
@@ -60,6 +77,4 @@ await describe("122 numeric conversions", async () => {
         expect(bigKind(() => (0.0 / 0.0) as bigint)).toBe("ovf");
         expect((dynBig as float)).toBe(5.0);
     });
-
-
 });

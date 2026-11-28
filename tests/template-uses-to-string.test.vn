@@ -2,11 +2,15 @@ import { describe, it, expect } from "std:test";
 
 class Animal {
     name: str = "rex";
-    toString(): str { return `Animal(${this.name})` }
+    toString(): str {
+        return `Animal(${this.name})`
+    }
 }
 
 class Puppy extends Animal {
-    override toString(): str { return `Puppy(${this.name})` }
+    override toString(): str {
+        return `Puppy(${this.name})`
+    }
 }
 
 class Plain {

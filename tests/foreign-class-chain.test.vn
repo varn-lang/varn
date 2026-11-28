@@ -4,11 +4,17 @@ import { Square, makeSquare } from "./helpers/foreign-grandchild.vn";
 
 type AnyShape = Shape;
 
-function asShape(): Shape { return makeSquare() }
-function asAlias(): AnyShape { return makeSquare() }
+function asShape(): Shape {
+    return makeSquare()
+}
+function asAlias(): AnyShape {
+    return makeSquare()
+}
 function describeAll(shapes: Shape[]): str[] {
     const out: str[] = []
-    for (const shape in shapes) { out.push(shape.describe()) }
+    for(const shape in shapes) {
+        out.push(shape.describe())
+    }
     return out
 }
 

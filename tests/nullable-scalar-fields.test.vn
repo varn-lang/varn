@@ -1,36 +1,61 @@
 import { describe, it, expect } from "std:test";
 
-interface Flagged { mut seen: bool?; mut mark: char? }
-function readSeen(f: Flagged): bool? { return f.seen }
-function writeMark(f: Flagged, c: char?): void { f.mark = c }
+interface Flagged {
+    mut seen: bool?;
+    mut mark: char?
+}
+function readSeen(f: Flagged): bool? {
+    return f.seen
+}
+function writeMark(f: Flagged, c: char?): void {
+    f.mark = c
+}
 
 class Probe implements Flagged {
     seen: bool? = null;
     mark: char? = null;
     code: int = 0;
-    constructor(code: int) { this.code = code }
+    constructor(code: int) {
+        this.code = code
+    }
 }
 
 function tally(ps: Probe[]): int {
     let t = 0
-    for (const p in ps) {
-        if (p.seen == true) { t = t + 1 }
-        if (p.seen == false) { t = t + 10 }
-        if (p.seen == null) { t = t + 100 }
+    for(const p in ps) {
+        if(p.seen == true) {
+            t = t + 1
+        }
+        if(p.seen == false) {
+            t = t + 10
+        }
+        if(p.seen == null) {
+            t = t + 100
+        }
         const m = p.mark
-        if (m != null) { t = t + m.charCodeAt() }
+        if(m != null) {
+            t = t + m.charCodeAt()
+        }
     }
     return t
 }
 
 function probes(): Probe[] {
     const ps: Probe[] = []
-    for (let i = 0; i < 600; i = i + 1) {
+    for(let i = 0; i < 600; i = i + 1) {
         const p = new Probe(i)
-        if (i % 3 == 1) { p.seen = true }
-        if (i % 3 == 2) { p.seen = false }
-        if (i % 4 == 0) { p.mark = 'a' }
-        if (i % 4 == 1) { p.mark = '😀' }
+        if(i % 3 == 1) {
+            p.seen = true
+        }
+        if(i % 3 == 2) {
+            p.seen = false
+        }
+        if(i % 4 == 0) {
+            p.mark = 'a'
+        }
+        if(i % 4 == 1) {
+            p.mark = '😀'
+        }
         ps.push(p)
     }
     return ps
@@ -53,9 +78,15 @@ await describe("357 nullable scalar fields", async () => {
     await it("the fields are read and written by name and copied with with", async () => {
         const ps = probes()
         let seenCount = 0
-        for (let i = 0; i < 600; i = i + 1) { if (readSeen(ps[i]) == true) { seenCount = seenCount + 1 } }
+        for(let i = 0; i < 600; i = i + 1) {
+            if(readSeen(ps[i]) == true) {
+                seenCount = seenCount + 1
+            }
+        }
         expect(seenCount).toBe(200)
-        for (let i = 0; i < 600; i = i + 1) { writeMark(ps[i], i % 2 == 0 ? null : 'z') }
+        for(let i = 0; i < 600; i = i + 1) {
+            writeMark(ps[i], i % 2 == 0 ? null : 'z')
+        }
         expect(ps[0].mark).toBe(null)
         expect(ps[1].mark).toBe('z')
         const copy = ps[4] with { seen: false, mark: null }

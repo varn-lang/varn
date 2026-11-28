@@ -1,7 +1,6 @@
 import { Json } from "std:encoding";
 
 // Real-world HTTP REST Router & Middleware Pipeline
-
 class Route {
     method: str;
     segments: str[];
@@ -13,34 +12,34 @@ class Route {
         this.segments = [];
 
         let rawSegs = pattern.split("/");
-        for (let i = 0; i < rawSegs.length; i = i + 1) {
+        for(let i = 0; i < rawSegs.length; i = i + 1) {
             let s = rawSegs[i];
-            if (s.length > 0) {
+            if(s.length > 0) {
                 this.segments.push(s);
             }
         }
     }
 
     match(method: str, pathSegments: str[]): Map<str, str>? {
-        if (this.method != "*" && this.method != method) {
+        if(this.method != "*" && this.method != method) {
             return null;
         }
-        if (this.segments.length != pathSegments.length) {
+        if(this.segments.length != pathSegments.length) {
             return null;
         }
 
         // Fast check: verify literal segments match first
-        for (let i = 0; i < this.segments.length; i = i + 1) {
+        for(let i = 0; i < this.segments.length; i = i + 1) {
             let seg = this.segments[i];
-            if (!seg.startsWith(":") && seg != pathSegments[i]) {
+            if(!seg.startsWith(":") && seg != pathSegments[i]) {
                 return null;
             }
         }
 
         const params = new Map<str, str>();
-        for (let i = 0; i < this.segments.length; i = i + 1) {
+        for(let i = 0; i < this.segments.length; i = i + 1) {
             let seg = this.segments[i];
-            if (seg.startsWith(":")) {
+            if(seg.startsWith(":")) {
                 let pName = seg.slice(1);
                 params[pName] = pathSegments[i];
             }
@@ -67,14 +66,14 @@ class ReqContext {
         this.user = null;
 
         let qIdx = url.indexOf("?");
-        if (qIdx != null) {
+        if(qIdx != null) {
             this.path = url.slice(0, qIdx);
             let qStr = url.slice(qIdx + 1);
             let pairs = qStr.split("&");
-            for (let i = 0; i < pairs.length; i = i + 1) {
+            for(let i = 0; i < pairs.length; i = i + 1) {
                 let p = pairs[i];
                 let eq = p.indexOf("=");
-                if (eq != null && eq > 0) {
+                if(eq != null && eq > 0) {
                     this.query[p.slice(0, eq)] = p.slice(eq + 1);
                 } else {
                     this.query[p] = "1";
@@ -112,32 +111,40 @@ class Router {
     dispatch(req: ReqContext): ResContext {
         // 1. Auth Middleware
         let auth = req.headers["authorization"];
-        if (auth == null || !auth.startsWith("Bearer ")) {
-            return new ResContext(401, Json.stringify(#{ error: "Unauthorized" }), new Map([#["Content-Type", "application/json"]]));
+        if(auth == null || !auth.startsWith("Bearer ")) {
+            return new ResContext(
+                401,
+                Json.stringify(#{ error: "Unauthorized" }),
+                new Map([#["Content-Type", "application/json"]]),
+            );
         }
         req.user = "user_" + auth.slice(7, 12);
 
         // 2. Route Matching
         let segs: str[] = [];
         let rawSegs = req.path.split("/");
-        for (let i = 0; i < rawSegs.length; i = i + 1) {
+        for(let i = 0; i < rawSegs.length; i = i + 1) {
             let s = rawSegs[i];
-            if (s.length > 0) {
+            if(s.length > 0) {
                 segs.push(s);
             }
         }
 
-        for (let i = 0; i < this.routes.length; i = i + 1) {
+        for(let i = 0; i < this.routes.length; i = i + 1) {
             let r = this.routes[i];
             let matchedParams = r.match(req.method, segs);
-            if (matchedParams != null) {
+            if(matchedParams != null) {
                 req.params = matchedParams;
                 let h = r.handler;
                 return h(req);
             }
         }
 
-        return new ResContext(404, Json.stringify(#{ error: "Not Found" }), new Map([#["Content-Type", "application/json"]]));
+        return new ResContext(
+            404,
+            Json.stringify(#{ error: "Not Found" }),
+            new Map([#["Content-Type", "application/json"]]),
+        );
     }
 }
 
@@ -145,32 +152,103 @@ class Router {
 let router = new Router();
 
 function jsonRes<T>(status: int, data: T): ResContext {
-    return new ResContext(status, Json.stringify(data), new Map([
-        #["Content-Type", "application/json"],
-        #["X-Powered-By", "Varn-Native-Router"]
-    ]));
+    return new ResContext(
+        status,
+        Json.stringify(data),
+        new Map([#["Content-Type", "application/json"], #["X-Powered-By", "Varn-Native-Router"]]),
+    );
 }
 
-router.add("GET", "/api/v1/health", (req: ReqContext) => jsonRes(200, #{ status: "OK", uptime: 3600 }));
-router.add("GET", "/api/v1/users", (req: ReqContext) => jsonRes(200, #{ users: ["Alice", "Bob"], page: req.query["page"] }));
+router.add(
+    "GET",
+    "/api/v1/health",
+    (req: ReqContext) => jsonRes(200, #{ status: "OK", uptime: 3600 }),
+);
+router.add(
+    "GET",
+    "/api/v1/users",
+    (req: ReqContext) => jsonRes(200, #{ users: ["Alice", "Bob"], page: req.query["page"] }),
+);
 router.add("POST", "/api/v1/users", (req: ReqContext) => jsonRes(201, #{ created: true, id: 999 }));
-router.add("GET", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, #{ id: req.params["id"], name: "User_" + (req.params["id"] as str) }));
-router.add("PUT", "/api/v1/users/:id", (req: ReqContext) => jsonRes(200, #{ updated: true, id: req.params["id"] }));
+router.add(
+    "GET",
+    "/api/v1/users/:id",
+    (req: ReqContext) => jsonRes(
+        200,
+        #{ id: req.params["id"], name: "User_" + (req.params["id"] as str) },
+    ),
+);
+router.add(
+    "PUT",
+    "/api/v1/users/:id",
+    (req: ReqContext) => jsonRes(200, #{ updated: true, id: req.params["id"] }),
+);
 router.add("DELETE", "/api/v1/users/:id", (req: ReqContext) => jsonRes(204, #{ deleted: true }));
-router.add("GET", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(200, #{ userId: req.params["id"], count: 5 }));
-router.add("POST", "/api/v1/users/:id/orders", (req: ReqContext) => jsonRes(201, #{ orderId: 888, userId: req.params["id"] }));
-router.add("GET", "/api/v1/users/:id/orders/:orderId", (req: ReqContext) => jsonRes(200, #{ userId: req.params["id"], orderId: req.params["orderId"], status: "shipped" }));
+router.add(
+    "GET",
+    "/api/v1/users/:id/orders",
+    (req: ReqContext) => jsonRes(200, #{ userId: req.params["id"], count: 5 }),
+);
+router.add(
+    "POST",
+    "/api/v1/users/:id/orders",
+    (req: ReqContext) => jsonRes(201, #{ orderId: 888, userId: req.params["id"] }),
+);
+router.add(
+    "GET",
+    "/api/v1/users/:id/orders/:orderId",
+    (req: ReqContext) => jsonRes(
+        200,
+        #{ userId: req.params["id"], orderId: req.params["orderId"], status: "shipped" },
+    ),
+);
 router.add("GET", "/api/v1/products", (req: ReqContext) => jsonRes(200, #{ products: [1, 2, 3] }));
-router.add("GET", "/api/v1/products/:id", (req: ReqContext) => jsonRes(200, #{ productId: req.params["id"], inStock: true }));
+router.add(
+    "GET",
+    "/api/v1/products/:id",
+    (req: ReqContext) => jsonRes(200, #{ productId: req.params["id"], inStock: true }),
+);
 router.add("POST", "/api/v1/products", (req: ReqContext) => jsonRes(201, #{ created: true }));
-router.add("GET", "/api/v1/categories", (req: ReqContext) => jsonRes(200, #{ categories: ["A", "B"] }));
-router.add("GET", "/api/v1/categories/:id/products", (req: ReqContext) => jsonRes(200, #{ categoryId: req.params["id"], items: 10 }));
-router.add("GET", "/api/v1/cart/:userId", (req: ReqContext) => jsonRes(200, #{ cart: req.params["userId"], items: 2 }));
-router.add("POST", "/api/v1/cart/:userId/items", (req: ReqContext) => jsonRes(201, #{ added: true }));
-router.add("DELETE", "/api/v1/cart/:userId/items/:itemId", (req: ReqContext) => jsonRes(200, #{ removed: req.params["itemId"] }));
-router.add("POST", "/api/v1/checkout/:userId", (req: ReqContext) => jsonRes(200, #{ invoice: 12345, user: req.params["userId"] }));
-router.add("GET", "/api/v1/analytics/overview", (req: ReqContext) => jsonRes(200, #{ activeUsers: 1500, sales: 45000 }));
-router.add("GET", "/api/v1/system/metrics", (req: ReqContext) => jsonRes(200, #{ cpu: 12.5, memoryMb: 64 }));
+router.add(
+    "GET",
+    "/api/v1/categories",
+    (req: ReqContext) => jsonRes(200, #{ categories: ["A", "B"] }),
+);
+router.add(
+    "GET",
+    "/api/v1/categories/:id/products",
+    (req: ReqContext) => jsonRes(200, #{ categoryId: req.params["id"], items: 10 }),
+);
+router.add(
+    "GET",
+    "/api/v1/cart/:userId",
+    (req: ReqContext) => jsonRes(200, #{ cart: req.params["userId"], items: 2 }),
+);
+router.add(
+    "POST",
+    "/api/v1/cart/:userId/items",
+    (req: ReqContext) => jsonRes(201, #{ added: true }),
+);
+router.add(
+    "DELETE",
+    "/api/v1/cart/:userId/items/:itemId",
+    (req: ReqContext) => jsonRes(200, #{ removed: req.params["itemId"] }),
+);
+router.add(
+    "POST",
+    "/api/v1/checkout/:userId",
+    (req: ReqContext) => jsonRes(200, #{ invoice: 12345, user: req.params["userId"] }),
+);
+router.add(
+    "GET",
+    "/api/v1/analytics/overview",
+    (req: ReqContext) => jsonRes(200, #{ activeUsers: 1500, sales: 45000 }),
+);
+router.add(
+    "GET",
+    "/api/v1/system/metrics",
+    (req: ReqContext) => jsonRes(200, #{ cpu: 12.5, memoryMb: 64 }),
+);
 
 // Generate 100,000 realistic requests
 let samplePaths = [
@@ -183,7 +261,7 @@ let samplePaths = [
     "/api/v1/categories/12/products",
     "/api/v1/cart/88/items/99",
     "/api/v1/analytics/overview",
-    "/api/v1/system/metrics"
+    "/api/v1/system/metrics",
 ];
 
 let methods = ["GET", "GET", "GET", "GET", "GET", "GET", "GET", "DELETE", "GET", "GET"];
@@ -194,7 +272,7 @@ for (let i = 0; i < 100000; i = i + 1) {
     const hdrs = new Map([
         #["authorization", `Bearer token_secret_${(i % 1000)}`],
         #["content-type", "application/json"],
-        #["user-agent", "VarnBench/1.0"]
+        #["user-agent", "VarnBench/1.0"],
     ]);
     reqs.push(new ReqContext(methods[idx], samplePaths[idx], hdrs));
 }
@@ -205,10 +283,12 @@ let totalBytes = 0;
 
 for (let i = 0; i < reqs.length; i = i + 1) {
     let res = router.dispatch(reqs[i]);
-    if (res.status == 200 || res.status == 201) {
+    if(res.status == 200 || res.status == 201) {
         successCount = successCount + 1;
     }
     totalBytes = totalBytes + res.body.length;
 }
 
-print(`HTTP Routing: Processed ${reqs.length} reqs, Success = ${successCount}, Total Response Bytes = ${totalBytes}`);
+print(
+    `HTTP Routing: Processed ${reqs.length} reqs, Success = ${successCount}, Total Response Bytes = ${totalBytes}`,
+);

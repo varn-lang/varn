@@ -1,10 +1,8 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // 1. Narrowing con x != null
 function processOptional(val: str?): int {
-    if (val != null) {
+    if(val != null) {
         // 'val' se reduce a 'str' automáticamente; .length es válido sin error
         return val.length;
     }
@@ -13,7 +11,7 @@ function processOptional(val: str?): int {
 
 // 2. Narrowing con null != x
 function processInverted(val: str?): int {
-    if (null != val) {
+    if(null != val) {
         return val.length;
     }
     return -1;
@@ -21,7 +19,7 @@ function processInverted(val: str?): int {
 
 // 3. Narrowing con presencia: if (val != null)
 function processTruthy(val: str?): bool {
-    if (val != null) {
+    if(val != null) {
         return val.length > 0;
     }
     return false;
@@ -29,7 +27,7 @@ function processTruthy(val: str?): bool {
 
 // 4. Narrowing con is sobre tipos primitivos
 function processTypeof(val: dynamic): str {
-    if (val is str) {
+    if(val is str) {
         return val.toUpperCase();
     } else if (val is int) {
         return `number:${val}`;
@@ -52,7 +50,7 @@ class Dog extends Animal {
 }
 
 function speak(a: Animal): str {
-    if (a is Dog) {
+    if(a is Dog) {
         return a.bark();
     }
     return a.name;
@@ -60,24 +58,21 @@ function speak(a: Animal): str {
 let a = new Animal("Generic");
 await describe("79 control flow narrowing", async () => {
     await it("tests", async () => {
-        
         expect(processOptional("hello")).toBe(5);
         expect(processOptional(null)).toBe(0);
-        
+
         expect(processInverted("varn")).toBe(4);
         expect(processInverted(null)).toBe(-1);
-        
+
         expect(processTruthy("active")).toBe(true);
         expect(processTruthy(null)).toBe(false);
-        
+
         expect(processTypeof("abc")).toBe("ABC");
         expect(processTypeof(42)).toBe("number:42");
-        
+
         let d = new Dog("Rex");
-        
+
         expect(speak(d)).toBe("woof");
         expect(speak(a)).toBe("Generic");
-        
-        
     });
 });

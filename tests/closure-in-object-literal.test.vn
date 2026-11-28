@@ -9,7 +9,12 @@ function seesLaterWrite(i: int): int {
 
 function makeCounter(i: int): #{ g: () => int; bump: () => void } {
     let x = i;
-    const o = #{ g: () => x, bump: () => { x = x + 1; } };
+    const o = #{
+        g: () => x,
+        bump: () => {
+            x = x + 1;
+        },
+    };
     x = x + 10;
     return o;
 }
@@ -40,21 +45,27 @@ function nested(i: int): int {
 await describe("159 closure in object literal", async () => {
     await it("sees writes made after the literal was built", () => {
         let sum = 0;
-        for (let i = 0; i < 20000; i = i + 1) { sum = sum + seesLaterWrite(i); }
+        for(let i = 0; i < 20000; i = i + 1) {
+            sum = sum + seesLaterWrite(i);
+        }
         expect(sum).toBe(219990000);
         expect(seesLaterWrite(1)).toBe(1001);
     });
 
     await it("keeps sharing the variable after the literal leaves its frame", () => {
         let sum = 0;
-        for (let i = 0; i < 20000; i = i + 1) { sum = sum + escapes(i); }
+        for(let i = 0; i < 20000; i = i + 1) {
+            sum = sum + escapes(i);
+        }
         expect(sum).toBe(200230000);
         expect(escapes(5)).toBe(17);
     });
 
     await it("holds for a closure nested two literals deep", () => {
         let sum = 0;
-        for (let i = 0; i < 20000; i = i + 1) { sum = sum + nested(i); }
+        for(let i = 0; i < 20000; i = i + 1) {
+            sum = sum + nested(i);
+        }
         expect(sum).toBe(399980000);
         expect(nested(21)).toBe(42);
     });

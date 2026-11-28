@@ -6,7 +6,6 @@ import { Compress } from "std:compress";
 import { Stream } from "std:io";
 import { describe, it, expect } from "std:test";
 
-
 @capability("fs.read", "fs.write")
 function testBinaryFsOps(): void {
     let testPath = scratch + "-binary.bin";
@@ -19,12 +18,12 @@ function testBinaryFsOps(): void {
     // 1. Standalone writeBytes and readBytes
     writeBytes(testPath, testData);
     let readBack = readBytes(testPath);
-        expect(readBack.length).toBe(4);;
-        expect(readBack.getByte(0)).toBe(0xDE);;
-        expect(readBack.getByte(1)).toBe(0xAD);;
-        expect(readBack.getByte(2)).toBe(0xBE);;
-        expect(readBack.getByte(3)).toBe(0xEF);;
-        expect(readBack.toHex()).toBe("deadbeef");;
+    expect(readBack.length).toBe(4);;
+    expect(readBack.getByte(0)).toBe(0xDE);;
+    expect(readBack.getByte(1)).toBe(0xAD);;
+    expect(readBack.getByte(2)).toBe(0xBE);;
+    expect(readBack.getByte(3)).toBe(0xEF);;
+    expect(readBack.toHex()).toBe("deadbeef");;
 
     // 2. File instance operations
     let file = new File(testPath);
@@ -34,53 +33,51 @@ function testBinaryFsOps(): void {
     file.appendBytes(appendData);
 
     let fullData = file.readBytes();
-        expect(fullData.length).toBe(6);;
-        expect(fullData.toHex()).toBe("deadbeefcafe");;
-
+    expect(fullData.length).toBe(6);;
+    expect(fullData.toHex()).toBe("deadbeefcafe");;
 }
 
 function testBinaryCompression(): void {
     let raw = Bytes.alloc(256);
-    for (let i = 0; i < 256; i = i + 1) {
+    for(let i = 0; i < 256; i = i + 1) {
         raw.setByte(i, 42); // Highly compressible
     }
 
     // Gzip roundtrip on Bytes
     let gzipped = Compress.gzip(raw);
-        expect(gzipped.length < raw.length).toBeTruthy();;
+    expect(gzipped.length < raw.length).toBeTruthy();;
     let gunzipped = Compress.gunzip(gzipped);
-        expect(gunzipped.length).toBe(256);;
-        expect(gunzipped.getByte(0)).toBe(42);;
-        expect(gunzipped.getByte(255)).toBe(42);;
+    expect(gunzipped.length).toBe(256);;
+    expect(gunzipped.getByte(0)).toBe(42);;
+    expect(gunzipped.getByte(255)).toBe(42);;
 
     // Deflate roundtrip on Bytes
     let deflated = Compress.deflate(raw);
-        expect(deflated.length < raw.length).toBeTruthy();;
+    expect(deflated.length < raw.length).toBeTruthy();;
     let inflated = Compress.inflate(deflated);
-        expect(inflated.length).toBe(256);;
-        expect(inflated.getByte(0)).toBe(42);;
-        expect(inflated.getByte(255)).toBe(42);;
-
+    expect(inflated.length).toBe(256);;
+    expect(inflated.getByte(0)).toBe(42);;
+    expect(inflated.getByte(255)).toBe(42);;
 }
 @capability("fs.read", "fs.write")
 async function testFileStreamAsync(): Task<void> {
-let srcPath = scratch + "-src.bin";
-let dstPath = scratch + "-dst.bin";
-let payload = Bytes.alloc(1024);
-for (let i = 0; i < 1024; i = i + 1) {
-payload.setByte(i, i & 0xFF);
-}
-writeBytes(srcPath, payload);
-let srcStream = new FileStream(srcPath, FileMode.Read);
-let dstStream = new FileStream(dstPath, FileMode.Write);
-let piped = await Stream.pipe(srcStream, dstStream);
-expect(piped).toBe(1024);
-srcStream.close();
-dstStream.close();
-let dstData = readBytes(dstPath);
-expect(dstData.length).toBe(1024);
-expect(dstData.getByte(255)).toBe(255);
-expect(dstData.getByte(256)).toBe(0);
+    let srcPath = scratch + "-src.bin";
+    let dstPath = scratch + "-dst.bin";
+    let payload = Bytes.alloc(1024);
+    for(let i = 0; i < 1024; i = i + 1) {
+        payload.setByte(i, i & 0xFF);
+    }
+    writeBytes(srcPath, payload);
+    let srcStream = new FileStream(srcPath, FileMode.Read);
+    let dstStream = new FileStream(dstPath, FileMode.Write);
+    let piped = await Stream.pipe(srcStream, dstStream);
+    expect(piped).toBe(1024);
+    srcStream.close();
+    dstStream.close();
+    let dstData = readBytes(dstPath);
+    expect(dstData.length).toBe(1024);
+    expect(dstData.getByte(255)).toBe(255);
+    expect(dstData.getByte(256)).toBe(0);
 }
 
 await describe("113 fs compress binary", async () => {
@@ -99,4 +96,3 @@ await describe("113 fs compress binary", async () => {
         remove(scratch + "-dst.bin");
     });
 });
-

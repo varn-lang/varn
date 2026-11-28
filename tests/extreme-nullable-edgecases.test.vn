@@ -1,7 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // 3. Optional fields of nullable types in Interfaces
 interface ExtremeProfile {
     nickname?: str?
@@ -10,79 +8,77 @@ interface ExtremeProfile {
 
 // 4. Function signatures with optional parameters & nullable types
 function process(x?: int?, y: str? = null): int? {
-    if (x == null) return null
+    if(x == null) return null
     return x
 }
 await describe("46 extreme nullable edgecases", async () => {
     await it("tests", async () => {
         // Extreme Nullable Type Edge Cases & Disambiguation
-        
+
         // 1. Declarations with Type? syntax
         const a: str? = null
         const b: str? = "test"
         const c: bool? = true
-        
+
         expect(a).toBe(null)
         expect(b).toBe("test")
         expect(c).toBe(true)
-        
+
         // 2. Arrays and Multidimensional arrays
         const arr1: int?[] = [1, null, 3]
         const arr2: int[]? = null
         const arr3: int?[]? = null
         const arr4: int?[]?[]? = [[1, null], null]
-        
+
         expect(arr1[1]).toBe(null)
         expect(arr2).toBe(null)
         expect(arr3).toBe(null)
         expect(arr4 != null && arr4[0]?.[1] == null).toBeTruthy()
-        
+
         const p1: ExtremeProfile = { score: null }
         const p2: ExtremeProfile = { nickname: "nick", score: 42 }
         const p3: ExtremeProfile = { nickname: null, score: null }
-        
+
         expect(p1.nickname).toBe(null)
         expect(p2.score).toBe(42)
         expect(p3.nickname).toBe(null)
-        
+
         expect(process()).toBe(null)
         expect(process(null)).toBe(null)
         expect(process(42)).toBe(42)
-        
+
         // 5. Critical Cast and Ternary Disambiguation
         const val: int = 42
-        
+
         // a) Cast to nullable type T?
         const cast1 = val as int?
         expect(cast1).toBe(42)
-        
+
         // b) Cast to non-nullable type followed by a ternary
         // Under lookahead, 'flag as bool ? 100 : 200' must parse as (flag as bool) ? 100 : 200
         const flag: dynamic = true
         const ternary1 = flag as bool ? 100 : 200
         expect(ternary1).toBe(100)
-        
+
         // c) Cast to nullable type followed by a ternary
         // Under lookahead, 'val as int? ? 300 : 400' must parse as (val as int?) ? 300 : 400
         const ternary2 = (val as int?) != null ? 300 : 400
         expect(ternary2).toBe(300)
-        
+
         // d) Cast to nullable type in ternary branch
         const cond = true
         const ternary3 = cond ? val as int? : null
         expect(ternary3).toBe(42)
-        
+
         // e) Nested nullable cast and ternaries
         const result = cond ? ((val as int?) != null ? "yes" : "no") : "never"
         expect(result).toBe("yes")
-        
+
         // 6. Generic Types with nullable arguments
         const list: Array<int?> = [1, null, 3]
         expect(list[1]).toBe(null)
-        
+
         const optList: Array<int>? = null
         expect(optList).toBe(null)
-        
-        
     });
 });

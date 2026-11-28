@@ -9,15 +9,21 @@ import { describe, it, expect } from "std:test";
 await describe("85 stdlib sqlite ws archive", async () => {
     await it("std:sqlite in-memory database operations", async () => {
         let db = new Database(":memory:");
-        let created = db.exec("CREATE TABLE heroes (id INTEGER PRIMARY KEY, name TEXT, power REAL, active INTEGER);");
+        let created = db.exec(
+            "CREATE TABLE heroes (id INTEGER PRIMARY KEY, name TEXT, power REAL, active INTEGER);",
+        );
         expect(created).toBe(0);
-        let ins1 = db.exec("INSERT INTO heroes (id, name, power, active) VALUES (1, 'Varn', 999.5, 1);");
+        let ins1 = db.exec(
+            "INSERT INTO heroes (id, name, power, active) VALUES (1, 'Varn', 999.5, 1);",
+        );
         expect(ins1).toBe(1);
-        let ins2 = db.exec("INSERT INTO heroes (id, name, power, active) VALUES (2, 'Rust', 850.0, 1);");
+        let ins2 = db.exec(
+            "INSERT INTO heroes (id, name, power, active) VALUES (2, 'Rust', 850.0, 1);",
+        );
         expect(ins2).toBe(1);
         let singleRow = db.get("SELECT id, name FROM heroes WHERE id = ?;", 1);
         expect(singleRow != null).toBe(true);
-        if (singleRow != null) {
+        if(singleRow != null) {
             expect(singleRow["name"]).toBe("Varn");
         }
         let allRows = db.all("SELECT id, name, power, active FROM heroes ORDER BY id ASC;");
@@ -30,7 +36,7 @@ await describe("85 stdlib sqlite ws archive", async () => {
     });
     await it("std:compress unified compression and archives", async () => {
         let testDir = "./tmp_test_archive";
-        if (!exists(testDir)) {
+        if(!exists(testDir)) {
             mkdir(testDir);
         }
         writeText(Path.join(testDir, "test.txt"), "Archive content 123");

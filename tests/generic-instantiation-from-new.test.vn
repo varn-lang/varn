@@ -3,29 +3,48 @@ import { ImportedAsyncBox } from "./async-shapes-lib.test.vn";
 
 class Box<T> {
     value: T
-    constructor(value: T) { this.value = value }
-    swap(next: T): T { const old = this.value; this.value = next; return old }
+    constructor(value: T) {
+        this.value = value
+    }
+    swap(next: T): T {
+        const old = this.value;
+        this.value = next;
+        return old
+    }
 }
 class Pair<A, B> {
     first: A
     second: B
-    constructor(first: A, second: B) { this.first = first; this.second = second }
+    constructor(first: A, second: B) {
+        this.first = first;
+        this.second = second
+    }
 }
 class Tagged<T, L = str> {
     value: T
     label: L?
-    constructor(value: T, label: L? = null) { this.value = value; this.label = label }
+    constructor(value: T, label: L? = null) {
+        this.value = value;
+        this.label = label
+    }
 }
 class Cell<T = int> {
     items: T[] = []
-    add(v: T): int { this.items.push(v); return this.items.length }
+    add(v: T): int {
+        this.items.push(v);
+        return this.items.length
+    }
 }
 
-function orElse<T>(given: T?, fallback: T): T { return given ?? fallback }
-function either<T>(a: T?, b: T?): T? { return a ?? b }
+function orElse<T>(given: T?, fallback: T): T {
+    return given ?? fallback
+}
+function either<T>(a: T?, b: T?): T? {
+    return a ?? b
+}
 function sumBoxes(n: int): int {
     let total = 0
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         const b = new Box(i)
         total = total + b.swap(i + 1) + b.value
     }
@@ -67,7 +86,9 @@ await describe("190 generic instantiation from new", async () => {
 
     await it("a nullable of a type parameter falls back inside a generic body", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + orElse(null, i) + orElse(1, i) }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + orElse(null, i) + orElse(1, i)
+        }
         expect(total).toBe(44850 + 300)
         expect(orElse(null, "b") + orElse("a", "b")).toBe("ba")
         expect(either(null, 3)).toBe(3)

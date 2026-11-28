@@ -9,17 +9,33 @@ function overflows(f: () => bool): bool {
     }
 }
 
-function addU8(a: u8, b: u8): u8 { return a + b }
-function subU8(a: u8, b: u8): u8 { return a - b }
-function mulI16(a: i16, b: i16): i16 { return a * b }
-function addF32(a: f32, b: f32): f32 { return a + b }
-function addU64(a: u64, b: u64): u64 { return a + b }
-function mulU64(a: u64, b: u64): u64 { return a * b }
+function addU8(a: u8, b: u8): u8 {
+    return a + b
+}
+function subU8(a: u8, b: u8): u8 {
+    return a - b
+}
+function mulI16(a: i16, b: i16): i16 {
+    return a * b
+}
+function addF32(a: f32, b: f32): f32 {
+    return a + b
+}
+function addU64(a: u64, b: u64): u64 {
+    return a + b
+}
+function mulU64(a: u64, b: u64): u64 {
+    return a * b
+}
 
 class Counter {
     total: u64
-    constructor(total: u64) { this.total = total }
-    add(by: u64): void { this.total = this.total + by }
+    constructor(total: u64) {
+        this.total = total
+    }
+    add(by: u64): void {
+        this.total = this.total + by
+    }
 }
 
 const TOP: u64 = 18446744073709551615n as u64;
@@ -33,15 +49,22 @@ while (turns < 300) {
 class Pixel {
     r: u8
     g: u8
-    constructor(r: u8, g: u8) { this.r = r; this.g = g }
-    brighten(by: u8): void { this.r = this.r + by }
+    constructor(r: u8, g: u8) {
+        this.r = r;
+        this.g = g
+    }
+    brighten(by: u8): void {
+        this.r = this.r + by
+    }
 }
 
 let hot: u8 = 0
 let rounds: int = 0
 while (rounds < 400) {
     hot = hot + 1 as u8
-    if (hot == 200) { hot = 0 }
+    if(hot == 200) {
+        hot = 0
+    }
     rounds += 1
 }
 
@@ -70,7 +93,7 @@ await describe("359 fixed-width numbers", async () => {
     });
 
     await it("the same operation behaves the same when hot", () => {
-        for (let i = 0; i < 300; i += 1) {
+        for(let i = 0; i < 300; i += 1) {
             expect(addU8(1, 2)).toBe(3);
         }
         expect(overflows(() => addU8(255, 1) == 0)).toBe(true);
@@ -128,7 +151,10 @@ await describe("359 fixed-width numbers", async () => {
         const p = new Pixel(250, 7);
         p.brighten(5);
         expect(p.r).toBe(255);
-        expect(overflows(() => { p.brighten(1); return true })).toBe(true);
+        expect(overflows(() => {
+            p.brighten(1);
+            return true
+        })).toBe(true);
         expect(p.g + 1).toBe(8);
     });
     await it("u64 holds the whole unsigned range", () => {
@@ -179,10 +205,13 @@ await describe("359 fixed-width numbers", async () => {
         const c = new Counter(TOP - 10);
         c.add(10);
         expect(c.total).toBe(TOP);
-        expect(overflows(() => { c.add(1); return true })).toBe(true);
+        expect(overflows(() => {
+            c.add(1);
+            return true
+        })).toBe(true);
         expect(checksum > 0).toBe(true);
         const sums: u64[] = [];
-        for (let i = 0; i < 50; i += 1) {
+        for(let i = 0; i < 50; i += 1) {
             sums.push(TOP - (i as u64));
         }
         expect(sums[49]).toBe(TOP - 49);

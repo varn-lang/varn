@@ -1,33 +1,32 @@
-
 export {
     TcpStream,
     TcpListener,
     connect,
-    listen
+    listen,
 } from "std:net/socket";
 
 export {
     UdpSocket,
-    UdpPacket
+    UdpPacket,
 } from "std:net/udp";
 
 export {
     encodeURIComponent,
-    decodeURIComponent
+    decodeURIComponent,
 } from "std:net/encoding";
 
 export {
     isIP,
     isIPv4,
-    isIPv6
+    isIPv6,
 } from "std:net/ip";
 
 export {
-    Query
+    Query,
 } from "std:net/query";
 
 export {
     Url,
     parseUrl,
-    appendQuery
+    appendQuery,
 } from "std:net/url";

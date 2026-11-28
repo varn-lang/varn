@@ -1,16 +1,48 @@
 import { describe, it, expect } from "std:test";
 
-function fail(msg: str): never { throw new Error(msg) }
+function fail(msg: str): never {
+    throw new Error(msg)
+}
 
-function asInt(ok: bool): int { if (ok) { return 1 } return fail("int") }
-function asStr(ok: bool): str { if (ok) { return "s" } return fail("str") }
-function asOpt(ok: bool): int? { if (ok) { return null } return fail("opt") }
+function asInt(ok: bool): int {
+    if(ok) {
+        return 1
+    }
+    return fail("int")
+}
+function asStr(ok: bool): str {
+    if(ok) {
+        return "s"
+    }
+    return fail("str")
+}
+function asOpt(ok: bool): int? {
+    if(ok) {
+        return null
+    }
+    return fail("opt")
+}
 
-class Box { v: int; constructor(v: int) { this.v = v } }
-function asBox(ok: bool): Box { if (ok) { return new Box(1) } return fail("box") }
+class Box {
+    v: int;
+    constructor(v: int) {
+        this.v = v
+    }
+}
+function asBox(ok: bool): Box {
+    if(ok) {
+        return new Box(1)
+    }
+    return fail("box")
+}
 
 function raises(f: () => void): bool {
-    try { f(); return false } catch (e) { return true }
+    try {
+        f();
+        return false
+    } catch (e) {
+        return true
+    }
 }
 
 // A body that always throws has type never, so it fits any return type.
@@ -18,14 +50,14 @@ function produce(make: () => int): int {
     return make()
 }
 function unreachableEnd(flag: bool) {
-    if (flag) {
+    if(flag) {
         throw new Error("a")
     } else {
         throw new Error("b")
     }
 }
 await describe("125 never bottom", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(asInt(true)).toBe(1);
         expect(asStr(true)).toBe("s");
         expect(asOpt(true)).toBe(null);
@@ -33,10 +65,16 @@ await describe("125 never bottom", async () => {
     });
 
     await it("group 1 part 2", async () => {
-        expect(raises(() => { asInt(false) })).toBeTruthy();
-        expect(raises(() => { produce(() => { throw new Error("no") }) })).toBeTruthy();
-        expect(raises(() => { unreachableEnd(true) })).toBeTruthy();
+        expect(raises(() => {
+            asInt(false)
+        })).toBeTruthy();
+        expect(raises(() => {
+            produce(() => {
+                throw new Error("no")
+            })
+        })).toBeTruthy();
+        expect(raises(() => {
+            unreachableEnd(true)
+        })).toBeTruthy();
     });
-
-
 });

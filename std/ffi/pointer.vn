@@ -6,7 +6,7 @@ import {
     readFloat$,
     writeFloat$,
     readCString$,
-    allocCString$
+    allocCString$,
 } from "runtime:ffi";
 
 export class Pointer {

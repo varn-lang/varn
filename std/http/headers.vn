@@ -2,7 +2,7 @@ export class Headers {
     private _map: Map<str, str> = new Map<str, str>();
 
     constructor(init: Map<str, str> = new Map<str, str>()) {
-        for (const #[name, value] in init) {
+        for(const #[name, value] in init) {
             this.set(name, value);
         }
     }
@@ -26,7 +26,7 @@ export class Headers {
     append(name: str, value: str): void {
         const key = name.toLowerCase();
         const existing = this._map.get(key);
-        if (existing != null) {
+        if(existing != null) {
             this._map.set(key, existing + ", " + value);
         } else {
             this._map.set(key, value);

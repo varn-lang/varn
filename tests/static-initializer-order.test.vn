@@ -12,7 +12,9 @@ class Registry {
     items: int[] = [1, 2, 3];
     total(): int {
         let sum = 0;
-        for (const x in this.items) { sum = sum + x }
+        for(const x in this.items) {
+            sum = sum + x
+        }
         return sum;
     }
 }

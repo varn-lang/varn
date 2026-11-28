@@ -23,7 +23,9 @@ function decodeFails(decode: () => dynamic): bool {
 
 await describe("273 json decode interface", async () => {
     await it("an interface shape is validated like a type alias", () => {
-        const p = Json.parse<Person>("{\"name\":\"ann\",\"address\":{\"city\":\"NY\"},\"tags\":[\"a\"]}");
+        const p = Json.parse<Person>(
+            "{\"name\":\"ann\",\"address\":{\"city\":\"NY\"},\"tags\":[\"a\"]}"
+        );
         expect(p.name).toBe("ann");
         expect(p.address.city).toBe("NY");
         expect(p.tags.length).toBe(1);
@@ -31,6 +33,10 @@ await describe("273 json decode interface", async () => {
 
     await it("a missing or mistyped member is rejected", () => {
         expect(decodeFails(() => Json.parse<Person>("{\"name\":1}"))).toBeTruthy();
-        expect(decodeFails(() => Json.parse<Person>("{\"name\":\"a\",\"address\":{\"city\":5},\"tags\":[]}"))).toBeTruthy();
+        expect(
+            decodeFails(
+                () => Json.parse<Person>("{\"name\":\"a\",\"address\":{\"city\":5},\"tags\":[]}"),
+            ),
+        ).toBeTruthy();
     });
 });

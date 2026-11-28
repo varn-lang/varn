@@ -13,16 +13,16 @@ export function textY(y: float, h: float, size: float): float {
 }
 
 export function ellipsize(s: str, size: float, max: float): str {
-    if (measure(s, size) <= max) {
+    if(measure(s, size) <= max) {
         return s;
     }
     const dots = "…";
     const dw = measure(dots, size);
-    if (max <= dw) {
+    if(max <= dw) {
         return "";
     }
     let n = s.length;
-    while (n > 0 && measure(s.slice(0, n), size) + dw > max) {
+    while(n > 0 && measure(s.slice(0, n), size) + dw > max) {
         n = n - 1;
     }
     return s.slice(0, n) + dots;
@@ -34,7 +34,7 @@ export function row(
     w: float,
     h: float,
     weights: float[],
-    gap: float
+    gap: float,
 ): float[][] {
     return rowCol(true, x, y, w, h, weights, gap);
 }
@@ -45,7 +45,7 @@ export function col(
     w: float,
     h: float,
     weights: float[],
-    gap: float
+    gap: float,
 ): float[][] {
     return rowCol(false, x, y, w, h, weights, gap);
 }
@@ -57,18 +57,18 @@ function rowCol(
     w: float,
     h: float,
     weights: float[],
-    gap: float
+    gap: float,
 ): float[][] {
     const out: float[][] = [];
     const n = weights.length;
-    if (n == 0) {
+    if(n == 0) {
         return out;
     }
     let fixed = 0.0;
     let flexTotal = 0.0;
     let flexCount = 0;
-    for (let i = 0; i < n; i = i + 1) {
-        if (weights[i] < 0.0) {
+    for(let i = 0; i < n; i = i + 1) {
+        if(weights[i] < 0.0) {
             fixed = fixed - weights[i];
         } else {
             flexTotal = flexTotal + weights[i];
@@ -77,23 +77,23 @@ function rowCol(
     }
     const total = horizontal ? w : h;
     let flexBase = total - gap * ((n - 1) as float) - fixed;
-    if (flexBase < 0.0) {
+    if(flexBase < 0.0) {
         flexBase = 0.0;
     }
     let c = horizontal ? x : y;
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         let cw = 0.0;
-        if (weights[i] < 0.0) {
+        if(weights[i] < 0.0) {
             cw = 0.0 - weights[i];
         } else if (flexTotal > 0.0) {
             cw = flexBase * weights[i] / flexTotal;
         } else if (flexCount > 0) {
             cw = flexBase / (flexCount as float);
         }
-        if (cw < 0.0) {
+        if(cw < 0.0) {
             cw = 0.0;
         }
-        if (horizontal) {
+        if(horizontal) {
             out.push([c, y, cw, h]);
         } else {
             out.push([x, c, w, cw]);

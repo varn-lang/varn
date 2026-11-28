@@ -3,8 +3,8 @@ import { describe, it, expect } from "std:test";
 let finallyRan = false;
 function safeDivide(a: int, b: int): float {
     try {
-        if (b == 0) throw new RangeError("division by zero");
-        return (a as float) / (b as float);
+        if(b == 0) throw new RangeError("division by zero");
+        return(a as float) / (b as float);
     } catch (e) {
         return -1;
     }
@@ -75,7 +75,7 @@ await describe("11 Errors", async () => {
         try {
             throw new ValidationError("email", "invalid format");
         } catch (e) {
-            if (e is ValidationError) {
+            if(e is ValidationError) {
                 ve = e;
             }
         }

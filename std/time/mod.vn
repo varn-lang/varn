@@ -1,4 +1,3 @@
-
 export {
     TimeParts,
     DurationParts,
@@ -10,21 +9,21 @@ export {
     durationFromString,
     durationToString,
     durationParts,
-    formatDurationMs
+    formatDurationMs,
 } from "std:time/core";
 
 export {
     Instant,
     PlainDateTime,
     nowInstant,
-    nowPlainDateTimeISO
+    nowPlainDateTimeISO,
 } from "std:time/instant";
 
 export {
     DurationLike,
-    Duration
+    Duration,
 } from "std:time/duration";
 
 export {
-    DateTime
+    DateTime,
 } from "std:time/datetime";

@@ -1,4 +1,12 @@
-import { Widget, Size, PaintContext, Constraints, Placement, paintPlaced, layoutAt } from "std:ui/widget/base";
+import {
+    Widget,
+    Size,
+    PaintContext,
+    Constraints,
+    Placement,
+    paintPlaced,
+    layoutAt,
+} from "std:ui/widget/base";
 import { WindowClass, windowClassOf } from "std:ui/style";
 import { Signal } from "std:signals";
 import { newComponentDefinition, scopeAtMount } from "std:ui/state";
@@ -7,10 +15,10 @@ import { viewAt } from "std:ui/mount";
 const RESPONSIVE = newComponentDefinition();
 
 function classKey(cls: WindowClass): str {
-    if (cls == WindowClass.compact) {
+    if(cls == WindowClass.compact) {
         return "compact";
     }
-    if (cls == WindowClass.medium) {
+    if(cls == WindowClass.medium) {
         return "medium";
     }
     return "expanded";
@@ -33,12 +41,12 @@ export function Adaptive<T>(compact: T, medium: T, expanded: T): AdaptiveValue<T
 }
 
 export function resolveFloat(value: float | AdaptiveValue<float>, cls: WindowClass): float {
-    if (value is AdaptiveValue<float>) {
+    if(value is AdaptiveValue<float>) {
         const picked = value as AdaptiveValue<float>;
-        if (cls == WindowClass.compact) {
+        if(cls == WindowClass.compact) {
             return picked.compact;
         }
-        if (cls == WindowClass.medium) {
+        if(cls == WindowClass.medium) {
             return picked.medium;
         }
         return picked.expanded;
@@ -59,7 +67,11 @@ export class ResponsiveNode extends Widget {
     override computeLayout(c: Constraints): Placement {
         const cls = c.windowClass;
         this.cls.set(cls);
-        const placed = layoutAt(viewAt(scopeAtMount(RESPONSIVE)).describe(this.body), classKey(cls), c);
+        const placed = layoutAt(
+            viewAt(scopeAtMount(RESPONSIVE)).describe(this.body),
+            classKey(cls),
+            c,
+        );
         return new Placement(this, placed.size, [placed]);
     }
 

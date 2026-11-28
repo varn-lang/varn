@@ -3,7 +3,7 @@ import { abs, sqrt, floor } from 'std:math'
 function benchMath(iterations: int): float {
     let r: float = 1.0
     let i = 0
-    while (i < iterations) {
+    while(i < iterations) {
         r = abs(r - i as float)
         r = sqrt(r + 1.0)
         r = floor(r * 10.0) / 10.0

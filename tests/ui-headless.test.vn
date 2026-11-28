@@ -3,12 +3,36 @@ import {
     UiWindow,
     UiFrame,
     Focus,
-    TextEdit, Field, Button, Column, Widget, render, present, signal, UiInjectKind, MOUSE_LEFT, KEY_ENTER, KEY_BACKSPACE,
-    KEY_BACKSPACE, KEY_TAB, KEY_ENTER, KEY_ESCAPE, KEY_SPACE, KEY_DELETE,
-    KEY_ARROW_LEFT, KEY_ARROW_UP, KEY_ARROW_RIGHT, KEY_ARROW_DOWN,
-    MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE,
-    keyCode, isNamedKey, hit,
-    UiEventKind, UiInjectKind
+    TextEdit,
+    Field,
+    Button,
+    Column,
+    Widget,
+    render,
+    present,
+    signal,
+    UiInjectKind,
+    MOUSE_LEFT,
+    KEY_ENTER,
+    KEY_BACKSPACE,
+    KEY_BACKSPACE,
+    KEY_TAB,
+    KEY_ENTER,
+    KEY_ESCAPE,
+    KEY_SPACE,
+    KEY_DELETE,
+    KEY_ARROW_LEFT,
+    KEY_ARROW_UP,
+    KEY_ARROW_RIGHT,
+    KEY_ARROW_DOWN,
+    MOUSE_LEFT,
+    MOUSE_RIGHT,
+    MOUSE_MIDDLE,
+    keyCode,
+    isNamedKey,
+    hit,
+    UiEventKind,
+    UiInjectKind,
 } from "std:ui";
 import { pad, row, col, textX, textY, ellipsize } from "std:ui/layout";
 import { measure, ascent, descent } from "std:ui/text";
@@ -39,7 +63,8 @@ function typeKey(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, code: i
     drawField(win, fr, focus, tree);
 }
 
-await describe("215 ui headless", async () => {    await it("open reports size", () => {
+await describe("215 ui headless", async () => {
+    await it("open reports size", () => {
         using win = UiWindow.open("t", 800, 600);
         expect(win.size()).toEqual([800, 600]);
         expect(win.shouldClose()).toBe(false);
@@ -81,7 +106,12 @@ await describe("215 ui headless", async () => {    await it("open reports size",
         const cmds = win.drawn();
         expect(cmds.length).toBe(3);
         expect(cmds[0].kind).toBe("clear");
-        expect(cmds[2].kind == "text" && cmds[2].text == "hola" && cmds[2].x == 10.0 && cmds[2].y == 80.0).toBe(true);
+        expect(
+            cmds[2].kind == "text" &&
+                cmds[2].text == "hola" &&
+                cmds[2].x == 10.0 &&
+                cmds[2].y == 80.0,
+        ).toBe(true);
         present(win, new UiFrame(800, 600));
         expect(win.drawn().length).toBe(0);
     });
@@ -172,7 +202,16 @@ await describe("215 ui headless", async () => {    await it("open reports size",
         const fr = new UiFrame(300, 120);
         const focus = new Focus();
         const hits: bool[] = [];
-        const tree = Column([Button("ok", () => { hits.push(true); }, w: 100.0, h: 40.0)]);
+        const tree = Column([
+            Button(
+                "ok",
+                () => {
+                    hits.push(true);
+                },
+                w: 100.0,
+                h: 40.0,
+            ),
+        ]);
         clickAt(win, fr, focus, tree, 30, 20);
         expect(hits.length).toBe(1);
         win.inject(UiInjectKind.MouseDown, 30, 20, MOUSE_LEFT);
@@ -225,23 +264,24 @@ await describe("215 ui headless", async () => {    await it("open reports size",
         expect(f.current()).toBe(-1);
     });
 
-    await it("layout distributes rects", () => {        expect(pad(10.0, 20.0, 100.0, 50.0, 5.0)).toEqual([15.0, 25.0, 90.0, 40.0]);
+    await it("layout distributes rects", () => {
+        expect(pad(10.0, 20.0, 100.0, 50.0, 5.0)).toEqual([15.0, 25.0, 90.0, 40.0]);
         expect(row(0.0, 0.0, 200.0, 50.0, [1.0, 1.0], 10.0)).toEqual([
             [0.0, 0.0, 95.0, 50.0],
-            [105.0, 0.0, 95.0, 50.0]
+            [105.0, 0.0, 95.0, 50.0],
         ]);
         expect(row(0.0, 0.0, 200.0, 50.0, [1.0, 3.0], 0.0)).toEqual([
             [0.0, 0.0, 50.0, 50.0],
-            [50.0, 0.0, 150.0, 50.0]
+            [50.0, 0.0, 150.0, 50.0],
         ]);
         expect(row(20.0, 0.0, 760.0, 30.0, [-36.0, 1.0, -36.0], 8.0)).toEqual([
             [20.0, 0.0, 36.0, 30.0],
             [64.0, 0.0, 672.0, 30.0],
-            [744.0, 0.0, 36.0, 30.0]
+            [744.0, 0.0, 36.0, 30.0],
         ]);
         expect(col(0.0, 0.0, 100.0, 120.0, [1.0, 1.0], 20.0)).toEqual([
             [0.0, 0.0, 100.0, 50.0],
-            [0.0, 70.0, 100.0, 50.0]
+            [0.0, 70.0, 100.0, 50.0],
         ]);
         expect(row(0.0, 0.0, 200.0, 50.0, [], 10.0)).toEqual([]);
         expect(col(0.0, 0.0, 100.0, 120.0, [], 10.0)).toEqual([]);
@@ -331,7 +371,11 @@ await describe("215 ui headless", async () => {    await it("open reports size",
         const focus = new Focus();
         const ed = new TextEdit();
         const submitted: str[] = [];
-        const tree = Column([Field(ed, hint: "name", onSubmit: (text: str) => { submitted.push(text) })]);
+        const tree = Column([
+            Field(ed, hint: "name", onSubmit: (text: str) => {
+                submitted.push(text)
+            }),
+        ]);
         clickAt(win, fr, focus, tree, 60, 22);
         typeKey(win, fr, focus, tree, 97);
         typeKey(win, fr, focus, tree, KEY_ENTER);

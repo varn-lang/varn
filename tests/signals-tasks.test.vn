@@ -36,7 +36,9 @@ await describe("238 signals meet tasks", async () => {
             const seen: int[] = []
             for await (const v in stream) {
                 seen.push(v)
-                if (seen.length == 3) { break }
+                if(seen.length == 3) {
+                    break
+                }
             }
             return seen
         }

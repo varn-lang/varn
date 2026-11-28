@@ -1,6 +1,6 @@
 import {
     zipCreate$,
-    zipExtract$
+    zipExtract$,
 } from "runtime:compress";
 
 export namespace Zip {

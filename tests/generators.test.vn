@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 function* range_gen(start: int, end: int) {
     let i = start;
-    while (i < end) {
+    while(i < end) {
         yield i;
         i = i + 1;
     }
@@ -10,7 +10,7 @@ function* range_gen(start: int, end: int) {
 function* fib_gen() {
     let a = 0;
     let b = 1;
-    while (true) {
+    while(true) {
         yield a;
         const tmp = a + b;
         a = b;
@@ -37,7 +37,7 @@ await describe("20 Generators", async () => {
     await it("fibonacci generator", () => {
         const fib2 = fib_gen();
         const fibs: int[] = [];
-        for (let i = 0; i < 8; i = i + 1) {
+        for(let i = 0; i < 8; i = i + 1) {
             fibs.push(fib2.next()!);
         }
         expect(fibs[0]).toBe(0);

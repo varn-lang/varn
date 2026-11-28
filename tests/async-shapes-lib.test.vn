@@ -1,7 +1,6 @@
 // Companion module for async-shapes.test.vn. The point is the module boundary:
 // an async method or function only loses its `Task` wrap when the checker sees
 // it from another module.
-
 export class ImportedAsyncBox<T = int> {
     items: Array<T>;
 
@@ -13,7 +12,7 @@ export class ImportedAsyncBox<T = int> {
         return 9;
     }
 
-    async all(): Task<Array<int>> {
+    async all(): Task<Array<int >> {
         return [10];
     }
 }

@@ -1,16 +1,30 @@
 import { describe, it, expect } from "std:test";
 
-class Account { id: int = 0 }
-enum Level { Low, High }
-enum Tagged { Id(n: int), Name(s: str) }
-struct Point { x: int; y: int }
-struct Labeled<T> { label: str; value: T }
+class Account {
+    id: int = 0
+}
+enum Level {
+    Low,
+    High
+}
+enum Tagged {
+    Id(n: int),
+    Name(s: str)
+}
+struct Point {
+    x: int;
+    y: int
+}
+struct Labeled<T> {
+    label: str;
+    value: T
+}
 
 type Index<K extends Hashable> = Map<K, int>
 
 function counter<K extends Hashable>(keys: K[]): Map<K, int> {
     const counts = new Map<K, int>()
-    for (const key in keys) {
+    for(const key in keys) {
         counts.set(key, (counts.get(key) ?? 0) + 1)
     }
     return counts
@@ -44,7 +58,7 @@ await describe("341 map and set keys", async () => {
         byTuple.set(#[1, "a"], 10)
         const byStruct = new Map<Point, int>()
         byStruct.set(new Point(1, 2), 30)
-        const byLabeled = new Set<Labeled<int>>()
+        const byLabeled = new Set<Labeled<int >> ()
         byLabeled.add(new Labeled("n", 4))
         expect(byTuple.get(#[1, "a"])).toBe(10)
         expect(byStruct.get(new Point(1, 2))).toBe(30)
@@ -58,7 +72,7 @@ await describe("341 map and set keys", async () => {
         expect(byTag.get(Tagged.Id(1))).toBe(10)
         expect(byTag.get(Tagged.Name("a"))).toBe(20)
         expect(byTag.get(Tagged.Id(2))).toBe(null)
-        const outcomes = new Set<Result<int, str>>()
+        const outcomes = new Set<Result<int, str >> ()
         outcomes.add(Result.Ok(1))
         outcomes.add(Result.Ok(1))
         outcomes.add(Result.Err("x"))

@@ -3,8 +3,8 @@ import { describe, it, expect } from "std:test";
 extension<U> on U[][] {
     joined(): U[] {
         const out: U[] = []
-        for (const items in this) {
-            for (const item in items) {
+        for(const items in this) {
+            for(const item in items) {
                 out.push(item)
             }
         }
@@ -13,17 +13,21 @@ extension<U> on U[][] {
 }
 
 extension<E> on E[] {
-    describe(): str { return "any array" }
+    describe(): str {
+        return "any array"
+    }
 }
 
 extension on int[] {
-    describe(): str { return "int array" }
+    describe(): str {
+        return "int array"
+    }
 }
 
 extension<V> on Map<str, V[]> {
     total(): int {
         let n = 0
-        for (const items in this.values()) {
+        for(const items in this.values()) {
             n += items.length
         }
         return n

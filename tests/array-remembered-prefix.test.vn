@@ -10,7 +10,7 @@ class PfBox {
 let pfSink: PfBox = new PfBox(0)
 
 function pfChurn(n: int): int {
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         pfSink = new PfBox(i)
     }
     return pfSink.v
@@ -18,7 +18,7 @@ function pfChurn(n: int): int {
 
 function pfFill(n: int): Array<PfBox> {
     const a: Array<PfBox> = []
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         a.push(new PfBox(i))
     }
     return a
@@ -26,7 +26,7 @@ function pfFill(n: int): Array<PfBox> {
 
 function pfSum(a: Array<PfBox>): int {
     let s = 0
-    for (let i = 0; i < a.length; i = i + 1) {
+    for(let i = 0; i < a.length; i = i + 1) {
         s = s + a[i].v
     }
     return s
@@ -68,8 +68,8 @@ await describe("155 array remembered prefix", async () => {
 
     await it("4. repeated appends across collections keep every element", async () => {
         const a: Array<PfBox> = []
-        for (let round = 0; round < 6; round = round + 1) {
-            for (let i = 0; i < 20000; i = i + 1) {
+        for(let round = 0; round < 6; round = round + 1) {
+            for(let i = 0; i < 20000; i = i + 1) {
                 a.push(new PfBox(round * 20000 + i))
             }
             pfChurn(120000)

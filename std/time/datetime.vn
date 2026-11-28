@@ -5,7 +5,7 @@ export class DateTime {
     timestamp: int;
 
     constructor(timestampMs?: int) {
-        if (timestampMs != null) {
+        if(timestampMs != null) {
             this.timestamp = timestampMs;
         } else {
             this.timestamp = nowMs$();
@@ -26,7 +26,20 @@ export class DateTime {
 
     toISOString(): str {
         const parts = msToParts$(this.timestamp);
-        return pad4(parts.year) + "-" + pad2(parts.month) + "-" + pad2(parts.day) + "T" + pad2(parts.hour) + ":" + pad2(parts.minute) + ":" + pad2(parts.second) + "." + pad3(parts.millisecond) + "Z";
+        return pad4(parts.year) +
+            "-" +
+            pad2(parts.month) +
+            "-" +
+            pad2(parts.day) +
+            "T" +
+            pad2(parts.hour) +
+            ":" +
+            pad2(parts.minute) +
+            ":" +
+            pad2(parts.second) +
+            "." +
+            pad3(parts.millisecond) +
+            "Z";
     }
 
     addMs(ms: int): DateTime {

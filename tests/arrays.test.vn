@@ -1,7 +1,11 @@
 import { describe, it, expect } from "std:test";
 
-function takeBracket(arr: str[]): int { return arr.length; }
-function takeGeneric(arr: Array<str>): int { return arr.length; }
+function takeBracket(arr: str[]): int {
+    return arr.length;
+}
+function takeGeneric(arr: Array<str>): int {
+    return arr.length;
+}
 
 await describe("05 Arrays", async () => {
     await it("basics", () => {
@@ -54,7 +58,9 @@ await describe("05 Arrays", async () => {
         const fm = [[1, 2], [3]].flatMap((a) => a);
         expect(fm.length).toBe(3);
         let counter = 0;
-        [10, 20, 30].forEach((n) => { counter = counter + n; });
+        [10, 20, 30].forEach((n) => {
+            counter = counter + n;
+        });
         expect(counter).toBe(60);
         const mut = [1, 2, 3];
         mut.push(4);
@@ -78,7 +84,7 @@ await describe("05 Arrays", async () => {
         let strBracketList: str[] = ["x", "y", "z"];
         expect(takeBracket(strGenericList)).toBe(3);
         expect(takeGeneric(strBracketList)).toBe(3);
-        let nestedGen: Array<Array<int>> = [[1, 2], [3, 4]];
+        let nestedGen: Array<Array<int >> = [[1, 2], [3, 4]];
         let nestedBrk: int[][] = nestedGen;
         expect(nestedBrk[1][0]).toBe(3);
     });

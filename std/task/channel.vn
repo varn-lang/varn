@@ -5,7 +5,7 @@ import {
     Channel,
     ChannelClosed,
     IsolateHandle,
-    spawnIsolate$
+    spawnIsolate$,
 } from "runtime:task";
 
 export { Sender, Receiver, Channel, ChannelClosed, IsolateHandle };
@@ -14,9 +14,6 @@ export function channel<T>(capacity: int): Channel<T> {
     return channel$<T>(capacity);
 }
 
-export function spawnIsolate<A, R>(
-    fn: (...args: A) => R,
-    args: A
-): TaskHandle<IsolateHandle> {
+export function spawnIsolate<A, R>(fn: (...args: A) => R, args: A): TaskHandle<IsolateHandle> {
     return spawnIsolate$(fn, args);
 }

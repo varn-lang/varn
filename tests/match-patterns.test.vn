@@ -265,7 +265,7 @@ await describe("338 match patterns", async () => {
         const arrays: int[][] = [[], [1], [1, 2], [1, 2, 3, 4]];
         let viaPatterns = 0;
         let viaBranches = 0;
-        for (let i = 0; i < 40000; i++) {
+        for(let i = 0; i < 40000; i++) {
             const xs = arrays[i % 4];
             viaPatterns += head(xs);
             viaBranches += xs.length == 0 ? -1 : xs[0] + xs.length - 1;

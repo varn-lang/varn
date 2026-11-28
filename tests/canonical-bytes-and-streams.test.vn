@@ -5,10 +5,9 @@ import { Task } from "std:task";
 import { describe, it, expect } from "std:test";
 import { freshPortFile, awaitPort } from "./helpers/port_file.vn";
 
-
 function testBytesBasics(): void {
     let b = Bytes.alloc(5);
-        expect(b.length).toBe(5);;
+    expect(b.length).toBe(5);;
 
     b[0] = 72; // 'H'
     b[1] = 101; // 'e'
@@ -16,30 +15,29 @@ function testBytesBasics(): void {
     b[3] = 108; // 'l'
     b[4] = 111; // 'o'
 
-        expect(b[0]).toBe(72);;
-        expect(b[4]).toBe(111);;
-        expect(b.toString()).toBe("Hello");;
+    expect(b[0]).toBe(72);;
+    expect(b[4]).toBe(111);;
+    expect(b.toString()).toBe("Hello");;
 
     let sub = b.slice(0, 4);
-        expect(sub.length).toBe(4);;
-        expect(sub.toString()).toBe("Hell");;
+    expect(sub.length).toBe(4);;
+    expect(sub.toString()).toBe("Hell");;
 
     let hex = b.toHex();
-        expect(hex).toBe("48656c6c6f");;
+    expect(hex).toBe("48656c6c6f");;
 
     let b64 = b.toBase64();
-        expect(b64).toBe("SGVsbG8=");;
+    expect(b64).toBe("SGVsbG8=");;
 
     // Test binary transparency: arbitrary non-UTF8 bytes with null byte
     let rawArr = [0x00, 0xFF, 0xFE, 0x80, 0x7F];
     let bin = Bytes.fromBytes(rawArr);
-        expect(bin.length).toBe(5);;
-        expect(bin[0]).toBe(0x00);;
-        expect(bin[1]).toBe(0xFF);;
-        expect(bin[2]).toBe(0xFE);;
-        expect(bin[3]).toBe(0x80);;
-        expect(bin[4]).toBe(0x7F);;
-
+    expect(bin.length).toBe(5);;
+    expect(bin[0]).toBe(0x00);;
+    expect(bin[1]).toBe(0xFF);;
+    expect(bin[2]).toBe(0xFE);;
+    expect(bin[3]).toBe(0x80);;
+    expect(bin[4]).toBe(0x7F);;
 }
 
 class MockChunkReader implements AsyncReader {
@@ -51,7 +49,7 @@ class MockChunkReader implements AsyncReader {
     }
 
     async read(size: int = 4096): Task<Bytes?> {
-        if (this.idx >= this.chunks.length) {
+        if(this.idx >= this.chunks.length) {
             return null;
         }
         let chunk = this.chunks[this.idx];
@@ -76,17 +74,17 @@ class MockChunkWriter implements AsyncWriter {
     close(): void {}
 }
 async function testStreamPipe(): Task<void> {
-let chunk1 = Bytes.fromString("Chunk1_");
-let chunk2 = Bytes.fromString("Chunk2_");
-let chunk3 = Bytes.fromString("Chunk3");
-let reader = new MockChunkReader([chunk1, chunk2, chunk3]);
-let writer = new MockChunkWriter();
-await Stream.pipe(reader, writer);
-expect(writer.flushed).toBeTruthy();
-expect(writer.received.length).toBe(3);
-expect(writer.received[0].toString()).toBe("Chunk1_");
-expect(writer.received[1].toString()).toBe("Chunk2_");
-expect(writer.received[2].toString()).toBe("Chunk3");
+    let chunk1 = Bytes.fromString("Chunk1_");
+    let chunk2 = Bytes.fromString("Chunk2_");
+    let chunk3 = Bytes.fromString("Chunk3");
+    let reader = new MockChunkReader([chunk1, chunk2, chunk3]);
+    let writer = new MockChunkWriter();
+    await Stream.pipe(reader, writer);
+    expect(writer.flushed).toBeTruthy();
+    expect(writer.received.length).toBe(3);
+    expect(writer.received[0].toString()).toBe("Chunk1_");
+    expect(writer.received[1].toString()).toBe("Chunk2_");
+    expect(writer.received[2].toString()).toBe("Chunk3");
 }
 
 @capability("sys.exec")
@@ -95,7 +93,10 @@ expect(writer.received[2].toString()).toBe("Chunk3");
 async function testTcpBinaryRoundtrip(): Task<void> {
     let portFile = freshPortFile();
     let vnBin = Process.currentExe();
-    let proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/tcp_binary_echo_server.vn`, "--", portFile]);
+    let proc = Process.spawn(
+        vnBin,
+        ["run", `${import.meta.dirname}/helpers/tcp_binary_echo_server.vn`, "--", portFile],
+    );
     try {
         let port = await awaitPort(portFile);
         let client = await TcpStream.connect("127.0.0.1", port);
@@ -134,6 +135,4 @@ await describe("112 canonical bytes and streams", async () => {
     await it("tcp binary roundtrip", async () => {
         await testTcpBinaryRoundtrip();
     });
-
-
 });

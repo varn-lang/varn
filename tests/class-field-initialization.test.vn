@@ -3,7 +3,7 @@ import { describe, it, expect } from "std:test";
 class Branches {
     x: int;
     constructor(flag: bool) {
-        if (flag) {
+        if(flag) {
             this.x = 1;
         } else {
             this.x = 2;
@@ -14,7 +14,7 @@ class Branches {
 class EarlyReturn {
     x: int;
     constructor(flag: bool) {
-        if (flag) {
+        if(flag) {
             this.x = 10;
             return;
         }

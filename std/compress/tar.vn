@@ -1,6 +1,6 @@
 import {
     tarCreate$,
-    tarExtract$
+    tarExtract$,
 } from "runtime:compress";
 
 export namespace Tar {

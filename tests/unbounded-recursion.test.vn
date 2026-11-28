@@ -1,11 +1,19 @@
 import { describe, it, expect } from "std:test";
 
-function selfLoop(n: int): int { return selfLoop(n + 1) + 1 }
-function ping(n: int): int { return pong(n + 1) + 1 }
-function pong(n: int): int { return ping(n + 1) + 1 }
+function selfLoop(n: int): int {
+    return selfLoop(n + 1) + 1
+}
+function ping(n: int): int {
+    return pong(n + 1) + 1
+}
+function pong(n: int): int {
+    return ping(n + 1) + 1
+}
 
 class Walker {
-    depth(n: int): int { return this.depth(n + 1) + 1 }
+    depth(n: int): int {
+        return this.depth(n + 1) + 1
+    }
 }
 
 function overflows(f: () => int): bool {
@@ -17,7 +25,9 @@ function overflows(f: () => int): bool {
     }
 }
 
-function sumTo(n: int): int { return n == 0 ? 0 : sumTo(n - 1) + n }
+function sumTo(n: int): int {
+    return n == 0 ? 0 : sumTo(n - 1) + n
+}
 
 await describe("265 unbounded recursion", async () => {
     await it("self recursion without a base case raises instead of crashing", () => {

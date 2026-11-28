@@ -3,22 +3,42 @@ import { Signal, signal } from "std:signals";
 
 class Sig<T> {
     v: T;
-    constructor(v: T) { this.v = v }
+    constructor(v: T) {
+        this.v = v
+    }
 }
 
 class Plain {
     n: int = 1;
 }
 
-function generic(x: bool | Sig<bool>): str { return x is Sig<bool> ? "sig" : "plain" }
-function klass(x: bool | Plain): str { return x is Plain ? "class" : "bool" }
-function viaInt(x: int | Sig<int>): str { return x is Sig<int> ? "sig" : "int" }
-function array(x: int | int[]): str { return x is int[] ? "array" : "int" }
-function union(x: int | str | bool): str { return x is (int | str) ? "int-or-str" : "bool" }
-function fn(x: int | (() => int)): str { return x is () => int ? "fn" : "int" }
-function nullable(x: int?): str { return x is int ? "int" : "null" }
-function imported<T>(x: T | Signal<T>): str { return x is Signal<T> ? "signal" : "plain" }
-function text(x: int | str): str { return x is str ? "str" : "other" }
+function generic(x: bool | Sig<bool>): str {
+    return x is Sig<bool> ? "sig" : "plain"
+}
+function klass(x: bool | Plain): str {
+    return x is Plain ? "class" : "bool"
+}
+function viaInt(x: int | Sig<int>): str {
+    return x is Sig<int> ? "sig" : "int"
+}
+function array(x: int | int[]): str {
+    return x is int[] ? "array" : "int"
+}
+function union(x: int | str | bool): str {
+    return x is (int | str) ? "int-or-str" : "bool"
+}
+function fn(x: int | (() => int)): str {
+    return x is () => int ? "fn" : "int"
+}
+function nullable(x: int?): str {
+    return x is int ? "int" : "null"
+}
+function imported<T>(x: T | Signal<T>): str {
+    return x is Signal<T> ? "signal" : "plain"
+}
+function text(x: int | str): str {
+    return x is str ? "str" : "other"
+}
 
 await describe("240 is type tests", async () => {
     await it("a generic class is tested by its class", () => {

@@ -1,6 +1,10 @@
 import { describe, it, expect } from "std:test";
 
-enum Shape { Circle(int), Rect(int, int), Unit }
+enum Shape {
+    Circle(int),
+    Rect(int, int),
+    Unit
+}
 
 await describe("335 structural keys", async () => {
     await it("equal tuples are the same key of a Map", async () => {

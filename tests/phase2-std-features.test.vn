@@ -6,30 +6,27 @@ import { getSystemInfo } from "std:sys";
 await describe("71 phase2 std features", async () => {
     await it("tests", async () => {
         // Test suite for Phase 2 StdLib native language features (Enums, Records, Tuples, Generators)
-        
-        
+
         // 1. HttpStatus enum payload & shared field access
         expect(HttpStatus.Ok.code).toBe(200);
         expect(HttpStatus.Ok.message).toBe("OK");
         expect(HttpStatus.NotFound.code).toBe(404);
         expect(HttpStatus.InternalServerError.code).toBe(500);
-        
+
         // 2. std:fs readLines generator
         const testPath = "./temp_phase2_lines.txt";
         fsWrite(testPath, "line1\nline2\nline3");
-        
+
         let lineCount = 0;
-        for (const line in readLines(testPath)) {
+        for(const line in readLines(testPath)) {
             lineCount = lineCount + 1;
         }
         expect(lineCount).toBe(3);
         fsRemove(testPath);
-        
+
         // 3. std:sys getSystemInfo Record
         const info = getSystemInfo();
         expect(info.platform.length > 0).toBeTruthy();
         expect(info.cwd.length > 0).toBeTruthy();
-        
-        
     });
 });

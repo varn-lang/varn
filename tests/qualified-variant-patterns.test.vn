@@ -36,6 +36,9 @@ await describe("360 qualified variant patterns", async () => {
     await it("a tuple subject matches tuple patterns", () => {
         const a = 1
         const b = 2
-        expect(match (#[a, b]) { #[1, 2] => "yes", _ => "no" }).toBe("yes")
+        expect(match (#[a, b]) {
+            #[1, 2] => "yes",
+            _ => "no"
+        }).toBe("yes")
     })
 })

@@ -32,14 +32,10 @@ function run(): void {
     let count = 100000
 
     let users: User[] = []
-    for (let i = 0; i < count; i = i + 1) {
-        users.push(new User(
-            i,
-            `User_${i}`,
-            (i % 60) + 10,
-            (i % 2) == 0,
-            ((i % 100) as float) * 1.5
-        ))
+    for(let i = 0; i < count; i = i + 1) {
+        users.push(
+            new User(i, `User_${i}`, (i % 60) + 10, (i % 2) == 0, ((i % 100) as float) * 1.5),
+        )
     }
 
     let start = now()
@@ -47,9 +43,9 @@ function run(): void {
     let activeAdults: UserDTO[] = []
     let totalScore = 0.0
 
-    for (let i = 0; i < count; i = i + 1) {
+    for(let i = 0; i < count; i = i + 1) {
         let u = users[i]
-        if (u.isActive && u.age >= 18) {
+        if(u.isActive && u.age >= 18) {
             let dto = new UserDTO(u.id, u.name, u.score)
             activeAdults.push(dto)
             totalScore = totalScore + u.score

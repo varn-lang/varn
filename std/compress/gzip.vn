@@ -2,7 +2,7 @@ import {
     gzip$,
     gunzip$,
     deflate$,
-    inflate$
+    inflate$,
 } from "runtime:compress";
 
 export namespace Compress {

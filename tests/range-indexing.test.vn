@@ -26,7 +26,6 @@ await describe("88 range indexing", async () => {
         expect(picked[1]).toBe("cherry");
         expect(picked[2]).toBe("date");
     });
-        
 
     await it("Exclusive range [0..5]; Exclusive slice [1..4] -> indices 1, 2, 3", async () => {
         let greeting = text[0..5];
@@ -47,5 +46,4 @@ await describe("88 range indexing", async () => {
         expect(slice2[1]).toBe(30);
         expect(slice2[2]).toBe(40);
     });
-
 });

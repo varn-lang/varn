@@ -2,7 +2,6 @@ import { describe, it, expect } from "std:test";
 
 // A constructor's parameters have the types they declare: an `int`
 // parameter is an `int` in the body, not `dynamic`.
-
 class CtorNeg {
     b: int
     constructor(i: int) {
@@ -38,5 +37,4 @@ await describe("138 constructor signature", async () => {
         expect(mixed.total == 2.5 && mixed.label == "OK").toBeTruthy();
         expect(child.b == -4 && child.c == -5).toBeTruthy();
     });
-
 });

@@ -7,7 +7,7 @@ export {
     extname,
     isAbsolute,
     join,
-    resolve
+    resolve,
 } from "std:path/utils";
 
 import {
@@ -19,7 +19,7 @@ import {
     extname as extnameFn,
     isAbsolute as isAbsoluteFn,
     join as joinFn,
-    resolve as resolveFn
+    resolve as resolveFn,
 } from "std:path/utils";
 
 export namespace Path {

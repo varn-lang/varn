@@ -2,7 +2,9 @@ import { describe, it, expect } from "std:test";
 
 const t = #[1, "a", true]
 
-function pair() { return #[7, "x"] }
+function pair() {
+    return #[7, "x"]
+}
 const p = pair()
 
 const u = #[1, 2]
@@ -10,7 +12,7 @@ const v = #[1, 2]
 
 const r = #{ name: "x", age: 3, ok: true }
 await describe("117 tuples", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(t[0]).toBe(1);
         expect(t[1]).toBe("a");
         expect(t[2]).toBe(true);
@@ -22,6 +24,4 @@ await describe("117 tuples", async () => {
         expect(u == v).toBeTruthy();
         expect(r.age == 3 && r.ok).toBeTruthy();
     });
-
-
 });

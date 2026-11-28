@@ -19,8 +19,6 @@ import { Duration } from "std:time";
 // float bits as an i48 payload. `Duration.hours` came out as 7330077518
 // instead of 1 — but only once one call interpreted and another compiled,
 // which eager compilation had been hiding.
-
-
 function halve(n: int): int {
     return n / 2
 }
@@ -36,31 +34,29 @@ class TierBox {
 }
 await describe("56 tier parity", async () => {
     await it("tests", async () => {
-        
         let tierFirst = new TierBox(10)
         let tierLast = new TierBox(10)
-        for (let i = 0; i < 64; i = i + 1) {
+        for(let i = 0; i < 64; i = i + 1) {
             tierLast = new TierBox(10)
         }
-        
+
         expect(tierFirst.a).toBe(tierLast.a)
         expect(tierLast.a).toBe(5)
         expect(tierFirst.a::type).toBe(tierLast.a::type)
         expect(tierLast.a::type).toBe("int")
         expect(tierFirst.b).toBe(tierLast.b)
         expect(tierLast.b).toBe(5.0)
-        
+
         // The stdlib constructor that actually broke: every field but the first comes
         // from `int_div`, and the calls straddle the tiering threshold.
         let tierD1 = Duration.from("PT1H30M")
         let tierD2 = Duration.from("PT1H30M")
-        
+
         expect(tierD1.hours).toBe(tierD2.hours)
         expect(tierD2.hours).toBe(1)
         expect(tierD2.minutes).toBe(30)
         expect(tierD2.seconds).toBe(0)
         expect(tierD2.days).toBe(0)
         expect(tierD1.hours::type).toBe(tierD2.hours::type)
-        
     });
 });

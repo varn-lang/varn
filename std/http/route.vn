@@ -22,11 +22,11 @@ export class Route {
         this.segments = [];
         this.paramNames = new Map<int, str>();
 
-        if (!this.isWildcard) {
+        if(!this.isWildcard) {
             let segs = pattern.split("/");
-            for (let i = 0; i < segs.length; i = i + 1) {
+            for(let i = 0; i < segs.length; i = i + 1) {
                 let s = segs[i];
-                if (s.startsWith(":")) {
+                if(s.startsWith(":")) {
                     this.segments.push(":");
                     this.paramNames.set(i, s.slice(1));
                 } else {
@@ -42,25 +42,25 @@ export class Route {
     }
 
     match(method: HttpMethod, pathSegments: str[]): Map<str, str>? {
-        if (!this.accepts(method)) {
+        if(!this.accepts(method)) {
             return null;
         }
 
-        if (this.isWildcard) {
+        if(this.isWildcard) {
             return new Map<str, str>();
         }
 
-        if (this.segments.length != pathSegments.length) {
+        if(this.segments.length != pathSegments.length) {
             return null;
         }
 
         const params = new Map<str, str>();
-        for (let i = 0; i < this.segments.length; i = i + 1) {
+        for(let i = 0; i < this.segments.length; i = i + 1) {
             let seg = this.segments[i];
             let reqSeg = pathSegments[i];
-            if (seg == ":") {
+            if(seg == ":") {
                 let paramName = this.paramNames.get(i);
-                if (paramName != null) {
+                if(paramName != null) {
                     params.set(paramName, reqSeg);
                 }
             } else if (seg != reqSeg) {

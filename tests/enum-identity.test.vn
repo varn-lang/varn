@@ -5,7 +5,6 @@ import { describe, it, expect } from "std:test";
 // An enum value belongs to the enum that declared it, not to its name: two
 // modules declaring `Shade`, and a local `Result`, never trade methods or
 // compare equal.
-
 enum Result<T, E> {
     Good(value: T),
     Bad(error: E)
@@ -16,10 +15,13 @@ const b = ShadeB.Light;
 
 // A local enum sharing the name, variants in the other order: a match on
 // the imported value must use the imported enum's tags.
-enum Shade { Dark, Light }
+enum Shade {
+    Dark,
+    Light
+}
 
 await describe("136 enum identity", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(a.label() == "a").toBeTruthy();
         expect(b.label() == "b").toBeTruthy();
         expect(!sameValue(a as dynamic, b as dynamic)).toBeTruthy();
@@ -32,7 +34,10 @@ await describe("136 enum identity", async () => {
             Dark => "dark"
         };
         expect(which).toBe("light");
-        expect(match (Shade.Light) { Dark => 0, Light => 1 }).toBe(1);
+        expect(match (Shade.Light) {
+            Dark => 0,
+            Light => 1
+        }).toBe(1);
     });
 
     await it("local result and option", async () => {
@@ -45,6 +50,4 @@ await describe("136 enum identity", async () => {
         expect(matched).toBe(1);
         expect(core ?? 0).toBe(2);
     });
-
-
 });

@@ -2,8 +2,15 @@ import { describe, it, expect } from "std:test";
 import { Tone, Token as Tok } from "./helpers/enum-slots.vn";
 import { LogLevel } from "std:log/level";
 
-enum Color { Red, Green, Blue }
-enum Level { Low = 10, High = 20 }
+enum Color {
+    Red,
+    Green,
+    Blue
+}
+enum Level {
+    Low = 10,
+    High = 20
+}
 enum Shape {
     Dot,
     Circle(r: float),
@@ -20,24 +27,39 @@ enum Shape {
 
 function pick(i: int): Color {
     let c = Color.Red
-    if (i % 3 == 1) { c = Color.Green }
-    if (i % 3 == 2) { c = Color.Blue }
+    if(i % 3 == 1) {
+        c = Color.Green
+    }
+    if(i % 3 == 2) {
+        c = Color.Blue
+    }
     return c
 }
 function score(c: Color): int {
-    if (c == Color.Red) { return 1 }
-    if (c == Color.Green) { return 10 }
+    if(c == Color.Red) {
+        return 1
+    }
+    if(c == Color.Green) {
+        return 10
+    }
     return 100
 }
 function nested(i: int): int {
-    enum Side { Left, Right }
+    enum Side {
+        Left,
+        Right
+    }
     const s = i % 2 == 0 ? Side.Left : Side.Right
     return s == Side.Left ? 1 : 2
 }
 function tone(i: int): Tone {
     let t = Tone.Low
-    if (i % 3 == 1) { t = Tone.Mid }
-    if (i % 3 == 2) { t = Tone.High }
+    if(i % 3 == 1) {
+        t = Tone.Mid
+    }
+    if(i % 3 == 2) {
+        t = Tone.High
+    }
     return t
 }
 function token(i: int): int {
@@ -56,7 +78,9 @@ function build(i: int): float {
 await describe("189 enum variant slots", async () => {
     await it("a variant read in a hot function is the declared variant", () => {
         let total = 0
-        for (let i = 0; i < 600; i = i + 1) { total = total + score(pick(i)) }
+        for(let i = 0; i < 600; i = i + 1) {
+            total = total + score(pick(i))
+        }
         expect(total).toBe(200 * 111)
         expect(pick(0) == Color.Red).toBe(true)
         expect(pick(1) == Color.Red).toBe(false)
@@ -70,7 +94,9 @@ await describe("189 enum variant slots", async () => {
 
     await it("payload variants and methods keep working", () => {
         let total = 0.0
-        for (let i = 0; i < 400; i = i + 1) { total = total + build(i) }
+        for(let i = 0; i < 400; i = i + 1) {
+            total = total + build(i)
+        }
         expect(total).toBe(200.0 * 3.0 + 200.0 * 6.0)
         expect(Shape.Dot.area()).toBe(0.0)
         expect(Shape.Circle(2.0).area()).toBe(12.0)
@@ -78,7 +104,9 @@ await describe("189 enum variant slots", async () => {
 
     await it("an imported enum reads its variants the same way", () => {
         let total = 0
-        for (let i = 0; i < 600; i = i + 1) { total = total + tone(i).weight() }
+        for(let i = 0; i < 600; i = i + 1) {
+            total = total + tone(i).weight()
+        }
         expect(total).toBe(200 * 111)
         expect(tone(1) == Tone.Mid).toBe(true)
         expect(tone(1) == Tone.High).toBe(false)
@@ -88,7 +116,9 @@ await describe("189 enum variant slots", async () => {
 
     await it("an imported enum under another name builds payload variants", () => {
         let total = 0
-        for (let i = 0; i < 400; i = i + 1) { total = total + token(i) }
+        for(let i = 0; i < 400; i = i + 1) {
+            total = total + token(i)
+        }
         expect(total).toBe(39800)
         expect(token(6)).toBe(6)
         expect(token(7)).toBe(0)
@@ -103,7 +133,9 @@ await describe("189 enum variant slots", async () => {
 
     await it("an enum declared inside a function has its own variants", () => {
         let total = 0
-        for (let i = 0; i < 400; i = i + 1) { total = total + nested(i) }
+        for(let i = 0; i < 400; i = i + 1) {
+            total = total + nested(i)
+        }
         expect(total).toBe(600)
     })
 })

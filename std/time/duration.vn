@@ -24,7 +24,7 @@ export class Duration {
     }
 
     static from(input: DurationLike): Duration {
-        if (input is Duration) {
+        if(input is Duration) {
             return input as Duration;
         } else if (input is str) {
             let ms = parseIsoDuration$(input as str);
@@ -33,8 +33,10 @@ export class Duration {
             return new Duration(input as int);
         } else {
             let parts = input as DurationParts;
-            if (parts.years != null || parts.months != null) {
-                throw new RangeError("a Duration is a fixed span of time and cannot hold years or months");
+            if(parts.years != null || parts.months != null) {
+                throw new RangeError(
+                    "a Duration is a fixed span of time and cannot hold years or months",
+                );
             }
             let ms = 0;
             // Los miembros de DurationParts son opcionales: el checker los
@@ -46,7 +48,7 @@ export class Duration {
             ms = ms + (parts.hours ?? 0) * 3600000;
             ms = ms + (parts.days ?? 0) * 86400000;
             const sign = parts.sign ?? 1;
-            if (sign != 1 && sign != -1) {
+            if(sign != 1 && sign != -1) {
                 throw new RangeError(`a Duration sign must be 1 or -1, got ${sign}`);
             }
             return new Duration(ms * sign);
@@ -55,7 +57,7 @@ export class Duration {
 
     abs(): Duration {
         let ms = this.totalMilliseconds;
-        if (ms < 0) ms = -ms;
+        if(ms < 0) ms = -ms;
         return new Duration(ms);
     }
 
@@ -75,8 +77,8 @@ export class Duration {
 
     compare(other: DurationLike): int {
         let od = Duration.from(other);
-        if (this.totalMilliseconds < od.totalMilliseconds) return -1;
-        if (this.totalMilliseconds > od.totalMilliseconds) return 1;
+        if(this.totalMilliseconds < od.totalMilliseconds) return -1;
+        if(this.totalMilliseconds > od.totalMilliseconds) return 1;
         return 0;
     }
 

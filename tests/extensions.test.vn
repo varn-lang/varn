@@ -1,21 +1,30 @@
 import { describe, it, expect } from "std:test";
 
 extension StringUtils on str {
-    shout(): str { return this + "!"; }
+    shout(): str {
+        return this + "!";
+    }
     times(n: int): str {
         let result = "";
         let i = 0;
-        while (i < n) { result = result + this; i = i + 1; }
+        while(i < n) {
+            result = result + this;
+            i = i + 1;
+        }
         return result;
     }
     wordCount(): int {
         let count = 0;
         let inWord = false;
         let i = 0;
-        while (i < this.length) {
+        while(i < this.length) {
             const ch = this[i];
-            if (ch != " " && !inWord) { count = count + 1; inWord = true; }
-            else if (ch == " ") { inWord = false; }
+            if(ch != " " && !inWord) {
+                count = count + 1;
+                inWord = true;
+            } else if (ch == " ") {
+                inWord = false;
+            }
             i = i + 1;
         }
         return count;
@@ -23,21 +32,37 @@ extension StringUtils on str {
 }
 class Slot {
     value: int
-    constructor(v: int) { this.value = v; }
+    constructor(v: int) {
+        this.value = v;
+    }
 }
 extension SlotOps on Slot {
-    doubled(): int { return this.value * 2; }
-    add(n: int): int { return this.value + n; }
+    doubled(): int {
+        return this.value * 2;
+    }
+    add(n: int): int {
+        return this.value + n;
+    }
 }
 extension SlotAccessor on Slot {
-    get label(): str { return `Slot(${this.value})`; }
-    set label(s: str) { this.value = s.length; }
+    get label(): str {
+        return `Slot(${this.value})`;
+    }
+    set label(s: str) {
+        this.value = s.length;
+    }
 }
 extension IntUtils on int {
-    isEven(): bool { return this % 2 == 0; }
+    isEven(): bool {
+        return this % 2 == 0;
+    }
     clamp(lo: int, hi: int): int {
-        if (this < lo) { return lo; }
-        if (this > hi) { return hi; }
+        if(this < lo) {
+            return lo;
+        }
+        if(this > hi) {
+            return hi;
+        }
         return this;
     }
 }

@@ -25,11 +25,15 @@ await describe("326 csv keeps what it reads", async () => {
         expect(parseFails("a,b\n1,2,3\n")).toBe(true);
         expect(parseFails("a,b\n1\n")).toBe(true);
         expect(Csv.parse("a,b\n1,2\n\n3,4\n").length).toBe(2);
-        expect(Json.stringify(Csv.parse<CsvValue[]>("a\n1\n2,3\n", new CsvOptions(hasHeader: false)))).toBe("[[\"a\"],[1],[2,3]]");
+        expect(
+            Json.stringify(Csv.parse<CsvValue[]>("a\n1\n2,3\n", new CsvOptions(hasHeader: false))),
+        ).toBe("[[\"a\"],[1],[2,3]]");
     });
 
     await it("only a canonical JSON number becomes a number", async () => {
-        const row = Csv.parse("zip,phone,n,neg,float,exp,plus,dot,tail\n00501,0123,0,-12,3.5,1e3,+7,.5,5.\n")[0];
+        const row = Csv.parse(
+            "zip,phone,n,neg,float,exp,plus,dot,tail\n00501,0123,0,-12,3.5,1e3,+7,.5,5.\n",
+        )[0];
         expect(row["zip"]).toBe("00501");
         expect(row["phone"]).toBe("0123");
         expect(row["n"]).toBe(0);

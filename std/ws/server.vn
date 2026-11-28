@@ -4,7 +4,7 @@ import {
     tcpAccept$,
     tcpWrite$,
     tcpClose$,
-    tcpCloseListener$
+    tcpCloseListener$,
 } from "runtime:net";
 
 import { wsAcceptResponse$ } from "runtime:ws";
@@ -36,7 +36,7 @@ export class WsServer {
     }
 
     async accept(): Task<WebSocket> {
-        if (!this._isListening) {
+        if(!this._isListening) {
             throw new ClosedError("server is closed");
         }
         const conn = await tcpAccept$(this._listener);
@@ -56,9 +56,9 @@ export class WsServer {
     }
 
     close(): void {
-        if (this._isListening) {
+        if(this._isListening) {
             this._isListening = false;
-            if (this._listener >= 0) {
+            if(this._listener >= 0) {
                 tcpCloseListener$(this._listener);
                 this._listener = -1;
             }

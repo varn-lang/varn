@@ -40,22 +40,22 @@ export class HttpRejection extends ProtocolError {
 
 async function readHead(wire: WireReader): Task<str?> {
     let first: str? = null;
-    while (first == null || (first as str).length == 0) {
+    while(first == null || (first as str).length == 0) {
         first = await wire.line(MAX_LINE);
-        if (first == null) {
+        if(first == null) {
             return null;
         }
     }
     let head = (first as str) + "\r\n";
-    while (true) {
+    while(true) {
         const line = await wire.line(MAX_LINE);
-        if (line == null) {
+        if(line == null) {
             throw new HttpRejection(400, "Bad Request");
         }
-        if (head.length + (line as str).length > MAX_HEAD) {
+        if(head.length + (line as str).length > MAX_HEAD) {
             throw new HttpRejection(431, "Request Header Fields Too Large");
         }
-        if ((line as str).length == 0) {
+        if((line as str).length == 0) {
             break;
         }
         head = head + (line as str) + "\r\n";
@@ -64,12 +64,12 @@ async function readHead(wire: WireReader): Task<str?> {
 }
 
 function isDigits(text: str): bool {
-    if (text.length == 0) {
+    if(text.length == 0) {
         return false;
     }
-    for (let i = 0; i < text.length; i = i + 1) {
+    for(let i = 0; i < text.length; i = i + 1) {
         const code = text.charCodeAt(i) as int;
-        if (code < 48 || code > 57) {
+        if(code < 48 || code > 57) {
             return false;
         }
     }
@@ -80,22 +80,22 @@ async function readBody(wire: WireReader, req: RawRequest, maxContentLength: int
     const expect = req.headers.get("expect");
     const coding = req.headers.get("transfer-encoding");
     const lengthText = req.headers.get("content-length");
-    if (coding != null) {
-        if (lengthText != null) {
+    if(coding != null) {
+        if(lengthText != null) {
             throw new HttpRejection(400, "Bad Request");
         }
-        if (coding.trim().toLowerCase() != "chunked") {
+        if(coding.trim().toLowerCase() != "chunked") {
             throw new HttpRejection(501, "Not Implemented");
         }
     }
     const chunked = coding != null;
-    if (!chunked && lengthText == null) {
+    if(!chunked && lengthText == null) {
         return Bytes.alloc(0);
     }
-    if (expect != null && expect.toLowerCase() == "100-continue") {
+    if(expect != null && expect.toLowerCase() == "100-continue") {
         await tcpWrite$(wire.connId, "HTTP/1.1 100 Continue\r\n\r\n");
     }
-    if (chunked) {
+    if(chunked) {
         try {
             return await readChunkedBody(wire, maxContentLength);
         } catch (err: BodyTooLargeError) {
@@ -105,7 +105,7 @@ async function readBody(wire: WireReader, req: RawRequest, maxContentLength: int
         }
     }
     let declared = -1;
-    if (!isDigits(lengthText as str)) {
+    if(!isDigits(lengthText as str)) {
         throw new HttpRejection(400, "Bad Request");
     }
     try {
@@ -113,31 +113,34 @@ async function readBody(wire: WireReader, req: RawRequest, maxContentLength: int
     } catch (err) {
         throw new HttpRejection(400, "Bad Request");
     }
-    if (declared < 0) {
+    if(declared < 0) {
         throw new HttpRejection(400, "Bad Request");
     }
-    if (declared > maxContentLength) {
+    if(declared > maxContentLength) {
         throw new HttpRejection(413, "Payload Too Large");
     }
     const data = await wire.take(declared);
-    if (data == null) {
+    if(data == null) {
         throw new HttpRejection(400, "Bad Request");
     }
     return data as Bytes;
 }
 
-export async function readHttpRequest(wire: WireReader, maxContentLength: int = 10485760): Task<RawRequest?> {
+export async function readHttpRequest(
+    wire: WireReader,
+    maxContentLength: int = 10485760,
+): Task<RawRequest?> {
     let head: str? = null;
     try {
         head = await readHead(wire);
     } catch (err: LineTooLongError) {
         throw new HttpRejection(431, "Request Header Fields Too Large");
     }
-    if (head == null) {
+    if(head == null) {
         return null;
     }
     const parsed = parseHttpRequest$(head as str);
-    if (parsed == null) {
+    if(parsed == null) {
         throw new HttpRejection(400, "Bad Request");
     }
     const ph = parsed as HttpRequestHead;
@@ -172,14 +175,14 @@ export class Request {
         this.body = init.body ?? "";
 
         let cookieHdr = this.headers.get("cookie");
-        if (cookieHdr != null) {
-            if (cookieHdr.length > 0) {
+        if(cookieHdr != null) {
+            if(cookieHdr.length > 0) {
                 let pairs = cookieHdr.split(";");
-                for (let p in pairs) {
+                for(let p in pairs) {
                     let eq = p.indexOf("=");
-                    if (eq != null) {
+                    if(eq != null) {
                         const ei = eq as int;
-                        if (ei > 0) {
+                        if(ei > 0) {
                             let k = p.slice(0, ei).trim();
                             let v = p.slice(ei + 1).trim();
                             this.cookies.set(k, v);
@@ -199,19 +202,19 @@ export class Request {
     }
 
     json(): JsonValue {
-        if (this.body.length == 0) return null;
+        if(this.body.length == 0) return null;
         return Json.parse(this.body);
     }
 
     formData(): Map<str, str> {
         const res = new Map<str, str>();
-        if (this.body.length == 0) return res;
+        if(this.body.length == 0) return res;
         let pairs = this.body.split("&");
-        for (let p in pairs) {
+        for(let p in pairs) {
             let eq = p.indexOf("=");
-            if (eq != null) {
+            if(eq != null) {
                 const ei = eq as int;
-                if (ei > 0) {
+                if(ei > 0) {
                     let k = p.slice(0, ei);
                     let v = p.slice(ei + 1);
                     res.set(k, v);

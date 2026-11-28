@@ -14,7 +14,8 @@ await describe("310 Duration fields are components of totalMilliseconds", async 
 
     await it("the components add back to the total", async () => {
         const d = new Duration(987654321);
-        const rebuilt = (((d.days * 24 + d.hours) * 60 + d.minutes) * 60 + d.seconds) * 1000 + d.milliseconds;
+        const rebuilt =
+            (((d.days * 24 + d.hours) * 60 + d.minutes) * 60 + d.seconds) * 1000 + d.milliseconds;
         expect(rebuilt).toBe(987654321);
     });
 

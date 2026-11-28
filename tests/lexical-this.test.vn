@@ -5,23 +5,27 @@ class Counter {
     onTick: () => void;
 
     constructor(step: int) {
-        this.onTick = () => { this.count = this.count + step };
+        this.onTick = () => {
+            this.count = this.count + step
+        };
     }
 
     bump(): () => int {
-        return () => {
+        return() => {
             this.count = this.count + 1;
             return this.count;
         };
     }
 
     nested(): () => () => int {
-        return () => () => this.count;
+        return() => () => this.count;
     }
 
     each(items: int[]): int {
         let total = 0;
-        items.forEach((n: int) => { total = total + n + this.count });
+        items.forEach((n: int) => {
+            total = total + n + this.count
+        });
         return total;
     }
 
@@ -32,27 +36,35 @@ class Counter {
 }
 
 class Base {
-    name(): str { return "base" }
+    name(): str {
+        return "base"
+    }
 }
 
 class Derived extends Base {
-    override name(): str { return "derived" }
+    override name(): str {
+        return "derived"
+    }
     viaArrow(): () => str {
-        return () => super.name() + "/" + this.name();
+        return() => super.name() + "/" + this.name();
     }
 }
 
 class Cell<T> {
     held: T;
-    constructor(held: T) { this.held = held }
-    reader(): () => T { return () => this.held }
+    constructor(held: T) {
+        this.held = held
+    }
+    reader(): () => T {
+        return() => this.held
+    }
 }
 
 enum Level {
     low,
     high;
     label(): () => str {
-        return () => this == Level.low ? "low" : "high";
+        return() => this == Level.low ? "low" : "high";
     }
 }
 
@@ -101,7 +113,7 @@ await describe("237 lexical this", async () => {
         const counter = new Counter(1);
         const bump = counter.bump();
         let last = 0;
-        for (let i = 0; i < 20000; i = i + 1) {
+        for(let i = 0; i < 20000; i = i + 1) {
             last = bump();
         }
         expect(last).toBe(20000);

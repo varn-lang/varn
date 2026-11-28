@@ -1,5 +1,21 @@
 import { describe, it, expect } from "std:test";
-import { UiWindow, UiFrame, Focus, Widget, Column, Row, Text, Box, Responsive, Adaptive, WindowClass, render, present, signal, DrawnItem } from "std:ui";
+import {
+    UiWindow,
+    UiFrame,
+    Focus,
+    Widget,
+    Column,
+    Row,
+    Text,
+    Box,
+    Responsive,
+    Adaptive,
+    WindowClass,
+    render,
+    present,
+    signal,
+    DrawnItem,
+} from "std:ui";
 
 @capability("ui")
 function frameAt(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget, w: float): DrawnItem[] {
@@ -17,13 +33,19 @@ await describe("252 responsive", async () => {
         using win = UiWindow.open("t", 960, 300);
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
-        const tree = Box(Responsive((cls: WindowClass): Widget => match (cls) {
-            WindowClass.compact => Text("compact"),
-            WindowClass.medium => Text("medium"),
-            WindowClass.expanded => Text("expanded"),
-        }), w: 200.0, h: 100.0);
+        const tree = Box(
+            Responsive((cls: WindowClass): Widget => match (cls) {
+                WindowClass.compact => Text("compact"),
+                WindowClass.medium => Text("medium"),
+                WindowClass.expanded => Text("expanded"),
+            }),
+            w: 200.0,
+            h: 100.0,
+        );
         const cmds = frameAt(win, fr, focus, tree, 960.0);
-        expect(cmds.some((c: DrawnItem): bool => c.kind == "text" && c.text == "expanded")).toBe(true);
+        expect(cmds.some((c: DrawnItem): bool => c.kind == "text" && c.text == "expanded")).toBe(
+            true,
+        );
     });
 
     await it("the branch follows the window class", () => {
@@ -36,11 +58,17 @@ await describe("252 responsive", async () => {
             WindowClass.expanded => Text("expanded"),
         });
         const narrow = frameAt(win, fr, focus, tree, 320.0);
-        expect(narrow.some((c: DrawnItem): bool => c.kind == "text" && c.text == "compact")).toBe(true);
+        expect(narrow.some((c: DrawnItem): bool => c.kind == "text" && c.text == "compact")).toBe(
+            true,
+        );
         const medium = frameAt(win, fr, focus, tree, 700.0);
-        expect(medium.some((c: DrawnItem): bool => c.kind == "text" && c.text == "medium")).toBe(true);
+        expect(medium.some((c: DrawnItem): bool => c.kind == "text" && c.text == "medium")).toBe(
+            true,
+        );
         const wide = frameAt(win, fr, focus, tree, 900.0);
-        expect(wide.some((c: DrawnItem): bool => c.kind == "text" && c.text == "expanded")).toBe(true);
+        expect(wide.some((c: DrawnItem): bool => c.kind == "text" && c.text == "expanded")).toBe(
+            true,
+        );
     });
 
     await it("the builder runs once per class, not once per width", () => {
@@ -52,7 +80,7 @@ await describe("252 responsive", async () => {
             builds = builds + 1;
             return Text("x");
         });
-        for (let w = 320; w < 600; w = w + 7) {
+        for(let w = 320; w < 600; w = w + 7) {
             frameAt(win, fr, focus, tree, w as float);
         }
         expect(builds).toBe(1);
@@ -62,10 +90,17 @@ await describe("252 responsive", async () => {
         using win = UiWindow.open("t", 960, 300);
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
-        const tree = Column([Box(h: 10.0, w: 20.0, color: 0xFFFF0000), Box(h: 10.0, w: 20.0, color: 0xFF00FF00)], gap: Adaptive(compact: 4.0, medium: 8.0, expanded: 16.0));
+        const tree = Column(
+            [Box(h: 10.0, w: 20.0, color: 0xFFFF0000), Box(h: 10.0, w: 20.0, color: 0xFF00FF00)],
+            gap: Adaptive(compact: 4.0, medium: 8.0, expanded: 16.0),
+        );
         const small = frameAt(win, fr, focus, tree, 320.0);
-        expect(small.some((c: DrawnItem): bool => c.kind == "rect" && c.x == 0.0 && c.y == 14.0)).toBe(true);
+        expect(
+            small.some((c: DrawnItem): bool => c.kind == "rect" && c.x == 0.0 && c.y == 14.0),
+        ).toBe(true);
         const big = frameAt(win, fr, focus, tree, 900.0);
-        expect(big.some((c: DrawnItem): bool => c.kind == "rect" && c.x == 0.0 && c.y == 26.0)).toBe(true);
+        expect(
+            big.some((c: DrawnItem): bool => c.kind == "rect" && c.x == 0.0 && c.y == 26.0),
+        ).toBe(true);
     });
 });

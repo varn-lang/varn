@@ -22,11 +22,15 @@ function netFailure(run: () => dynamic): NetError? {
 
 await describe("291 listen honours its address", async () => {
     await it("a name that is not an IP address is rejected", async () => {
-        expect(failure(() => TcpListener.listen(0, "not-an-ip")).indexOf("not an IP address") != null).toBeTruthy();
+        expect(
+            failure(() => TcpListener.listen(0, "not-an-ip")).indexOf("not an IP address") != null,
+        ).toBeTruthy();
     });
 
     await it("a port outside 0..65535 is rejected", async () => {
-        expect(failure(() => TcpListener.listen(70000)).indexOf("out of range") != null).toBeTruthy();
+        expect(
+            failure(() => TcpListener.listen(70000)).indexOf("out of range") != null,
+        ).toBeTruthy();
         expect(failure(() => TcpListener.listen(-1)).indexOf("out of range") != null).toBeTruthy();
     });
 

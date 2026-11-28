@@ -28,7 +28,7 @@ await describe("283 FileStream is asynchronous", async () => {
         let ticks = 0;
         let running = true;
         async function ticker(): Task<void> {
-            while (running) {
+            while(running) {
                 await sleep(1);
                 ticks = ticks + 1;
             }

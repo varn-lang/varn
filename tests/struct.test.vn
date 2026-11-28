@@ -52,7 +52,7 @@ struct Tagged {
 
 function sumPoints(points: Point[]): int {
     let total = 0;
-    for (const p in points) {
+    for(const p in points) {
         total += p.manhattan();
     }
     return total;
@@ -60,11 +60,11 @@ function sumPoints(points: Point[]): int {
 
 function hotEquality(n: int): int {
     let equal = 0;
-    for (let i = 0; i < n; i++) {
+    for(let i = 0; i < n; i++) {
         const a = new Point(i, i + 1);
         const b = new Point(i, i + 1);
         const c = new Point(i, i + 2);
-        if (a == b && a != c) {
+        if(a == b && a != c) {
             equal += 1;
         }
     }

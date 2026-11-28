@@ -5,7 +5,7 @@ export class Source {
 
     refresh(): void {
         const refresher = this.refresher;
-        if (refresher != null) {
+        if(refresher != null) {
             refresher();
         }
     }
@@ -29,18 +29,18 @@ let _flushing = false;
 let _queue: Observer[] = [];
 
 export function currentObserver(): Observer? {
-    if (_running.length == 0) {
+    if(_running.length == 0) {
         return null;
     }
     return _running[_running.length - 1];
 }
 
 export function track(source: Source): void {
-    if (_paused > 0) {
+    if(_paused > 0) {
         return;
     }
     const ob = currentObserver();
-    if (ob == null || source.observers.includes(ob)) {
+    if(ob == null || source.observers.includes(ob)) {
         return;
     }
     source.observers.push(ob);
@@ -49,9 +49,9 @@ export function track(source: Source): void {
 }
 
 export function unlink(ob: Observer): void {
-    for (let source in ob.sources) {
-        for (let at = source.observers.length - 1; at >= 0; at = at - 1) {
-            if (sameValue(source.observers[at], ob)) {
+    for(let source in ob.sources) {
+        for(let at = source.observers.length - 1; at >= 0; at = at - 1) {
+            if(sameValue(source.observers[at], ob)) {
                 source.observers.splice(at, 1);
             }
         }
@@ -61,10 +61,10 @@ export function unlink(ob: Observer): void {
 }
 
 export function changed(ob: Observer): bool {
-    for (let at = 0; at < ob.sources.length; at = at + 1) {
+    for(let at = 0; at < ob.sources.length; at = at + 1) {
         const source = ob.sources[at];
         source.refresh();
-        if (source.version != ob.seen[at]) {
+        if(source.version != ob.seen[at]) {
             return true;
         }
     }
@@ -95,7 +95,7 @@ export function untracked<T>(body: () => T): T {
 export function runCleanups(ob: Observer): void {
     const pending = ob.cleanups;
     ob.cleanups = [];
-    for (let at = pending.length - 1; at >= 0; at = at - 1) {
+    for(let at = pending.length - 1; at >= 0; at = at - 1) {
         pending[at]();
     }
 }
@@ -103,8 +103,8 @@ export function runCleanups(ob: Observer): void {
 export function notifyObservers(source: Source): void {
     const writer = currentObserver();
     const snapshot = source.observers.slice(0, source.observers.length);
-    for (let ob in snapshot) {
-        if (ob.alive && !sameValue(ob, writer)) {
+    for(let ob in snapshot) {
+        if(ob.alive && !sameValue(ob, writer)) {
             ob.notify();
         }
     }
@@ -118,7 +118,7 @@ export function invalidate(source: Source): void {
     } finally {
         _depth = _depth - 1;
     }
-    if (_depth == 0) {
+    if(_depth == 0) {
         flush();
     }
 }
@@ -129,39 +129,39 @@ export function batch(body: () => void): void {
         body();
     } finally {
         _depth = _depth - 1;
-        if (_depth == 0) {
+        if(_depth == 0) {
             flush();
         }
     }
 }
 
 export function enqueue(ob: Observer): void {
-    if (!_queue.includes(ob)) {
+    if(!_queue.includes(ob)) {
         _queue.push(ob);
     }
 }
 
 function flush(): void {
-    if (_flushing) {
+    if(_flushing) {
         return;
     }
     _flushing = true;
     let failure: Error? = null;
     try {
         let rounds = 0;
-        while (_queue.length > 0) {
+        while(_queue.length > 0) {
             rounds = rounds + 1;
-            if (rounds > MAX_FLUSH_ROUNDS) {
+            if(rounds > MAX_FLUSH_ROUNDS) {
                 _queue = [];
                 throw new Error("signals: effects keep re-triggering each other");
             }
             const due = _queue;
             _queue = [];
-            for (let ob in due) {
+            for(let ob in due) {
                 try {
                     ob.run();
                 } catch (e) {
-                    if (failure == null) {
+                    if(failure == null) {
                         failure = e as Error;
                     }
                 }
@@ -170,7 +170,7 @@ function flush(): void {
     } finally {
         _flushing = false;
     }
-    if (failure != null) {
+    if(failure != null) {
         throw failure;
     }
 }

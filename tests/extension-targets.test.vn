@@ -1,19 +1,25 @@
 import { describe, it, expect } from "std:test";
 
 extension Geometry on #{ x: int; y: int } {
-    norm(): int { return this.x * this.x + this.y * this.y }
+    norm(): int {
+        return this.x * this.x + this.y * this.y
+    }
 }
 
 extension Sum on int[] {
     total(): int {
         let sum = 0
-        for (const value in this) { sum = sum + value }
+        for(const value in this) {
+            sum = sum + value
+        }
         return sum
     }
 }
 
 extension Swap on #[int, str] {
-    flip(): #[str, int] { return #[this[1], this[0]] }
+    flip(): #[str, int] {
+        return #[this[1], this[0]]
+    }
 }
 
 await describe("343 extension targets", async () => {

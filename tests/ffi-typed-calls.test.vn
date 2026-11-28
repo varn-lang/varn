@@ -13,7 +13,8 @@ function failsWith(run: () => dynamic, fragment: str): bool {
 
 const os = platform();
 const cLib = os == "windows" ? "ucrtbase.dll" : os == "macos" ? "libSystem.B.dylib" : "libc.so.6";
-const mathLib = os == "windows" ? "ucrtbase.dll" : os == "macos" ? "libSystem.B.dylib" : "libm.so.6";
+const mathLib =
+    os == "windows" ? "ucrtbase.dll" : os == "macos" ? "libSystem.B.dylib" : "libm.so.6";
 
 await describe("282 ffi typed calls", async () => {
     await it("floats travel in float registers", () => {
@@ -31,7 +32,10 @@ await describe("282 ffi typed calls", async () => {
     await it("arguments must match the declared parameter types", () => {
         const sqrt = Ffi.open(mathLib).bind("sqrt", FfiType.Float, [FfiType.Float]);
         expect(failsWith(() => sqrt.call(2), "argument 0 must be float")).toBeTruthy();
-        expect(failsWith(() => sqrt.call(), "1 arguments") || failsWith(() => sqrt.call(), "arguments given")).toBeTruthy();
+        expect(
+            failsWith(() => sqrt.call(), "1 arguments") ||
+                failsWith(() => sqrt.call(), "arguments given"),
+        ).toBeTruthy();
     });
 
     await it("allocations are bounds checked and freed once", () => {

@@ -46,7 +46,7 @@ const RESOLUTIONS: #[str, str][] = [
     #["g?y/./x", "http://a/b/c/g?y/./x"],
     #["g?y/../x", "http://a/b/c/g?y/../x"],
     #["g#s/./x", "http://a/b/c/g#s/./x"],
-    #["http:g", "http:g"]
+    #["http:g", "http:g"],
 ];
 
 function parseFails(text: str): bool {
@@ -61,7 +61,7 @@ function parseFails(text: str): bool {
 await describe("324 url parsing and resolution", async () => {
     await it("resolving a reference follows RFC 3986 section 5.4", async () => {
         const base = Url.parse(BASE);
-        for (const #[reference, expected] in RESOLUTIONS) {
+        for(const #[reference, expected] in RESOLUTIONS) {
             expect(Url.resolve(base, reference).toString()).toBe(expected);
         }
     });
@@ -110,9 +110,13 @@ await describe("324 url parsing and resolution", async () => {
         expect(url.path).toBe("/login");
         expect(url.toString()).toBe("http://host/login?next=https://other.example/cb#top");
         const base = Url.parse("http://host/a/b");
-        expect(resolveLocation(base, "/cb?url=https://x.example/y")).toBe("http://host/cb?url=https://x.example/y");
+        expect(resolveLocation(base, "/cb?url=https://x.example/y")).toBe(
+            "http://host/cb?url=https://x.example/y",
+        );
         expect(resolveLocation(base, "c?u=http://z")).toBe("http://host/a/c?u=http://z");
-        expect(resolveLocation(base, "https://elsewhere.example/p")).toBe("https://elsewhere.example/p");
+        expect(resolveLocation(base, "https://elsewhere.example/p")).toBe(
+            "https://elsewhere.example/p",
+        );
     });
 
     await it("the query text survives unless the Query is changed", async () => {

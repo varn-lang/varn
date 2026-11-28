@@ -3,16 +3,37 @@ import { describe, it, expect } from "std:test";
 class Vec2 {
     x: int
     y: int
-    constructor(x: int, y: int) { this.x = x; this.y = y }
-    add(o: Vec2): Vec2 { return new Vec2(this.x + o.x, this.y + o.y) }
-    sub(o: Vec2): Vec2 { return new Vec2(this.x - o.x, this.y - o.y) }
-    mul(k: int): Vec2 { return new Vec2(this.x * k, this.y * k) }
-    div(k: int): Vec2 { return new Vec2(this.x / k, this.y / k) }
-    neg(): Vec2 { return new Vec2(-this.x, -this.y) }
-    rem(k: int): Vec2 { return new Vec2(this.x % k, this.y % k) }
-    pow(k: int): Vec2 { return new Vec2(this.x ** k, this.y ** k) }
-    equals(o: Vec2): bool { return this.x == o.x && this.y == o.y }
-    compare(o: Vec2): int { return (this.x * this.x + this.y * this.y) - (o.x * o.x + o.y * o.y) }
+    constructor(x: int, y: int) {
+        this.x = x;
+        this.y = y
+    }
+    add(o: Vec2): Vec2 {
+        return new Vec2(this.x + o.x, this.y + o.y)
+    }
+    sub(o: Vec2): Vec2 {
+        return new Vec2(this.x - o.x, this.y - o.y)
+    }
+    mul(k: int): Vec2 {
+        return new Vec2(this.x * k, this.y * k)
+    }
+    div(k: int): Vec2 {
+        return new Vec2(this.x / k, this.y / k)
+    }
+    neg(): Vec2 {
+        return new Vec2(-this.x, -this.y)
+    }
+    rem(k: int): Vec2 {
+        return new Vec2(this.x % k, this.y % k)
+    }
+    pow(k: int): Vec2 {
+        return new Vec2(this.x ** k, this.y ** k)
+    }
+    equals(o: Vec2): bool {
+        return this.x == o.x && this.y == o.y
+    }
+    compare(o: Vec2): int {
+        return(this.x * this.x + this.y * this.y) - (o.x * o.x + o.y * o.y)
+    }
 }
 
 const a = new Vec2(1, 2)
@@ -21,10 +42,15 @@ const s = a + b
 
 let maybe: Vec2? = null
 
-class Plain { v: int; constructor(v: int) { this.v = v } }
+class Plain {
+    v: int;
+    constructor(v: int) {
+        this.v = v
+    }
+}
 const p = new Plain(1)
 await describe("133 operator capabilities", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(s.x == 4).toBe(true);
         expect(s.y).toBe(6);
         expect((b - a).x).toBe(2);
@@ -49,6 +75,4 @@ await describe("133 operator capabilities", async () => {
         expect(maybe == null).toBeTruthy();
         expect(sameValue(p, p) && !(sameValue(p, new Plain(1)))).toBeTruthy();
     });
-
-
 });

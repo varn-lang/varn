@@ -4,10 +4,27 @@ import { Json, JsonValue } from "std:encoding";
 import { fromISO } from "std:time";
 import { readText, readTextAsync } from "std:fs";
 import {
-    StdError, IoError, FsError, FsNotFoundError, FsPermissionError, FsExistsError, FsEncodingError,
-    BadDescriptorError, ClosedError, NetError, ResolveError, ConnectError, TlsError, ProtocolError,
-    CapabilityError, TimeoutError, CancelledError, ParseError, DecodeError,
-    SqlError, SqlConstraintError
+    StdError,
+    IoError,
+    FsError,
+    FsNotFoundError,
+    FsPermissionError,
+    FsExistsError,
+    FsEncodingError,
+    BadDescriptorError,
+    ClosedError,
+    NetError,
+    ResolveError,
+    ConnectError,
+    TlsError,
+    ProtocolError,
+    CapabilityError,
+    TimeoutError,
+    CancelledError,
+    ParseError,
+    DecodeError,
+    SqlError,
+    SqlConstraintError,
 } from "std:error";
 import { readsMissingFile } from "./helpers/error-workers.vn";
 
@@ -29,17 +46,31 @@ class Expected {
 }
 
 function parentName(error: StdError): str {
-    if (error is DecodeError) return "ParseError";
-    if (error is SqlConstraintError) return "SqlError";
-    if (error is FsNotFoundError || error is FsPermissionError
-        || error is FsExistsError || error is FsEncodingError) return "FsError";
-    if (error is ResolveError || error is ConnectError
-        || error is TlsError || error is ProtocolError) return "NetError";
-    if (error is FsError || error is BadDescriptorError
-        || error is ClosedError || error is NetError) return "IoError";
-    if (error is IoError || error is CapabilityError || error is TimeoutError
-        || error is CancelledError || error is ParseError
-        || error is SqlError) return "StdError";
+    if(error is DecodeError) return "ParseError";
+    if(error is SqlConstraintError) return "SqlError";
+    if(
+        error is FsNotFoundError ||
+            error is FsPermissionError ||
+            error is FsExistsError ||
+            error is FsEncodingError
+    ) return "FsError";
+    if(
+        error is ResolveError ||
+            error is ConnectError ||
+            error is TlsError ||
+            error is ProtocolError
+    ) return "NetError";
+    if(
+        error is FsError || error is BadDescriptorError || error is ClosedError || error is NetError
+    ) return "IoError";
+    if(
+        error is IoError ||
+            error is CapabilityError ||
+            error is TimeoutError ||
+            error is CancelledError ||
+            error is ParseError ||
+            error is SqlError
+    ) return "StdError";
     return "Error";
 }
 
@@ -66,10 +97,10 @@ await describe("296 error model", async () => {
             new Expected(new ParseError("m"), "parse", "StdError"),
             new Expected(new DecodeError("$.a", "m"), "parse.decode", "ParseError"),
             new Expected(new SqlError("m", "SELECT 1"), "sql", "StdError"),
-            new Expected(new SqlConstraintError("m"), "sql.constraint", "SqlError")
+            new Expected(new SqlConstraintError("m"), "sql.constraint", "SqlError"),
         ];
         expect(all.length).toBe(21);
-        for (const item in all) {
+        for(const item in all) {
             expect(item.error.code).toBe(item.code);
             expect(parentName(item.error)).toBe(item.parent);
             expect(item.error is StdError).toBe(true);
@@ -131,7 +162,7 @@ await describe("296 error model", async () => {
     });
 
     await it("an error crossing an isolate keeps its class and fields", async () => {
-        const handle = await spawnIsolate(readsMissingFile, #["/definitely/not/here",]);
+        const handle = await spawnIsolate(readsMissingFile, #["/definitely/not/here"]);
         let path = "";
         let code = "";
         try {
@@ -153,14 +184,20 @@ await describe("296 error model", async () => {
     });
     await it("a hot function reports its call chain in the stack", async () => {
         const fail = (n: int): int => {
-            if (n == 4999) { throw new Error("late"); }
+            if(n == 4999) {
+                throw new Error("late");
+            }
             return n;
         };
         const outer = (n: int): int => fail(n) + 1;
         let stack = "";
         let total = 0;
-        for (let i = 0; i < 5000; i++) {
-            try { total += outer(i); } catch (e: Error) { stack = e.stack; }
+        for(let i = 0; i < 5000; i++) {
+            try {
+                total += outer(i);
+            } catch (e: Error) {
+                stack = e.stack;
+            }
         }
         expect(stack.includes("at <closure>")).toBe(true);
         expect(stack.includes("at <module>")).toBe(true);
@@ -186,7 +223,7 @@ await describe("296 error model", async () => {
     });
     await it("an error serializes to JSON with its code and fields", async () => {
         const text = Json.stringify(new FsNotFoundError("/x/y"));
-        const parsed = Json.parse<Map<str, JsonValue>>(text);
+        const parsed = Json.parse<Map<str, JsonValue >> (text);
         expect(parsed["code"]).toBe("fs.not_found");
         expect(parsed["name"]).toBe("FsNotFoundError");
         expect(parsed["path"]).toBe("/x/y");

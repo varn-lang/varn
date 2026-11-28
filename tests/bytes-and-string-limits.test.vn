@@ -4,7 +4,9 @@ const MAX: int = 9223372036854775807;
 const MIN: int = -9223372036854775807 - 1;
 
 function outcome(f: () => str): str {
-    try { return f(); } catch (e) {
+    try {
+        return f();
+    } catch (e) {
         return e is RangeError ? "range" : e is TypeError ? "type" : "other:" + e.name;
     }
 }
@@ -20,16 +22,34 @@ await describe("307 Bytes indices, values and sizes are checked", async () => {
         expect(outcome(() => b.getByte(3).toString())).toBe("range");
         expect(outcome(() => b.getByte(-1).toString())).toBe("range");
         expect(outcome(() => b.getByte(MAX).toString())).toBe("range");
-        expect(outcome(() => { b.setByte(3, 1); return "set"; })).toBe("range");
-        expect(outcome(() => { b.setByte(MIN, 1); return "set"; })).toBe("range");
-        expect(outcome(() => { b.setByte(0, 65); return b.toString(); })).toBe("Abc");
+        expect(outcome(() => {
+            b.setByte(3, 1);
+            return "set";
+        })).toBe("range");
+        expect(outcome(() => {
+            b.setByte(MIN, 1);
+            return "set";
+        })).toBe("range");
+        expect(outcome(() => {
+            b.setByte(0, 65);
+            return b.toString();
+        })).toBe("Abc");
     });
 
     await it("a byte value outside 0..=255 is refused, not truncated", async () => {
         const b = bytes("abc");
-        expect(outcome(() => { b.setByte(0, 256); return "set"; })).toBe("range");
-        expect(outcome(() => { b.setByte(0, -1); return "set"; })).toBe("range");
-        expect(outcome(() => { b.fill(300); return "fill"; })).toBe("range");
+        expect(outcome(() => {
+            b.setByte(0, 256);
+            return "set";
+        })).toBe("range");
+        expect(outcome(() => {
+            b.setByte(0, -1);
+            return "set";
+        })).toBe("range");
+        expect(outcome(() => {
+            b.fill(300);
+            return "fill";
+        })).toBe("range");
         expect(outcome(() => Bytes.fromBytes([1, 2, 256]).length.toString())).toBe("range");
         expect(outcome(() => Bytes.fromBytes([1, 2, 3]).length.toString())).toBe("3");
     });

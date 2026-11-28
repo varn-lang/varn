@@ -8,7 +8,7 @@ export class LRUCache<V> {
     private _entries: CacheEntry<V>[];
 
     constructor(capacity: int) {
-        if (capacity <= 0) {
+        if(capacity <= 0) {
             throw new RangeError("LRUCache capacity must be greater than zero");
         }
         this._capacity = capacity;
@@ -16,9 +16,9 @@ export class LRUCache<V> {
     }
 
     get(key: str): V? {
-        for (let index = 0; index < this._entries.length; index = index + 1) {
+        for(let index = 0; index < this._entries.length; index = index + 1) {
             let entry = this._entries[index];
-            if (entry.key == key) {
+            if(entry.key == key) {
                 this._entries.splice(index, 1);
                 this._entries.push(entry);
                 return entry.value;
@@ -28,16 +28,16 @@ export class LRUCache<V> {
     }
 
     set(key: str, value: V): void {
-        for (let index = 0; index < this._entries.length; index = index + 1) {
+        for(let index = 0; index < this._entries.length; index = index + 1) {
             let entry = this._entries[index];
-            if (entry.key == key) {
+            if(entry.key == key) {
                 this._entries.splice(index, 1);
                 this._entries.push(new CacheEntry(key: key, value: value));
                 return;
             }
         }
 
-        if (this._entries.length >= this._capacity) {
+        if(this._entries.length >= this._capacity) {
             this._entries.splice(0, 1);
         }
 
@@ -45,8 +45,8 @@ export class LRUCache<V> {
     }
 
     has(key: str): bool {
-        for (let index = 0; index < this._entries.length; index = index + 1) {
-            if (this._entries[index].key == key) {
+        for(let index = 0; index < this._entries.length; index = index + 1) {
+            if(this._entries[index].key == key) {
                 return true;
             }
         }
@@ -54,8 +54,8 @@ export class LRUCache<V> {
     }
 
     delete(key: str): bool {
-        for (let index = 0; index < this._entries.length; index = index + 1) {
-            if (this._entries[index].key == key) {
+        for(let index = 0; index < this._entries.length; index = index + 1) {
+            if(this._entries[index].key == key) {
                 this._entries.splice(index, 1);
                 return true;
             }

@@ -1,4 +1,17 @@
-let words = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", "mu"];
+let words = [
+    "alpha",
+    "beta",
+    "gamma",
+    "delta",
+    "epsilon",
+    "zeta",
+    "eta",
+    "theta",
+    "iota",
+    "kappa",
+    "lambda",
+    "mu",
+];
 let parts: str[] = [];
 let seed = 7;
 for (let i = 0; i < 300000; i = i + 1) {
@@ -18,7 +31,7 @@ let bestCount = 0;
 let total = 0;
 for (const #[word, n] in counts) {
     total = total + n;
-    if (n > bestCount || (n == bestCount && word < best)) {
+    if(n > bestCount || (n == bestCount && word < best)) {
         best = word;
         bestCount = n;
     }

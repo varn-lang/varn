@@ -6,14 +6,18 @@ function join(head: int[], pair: #[int, int]): int[] {
 
 function sumAll(...xs: int[]): int {
     let total = 0
-    for (const x in xs) { total = total + x }
+    for(const x in xs) {
+        total = total + x
+    }
     return total
 }
 
 await describe("191 spread sources", async () => {
     await it("an array literal spreads arrays and tuples", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + join([i], #[1, 2]).length }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + join([i], #[1, 2]).length
+        }
         expect(total).toBe(1200)
         expect(join([5, 6], #[7, 8]).join(",")).toBe("5,6,7,8,9")
         const loose: dynamic = [3, 4]

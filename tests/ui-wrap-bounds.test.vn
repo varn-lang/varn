@@ -4,7 +4,7 @@ import { measure } from "std:ui/text";
 
 function chips(): Widget[] {
     const out: Widget[] = [];
-    for (let i = 0; i < 5; i = i + 1) {
+    for(let i = 0; i < 5; i = i + 1) {
         out.push(Box(w: 50.0, h: 20.0));
     }
     return out;
@@ -13,8 +13,12 @@ function chips(): Widget[] {
 await describe("255 wrap, bounds and flex", async () => {
     await it("box clamps its size to minW and maxW", () => {
         expect(Box(minW: 120.0).layout(Constraints.loose(400.0, 100.0)).size.w).toBe(120.0);
-        expect(Box(Box(w: 300.0, h: 10.0), maxW: 200.0).layout(Constraints.loose(400.0, 100.0)).size.w).toBe(200.0);
-        expect(Box(Box(w: 300.0, h: 10.0), maxH: 4.0).layout(Constraints.loose(400.0, 100.0)).size.h).toBe(4.0);
+        expect(
+            Box(Box(w: 300.0, h: 10.0), maxW: 200.0).layout(Constraints.loose(400.0, 100.0)).size.w,
+        ).toBe(200.0);
+        expect(
+            Box(Box(w: 300.0, h: 10.0), maxH: 4.0).layout(Constraints.loose(400.0, 100.0)).size.h,
+        ).toBe(4.0);
     });
 
     await it("expanded children share the leftover room by flex weight", () => {
@@ -27,19 +31,26 @@ await describe("255 wrap, bounds and flex", async () => {
 
     await it("a flexible button never shrinks below its label", () => {
         const label = "a long label here";
-        const row = Row([Expanded(Button(label, () => {}), 1.0), Expanded(Box(h: 10.0), 1.0)], gap: 0.0);
+        const row = Row(
+            [Expanded(Button(label, () => {}), 1.0), Expanded(Box(h: 10.0), 1.0)],
+            gap: 0.0,
+        );
         const p = row.layout(Constraints.loose(150.0, 50.0));
         expect(p.children[0].size.w).toBe(measure(label, 17.0) + 40.0);
     });
 
     await it("wrap breaks lines at the available width", () => {
-        const narrow = Wrap(chips(), gap: 10.0, runGap: 10.0).layout(Constraints.loose(130.0, 500.0));
+        const narrow = Wrap(chips(), gap: 10.0, runGap: 10.0).layout(
+            Constraints.loose(130.0, 500.0),
+        );
         expect(narrow.children[1].x).toBe(60.0);
         expect(narrow.children[2].x).toBe(0.0);
         expect(narrow.children[2].y).toBe(30.0);
         expect(narrow.children[4].y).toBe(60.0);
 
-        const medium = Wrap(chips(), gap: 10.0, runGap: 10.0).layout(Constraints.loose(240.0, 500.0));
+        const medium = Wrap(chips(), gap: 10.0, runGap: 10.0).layout(
+            Constraints.loose(240.0, 500.0),
+        );
         expect(medium.children[3].x).toBe(180.0);
         expect(medium.children[4].x).toBe(0.0);
         expect(medium.children[4].y).toBe(30.0);

@@ -2,8 +2,8 @@ import { nowMs$, msToParts$ } from "runtime:time";
 import { pad2, pad3, pad4 } from "std:time/core";
 
 function order(a: int, b: int): int {
-    if (a < b) return -1;
-    if (a > b) return 1;
+    if(a < b) return -1;
+    if(a > b) return 1;
     return 0;
 }
 
@@ -28,13 +28,13 @@ function isLeap(year: int): bool {
 }
 
 function daysInMonth(year: int, month: int): int {
-    if (month == 2) return isLeap(year) ? 29 : 28;
-    if (month == 4 || month == 6 || month == 9 || month == 11) return 30;
+    if(month == 2) return isLeap(year) ? 29 : 28;
+    if(month == 4 || month == 6 || month == 9 || month == 11) return 30;
     return 31;
 }
 
 function requireWithin(what: str, value: int, low: int, high: int): void {
-    if (value < low || value > high) {
+    if(value < low || value > high) {
         throw new RangeError(`PlainDateTime: ${what} ${value} is outside ${low}..${high}`);
     }
 }
@@ -48,7 +48,15 @@ export class PlainDateTime {
     second: int;
     millisecond: int;
 
-    constructor(year: int, month: int, day: int, hour: int = 0, minute: int = 0, second: int = 0, millisecond: int = 0) {
+    constructor(
+        year: int,
+        month: int,
+        day: int,
+        hour: int = 0,
+        minute: int = 0,
+        second: int = 0,
+        millisecond: int = 0,
+    ) {
         requireWithin("year", year, 0, 9999);
         requireWithin("month", month, 1, 12);
         requireWithin("day", day, 1, daysInMonth(year, month));
@@ -74,16 +82,33 @@ export class PlainDateTime {
         let sc = this.second;
         let ms = this.millisecond;
 
-        return pad4(yr) + "-" + pad2(mo) + "-" + pad2(dy) + "T" + pad2(hr) + ":" + pad2(mn) + ":" + pad2(sc) + "." + pad3(ms);
+        return pad4(yr) +
+            "-" +
+            pad2(mo) +
+            "-" +
+            pad2(dy) +
+            "T" +
+            pad2(hr) +
+            ":" +
+            pad2(mn) +
+            ":" +
+            pad2(sc) +
+            "." +
+            pad3(ms);
     }
 
     static compare(a: PlainDateTime, b: PlainDateTime): int {
         const fields = [
-            order(a.year, b.year), order(a.month, b.month), order(a.day, b.day), order(a.hour, b.hour),
-            order(a.minute, b.minute), order(a.second, b.second), order(a.millisecond, b.millisecond)
+            order(a.year, b.year),
+            order(a.month, b.month),
+            order(a.day, b.day),
+            order(a.hour, b.hour),
+            order(a.minute, b.minute),
+            order(a.second, b.second),
+            order(a.millisecond, b.millisecond),
         ];
-        for (const f in fields) {
-            if (f != 0) return f;
+        for(const f in fields) {
+            if(f != 0) return f;
         }
         return 0;
     }
@@ -102,6 +127,6 @@ export function nowPlainDateTimeISO(): PlainDateTime {
         parts.hour,
         parts.minute,
         parts.second,
-        parts.millisecond
+        parts.millisecond,
     );
 }

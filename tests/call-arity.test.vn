@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Cross-function call arity, from compiled and from interpreted code.
 //
 // The regression this pins: the CLIF `Call` lowering handed its arguments to
@@ -16,10 +15,15 @@ import { describe, it, expect } from "std:test";
 // has no arity ceiling. The asserts run twice: once at module top level and
 // once from inside `driver`, so the same calls are exercised from both a
 // compiled and an interpreted caller regardless of which tier each lands in.
-
-function arity1(a: int): int { return a }
-function arity2(a: int, b: int): int { return a * 10 + b }
-function arity3(a: int, b: int, c: int): int { return a * 100 + b * 10 + c }
+function arity1(a: int): int {
+    return a
+}
+function arity2(a: int, b: int): int {
+    return a * 10 + b
+}
+function arity3(a: int, b: int, c: int): int {
+    return a * 100 + b * 10 + c
+}
 function arity4(a: int, b: int, c: int, d: int): int {
     return a * 1000 + b * 100 + c * 10 + d
 }
@@ -30,15 +34,14 @@ function arity6(a: int, b: int, c: int, d: int, e: int, f: int): int {
     return a * 100000 + b * 10000 + c * 1000 + d * 100 + e * 10 + f
 }
 function arity8(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int): int {
-    return a * 10000000 + b * 1000000 + c * 100000 + d * 10000
-         + e * 1000 + f * 100 + g * 10 + h
+    return a * 10000000 + b * 1000000 + c * 100000 + d * 10000 + e * 1000 + f * 100 + g * 10 + h
 }
 
 // Mixed parameter kinds: only `int` params travel unboxed to the direct
 // entry, so a signature that mixes them exercises both staging paths.
 function mixed(a: int, b: str, c: float, d: bool, e: int): str {
     let flag = "f"
-    if (d) {
+    if(d) {
         flag = "t"
     }
     return a.toString() + b + c.toString() + flag + e.toString()
@@ -59,7 +62,7 @@ function checkAll(where: str) {
 // the later iterations execute compiled.
 function driver(n: int): int {
     let acc = 0
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         acc = acc + arity3(1, 2, 3)
         acc = acc + arity4(1, 2, 3, 4)
         acc = acc + arity5(1, 2, 3, 4, 5)
@@ -70,14 +73,12 @@ function driver(n: int): int {
 }
 await describe("57 call arity", async () => {
     await it("tests", async () => {
-        
         checkAll("top level")
-        
+
         // 123 + 1234 + 12345 + 123456 + 12345678 = 12482836 per iteration.
         expect(driver(1)).toBe(12482836)
         expect(driver(64)).toBe(12482836 * 64)
-        
+
         checkAll("after tiering")
-        
     });
 });

@@ -2,21 +2,31 @@ import { describe, it, expect } from "std:test";
 
 function kind(n: int): str {
     let out = ""
-    match (n) {
-        1 => { out = out + "one" },
-        2 => { out = out + "two" },
-        _ => { out = out + "many" }
+    match(n) {
+        1 => {
+            out = out + "one"
+        },
+        2 => {
+            out = out + "two"
+        },
+        _ => {
+            out = out + "many"
+        }
     }
     return out
 }
 
 function walk(limit: int): str {
     let seen = ""
-    for (let i = 0; i < limit; i = i + 1) {
-        match (i) {
-            1 => { continue },
+    for(let i = 0; i < limit; i = i + 1) {
+        match(i) {
+            1 => {
+                continue
+            },
             2 => {},
-            _ => { seen = seen + i.toString() }
+            _ => {
+                seen = seen + i.toString()
+            }
         }
         seen = seen + "."
     }
@@ -25,24 +35,32 @@ function walk(limit: int): str {
 
 function inner(n: int): int {
     let total = 0
-    match (n) {
+    match(n) {
         1 => {
-            for (let i = 0; i < 9; i = i + 1) {
-                if (i == 3) { break }
+            for(let i = 0; i < 9; i = i + 1) {
+                if(i == 3) {
+                    break
+                }
                 total = total + 1
             }
         },
-        _ => { total = 9 }
+        _ => {
+            total = 9
+        }
     }
     return total
 }
 
 function stop(limit: int): int {
     let reached = 0
-    for (let i = 0; i < limit; i = i + 1) {
-        match (i) {
-            3 => { break },
-            _ => { reached = reached + 1 }
+    for(let i = 0; i < limit; i = i + 1) {
+        match(i) {
+            3 => {
+                break
+            },
+            _ => {
+                reached = reached + 1
+            }
         }
     }
     return reached
@@ -58,7 +76,9 @@ await describe("197 match as a statement", async () => {
     await it("continue in an arm continues the loop around the match", () => {
         expect(walk(4)).toBe("0..3.")
         let last = ""
-        for (let k = 0; k < 300; k = k + 1) { last = walk(4) }
+        for(let k = 0; k < 300; k = k + 1) {
+            last = walk(4)
+        }
         expect(last).toBe("0..3.")
     })
 

@@ -3,17 +3,23 @@ import { delay } from "std:task";
 
 class Frame {
     consumed: int;
-    constructor(consumed: int) { this.consumed = consumed }
+    constructor(consumed: int) {
+        this.consumed = consumed
+    }
 }
 
 function parse(buf: Bytes): Frame? {
-    if (buf.length < 4) { return null }
+    if(buf.length < 4) {
+        return null
+    }
     return new Frame(buf.length)
 }
 
 async function chunk(round: int): Task<Bytes?> {
     await delay(0);
-    if (round > 6) { return null }
+    if(round > 6) {
+        return null
+    }
     return Bytes.alloc(2)
 }
 
@@ -21,18 +27,20 @@ class Reader {
     buf: Bytes = Bytes.alloc(0);
     notified: int = 0;
 
-    notify(): void { this.notified = this.notified + 1 }
+    notify(): void {
+        this.notified = this.notified + 1
+    }
 
     async read(): Task<int> {
         let round = 0;
-        while (true) {
+        while(true) {
             let frame: Frame? = null;
             try {
                 frame = parse(this.buf);
             } catch (e) {
                 throw e;
             }
-            if (frame == null) {
+            if(frame == null) {
                 let more: Bytes?;
                 try {
                     more = await chunk(round);
@@ -41,7 +49,9 @@ class Reader {
                     throw e;
                 }
                 round = round + 1;
-                if (more == null) { return -1 }
+                if(more == null) {
+                    return -1
+                }
                 this.buf = Bytes.alloc(this.buf.length + (more as Bytes).length);
                 continue;
             }
@@ -54,9 +64,11 @@ class Reader {
 
 function guarded(n: int): int {
     let sum = 0;
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         try {
-            if (i % 7 == 0) { throw new Error("seven") }
+            if(i % 7 == 0) {
+                throw new Error("seven")
+            }
             sum = sum + i;
         } catch (e) {
             sum = sum + 1000;
@@ -67,14 +79,16 @@ function guarded(n: int): int {
 
 function afterTry(n: int): int {
     let caught = 0;
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         try {
             caught = caught + 0;
         } catch (e) {
             caught = caught + 100000;
         }
         try {
-            if (i % 5 >= 3) { throw new Error("late") }
+            if(i % 5 >= 3) {
+                throw new Error("late")
+            }
         } catch (e) {
             caught = caught + 1;
         }
@@ -85,20 +99,26 @@ function afterTry(n: int): int {
 await describe("jit try regions", async () => {
     await it("a try in a hot loop keeps its catch and its fall-through", async () => {
         let total = 0;
-        for (let k = 0; k < 400; k = k + 1) { total = total + guarded(60) }
+        for(let k = 0; k < 400; k = k + 1) {
+            total = total + guarded(60)
+        }
         expect(total).toBe(4207200);
     });
 
     await it("an error raised after a finished try is not routed to that try", async () => {
         let total = 0;
-        for (let k = 0; k < 300; k = k + 1) { total = total + afterTry(10) }
+        for(let k = 0; k < 300; k = k + 1) {
+            total = total + afterTry(10)
+        }
         expect(total).toBe(300 * 4);
     });
 
     await it("two try regions with an await in the second keep their variables apart", async () => {
         const reader = new Reader();
         let sum = 0;
-        for (let i = 0; i < 12; i = i + 1) { sum = sum + await reader.read() }
+        for(let i = 0; i < 12; i = i + 1) {
+            sum = sum + await reader.read()
+        }
         expect(sum).toBe(48);
         expect(reader.notified).toBe(0);
     });

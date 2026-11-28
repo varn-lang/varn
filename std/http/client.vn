@@ -1,49 +1,72 @@
-import { tcpConnect$, tcpConnectTls$, tcpWrite$, tcpClose$, httpMethodName$, isHttpToken$, isHttpFieldValue$, HttpMethod } from "runtime:net";
+import {
+    tcpConnect$,
+    tcpConnectTls$,
+    tcpWrite$,
+    tcpClose$,
+    httpMethodName$,
+    isHttpToken$,
+    isHttpFieldValue$,
+    HttpMethod,
+} from "runtime:net";
 import { Url } from "std:net";
 import { ProtocolError, TimeoutError } from "std:error";
 import { Task } from "std:task";
 import { Response, RawResponse, RequestInit, readHttpResponse } from "std:http/core";
-import { isRedirect, sameOrigin, resolveLocation, redirectedMethod, redirectedHeaders } from "std:http/redirect";
+import {
+    isRedirect,
+    sameOrigin,
+    resolveLocation,
+    redirectedMethod,
+    redirectedHeaders,
+} from "std:http/redirect";
 
-async function doFetch(connId: int, parsedUrl: Url, method: HttpMethod, headers: Map<str, str>, body: str): Task<Response> {
+async function doFetch(
+    connId: int,
+    parsedUrl: Url,
+    method: HttpMethod,
+    headers: Map<str,
+    str>,
+    body: str,
+): Task<Response> {
     let target = parsedUrl.path;
     const queryStr = parsedUrl.query.toString();
-    if (queryStr.length > 0) {
+    if(queryStr.length > 0) {
         target = target + "?" + queryStr;
     }
-    if (!isHttpFieldValue$(target) || target.indexOf(" ") != null) {
+    if(!isHttpFieldValue$(target) || target.indexOf(" ") != null) {
         throw new TypeError(`invalid request target '${target}'`);
     }
     let requestStr = httpMethodName$(method) + " " + target + " HTTP/1.1\r\n";
 
     let hasHost = false;
     let hasConnection = false;
-    for (const #[key, value] in headers) {
-        if (!isHttpToken$(key) || !isHttpFieldValue$(value)) {
+    for(const #[key, value] in headers) {
+        if(!isHttpToken$(key) || !isHttpFieldValue$(value)) {
             throw new TypeError(`invalid HTTP header '${key}'`);
         }
         const lower = key.toLowerCase();
-        if (lower == "host") {
+        if(lower == "host") {
             hasHost = true;
         }
-        if (lower == "connection") {
+        if(lower == "connection") {
             hasConnection = true;
         }
     }
-    if (!hasHost) {
+    if(!hasHost) {
         requestStr = requestStr + "Host: " + parsedUrl.authority() + "\r\n";
     }
-    if (!hasConnection) {
+    if(!hasConnection) {
         requestStr = requestStr + "Connection: close\r\n";
     }
 
-    if (body.length > 0) {
-        requestStr = requestStr + "Content-Length: " + Bytes.fromString(body).length.toString() + "\r\n";
+    if(body.length > 0) {
+        requestStr =
+            requestStr + "Content-Length: " + Bytes.fromString(body).length.toString() + "\r\n";
     }
 
-    for (const #[key, value] in headers) {
+    for(const #[key, value] in headers) {
         const lower = key.toLowerCase();
-        if (lower == "content-length" || lower == "transfer-encoding") {
+        if(lower == "content-length" || lower == "transfer-encoding") {
             continue;
         }
         requestStr = `${requestStr}${key}: ${value}\r\n`;
@@ -51,7 +74,7 @@ async function doFetch(connId: int, parsedUrl: Url, method: HttpMethod, headers:
 
     requestStr = requestStr + "\r\n";
 
-    if (body.length > 0) {
+    if(body.length > 0) {
         requestStr = requestStr + body;
     }
 
@@ -71,13 +94,13 @@ async function doFetch(connId: int, parsedUrl: Url, method: HttpMethod, headers:
     }
     tcpClose$(connId);
 
-    if (rawResp == null) {
+    if(rawResp == null) {
         throw new ProtocolError(`empty response from ${parsedUrl.host}:${parsedUrl.port}`);
     }
 
     const raw = rawResp as RawResponse;
     const response = new Response(raw.payload.toString(), raw.status, raw.headers);
-    if (raw.statusText.length > 0) {
+    if(raw.statusText.length > 0) {
         response.statusText = raw.statusText;
     }
     response.cookies = raw.cookies;
@@ -90,22 +113,32 @@ class FetchState {
 }
 
 @capability("net.client")
-async function fetchOnce(url: str, method: HttpMethod, headers: Map<str, str>, body: str, ca: str?, identity: str?, state: FetchState): Task<Response> {
+async function fetchOnce(
+    url: str,
+    method: HttpMethod,
+    headers: Map<str,
+    str>,
+    body: str,
+    ca: str?,
+    identity: str?,
+    state: FetchState,
+): Task<Response> {
     const parsedUrl = Url.parse(url);
     const host = parsedUrl.host;
 
     const secure = parsedUrl.protocol == "https";
-    if (!secure && parsedUrl.protocol != "http") {
+    if(!secure && parsedUrl.protocol != "http") {
         throw new TypeError(`unsupported protocol '${parsedUrl.protocol}' in ${url}`);
     }
 
     let port = secure ? 443 : 80;
     const parsedPort = parsedUrl.port;
-    if (parsedPort != null) {
+    if(parsedPort != null) {
         port = parsedPort;
     }
 
-    const connId = secure ? await tcpConnectTls$(host, port, ca, identity) : await tcpConnect$(host, port);
+    const connId =
+        secure ? await tcpConnectTls$(host, port, ca, identity) : await tcpConnect$(host, port);
     state.connId = connId;
 
     return await doFetch(connId, parsedUrl, method, headers, body);
@@ -120,14 +153,22 @@ async function fetchFollowing(url: str, init: RequestInit, state: FetchState): T
     let body = init.body ?? "";
     let headers = init.headers ?? new Map<str, str>();
     let hops = 0;
-    while (true) {
-        const response = await fetchOnce(current, method, headers, body, init.ca, init.identity, state);
+    while(true) {
+        const response = await fetchOnce(
+            current,
+            method,
+            headers,
+            body,
+            init.ca,
+            init.identity,
+            state,
+        );
         response.url = current;
         const location = response.headers.get("location");
-        if (!follow || location == null || !isRedirect(response.status)) {
+        if(!follow || location == null || !isRedirect(response.status)) {
             return response;
         }
-        if (hops >= limit) {
+        if(hops >= limit) {
             throw new ProtocolError(`more than ${limit} redirects starting at ${url}`);
         }
         hops = hops + 1;
@@ -136,7 +177,7 @@ async function fetchFollowing(url: str, init: RequestInit, state: FetchState): T
         const nextMethod = redirectedMethod(response.status, method);
         const dropBody = nextMethod != method;
         headers = redirectedHeaders(headers, dropBody, !sameOrigin(from, Url.parse(next)));
-        if (dropBody) {
+        if(dropBody) {
             body = "";
         }
         method = nextMethod;
@@ -148,13 +189,13 @@ async function fetchFollowing(url: str, init: RequestInit, state: FetchState): T
 export async function fetch(url: str, init: RequestInit = new RequestInit()): Task<Response> {
     const state = new FetchState();
     const limit = init.timeoutMs;
-    if (limit == null) {
+    if(limit == null) {
         return await fetchFollowing(url, init, state);
     }
     try {
         return await Task.timeout(fetchFollowing(url, init, state), limit);
     } catch (e: TimeoutError) {
-        if (state.connId >= 0) {
+        if(state.connId >= 0) {
             tcpClose$(state.connId);
         }
         throw e;
@@ -167,18 +208,39 @@ export async function get(url: str, headers: Map<str, str> = new Map<str, str>()
 }
 
 @capability("net.client")
-export async function post(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
+export async function post(
+    url: str,
+    body: str = "",
+    headers: Map<str,
+    str> = new Map<str,
+    str>(),
+): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.POST, headers: headers, body: body));
 }
 
 @capability("net.client")
-export async function put(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
+export async function put(
+    url: str,
+    body: str = "",
+    headers: Map<str,
+    str> = new Map<str,
+    str>(),
+): Task<Response> {
     return await fetch(url, new RequestInit(method: HttpMethod.PUT, headers: headers, body: body));
 }
 
 @capability("net.client")
-export async function patch(url: str, body: str = "", headers: Map<str, str> = new Map<str, str>()): Task<Response> {
-    return await fetch(url, new RequestInit(method: HttpMethod.PATCH, headers: headers, body: body));
+export async function patch(
+    url: str,
+    body: str = "",
+    headers: Map<str,
+    str> = new Map<str,
+    str>(),
+): Task<Response> {
+    return await fetch(
+        url,
+        new RequestInit(method: HttpMethod.PATCH, headers: headers, body: body),
+    );
 }
 
 @capability("net.client")

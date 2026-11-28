@@ -38,9 +38,9 @@ export async function describe(suiteName: str, body: () => void): Task<void> {
     afterEachFns = [];
 
     try {
-        for (let fn in beforeAllFns) await fn();
+        for(let fn in beforeAllFns) await fn();
         await body();
-        for (let fn in afterAllFns) await fn();
+        for(let fn in afterAllFns) await fn();
     } finally {
         beforeAllFns = prevBeforeAll;
         afterAllFns = prevAfterAll;
@@ -55,9 +55,9 @@ export async function suite(suiteName: str, body: () => void): Task<void> {
 
 export async function test(testName: str, body: () => void): Task<void> {
     try {
-        for (let fn in beforeEachFns) await fn();
+        for(let fn in beforeEachFns) await fn();
         await body();
-        for (let fn in afterEachFns) await fn();
+        for(let fn in afterEachFns) await fn();
     } catch (err) {
         logLine(`  ✖ ${testName}: ${err}`);
         throw err;

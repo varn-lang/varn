@@ -23,7 +23,7 @@ export function until<T>(source: Readable<T>, predicate: (v: T) => bool): Task<T
     let settled = false;
     const watcher = detached(() => effect(() => {
         const current = source.value;
-        if (!settled && untracked(() => predicate(current))) {
+        if(!settled && untracked(() => predicate(current))) {
             settled = true;
             arrived.tx.send(current);
         }
@@ -35,7 +35,7 @@ export function next<T>(source: Readable<T>): Task<T> {
     const arrived = channel<T>(1);
     let settled = false;
     const watcher = detached(() => source.subscribe((v: T) => {
-        if (!settled) {
+        if(!settled) {
             settled = true;
             arrived.tx.send(v);
         }
@@ -116,7 +116,7 @@ export class Resource<S, T> {
     private async settle(call: Task<T>, mine: int): Task<void> {
         try {
             const result = await call;
-            if (mine == this._generation) {
+            if(mine == this._generation) {
                 batch(() => {
                     this._value.set(result);
                     this._error.set(null);
@@ -124,7 +124,7 @@ export class Resource<S, T> {
                 });
             }
         } catch (e) {
-            if (mine == this._generation) {
+            if(mine == this._generation) {
                 batch(() => {
                     this._error.set(e as Error);
                     this._loading.set(false);

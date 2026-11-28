@@ -2,20 +2,14 @@ export class Root {
     id: int = 1;
 }
 
-export class Mid extends Root {
-}
+export class Mid extends Root {}
 
-export class Leaf extends Mid {
-}
+export class Leaf extends Mid {}
 
-export class Deepest extends Leaf {
-}
+export class Deepest extends Leaf {}
 
-export class RootError extends Error {
-}
+export class RootError extends Error {}
 
-export class MidError extends RootError {
-}
+export class MidError extends RootError {}
 
-export class LeafError extends MidError {
-}
+export class LeafError extends MidError {}

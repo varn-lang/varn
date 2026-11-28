@@ -1,17 +1,23 @@
 import { describe, it, expect } from "std:test";
 import { Json } from "std:encoding";
 
-struct Link { next: Link? }
+struct Link {
+    next: Link?
+}
 
 function chain(depth: int): Link {
     let head = new Link(null);
-    for (let i = 0; i < depth; i = i + 1) { head = new Link(head) }
+    for(let i = 0; i < depth; i = i + 1) {
+        head = new Link(head)
+    }
     return head
 }
 
 function nest(depth: int): dynamic {
     let head: dynamic = #{ next: null };
-    for (let i = 0; i < depth; i = i + 1) { head = #{ next: head } }
+    for(let i = 0; i < depth; i = i + 1) {
+        head = #{ next: head }
+    }
     return head
 }
 

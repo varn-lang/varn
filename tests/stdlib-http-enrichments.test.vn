@@ -1,18 +1,49 @@
-import { HttpServer, Request, RequestInit, Response, json, HttpStatus, fetch, HttpMethod } from "std:http";
+import {
+    HttpServer,
+    Request,
+    RequestInit,
+    Response,
+    json,
+    HttpStatus,
+    fetch,
+    HttpMethod,
+} from "std:http";
 import { JsonValue } from "std:encoding";
 import { describe, it, expect } from "std:test";
 import { delay } from "std:task";
 
-
 // 1. Request Cookies parsing
-let reqWithCookies = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.GET, headers: new Map<str, str>([#["cookie", "session_id=xyz789; theme=dark; logged_in=true"]])));
+let reqWithCookies = new Request(
+    "http://localhost:3000/api",
+    new RequestInit(
+        method: HttpMethod.GET,
+        headers: new Map<str,
+        str>([#["cookie", "session_id=xyz789; theme=dark; logged_in=true"]]),
+    ),
+);
 
 // 2. Request.json and Request.formData
-let reqJson = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([#["content-type", "application/json"]]), body: "{\"name\":\"Varn\",\"version\":1}"));
+let reqJson = new Request(
+    "http://localhost:3000/api",
+    new RequestInit(
+        method: HttpMethod.POST,
+        headers: new Map<str,
+        str>([#["content-type", "application/json"]]),
+        body: "{\"name\":\"Varn\",\"version\":1}",
+    ),
+);
 
 let parsedJson = reqJson.json() as Map<str, JsonValue>;
 
-let reqForm = new Request("http://localhost:3000/api", new RequestInit(method: HttpMethod.POST, headers: new Map<str, str>([#["content-type", "application/x-www-form-urlencoded"]]), body: "user=alice&action=login"));
+let reqForm = new Request(
+    "http://localhost:3000/api",
+    new RequestInit(
+        method: HttpMethod.POST,
+        headers: new Map<str,
+        str>([#["content-type", "application/x-www-form-urlencoded"]]),
+        body: "user=alice&action=login",
+    ),
+);
 
 let parsedForm = reqForm.formData();
 
@@ -20,7 +51,7 @@ let parsedForm = reqForm.formData();
 let server = new HttpServer();
 let middlewareLog: str[] = [];
 await describe("100 stdlib http enrichments", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(reqWithCookies.cookies["session_id"]).toBe("xyz789");
         expect(reqWithCookies.cookies["theme"]).toBe("dark");
         expect(reqWithCookies.cookies["logged_in"]).toBe("true");
@@ -32,20 +63,20 @@ await describe("100 stdlib http enrichments", async () => {
         expect(parsedForm["user"]).toBe("alice");
         expect(parsedForm["action"]).toBe("login");
         server.use(async (req: Request, next: () => Task<Response?>) => {
-        middlewareLog.push("mw1_before");
-        let res = await next();
-        middlewareLog.push("mw1_after");
-        return res;
+            middlewareLog.push("mw1_before");
+            let res = await next();
+            middlewareLog.push("mw1_after");
+            return res;
         });
         server.use(async (req: Request, next: () => Task<Response?>) => {
-        middlewareLog.push("mw2_before");
-        let res = await next();
-        middlewareLog.push("mw2_after");
-        return res;
+            middlewareLog.push("mw2_before");
+            let res = await next();
+            middlewareLog.push("mw2_after");
+            return res;
         });
         server.get("/test", async (req: Request) => {
-        middlewareLog.push("handler");
-        return json(#{ ok: true });
+            middlewareLog.push("handler");
+            return json(#{ ok: true });
         });
     });
 
@@ -62,6 +93,4 @@ await describe("100 stdlib http enrichments", async () => {
         expect(middlewareLog[3]).toBe("mw2_after");
         expect(middlewareLog[4]).toBe("mw1_after");
     });
-
-
 });

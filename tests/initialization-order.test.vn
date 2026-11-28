@@ -1,12 +1,16 @@
 import { describe, it, expect } from "std:test";
 
-function readLater(): int { return later }
+function readLater(): int {
+    return later
+}
 const later: int = 5
 
 const deferred = () => laterStill
 const laterStill: int = 6
 
-function recurse(n: int): int { return n == 0 ? 0 : recurse(n - 1) + 1 }
+function recurse(n: int): int {
+    return n == 0 ? 0 : recurse(n - 1) + 1
+}
 
 await describe("262 initialization order", async () => {
     await it("a function body may read a binding declared after it once it ran", () => {

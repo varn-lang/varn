@@ -5,7 +5,7 @@ import {
     wsParseFrame$,
     wsDecodeText$,
     WsOpcode,
-    WsFrame
+    WsFrame,
 } from "runtime:ws";
 
 import {
@@ -13,7 +13,7 @@ import {
     tcpConnectTls$,
     tcpRead$,
     tcpWrite$,
-    tcpClose$
+    tcpClose$,
 } from "runtime:net";
 
 import { Url } from "std:net";
@@ -28,10 +28,10 @@ export enum WebSocketReadyState {
 }
 
 export function bytesConcat(a: Bytes, b: Bytes): Bytes {
-    if (a.length == 0) {
+    if(a.length == 0) {
         return b;
     }
-    if (b.length == 0) {
+    if(b.length == 0) {
         return a;
     }
     let out = Bytes.alloc(a.length + b.length);
@@ -50,16 +50,16 @@ export struct HttpHead {
 
 export async function readHttpHead(connId: int): Task<HttpHead> {
     let buf = Bytes.alloc(0);
-    while (true) {
+    while(true) {
         let end = findHeadEnd(buf);
-        if (end >= 0) {
+        if(end >= 0) {
             return new HttpHead(head: buf.slice(0, end).toString(), rest: buf.slice(end));
         }
-        if (buf.length > MAX_HANDSHAKE) {
+        if(buf.length > MAX_HANDSHAKE) {
             throw new ProtocolError("the WebSocket handshake is too large");
         }
         let chunk = await tcpRead$(connId, 4096);
-        if (chunk == null) {
+        if(chunk == null) {
             throw new ProtocolError("connection closed during handshake");
         }
         buf = bytesConcat(buf, chunk as Bytes);
@@ -68,8 +68,13 @@ export async function readHttpHead(connId: int): Task<HttpHead> {
 
 function findHeadEnd(buf: Bytes): int {
     let i = 0;
-    while (i + 3 < buf.length) {
-        if (buf.getByte(i) == 13 && buf.getByte(i + 1) == 10 && buf.getByte(i + 2) == 13 && buf.getByte(i + 3) == 10) {
+    while(i + 3 < buf.length) {
+        if(
+            buf.getByte(i) == 13 &&
+                buf.getByte(i + 1) == 10 &&
+                buf.getByte(i + 2) == 13 &&
+                buf.getByte(i + 3) == 10
+        ) {
             return i + 4;
         }
         i = i + 1;
@@ -103,22 +108,30 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     static async connect(url: str): Task<WebSocket> {
         let parsed = Url.parse(url);
         const secure = parsed.protocol == "wss";
-        if (!secure && parsed.protocol != "ws") {
+        if(!secure && parsed.protocol != "ws") {
             throw new TypeError("only ws:// and wss:// URLs are supported");
         }
         let port = parsed.port ?? (secure ? 443 : 80);
-        const conn = secure ? await tcpConnectTls$(parsed.host, port) : await tcpConnect$(parsed.host, port);
+        const conn =
+            secure ? await tcpConnectTls$(parsed.host, port) : await tcpConnect$(parsed.host, port);
         try {
             let key = wsKey$();
             let target = parsed.path;
             let qs = parsed.query.toString();
-            if (qs.length > 0) {
+            if(qs.length > 0) {
                 target = target + "?" + qs;
             }
-            if (target.length == 0) {
+            if(target.length == 0) {
                 target = "/";
             }
-            let req = "GET " + target + " HTTP/1.1\r\nHost: " + parsed.authority() + "\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: " + key + "\r\nSec-WebSocket-Version: 13\r\n\r\n";
+            let req =
+                "GET " +
+                    target +
+                    " HTTP/1.1\r\nHost: " +
+                    parsed.authority() +
+                    "\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: " +
+                    key +
+                    "\r\nSec-WebSocket-Version: 13\r\n\r\n";
             await tcpWrite$(conn, req);
             let head = await readHttpHead(conn);
             wsValidateResponse$(head.head, key);
@@ -132,7 +145,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     }
 
     maxMessageBytes(limit: int): WebSocket {
-        if (limit < 1) {
+        if(limit < 1) {
             throw new RangeError("the message limit must be positive");
         }
         this._maxMessage = limit;
@@ -153,7 +166,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
 
     onOpen(handler: () => void): WebSocket {
         this._onOpenListeners.push(handler);
-        if (this.isOpen) {
+        if(this.isOpen) {
             handler();
         }
         return this;
@@ -184,31 +197,31 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     }
 
     private _notifyError(msg: str): void {
-        for (let i = 0; i < this._onErrorListeners.length; i = i + 1) {
+        for(let i = 0; i < this._onErrorListeners.length; i = i + 1) {
             this._onErrorListeners[i](msg);
         }
     }
 
     private _dispatchText(text: str): void {
-        for (let i = 0; i < this._onMessageListeners.length; i = i + 1) {
+        for(let i = 0; i < this._onMessageListeners.length; i = i + 1) {
             this._onMessageListeners[i](text);
         }
     }
 
     private _dispatchBytes(data: Bytes): void {
-        for (let i = 0; i < this._onBytesListeners.length; i = i + 1) {
+        for(let i = 0; i < this._onBytesListeners.length; i = i + 1) {
             this._onBytesListeners[i](data);
         }
     }
 
     async send(message: str | Bytes): Task<int> {
-        if (!this.isOpen) {
+        if(!this.isOpen) {
             throw new ClosedError("WebSocket is closed");
         }
         try {
             let data: Bytes;
             let opcode: WsOpcode;
-            if (message is str) {
+            if(message is str) {
                 data = Bytes.fromString(message);
                 opcode = WsOpcode.Text;
             } else {
@@ -240,17 +253,20 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     }
 
     private async _pumpControl(opcode: WsOpcode, payload: Bytes): Task<void> {
-        if (opcode == WsOpcode.Ping) {
+        if(opcode == WsOpcode.Ping) {
             await tcpWrite$(this._conn, wsFrameBytes$(payload, WsOpcode.Pong, !this._server));
             return;
         }
-        if (payload.length == 1) {
+        if(payload.length == 1) {
             await this._reject(1002, "a close frame carries one byte");
         }
-        if (payload.length >= 2) {
+        if(payload.length >= 2) {
             const code = payload.getByte(0) * 256 + payload.getByte(1);
-            const valid = (code >= 1000 && code <= 1003) || (code >= 1007 && code <= 1011) || (code >= 3000 && code <= 4999);
-            if (!valid) {
+            const valid =
+                (code >= 1000 && code <= 1003) ||
+                    (code >= 1007 && code <= 1011) ||
+                    (code >= 3000 && code <= 4999);
+            if(!valid) {
                 await this._reject(1002, `a close frame carries the invalid code ${code}`);
             }
             try {
@@ -260,21 +276,31 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             }
         }
         try {
-            await tcpWrite$(this._conn, wsFrameBytes$(payload.slice(0, payload.length >= 2 ? 2 : 0), WsOpcode.Close, !this._server));
+            await tcpWrite$(
+                this._conn,
+                wsFrameBytes$(
+                    payload.slice(0, payload.length >= 2 ? 2 : 0),
+                    WsOpcode.Close,
+                    !this._server,
+                ),
+            );
         } catch (e) {}
         this.close();
     }
 
     async read(size?: int): Task<Bytes?> {
-        while (true) {
+        while(true) {
             let frame: WsFrame? = null;
             try {
                 frame = wsParseFrame$(this._recvBuf, this._server, this._maxMessage);
             } catch (e) {
-                await this._reject(e.message.indexOf("exceeds the limit") != null ? 1009 : 1002, e.message);
+                await this._reject(
+                    e.message.indexOf("exceeds the limit") != null ? 1009 : 1002,
+                    e.message,
+                );
             }
-            if (frame == null) {
-                if (!this.isOpen) {
+            if(frame == null) {
+                if(!this.isOpen) {
                     return null;
                 }
                 let chunk: Bytes?;
@@ -284,7 +310,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     this._notifyError(e.message);
                     throw e;
                 }
-                if (chunk == null) {
+                if(chunk == null) {
                     this.close();
                     return null;
                 }
@@ -296,31 +322,31 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             let opcode = parsed.opcode;
             let payload = parsed.payload;
             let fin = parsed.fin;
-            if (opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
+            if(opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
                 try {
                     await this._pumpControl(opcode, payload);
                 } catch (e) {
                     this._notifyError(e.message);
                     throw e;
                 }
-                if (!this.isOpen) {
+                if(!this.isOpen) {
                     return null;
                 }
                 continue;
             }
-            if (opcode == WsOpcode.Pong) {
+            if(opcode == WsOpcode.Pong) {
                 continue;
             }
-            if (opcode == WsOpcode.Continuation) {
-                if (this._fragBuf == null) {
+            if(opcode == WsOpcode.Continuation) {
+                if(this._fragBuf == null) {
                     await this._reject(1002, "a continuation frame has nothing to continue");
                 }
                 const joined = bytesConcat(this._fragBuf as Bytes, payload);
-                if (joined.length > this._maxMessage) {
+                if(joined.length > this._maxMessage) {
                     await this._reject(1009, "the message exceeds the limit");
                 }
                 this._fragBuf = joined;
-                if (fin) {
+                if(fin) {
                     let done = this._fragBuf as Bytes;
                     let op = this._fragOp as WsOpcode;
                     this._fragBuf = null;
@@ -329,10 +355,10 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                 }
                 continue;
             }
-            if (this._fragBuf != null) {
+            if(this._fragBuf != null) {
                 await this._reject(1002, "a new message starts inside a fragmented one");
             }
-            if (fin) {
+            if(fin) {
                 return await this._deliver(opcode, payload);
             }
             this._fragBuf = payload;
@@ -341,7 +367,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     }
 
     private async _deliver(opcode: WsOpcode, payload: Bytes): Task<Bytes> {
-        if (opcode == WsOpcode.Text) {
+        if(opcode == WsOpcode.Text) {
             let text = "";
             try {
                 text = wsDecodeText$(payload);
@@ -362,31 +388,34 @@ export class WebSocket implements AsyncReader, AsyncWriter {
     async flush(): Task<void> {}
 
     async listen(): Task<void> {
-        while (this.isOpen) {
+        while(this.isOpen) {
             await this.read();
         }
     }
 
     close(): void {
-        if (this._readyState != WebSocketReadyState.Closed) {
+        if(this._readyState != WebSocketReadyState.Closed) {
             this._readyState = WebSocketReadyState.Closing;
-            if (this._conn >= 0) {
+            if(this._conn >= 0) {
                 try {
                     tcpClose$(this._conn);
                 } catch (e) {}
             }
             this._readyState = WebSocketReadyState.Closed;
             this._conn = -1;
-            for (let i = 0; i < this._onCloseListeners.length; i = i + 1) {
+            for(let i = 0; i < this._onCloseListeners.length; i = i + 1) {
                 this._onCloseListeners[i]();
             }
         }
     }
 
     async closeGracefully(): Task<void> {
-        if (this._readyState != WebSocketReadyState.Closed) {
+        if(this._readyState != WebSocketReadyState.Closed) {
             try {
-                await tcpWrite$(this._conn, wsFrameBytes$(Bytes.alloc(0), WsOpcode.Close, !this._server));
+                await tcpWrite$(
+                    this._conn,
+                    wsFrameBytes$(Bytes.alloc(0), WsOpcode.Close, !this._server),
+                );
             } catch (e) {}
             this.close();
         }

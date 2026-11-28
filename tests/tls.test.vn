@@ -13,15 +13,14 @@ const identity = readText(`${import.meta.dirname}/helpers/tls/client-identity.pe
 async function echoOnce(listener: TcpListener): Task<void> {
     const conn = await listener.accept();
     try {
-        while (true) {
+        while(true) {
             const chunk = await conn.read(16384);
-            if (chunk == null) {
+            if(chunk == null) {
                 break
             }
             await conn.write(chunk as Bytes);
         }
-    } catch (e) {
-    }
+    } catch (e) {}
     conn.close();
 }
 
@@ -52,7 +51,7 @@ await describe("289 tls", async () => {
         const client = await TcpStream.connectTls("127.0.0.1", listener.port, ca, null, 1);
         const size = 300000;
         const payload = Bytes.alloc(size);
-        for (let i = 0; i < size; i = i + 1) {
+        for(let i = 0; i < size; i = i + 1) {
             payload.setByte(i, i % 251);
         }
         const sender = spawn((async (): Task<void> => {
@@ -60,20 +59,20 @@ await describe("289 tls", async () => {
         })());
         let received = 0;
         let sum = 0;
-        while (received < size) {
+        while(received < size) {
             const chunk = await client.read(65536);
-            if (chunk == null) {
+            if(chunk == null) {
                 break
             }
             const bytes = chunk as Bytes;
-            for (let i = 0; i < bytes.length; i = i + 1) {
+            for(let i = 0; i < bytes.length; i = i + 1) {
                 sum = sum + bytes.getByte(i);
             }
             received = received + bytes.length;
         }
         await sender;
         let expected = 0;
-        for (let i = 0; i < size; i = i + 1) {
+        for(let i = 0; i < size; i = i + 1) {
             expected = expected + i % 251;
         }
         expect(received).toBe(size);
@@ -85,7 +84,9 @@ await describe("289 tls", async () => {
     await it("a certificate from an unknown CA is rejected with its cause", async () => {
         const listener = TcpListener.listenTls(0, cert, key);
         spawn(echoOnce(listener));
-        const message = await failureOf(() => TcpStream.connectTls("localhost", listener.port, null, null, 1));
+        const message = await failureOf(
+            () => TcpStream.connectTls("localhost", listener.port, null, null, 1),
+        );
         expect(message.indexOf("UnknownIssuer") != null).toBeTruthy();
         listener.close();
     });
@@ -121,11 +122,10 @@ await describe("289 tls", async () => {
             const client = await TcpStream.connectTls("localhost", listener.port, ca, null, 1);
             await client.write("anonymous");
             const reply = await client.read(64);
-            if (reply != null) {
+            if(reply != null) {
                 echoed = (reply as Bytes).toString();
             }
-        } catch (e) {
-        }
+        } catch (e) {}
         expect(echoed).toBe("");
         listener.close();
     });
@@ -135,13 +135,17 @@ await describe("289 tls", async () => {
         server.get("/mutual", async (req: Request) => new Response("mutual", 200));
         server.listenTls(0, cert, key, "127.0.0.1", clientCa);
         await delay(150);
-        const res = await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca, identity: identity));
+        const res = await fetch(
+            `https://localhost:${server.port}/mutual`,
+            new RequestInit(ca: ca, identity: identity),
+        );
         expect(res.text()).toBe("mutual");
         let anonymous = "";
         try {
-            anonymous = (await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca))).text();
-        } catch (e) {
-        }
+            anonymous = (
+                await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca))
+            ).text();
+        } catch (e) {}
         expect(anonymous).toBe("");
         server.close();
     });

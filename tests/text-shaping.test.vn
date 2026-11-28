@@ -64,9 +64,10 @@ await describe("216 text shaping", async () => {
         expect(failed).toBe(true);
     });
 
-    await it("wrap respects max width", () => {        const ls = wrap("hola mundo desde varn", 16.0, 80.0);
+    await it("wrap respects max width", () => {
+        const ls = wrap("hola mundo desde varn", 16.0, 80.0);
         expect(ls.length > 1).toBe(true);
-        for (let i = 0; i < ls.length; i = i + 1) {
+        for(let i = 0; i < ls.length; i = i + 1) {
             expect(measure(ls[i], 16.0) <= 80.0).toBe(true);
         }
         expect(wrap("", 16.0, 80.0)).toEqual([]);

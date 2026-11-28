@@ -12,8 +12,12 @@ class Dog extends Animal {
     tricks: int = 3;
 }
 
-function countTricks(dog: Dog): int { return dog.tricks }
-function describeAny(animal: Animal): int { return 1 }
+function countTricks(dog: Dog): int {
+    return dog.tricks
+}
+function describeAny(animal: Animal): int {
+    return 1
+}
 
 await describe("264 index by name", async () => {
     await it("a literal key reads the member with its declared type", () => {

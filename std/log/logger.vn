@@ -16,7 +16,7 @@ export class Logger {
         minLevel: LogLevel = LogLevel.Info,
         jsonOutput: bool = false,
         useColors: bool = true,
-        sink?: (line: str) => void
+        sink?: (line: str) => void,
     ) {
         this._name = name;
         this._minLevel = minLevel;
@@ -55,7 +55,7 @@ export class Logger {
     }
 
     log<T = null>(level: LogLevel, message: str, meta?: T): void {
-        if (this._levelPriority(level) < this._levelPriority(this._minLevel)) {
+        if(this._levelPriority(level) < this._levelPriority(this._minLevel)) {
             return;
         }
 
@@ -63,36 +63,37 @@ export class Logger {
         let levelTag = this._levelToString(level);
 
         let outputLine: str = "";
-        if (this._jsonOutput) {
-            if (meta != null) {
+        if(this._jsonOutput) {
+            if(meta != null) {
                 outputLine = Json.stringify(#{
                     timestamp: timestampStr,
                     level: levelTag,
                     target: this._name,
                     message: message,
-                    meta: meta
+                    meta: meta,
                 });
             } else {
                 outputLine = Json.stringify(#{
                     timestamp: timestampStr,
                     level: levelTag,
                     target: this._name,
-                    message: message
+                    message: message,
                 });
             }
         } else {
             let tagStr = levelTag;
-            if (this._useColors) {
+            if(this._useColors) {
                 tagStr = this._colorizeTag(level, levelTag);
             }
             let metaSuffix = "";
-            if (meta != null) {
+            if(meta != null) {
                 metaSuffix = " " + Json.stringify(meta);
             }
-            outputLine = timestampStr + " [" + tagStr + "] (" + this._name + "): " + message + metaSuffix;
+            outputLine =
+                timestampStr + " [" + tagStr + "] (" + this._name + "): " + message + metaSuffix;
         }
 
-        if (this._sink != null) {
+        if(this._sink != null) {
             let writeFn = this._sink as (line: str) => void;
             writeFn(outputLine);
         } else {
@@ -121,26 +122,26 @@ export class Logger {
     }
 
     private _levelToString(level: LogLevel): str {
-        if (level == LogLevel.Trace) return "TRACE";
-        if (level == LogLevel.Debug) return "DEBUG";
-        if (level == LogLevel.Info) return "INFO";
-        if (level == LogLevel.Warn) return "WARN";
+        if(level == LogLevel.Trace) return "TRACE";
+        if(level == LogLevel.Debug) return "DEBUG";
+        if(level == LogLevel.Info) return "INFO";
+        if(level == LogLevel.Warn) return "WARN";
         return "ERROR";
     }
 
     private _levelPriority(level: LogLevel): int {
-        if (level == LogLevel.Trace) return 0;
-        if (level == LogLevel.Debug) return 1;
-        if (level == LogLevel.Info) return 2;
-        if (level == LogLevel.Warn) return 3;
+        if(level == LogLevel.Trace) return 0;
+        if(level == LogLevel.Debug) return 1;
+        if(level == LogLevel.Info) return 2;
+        if(level == LogLevel.Warn) return 3;
         return 4;
     }
 
     private _colorizeTag(level: LogLevel, tag: str): str {
-        if (level == LogLevel.Trace) return Color.gray(tag);
-        if (level == LogLevel.Debug) return Color.cyan(tag);
-        if (level == LogLevel.Info) return Color.green(tag);
-        if (level == LogLevel.Warn) return Color.yellow(tag);
+        if(level == LogLevel.Trace) return Color.gray(tag);
+        if(level == LogLevel.Debug) return Color.cyan(tag);
+        if(level == LogLevel.Info) return Color.green(tag);
+        if(level == LogLevel.Warn) return Color.yellow(tag);
         return Color.red(tag);
     }
 }

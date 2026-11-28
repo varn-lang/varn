@@ -1,7 +1,16 @@
 import { describe, it, expect } from "std:test";
 import {
-    tempDir, readTextAsync, writeTextAsync, appendTextAsync, readLinesAsync,
-    readBytesAsync, writeBytesAsync, copyAsync, readDirAsync, removeAllAsync, exists
+    tempDir,
+    readTextAsync,
+    writeTextAsync,
+    appendTextAsync,
+    readLinesAsync,
+    readBytesAsync,
+    writeBytesAsync,
+    copyAsync,
+    readDirAsync,
+    removeAllAsync,
+    exists,
 } from "std:fs";
 import { FsNotFoundError } from "std:error";
 import { Uuid } from "std:crypto";
@@ -13,7 +22,7 @@ async function codeOf(run: () => Task<str>): Task<str> {
         await run()
         return ""
     } catch (e) {
-        if (e is FsNotFoundError) {
+        if(e is FsNotFoundError) {
             return e.code + ":" + e.path
         }
         return "other"
@@ -39,6 +48,8 @@ await describe("284 async fs", async () => {
     });
 
     await it("async failures carry the same codes as the sync API", async () => {
-        expect(await codeOf(() => readTextAsync(dir + "-missing"))).toBe("fs.not_found:" + dir + "-missing");
+        expect(await codeOf(() => readTextAsync(dir + "-missing"))).toBe(
+            "fs.not_found:" + dir + "-missing",
+        );
     });
 });

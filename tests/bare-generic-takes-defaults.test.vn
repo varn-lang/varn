@@ -2,7 +2,9 @@ import { describe, it, expect } from "std:test";
 
 class Cell<T = int> {
     v: T
-    constructor(v: T) { this.v = v }
+    constructor(v: T) {
+        this.v = v
+    }
 }
 
 interface Box<I = str> {
@@ -22,14 +24,18 @@ function box(s: str): str {
 await describe("207 a bare generic takes its defaults", async () => {
     await it("a bare class annotation instantiates with defaults", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + cell(i) }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + cell(i)
+        }
         expect(cell(5)).toBe(5)
         expect(total).toBe(44850)
     })
 
     await it("a bare interface annotation checks literals with defaults", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + box("x").length }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + box("x").length
+        }
         expect(box("hey")).toBe("hey")
         expect(total).toBe(300)
     })

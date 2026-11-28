@@ -12,8 +12,8 @@ export class Queue<Q> {
     }
 
     dequeue(): Q? {
-        if (this.outbox.length == 0) {
-            while (this.inbox.length > 0) {
+        if(this.outbox.length == 0) {
+            while(this.inbox.length > 0) {
                 const value = this.inbox[this.inbox.length - 1];
                 this.inbox.pop();
                 this.outbox.push(value);
@@ -23,14 +23,14 @@ export class Queue<Q> {
     }
 
     peek(): Q? {
-        if (this.outbox.length == 0) {
-            while (this.inbox.length > 0) {
+        if(this.outbox.length == 0) {
+            while(this.inbox.length > 0) {
                 const value = this.inbox[this.inbox.length - 1];
                 this.inbox.pop();
                 this.outbox.push(value);
             }
         }
-        if (this.outbox.length == 0) {
+        if(this.outbox.length == 0) {
             return null;
         }
         return this.outbox[this.outbox.length - 1];
@@ -51,10 +51,10 @@ export class Queue<Q> {
 
     toArray(): Q[] {
         let result: Q[] = [];
-        for (let i = this.outbox.length - 1; i >= 0; i = i - 1) {
+        for(let i = this.outbox.length - 1; i >= 0; i = i - 1) {
             result.push(this.outbox[i]);
         }
-        for (let item in this.inbox) {
+        for(let item in this.inbox) {
             result.push(item);
         }
         return result;

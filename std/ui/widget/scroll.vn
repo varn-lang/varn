@@ -1,4 +1,13 @@
-import { Widget, Size, PaintContext, Constraints, Placement, paintPlaced, layoutAt, fixedSize } from "std:ui/widget/base";
+import {
+    Widget,
+    Size,
+    PaintContext,
+    Constraints,
+    Placement,
+    paintPlaced,
+    layoutAt,
+    fixedSize,
+} from "std:ui/widget/base";
 import { Signal, signal } from "std:signals";
 import { UiControlKind } from "std:ui/window";
 
@@ -16,11 +25,14 @@ export class ScrollNode extends Widget {
         this.h = h;
     }
 
-
     override computeLayout(c: Constraints): Placement {
         const size = fixedSize(this, c, new Size(c.maxW, c.maxH));
         const child = this.child;
-        const content = layoutAt(child, "child", c.looseChild(size.w - BAR_WIDTH, CONTENT_UNBOUNDED)).size.h;
+        const content = layoutAt(
+            child,
+            "child",
+            c.looseChild(size.w - BAR_WIDTH, CONTENT_UNBOUNDED),
+        ).size.h;
         const overflow = content > size.h ? content - size.h : 0.0;
         const at = this.offset.peek();
         const bounded = at < 0.0 ? 0.0 : (at > overflow ? overflow : at);
@@ -38,7 +50,9 @@ export class ScrollNode extends Widget {
         const h = p.size.h;
         const bounded = p.data[0];
         const content = p.data[1];
-        cx.valued(UiControlKind.Scroll, x, y, w, h, 0, false, bounded, 0.0, content, (next: float) => {
+        cx.valued(UiControlKind.Scroll, x, y, w, h, 0, false, bounded, 0.0, content, (
+            next: float
+        ) => {
             this.offset.set(next);
         });
         cx.clip(x, y, w, h);
@@ -47,6 +61,10 @@ export class ScrollNode extends Widget {
     }
 }
 
-export function Scroll(child: Widget, offset: Signal<float> = signal(0.0), h: float = -1.0): Widget {
+export function Scroll(
+    child: Widget,
+    offset: Signal<float> = signal(0.0),
+    h: float = -1.0,
+): Widget {
     return new ScrollNode(child, offset, h);
 }

@@ -6,25 +6,25 @@ import { fetch, HttpMethod, RequestInit } from "std:http";
 
 async function readRequest(conn: TcpStream): Task<str> {
     let text = "";
-    while (true) {
+    while(true) {
         const chunk = await conn.read(4096);
-        if (chunk == null) {
+        if(chunk == null) {
             return text
         }
         text = text + (chunk as Bytes).toString();
         const headEnd = text.indexOf("\r\n\r\n");
-        if (headEnd == null) {
+        if(headEnd == null) {
             continue
         }
         const lower = text.slice(0, headEnd).toLowerCase();
         const marker = lower.indexOf("content-length:");
-        if (marker == null) {
+        if(marker == null) {
             return text
         }
         const tail = lower.slice(marker + 15);
         const lineEnd = tail.indexOf("\r\n");
         const declared = int.parse((lineEnd == null ? tail : tail.slice(0, lineEnd)).trim());
-        if (Bytes.fromString(text.slice(headEnd + 4)).length >= declared) {
+        if(Bytes.fromString(text.slice(headEnd + 4)).length >= declared) {
             return text
         }
     }
@@ -34,7 +34,11 @@ class Seen {
     request: str = "";
 }
 
-async function serve(listener: TcpListener, seen: Seen, script: (conn: TcpStream) => Task<void>): Task<void> {
+async function serve(
+    listener: TcpListener,
+    seen: Seen,
+    script: (conn: TcpStream) => Task<void>,
+): Task<void> {
     const conn = await listener.accept();
     seen.request = await readRequest(conn);
     await script(conn);
@@ -47,7 +51,9 @@ await describe("290 http client framing", async () => {
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             const body = Bytes.fromString("héllo wörld");
-            await conn.write("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n");
+            await conn.write(
+                "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n",
+            );
             await conn.write("2\r\n");
             await conn.write(body.slice(0, 2));
             await conn.write("\r\n");
@@ -68,7 +74,7 @@ await describe("290 http client framing", async () => {
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 200 OK\r\n\r\n");
-            for (let i = 0; i < 3; i = i + 1) {
+            for(let i = 0; i < 3; i = i + 1) {
                 await conn.write(Bytes.alloc(5000).fill(120));
                 await delay(30);
             }
@@ -83,7 +89,7 @@ await describe("290 http client framing", async () => {
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             let text = "";
-            for (let i = 0; i < 3000; i = i + 1) {
+            for(let i = 0; i < 3000; i = i + 1) {
                 text = text + "é";
             }
             const body = Bytes.fromString(text);
@@ -118,7 +124,9 @@ await describe("290 http client framing", async () => {
         const listener = TcpListener.listen(0);
         const seen = new Seen();
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
-            await conn.write("HTTP/1.1 404 Not Found\r\nSet-Cookie: a=1\r\nSet-Cookie: b=2\r\nX-Multi: one\r\nX-Multi: two\r\nContent-Length: 0\r\n\r\n");
+            await conn.write(
+                "HTTP/1.1 404 Not Found\r\nSet-Cookie: a=1\r\nSet-Cookie: b=2\r\nX-Multi: one\r\nX-Multi: two\r\nContent-Length: 0\r\n\r\n",
+            );
         }));
         const res = await fetch(`http://127.0.0.1:${listener.port}/`);
         expect(res.status).toBe(404);
@@ -134,7 +142,10 @@ await describe("290 http client framing", async () => {
         spawn(serve(listener, seen, async (conn: TcpStream): Task<void> => {
             await conn.write("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
         }));
-        await fetch(`http://127.0.0.1:${listener.port}/echo`, new RequestInit(method: HttpMethod.POST, body: "é"));
+        await fetch(
+            `http://127.0.0.1:${listener.port}/echo`,
+            new RequestInit(method: HttpMethod.POST, body: "é"),
+        );
         expect(seen.request.indexOf("Content-Length: 2\r\n") != null).toBeTruthy();
         expect(seen.request.indexOf(`Host: 127.0.0.1:${listener.port}\r\n`) != null).toBeTruthy();
         expect(seen.request.indexOf("Connection: close\r\n") != null).toBeTruthy();

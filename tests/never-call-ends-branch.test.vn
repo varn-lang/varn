@@ -5,14 +5,14 @@ function halt(msg: str): never {
 }
 
 function pick(c: bool): int {
-    if (c) {
+    if(c) {
         return 1
     }
     halt("nope")
 }
 
 function pickElse(c: bool): int {
-    if (c) {
+    if(c) {
         return 1
     } else {
         halt("nope")
@@ -21,13 +21,13 @@ function pickElse(c: bool): int {
 
 class Guard {
     static need(c: bool): int {
-        if (c) {
+        if(c) {
             return 2
         }
         halt("static")
     }
     check(c: bool): int {
-        if (c) {
+        if(c) {
             return 3
         }
         halt("member")
@@ -35,7 +35,7 @@ class Guard {
 }
 
 const run = (c: bool): int => {
-    if (c) {
+    if(c) {
         return 4
     }
     halt("closure")

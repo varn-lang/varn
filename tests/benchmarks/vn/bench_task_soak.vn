@@ -2,19 +2,19 @@ import { parallel, sleep, Task } from "std:task";
 
 async function loaded(n: int): Task<int> {
     let dead: Array<int> = [];
-    for (let i = 0; i < 200; i = i + 1) {
+    for(let i = 0; i < 200; i = i + 1) {
         dead.push(i * n);
     }
     let live = n + 1;
     await sleep(300);
     let acc = live;
-    for (let i = 0; i < dead.length; i = i + 1) {
+    for(let i = 0; i < dead.length; i = i + 1) {
         acc = acc + 0 * dead[i];
     }
     return live;
 }
 
-let batch: Array<Task<int>> = [];
+let batch: Array<Task<int >> = [];
 for (let i = 0; i < 3000; i = i + 1) {
     batch.push(loaded(i));
 }

@@ -1,8 +1,14 @@
 import { Polygon } from "./foreign-child.vn";
 
 export class Square extends Polygon {
-    constructor() { super(4, true) }
-    override describe(): str { return "square" }
+    constructor() {
+        super(4, true)
+    }
+    override describe(): str {
+        return "square"
+    }
 }
 
-export function makeSquare(): Square { return new Square() }
+export function makeSquare(): Square {
+    return new Square()
+}

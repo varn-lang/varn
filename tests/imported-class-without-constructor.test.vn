@@ -14,7 +14,7 @@ await describe("234 an imported class without a constructor", async () => {
     })
     await it("is constructed repeatedly", () => {
         let sum = 0
-        for (let i = 0; i < 50; i = i + 1) {
+        for(let i = 0; i < 50; i = i + 1) {
             sum = sum + new Lone().peek()
         }
         expect(sum).toBe(200)

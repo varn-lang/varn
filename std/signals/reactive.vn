@@ -1,4 +1,14 @@
-import { Observer, Source, changed, invalidate, notifyObservers, runTracked, track, unlink, untracked } from "std:signals/graph";
+import {
+    Observer,
+    Source,
+    changed,
+    invalidate,
+    notifyObservers,
+    runTracked,
+    track,
+    unlink,
+    untracked,
+} from "std:signals/graph";
 import { currentOwner } from "std:signals/owner";
 import { Effect, effect } from "std:signals/effect";
 
@@ -14,7 +24,7 @@ export abstract class Readable<out T> {
         let skip = !immediate;
         return effect(() => {
             const current = this.value;
-            if (skip) {
+            if(skip) {
                 skip = false;
                 return;
             }
@@ -50,7 +60,7 @@ export class Signal<T> extends Readable<T> {
     set(next: T): void {
         const equals = this._equals;
         const same = equals == null ? sameValue(next, this._value) : equals(this._value, next);
-        if (same) {
+        if(same) {
             return;
         }
         this._value = next;
@@ -82,7 +92,7 @@ export class Computed<T> extends Readable<T> implements Observer {
     }
 
     notify(): void {
-        if (!this.alive || this._stale) {
+        if(!this.alive || this._stale) {
             return;
         }
         this._stale = true;
@@ -108,14 +118,14 @@ export class Computed<T> extends Readable<T> implements Observer {
     }
 
     private settle(): void {
-        if (!this._stale || !this.alive) {
+        if(!this._stale || !this.alive) {
             return;
         }
-        if (this._cache.length > 0 && !changed(this)) {
+        if(this._cache.length > 0 && !changed(this)) {
             this._stale = false;
             return;
         }
-        if (this._computing) {
+        if(this._computing) {
             throw new Error("signals: a computed reads itself");
         }
         this._computing = true;
@@ -123,10 +133,16 @@ export class Computed<T> extends Readable<T> implements Observer {
             unlink(this);
             const next = runTracked(this, this._derive);
             const equals = this._equals;
-            const unchanged = this._cache.length > 0 && (equals == null ? sameValue(next, this._cache[0]) : equals(this._cache[0], next));
+            const unchanged =
+                this._cache.length > 0 &&
+                    (
+                        equals == null
+                            ? sameValue(next, this._cache[0])
+                            : equals(this._cache[0], next)
+                    );
             this._cache = [next];
             this._stale = false;
-            if (!unchanged) {
+            if(!unchanged) {
                 this._source.version = this._source.version + 1;
             }
         } finally {
@@ -142,7 +158,7 @@ export function signal<T>(initial: T, equals: ((a: T, b: T) => bool)? = null): S
 export function computed<T>(derive: () => T, equals: ((a: T, b: T) => bool)? = null): Computed<T> {
     const owner = currentOwner();
     const made = new Computed<T>(derive, equals);
-    if (owner != null) {
+    if(owner != null) {
         owner.onDispose(() => made.dispose());
     }
     return made;

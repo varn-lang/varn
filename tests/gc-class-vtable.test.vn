@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Regression: minor-GC vtable corruption (2026-07-09).
 // value_heap_idx returned RAW old-gen indices for Class/VmClosure/Task-like
 // values; the minor GC misread them as nursery indices and stamped an
@@ -8,7 +7,6 @@ import { describe, it, expect } from "std:test";
 // defined in a module lost its constructor after enough allocation pressure
 // (fields stayed null, no error). Needs: 2+ classes, GC pressure between
 // definition and construction.
-
 class GcVtA {
     x: int
     constructor(x: int) {
@@ -24,26 +22,24 @@ class GcVtB {
 }
 await describe("53 gc class vtable", async () => {
     await it("tests", async () => {
-        
         // Enough string allocations to force several minor GC cycles.
-        let gcJunk:str[] = []
-        for (let i = 0; i < 20000; i = i + 1) {
+        let gcJunk: str[] = []
+        for(let i = 0; i < 20000; i = i + 1) {
             gcJunk.push(`gc_${i}`)
         }
-        
+
         let gcAccA = 0
         let gcAccB = 0
-        for (let i = 0; i < 5000; i = i + 1) {
+        for(let i = 0; i < 5000; i = i + 1) {
             let a = new GcVtA(i)
             gcAccA = gcAccA + a.x
             let b = new GcVtB(i)
             gcAccB = gcAccB + b.y
         }
-        
+
         expect(gcAccA).toBe(12497500)
         expect(gcAccB).toBe(12497500)
         expect(gcJunk.length).toBe(20000)
         expect(gcJunk[19999]).toBe("gc_19999")
-        
     });
 });

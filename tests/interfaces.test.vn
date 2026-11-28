@@ -13,8 +13,12 @@ class Config implements Printable, Serializable {
         this.key = k;
         this.value = v;
     }
-    toString(): str { return `${this.key}=${this.value}`; }
-    serialize(): str { return `{"${this.key}":${this.value}}`; }
+    toString(): str {
+        return `${this.key}=${this.value}`;
+    }
+    serialize(): str {
+        return `{"${this.key}":${this.value}}`;
+    }
 }
 function printThing(p: Printable): str {
     return p.toString();

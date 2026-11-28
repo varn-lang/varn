@@ -13,18 +13,27 @@ class Flags {
     maybe: bool?[] = [null]
 }
 
-
 // 6. Super property reads, method calls, and assignments
 class Parent {
     val: int
-    constructor() { this.val = 10; }
-    getVal(): int { return this.val; }
-    setVal(v: int): void { this.val = v; }
-    speak(): str { return "hello"; }
+    constructor() {
+        this.val = 10;
+    }
+    getVal(): int {
+        return this.val;
+    }
+    setVal(v: int): void {
+        this.val = v;
+    }
+    speak(): str {
+        return "hello";
+    }
 }
 
 class Child extends Parent {
-    constructor() { super(); }
+    constructor() {
+        super();
+    }
     testSuper(): void {
         expect(super.speak()).toBe("hello");
         super.setVal(30);
@@ -38,63 +47,61 @@ await describe("48 opt unsupported phase1", async () => {
         let x = 2;
         x **= 3;
         expect(x).toBe(8);
-        
+
         let y = 16;
         y >>>= 2;
         expect(y).toBe(4);
-        
+
         // 2. Logical compound assignments (&&=, ||=, ??=) on variables
         let a = true;
         a &&= false;
         expect(a).toBe(false);
-        
+
         let b = false;
         b ||= true;
         expect(b).toBe(true);
-        
+
         let c: dynamic = null;
         c ??= 42;
         expect(c).toBe(42);
-        
+
         // 3. Compound member and index assignments
         const obj = new Counters();
         obj.prop += 5;
         expect(obj.prop).toBe(15);
-        
+
         obj.arr[0] *= 2;
         expect(obj.arr[0]).toBe(40);
-        
+
         // 4. Logical compound assignments on members and index targets
         const obj2 = new Flags();
         obj2.a &&= false;
         expect(obj2.a).toBe(false);
-        
+
         obj2.b ||= true;
         expect(obj2.b).toBe(true);
-        
+
         obj2.c ??= 42;
         expect(obj2.c).toBe(42);
-        
+
         obj2.arr[0] &&= false;
         expect(obj2.arr[0]).toBe(false);
-        
+
         obj2.arr[1] ||= true;
         expect(obj2.arr[1]).toBe(true);
-        
+
         obj2.maybe[0] ??= true;
         expect(obj2.maybe[0]).toBe(true);
-        
+
         // 5. Module-slot reads and assignments
         let topLevelVar = 100;
         topLevelVar = 200;
         expect(topLevelVar).toBe(200);
-        
+
         topLevelVar += 50;
         expect(topLevelVar).toBe(250);
-        
+
         const child = new Child();
         child.testSuper();
-        
-        
     });
 });

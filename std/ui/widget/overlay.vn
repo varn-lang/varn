@@ -1,4 +1,12 @@
-import { Widget, Size, PaintContext, Constraints, Placement, paintAt, fixedSize } from "std:ui/widget/base";
+import {
+    Widget,
+    Size,
+    PaintContext,
+    Constraints,
+    Placement,
+    paintAt,
+    fixedSize,
+} from "std:ui/widget/base";
 import { mountChild } from "std:ui/state";
 import { Card, Box } from "std:ui/widget/box";
 import { Text } from "std:ui/widget/text";
@@ -36,8 +44,11 @@ export class DialogNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        if (this.open.peek()) {
-            cx.overlay((layer: PaintContext) => paintDialog(layer, this.open, this.title, this.body), true);
+        if(this.open.peek()) {
+            cx.overlay(
+                (layer: PaintContext) => paintDialog(layer, this.open, this.title, this.body),
+                true,
+            );
         }
     }
 }
@@ -49,12 +60,15 @@ function paintDialog(cx: PaintContext, open: Signal<bool>, title: str, body: Wid
     const vh = fr.h as float;
     const width = DIALOG_WIDTH < vw - 2.0 * DIALOG_MARGIN ? DIALOG_WIDTH : vw - 2.0 * DIALOG_MARGIN;
     const panel = Card(body, title: title, w: width);
-    const size = mountChild("dialog", () => panel.layout(Constraints.looseIn(cx.windowClass, width, vh))).size;
+    const size = mountChild(
+        "dialog",
+        () => panel.layout(Constraints.looseIn(cx.windowClass, width, vh)),
+    ).size;
     const px = (vw - width) / 2.0;
     const py = (vh - size.h) / 2.0;
     cx.win.rect(0.0, 0.0, vw, vh, SCRIM, 0.0);
     cx.click(UiControlKind.Surface, 0.0, 0.0, vw, vh, 0, false, () => {
-        if (!hit(fr.mouseX as float, fr.mouseY as float, px, py, width, size.h)) {
+        if(!hit(fr.mouseX as float, fr.mouseY as float, px, py, width, size.h)) {
             open.set(false);
         }
     });
@@ -75,8 +89,11 @@ export class Toaster {
 
     show(text: str, ms: int = 2500): void {
         const at = now();
-        this.items.update((all: ToastItem[]): ToastItem[] =>
-            [...all.filter((t: ToastItem): bool => t.until > at), new ToastItem(text: text, until: at + ms)]
+        this.items.update(
+            (all: ToastItem[]): ToastItem[] => [
+                ...all.filter((t: ToastItem): bool => t.until > at),
+                new ToastItem(text: text, until: at + ms),
+            ],
         );
     }
 }
@@ -105,10 +122,22 @@ function paintToasts(cx: PaintContext, toaster: Toaster): void {
     const live = toaster.items.peek().filter((t: ToastItem): bool => t.until > at);
     const vw = cx.fr.w as float;
     let bottom = (cx.fr.h as float) - TOAST_BOTTOM;
-    for (let i = live.length - 1; i >= 0; i = i - 1) {
-        const card = Box(Text(live[i].text), color: Theme.colors.surface, radius: 8.0, pad: 12.0, w: TOAST_W);
-        const size = mountChild("toasts", () => card.layout(Constraints.looseIn(cx.windowClass, TOAST_W, bottom))).size;
-        cx.keyed("toasts", () => paintAt(card, cx, (vw - TOAST_W) / 2.0, bottom - size.h, TOAST_W, size.h));
+    for(let i = live.length - 1; i >= 0; i = i - 1) {
+        const card = Box(
+            Text(live[i].text),
+            color: Theme.colors.surface,
+            radius: 8.0,
+            pad: 12.0,
+            w: TOAST_W,
+        );
+        const size = mountChild(
+            "toasts",
+            () => card.layout(Constraints.looseIn(cx.windowClass, TOAST_W, bottom)),
+        ).size;
+        cx.keyed(
+            "toasts",
+            () => paintAt(card, cx, (vw - TOAST_W) / 2.0, bottom - size.h, TOAST_W, size.h),
+        );
         bottom = bottom - size.h - TOAST_GAP;
     }
 }
@@ -146,17 +175,28 @@ export class SelectNode extends Widget {
         cx.click(UiControlKind.Surface, x, y, w, anchor, 0, false, () => {
             this.open.set(!this.open.peek());
         });
-        if (this.open.peek()) {
+        if(this.open.peek()) {
             const options = this.options;
             const value = this.value;
             const open = this.open;
-            cx.overlay((layer: PaintContext) => paintOptions(layer, options, value, open, x, y, w, anchor), false);
+            cx.overlay(
+                (layer: PaintContext) => paintOptions(layer, options, value, open, x, y, w, anchor),
+                false,
+            );
         }
     }
 }
 
 @capability("ui")
-function selectRow(cx: PaintContext, value: Signal<int>, open: Signal<bool>, index: int, ax: float, rowY: float, aw: float): void {
+function selectRow(
+    cx: PaintContext,
+    value: Signal<int>,
+    open: Signal<bool>,
+    index: int,
+    ax: float,
+    rowY: float,
+    aw: float,
+): void {
     cx.click(UiControlKind.Surface, ax, rowY, aw, SELECT_ROW_H, 0, false, () => {
         value.set(index);
         open.set(false);
@@ -164,26 +204,48 @@ function selectRow(cx: PaintContext, value: Signal<int>, open: Signal<bool>, ind
 }
 
 @capability("ui")
-function paintOptions(cx: PaintContext, options: str[], value: Signal<int>, open: Signal<bool>, ax: float, ay: float, aw: float, ah: float): void {
+function paintOptions(
+    cx: PaintContext,
+    options: str[],
+    value: Signal<int>,
+    open: Signal<bool>,
+    ax: float,
+    ay: float,
+    aw: float,
+    ah: float,
+): void {
     const fr = cx.fr;
     const top = ay + ah;
     const listH = (options.length as float) * SELECT_ROW_H;
     cx.win.rect(ax, top, aw, listH, Theme.colors.surface, 8.0);
-    for (let i = 0; i < options.length; i = i + 1) {
+    for(let i = 0; i < options.length; i = i + 1) {
         const rowY = top + (i as float) * SELECT_ROW_H;
-        if (i == value.peek()) {
-            cx.win.rect(ax + 4.0, rowY + 2.0, aw - 8.0, SELECT_ROW_H - 4.0, Theme.colors.outline, 6.0);
+        if(i == value.peek()) {
+            cx.win.rect(
+                ax + 4.0,
+                rowY + 2.0,
+                aw - 8.0,
+                SELECT_ROW_H - 4.0,
+                Theme.colors.outline,
+                6.0,
+            );
         }
         paintAt(Text(options[i]), cx, ax + 12.0, rowY, aw - 24.0, SELECT_ROW_H);
         selectRow(cx, value, open, i, ax, rowY, aw);
     }
-    const inside = hit(fr.mouseX as float, fr.mouseY as float, ax, top, aw, listH)
-        || hit(fr.mouseX as float, fr.mouseY as float, ax, ay, aw, ah);
-    if (fr.leftReleased && !inside) {
+    const inside =
+        hit(fr.mouseX as float, fr.mouseY as float, ax, top, aw, listH) ||
+            hit(fr.mouseX as float, fr.mouseY as float, ax, ay, aw, ah);
+    if(fr.leftReleased && !inside) {
         open.set(false);
     }
 }
 
-export function Select(options: str[], value: Signal<int>, open: Signal<bool> = signal(false), h: float = 40.0): Widget {
+export function Select(
+    options: str[],
+    value: Signal<int>,
+    open: Signal<bool> = signal(false),
+    h: float = 40.0,
+): Widget {
     return new SelectNode(options, value, open, h);
 }

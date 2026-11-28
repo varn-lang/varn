@@ -1,6 +1,8 @@
 import { describe, it, expect } from "std:test";
 
-function d(a: int, b: int): int { return a / b }
+function d(a: int, b: int): int {
+    return a / b
+}
 
 const literalDiv: int = 9 / 4
 
@@ -12,21 +14,31 @@ const dyn: dynamic = 7
 
 const f: float = 5.0 / 2.0
 await describe("120 int division", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(d(5, 2)).toBe(2);
         expect(d(0 - 7, 2)).toBe(0 - 3);
         expect(d(7, 0 - 2)).toBe(0 - 3);
         expect(literalDiv).toBe(2);
-        try { d(1, 0) } catch (e) { if (e is DivisionByZero) { dz = "zero" } }
+        try {
+            d(1, 0)
+        } catch (e) {
+            if(e is DivisionByZero) {
+                dz = "zero"
+            }
+        }
     });
 
     await it("group 1 part 2", async () => {
         expect(dz).toBe("zero");
-        try { d(0 - 9223372036854775807 - 1, 0 - 1) } catch (e) { if (e is IntegerOverflow) { ov = "ovf" } }
+        try {
+            d(0 - 9223372036854775807 - 1, 0 - 1)
+        } catch (e) {
+            if(e is IntegerOverflow) {
+                ov = "ovf"
+            }
+        }
         expect(ov).toBe("ovf");
         expect((dyn as int) / 2).toBe(3);
         expect(f).toBe(2.5);
     });
-
-
 });

@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 type Todo = #{
     id: int;
-    title: str
+    title: str;
 };
 
 function ident<T>(value: T, label: str): T {
@@ -15,7 +15,7 @@ function swapNamed<A, B>(first: A, second: B, tag: str = ""): B {
 
 function applyBoth<T>(items: T[], key: (v: T) => dynamic, render: (v: T) => str): str[] {
     const out: str[] = [];
-    for (let i = 0; i < items.length; i = i + 1) {
+    for(let i = 0; i < items.length; i = i + 1) {
         out.push(render(items[i]));
     }
     return out;
@@ -27,21 +27,21 @@ function pick<T>(items: T[], index: int = 0): T {
 
 function withRest<T>(first: T, ...rest: T[]): T[] {
     const out: T[] = [first];
-    for (let i = 0; i < rest.length; i = i + 1) {
+    for(let i = 0; i < rest.length; i = i + 1) {
         out.push(rest[i]);
     }
     return out;
 }
 
 function maybeMap<T>(value: T | null, map: (v: T) => str, fallback: str = ""): str {
-    if (value == null) {
+    if(value == null) {
         return fallback;
     }
     return map(value as T);
 }
 
 function optFn<T>(value: T, cb?: (v: T) => void): T {
-    if (cb != null) {
+    if(cb != null) {
         const f = cb as (v: T) => void;
         f(value);
     }
@@ -50,7 +50,7 @@ function optFn<T>(value: T, cb?: (v: T) => void): T {
 
 function nested<T>(items: T[], wrap: (v: T) => T[]): T[][] {
     const out: T[][] = [];
-    for (let i = 0; i < items.length; i = i + 1) {
+    for(let i = 0; i < items.length; i = i + 1) {
         out.push(wrap(items[i]));
     }
     return out;
@@ -67,7 +67,7 @@ function boxPair<A, B>(a: A, b: B): Box<#[A, B]> {
 namespace tools {
     export function eachLocal<T>(items: T[], key: (v: T) => dynamic, render: (v: T) => str): str[] {
         const out: str[] = [];
-        for (let i = 0; i < items.length; i = i + 1) {
+        for(let i = 0; i < items.length; i = i + 1) {
             out.push(render(items[i]));
         }
         return out;
@@ -75,7 +75,7 @@ namespace tools {
 }
 
 const toolbox = #{
-    eachObj: applyBoth
+    eachObj: applyBoth,
 };
 
 class Box<T> {
@@ -134,7 +134,10 @@ await describe("221 generics named edges", async () => {
 
     await it("generic named annotated closure", () => {
         const todos: Todo[] = [#{ id: 1, title: "a" }, #{ id: 2, title: "b" }];
-        expect(applyBoth(todos, key: (t: Todo) => t.id, render: (t: Todo) => t.title)).toEqual(["a", "b"]);
+        expect(applyBoth(todos, key: (t: Todo) => t.id, render: (t: Todo) => t.title)).toEqual([
+            "a",
+            "b",
+        ]);
     });
 
     await it("generic named bare closures infer from items", () => {
@@ -199,7 +202,9 @@ await describe("221 generics named edges", async () => {
 
     await it("generic optional closure named", () => {
         const seen: int[] = [];
-        expect(optFn(value: 5, cb: v => { seen.push(v); })).toBe(5);
+        expect(optFn(value: 5, cb: v => {
+            seen.push(v);
+        })).toBe(5);
         expect(seen).toEqual([5]);
         expect(optFn(value: 6)).toBe(6);
     });
@@ -238,6 +243,8 @@ await describe("221 generics named edges", async () => {
             cb(value);
             return value;
         }
-        expect(takeCb(value: "hi", cb: v => { seen.push(v); })).toBe("hi");
+        expect(takeCb(value: "hi", cb: v => {
+            seen.push(v);
+        })).toBe("hi");
     });
 });

@@ -5,8 +5,8 @@ await describe("347 postfix update stays on its line", async () => {
         let a = 1
         let b = 1
         const pair = #{ a, b }
-        ++a
-        --b
+        ++ a
+        -- b
         expect(a).toBe(2)
         expect(b).toBe(0)
         expect(pair.a).toBe(1)

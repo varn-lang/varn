@@ -1,8 +1,14 @@
 import { describe, it, expect } from "std:test";
 
-function viaMap(n: int): int { return [n].map((x: int): int => viaMap(x + 1))[0] }
-function viaFilter(n: int): int { return [n].filter((x: int): bool => viaFilter(x + 1) > 0).length }
-function bounded(n: int): int { return n >= 3 ? n : [n].map((x: int): int => bounded(x + 1))[0] }
+function viaMap(n: int): int {
+    return [n].map((x: int): int => viaMap(x + 1))[0]
+}
+function viaFilter(n: int): int {
+    return [n].filter((x: int): bool => viaFilter(x + 1) > 0).length
+}
+function bounded(n: int): int {
+    return n >= 3 ? n : [n].map((x: int): int => bounded(x + 1))[0]
+}
 
 function raises(f: () => int): bool {
     try {

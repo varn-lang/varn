@@ -17,12 +17,21 @@ export function present(win: UiWindow, fr: UiFrame): void {
     fr.fire(win.activated());
 }
 
-export function render(win: UiWindow, fr: UiFrame, focus: Focus, root: Widget, x: float, y: float, w: float, h: float): void {
+export function render(
+    win: UiWindow,
+    fr: UiFrame,
+    focus: Focus,
+    root: Widget,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+): void {
     nextLayoutEpoch();
     fr.clearControls();
     const cx = new PaintContext(win, fr, focus);
     paintAt(root, cx, x, y, w, h);
-    for (let layer in cx.overlays) {
+    for(let layer in cx.overlays) {
         fr.enterLayer(layer.modal);
         layer.paint(cx);
     }
@@ -32,7 +41,14 @@ const HEADLESS_FRAMES: int = 5;
 const WINDOW_FLAG: str = "--window";
 
 @capability("ui")
-export function run(title: str, build: (fr: UiFrame, focus: Focus) => Widget, w: int = 800, h: int = 600, bg: int = -1, maxFrames: int = 0): void {
+export function run(
+    title: str,
+    build: (fr: UiFrame, focus: Focus) => Widget,
+    w: int = 800,
+    h: int = 600,
+    bg: int = -1,
+    maxFrames: int = 0,
+): void {
     const headless = args().indexOf(WINDOW_FLAG) == null;
     const limit = maxFrames > 0 ? maxFrames : (headless ? HEADLESS_FRAMES : 0);
     using win = UiWindow.open(title, w, h, headless);
@@ -40,9 +56,9 @@ export function run(title: str, build: (fr: UiFrame, focus: Focus) => Widget, w:
     const focus = new Focus();
     const root = computed((): Widget => build(fr, focus));
     let frames = 0;
-    while (!fr.closed) {
+    while(!fr.closed) {
         fr.update(win);
-        if (fr.held(KEY_ESCAPE)) {
+        if(fr.held(KEY_ESCAPE)) {
             break;
         }
         win.clear(bg >= 0 ? bg : Theme.colors.background);
@@ -51,7 +67,7 @@ export function run(title: str, build: (fr: UiFrame, focus: Focus) => Widget, w:
         endFrame();
         present(win, fr);
         frames = frames + 1;
-        if (limit > 0 && frames >= limit) {
+        if(limit > 0 && frames >= limit) {
             break;
         }
     }

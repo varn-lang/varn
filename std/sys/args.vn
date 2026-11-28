@@ -3,7 +3,7 @@ import {
     cwd$,
     args$,
     exit$,
-    now$
+    now$,
 } from "runtime:sys";
 
 export function platform(): str {
@@ -34,10 +34,5 @@ export struct SystemInfoRecord {
 }
 
 export function getSystemInfo(): SystemInfoRecord {
-    return new SystemInfoRecord(
-        platform: platform$(),
-        cwd: cwd$(),
-        args: args$(),
-        now: now$()
-    );
+    return new SystemInfoRecord(platform: platform$(), cwd: cwd$(), args: args$(), now: now$());
 }

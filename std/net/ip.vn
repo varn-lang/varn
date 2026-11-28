@@ -1,7 +1,7 @@
 import {
     isIP$,
     isIPv4$,
-    isIPv6$
+    isIPv6$,
 } from "runtime:net";
 
 export function isIP(s: str): bool {

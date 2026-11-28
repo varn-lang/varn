@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Tests for Phase 3 in varn-opt unsupported features parity
 
 // 1. for-await-of loops (asynchronous iteration)
@@ -10,7 +9,7 @@ class AsyncCounter {
         this.i = 0;
     }
     async next(): Task<int?> {
-        if (this.i < 3) {
+        if(this.i < 3) {
             let val = this.i;
             this.i = this.i + 1;
             return val;
@@ -73,7 +72,7 @@ function testCatchDestructure(): void {
     try {
         throw new CustomError("process failed", 500);
     } catch (e) {
-        if (e is CustomError) {
+        if(e is CustomError) {
             const { message, code } = e;
             expect(message).toBe("process failed");
             expect(code).toBe(500);
@@ -115,9 +114,6 @@ async function runAll(): Task<void> {
 }
 await describe("50 opt unsupported phase3", async () => {
     await it("tests", async () => {
-        
         await runAll();
-        
-        
     });
 });

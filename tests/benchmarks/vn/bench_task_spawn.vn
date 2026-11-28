@@ -13,7 +13,7 @@ let t0 = now();
 await parallel([nap(100), nap(100), nap(100), nap(100), nap(100), nap(100), nap(100), nap(100)]);
 print("overlap8x100=" + (now() - t0).toString());
 
-let batch: Array<Task<int>> = [];
+let batch: Array<Task<int >> = [];
 for (let i = 0; i < 500; i = i + 1) {
     batch.push(trivial(i));
 }

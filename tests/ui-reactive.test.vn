@@ -1,5 +1,23 @@
 import { describe, it, expect } from "std:test";
-import { UiWindow, UiFrame, Focus, Widget, Text, TextNode, FlexNode, Column, Box, BoxNode, Theme, render, component, expanded, signal, computed, Readable } from "std:ui";
+import {
+    UiWindow,
+    UiFrame,
+    Focus,
+    Widget,
+    Text,
+    TextNode,
+    FlexNode,
+    Column,
+    Box,
+    BoxNode,
+    Theme,
+    render,
+    component,
+    expanded,
+    signal,
+    computed,
+    Readable,
+} from "std:ui";
 import { beginFrame, endFrame } from "std:ui/state";
 
 const name = signal("a");

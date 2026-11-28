@@ -5,7 +5,7 @@ const grid: int[][] = [[1, 2], [3, 4], [5, 6]]
 
 function secondOfEach(): int {
     let total = 0
-    for (let i = 0; i < pairs.length; i++) {
+    for(let i = 0; i < pairs.length; i++) {
         const p = pairs[i]
         total = total + p[1]
     }
@@ -14,7 +14,7 @@ function secondOfEach(): int {
 
 function lastOfRows(): int {
     let total = 0
-    for (const row in grid) {
+    for(const row in grid) {
         total = total + row[1]
     }
     return total
@@ -22,7 +22,7 @@ function lastOfRows(): int {
 
 await describe("229 jit loop-variant views", async () => {
     await it("an array read inside a loop is re-read on every iteration", () => {
-        for (let round = 0; round < 3; round++) {
+        for(let round = 0; round < 3; round++) {
             expect(secondOfEach()).toBe(41)
             expect(lastOfRows()).toBe(12)
         }

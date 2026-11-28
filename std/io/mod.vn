@@ -9,5 +9,5 @@ export {
     print,
     flush,
     readLine,
-    readAll
+    readAll,
 } from "std:io/stream";

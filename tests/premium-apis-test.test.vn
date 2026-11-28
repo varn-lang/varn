@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 await describe("32 premium apis test", async () => {
     await it("tests", async () => {
         const d1: decimal = 10.50d;

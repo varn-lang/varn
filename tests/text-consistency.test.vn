@@ -7,8 +7,8 @@ await describe("253 text measure matches the window", async () => {
         using win = UiWindow.open("t", 200, 100);
         const samples = ["hola", "varn ui rn rnm", "Mm Ww iiii", "Título con acentos"];
         const sizes = [14.0, 18.0, 40.0];
-        for (const text in samples) {
-            for (const size in sizes) {
+        for(const text in samples) {
+            for(const size in sizes) {
                 expect(win.textWidth(text, size)).toBe(measure(text, size));
             }
         }

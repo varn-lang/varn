@@ -1,13 +1,11 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // The same arithmetic inside a function, which is the shape that reaches the
 // JIT: a loop long enough to be compiled must agree with the interpreter.
 function accumulate(start: int, step: int, times: int): int {
     let current = start
     let i = 0
-    while (i < times) {
+    while(i < times) {
         current = current + step
         i = i + 1
     }
@@ -39,53 +37,54 @@ await describe("53 int overflow", async () => {
         // and `try`/`catch` does not intercept it (the same is true of
         // `division by zero`), so a program cannot observe one and keep running. They
         // live in `tests/errors/int-overflow-*.vn` instead.
-        
         const INT_MAX = 9223372036854775807 // 2^63 - 1
-        const INT_MIN = -9223372036854775807 - 1 // -2^63, which has no literal form
-        
+        const INT_MIN =
+            -9223372036854775807 -
+                1 // -2^63, which has no literal form
+
         expect(INT_MAX).toBe(9223372036854775807)
         expect(INT_MIN).toBe(-9223372036854775807 - 1)
         expect(int.MAX_VALUE).toBe(INT_MAX)
         expect(int.MIN_VALUE).toBe(INT_MIN)
-        
+
         // Arithmetic that stays inside the range is exact, right up to the edge.
         expect((INT_MAX - 1) + 1).toBe(INT_MAX)
         expect((INT_MIN + 1) - 1).toBe(INT_MIN)
         expect(-INT_MAX).toBe(INT_MIN + 1)
-        
+
         // ── REGRESSION ──────────────────────────────────────────────────────────────
         // Every line below answered with a silently wrong number while the payload was
         // 48 bits wide. They are the whole point of the change.
-        
+
         // 2^47 is where the old payload ran out. Nothing happens here now.
         expect(140737488355327 + 1).toBe(140737488355328)
         expect(140737488355328 * 2).toBe(281474976710656)
-        
+
         // Two primes anyone writing a hash or a modular routine reaches for. This used
         // to evaluate to -80578252960719.
         expect(1000000007 * 1000000007).toBe(1000000014000000049)
-        
+
         // Used to be -81474976710656 and 18525023289344.
         expect(100000000000000 + 100000000000000).toBe(200000000000000)
         expect(100000000000000 * 3).toBe(300000000000000)
-        
+
         // A literal the checker accepts must survive to run time intact. This one used
         // to print -1.
         expect(9223372036854775807).toBe(INT_MAX)
-        
+
         // The folder must reach the same values as the interpreter and the JIT. These
         // are all literal expressions, so they are folded at compile time; the ones
         // above run through registers.
         expect(1000000000 * 1000000000).toBe(1000000000000000000)
         expect(9223372036854775000 + 807).toBe(INT_MAX)
         expect(2 ** 62).toBe(4611686018427387904)
-        
+
         // Values held in variables take the register path rather than the folder, so
         // the same arithmetic has to agree through both.
         let a: int = 1000000007
         let b: int = 1000000007
         expect(a * b).toBe(1000000014000000049)
-        
+
         expect(accumulate(0, 1000000000, 100)).toBe(100000000000)
         // A step that crosses the old 48-bit ceiling inside the loop.
         expect(accumulate(0, 100000000000000, 10)).toBe(1000000000000000)
@@ -93,11 +92,9 @@ await describe("53 int overflow", async () => {
         // exercised and not just the interpreter.
         expect(accumulate(0, 1, 100000)).toBe(100000)
         expect(accumulate(INT_MAX - 100000, 1, 100000)).toBe(INT_MAX)
-        
+
         // Shifts truncate to the type width by definition — that is the shift's
         // result, not an overflow — so they do NOT raise.
         expect((1 << 63)).toBe(INT_MIN)
-        
-        
     });
 });

@@ -14,10 +14,10 @@ export class ManualScheduler implements Scheduler {
     }
 
     flush(): void {
-        while (this._jobs.length > 0) {
+        while(this._jobs.length > 0) {
             const due = this._jobs;
             this._jobs = [];
-            for (let job in due) {
+            for(let job in due) {
                 job();
             }
         }

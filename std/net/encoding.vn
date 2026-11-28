@@ -1,6 +1,6 @@
 import {
     encodeURIComponent$,
-    decodeURIComponent$
+    decodeURIComponent$,
 } from "runtime:net";
 
 export function encodeURIComponent(s: str): str {

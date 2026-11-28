@@ -1,7 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // 2. Index updates
 let arr = [100, 200];
 
@@ -39,24 +37,24 @@ class ChildClass extends ParentClass {
 await describe("49 opt unsupported phase2", async () => {
     await it("tests", async () => {
         // Tests for Phase 2: Updates on Members and Indices
-        
+
         // 1. Member updates
         let obj = #{ x: 10, y: 20 };
         let r1 = obj.x;
         obj.x++;
         expect(r1).toBe(10);
         expect(obj.x).toBe(11);
-        
+
         obj.x++;
         let r2 = obj.x;
         expect(r2).toBe(12);
         expect(obj.x).toBe(12);
-        
+
         let r3 = obj.y;
         obj.y--;
         expect(r3).toBe(20);
         expect(obj.y).toBe(19);
-        
+
         obj.y--;
         let r4 = obj.y;
         expect(r4).toBe(18);
@@ -65,32 +63,30 @@ await describe("49 opt unsupported phase2", async () => {
         arr[0]++;
         expect(r5).toBe(100);
         expect(arr[0]).toBe(101);
-        
+
         arr[0]++;
         let r6 = arr[0];
         expect(r6).toBe(102);
         expect(arr[0]).toBe(102);
-        
+
         let r7 = arr[1];
         arr[1]--;
         expect(r7).toBe(200);
         expect(arr[1]).toBe(199);
-        
+
         arr[1]--;
         let r8 = arr[1];
         expect(r8).toBe(198);
         expect(arr[1]).toBe(198);
-        
+
         // 3. Nested updates
         let complex = #{ arr: [#{ val: 5 }] };
         let r9 = complex.arr[0].val;
         complex.arr[0].val++;
         expect(r9).toBe(5);
         expect(complex.arr[0].val).toBe(6);
-        
+
         let c = new ChildClass();
         c.testInstanceUpdates();
-        
-        
     });
 });

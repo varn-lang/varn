@@ -4,7 +4,13 @@ import { List, Stack, Queue } from 'std:collections';
 import { fetch, HttpServer, Request, Response } from 'std:http';
 import { Json, JsonValue } from 'std:encoding';
 import { uuid, sha256 } from 'std:crypto';
-import { writeText as fsWrite, exists as fsExists, readText as fsRead, tempDir as fsTempDir, remove as fsRemove } from 'std:fs';
+import {
+    writeText as fsWrite,
+    exists as fsExists,
+    readText as fsRead,
+    tempDir as fsTempDir,
+    remove as fsRemove,
+} from 'std:fs';
 import { write as ioWrite, writeln as ioWriteln } from 'std:io';
 import { PI as mathPI, abs as mathAbs, min as mathMin, max as mathMax } from 'std:math';
 import { platform as sysPlatform, cwd as sysCwd } from 'std:sys';
@@ -13,11 +19,9 @@ import { Path } from 'std:path';
 import { defineMetadata, getMetadata, hasMetadata, MetaKey } from 'std:reflect';
 import { sleep, delay, TaskGroup, spawn, parallel } from 'std:task';
 
-
 // Disposable, AsyncDisposable, Partial, Required, Readonly, Mutable, Record
 // are now globally available (prelude) — no import needed.
 // Option/Result are core types: in scope with no import.
-
 class ResourceImpl implements Disposable {
     disposed: bool = false;
     dispose(): void {
@@ -27,7 +31,6 @@ class ResourceImpl implements Disposable {
 
 @capability("fs.read", "fs.write", "net.server", "net.client")
 async function runComprehensiveTest(): Task<void> {
-
     // 1. std:time
     let d = Duration.from("PT1H30M");
     expect(d.hours).toBe(1);
@@ -50,11 +53,10 @@ async function runComprehensiveTest(): Task<void> {
 
     // 4. std:json
     let serialized = Json.stringify(#{ test: "json", value: 123 });
-    let parsed = Json.parse<Map<str, JsonValue>>(serialized);
+    let parsed = Json.parse<Map<str, JsonValue >> (serialized);
     expect(parsed["test"]).toBe("json");
     expect(parsed["value"]).toBe(123);
 
-    
     // 5. std:collections
     let list = new List<str>(["A"]);
     list.add("B");
@@ -88,8 +90,8 @@ async function runComprehensiveTest(): Task<void> {
     fsRemove(testFile);
 
     // 7. std:io
-    ioWrite(""); 
-    ioWriteln(""); 
+    ioWrite("");
+    ioWriteln("");
 
     // 8. std:sys
     expect(sysPlatform().length > 0).toBeTruthy();
@@ -119,11 +121,11 @@ async function runComprehensiveTest(): Task<void> {
 
     // 11. std:reflect
     defineMetadata("my_key", "my_val", list);
-    expect(getMetadata<str, str, List<str>>("my_key", list)).toBe("my_val");
+    expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
     let mkey = MetaKey.create<int[], str>();
-    expect(getMetadata<str, str, List<str>>("my_key", list)).toBe("my_val");
+    expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
     // 12. std:http
@@ -144,17 +146,22 @@ async function runComprehensiveTest(): Task<void> {
     let val = await h1;
     expect(val).toBe(300);
 
-    async function one(): Task<int> { return 1; }
-    async function two(): Task<int> { return 2; }
-    let all = await parallel([
-        one(),
-        two(),
-    ]);
+    async function one(): Task<int> {
+        return 1;
+    }
+    async function two(): Task<int> {
+        return 2;
+    }
+    let all = await parallel([one(), two()]);
     expect(all[0] == 1 && all[1] == 2).toBeTruthy();
 
     using group = new TaskGroup<int>();
-    async function ten(): Task<int> { return 10; }
-    async function twenty(): Task<int> { return 20; }
+    async function ten(): Task<int> {
+        return 10;
+    }
+    async function twenty(): Task<int> {
+        return 20;
+    }
     let g1 = group.spawn(ten());
     let g2 = group.spawn(twenty());
     let joined = await group.join();
@@ -176,7 +183,7 @@ async function runComprehensiveTest(): Task<void> {
     expect(optSome!).toBe(99);
     expect(optSome ?? 50).toBe(99);
     expect(optNone ?? 50).toBe(50);
-    if (const v = optSome) {
+    if(const v = optSome) {
         expect(v).toBe(99);
     } else {
         expect(false).toBeTruthy();
@@ -185,18 +192,18 @@ async function runComprehensiveTest(): Task<void> {
     // 16. std:result (Result)
     let resOk = Ok<str, int>("success");
     let resErr = Err<str, int>(500);
-    match (resOk) {
+    match(resOk) {
         Ok(v) => expect(v).toBe("success"),
         Err(_) => expect(false).toBeTruthy(),
     }
-    match (resErr) {
+    match(resErr) {
         Ok(_) => expect(false).toBeTruthy(),
         Err(e) => expect(e).toBe(500),
     }
     let resTry = Result.catching<int>(() => {
         return 888;
     });
-    match (resTry) {
+    match(resTry) {
         Ok(v) => expect(v).toBe(888),
         Err(_) => expect(false).toBeTruthy(),
     }

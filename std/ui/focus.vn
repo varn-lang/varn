@@ -9,12 +9,12 @@ export class Focus {
 
     claim(id: int): void {
         let at = -1;
-        for (let i = 0; i < this._ids.length; i = i + 1) {
-            if (this._ids[i] == id) {
+        for(let i = 0; i < this._ids.length; i = i + 1) {
+            if(this._ids[i] == id) {
                 at = i;
             }
         }
-        if (at < 0) {
+        if(at < 0) {
             this._ids.push(id);
             at = this._ids.length - 1;
         }
@@ -22,8 +22,8 @@ export class Focus {
     }
 
     has(id: int): bool {
-        for (let i = 0; i < this._ids.length; i = i + 1) {
-            if (this._ids[i] == id) {
+        for(let i = 0; i < this._ids.length; i = i + 1) {
+            if(this._ids[i] == id) {
                 return true;
             }
         }
@@ -31,20 +31,20 @@ export class Focus {
     }
 
     current(): int {
-        if (this._idx < 0 || this._idx >= this._ids.length) {
+        if(this._idx < 0 || this._idx >= this._ids.length) {
             return -1;
         }
         return this._ids[this._idx];
     }
 
     next(): void {
-        if (this._ids.length > 0) {
+        if(this._ids.length > 0) {
             this._idx = (this._idx + 1) % this._ids.length;
         }
     }
 
     prev(): void {
-        if (this._ids.length > 0) {
+        if(this._ids.length > 0) {
             this._idx = (this._idx - 1 + this._ids.length) % this._ids.length;
         }
     }

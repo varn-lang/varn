@@ -2,16 +2,34 @@ import { describe, it, expect } from "std:test";
 
 type Method = "GET" | "POST"
 function code(m: Method): int {
-    return match (m) { "GET" => 1, "POST" => 2 }
+    return match (m) {
+        "GET" => 1,
+        "POST" => 2
+    }
 }
 
-function sign(b: bool): int { return match (b) { true => 1, false => -1 } }
+function sign(b: bool): int {
+    return match (b) {
+        true => 1,
+        false => -1
+    }
+}
 
-function orZero(x: int?): int { return match (x) { null => 0, n => n } }
+function orZero(x: int?): int {
+    return match (x) {
+        null => 0,
+        n => n
+    }
+}
 
-function describeCount(n: int): str { return match (n) { 0 => "zero", _ => "many" } }
+function describeCount(n: int): str {
+    return match (n) {
+        0 => "zero",
+        _ => "many"
+    }
+}
 await describe("128 match exhaustiveness", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(code("GET") + code("POST")).toBe(3);
         expect(sign(true) + sign(false)).toBe(0);
     });
@@ -20,6 +38,4 @@ await describe("128 match exhaustiveness", async () => {
         expect(orZero(null) == 0 && orZero(5) == 5).toBeTruthy();
         expect(describeCount(0) == "zero" && describeCount(5) == "many").toBeTruthy();
     });
-
-
 });

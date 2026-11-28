@@ -1,9 +1,15 @@
 import { describe, it, expect } from "std:test";
 import { Source, Sink, Channel, Cell, Lifted, Doubled } from "./helpers/generic-heritage-lib.vn";
 
-function read(s: Source<int>): int { return s.current }
-function feed(s: Sink<str>, v: str): void { s.push(v) }
-function drain(c: Channel<int>): int[] { return c.drain() }
+function read(s: Source<int>): int {
+    return s.current
+}
+function feed(s: Sink<str>, v: str): void {
+    s.push(v)
+}
+function drain(c: Channel<int>): int[] {
+    return c.drain()
+}
 
 await describe("233 generic heritage", async () => {
     await it("an instance is assignable to its generic base with the same arguments", () => {

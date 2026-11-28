@@ -3,12 +3,21 @@ import { describe, it, expect } from "std:test";
 // Un `int` desborda a i64, no a i48: la premisa que el JIT usaba para
 // saltarse el guard murió con el NaN-boxing. Si un tier envuelve en
 // silencio donde el otro lanza, es un bug de generación de código.
-
-function addHot(a: int, b: int): int { return a + b }
-function subHot(a: int, b: int): int { return a - b }
-function mulHot(a: int, b: int): int { return a * b }
-function incHot(a: int): int { return a + 1 }
-function decHot(a: int): int { return a - 1 }
+function addHot(a: int, b: int): int {
+    return a + b
+}
+function subHot(a: int, b: int): int {
+    return a - b
+}
+function mulHot(a: int, b: int): int {
+    return a * b
+}
+function incHot(a: int): int {
+    return a + 1
+}
+function decHot(a: int): int {
+    return a - 1
+}
 
 const MAX: int = 9223372036854775807
 const MIN: int = 0 - 9223372036854775807 - 1
@@ -28,14 +37,14 @@ function overflows(f: () => int): bool {
 
 // El camino que NO desborda sigue dando el mismo resultado.
 await describe("102 int overflow", async () => {
-        await it("group 1 part 1", async () => {
-        while (i < 500000) {
-        sink = addHot(i, 1)
-        sink = subHot(i, 1)
-        sink = mulHot(i, 2)
-        sink = incHot(i)
-        sink = decHot(i)
-        i = i + 1
+    await it("group 1 part 1", async () => {
+        while(i < 500000) {
+            sink = addHot(i, 1)
+            sink = subHot(i, 1)
+            sink = mulHot(i, 2)
+            sink = incHot(i)
+            sink = decHot(i)
+            i = i + 1
         }
         expect(sink != 0).toBeTruthy();
         expect(overflows(() => addHot(MAX, 1))).toBeTruthy();
@@ -50,6 +59,4 @@ await describe("102 int overflow", async () => {
         expect(subHot(9, 4)).toBe(5);
         expect(mulHot(6, 7)).toBe(42);
     });
-
-
 });

@@ -6,7 +6,9 @@ import { ParseError } from "std:error";
 const MAX: int = 9223372036854775807;
 
 function outcome(f: () => str): str {
-    try { return f(); } catch (e) {
+    try {
+        return f();
+    } catch (e) {
         return e is RangeError ? "range" : e is ParseError ? "parse" : "other:" + e.name;
     }
 }
@@ -15,7 +17,7 @@ await describe("313 crypto sizes are bounded and malformed input is a ParseError
     await it("random sizes outside 0..=2^31 are RangeError, not a process abort", async () => {
         expect(outcome(() => randomBytes(-1).length.toString())).toBe("range");
         expect(outcome(() => randomBytes(MAX).length.toString())).toBe("range");
-        expect(outcome(() => randomHex(MAX)) ).toBe("range");
+        expect(outcome(() => randomHex(MAX))).toBe("range");
         expect(outcome(() => randomBytes(16).length.toString())).toBe("16");
         expect(outcome(() => randomHex(8).length.toString())).toBe("16");
         expect(outcome(() => randomBytes(0).length.toString())).toBe("0");
@@ -36,9 +38,15 @@ await describe("313 crypto sizes are bounded and malformed input is a ParseError
     });
 
     await it("hashes and key derivation match published vectors", async () => {
-        expect(sha256("abc")).toBe("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+        expect(sha256("abc")).toBe(
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+        );
         expect(sha256("")).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
-        expect(hmac("sha256", "key", "The quick brown fox jumps over the lazy dog")).toBe("f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8");
-        expect(pbkdf2("password", "salt", 2, 32).toHex()).toBe("ae4d0c95af6b46d32d0adff928f06dd02a303f8ef3c251dfd6e2d85a95474c43");
+        expect(hmac("sha256", "key", "The quick brown fox jumps over the lazy dog")).toBe(
+            "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
+        );
+        expect(pbkdf2("password", "salt", 2, 32).toHex()).toBe(
+            "ae4d0c95af6b46d32d0adff928f06dd02a303f8ef3c251dfd6e2d85a95474c43",
+        );
     });
 });

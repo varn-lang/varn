@@ -27,7 +27,7 @@ export class Scope extends Owner {
     }
 
     override onDispose(fn: () => void): void {
-        if (!this._alive) {
+        if(!this._alive) {
             fn();
             return;
         }
@@ -39,13 +39,13 @@ export class Scope extends Owner {
     }
 
     dispose(): void {
-        if (!this._alive) {
+        if(!this._alive) {
             return;
         }
         this._alive = false;
         const pending = this._cleanups;
         this._cleanups = [];
-        for (let at = pending.length - 1; at >= 0; at = at - 1) {
+        for(let at = pending.length - 1; at >= 0; at = at - 1) {
             pending[at]();
         }
     }
@@ -55,7 +55,7 @@ export function scope(body: () => void): Scope {
     const parent = _owner;
     const created = new Scope();
     created.run(body);
-    if (parent != null) {
+    if(parent != null) {
         parent.onDispose(() => created.dispose());
     }
     return created;

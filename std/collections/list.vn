@@ -10,7 +10,7 @@ export class List<T> {
     }
 
     get(index: int): T? {
-        if (index < 0 || index >= this.items.length) {
+        if(index < 0 || index >= this.items.length) {
             return null;
         }
         return this.items[index];
@@ -29,7 +29,7 @@ export class List<T> {
     }
 
     removeAt(index: int): T? {
-        if (index < 0 || index >= this.items.length) {
+        if(index < 0 || index >= this.items.length) {
             return null;
         }
         let removed = this.items[index];

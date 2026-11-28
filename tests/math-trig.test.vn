@@ -6,9 +6,8 @@ function near(a: float, b: float): bool {
 }
 await describe("52 math trig", async () => {
     await it("tests", async () => {
-        
         const PI: float = 3.141592653589793;
-        
+
         expect(near(acos(0.0), PI / 2.0)).toBeTruthy();
         expect(near(acos(1.0), 0.0)).toBeTruthy();
         expect(near(asin(1.0), PI / 2.0)).toBeTruthy();
@@ -16,6 +15,5 @@ await describe("52 math trig", async () => {
         expect(near(atan(1.0), PI / 4.0)).toBeTruthy();
         expect(near(atan2(1.0, 1.0), PI / 4.0)).toBeTruthy();
         expect(near(atan2(0.0, 1.0), 0.0)).toBeTruthy();
-        
     });
 });

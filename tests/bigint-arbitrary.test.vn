@@ -9,8 +9,13 @@ const big40: bigint = 1000000000000000000000000000000000000000n
 const i: int = 7
 
 function kind(f: () => bigint): str {
-    try { f(); return "none" } catch (e) {
-        if (e is DivisionByZero) { return "zero" }
+    try {
+        f();
+        return "none"
+    } catch (e) {
+        if(e is DivisionByZero) {
+            return "zero"
+        }
         return "other"
     }
 }
@@ -19,10 +24,14 @@ const s: Set<bigint> = new Set<bigint>()
 
 const maxI: int = 9223372036854775807
 const widened: bigint = maxI as bigint
-function sq(x: bigint): bigint { return x * x }
-function asBig(x: int): bigint { return x as bigint }
+function sq(x: bigint): bigint {
+    return x * x
+}
+function asBig(x: int): bigint {
+    return x as bigint
+}
 await describe("124 bigint arbitrary", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(a + b).toBe(15n);
         expect(a - 20n).toBe(-10n);
         expect(a * b).toBe(50n);
@@ -36,7 +45,9 @@ await describe("124 bigint arbitrary", async () => {
     await it("group 1 part 2", async () => {
         expect(a > b && b < a && a >= 10n).toBeTruthy();
         expect((huge - 1n).toString()).toBe("170141183460469231731687303715884105727");
-        expect((big40 * big40).toString()).toBe("1000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        expect((big40 * big40).toString()).toBe(
+            "1000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        );
         expect(0xffn).toBe(255n);
         expect(a + (i as bigint)).toBe(17n);
         expect((i as bigint)).toBe(7n);
@@ -53,6 +64,4 @@ await describe("124 bigint arbitrary", async () => {
         expect(sq(maxI as bigint).toString()).toBe("85070591730234615847396907784232501249");
         expect((asBig(maxI) + 1n).toString()).toBe("9223372036854775808");
     });
-
-
 });

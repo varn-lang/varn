@@ -3,10 +3,9 @@ import { describe, it, expect } from "std:test";
 // A literal array read only through constant in-bounds indices never escapes,
 // so each read is the element itself and the allocation disappears. Every
 // other use of the array must keep it: these pin the cases that must refuse.
-
 function alSum(n: int): int {
     let s = 0
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         const r: Array<int> = [i, i + 1, i + 2]
         s = s + r[0] + r[2]
     }
@@ -20,7 +19,11 @@ function alFloatFromInts(): float {
 
 function alOutOfBounds(): str {
     const r: Array<int> = [1, 2, 3]
-    try { return `${r[5]}` } catch (e) { return (e as Error).name }
+    try {
+        return `${r[5]}`
+    } catch (e) {
+        return(e as Error).name
+    }
 }
 
 function alPushAfter(): int {

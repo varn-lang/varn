@@ -84,9 +84,6 @@ async function runAsyncGenerators() {
 }
 await describe("77 async generators", async () => {
     await it("tests", async () => {
-        
         await runAsyncGenerators()
-        
-        
     });
 });

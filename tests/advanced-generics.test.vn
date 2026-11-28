@@ -1,7 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
-
 interface Comparable<T> {
     compareTo(other: T): int
 }
@@ -40,12 +38,20 @@ class Either<L, R> {
     static right<L, R>(v: R): Either<L, R> {
         return new Either<L, R>(null, v, false)
     }
-    isLeft(): bool { return this._isLeft }
-    isRight(): bool { return !this._isLeft }
-    getLeft(): L | null { return this._left }
-    getRight(): R | null { return this._right }
+    isLeft(): bool {
+        return this._isLeft
+    }
+    isRight(): bool {
+        return !this._isLeft
+    }
+    getLeft(): L | null {
+        return this._left
+    }
+    getRight(): R | null {
+        return this._right
+    }
     mapRight<T>(f: (R) => T): Either<L, T> {
-        if (this._isLeft) return new Either<L, T>(this._left, null, true)
+        if(this._isLeft) return new Either<L, T>(this._left, null, true)
         return new Either<L, T>(null, f(this._right!), false)
     }
 }
@@ -65,7 +71,7 @@ class Cons<T> {
     length(): int {
         let n = 0
         let cur: Cons<T> | null = this
-        while (cur != null) {
+        while(cur != null) {
             n = n + 1
             cur = cur.tail
         }
@@ -74,7 +80,7 @@ class Cons<T> {
     toArray(): T[] {
         const arr: T[] = []
         let cur: Cons<T> | null = this
-        while (cur != null) {
+        while(cur != null) {
             arr.push(cur.head)
             cur = cur.tail
         }
@@ -87,21 +93,24 @@ const arr = list.toArray()
 
 // ── Generic HOF (higher-order functions) ─────────────────────────
 function pipe<A, B, C>(f: (A) => B, g: (B) => C): (A) => C {
-    return (x: A) => g(f(x))
+    return(x: A) => g(f(x))
 }
 
 function flip<A, B, C>(f: (A, B) => C): (B, A) => C {
-    return (b: B, a: A) => f(a, b)
+    return(b: B, a: A) => f(a, b)
 }
 
 // ── Generic memoize ──────────────────────────────────────────────
-function memoize<T>(f: (a:int) => T): (int) => T {
+function memoize<T>(f: (a: int) => T): (int) => T {
     const cache: T[] = []
     const seen: bool[] = []
-    return (n: int) => {
-        if (n < seen.length && seen[n]) return cache[n]
+    return(n: int) => {
+        if(n < seen.length && seen[n]) return cache[n]
         const result = f(n)
-        while (cache.length <= n) { cache.push(result); seen.push(false) }
+        while(cache.length <= n) {
+            cache.push(result);
+            seen.push(false)
+        }
         cache[n] = result
         seen[n] = true
         return result
@@ -111,14 +120,13 @@ function memoize<T>(f: (a:int) => T): (int) => T {
 // ── Generic counter factory ───────────────────────────────────────
 function makeAccumulator<T>(init: T, combine: (T, T) => T): (v: T) => T {
     let state = init
-    return (v: T) => {
+    return(v: T) => {
         state = combine(state, v)
         return state
     }
 }
 await describe("36 advanced generics", async () => {
     await it("tests", async () => {
-        
         const p = new SortedPair<int>(1, 2)
         expect(p.first).toBe(1)
         expect(p.second).toBe(2)
@@ -137,48 +145,47 @@ await describe("36 advanced generics", async () => {
         expect(left.getRight()).toBe(null)
         expect(right.isRight()).toBeTruthy()
         expect(right.getRight()).toBe(42)
-        
+
         const mapped = right.mapRight((n) => n * 2)
         expect(mapped.getRight()).toBe(84)
-        
+
         const leftMapped = left.mapRight((n) => n * 2)
         expect(leftMapped.isLeft()).toBeTruthy()
         expect(list.length()).toBe(3)
         expect(arr[0]).toBe(1)
         expect(arr[1]).toBe(2)
         expect(arr[2]).toBe(3)
-        
+
         const toStr = (n: int) => `${n}`
         const addBang = (s: str) => s + "!"
         const numToExclaim = pipe(toStr, addBang)
         expect(numToExclaim(42)).toBe("42!")
-        
+
         const sub = (a: int, b: int) => a - b
         const flippedSub = flip(sub)
         expect(flippedSub(3, 10)).toBe(7)
-        
+
         let callCount = 0
         const expensiveFib = memoize((n) => {
             callCount = callCount + 1
-            if (n <= 1) return n
+            if(n <= 1) return n
             return n
         })
         expensiveFib(5)
         expensiveFib(5)
         expensiveFib(5)
         expect(callCount).toBe(1)
-        
+
         const sumAcc = makeAccumulator<int>(0, (a, b) => a + b)
         sumAcc(5)
         sumAcc(3)
         const total = sumAcc(2)
         expect(total).toBe(10)
-        
+
         const strAcc = makeAccumulator<str>("", (a, b) => a + b)
         strAcc("foo")
         strAcc("bar")
         const built = strAcc("!")
         expect(built).toBe("foobar!")
-        
     });
 });

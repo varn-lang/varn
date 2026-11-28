@@ -6,7 +6,7 @@ type Branch = #{ label: str; kids: Branch[] }
 function length(head: Link?): int {
     let node: Link? = head
     let count = 0
-    while (node != null) {
+    while(node != null) {
         count = count + 1
         node = node.next
     }
@@ -14,9 +14,13 @@ function length(head: Link?): int {
 }
 
 function leaves(tree: Branch): int {
-    if (tree.kids.length == 0) { return 1 }
+    if(tree.kids.length == 0) {
+        return 1
+    }
     let total = 0
-    for (const kid in tree.kids) { total = total + leaves(kid) }
+    for(const kid in tree.kids) {
+        total = total + leaves(kid)
+    }
     return total
 }
 

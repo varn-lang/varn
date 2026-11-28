@@ -27,24 +27,20 @@ export class UdpSocket {
     }
 
     send(host: str, port: int, data: Bytes | str): int {
-        if (!this._isOpen) throw new ClosedError("UdpSocket is closed");
+        if(!this._isOpen) throw new ClosedError("UdpSocket is closed");
         return udpSendTo$(this._id, host, port, data);
     }
 
     async recv(maxLen?: int): Task<UdpPacket?> {
-        if (!this._isOpen) throw new ClosedError("UdpSocket is closed");
+        if(!this._isOpen) throw new ClosedError("UdpSocket is closed");
         let raw = await udpRecvFrom$(this._id, maxLen ?? 65536);
-        if (raw == null) return null;
+        if(raw == null) return null;
         let parts = raw as #[Bytes, str, int];
-        return new UdpPacket(
-            data: parts[0],
-            host: parts[1],
-            port: parts[2]
-        );
+        return new UdpPacket(data: parts[0], host: parts[1], port: parts[2]);
     }
 
     close(): void {
-        if (this._isOpen) {
+        if(this._isOpen) {
             this._isOpen = false;
             udpClose$(this._id);
         }

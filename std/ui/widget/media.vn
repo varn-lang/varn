@@ -1,4 +1,12 @@
-import { Widget, Size, PaintContext, paintAt, Placement, fixedSize, Constraints } from "std:ui/widget/base";
+import {
+    Widget,
+    Size,
+    PaintContext,
+    paintAt,
+    Placement,
+    fixedSize,
+    Constraints,
+} from "std:ui/widget/base";
 import { TextNode, TextAlign } from "std:ui/widget/text";
 import { TextStyle, BoxFit, Theme } from "std:ui/style";
 import { now } from "std:time";
@@ -24,7 +32,21 @@ export class ImageNode extends Widget {
         const w = p.size.w;
         const h = p.size.h;
         cx.win.rect(x, y, w, h, Theme.colors.outline, 8.0);
-        paintAt(new TextNode(this.source, 14.0, Theme.colors.muted, TextAlign.center, TextStyle.caption, 0), cx, x + 8.0, y, w - 16.0, h);
+        paintAt(
+            new TextNode(
+                this.source,
+                14.0,
+                Theme.colors.muted,
+                TextAlign.center,
+                TextStyle.caption,
+                0,
+            ),
+            cx,
+            x + 8.0,
+            y,
+            w - 16.0,
+            h,
+        );
     }
 }
 
@@ -50,23 +72,33 @@ export class ProgressNode extends Widget {
         const w = p.size.w;
         const h = p.size.h;
         cx.win.rect(x, y, w, h, this.track, h / 2.0);
-        if (this.value < 0.0) {
+        if(this.value < 0.0) {
             const t = (((now() / 300) % 10) as float) / 10.0;
             const pw = w * 0.4;
             cx.win.rect(x + (w - pw) * t, y, pw, h, this.color, h / 2.0);
         } else {
             const frac = this.value > 1.0 ? 1.0 : this.value;
-            if (frac > 0.0) {
+            if(frac > 0.0) {
                 cx.win.rect(x, y, w * frac, h, this.color, h / 2.0);
             }
         }
     }
 }
 
-export function Image(source: str, w: float = -1.0, h: float = -1.0, fit: BoxFit = BoxFit.cover): Widget {
+export function Image(
+    source: str,
+    w: float = -1.0,
+    h: float = -1.0,
+    fit: BoxFit = BoxFit.cover,
+): Widget {
     return new ImageNode(source, w, h, fit);
 }
 
-export function Progress(value: float = -1.0, color: int = Theme.colors.primary, track: int = Theme.colors.outline, h: float = 8.0): Widget {
+export function Progress(
+    value: float = -1.0,
+    color: int = Theme.colors.primary,
+    track: int = Theme.colors.outline,
+    h: float = 8.0,
+): Widget {
     return new ProgressNode(value, color, track, h);
 }

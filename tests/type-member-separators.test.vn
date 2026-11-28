@@ -4,8 +4,7 @@ type WithCommas = #{ x: int, y: int }
 type WithSemicolons = #{ x: int; y: int }
 type Mixed = #{ x: int, y: int; z: int }
 type Lines = #{
-    x: int
-    y: int
+    x: int y: int,
 }
 
 await describe("345 type member separators", async () => {

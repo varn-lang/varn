@@ -1,6 +1,8 @@
 import { describe, it, expect } from "std:test";
 
-function same(c: char): char { return c }
+function same(c: char): char {
+    return c
+}
 
 await describe("182 char literals", async () => {
     await it("one character between single quotes is a char whatever its width", () => {

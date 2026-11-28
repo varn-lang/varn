@@ -7,24 +7,44 @@ class IdGen {
         IdGen._next = IdGen._next + 1;
         return id;
     }
-    static reset(): void { IdGen._next = 1; }
+    static reset(): void {
+        IdGen._next = 1;
+    }
 }
 class Temperature {
     private _celsius: float
-    constructor(c: float) { this._celsius = c; }
-    get celsius() { return this._celsius; }
-    set celsius(v: float) { this._celsius = v; }
-    get fahrenheit() { return this._celsius * 1.8 + 32.0; }
+    constructor(c: float) {
+        this._celsius = c;
+    }
+    get celsius() {
+        return this._celsius;
+    }
+    set celsius(v: float) {
+        this._celsius = v;
+    }
+    get fahrenheit() {
+        return this._celsius * 1.8 + 32.0;
+    }
 }
 class Animal {
     name: str
-    constructor(n: str) { this.name = n; }
-    speak() { return "..."; }
-    toString() { return `Animal(${this.name})`; }
+    constructor(n: str) {
+        this.name = n;
+    }
+    speak() {
+        return "...";
+    }
+    toString() {
+        return `Animal(${this.name})`;
+    }
 }
 class Dog extends Animal {
-    constructor(n: str) { super(n); }
-    override speak() { return "Woof"; }
+    constructor(n: str) {
+        super(n);
+    }
+    override speak() {
+        return "Woof";
+    }
 }
 class PoliceDog extends Dog {
     badge: int
@@ -32,14 +52,22 @@ class PoliceDog extends Dog {
         super(n);
         this.badge = badge;
     }
-    override speak() { return super.speak() + "!"; }
+    override speak() {
+        return super.speak() + "!";
+    }
 }
 class Greeter {
-    greet(): str { return "hey"; }
-    get title(): str { return "Mister"; }
+    greet(): str {
+        return "hey";
+    }
+    get title(): str {
+        return "Mister";
+    }
 }
 class PoliteGreeter extends Greeter {
-    readTitle(): str { return super.title; }
+    readTitle(): str {
+        return super.title;
+    }
     tearGreet(): () => str {
         const f = super.greet;
         return f;
@@ -47,18 +75,31 @@ class PoliteGreeter extends Greeter {
 }
 abstract class Shape {
     abstract area(): float
-    describe(): str { return `shape with area ${this.area()}`; }
+    describe(): str {
+        return `shape with area ${this.area()}`;
+    }
 }
 class Circle extends Shape {
     r: float
-    constructor(r: float) { super(); this.r = r; }
-    override area(): float { return 3.14159 * this.r * this.r; }
+    constructor(r: float) {
+        super();
+        this.r = r;
+    }
+    override area(): float {
+        return 3.14159 * this.r * this.r;
+    }
 }
 class Rect extends Shape {
     w: float
     h: float
-    constructor(w: float, h: float) { super(); this.w = w; this.h = h; }
-    override area(): float { return this.w * this.h; }
+    constructor(w: float, h: float) {
+        super();
+        this.w = w;
+        this.h = h;
+    }
+    override area(): float {
+        return this.w * this.h;
+    }
 }
 
 await describe("12 Classes", async () => {

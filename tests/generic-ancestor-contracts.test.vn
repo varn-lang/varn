@@ -16,8 +16,7 @@ class IntBox extends Box<int> {
     }
 }
 
-class Mid extends Box<int> {
-}
+class Mid extends Box<int> {}
 
 class Leaf extends Mid {
     override get(): int {

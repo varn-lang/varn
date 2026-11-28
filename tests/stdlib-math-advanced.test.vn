@@ -2,7 +2,6 @@ import * as Math from "std:math";
 import { exp, log, log10, log2, pow, hypot, cbrt, sign, trunc } from "std:math";
 import { describe, it, expect } from "std:test";
 
-
 // 1. exp and log
 let e1 = Math.exp(1.0);
 let lne = Math.log(Math.E);
@@ -16,7 +15,7 @@ let lneFree = log(Math.E);
 
 // 4. sign and trunc
 await describe("96 stdlib math advanced", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(e1).toBeCloseTo(2.718281828459045, 0.0001);
         expect(lne).toBeCloseTo(1.0, 0.0001);
         expect(e1Free).toBeCloseTo(2.718281828459045, 0.0001);
@@ -43,6 +42,4 @@ await describe("96 stdlib math advanced", async () => {
         expect(Math.trunc(4.9)).toBe(4.0);
         expect(Math.trunc(-4.9)).toBe(-4.0);
     });
-
-
 });

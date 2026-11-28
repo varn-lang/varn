@@ -3,8 +3,6 @@ import { Response } from "std:http";
 import { AsyncReader } from "std:io";
 import { describe, it, expect } from "std:test";
 
-
-
 class MockChunkReader implements AsyncReader {
     private chunks: Bytes[];
     private idx: int = 0;
@@ -14,7 +12,7 @@ class MockChunkReader implements AsyncReader {
     }
 
     async read(size?: int): Task<Bytes?> {
-        if (this.idx >= this.chunks.length) {
+        if(this.idx >= this.chunks.length) {
             return null;
         }
         let chunk = this.chunks[this.idx];
@@ -26,11 +24,16 @@ class MockChunkReader implements AsyncReader {
 function testHttpResponseStreamShape(): void {
     let mockChunks: Bytes[] = [
         Bytes.fromString("first chunk\n"),
-        Bytes.fromString("second chunk\n")
+        Bytes.fromString("second chunk\n"),
     ];
     let reader = new MockChunkReader(mockChunks);
     expect(reader).toBeNotNull();
-    let res = new Response("first chunk\n", 200, new Map<str, str>([#["Content-Type", "text/plain"]]));
+    let res = new Response(
+        "first chunk\n",
+        200,
+        new Map<str,
+        str>([#["Content-Type", "text/plain"]]),
+    );
     res.stream(reader);
     expect(res.status).toBe(200);
     expect(res.bodyStream != null).toBeTruthy();

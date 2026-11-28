@@ -7,15 +7,14 @@ class LoopProbe {
         this.n = 0;
         this.closed = false;
     }
-    dispose(): void {
-    }
+    dispose(): void {}
 }
 
 let andFrames = 0;
 let andGo = true;
 using andProbe = new LoopProbe();
 while (andGo && andFrames < 5) {
-    if (andFrames > 2) {
+    if(andFrames > 2) {
         break;
     }
     andFrames = andFrames + 1;
@@ -24,7 +23,7 @@ while (andGo && andFrames < 5) {
 let fieldFrames = 0;
 using fieldProbe = new LoopProbe();
 while (!fieldProbe.closed && fieldFrames < 5) {
-    if (fieldFrames > 2) {
+    if(fieldFrames > 2) {
         break;
     }
     fieldFrames = fieldFrames + 1;

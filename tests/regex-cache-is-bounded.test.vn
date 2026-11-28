@@ -4,7 +4,7 @@ await describe("331 regex cache is bounded", async () => {
     await it("regexes keep working after far more distinct patterns than the cache holds", async () => {
         const first = new Regex("first-(\\d+)");
         const kept: Regex[] = [];
-        for (let i = 0; i < 9000; i++) {
+        for(let i = 0; i < 9000; i++) {
             kept.push(new Regex("p" + i.toString() + "x"));
         }
         expect(first.test("first-7")).toBe(true);
@@ -18,7 +18,7 @@ await describe("331 regex cache is bounded", async () => {
 
     await it("an evicted regex rebuilds with its own flags", async () => {
         const folded = new Regex("CaSe", "i");
-        for (let i = 0; i < 9000; i++) {
+        for(let i = 0; i < 9000; i++) {
             new Regex("filler" + i.toString()).test("x");
         }
         expect(folded.flags).toBe("i");

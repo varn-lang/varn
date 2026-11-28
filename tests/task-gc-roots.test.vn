@@ -17,7 +17,7 @@ async function holdAcrossSuspend(n: int): Task<int> {
 
 async function churn(): Task<int> {
     let acc = 0
-    for (let i = 0; i < 400000; i = i + 1) {
+    for(let i = 0; i < 400000; i = i + 1) {
         let t = new TaskGcBox(i)
         acc = acc + t.v % 3
     }
@@ -43,14 +43,14 @@ await describe("154 task GC roots", async () => {
     await it("1. parked tasks and the awaiting root survive a collection run by another task", async () => {
         let rootBox = new TaskGcBox(777)
         let rootItems: Array<int> = [1, 2, 3]
-        let batch: Array<Task<int>> = []
-        for (let i = 0; i < 300; i = i + 1) {
+        let batch: Array<Task<int >> = []
+        for(let i = 0; i < 300; i = i + 1) {
             batch.push(holdAcrossSuspend(i))
         }
         batch.push(churn())
         let res = await parallel(batch)
         let sum = 0
-        for (let i = 0; i < 300; i = i + 1) {
+        for(let i = 0; i < 300; i = i + 1) {
             sum = sum + res[i]
         }
         expect(sum).toBe(90300)
@@ -59,27 +59,27 @@ await describe("154 task GC roots", async () => {
     })
 
     await it("2. a rejection delivered to a parked task reaches its handler with its locals intact", async () => {
-        let batch: Array<Task<int>> = []
-        for (let i = 0; i < 200; i = i + 1) {
+        let batch: Array<Task<int >> = []
+        for(let i = 0; i < 200; i = i + 1) {
             batch.push(catchesAfterSuspend(i))
         }
         batch.push(churn())
         let res = await parallel(batch)
         let sum = 0
-        for (let i = 0; i < 200; i = i + 1) {
+        for(let i = 0; i < 200; i = i + 1) {
             sum = sum + res[i]
         }
         expect(sum).toBe(19900)
     })
 
     await it("3. thousands of parked tasks resume with their own state", async () => {
-        let batch: Array<Task<int>> = []
-        for (let i = 0; i < 5000; i = i + 1) {
+        let batch: Array<Task<int >> = []
+        for(let i = 0; i < 5000; i = i + 1) {
             batch.push(holdAcrossSuspend(i))
         }
         let res = await parallel(batch)
         let sum = 0
-        for (let i = 0; i < res.length; i = i + 1) {
+        for(let i = 0; i < res.length; i = i + 1) {
             sum = sum + res[i]
         }
         expect(sum).toBe(25005000)

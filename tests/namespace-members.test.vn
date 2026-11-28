@@ -4,42 +4,67 @@ namespace Rates {
     const base = 4
     export const bonus = 3
     let calls = 0
-    export function total(): int { return base + bonus }
-    export function count(): int { calls = calls + 1; return calls }
+    export function total(): int {
+        return base + bonus
+    }
+    export function count(): int {
+        calls = calls + 1;
+        return calls
+    }
 }
 
 namespace Labels {
     const prefix = "id-"
-    export function of(n: int): str { return prefix + n.toString() }
+    export function of(n: int): str {
+        return prefix + n.toString()
+    }
 }
 
 namespace Metric {
     const unit = 1
-    export function size(): int { return unit }
-    export function doubled(): int { return size() + size() }
+    export function size(): int {
+        return unit
+    }
+    export function doubled(): int {
+        return size() + size()
+    }
     export namespace Fine {
         const unit = 5
-        export function size(): int { return unit + 100 }
-        export function coarse(): int { return doubled() }
+        export function size(): int {
+            return unit + 100
+        }
+        export function coarse(): int {
+            return doubled()
+        }
     }
 }
 namespace Imperial {
     const unit = 10
     export const shown = unit + 1
-    export function size(): int { return unit }
-    export function mapped(): int { return [1, 2].map((n) => n + unit + size())[1] }
+    export function size(): int {
+        return unit
+    }
+    export function mapped(): int {
+        return [1, 2].map((n) => n + unit + size())[1]
+    }
 }
 const unit = 100
-function size(): int { return unit }
+function size(): int {
+    return unit
+}
 function sizes(n: int): int {
     let acc = 0
-    for (let i = 0; i < n; i = i + 1) { acc = acc + Metric.size() + Imperial.size() + Metric.Fine.size() }
+    for(let i = 0; i < n; i = i + 1) {
+        acc = acc + Metric.size() + Imperial.size() + Metric.Fine.size()
+    }
     return acc
 }
 
 function sum(n: int): int {
     let acc = 0
-    for (let i = 0; i < n; i = i + 1) { acc = acc + Rates.total() }
+    for(let i = 0; i < n; i = i + 1) {
+        acc = acc + Rates.total()
+    }
     return acc
 }
 

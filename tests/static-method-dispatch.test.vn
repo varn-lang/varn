@@ -2,11 +2,21 @@ import { describe, it, expect } from "std:test";
 
 class Calc {
     static step: int = 1
-    static one(): int { return 1 }
-    static two(): int { return 2 }
-    static three(): int { return 3 }
-    static add(a: int, b: int): int { return a + b }
-    static greet(name: str = "world"): str { return "hi " + name }
+    static one(): int {
+        return 1
+    }
+    static two(): int {
+        return 2
+    }
+    static three(): int {
+        return 3
+    }
+    static add(a: int, b: int): int {
+        return a + b
+    }
+    static greet(name: str = "world"): str {
+        return "hi " + name
+    }
     static bump(): int {
         Calc.step = Calc.step + 1
         return Calc.step
@@ -14,14 +24,20 @@ class Calc {
 }
 
 class Base {
-    static who(): str { return "base" }
+    static who(): str {
+        return "base"
+    }
 }
 
 class Kid extends Base {
-    static override who(): str { return "kid" }
+    static override who(): str {
+        return "kid"
+    }
 }
 
-function callDyn(f: dynamic, x: int, y: int): int { return (f as (a: int, b: int) => int)(x, y) }
+function callDyn(f: dynamic, x: int, y: int): int {
+    return(f as (a: int, b: int) => int)(x, y)
+}
 
 await describe("211 static methods dispatch direct", async () => {
     await it("each static resolves to its own slot", () => {
@@ -61,7 +77,9 @@ await describe("211 static methods dispatch direct", async () => {
     await it("hot static calls stay exact", () => {
         Calc.step = 0
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + Calc.bump() }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + Calc.bump()
+        }
         expect(Calc.step).toBe(300)
         expect(total).toBe(300 * 301 / 2)
     })

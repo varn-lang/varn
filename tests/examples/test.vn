@@ -14,9 +14,12 @@ await describe("example std:test", async () => {
     await it("asserts with helpers", () => {
         assertEqual(2, 1 + 1);
         assertTrue(1 < 2);
-        assertThrows(() => {
-            throw new Error("expected");
-        }, "expected");
+        assertThrows(
+            () => {
+                throw new Error("expected");
+            },
+            "expected",
+        );
     });
 });
 

@@ -6,7 +6,7 @@ import { now } from "std:time";
 
 function* pingpong() {
     let x = 0;
-    while (true) {
+    while(true) {
         x = x + 1;
         yield x;
     }
@@ -14,7 +14,7 @@ function* pingpong() {
 
 function* range_gen(start: int, end: int) {
     let i = start;
-    while (i < end) {
+    while(i < end) {
         yield i;
         i = i + 1;
     }
@@ -23,7 +23,7 @@ function* range_gen(start: int, end: int) {
 function* fib_gen() {
     let a = 0;
     let b = 1;
-    while (true) {
+    while(true) {
         yield a;
         const tmp = a + b;
         a = b;
@@ -47,7 +47,7 @@ function make_counter(step: int): () => Generator<int> {
     const base = step * 1000;
     function* counter() {
         let i = 0;
-        while (true) {
+        while(true) {
             yield base + i;
             i = i + 1;
         }
@@ -75,9 +75,8 @@ t0 = now();
 let map_sum = 0;
 let filt_sum = 0;
 const rg = range_gen(0, MAP_N);
-while (const v = rg.next()) {
-    map_sum = map_sum + v * 2;
-    if ((v % 2) == 0) {
+while(const v = rg.next()) {
+    map_sum = map_sum + v * 2; if ((v % 2) == 0) {
         filt_sum = filt_sum + v;
     }
 }
@@ -97,7 +96,7 @@ print(`fibcarry checksum=${fib_carry} ms=${(t1 - t0)}`);
 t0 = now();
 let nest_sum = 0;
 const no = nested_outer();
-while (const item = no.next()) {
+while(const item = no.next()) {
     nest_sum = nest_sum + item;
 }
 t1 = now();

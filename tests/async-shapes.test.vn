@@ -1,5 +1,10 @@
 import { describe, it, expect } from "std:test";
-import { asyncImportedMethod, importedAsyncFn, AsyncNs, ImportedAsyncBox } from "./async-shapes-lib.test.vn"
+import {
+    asyncImportedMethod,
+    importedAsyncFn,
+    AsyncNs,
+    ImportedAsyncBox,
+} from "./async-shapes-lib.test.vn"
 
 // Varn has no explicit Promise wrapper: writing `async` is what makes the call
 // produce a task. So `async f(): int` declares a body returning `int` and a
@@ -12,29 +17,49 @@ import { asyncImportedMethod, importedAsyncFn, AsyncNs, ImportedAsyncBox } from 
 // that can be `async` is exercised here; the types themselves are pinned in
 // tests/golden/types/75-async-shapes.txt, which is where a regression would
 // show up — a wrong type here is a warning, not a runtime failure.
-
-
 class LocalBox {
-    async method(): Task<int> { return 1 }
-    async noReturnType() { return 2 }
-    async returnsVoid(): Task<void> { }
-    async returnsArray(): Task<int[]> { return [3] }
-    async alreadyTask(): Task<int> { return 4 }
+    async method(): Task<int> {
+        return 1
+    }
+    async noReturnType() {
+        return 2
+    }
+    async returnsVoid(): Task<void> {}
+    async returnsArray(): Task<int[]> {
+        return [3]
+    }
+    async alreadyTask(): Task<int> {
+        return 4
+    }
 }
 
-async function localFn(): Task<int> { return 5 }
-async function localFnInferred() { return 6 }
+async function localFn(): Task<int> {
+    return 5
+}
+async function localFnInferred() {
+    return 6
+}
 
-const localArrow = async (): Task<int> => { return 7 }
-const localFnExpr = async function (): Task<int> { return 14 }
+const localArrow = async (): Task<int> => {
+    return 7
+}
+const localFnExpr = async function (): Task<int> {
+    return 14
+}
 // Not async, but the same gap: the checker had no arm for function
 // expressions, so this used to read as `(...args: dynamic[]) => void` and the
 // call site got `dynamic`. Pinned here for the signature, not the value.
-const syncFnExpr = function (x: int): int { return x * 2 }
+const syncFnExpr = function (x: int): int {
+    return x * 2
+}
 
 const literal = #{
-    async method(): Task<int> { return 15 },
-    plainMethod(x: int): int { return x + 1 }
+    async method(): Task<int> {
+        return 15
+    },
+    plainMethod(x: int): int {
+        return x + 1
+    },
 }
 
 interface AsyncApi {
@@ -44,13 +69,19 @@ interface AsyncApi {
 }
 
 class ApiImpl implements AsyncApi {
-    async load(): Task<int> { return 16 }
-    async nothing(): Task<void> { }
-    plain(): str { return "p" }
+    async load(): Task<int> {
+        return 16
+    }
+    async nothing(): Task<void> {}
+    plain(): str {
+        return "p"
+    }
 }
 
 extension on LocalBox {
-    async extensionMethod(): Task<int> { return 8 }
+    async extensionMethod(): Task<int> {
+        return 8
+    }
 }
 
 async function runAsyncShapes() {
@@ -95,9 +126,6 @@ async function runAsyncShapes() {
 }
 await describe("75 async shapes", async () => {
     await it("tests", async () => {
-        
         await runAsyncShapes()
-        
-        
     });
 });

@@ -8,7 +8,7 @@ import {
     tcpRead$,
     tcpWrite$,
     tcpClose$,
-    tcpCloseListener$
+    tcpCloseListener$,
 } from "runtime:net";
 
 import { AsyncReader, AsyncWriter } from "std:io";
@@ -28,28 +28,51 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     }
 
     @capability("net.client")
-    static async connect(host: str, port: int, attempts: int = 25, baseDelayMs: int = 50): Task<TcpStream> {
+    static async connect(
+        host: str,
+        port: int,
+        attempts: int = 25,
+        baseDelayMs: int = 50,
+    ): Task<TcpStream> {
         return await TcpStream.open(host, port, false, null, null, attempts, baseDelayMs);
     }
 
     @capability("net.client")
-    static async connectTls(host: str, port: int, ca?: str, identity?: str, attempts: int = 5, baseDelayMs: int = 50): Task<TcpStream> {
+    static async connectTls(
+        host: str,
+        port: int,
+        ca?: str,
+        identity?: str,
+        attempts: int = 5,
+        baseDelayMs: int = 50,
+    ): Task<TcpStream> {
         return await TcpStream.open(host, port, true, ca, identity, attempts, baseDelayMs);
     }
 
     @capability("net.client")
-    private static async open(host: str, port: int, secure: bool, ca: str?, identity: str?, attempts: int, baseDelayMs: int): Task<TcpStream> {
+    private static async open(
+        host: str,
+        port: int,
+        secure: bool,
+        ca: str?,
+        identity: str?,
+        attempts: int,
+        baseDelayMs: int,
+    ): Task<TcpStream> {
         let attempt = 0;
         let last: NetError = new ConnectError(host, port);
-        while (attempt < attempts) {
+        while(attempt < attempts) {
             try {
-                let connId = secure ? await tcpConnectTls$(host, port, ca, identity) : await tcpConnect$(host, port);
+                let connId =
+                    secure
+                        ? await tcpConnectTls$(host, port, ca, identity)
+                        : await tcpConnect$(host, port);
                 return new TcpStream(connId, host, port);
             } catch (e: NetError) {
                 last = e;
             }
             attempt = attempt + 1;
-            if (attempt < attempts) {
+            if(attempt < attempts) {
                 await delay(baseDelayMs + attempt * 20);
             }
         }
@@ -73,7 +96,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     }
 
     async read(size: int = 4096): Task<Bytes?> {
-        if (!this._isOpen) {
+        if(!this._isOpen) {
             return null;
         }
         return await tcpRead$(this._connId, size);
@@ -81,7 +104,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
 
     async readText(size: int = 4096): Task<str> {
         let b = await this.read(size);
-        if (b == null) {
+        if(b == null) {
             return "";
         }
         let valid = b as Bytes;
@@ -91,13 +114,13 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     async readAll(): Task<Bytes> {
         let chunks: Bytes[] = [];
         let totalLen = 0;
-        while (this._isOpen) {
+        while(this._isOpen) {
             let chunk = await this.read(4096);
-            if (chunk == null) {
+            if(chunk == null) {
                 break;
             }
             let valid = chunk as Bytes;
-            if (valid.length == 0) {
+            if(valid.length == 0) {
                 break;
             }
             chunks.push(valid);
@@ -105,7 +128,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
         }
         let merged = Bytes.alloc(totalLen);
         let offset = 0;
-        for (let i = 0; i < chunks.length; i = i + 1) {
+        for(let i = 0; i < chunks.length; i = i + 1) {
             let c = chunks[i];
             c.copy(merged, offset);
             offset = offset + c.length;
@@ -114,7 +137,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     }
 
     async write(data: Bytes | str): Task<int> {
-        if (!this._isOpen) {
+        if(!this._isOpen) {
             throw new ClosedError("socket is closed");
         }
         let b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
@@ -129,10 +152,10 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     async writeAll(data: Bytes | str): Task<void> {
         let b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
         let offset = 0;
-        while (offset < b.length) {
+        while(offset < b.length) {
             let chunk = b.slice(offset, b.length);
             let written = await this.write(chunk);
-            if (written <= 0) {
+            if(written <= 0) {
                 break;
             }
             offset = offset + written;
@@ -142,7 +165,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     async flush(): Task<void> {}
 
     close(): void {
-        if (this._isOpen) {
+        if(this._isOpen) {
             tcpClose$(this._connId);
             this._isOpen = false;
         }
@@ -163,7 +186,13 @@ export class TcpListener {
     }
 
     @capability("net.server")
-    static listenTls(port: int, cert: str, key: str, host: str = "127.0.0.1", clientCa?: str): TcpListener {
+    static listenTls(
+        port: int,
+        cert: str,
+        key: str,
+        host: str = "127.0.0.1",
+        clientCa?: str,
+    ): TcpListener {
         const id = tcpListenTls$(port, host, cert, key, clientCa);
         return new TcpListener(id, socketLocalPort$(id), host);
     }
@@ -187,14 +216,14 @@ export class TcpListener {
     }
 
     async accept(): Task<TcpStream> {
-        if (!this._isListening) {
+        if(!this._isListening) {
             throw new ClosedError("listener is closed");
         }
         return new TcpStream(await tcpAccept$(this._listenerId), this._host, this._port);
     }
 
     close(): void {
-        if (this._isListening) {
+        if(this._isListening) {
             tcpCloseListener$(this._listenerId);
             this._isListening = false;
         }

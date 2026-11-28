@@ -8,7 +8,7 @@ function trackClass(cls: ClassRef): void {
 @trackClass
 class DecoratedA {}
 function markDeco(label: str) {
-    return (cls: ClassRef) => {
+    return(cls: ClassRef) => {
         deco_log.push(label + ":" + cls.name);
     };
 }
@@ -20,14 +20,20 @@ function addVersion(cls: ClassRef): ClassRef {
     return cls;
 }
 @addVersion
-class DecoratedC { value: int = 7 }
+class DecoratedC {
+    value: int = 7
+}
 const RouteKey = MetaKey.create<ClassRef, str>();
 const RolesKey = MetaKey.create<ClassRef, str[]>();
 function routeDeco(path: str) {
-    return (cls: ClassRef) => { RouteKey.set(cls, path); };
+    return(cls: ClassRef) => {
+        RouteKey.set(cls, path);
+    };
 }
 function rolesDeco(...r: str[]) {
-    return (cls: ClassRef) => { RolesKey.set(cls, r); };
+    return(cls: ClassRef) => {
+        RolesKey.set(cls, r);
+    };
 }
 const TagKey = MetaKey.create<ClassRef, str>();
 const TagKey2 = MetaKey.create<ClassRef, str>();
@@ -35,23 +41,27 @@ let method_log: str[] = [];
 function logMethod(fn: FunctionRef, ctx: MethodContext): FunctionRef {
     const name = ctx.name;
     const isStatic = ctx.isStatic;
-    return (...args: int[]) => {
+    return(...args: int[]) => {
         method_log.push(`${name}:static=${isStatic}`);
-        return (fn as (...args: int[]) => int)(...args);
+        return(fn as (...args: int[]) => int)(...args);
     };
 }
 class DecoratedCalc {
     @logMethod
-    mul(a: int, b: int): int { return a * b; }
+    mul(a: int, b: int): int {
+        return a * b;
+    }
 }
 function passthrough(fn: FunctionRef, ctx: MethodContext): void {}
 class DecoratedPassthrough {
     @passthrough
-    double(n: int): int { return n * 2; }
+    double(n: int): int {
+        return n * 2;
+    }
 }
 let fnLog: str[] = [];
 function tagFn(label: str) {
-    return (fn: FunctionRef): FunctionRef => {
+    return(fn: FunctionRef): FunctionRef => {
         fnLog.push(label);
         return fn;
     };

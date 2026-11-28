@@ -8,7 +8,12 @@ export class Handler {
     onValue: ((value: float) => void)?;
     onText: ((text: str) => void)?;
 
-    constructor(id: int, layer: int, onValue: ((value: float) => void)?, onText: ((text: str) => void)?) {
+    constructor(
+        id: int,
+        layer: int,
+        onValue: ((value: float) => void)?,
+        onText: ((text: str) => void)?,
+    ) {
         this.id = id;
         this.layer = layer;
         this.onValue = onValue;
@@ -74,13 +79,13 @@ export class UiFrame {
         this.resized = false;
         this.wheel = 0;
         const evs = win.poll();
-        for (let i = 0; i < evs.length; i = i + 1) {
+        for(let i = 0; i < evs.length; i = i + 1) {
             const e = evs[i];
-            if (e.kind == UiEventKind.Mouse) {
+            if(e.kind == UiEventKind.Mouse) {
                 this.mouseX = e.x;
                 this.mouseY = e.y;
-                if (e.button == MOUSE_LEFT) {
-                    if (e.pressed && !this.left) {
+                if(e.button == MOUSE_LEFT) {
+                    if(e.pressed && !this.left) {
                         this.left = true;
                         this.leftPressed = true;
                         this.downX = e.x;
@@ -91,8 +96,8 @@ export class UiFrame {
                     }
                 }
             } else if (e.kind == UiEventKind.Key) {
-                if (e.pressed) {
-                    if (!UiFrame.contains(this.keys, e.key)) {
+                if(e.pressed) {
+                    if(!UiFrame.contains(this.keys, e.key)) {
                         this.keys.push(e.key);
                         this.pressed.push(e.key);
                     } else {
@@ -126,7 +131,7 @@ export class UiFrame {
 
     idOf(path: str): int {
         const known = this.ids.get(path);
-        if (known != null) {
+        if(known != null) {
             return known;
         }
         this.lastId = this.lastId + 1;
@@ -136,7 +141,7 @@ export class UiFrame {
 
     editFor(slot: int): TextEdit {
         const known = this.edits.get(slot);
-        if (known != null) {
+        if(known != null) {
             return known;
         }
         const fresh = new TextEdit();
@@ -146,7 +151,7 @@ export class UiFrame {
 
     enterLayer(modal: bool): void {
         this.layer = this.layer + 1;
-        if (modal) {
+        if(modal) {
             this.modal = true;
             this.modalFrom = this.layer;
         }
@@ -165,10 +170,10 @@ export class UiFrame {
     }
 
     fireTyped(changes: TypedText[]): void {
-        for (let change in changes) {
-            for (let h in this.handlers) {
+        for(let change in changes) {
+            for(let h in this.handlers) {
                 const onText = h.onText;
-                if (h.id == change.id && onText != null && this.reachable(h)) {
+                if(h.id == change.id && onText != null && this.reachable(h)) {
                     onText(change.text);
                 }
             }
@@ -176,11 +181,11 @@ export class UiFrame {
     }
 
     fire(pairs: float[]): void {
-        for (let i = 0; i + 1 < pairs.length; i = i + 2) {
+        for(let i = 0; i + 1 < pairs.length; i = i + 2) {
             const id = pairs[i] as int;
-            for (let h in this.handlers) {
+            for(let h in this.handlers) {
                 const onValue = h.onValue;
-                if (h.id == id && onValue != null && this.reachable(h)) {
+                if(h.id == id && onValue != null && this.reachable(h)) {
                     onValue(pairs[i + 1]);
                 }
             }
@@ -188,8 +193,8 @@ export class UiFrame {
     }
 
     static contains(xs: int[], v: int): bool {
-        for (let i = 0; i < xs.length; i = i + 1) {
-            if (sameValue(xs[i], v)) {
+        for(let i = 0; i < xs.length; i = i + 1) {
+            if(sameValue(xs[i], v)) {
                 return true;
             }
         }
@@ -197,8 +202,8 @@ export class UiFrame {
     }
 
     static drop(xs: int[], v: int): void {
-        for (let i = 0; i < xs.length; i = i + 1) {
-            if (sameValue(xs[i], v)) {
+        for(let i = 0; i < xs.length; i = i + 1) {
+            if(sameValue(xs[i], v)) {
                 xs.splice(i, 1);
                 return;
             }

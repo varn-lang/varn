@@ -9,12 +9,20 @@ class Child extends Base {
     y: int = 1
 }
 
-class LevelA { a: int = 1 }
-class LevelB extends LevelA { b: int = 2 }
-class LevelC extends LevelB { c: int = 3 }
+class LevelA {
+    a: int = 1
+}
+class LevelB extends LevelA {
+    b: int = 2
+}
+class LevelC extends LevelB {
+    c: int = 3
+}
 
 class Plain {
-    five(): int { return 5 }
+    five(): int {
+        return 5
+    }
 }
 
 class OverPlain extends Plain {
@@ -48,7 +56,7 @@ class Shadow extends Base {
 
 function buildMany(n: int): int {
     let total = 0
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         const c = new SizedChild(i, "t")
         total = total + c.size + c.extra
     }
@@ -59,7 +67,9 @@ function spreadIntoBound(n: int): int {
     const items = [1]
     const push = items.push
     const more = [5]
-    for (let i = 0; i < n; i = i + 1) { push(...more) }
+    for(let i = 0; i < n; i = i + 1) {
+        push(...more)
+    }
     return items.length
 }
 

@@ -1,28 +1,39 @@
 import { describe, it, expect } from "std:test";
 
-async function divide(a: int, b: int): Task<int> { return a % b }
+async function divide(a: int, b: int): Task<int> {
+    return a % b
+}
 async function convert(d: dynamic): Task<int> {
     const s: str = d as str
     return s.length
 }
-async function raise(): Task<int> { throw new RangeError("out") }
+async function raise(): Task<int> {
+    throw new RangeError("out")
+}
 
 async function describeFailure(f: () => Task<int>): Task<str> {
     try {
         await f()
         return "none"
     } catch (e) {
-        if (e is TypeError) { return "TypeError: " + e.message }
-        if (e is RangeError) { return "RangeError: " + e.message }
-        if (e is Error) { return "Error: " + e.message }
+        if(e is TypeError) {
+            return "TypeError: " + e.message
+        }
+        if(e is RangeError) {
+            return "RangeError: " + e.message
+        }
+        if(e is Error) {
+            return "Error: " + e.message
+        }
         return "untyped"
     }
 }
 
 await describe("168 runtime error across await", async () => {
     await it("a runtime error raised in a task keeps its class and message", async () => {
-        expect(await describeFailure(() => convert(5)))
-            .toBe("TypeError: type mismatch: expected 'str', got 'int'")
+        expect(await describeFailure(() => convert(5))).toBe(
+            "TypeError: type mismatch: expected 'str', got 'int'",
+        )
     })
 
     await it("a thrown error still arrives as thrown", async () => {

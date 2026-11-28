@@ -1,22 +1,42 @@
 import { describe, it, expect } from "std:test";
 
-interface Sized { size(): int }
-class Box implements Sized { size(): int { return 3 } }
+interface Sized {
+    size(): int
+}
+class Box implements Sized {
+    size(): int {
+        return 3
+    }
+}
 struct Pack implements Sized {
     n: int
-    size(): int { return this.n }
+    size(): int {
+        return this.n
+    }
 }
-interface Named { name: str }
-class User implements Named { name: str = "ann" }
+interface Named {
+    name: str
+}
+class User implements Named {
+    name: str = "ann"
+}
 
-function measure<T extends Sized>(x: T): int { return x.size() }
+function measure<T extends Sized>(x: T): int {
+    return x.size()
+}
 function sum<T extends Sized>(xs: T[]): int {
     let n = 0
-    for (const x in xs) { n += x.size() }
+    for(const x in xs) {
+        n += x.size()
+    }
     return n
 }
-function greet<T extends Named>(x: T): str { return `hi ${x.name}` }
-function other<U extends Sized>(x: U): int { return x.size() * 2 }
+function greet<T extends Named>(x: T): str {
+    return `hi ${x.name}`
+}
+function other<U extends Sized>(x: U): int {
+    return x.size() * 2
+}
 
 await describe("365 members are reached through the constraint of a type parameter", async () => {
     await it("a method of the constraint is called on a class", () => {

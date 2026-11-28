@@ -13,7 +13,6 @@ import { abs, sqrt, floor, ceil } from "std:math";
 // Every case runs inside a hot loop: the fast path only exists in compiled
 // code, so a test that never tiers up would pass while measuring nothing.
 // Run under both tiers (`VN_NO_JIT=1`) to compare interpreter and JIT.
-
 function near(a: float, b: float): bool {
     return a - b < 0.0000001 && b - a < 0.0000001;
 }
@@ -21,7 +20,7 @@ function near(a: float, b: float): bool {
 // --- float arguments: the inlined path ---
 function floatOps(n: int): bool {
     let ok = true;
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         ok = ok && near(abs(-3.5), 3.5);
         ok = ok && near(abs(3.5), 3.5);
         ok = ok && near(sqrt(4.0), 2.0);
@@ -45,7 +44,7 @@ function floatOps(n: int): bool {
 // than reproduce that round trip, so pin the values it must still produce.
 function intOps(n: int): float {
     let acc = 0.0;
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         acc = abs(-3) + sqrt(4) + floor(7) + ceil(7);
     }
     return acc;
@@ -55,7 +54,7 @@ function intOps(n: int): float {
 function chained(iterations: int): float {
     let r: float = 1.0;
     let i = 0;
-    while (i < iterations) {
+    while(i < iterations) {
         r = abs(r - i as float);
         r = sqrt(r + 1.0);
         r = floor(r * 10.0) / 10.0;
@@ -65,13 +64,10 @@ function chained(iterations: int): float {
 }
 await describe("67 math intrinsic fastpath", async () => {
     await it("tests", async () => {
-        
         expect(floatOps(2000)).toBeTruthy();
         expect(near(intOps(2000), 19.0)).toBeTruthy();
         // Same recurrence and iteration count as `tests/benchmarks/bench_math.vn`, whose
         // result is verified equal to the Bun twin's.
         expect(near(chained(500000), 706.6)).toBeTruthy();
-        
-        
     });
 });

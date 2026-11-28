@@ -4,7 +4,9 @@ function castFails(source: dynamic[]): bool {
     try {
         const ints = source as int[];
         let total = 0;
-        for (const x in ints) { total = total + x }
+        for(const x in ints) {
+            total = total + x
+        }
         return false
     } catch (e) {
         return true
@@ -29,7 +31,11 @@ await describe("269 container cast validates", async () => {
     await it("the hot path agrees", () => {
         const source: dynamic[] = [1.5];
         let rejected = 0;
-        for (let i = 0; i < 1000; i = i + 1) { if (castFails(source)) { rejected = rejected + 1 } }
+        for(let i = 0; i < 1000; i = i + 1) {
+            if(castFails(source)) {
+                rejected = rejected + 1
+            }
+        }
         expect(rejected).toBe(1000);
     });
 });

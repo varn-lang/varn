@@ -13,7 +13,8 @@ let procRes = Process.exec("echo VarnProcessTest");
 // ==========================================
 // 2. Compression & Decompression (std:compress)
 // ==========================================
-let originalText = "Varn Language: Fast, Type-Safe, High-Performance Systems Language with Register VM!";
+let originalText =
+    "Varn Language: Fast, Type-Safe, High-Performance Systems Language with Register VM!";
 
 // Gzip roundtrip
 let gzipped = Compress.gzip(originalText);
@@ -32,7 +33,6 @@ let parsed = Cli.parse(sampleArgs);
 // ==========================================
 // 4. Environment Variables (std:env)
 // ==========================================
-
 let dotEnvContent = "# Configuration\nAPP_NAME=VarnServer\nPORT=4000\nDEBUG=true\n";
 let envMap = Env.parse(dotEnvContent);
 
@@ -41,7 +41,7 @@ let envMap = Env.parse(dotEnvContent);
 // ==========================================
 let joinedPath = Path.join("src", "modules", "app.vn");
 await describe("84 stdlib process compress cli env", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(procRes.exitCode).toBe(0);
         expect(procRes.success).toBe(true);
         expect(procRes.stdout.includes("VarnProcessTest")).toBeTruthy();
@@ -74,6 +74,4 @@ await describe("84 stdlib process compress cli env", async () => {
         expect(Path.extname("archive.tar.gz")).toBe(".gz");
         expect(Path.extname("index.html")).toBe(".html");
     });
-
-
 });

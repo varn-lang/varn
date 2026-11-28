@@ -2,69 +2,67 @@ import { randomBytes, pbkdf2, timingSafeEqual, hashPassword, verifyPassword } fr
 import { MsgPack, MsgPackValue } from "std:encoding";
 import { describe, it, expect } from "std:test";
 
-
 function testCryptoPrimitives(): void {
     // 1. randomBytes returning Bytes
     let rnd = randomBytes(32);
-        expect(rnd.length).toBe(32);;
+    expect(rnd.length).toBe(32);;
     let rndHex = rnd.toHex();
-        expect(rndHex.length).toBe(64);;
+    expect(rndHex.length).toBe(64);;
 
     // 2. pbkdf2 derivation
     let salt = Bytes.fromString("mysalt123");
     let key1 = pbkdf2("my_password", salt, 1000, 32);
     let key2 = pbkdf2("my_password", salt, 1000, 32);
-        expect(key1.length).toBe(32);;
-        expect(key1.toHex()).toBe(key2.toHex());;
+    expect(key1.length).toBe(32);;
+    expect(key1.toHex()).toBe(key2.toHex());;
 
     let differentKey = pbkdf2("other_password", salt, 1000, 32);
-        expect(key1.toHex() != differentKey.toHex()).toBeTruthy();;
+    expect(key1.toHex() != differentKey.toHex()).toBeTruthy();;
 
     // 3. timingSafeEqual
-        expect(timingSafeEqual(key1, key2)).toBeTruthy();;
-        expect(timingSafeEqual(key1, differentKey)).toBeFalsy();;
-        expect(timingSafeEqual("constant_time_secret", "constant_time_secret")).toBeTruthy();;
-        expect(timingSafeEqual("constant_time_secret", "wrong_secret")).toBeFalsy();;
+    expect(timingSafeEqual(key1, key2)).toBeTruthy();;
+    expect(timingSafeEqual(key1, differentKey)).toBeFalsy();;
+    expect(timingSafeEqual("constant_time_secret", "constant_time_secret")).toBeTruthy();;
+    expect(timingSafeEqual("constant_time_secret", "wrong_secret")).toBeFalsy();;
 
     // 4. hashPassword and verifyPassword
     let hash = hashPassword("super_secure_vn_2026", 1000);
-        expect(hash.startsWith("$pbkdf2-sha256$i=1000$")).toBeTruthy();;
-        expect(verifyPassword("super_secure_vn_2026", hash)).toBeTruthy();;
-        expect(verifyPassword("wrong_attempt", hash)).toBeFalsy();;
-        expect(verifyPassword("super_secure_vn_2026_suffix", hash)).toBeFalsy();;
-
+    expect(hash.startsWith("$pbkdf2-sha256$i=1000$")).toBeTruthy();;
+    expect(verifyPassword("super_secure_vn_2026", hash)).toBeTruthy();;
+    expect(verifyPassword("wrong_attempt", hash)).toBeFalsy();;
+    expect(verifyPassword("super_secure_vn_2026_suffix", hash)).toBeFalsy();;
 }
 
 function testMsgPackPrimitives(): void {
     // Null
     let nullBytes = MsgPack.encode(null);
     let nullDec = MsgPack.decode(nullBytes);
-        expect(nullDec).toBe(null);;
+    expect(nullDec).toBe(null);;
 
     // Booleans
     let trueBytes = MsgPack.encode(true);
-        expect(MsgPack.decode(trueBytes)).toBe(true);;
+    expect(MsgPack.decode(trueBytes)).toBe(true);;
     let falseBytes = MsgPack.encode(false);
-        expect(MsgPack.decode(falseBytes)).toBe(false);;
+    expect(MsgPack.decode(falseBytes)).toBe(false);;
 
     // Small integers (positive and negative fixint)
-        expect(MsgPack.decode(MsgPack.encode(0))).toBe(0);;
-        expect(MsgPack.decode(MsgPack.encode(42))).toBe(42);;
-        expect(MsgPack.decode(MsgPack.encode(127))).toBe(127);;
-        expect(MsgPack.decode(MsgPack.encode(-1))).toBe(-1);;
-        expect(MsgPack.decode(MsgPack.encode(-32))).toBe(-32);;
+    expect(MsgPack.decode(MsgPack.encode(0))).toBe(0);;
+    expect(MsgPack.decode(MsgPack.encode(42))).toBe(42);;
+    expect(MsgPack.decode(MsgPack.encode(127))).toBe(127);;
+    expect(MsgPack.decode(MsgPack.encode(-1))).toBe(-1);;
+    expect(MsgPack.decode(MsgPack.encode(-32))).toBe(-32);;
 
     // Larger integers
-        expect(MsgPack.decode(MsgPack.encode(250))).toBe(250);;
-        expect(MsgPack.decode(MsgPack.encode(65000))).toBe(65000);;
-        expect(MsgPack.decode(MsgPack.encode(1000000))).toBe(1000000);;
+    expect(MsgPack.decode(MsgPack.encode(250))).toBe(250);;
+    expect(MsgPack.decode(MsgPack.encode(65000))).toBe(65000);;
+    expect(MsgPack.decode(MsgPack.encode(1000000))).toBe(1000000);;
 
     // Strings
     let shortStr = "Hello Varn MsgPack";
-        expect(MsgPack.decode(MsgPack.encode(shortStr))).toBe(shortStr);;
+    expect(MsgPack.decode(MsgPack.encode(shortStr))).toBe(shortStr);;
 
     let mediumStr = "Varn ".repeat(50);
-        expect(MsgPack.decode(MsgPack.encode(mediumStr))).toBe(mediumStr);;
+    expect(MsgPack.decode(MsgPack.encode(mediumStr))).toBe(mediumStr);;
 
     // Raw Bytes (binary format)
     let rawBin = Bytes.alloc(4);
@@ -74,10 +72,9 @@ function testMsgPackPrimitives(): void {
     rawBin.setByte(3, 40);
     let binEncoded = MsgPack.encode(rawBin);
     let binDecoded = MsgPack.decode(binEncoded) as Bytes;
-        expect(binDecoded.length).toBe(4);;
-        expect(binDecoded.getByte(0)).toBe(10);;
-        expect(binDecoded.getByte(3)).toBe(40);;
-
+    expect(binDecoded.length).toBe(4);;
+    expect(binDecoded.getByte(0)).toBe(10);;
+    expect(binDecoded.getByte(3)).toBe(40);;
 }
 
 function testMsgPackStructured(): void {
@@ -85,10 +82,10 @@ function testMsgPackStructured(): void {
     let list: MsgPackValue[] = [1, 2, 3, "four", true];
     let listEnc = MsgPack.encode(list);
     let listDec = MsgPack.decode(listEnc) as MsgPackValue[];
-        expect(listDec.length).toBe(5);;
-        expect(listDec[0]).toBe(1);;
-        expect(listDec[3]).toBe("four");;
-        expect(listDec[4]).toBe(true);;
+    expect(listDec.length).toBe(5);;
+    expect(listDec[0]).toBe(1);;
+    expect(listDec[3]).toBe("four");;
+    expect(listDec[4]).toBe(true);;
 
     // Objects / Maps
     let user: MsgPackValue = new Map<str, MsgPackValue>([
@@ -96,20 +93,19 @@ function testMsgPackStructured(): void {
         #["age", 30],
         #["active", true],
         #["skills", ["systems", "compilers"]],
-        #["meta", new Map<str, MsgPackValue>([#["tier", 1]])]
+        #["meta", new Map<str, MsgPackValue>([#["tier", 1]])],
     ]);
 
     let userEnc = MsgPack.encode(user);
     let userDec = MsgPack.decode(userEnc) as Map<str, MsgPackValue>;
-        expect(userDec.get("name")).toBe("Alice");;
-        expect(userDec.get("age")).toBe(30);;
-        expect(userDec.get("active")).toBe(true);;
-        let skills = userDec.get("skills") as str[];
-        expect(skills.length).toBe(2);;
-        expect(skills[0]).toBe("systems");;
-        expect(skills[1]).toBe("compilers");;
-        expect((userDec.get("meta") as Map<str, MsgPackValue>).get("tier")).toBe(1);;
-
+    expect(userDec.get("name")).toBe("Alice");;
+    expect(userDec.get("age")).toBe(30);;
+    expect(userDec.get("active")).toBe(true);;
+    let skills = userDec.get("skills") as str[];
+    expect(skills.length).toBe(2);;
+    expect(skills[0]).toBe("systems");;
+    expect(skills[1]).toBe("compilers");;
+    expect((userDec.get("meta") as Map<str, MsgPackValue>).get("tier")).toBe(1);;
 }
 await describe("115 crypto kdf and msgpack", async () => {
     await it("crypto primitives", async () => {
@@ -123,5 +119,4 @@ await describe("115 crypto kdf and msgpack", async () => {
     await it("msgpack structured", async () => {
         testMsgPackStructured();
     });
-
 });

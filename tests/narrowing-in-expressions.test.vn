@@ -5,22 +5,44 @@ class Step {
     weight: int = 1
 }
 
-function sizeOf(m: Map<str, int>?): int { return m == null ? 0 : m.size }
-function lengthOf(s: str?): int { return s != null ? s.length : 0 }
-function lengthOrZero(s: str?): int { return s == null ? 0 : s.length }
-function successor(x: int?): int { return x != null ? x + 1 : 0 }
-function nonEmpty(s: str?): bool { return s != null && s.length > 0 }
-function blank(s: str?): bool { return s == null || s.length == 0 }
-function depth(step: Step?): int { return step == null ? 0 : 1 + depth(step.next) }
-function widthOf(v: str | int[]): int { return v is str ? v.slice(0, 1).length : v.length }
+function sizeOf(m: Map<str, int>?): int {
+    return m == null ? 0 : m.size
+}
+function lengthOf(s: str?): int {
+    return s != null ? s.length : 0
+}
+function lengthOrZero(s: str?): int {
+    return s == null ? 0 : s.length
+}
+function successor(x: int?): int {
+    return x != null ? x + 1 : 0
+}
+function nonEmpty(s: str?): bool {
+    return s != null && s.length > 0
+}
+function blank(s: str?): bool {
+    return s == null || s.length == 0
+}
+function depth(step: Step?): int {
+    return step == null ? 0 : 1 + depth(step.next)
+}
+function widthOf(v: str | int[]): int {
+    return v is str ? v.slice(0, 1).length : v.length
+}
 function widths(items: (str | int[])[]): int {
     let n = 0
-    for (const item in items) {
-        if (item is str) { n = n + item.length } else { n = n + item.length + 100 }
+    for(const item in items) {
+        if(item is str) {
+            n = n + item.length
+        } else {
+            n = n + item.length + 100
+        }
     }
     return n
 }
-function heavy(step: Step?): bool { return step != null && step.weight > 0 && step.next == null }
+function heavy(step: Step?): bool {
+    return step != null && step.weight > 0 && step.next == null
+}
 
 await describe("181 narrowing in expressions", async () => {
     await it("the conditional operator narrows each branch", () => {
@@ -71,7 +93,9 @@ await describe("181 narrowing in expressions", async () => {
 
     await it("holds in a hot loop", () => {
         let acc = 0
-        for (let i = 0; i < 5000; i = i + 1) { acc = acc + lengthOf("ab") + lengthOrZero(null) + successor(i) }
+        for(let i = 0; i < 5000; i = i + 1) {
+            acc = acc + lengthOf("ab") + lengthOrZero(null) + successor(i)
+        }
         expect(acc).toBe(12512500)
     })
 })

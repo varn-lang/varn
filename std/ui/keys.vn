@@ -21,16 +21,16 @@ export function keyCode(name: str): int {
 }
 
 export function isNamedKey(k: int): bool {
-    return k == KEY_BACKSPACE
-        || k == KEY_TAB
-        || k == KEY_ENTER
-        || k == KEY_ESCAPE
-        || k == KEY_SPACE
-        || k == KEY_DELETE
-        || k == KEY_ARROW_LEFT
-        || k == KEY_ARROW_UP
-        || k == KEY_ARROW_RIGHT
-        || k == KEY_ARROW_DOWN;
+    return k == KEY_BACKSPACE ||
+        k == KEY_TAB ||
+        k == KEY_ENTER ||
+        k == KEY_ESCAPE ||
+        k == KEY_SPACE ||
+        k == KEY_DELETE ||
+        k == KEY_ARROW_LEFT ||
+        k == KEY_ARROW_UP ||
+        k == KEY_ARROW_RIGHT ||
+        k == KEY_ARROW_DOWN;
 }
 
 export function hit(x: float, y: float, rx: float, ry: float, rw: float, rh: float): bool {

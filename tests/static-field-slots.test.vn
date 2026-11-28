@@ -51,7 +51,6 @@ await describe("210 static fields use slots", async () => {
         expect(Counter.bump()).toBe(6)
     })
 
-
     await it("instance fields keep their own slots", () => {
         const w = new WithInstance()
         expect(w.total).toBe(7)
@@ -66,7 +65,7 @@ await describe("210 static fields use slots", async () => {
         Counter.total = 0
         Counter.step = 1
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) {
+        for(let i = 0; i < 300; i = i + 1) {
             Counter.total = Counter.total + Counter.step
             total = total + Counter.total
         }

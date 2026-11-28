@@ -58,7 +58,7 @@ await describe("354 records are values", async () => {
 
     await it("a record key built in a hot loop stays a single key", () => {
         const counts = new Map<Point, int>()
-        for (let i = 0; i < 3000; i++) {
+        for(let i = 0; i < 3000; i++) {
             const key: Point = #{ x: i % 10, y: i % 7 }
             counts.set(key, (counts.get(key) ?? 0) + 1)
         }

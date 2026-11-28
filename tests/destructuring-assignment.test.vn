@@ -9,7 +9,8 @@ class Point {
     x: int;
     y: int;
     constructor(a: int, b: int) {
-        ;#[this.x, this.y] = #[a, b];
+        ;
+        #[this.x, this.y] = #[a, b];
     }
 }
 
@@ -31,16 +32,16 @@ function counted(): #[int, int] {
 await describe("337 destructuring assignment", async () => {
     await it("swaps two variables through a tuple", async () => {
         let a = 1;
-        let b = 2;
-        ;#[a, b] = #[b, a];
+        let b = 2;;
+        #[a, b] = #[b, a];
         expect(a).toBe(2);
         expect(b).toBe(1);
     });
 
     await it("swaps two variables through an array", async () => {
         let a = 1;
-        let b = 2;
-        ;[a, b] = [b, a];
+        let b = 2;;
+        [a, b] = [b, a];
         expect(a).toBe(2);
         expect(b).toBe(1);
     });
@@ -48,34 +49,34 @@ await describe("337 destructuring assignment", async () => {
     await it("assigns object fields and renames them", async () => {
         let x = 0;
         let y = 0;
-        let renamed = 0;
-        ;({ x, y } = #{ x: 3, y: 4 });
-        expect(x + y).toBe(7);
-        ;({ left: renamed } = new Pair(8, 9));
+        let renamed = 0;;
+        ({ x, y } = #{ x: 3, y: 4 });
+        expect(x + y).toBe(7);;
+        ({ left: renamed } = new Pair(8, 9));
         expect(renamed).toBe(8);
     });
 
     await it("collects the rest of an array", async () => {
         let first = 0;
-        let rest: int[] = [];
-        ;[first, ...rest] = [1, 2, 3];
+        let rest: int[] = [];;
+        [first, ...rest] = [1, 2, 3];
         expect(first).toBe(1);
         expect(rest.length).toBe(2);
     });
 
     await it("discards positions with the placeholder", async () => {
-        let b = 0;
-        ;[_, b] = [1, 2];
+        let b = 0;;
+        [_, b] = [1, 2];
         expect(b).toBe(2);
-        let a = 0;
-        ;#[a, _] = #[5, 6];
+        let a = 0;;
+        #[a, _] = #[5, 6];
         expect(a).toBe(5);
     });
 
     await it("falls back to a default when the element is null", async () => {
         let a: int? = 0;
-        let b = 0;
-        ;[a, b = 9] = [1, null];
+        let b = 0;;
+        [a, b = 9] = [1, null];
         expect(a).toBe(1);
         expect(b).toBe(9);
     });
@@ -83,25 +84,25 @@ await describe("337 destructuring assignment", async () => {
     await it("nests tuples", async () => {
         let a = 0;
         let b = 0;
-        let c = 0;
-        ;#[a, #[b, c]] = #[1, #[2, 3]];
+        let c = 0;;
+        #[a, #[b, c]] = #[1, #[2, 3]];
         expect(a + b + c).toBe(6);
     });
 
     await it("assigns members and indexes", async () => {
-        const cell = new Cell();
-        ;#[cell.x, cell.y] = #[5, 6];
+        const cell = new Cell();;
+        #[cell.x, cell.y] = #[5, 6];
         expect(cell.x).toBe(5);
         expect(cell.y).toBe(6);
-        const slots = [0, 0];
-        ;#[slots[0], slots[1]] = #[7, 8];
+        const slots = [0, 0];;
+        #[slots[0], slots[1]] = #[7, 8];
         expect(slots[1]).toBe(8);
     });
 
     await it("evaluates its right side once", async () => {
         let a = 0;
-        let b = 0;
-        ;#[a, b] = counted();
+        let b = 0;;
+        #[a, b] = counted();
         expect(evaluations).toBe(1);
         expect(a + b).toBe(3);
     });
@@ -109,14 +110,16 @@ await describe("337 destructuring assignment", async () => {
     await it("works in a loop and inside a closure", async () => {
         let a = 0;
         let b = 1;
-        for (let i = 0; i < 10; i++) {
-            ;#[a, b] = #[b, a + b];
+        for(let i = 0; i < 10; i++) {
+            ;
+            #[a, b] = #[b, a + b];
         }
         expect(a).toBe(55);
         let x = 1;
         let y = 2;
         const swap = () => {
-            ;#[x, y] = #[y, x];
+            ;
+            #[x, y] = #[y, x];
         };
         swap();
         expect(x).toBe(2);
@@ -126,8 +129,8 @@ await describe("337 destructuring assignment", async () => {
         const p = new Point(1, 2);
         expect(p.y).toBe(2);
         let l = 0;
-        let r = 0;
-        ;#[l, r] = pair();
+        let r = 0;;
+        #[l, r] = pair();
         expect(l + r).toBe(3);
     });
 });

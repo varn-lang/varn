@@ -29,10 +29,10 @@ await describe("example std:sqlite", async () => {
         db.exec("CREATE TABLE t (id INT, name STR)");
         db.exec("INSERT INTO t VALUES (?, ?)", 7, "kim");
         let id = 7;
-        let rows = db.sql`SELECT * FROM t WHERE id = ${id}`;
+        let rows = db.sql `SELECT * FROM t WHERE id = ${id}`;
         expect(rows.length).toBe(1);
         expect(rows[0]["name"]).toBe("kim");
-        let one = db.sqlOne`SELECT * FROM t WHERE id = ${id}`;
+        let one = db.sqlOne `SELECT * FROM t WHERE id = ${id}`;
         expect(one != null).toBe(true);
         db.close();
     });

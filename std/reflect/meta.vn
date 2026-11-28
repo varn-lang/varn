@@ -5,7 +5,7 @@ import {
     createMetaKey$,
     setMetaKey$,
     getMetaKey$,
-    hasMetaKey$
+    hasMetaKey$,
 } from "runtime:reflect";
 
 export interface ClassRef {

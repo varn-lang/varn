@@ -8,7 +8,7 @@ import {
     waitProcess$,
     killProcess$,
     ProcessOutput,
-    ProcessStatus
+    ProcessStatus,
 } from "runtime:process";
 
 import { Task } from "std:task";

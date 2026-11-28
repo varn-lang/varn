@@ -1,18 +1,35 @@
 import { describe, it, expect } from "std:test";
 
-interface Named { name: str }
-interface Located { name: str; address?: Place }
-interface Place { city: str }
+interface Named {
+    name: str
+}
+interface Located {
+    name: str;
+    address?: Place
+}
+interface Place {
+    city: str
+}
 
 type Options = #{ retries: int; verbose?: bool }
 type Pair = #{ left: int; right: int }
 
-class Person implements Named { name: str = "ana" }
+class Person implements Named {
+    name: str = "ana"
+}
 
-function nameOf(n: Named): str { return n.name }
-function describe2(l: Located): str { return l.name }
-function retriesOf(o: Options): int { return o.retries }
-function sum(p: Pair): int { return p.left + p.right }
+function nameOf(n: Named): str {
+    return n.name
+}
+function describe2(l: Located): str {
+    return l.name
+}
+function retriesOf(o: Options): int {
+    return o.retries
+}
+function sum(p: Pair): int {
+    return p.left + p.right
+}
 
 await describe("339 record and interface types", async () => {
     await it("a record satisfies an interface structurally", () => {
@@ -50,13 +67,30 @@ await describe("339 record and interface types", async () => {
     })
 })
 
-class Animal { name: str = "animal" }
-class Dog extends Animal { constructor() { super(); this.name = "dog" } }
-interface Holder { pet: Animal }
-interface Slot { mut pet: Animal }
-class Kennel implements Holder, Slot { pet: Animal = new Animal() }
-function petOf(h: Holder): str { return h.pet.name }
-function replace(s: Slot, a: Animal): void { s.pet = a }
+class Animal {
+    name: str = "animal"
+}
+class Dog extends Animal {
+    constructor() {
+        super();
+        this.name = "dog"
+    }
+}
+interface Holder {
+    pet: Animal
+}
+interface Slot {
+    mut pet: Animal
+}
+class Kennel implements Holder, Slot {
+    pet: Animal = new Animal()
+}
+function petOf(h: Holder): str {
+    return h.pet.name
+}
+function replace(s: Slot, a: Animal): void {
+    s.pet = a
+}
 
 await describe("339 read-only and mut interface members", async () => {
     await it("a read-only member is covariant", () => {
@@ -72,20 +106,32 @@ await describe("339 read-only and mut interface members", async () => {
     })
 })
 
-interface Source<out T> { next(): T? }
-interface Sink<in T> { put(x: T): void }
+interface Source<out T> {
+    next(): T?
+}
+interface Sink<in T> {
+    put(x: T): void
+}
 
 class Counter implements Source<Dog> {
-    next(): Dog? { return new Dog() }
+    next(): Dog? {
+        return new Dog()
+    }
 }
 
 class Log implements Sink<Animal> {
     seen: int = 0
-    put(x: Animal): void { this.seen = this.seen + 1 }
+    put(x: Animal): void {
+        this.seen = this.seen + 1
+    }
 }
 
-function pull(s: Source<Animal>): str { return (s.next() ?? new Animal()).name }
-function push(s: Sink<Dog>): void { s.put(new Dog()) }
+function pull(s: Source<Animal>): str {
+    return(s.next() ?? new Animal()).name
+}
+function push(s: Sink<Dog>): void {
+    s.put(new Dog())
+}
 function widen(): Result<Animal, Error> {
     const ok: Result<Dog, Error> = Result.Ok(new Dog())
     return ok
@@ -104,10 +150,19 @@ await describe("339 declared variance", async () => {
     })
 })
 
-enum Opt<T> { Some(T), None }
-function noneOf(): Opt<int> { return Opt.None }
-function someOf(): Opt<int> { return Opt.Some(1) }
-function pickOpt(flag: bool): Opt<int> { return flag ? Opt.Some(1) : Opt.None }
+enum Opt<T> {
+    Some(T),
+    None
+}
+function noneOf(): Opt<int> {
+    return Opt.None
+}
+function someOf(): Opt<int> {
+    return Opt.Some(1)
+}
+function pickOpt(flag: bool): Opt<int> {
+    return flag ? Opt.Some(1) : Opt.None
+}
 
 await describe("339 variants take their arguments from the expected type", async () => {
     await it("an invariant generic enum is built from its context", () => {

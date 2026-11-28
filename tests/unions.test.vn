@@ -3,30 +3,38 @@ import { describe, it, expect } from "std:test";
 type StringOrInt = str | int
 type MaybeStr = str | null
 function processValue(v: StringOrInt): str {
-    if (v is str) {
+    if(v is str) {
         return "string: " + v;
     } else {
         return `number: ${v}`;
     }
 }
 function orNull(v: MaybeStr): int {
-    if (v == null) return 0;
+    if(v == null) return 0;
     return v.length;
 }
 class Square2 {
     side: float
-    constructor(s: float) { this.side = s; }
-    area(): float { return this.side * this.side; }
+    constructor(s: float) {
+        this.side = s;
+    }
+    area(): float {
+        return this.side * this.side;
+    }
 }
 class Circle2 {
     radius: float
-    constructor(r: float) { this.radius = r; }
-    area(): float { return 3.14 * this.radius * this.radius; }
+    constructor(r: float) {
+        this.radius = r;
+    }
+    area(): float {
+        return 3.14 * this.radius * this.radius;
+    }
 }
 type Shape2 = Square2 | Circle2
 function totalArea(shapes: Shape2[]): float {
     let total = 0.0;
-    for (const s in shapes) {
+    for(const s in shapes) {
         total = total + s.area();
     }
     return total;

@@ -2,7 +2,6 @@ import { describe, it, expect } from "std:test";
 import { channel, ChannelClosed, spawnIsolate, Sender, Receiver } from "std:task";
 import { echoWorker } from "./helpers/isolate-workers.vn";
 
-
 async function testBasics(): Task<void> {
     const ch = channel<int>(2)
     await ch.tx.send(1)
@@ -51,7 +50,11 @@ async function testUsingDispose(): Task<void> {
     // dispose cerró el canal: drena y termina
     expect(await ch.rx.receive()).toBe(5)
     let closed = false
-    try { await ch.rx.receive() } catch (e) { closed = e is ChannelClosed }
+    try {
+        await ch.rx.receive()
+    } catch (e) {
+        closed = e is ChannelClosed
+    }
     expect(closed).toBeTruthy()
 }
 
@@ -64,7 +67,11 @@ async function testCrossIsolate(): Task<void> {
     a.tx.close()
     await handle.join()
     let done = false
-    try { await b.rx.receive() } catch (e) { done = e is ChannelClosed }
+    try {
+        await b.rx.receive()
+    } catch (e) {
+        done = e is ChannelClosed
+    }
     expect(done).toBeTruthy()
 }
 
@@ -77,8 +84,6 @@ async function main(): Task<void> {
 }
 await describe("54 channels", async () => {
     await it("tests", async () => {
-        
         await main()
-        
     });
 });

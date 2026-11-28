@@ -19,8 +19,13 @@ function count(value: Json): int {
 function widest(values: (int | str)[]): int {
     return values.length
 }
-async function later(): Task<int> { return 4 }
-function* numbers(): int { yield 1; yield 2 }
+async function later(): Task<int> {
+    return 4
+}
+function* numbers(): int {
+    yield 1;
+    yield 2
+}
 
 await describe("199 containers are invariant", async () => {
     await it("a literal is checked piece by piece against the type it lands in", () => {
@@ -41,7 +46,9 @@ await describe("199 containers are invariant", async () => {
         const name = "ada"
         const tags: str[] = ["a", "b"]
         expect(count([new Map<str, Json>([#["id", 1], #["name", name]])])).toBe(1)
-        expect(count(new Map<str, Json>([#["users", [...tags]], #["depth", [1, [2, [3]]]]]))).toBe(1)
+        expect(count(new Map<str, Json>([#["users", [...tags]], #["depth", [1, [2, [3]]]]]))).toBe(
+            1,
+        )
     })
 
     await it("what can only be read still widens", async () => {
@@ -49,7 +56,9 @@ await describe("199 containers are invariant", async () => {
         const tight: Generator<int> = numbers()
         const view: Sized = new Crate()
         let seen = 0
-        for (const value in tight) { seen = seen + 1 }
+        for(const value in tight) {
+            seen = seen + 1
+        }
         expect(await maybe).toBe(4)
         expect(seen).toBe(2)
         expect(view.size).toBe(3)

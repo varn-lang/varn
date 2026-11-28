@@ -21,7 +21,7 @@ import {
     hypot$,
     max2$,
     min2$,
-    sign$
+    sign$,
 } from "runtime:math";
 
 export function abs(x: float): float {
@@ -106,7 +106,7 @@ export function hypot(x: float, y: float): float {
 
 export function max(first: float, ...rest: float[]): float {
     let current = first;
-    for (let i = 0; i < rest.length; i = i + 1) {
+    for(let i = 0; i < rest.length; i = i + 1) {
         let v = rest[i];
         current = max2$(current, v);
     }
@@ -115,7 +115,7 @@ export function max(first: float, ...rest: float[]): float {
 
 export function min(first: float, ...rest: float[]): float {
     let current = first;
-    for (let i = 0; i < rest.length; i = i + 1) {
+    for(let i = 0; i < rest.length; i = i + 1) {
         let v = rest[i];
         current = min2$(current, v);
     }
@@ -127,7 +127,7 @@ export function sign(x: float): float {
 }
 
 export function trunc(x: float): float {
-    if (x >= 0.0) {
+    if(x >= 0.0) {
         return floor$(x);
     }
     return ceil$(x);

@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 // `try` works on the core Result and on nullable types.
 function parse_positive(n: int): Result<int, str> {
-    if (n <= 0) {
+    if(n <= 0) {
         return Result.Err("must be positive");
     }
     return Result.Ok(n * 2);
@@ -25,7 +25,7 @@ let ok_res = compute_result(5, 10);
 let err_res = compute_result(-2, 10);
 
 function find_user_id(name: str): int? {
-    if (name == "alice") {
+    if(name == "alice") {
         return 101;
     }
     return null;
@@ -57,7 +57,7 @@ let ternary_unary_not = cond ? !false : false;
 let opt_chain: str? = "hello";
 let opt_len = opt_chain?.length ?? 0;
 await describe("109 try operator", async () => {
-        await it("group 1 part 1a", async () => {
+    await it("group 1 part 1a", async () => {
         let ok_val = match (ok_res) {
             Ok(v) => v,
             Err(_) => 0
@@ -84,6 +84,4 @@ await describe("109 try operator", async () => {
         expect(ternary_unary_not == true).toBeTruthy();
         expect(opt_len == 5).toBeTruthy();
     });
-
-
 });

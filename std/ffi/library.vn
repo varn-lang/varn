@@ -7,7 +7,7 @@ import {
     free$,
     readCString$,
     allocCString$,
-    kindName$
+    kindName$,
 } from "runtime:ffi";
 
 import { FfiType } from "std:ffi/types";
@@ -18,8 +18,8 @@ export type FfiValue = FfiScalar | Pointer;
 
 function marshal(args: FfiValue[]): FfiScalar[] {
     let out: FfiScalar[] = [];
-    for (let arg in args) {
-        if (arg is Pointer) {
+    for(let arg in args) {
+        if(arg is Pointer) {
             out.push(arg.address);
         } else {
             out.push(arg);
@@ -30,7 +30,7 @@ function marshal(args: FfiValue[]): FfiScalar[] {
 
 function rawTypes(types: FfiType[]): int[] {
     let out: int[] = [];
-    for (let type in types) {
+    for(let type in types) {
         out.push(type.rawValue);
     }
     return out;
@@ -49,7 +49,12 @@ export class FfiFunction {
 
     @capability("sys.ffi")
     invoke(args: FfiValue[] = []): FfiScalar {
-        return call$(this.fnPtr, this.returnType.rawValue, rawTypes(this.paramTypes), marshal(args));
+        return call$(
+            this.fnPtr,
+            this.returnType.rawValue,
+            rawTypes(this.paramTypes),
+            marshal(args),
+        );
     }
 
     @capability("sys.ffi")
@@ -98,7 +103,7 @@ export class Ffi {
 
     @capability("sys.ffi")
     static free(ptr: Pointer | int): void {
-        if (ptr is Pointer) {
+        if(ptr is Pointer) {
             (ptr as Pointer).free();
         } else {
             free$(ptr as int);
@@ -117,14 +122,19 @@ export class Ffi {
 
     @capability("sys.ffi")
     static readCString(ptr: Pointer | int, offset: int = 0): str {
-        if (ptr is Pointer) {
-            return (ptr as Pointer).readCString(offset);
+        if(ptr is Pointer) {
+            return(ptr as Pointer).readCString(offset);
         }
         return readCString$(ptr as int, offset);
     }
 
     @capability("sys.ffi")
-    static call(fnPtr: Pointer | int, returnType: FfiType, paramTypes: FfiType[], args: FfiValue[] = []): FfiScalar {
+    static call(
+        fnPtr: Pointer | int,
+        returnType: FfiType,
+        paramTypes: FfiType[],
+        args: FfiValue[] = [],
+    ): FfiScalar {
         let addr = fnPtr is Pointer ? fnPtr.address : fnPtr;
         return call$(addr, returnType.rawValue, rawTypes(paramTypes), marshal(args));
     }

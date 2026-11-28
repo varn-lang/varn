@@ -12,16 +12,22 @@ function* passes(value: dynamic): Generator<dynamic> {
 
 class Countdown {
     left: int;
-    constructor(from: int) { this.left = from; }
+    constructor(from: int) {
+        this.left = from;
+    }
     next(): int? {
-        if (this.left <= 0) { return null; }
+        if(this.left <= 0) {
+            return null;
+        }
         this.left = this.left - 1;
         return this.left + 1;
     }
 }
 
 class Source {
-    iter(): Countdown { return new Countdown(3); }
+    iter(): Countdown {
+        return new Countdown(3);
+    }
 }
 
 await describe("319 null is the only absent value", async () => {
@@ -36,14 +42,20 @@ await describe("319 null is the only absent value", async () => {
 
     await it("a generator that yields null at run time fails instead of looking finished", async () => {
         let message = "none";
-        try { passes(null).next(); } catch (e) { message = e.message; }
+        try {
+            passes(null).next();
+        } catch (e) {
+            message = e.message;
+        }
         expect(message.includes("cannot yield null")).toBe(true);
         expect(passes(5).next()).toBe(5);
     });
 
     await it("any type whose next() returns T? is iterable", async () => {
         let out = "";
-        for (const n in new Source()) { out = out + n.toString(); }
+        for(const n in new Source()) {
+            out = out + n.toString();
+        }
         expect(out).toBe("321");
     });
 
@@ -58,7 +70,9 @@ await describe("319 null is the only absent value", async () => {
     await it("arrays of nullable values still iterate every element", async () => {
         const values: (int?)[] = [1, null, 3];
         let seen = 0;
-        for (const v in values) { seen = seen + 1; }
+        for(const v in values) {
+            seen = seen + 1;
+        }
         expect(seen).toBe(3);
     });
 });

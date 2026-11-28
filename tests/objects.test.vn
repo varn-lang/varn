@@ -2,12 +2,16 @@ import { describe, it, expect } from "std:test";
 
 class Builder {
     private parts: str[]
-    constructor() { this.parts = []; }
+    constructor() {
+        this.parts = [];
+    }
     add(s: str): Builder {
         this.parts.push(s);
         return this;
     }
-    build(): str { return this.parts.join(" "); }
+    build(): str {
+        return this.parts.join(" ");
+    }
 }
 class Node<T> {
     value: T
@@ -30,11 +34,13 @@ class LinkedList<T> {
         this.head = node;
         this._size = this._size + 1;
     }
-    get size(): int { return this._size; }
+    get size(): int {
+        return this._size;
+    }
     toArray(): T[] {
         const arr: T[] = [];
         let cur = this.head;
-        while (cur != null) {
+        while(cur != null) {
             arr.push(cur.value);
             cur = cur.next;
         }
@@ -60,7 +66,13 @@ await describe("23 Objects", async () => {
     });
     await it("get and set stay ordinary property names in object literals", () => {
         const set = 4;
-        const o = #{ get: 1, set, put() { return 2; } };
+        const o = #{
+            get: 1,
+            set,
+            put() {
+                return 2;
+            },
+        };
         expect(o.get).toBe(1);
         expect(o.set).toBe(4);
         expect(o.put()).toBe(2);

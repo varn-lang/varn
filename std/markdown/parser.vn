@@ -1,16 +1,15 @@
-
 import { MarkdownOptions, MarkdownNode, TableAlign } from "std:markdown/ast";
 import { escapeHtmlStr, isWhitespaceChar, findFrom, startsWithAt } from "std:markdown/utils";
 
 export function isThematicBreak(line: str): bool {
     let trimmed = line.trim();
-    if (trimmed.length < 3) return false;
+    if(trimmed.length < 3) return false;
     let ch = trimmed[0];
-    if (ch != "-" && ch != "*" && ch != "_") return false;
+    if(ch != "-" && ch != "*" && ch != "_") return false;
     let count = 0;
-    for (let i = 0; i < trimmed.length; i = i + 1) {
+    for(let i = 0; i < trimmed.length; i = i + 1) {
         let c = trimmed[i];
-        if (c == ch) {
+        if(c == ch) {
             count = count + 1;
         } else if (c != " " && c != "\t") {
             return false;
@@ -21,17 +20,17 @@ export function isThematicBreak(line: str): bool {
 
 export function isHeadingLine(line: str): int {
     let trimmed = line.trimStart();
-    if (!trimmed.startsWith("#")) return 0;
+    if(!trimmed.startsWith("#")) return 0;
     let level = 0;
-    for (let i = 0; i < trimmed.length; i = i + 1) {
-        if (trimmed[i] == "#") {
+    for(let i = 0; i < trimmed.length; i = i + 1) {
+        if(trimmed[i] == "#") {
             level = level + 1;
         } else {
             break;
         }
     }
-    if (level >= 1 && level <= 6) {
-        if (trimmed.length > level && isWhitespaceChar(trimmed[level])) {
+    if(level >= 1 && level <= 6) {
+        if(trimmed.length > level && isWhitespaceChar(trimmed[level])) {
             return level;
         }
     }
@@ -40,22 +39,22 @@ export function isHeadingLine(line: str): int {
 
 export function isListItemLine(line: str): bool {
     let trimmed = line.trimStart();
-    if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("+ ")) {
+    if(trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("+ ")) {
         return true;
     }
     let i = 0;
-    while (i < trimmed.length) {
+    while(i < trimmed.length) {
         let code = trimmed.charCodeAt(i);
-        if (code >= 48 && code <= 57) {
+        if(code >= 48 && code <= 57) {
             i = i + 1;
         } else {
             break;
         }
     }
-    if (i > 0 && i < trimmed.length) {
+    if(i > 0 && i < trimmed.length) {
         let ch = trimmed[i];
-        if (ch == "." || ch == ")") {
-            if (i + 1 < trimmed.length && trimmed[i + 1] == " ") {
+        if(ch == "." || ch == ")") {
+            if(i + 1 < trimmed.length && trimmed[i + 1] == " ") {
                 return true;
             }
         }
@@ -65,24 +64,24 @@ export function isListItemLine(line: str): bool {
 
 export function isTableSeparator(line: str): bool {
     let trimmed = line.trim();
-    if (!trimmed.includes("-")) return false;
+    if(!trimmed.includes("-")) return false;
     let parts = trimmed.split("|");
     let validCols = 0;
-    for (let p in parts) {
+    for(let p in parts) {
         let col = p.trim();
-        if (col.length == 0) continue;
+        if(col.length == 0) continue;
         let isSep = true;
         let dashes = 0;
-        for (let i = 0; i < col.length; i = i + 1) {
+        for(let i = 0; i < col.length; i = i + 1) {
             let c = col[i];
-            if (c == "-") {
+            if(c == "-") {
                 dashes = dashes + 1;
             } else if (c != ":") {
                 isSep = false;
                 break;
             }
         }
-        if (!isSep || dashes == 0) return false;
+        if(!isSep || dashes == 0) return false;
         validCols = validCols + 1;
     }
     return validCols > 0;
@@ -91,12 +90,12 @@ export function isTableSeparator(line: str): bool {
 export function parseTableAlignments(sepLine: str): TableAlign[] {
     let parts = sepLine.trim().split("|");
     let aligns: TableAlign[] = [];
-    for (let p in parts) {
+    for(let p in parts) {
         let col = p.trim();
-        if (col.length == 0) continue;
+        if(col.length == 0) continue;
         let left = col.startsWith(":");
         let right = col.endsWith(":");
-        if (left && right) {
+        if(left && right) {
             aligns.push(TableAlign.Center);
         } else if (right) {
             aligns.push(TableAlign.Right);
@@ -111,11 +110,11 @@ export function parseTableAlignments(sepLine: str): TableAlign[] {
 
 export function splitTableRow(rowLine: str): str[] {
     let trimmed = rowLine.trim();
-    if (trimmed.startsWith("|")) trimmed = trimmed.slice(1);
-    if (trimmed.endsWith("|")) trimmed = trimmed.slice(0, trimmed.length - 1);
+    if(trimmed.startsWith("|")) trimmed = trimmed.slice(1);
+    if(trimmed.endsWith("|")) trimmed = trimmed.slice(0, trimmed.length - 1);
     let cells = trimmed.split("|");
     let res: str[] = [];
-    for (let c in cells) {
+    for(let c in cells) {
         res.push(c.trim());
     }
     return res;
@@ -124,12 +123,11 @@ export function splitTableRow(rowLine: str): str[] {
 export { parseInlineTokens } from "std:markdown/inline";
 
 export function isParagraphEnd(cur: str, curTrim: str): bool {
-    if (isHeadingLine(cur) > 0) return true;
-    if (isThematicBreak(cur)) return true;
-    if (isListItemLine(cur)) return true;
-    if (curTrim.startsWith(">")) return true;
-    if (curTrim.startsWith("```")) return true;
-    if (curTrim.startsWith("~~~")) return true;
+    if(isHeadingLine(cur) > 0) return true;
+    if(isThematicBreak(cur)) return true;
+    if(isListItemLine(cur)) return true;
+    if(curTrim.startsWith(">")) return true;
+    if(curTrim.startsWith("```")) return true;
+    if(curTrim.startsWith("~~~")) return true;
     return false;
 }
-

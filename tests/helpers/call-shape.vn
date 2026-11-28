@@ -1,18 +1,30 @@
 import { ClassRef } from "std:reflect"
 export class Tally {
     total: int
-    constructor(start: int? = null) { this.total = start ?? 0 }
-    add(n: int?): int { return this.total + (n ?? 1) }
-    scale(by: float = 2): str { return by::type }
-    label(prefix: str, n: int?, suffix?: str): str { return prefix + (n ?? 0).toString() + (suffix ?? "") }
+    constructor(start: int? = null) {
+        this.total = start ?? 0
+    }
+    add(n: int?): int {
+        return this.total + (n ?? 1)
+    }
+    scale(by: float = 2): str {
+        return by::type
+    }
+    label(prefix: str, n: int?, suffix?: str): str {
+        return prefix + (n ?? 0).toString() + (suffix ?? "")
+    }
 }
 
-function marked(cls: ClassRef): ClassRef { return cls }
+function marked(cls: ClassRef): ClassRef {
+    return cls
+}
 
 @marked
 export class Marked {
     n: int
-    constructor(n: int) { this.n = n }
+    constructor(n: int) {
+        this.n = n
+    }
 }
 
 export class Bare {
@@ -22,5 +34,7 @@ export class Bare {
 
 export class Holder<T> {
     held: T
-    constructor(held: T) { this.held = held }
+    constructor(held: T) {
+        this.held = held
+    }
 }

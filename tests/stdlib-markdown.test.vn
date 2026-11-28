@@ -1,7 +1,6 @@
 import { Markdown, MarkdownNode, MarkdownNodeKind, MarkdownOptions } from "std:markdown";
 import { describe, it, expect } from "std:test";
 
-
 // 1. Headings and Slugify
 let mdHeadings = "# Main Title\n## Sub Title ##\n### Section 3\n###### Level 6";
 let headingsAst = Markdown.parse(mdHeadings);
@@ -10,10 +9,13 @@ let renderedH1 = Markdown.render("# Hello World");
 
 let slug = Markdown.slugify("Varn 1.0: Next-Gen Language & Runtime!");
 
-let extractedHeadings = Markdown.extractHeadings("# Introduction\nSome text\n## Quick Start\nMore text\n### API Reference");
+let extractedHeadings = Markdown.extractHeadings(
+    "# Introduction\nSome text\n## Quick Start\nMore text\n### API Reference",
+);
 
 // 2. Paragraphs and Inlines (Bold, Italic, Strikethrough, Inline Code)
-let mdInlines = "This is **bold text**, *italic text*, ***bold and italic***, ~~strikethrough~~, and `inline_code()`.";
+let mdInlines =
+    "This is **bold text**, *italic text*, ***bold and italic***, ~~strikethrough~~, and `inline_code()`.";
 let htmlInlines = Markdown.render(mdInlines);
 
 // 3. Fenced and Indented Code Blocks
@@ -28,11 +30,11 @@ let mdQuote = "> This is a blockquote.\n> Second line of quote.";
 let htmlQuote = Markdown.render(mdQuote);
 
 // 5. Links, Images and Autolinks
-let mdLinks = "Visit [Varn Language](https://varn-lang.org \"Official Site\") or check ![Varn Logo](https://varn-lang.org/logo.png \"Logo\"). Also check <https://github.com/carlos-burelo/varn>.";
+let mdLinks =
+    "Visit [Varn Language](https://varn-lang.org \"Official Site\") or check ![Varn Logo](https://varn-lang.org/logo.png \"Logo\"). Also check <https://github.com/carlos-burelo/varn>.";
 let htmlLinks = Markdown.render(mdLinks);
 
 let extractedLinks = Markdown.extractLinks(mdLinks);
-
 
 // 6. Lists (Unordered, Ordered, Task lists)
 let mdLists = "- Item 1\n- Item 2 with **bold**\n- Item 3";
@@ -48,7 +50,8 @@ let mdTasks = "- [ ] Pending task\n- [x] Completed task";
 let htmlTasks = Markdown.render(mdTasks);
 
 // 7. GFM Pipe Tables with Alignments
-let mdTable = "| Feature | Status | Speed |\n|:---|:---:|---:|\n| JIT | Active | Fast |\n| GC | Generational | 10x |";
+let mdTable =
+    "| Feature | Status | Speed |\n|:---|:---:|---:|\n| JIT | Active | Fast |\n| GC | Generational | 10x |";
 let htmlTable = Markdown.render(mdTable);
 
 // 8. Thematic Breaks / Horizontal Rules
@@ -56,7 +59,8 @@ let mdHR = "Paragraph 1\n\n---\n\nParagraph 2";
 let htmlHR = Markdown.render(mdHR);
 
 // 9. Plain Text Extractor (toPlainText)
-let mdComplex = "# Title\n\nThis is **formatted** markdown with `code` and [links](https://example.com).\n\n```\nlet block = 1;\n```";
+let mdComplex =
+    "# Title\n\nThis is **formatted** markdown with `code` and [links](https://example.com).\n\n```\nlet block = 1;\n```";
 let plainText = Markdown.toPlainText(mdComplex);
 
 // 10. Options (XHTML mode, HTML escaping, line breaks)
@@ -69,7 +73,7 @@ let htmlEscaped = Markdown.render(mdXss, new MarkdownOptions(escapeHtml: true));
 let mdBreaks = "Line 1\nLine 2";
 let htmlBreaks = Markdown.render(mdBreaks, new MarkdownOptions(breaks: true));
 await describe("95 stdlib markdown", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(headingsAst.children.length).toBe(4);
         expect(headingsAst.children[0].kind).toBe(MarkdownNodeKind.Heading);
         expect(headingsAst.children[0].level).toBe(1);
@@ -96,12 +100,28 @@ await describe("95 stdlib markdown", async () => {
         expect(htmlInlines.includes("<strong><em>bold and italic</em></strong>")).toBeTruthy();
         expect(htmlInlines.includes("<del>strikethrough</del>")).toBeTruthy();
         expect(htmlInlines.includes("<code>inline_code()</code>")).toBeTruthy();
-        expect(htmlFenced).toBe("<pre><code class=\"language-varn\">let msg = &quot;Hello from Varn&quot;;\nprint(msg);\n</code></pre>\n");
+        expect(htmlFenced).toBe(
+            "<pre><code class=\"language-varn\">let msg = &quot;Hello from Varn&quot;;\nprint(msg);\n</code></pre>\n",
+        );
         expect(htmlIndented).toBe("<pre><code>let x = 10;\nlet y = 20;\n</code></pre>\n");
-        expect(htmlQuote).toBe("<blockquote>\n<p>This is a blockquote.\nSecond line of quote.</p>\n</blockquote>\n");
-        expect(htmlLinks.includes("<a href=\"https://varn-lang.org\" title=\"Official Site\">Varn Language</a>")).toBeTruthy();
-        expect(htmlLinks.includes("<img src=\"https://varn-lang.org/logo.png\" alt=\"Varn Logo\" title=\"Logo\">")).toBeTruthy();
-        expect(htmlLinks.includes("<a href=\"https://github.com/carlos-burelo/varn\">https://github.com/carlos-burelo/varn</a>")).toBeTruthy();
+        expect(htmlQuote).toBe(
+            "<blockquote>\n<p>This is a blockquote.\nSecond line of quote.</p>\n</blockquote>\n",
+        );
+        expect(
+            htmlLinks.includes(
+                "<a href=\"https://varn-lang.org\" title=\"Official Site\">Varn Language</a>",
+            ),
+        ).toBeTruthy();
+        expect(
+            htmlLinks.includes(
+                "<img src=\"https://varn-lang.org/logo.png\" alt=\"Varn Logo\" title=\"Logo\">",
+            ),
+        ).toBeTruthy();
+        expect(
+            htmlLinks.includes(
+                "<a href=\"https://github.com/carlos-burelo/varn\">https://github.com/carlos-burelo/varn</a>",
+            ),
+        ).toBeTruthy();
         expect(extractedLinks.length).toBe(3);
         expect(extractedLinks[0].text).toBe("Varn Language");
         expect(extractedLinks[0].url).toBe("https://varn-lang.org");
@@ -112,17 +132,39 @@ await describe("95 stdlib markdown", async () => {
         expect(extractedLinks[1].title).toBe("Logo");
         expect(extractedLinks[1].isImage).toBe(true);
         expect(extractedLinks[2].url).toBe("https://github.com/carlos-burelo/varn");
-        expect(htmlLists).toBe("<ul>\n<li>Item 1</li>\n<li>Item 2 with <strong>bold</strong></li>\n<li>Item 3</li>\n</ul>\n");
+        expect(htmlLists).toBe(
+            "<ul>\n<li>Item 1</li>\n<li>Item 2 with <strong>bold</strong></li>\n<li>Item 3</li>\n</ul>\n",
+        );
     });
 
     await it("group 1 part 3", async () => {
         expect(htmlOrdered).toBe("<ol>\n<li>First</li>\n<li>Second</li>\n<li>Third</li>\n</ol>\n");
-        expect(htmlOrderedStart).toBe("<ol start=\"5\">\n<li>Fifth item</li>\n<li>Sixth item</li>\n</ol>\n");
-        expect(htmlTasks.includes("<li><input type=\"checkbox\" disabled> Pending task</li>")).toBeTruthy();
-        expect(htmlTasks.includes("<li><input type=\"checkbox\" checked=\"\" disabled> Completed task</li>")).toBeTruthy();
-        expect(htmlTable.startsWith("<table>\n<thead>\n<tr><th align=\"left\">Feature</th><th align=\"center\">Status</th><th align=\"right\">Speed</th></tr>\n</thead>\n")).toBeTruthy();
-        expect(htmlTable.includes("<tbody>\n<tr><td align=\"left\">JIT</td><td align=\"center\">Active</td><td align=\"right\">Fast</td></tr>")).toBeTruthy();
-        expect(htmlTable.includes("<tr><td align=\"left\">GC</td><td align=\"center\">Generational</td><td align=\"right\">10x</td></tr>\n</tbody>\n</table>\n")).toBeTruthy();
+        expect(htmlOrderedStart).toBe(
+            "<ol start=\"5\">\n<li>Fifth item</li>\n<li>Sixth item</li>\n</ol>\n",
+        );
+        expect(
+            htmlTasks.includes("<li><input type=\"checkbox\" disabled> Pending task</li>"),
+        ).toBeTruthy();
+        expect(
+            htmlTasks.includes(
+                "<li><input type=\"checkbox\" checked=\"\" disabled> Completed task</li>",
+            ),
+        ).toBeTruthy();
+        expect(
+            htmlTable.startsWith(
+                "<table>\n<thead>\n<tr><th align=\"left\">Feature</th><th align=\"center\">Status</th><th align=\"right\">Speed</th></tr>\n</thead>\n",
+            ),
+        ).toBeTruthy();
+        expect(
+            htmlTable.includes(
+                "<tbody>\n<tr><td align=\"left\">JIT</td><td align=\"center\">Active</td><td align=\"right\">Fast</td></tr>",
+            ),
+        ).toBeTruthy();
+        expect(
+            htmlTable.includes(
+                "<tr><td align=\"left\">GC</td><td align=\"center\">Generational</td><td align=\"right\">10x</td></tr>\n</tbody>\n</table>\n",
+            ),
+        ).toBeTruthy();
         expect(htmlHR).toBe("<p>Paragraph 1</p>\n<hr>\n<p>Paragraph 2</p>\n");
         expect(plainText.includes("Title")).toBeTruthy();
         expect(plainText.includes("This is formatted markdown with code and links.")).toBeTruthy();
@@ -136,6 +178,4 @@ await describe("95 stdlib markdown", async () => {
         expect(!htmlEscaped.includes("<script>")).toBeTruthy();
         expect(htmlBreaks).toBe("<p>Line 1<br>\nLine 2</p>\n");
     });
-
-
 });

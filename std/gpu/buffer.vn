@@ -10,7 +10,7 @@ import {
     mul$,
     scale$,
     dot$,
-    matMul$
+    matMul$,
 } from "runtime:gpu";
 
 export class GpuBuffer {

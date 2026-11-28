@@ -6,8 +6,8 @@ function classify(n: int): str {
 function firstAbove(arr: int[], threshold: int): int {
     let i = 0;
     let result = -1;
-    while (i < arr.length) {
-        if (arr[i] > threshold) {
+    while(i < arr.length) {
+        if(arr[i] > threshold) {
             result = arr[i];
             break;
         }
@@ -17,8 +17,8 @@ function firstAbove(arr: int[], threshold: int): int {
 }
 function sumOdds(max: int): int {
     let total = 0;
-    for (let i = 0; i <= max; i = i + 1) {
-        if (i % 2 == 0) continue;
+    for(let i = 0; i <= max; i = i + 1) {
+        if(i % 2 == 0) continue;
         total = total + i;
     }
     return total;
@@ -35,19 +35,19 @@ await describe("09 Control Flow", async () => {
 
     await it("for loops", () => {
         let forOfSum = 0;
-        for (const n in [10, 20, 30]) {
+        for(const n in [10, 20, 30]) {
             forOfSum = forOfSum + n;
         }
         expect(forOfSum).toBe(60);
         let forOfBreak = 0;
-        for (const n in [1, 2, 3, 4, 5]) {
-            if (n == 3) break;
+        for(const n in [1, 2, 3, 4, 5]) {
+            if(n == 3) break;
             forOfBreak = forOfBreak + n;
         }
         expect(forOfBreak).toBe(3);
         const obj2 = #{ x: 1, y: 2, z: 3 };
         let keyCount = 0;
-        for (const k in obj2) {
+        for(const k in obj2) {
             keyCount = keyCount + 1;
         }
         expect(keyCount).toBe(3);

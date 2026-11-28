@@ -1,4 +1,15 @@
-import { Widget, Size, PaintContext, alignedX, alignedY, Constraints, Placement, paintPlaced, layoutAt, fixedSize } from "std:ui/widget/base";
+import {
+    Widget,
+    Size,
+    PaintContext,
+    alignedX,
+    alignedY,
+    Constraints,
+    Placement,
+    paintPlaced,
+    layoutAt,
+    fixedSize,
+} from "std:ui/widget/base";
 import { Column } from "std:ui/widget/flex";
 import { Title } from "std:ui/widget/text";
 import { Alignment, Colors, Theme } from "std:ui/style";
@@ -15,7 +26,15 @@ export class BoxNode extends Widget {
     minH: float = -1.0;
     maxH: float = -1.0;
 
-    constructor(w: float, h: float, color: int, radius: float, pad: float, onClick: (() => void)?, child: Widget?) {
+    constructor(
+        w: float,
+        h: float,
+        color: int,
+        radius: float,
+        pad: float,
+        onClick: (() => void)?,
+        child: Widget?,
+    ) {
         super();
         this.w = w;
         this.h = h;
@@ -26,19 +45,28 @@ export class BoxNode extends Widget {
         this.child = child;
     }
 
-
     override computeLayout(c: Constraints): Placement {
         const pad = this.pad;
         const child = this.child;
         const bounded = this.bounds(c);
-        const measured = child == null ? null : layoutAt(child, "child", c.looseChild(bounded.maxW - 2.0 * pad, bounded.maxH - 2.0 * pad));
+        const measured =
+            child == null
+                ? null
+                : layoutAt(
+                    child,
+                    "child",
+                    c.looseChild(bounded.maxW - 2.0 * pad, bounded.maxH - 2.0 * pad),
+                );
         const inner = measured == null ? new Size(0.0, 0.0) : measured.size;
         const size = fixedSize(this, bounded, new Size(inner.w + 2.0 * pad, inner.h + 2.0 * pad));
         const children: Placement[] = [];
-        if (child != null) {
+        if(child != null) {
             const wantW = size.w - 2.0 * pad;
             const wantH = size.h - 2.0 * pad;
-            const placed = (measured != null && measured.size.w == wantW && measured.size.h == wantH) ? measured : layoutAt(child, "child", c.tightChild(wantW, wantH));
+            const placed =
+                (measured != null && measured.size.w == wantW && measured.size.h == wantH)
+                    ? measured
+                    : layoutAt(child, "child", c.tightChild(wantW, wantH));
             placed.x = pad;
             placed.y = pad;
             children.push(placed);
@@ -47,7 +75,7 @@ export class BoxNode extends Widget {
     }
 
     override minWidth(): float {
-        if (this.w >= 0.0) {
+        if(this.w >= 0.0) {
             return this.w;
         }
         const child = this.child;
@@ -55,7 +83,7 @@ export class BoxNode extends Widget {
     }
 
     override minHeight(): float {
-        if (this.h >= 0.0) {
+        if(this.h >= 0.0) {
             return this.h;
         }
         const child = this.child;
@@ -67,21 +95,27 @@ export class BoxNode extends Widget {
         const minH = this.minH > c.minH ? this.minH : c.minH;
         const maxW = this.maxW >= 0.0 && this.maxW < c.maxW ? this.maxW : c.maxW;
         const maxH = this.maxH >= 0.0 && this.maxH < c.maxH ? this.maxH : c.maxH;
-        return new Constraints(minW, maxW < minW ? minW : maxW, minH, maxH < minH ? minH : maxH, c.windowClass);
+        return new Constraints(
+            minW,
+            maxW < minW ? minW : maxW,
+            minH,
+            maxH < minH ? minH : maxH,
+            c.windowClass,
+        );
     }
 
     @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        if (this.color != Colors.transparent) {
+        if(this.color != Colors.transparent) {
             cx.win.rect(x, y, w, h, this.color, this.radius);
         }
         const click = this.onClick;
-        if (click != null) {
+        if(click != null) {
             cx.click(UiControlKind.Surface, x, y, w, h, 0, false, click);
         }
-        for (const placed in p.children) {
+        for(const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -97,11 +131,10 @@ export class StackNode extends Widget {
         this.alignment = alignment;
     }
 
-
     override computeLayout(c: Constraints): Placement {
         let width = 0.0;
         let height = 0.0;
-        for (let i = 0; i < this.children.length; i = i + 1) {
+        for(let i = 0; i < this.children.length; i = i + 1) {
             const child = this.children[i];
             const size = layoutAt(child, `${i}`, c).size;
             width = size.w > width ? size.w : width;
@@ -109,12 +142,15 @@ export class StackNode extends Widget {
         }
         const size = fixedSize(this, c, new Size(width, height));
         const children: Placement[] = [];
-        for (let i = 0; i < this.children.length; i = i + 1) {
+        for(let i = 0; i < this.children.length; i = i + 1) {
             const child = this.children[i];
             const probe = layoutAt(child, `${i}`, c.looseChild(size.w, size.h));
             const cw = probe.size.w < size.w ? probe.size.w : size.w;
             const ch = probe.size.h < size.h ? probe.size.h : size.h;
-            const placed = (probe.size.w == cw && probe.size.h == ch) ? probe : layoutAt(child, `${i}`, c.tightChild(cw, ch));
+            const placed =
+                (probe.size.w == cw && probe.size.h == ch)
+                    ? probe
+                    : layoutAt(child, `${i}`, c.tightChild(cw, ch));
             placed.x = alignedX(this.alignment, size.w - cw);
             placed.y = alignedY(this.alignment, size.h - ch);
             children.push(placed);
@@ -122,7 +158,7 @@ export class StackNode extends Widget {
         return new Placement(this, size, children);
     }
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        for (let i = 0; i < p.children.length; i = i + 1) {
+        for(let i = 0; i < p.children.length; i = i + 1) {
             const placed = p.children[i];
             cx.keyed(`${i}`, () => paintPlaced(cx, placed, x, y));
         }
@@ -155,19 +191,24 @@ export class PaddingNode extends Widget {
         return this.top + this.bottom + (child == null ? 0.0 : child.minHeight());
     }
 
-
     override computeLayout(c: Constraints): Placement {
         const horizontal = this.left + this.right;
         const vertical = this.top + this.bottom;
         const child = this.child;
-        const measured = child == null ? null : layoutAt(child, "child", c.looseChild(c.maxW - horizontal, c.maxH - vertical));
+        const measured =
+            child == null
+                ? null
+                : layoutAt(child, "child", c.looseChild(c.maxW - horizontal, c.maxH - vertical));
         const inner = measured == null ? new Size(0.0, 0.0) : measured.size;
         const size = fixedSize(this, c, new Size(inner.w + horizontal, inner.h + vertical));
         const children: Placement[] = [];
-        if (child != null) {
+        if(child != null) {
             const wantW = size.w - horizontal < 0.0 ? 0.0 : size.w - horizontal;
             const wantH = size.h - vertical < 0.0 ? 0.0 : size.h - vertical;
-            const placed = (measured != null && measured.size.w == wantW && measured.size.h == wantH) ? measured : layoutAt(child, "child", c.tightChild(wantW, wantH));
+            const placed =
+                (measured != null && measured.size.w == wantW && measured.size.h == wantH)
+                    ? measured
+                    : layoutAt(child, "child", c.tightChild(wantW, wantH));
             placed.x = this.left;
             placed.y = this.top;
             children.push(placed);
@@ -177,7 +218,7 @@ export class PaddingNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        for (const placed in p.children) {
+        for(const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -193,15 +234,17 @@ export class SizedBoxNode extends Widget {
         this.h = height;
     }
 
-
     override computeLayout(c: Constraints): Placement {
         const child = this.child;
         const measured = child == null ? null : layoutAt(child, "child", c);
         const inner = measured == null ? new Size(0.0, 0.0) : measured.size;
         const size = fixedSize(this, c, inner);
         const children: Placement[] = [];
-        if (child != null) {
-            const placed = (measured != null && measured.size.w == size.w && measured.size.h == size.h) ? measured : layoutAt(child, "child", c.tightChild(size.w, size.h));
+        if(child != null) {
+            const placed =
+                (measured != null && measured.size.w == size.w && measured.size.h == size.h)
+                    ? measured
+                    : layoutAt(child, "child", c.tightChild(size.w, size.h));
             children.push(placed);
         }
         return new Placement(this, size, children);
@@ -209,7 +252,7 @@ export class SizedBoxNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        for (const placed in p.children) {
+        for(const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
     }
@@ -236,7 +279,6 @@ export class ExpandedNode extends Widget {
         const placed = layoutAt(this.child, "child", c);
         return new Placement(this, placed.size, [placed]);
     }
-
 
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
@@ -279,7 +321,19 @@ export class DividerNode extends Widget {
     }
 }
 
-export function Box(child: Widget? = null, color: int = Colors.transparent, radius: float = 0.0, pad: float = 0.0, w: float = -1.0, h: float = -1.0, onClick: (() => void)? = null, minW: float = -1.0, maxW: float = -1.0, minH: float = -1.0, maxH: float = -1.0): Widget {
+export function Box(
+    child: Widget? = null,
+    color: int = Colors.transparent,
+    radius: float = 0.0,
+    pad: float = 0.0,
+    w: float = -1.0,
+    h: float = -1.0,
+    onClick: (() => void)? = null,
+    minW: float = -1.0,
+    maxW: float = -1.0,
+    minH: float = -1.0,
+    maxH: float = -1.0,
+): Widget {
     const node = new BoxNode(w, h, color, radius, pad, onClick, child);
     node.minW = minW;
     node.maxW = maxW;
@@ -288,12 +342,20 @@ export function Box(child: Widget? = null, color: int = Colors.transparent, radi
     return node;
 }
 
-export function Card(children: Widget[], title: str = "", gap: float = 12.0, pad: float = 16.0, radius: float = 12.0, w: float = -1.0, h: float = -1.0): Widget {
+export function Card(
+    children: Widget[],
+    title: str = "",
+    gap: float = 12.0,
+    pad: float = 16.0,
+    radius: float = 12.0,
+    w: float = -1.0,
+    h: float = -1.0,
+): Widget {
     const body: Widget[] = [];
-    if (title != "") {
+    if(title != "") {
         body.push(Title(title));
     }
-    for (let child in children) {
+    for(let child in children) {
         body.push(child);
     }
     const card = new BoxNode(w, h, Theme.colors.surface, radius, pad, null, Column(body, gap: gap));
@@ -305,13 +367,20 @@ export function Stack(children: Widget[], alignment: Alignment = Alignment.cente
     return new StackNode(children, alignment);
 }
 
-export function Padding(child: Widget? = null, all: float = 0.0, left: float = -1.0, top: float = -1.0, right: float = -1.0, bottom: float = -1.0): Widget {
+export function Padding(
+    child: Widget? = null,
+    all: float = 0.0,
+    left: float = -1.0,
+    top: float = -1.0,
+    right: float = -1.0,
+    bottom: float = -1.0,
+): Widget {
     return new PaddingNode(
         child,
         left < 0.0 ? all : left,
         top < 0.0 ? all : top,
         right < 0.0 ? all : right,
-        bottom < 0.0 ? all : bottom
+        bottom < 0.0 ? all : bottom,
     );
 }
 

@@ -2,7 +2,9 @@ import { describe, it, expect } from "std:test";
 
 type Method = "GET" | "POST"
 
-function send(m: Method): int { return m.length }
+function send(m: Method): int {
+    return m.length
+}
 
 let m: Method = "GET"
 const asStr: str = m
@@ -13,9 +15,11 @@ const neg: -1 | 1 = -1
 const on: true = true
 const ch: 'x' | 'y' = 'y'
 
-function status(): 200 | 500 { return 200 }
+function status(): 200 | 500 {
+    return 200
+}
 await describe("127 literal types", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(send("POST")).toBe(4);
         expect(m).toBe("GET");
         expect(asStr).toBe("GET");
@@ -28,6 +32,4 @@ await describe("127 literal types", async () => {
         expect(ch).toBe('y');
         expect(status()).toBe(200);
     });
-
-
 });

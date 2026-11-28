@@ -9,9 +9,16 @@ const m7: int = 0 - 7
 const p7: int = 7
 
 function kind(f: () => int): str {
-    try { f(); return "none" } catch (e) {
-        if (e is IntegerOverflow) { return "ovf" }
-        if (e is DivisionByZero) { return "zero" }
+    try {
+        f();
+        return "none"
+    } catch (e) {
+        if(e is IntegerOverflow) {
+            return "ovf"
+        }
+        if(e is DivisionByZero) {
+            return "zero"
+        }
         return "other"
     }
 }
@@ -20,7 +27,7 @@ const one: int = 1
 
 const dyn: dynamic = MIN
 await describe("123 int api", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(MAX.wrappingAdd(1)).toBe(MIN);
         expect(MIN.wrappingSub(1)).toBe(MAX);
         expect(MAX.wrappingMul(2)).toBe(0 - 2);
@@ -50,6 +57,4 @@ await describe("123 int api", async () => {
         expect(int.tryParse("abc")).toBe(null);
         expect(kind(() => (dyn as int).abs())).toBe("ovf");
     });
-
-
 });

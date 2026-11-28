@@ -1,6 +1,13 @@
 import { newComponentDefinition, scopeAtMount } from "std:ui/state";
 import { viewAt } from "std:ui/mount";
-import { Widget, Constraints, Placement, PaintContext, paintPlaced, KeyedNode } from "std:ui/widget/base";
+import {
+    Widget,
+    Constraints,
+    Placement,
+    PaintContext,
+    paintPlaced,
+    KeyedNode,
+} from "std:ui/widget/base";
 
 export class ComponentNode extends Widget {
     body: () => Widget;
@@ -28,17 +35,17 @@ export class ComponentNode extends Widget {
 }
 
 export function component(): (fn: (...args: int[]) => Widget) => (...args: int[]) => Widget {
-    return (fn: (...args: int[]) => Widget) => {
+    return(fn: (...args: int[]) => Widget) => {
         const definition = newComponentDefinition();
-        return (...args: int[]) => new ComponentNode(definition, () => fn(...args));
+        return(...args: int[]) => new ComponentNode(definition, () => fn(...args));
     };
 }
 
 export function expanded(w: Widget): Widget {
-    if (w is ComponentNode) {
+    if(w is ComponentNode) {
         return expanded((w as ComponentNode).expand());
     }
-    if (w is KeyedNode) {
+    if(w is KeyedNode) {
         return expanded((w as KeyedNode).child);
     }
     return w;

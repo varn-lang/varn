@@ -6,26 +6,36 @@ const MIN: int = -9223372036854775807 - 1;
 function items(r: Range<int>): str {
     let out = "";
     let n = 0;
-    for (const i in r) {
+    for(const i in r) {
         out = out + i.toString() + ",";
         n = n + 1;
-        if (n > 12) { return out + "..."; }
+        if(n > 12) {
+            return out + "...";
+        }
     }
     return out;
 }
 
 function outcome(f: () => str): str {
-    try { return f(); } catch (e) {
+    try {
+        return f();
+    } catch (e) {
         return e is IntegerOverflow ? "overflow" : e is RangeError ? "range" : "other:" + e.name;
     }
 }
 
 await describe("306 ranges at the limits of int", async () => {
     await it("an inclusive range ending at MAX includes MAX", async () => {
-        expect(items((MAX - 2)..=MAX)).toBe("9223372036854775805,9223372036854775806,9223372036854775807,");
+        expect(items((MAX - 2)..=MAX)).toBe(
+            "9223372036854775805,9223372036854775806,9223372036854775807,",
+        );
         expect(items((MAX - 2)..MAX)).toBe("9223372036854775805,9223372036854775806,");
-        expect(items(MIN..=(MIN + 2))).toBe("-9223372036854775808,-9223372036854775807,-9223372036854775806,");
-        expect(items(((MAX - 5)..=MAX).step(2))).toBe("9223372036854775802,9223372036854775804,9223372036854775806,");
+        expect(items(MIN..=(MIN + 2))).toBe(
+            "-9223372036854775808,-9223372036854775807,-9223372036854775806,",
+        );
+        expect(items(((MAX - 5)..=MAX).step(2))).toBe(
+            "9223372036854775802,9223372036854775804,9223372036854775806,",
+        );
         expect(items((0..=MAX).step(MAX))).toBe("0,9223372036854775807,");
     });
 

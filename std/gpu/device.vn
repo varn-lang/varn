@@ -2,7 +2,7 @@ import {
     backend$,
     deviceCount$,
     adapterName$,
-    engine$
+    engine$,
 } from "runtime:gpu";
 
 export function backend(): str {
@@ -33,9 +33,5 @@ export struct GpuInfo {
 
 export function getInfo(): GpuInfo {
     const b = backend$();
-    return new GpuInfo(
-        backend: b,
-        deviceCount: deviceCount$(),
-        accelerated: b != "cpu-graph"
-    );
+    return new GpuInfo(backend: b, deviceCount: deviceCount$(), accelerated: b != "cpu-graph");
 }

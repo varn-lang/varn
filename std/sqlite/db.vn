@@ -7,7 +7,7 @@ import {
     query$,
     queryAsync$,
     SqlParam,
-    SqlRow
+    SqlRow,
 } from "runtime:sqlite";
 import { ClosedError } from "std:error";
 
@@ -17,9 +17,9 @@ const ALL_ROWS = -1;
 
 function placeholders(strings: str[], values: SqlParam[]): str {
     let query = "";
-    for (let i = 0; i < strings.length; i = i + 1) {
+    for(let i = 0; i < strings.length; i = i + 1) {
         query = query + strings[i];
-        if (i < values.length) {
+        if(i < values.length) {
             query = query + "?";
         }
     }
@@ -41,7 +41,7 @@ export class Database {
     }
 
     private live(): int {
-        if (!this._isOpen) {
+        if(!this._isOpen) {
             throw new ClosedError("sqlite: the database is closed");
         }
         return this._id;
@@ -113,7 +113,7 @@ export class Database {
     }
 
     close(): void {
-        if (this._isOpen) {
+        if(this._isOpen) {
             close$(this._id);
             this._isOpen = false;
             this._id = -1;

@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Negative `int` results crossing the Cranelift return boundary.
 //
 // The regression: a raw clif function returning `int` always yields a
@@ -19,25 +18,42 @@ import { describe, it, expect } from "std:test";
 // DESTINATION register's meta alone, so a boxed operand went through
 // `use_int` — which accepts boxed registers — and `ineg` ran over a
 // heap-tagged VmValue's payload bits. `-(7.5d)` resolved to null.
-
-function sub(a: int, b: int): int { return a - b }
-function negLit(): int { return -3 }
-function negParam(a: int): int { return -a }
-function viaZero(a: int): int { let z = 0; return z - a }
-function mulNeg(a: int, b: int): int { return a * b }
+function sub(a: int, b: int): int {
+    return a - b
+}
+function negLit(): int {
+    return -3
+}
+function negParam(a: int): int {
+    return -a
+}
+function viaZero(a: int): int {
+    let z = 0;
+    return z - a
+}
+function mulNeg(a: int, b: int): int {
+    return a * b
+}
 
 // A negative int returned through a chain of calls: each hop re-tags.
-function outer(n: int): int { return sub(0, negParam(n)) }
+function outer(n: int): int {
+    return sub(0, negParam(n))
+}
 
 // Large magnitudes, well inside i64.
-function bigNeg(): int { return -140737488355327 }
+function bigNeg(): int {
+    return -140737488355327
+}
 
-function negFloat(f: float): float { return -f }
+function negFloat(f: float): float {
+    return -f
+}
 
-function negMixed(a: int, f: float): float { return ((-a) as float) + (-f) }
+function negMixed(a: int, f: float): float {
+    return((-a) as float) + (-f)
+}
 await describe("59 clif negative int", async () => {
     await it("tests", async () => {
-        
         expect(sub(1, 4)).toBe(-3)
         expect(negLit()).toBe(-3)
         expect(negParam(3)).toBe(-3)
@@ -49,7 +65,7 @@ await describe("59 clif negative int", async () => {
         expect(outer(5)).toBe(5)
         expect(bigNeg()).toBe(-140737488355327)
         expect(-bigNeg()).toBe(140737488355327)
-        
+
         // Negation of the boxed representations. Negating a decimal allocates, which
         // is why `Negate` is in the `has_alloc` set in the first place.
         const d: decimal = 7.5d
@@ -57,6 +73,5 @@ await describe("59 clif negative int", async () => {
         expect((-d).abs()).toBe(7.5d)
         expect(negFloat(1.5)).toBe(-1.5)
         expect(negMixed(3, 1.5)).toBe(-4.5)
-        
     });
 });

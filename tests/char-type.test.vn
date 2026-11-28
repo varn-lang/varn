@@ -1,64 +1,100 @@
 import { describe, it, expect } from "std:test";
 import { Csv, Json } from "std:encoding";
 
-
-
 // is char narrowing
 function describeChar(c: char): str {
-    if (c is char) return "yes"
+    if(c is char) return "yes"
     return "no"
 }
 class Glyph {
     mark: char = '?';
-    constructor(mark: char) { this.mark = mark; }
+    constructor(mark: char) {
+        this.mark = mark;
+    }
 }
 
-function sameBool(a: bool, b: bool): bool { return a == b }
-function differ(a: char, b: char): bool { return a != b }
+function sameBool(a: bool, b: bool): bool {
+    return a == b
+}
+function differ(a: char, b: char): bool {
+    return a != b
+}
 function occurrences(text: str, target: char): int {
     let n = 0
-    for (const c in text.chars()) { if (c == target) { n = n + 1 } }
+    for(const c in text.chars()) {
+        if(c == target) {
+            n = n + 1
+        }
+    }
     return n
 }
 
-function successor(c: char): char { return char.fromCode(c.charCodeAt() + 1) }
-function choose(first: bool, a: char, b: char): char { return first ? a : b }
-function marker(c: char = '*'): char { return c }
+function successor(c: char): char {
+    return char.fromCode(c.charCodeAt() + 1)
+}
+function choose(first: bool, a: char, b: char): char {
+    return first ? a : b
+}
+function marker(c: char = '*'): char {
+    return c
+}
 
-interface Marked { mut mark: char }
-function readMark(m: Marked): char { return m.mark }
-function writeMark(m: Marked, c: char): void { m.mark = c }
+interface Marked {
+    mut mark: char
+}
+function readMark(m: Marked): char {
+    return m.mark
+}
+function writeMark(m: Marked, c: char): void {
+    m.mark = c
+}
 class Cell implements Marked {
     mark: char = '?';
     flag: bool = false;
     code: int = 0;
     note: char? = null;
-    constructor(mark: char, code: int) { this.mark = mark; this.code = code; }
-    bump(): void { this.mark = char.fromCode(this.mark.charCodeAt() + 1) }
+    constructor(mark: char, code: int) {
+        this.mark = mark;
+        this.code = code;
+    }
+    bump(): void {
+        this.mark = char.fromCode(this.mark.charCodeAt() + 1)
+    }
 }
 function markedTotal(cells: Cell[]): int {
     let t = 0
-    for (const c in cells) { if (c.mark == 'b') { t = t + c.code } }
+    for(const c in cells) {
+        if(c.mark == 'b') {
+            t = t + c.code
+        }
+    }
     return t
 }
 
 function alternating(n: int): char[] {
     const out: char[] = []
-    for (let i = 0; i < n; i = i + 1) { out.push(i % 2 == 0 ? 'a' : 'z') }
+    for(let i = 0; i < n; i = i + 1) {
+        out.push(i % 2 == 0 ? 'a' : 'z')
+    }
     return out
 }
 function countOf(xs: char[], c: char): int {
     let k = 0
-    for (let i = 0; i < xs.length; i = i + 1) { if (xs[i] == c) { k = k + 1 } }
+    for(let i = 0; i < xs.length; i = i + 1) {
+        if(xs[i] == c) {
+            k = k + 1
+        }
+    }
     return k
 }
 function advanceAll(xs: char[]): void {
-    for (let i = 0; i < xs.length; i = i + 1) { xs[i] = char.fromCode(xs[i].charCodeAt() + 1) }
+    for(let i = 0; i < xs.length; i = i + 1) {
+        xs[i] = char.fromCode(xs[i].charCodeAt() + 1)
+    }
 }
 
 await describe("34 char type", async () => {
     await it("tests", async () => {
-        
         // Literals and basic identity
         const a: char = 'a'
         const z: char = 'z'
@@ -68,7 +104,7 @@ await describe("34 char type", async () => {
         expect('A'.charCodeAt()).toBe(65)
         expect(char.fromCode(65)).toBe('A')
         expect(char.fromCode(122)).toBe('z')
-        
+
         // Classification
         expect('a'.isAlphabetic()).toBeTruthy()
         expect(!('1'.isAlphabetic())).toBeTruthy()
@@ -85,37 +121,36 @@ await describe("34 char type", async () => {
         expect('a'.isAscii()).toBeTruthy()
         expect('.'.isPunctuation()).toBeTruthy()
         expect(!('a'.isPunctuation())).toBeTruthy()
-        
+
         // Case conversion
         expect('a'.toUppercase()).toBe('A')
         expect('A'.toLowercase()).toBe('a')
-        
+
         // toString
         expect('x'.toString()).toBe("x")
         expect(describeChar('q')).toBe("yes")
-        
+
         // chars in array
         const vowels: char[] = ['a', 'e', 'i', 'o', 'u']
         expect(vowels.length).toBe(5)
         expect(vowels[0]).toBe('a')
         expect(vowels[4]).toBe('u')
-        
+
         // char in loop
         let digitCount = 0
         const sample: char[] = ['1', 'a', '2', 'b', '3']
-        for (const ch in sample) {
-            if (ch.isDigit()) digitCount = digitCount + 1
+        for(const ch in sample) {
+            if(ch.isDigit()) digitCount = digitCount + 1
         }
         expect(digitCount).toBe(3)
-        
+
         // round-trip: codePoint -> char -> str
         const codes: int[] = [72, 101, 108, 108, 111]
         let built = ""
-        for (const code in codes) {
+        for(const code in codes) {
             built = built + char.fromCode(code).toString()
         }
         expect(built).toBe("Hello")
-        
     });
 
     await it("a char is an immediate value wherever it travels", async () => {
@@ -130,16 +165,22 @@ await describe("34 char type", async () => {
         counts.set('k', 2)
         expect(counts.get('k')).toBe(2)
         const glyphs: Glyph[] = []
-        for (let i = 0; i < 200; i = i + 1) { glyphs.push(new Glyph(char.fromCode(65 + i % 26))) }
+        for(let i = 0; i < 200; i = i + 1) {
+            glyphs.push(new Glyph(char.fromCode(65 + i % 26)))
+        }
         expect(glyphs[27].mark).toBe('B')
         expect(glyphs[27].mark == 'B').toBe(true)
     });
 
     await it("bool and char values compare with their own typed equality", async () => {
         let agree = 0
-        for (let i = 0; i < 3000; i = i + 1) {
-            if (sameBool(i % 2 == 0, i % 3 == 0)) { agree = agree + 1 }
-            if (differ('a', i % 2 == 0 ? 'a' : 'b')) { agree = agree + 1 }
+        for(let i = 0; i < 3000; i = i + 1) {
+            if(sameBool(i % 2 == 0, i % 3 == 0)) {
+                agree = agree + 1
+            }
+            if(differ('a', i % 2 == 0 ? 'a' : 'b')) {
+                agree = agree + 1
+            }
         }
         expect(agree).toBe(3000)
         expect(occurrences("banana", 'a')).toBe(3)
@@ -149,7 +190,9 @@ await describe("34 char type", async () => {
 
     await it("a char travels natively through compiled calls", async () => {
         let last: char = 'a'
-        for (let i = 0; i < 5000; i = i + 1) { last = choose(i % 2 == 0, successor('a'), 'a') }
+        for(let i = 0; i < 5000; i = i + 1) {
+            last = choose(i % 2 == 0, successor('a'), 'a')
+        }
         expect(last).toBe('a')
         expect(successor('y')).toBe('z')
         expect(marker()).toBe('*')
@@ -161,11 +204,17 @@ await describe("34 char type", async () => {
 
     await it("a char field holds its code point in four bytes", async () => {
         const cells: Cell[] = []
-        for (let i = 0; i < 3000; i = i + 1) { cells.push(new Cell(i % 2 == 0 ? 'a' : 'b', i)) }
-        for (const c in cells) { c.bump() }
+        for(let i = 0; i < 3000; i = i + 1) {
+            cells.push(new Cell(i % 2 == 0 ? 'a' : 'b', i))
+        }
+        for(const c in cells) {
+            c.bump()
+        }
         expect(markedTotal(cells)).toBe(2248500)
         let viaInterface: char = 'x'
-        for (let i = 0; i < 2000; i = i + 1) { viaInterface = readMark(cells[i]) }
+        for(let i = 0; i < 2000; i = i + 1) {
+            viaInterface = readMark(cells[i])
+        }
         expect(viaInterface).toBe('c')
         writeMark(cells[0], '😀')
         expect(cells[0].mark).toBe('😀')
@@ -181,7 +230,7 @@ await describe("34 char type", async () => {
 
     await it("a char array stores its elements unboxed", async () => {
         let total = 0
-        for (let r = 0; r < 300; r = r + 1) {
+        for(let r = 0; r < 300; r = r + 1) {
             const xs = alternating(50)
             advanceAll(xs)
             total = total + countOf(xs, 'b') + countOf(xs, '{') * 2

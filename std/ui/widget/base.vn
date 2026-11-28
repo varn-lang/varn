@@ -45,19 +45,56 @@ export class PaintContext {
     }
 
     @capability("ui")
-    click(kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, onActivate: () => void): void {
-        this.valued(kind, x, y, w, h, color, flag, 0.0, 0.0, 0.0, (value: float) => { onActivate(); });
+    click(
+        kind: UiControlKind,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        color: int,
+        flag: bool,
+        onActivate: () => void,
+    ): void {
+        this.valued(kind, x, y, w, h, color, flag, 0.0, 0.0, 0.0, (value: float) => {
+            onActivate();
+        });
     }
 
     @capability("ui")
-    valued(kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, flag: bool, value: float, low: float, high: float, onChange: (value: float) => void): void {
+    valued(
+        kind: UiControlKind,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        color: int,
+        flag: bool,
+        value: float,
+        low: float,
+        high: float,
+        onChange: (value: float) => void,
+    ): void {
         const id = this.idFor();
         this.win.control(id, kind, x, y, w, h, color, flag, value, low, high);
         this.fr.onActivate(id, onChange);
     }
 
     @capability("ui")
-    field(id: int, kind: UiControlKind, x: float, y: float, w: float, h: float, color: int, focused: bool, text: str, hint: str, size: float, onActivate: (value: float) => void, onType: (text: str) => void): void {
+    field(
+        id: int,
+        kind: UiControlKind,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        color: int,
+        focused: bool,
+        text: str,
+        hint: str,
+        size: float,
+        onActivate: (value: float) => void,
+        onType: (text: str) => void,
+    ): void {
         this.win.field(id, kind, x, y, w, h, color, focused, text, hint, size);
         this.fr.onActivate(id, onActivate);
         this.fr.onType(id, onType);
@@ -168,11 +205,11 @@ export function nextLayoutEpoch(): void {
 }
 
 function sameKey(a: float[], b: float[]): bool {
-    if (a.length != b.length) {
+    if(a.length != b.length) {
         return false;
     }
-    for (let i = 0; i < a.length; i = i + 1) {
-        if (a[i] != b[i]) {
+    for(let i = 0; i < a.length; i = i + 1) {
+        if(a[i] != b[i]) {
             return false;
         }
     }
@@ -200,7 +237,7 @@ export abstract class Widget {
     layout(c: Constraints): Placement {
         const key = [c.minW, c.maxW, c.minH, c.maxH, layoutEpoch];
         const cached = this.layoutValue;
-        if (cached != null && sameKey(this.layoutKey, key)) {
+        if(cached != null && sameKey(this.layoutKey, key)) {
             return cached;
         }
         const placed = this.computeLayout(c);
@@ -236,7 +273,6 @@ export class KeyedNode extends Widget {
         return this.child.minHeight();
     }
 
-
     override computeLayout(c: Constraints): Placement {
         const placed = mountChild(this.key, () => this.child.layout(c));
         return new Placement(this, placed.size, [placed]);
@@ -248,14 +284,21 @@ export class KeyedNode extends Widget {
 }
 
 export function paintSlot(cx: PaintContext, child: Widget, position: str, paint: () => void): void {
-    if (child is KeyedNode) {
+    if(child is KeyedNode) {
         paint();
     } else {
         cx.keyed(position, paint);
     }
 }
 
-export function paintAt(child: Widget, cx: PaintContext, x: float, y: float, w: float, h: float): void {
+export function paintAt(
+    child: Widget,
+    cx: PaintContext,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+): void {
     child.paint(cx, child.layout(Constraints.tightIn(cx.windowClass, w, h)), x, y);
 }
 
@@ -263,29 +306,44 @@ export function paintPlaced(cx: PaintContext, child: Placement, x: float, y: flo
     child.node.paint(cx, child, x + child.x, y + child.y);
 }
 
-
 export function alignedX(alignment: Alignment, room: float): float {
-    if (alignment == Alignment.topLeft || alignment == Alignment.centerLeft || alignment == Alignment.bottomLeft) {
+    if(
+        alignment == Alignment.topLeft ||
+            alignment == Alignment.centerLeft ||
+            alignment == Alignment.bottomLeft
+    ) {
         return 0.0;
     }
-    if (alignment == Alignment.topRight || alignment == Alignment.centerRight || alignment == Alignment.bottomRight) {
+    if(
+        alignment == Alignment.topRight ||
+            alignment == Alignment.centerRight ||
+            alignment == Alignment.bottomRight
+    ) {
         return room;
     }
     return room / 2.0;
 }
 
 export function alignedY(alignment: Alignment, room: float): float {
-    if (alignment == Alignment.topLeft || alignment == Alignment.topCenter || alignment == Alignment.topRight) {
+    if(
+        alignment == Alignment.topLeft ||
+            alignment == Alignment.topCenter ||
+            alignment == Alignment.topRight
+    ) {
         return 0.0;
     }
-    if (alignment == Alignment.bottomLeft || alignment == Alignment.bottomCenter || alignment == Alignment.bottomRight) {
+    if(
+        alignment == Alignment.bottomLeft ||
+            alignment == Alignment.bottomCenter ||
+            alignment == Alignment.bottomRight
+    ) {
         return room;
     }
     return room / 2.0;
 }
 
 export function layoutAt(child: Widget, key: str, c: Constraints): Placement {
-    if (child is KeyedNode) {
+    if(child is KeyedNode) {
         return child.layout(c);
     }
     return mountChild(key, () => child.layout(c));

@@ -6,26 +6,34 @@ function outcome(f: () => void): str {
         f()
         return "ok"
     } catch (e) {
-        if (e is TypeError) { return e.message }
+        if(e is TypeError) {
+            return e.message
+        }
         return "other: " + e.message
     }
 }
 
-function size(m: Map<str, int>): int { return m.size }
+function size(m: Map<str, int>): int {
+    return m.size
+}
 function pick(a: int, m: Map<str, int>?, b: str): str {
-    if (m == null) { return `${a}${b}-`}
+    if(m == null) {
+        return `${a}${b}-`
+    }
     return `${a}${b}${m.get("k")}`
 }
 class Bag {
     constructor(public items: Map<str, int>) {}
-    count(extra: Map<str, int>): int { return this.items.size + extra.size }
+    count(extra: Map<str, int>): int {
+        return this.items.size + extra.size
+    }
 }
 type Config = #{ name: str; limits: Map<str, int> }
 
 await describe("179 explicit collection decoding", async () => {
     await it("a typed decoder constructs a Map without changing its source", () => {
         const parsed: dynamic = Json.parse("{\"a\":1,\"b\":2}")
-        const m = Json.parse<Map<str, int>>(Json.stringify(parsed))
+        const m = Json.parse<Map<str, int >> (Json.stringify(parsed))
         expect(m::type).toBe("Map")
         expect(m.get("a")).toBe(1)
         expect(m.size).toBe(2)
@@ -36,9 +44,10 @@ await describe("179 explicit collection decoding", async () => {
     })
 
     await it("typed decoders check values and construct nested collections", () => {
-        expect(outcome(() => { const m: Map<str, int> = Json.parse<Map<str, int>>("{\"a\":\"x\"}") }))
-            .toBe("type mismatch: expected 'Map<str, int>', got 'Map'")
-        const nested = Json.parse<Map<str, Map<str, int>>>("{\"x\":{\"y\":1}}")
+        expect(outcome(() => {
+            const m: Map<str, int> = Json.parse<Map<str, int >> ("{\"a\":\"x\"}")
+        })).toBe("type mismatch: expected 'Map<str, int>', got 'Map'")
+        const nested = Json.parse<Map<str, Map<str, int >>> ("{\"x\":{\"y\":1}}")
         expect(nested.get("x")?.get("y")).toBe(1)
         const cfg = Json.parse<Config>("{\"name\":\"n\",\"limits\":{\"cpu\":4}}")
         expect(cfg.limits.get("cpu")).toBe(4)
@@ -46,11 +55,12 @@ await describe("179 explicit collection decoding", async () => {
         expect(many[1].get("b")).toBe(2)
     })
 
-
     await it("holds in a hot loop", () => {
-        const o = Json.parse<Map<str, int>>('{"k":1,"j":2}')
+        const o = Json.parse<Map<str, int >> ('{"k":1,"j":2}')
         let n = 0
-        for (let i = 0; i < 5000; i = i + 1) { n = n + size(o) }
+        for(let i = 0; i < 5000; i = i + 1) {
+            n = n + size(o)
+        }
         expect(n).toBe(10000)
     })
 })

@@ -2,7 +2,7 @@ import { describe, it, expect } from "std:test";
 
 function* counter(step: int): Generator<int> {
     let n = 0;
-    while (true) {
+    while(true) {
         n = n + step;
         yield n;
     }
@@ -21,10 +21,12 @@ function* closureOverLocal(): Generator<int> {
 }
 
 function* guardedAcrossYield(limit: int): Generator<int> {
-    for (let i = 0; i < limit; i = i + 1) {
+    for(let i = 0; i < limit; i = i + 1) {
         try {
             yield i;
-            if (i % 3 == 2) { throw new Error("third") }
+            if(i % 3 == 2) {
+                throw new Error("third")
+            }
         } catch (e) {
             yield 100 + i;
         }
@@ -37,9 +39,9 @@ function* inner(base: int): Generator<int> {
 }
 
 function* outer(): Generator<int> {
-    for (let k = 0; k < 4; k = k + 1) {
+    for(let k = 0; k < 4; k = k + 1) {
         const it = inner(k * 10);
-        while (const v = it.next()) {
+        while(const v = it.next()) {
             yield v;
         }
     }
@@ -63,7 +65,9 @@ await describe("generator resume state", async () => {
     await it("registers survive many suspend and resume cycles", async () => {
         const g = counter(3);
         let last = 0;
-        for (let i = 0; i < 5000; i = i + 1) { last = g.next()! }
+        for(let i = 0; i < 5000; i = i + 1) {
+            last = g.next()!
+        }
         expect(last).toBe(15000);
     });
 
@@ -77,14 +81,18 @@ await describe("generator resume state", async () => {
     await it("a try region stays armed across a yield", async () => {
         const g = guardedAcrossYield(6);
         const seen: int[] = [];
-        while (const v = g.next()) { seen.push(v) }
+        while(const v = g.next()) {
+            seen.push(v)
+        }
         expect(seen.join(",")).toBe("0,1,2,102,3,4,5,105");
     });
 
     await it("generators resumed from inside another generator keep their own state", async () => {
         const seen: int[] = [];
         const g = outer();
-        while (const v = g.next()) { seen.push(v) }
+        while(const v = g.next()) {
+            seen.push(v)
+        }
         expect(seen.join(",")).toBe("0,1,10,11,20,21,30,31");
     });
 
@@ -92,7 +100,11 @@ await describe("generator resume state", async () => {
         const g = fails();
         expect(g.next()!).toBe(1);
         let caught = "";
-        try { g.next() } catch (e) { caught = e.message }
+        try {
+            g.next()
+        } catch (e) {
+            caught = e.message
+        }
         expect(caught).toBe("boom");
         expect(g.next() == null).toBeTruthy();
     });

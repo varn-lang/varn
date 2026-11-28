@@ -1,17 +1,23 @@
 import { describe, it, expect } from "std:test";
 
-async function runner(f: () => void): Task<void> { f() }
+async function runner(f: () => void): Task<void> {
+    f()
+}
 
 async function bumpedWhileParked(): Task<int> {
     let x = 1
-    const inc = (): void => { x = x + 41 }
+    const inc = (): void => {
+        x = x + 41
+    }
     await runner(inc)
     return x
 }
 
 async function bumpedTwice(): Task<int> {
     let x = 0
-    const inc = (): void => { x = x + 1 }
+    const inc = (): void => {
+        x = x + 1
+    }
     await runner(inc)
     x = x + 10
     await runner(inc)

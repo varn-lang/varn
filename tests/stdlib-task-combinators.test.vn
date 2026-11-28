@@ -1,14 +1,18 @@
 import { Task, TaskGroup, delay, sleep } from "std:task";
 import { describe, it, expect } from "std:test";
 
-
 let trackerArray = [false];
 
 await describe("97 stdlib task combinators", async () => {
-
     await it("1. Task.all", async () => {
-        let t1 = (async () => { await delay(10); return 100; })();
-        let t2 = (async () => { await delay(5); return 200; })();
+        let t1 = (async () => {
+            await delay(10);
+            return 100;
+        })();
+        let t2 = (async () => {
+            await delay(5);
+            return 200;
+        })();
         let allRes = await Task.all([t1, t2]);
         expect(allRes.length).toBe(2);
         expect(allRes[0]).toBe(100);
@@ -16,8 +20,12 @@ await describe("97 stdlib task combinators", async () => {
     });
 
     await it("2. Task.allSettled", async () => {
-        let okTask = (async () => { return "success"; })();
-        let errTask = (async () => { throw new Error("failure"); })();
+        let okTask = (async () => {
+            return "success";
+        })();
+        let errTask = (async () => {
+            throw new Error("failure");
+        })();
         let settled = await Task.allSettled([okTask, errTask]);
         expect(settled.length).toBe(2);
         expect(settled[0].unwrap()).toBe("success");
@@ -25,8 +33,14 @@ await describe("97 stdlib task combinators", async () => {
     });
 
     await it("3. Task.race", async () => {
-        let fastTask = (async () => { await delay(5); return "first"; })();
-        let slowTask = (async () => { await delay(100); return "second"; })();
+        let fastTask = (async () => {
+            await delay(5);
+            return "first";
+        })();
+        let slowTask = (async () => {
+            await delay(100);
+            return "second";
+        })();
         let winner = await Task.race([fastTask, slowTask]);
         expect(winner).toBe("first");
     });
@@ -34,13 +48,13 @@ await describe("97 stdlib task combinators", async () => {
     await it("4. TaskGroup concurrency and lifecycle hooks", async () => {
         let tg = new TaskGroup<int>();
         tg.finally(() => {
-        trackerArray[0] = true;
+            trackerArray[0] = true;
         });
         _ = tg.spawn((async () => {
-        return 1;
+            return 1;
         })());
         _ = tg.spawn((async () => {
-        return 2;
+            return 2;
         })());
         let groupResults = await tg.join();
         expect(groupResults.length).toBe(2);
@@ -48,5 +62,4 @@ await describe("97 stdlib task combinators", async () => {
         expect(groupResults[1]).toBe(2);
         expect(trackerArray[0]).toBeTruthy();
     });
-
 });

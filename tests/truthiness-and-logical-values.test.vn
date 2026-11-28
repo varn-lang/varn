@@ -2,34 +2,107 @@ import { describe, it, expect } from "std:test";
 
 class Point {
     n: int
-    constructor(n: int) { this.n = n }
+    constructor(n: int) {
+        this.n = n
+    }
 }
 
-function present(n: int?): int { if (n != null) { return 1 } return 0 }
-function presentStr(s: str?): int { if (s != null) { return 1 } return 0 }
-function isTrue(b: bool?): int { if (b == true) { return 1 } return 0 }
-function fromDynamic(d: dynamic): int { if (d as bool) { return 1 } return 0 }
-function walk(p: Point?): int { let c = 0; let at = p; while (at != null) { c = c + at.n; at = null } return c }
-function absent(n: int?): bool { return n == null }
-function pick(n: float?): int { return n != null ? 5 : 6 }
-function narrowed(n: int?): int { if (n != null) { return n + 1 } else { return n ?? -1 } }
+function present(n: int?): int {
+    if(n != null) {
+        return 1
+    }
+    return 0
+}
+function presentStr(s: str?): int {
+    if(s != null) {
+        return 1
+    }
+    return 0
+}
+function isTrue(b: bool?): int {
+    if(b == true) {
+        return 1
+    }
+    return 0
+}
+function fromDynamic(d: dynamic): int {
+    if(d as bool) {
+        return 1
+    }
+    return 0
+}
+function walk(p: Point?): int {
+    let c = 0;
+    let at = p;
+    while(at != null) {
+        c = c + at.n;
+        at = null
+    }
+    return c
+}
+function absent(n: int?): bool {
+    return n == null
+}
+function pick(n: float?): int {
+    return n != null ? 5 : 6
+}
+function narrowed(n: int?): int {
+    if(n != null) {
+        return n + 1
+    } else {
+        return n ?? -1
+    }
+}
 
-function orDefault(n: int?): int { return n ?? 7 }
-function assignDefault(n: int?): int { let x = n; x ??= 9; return x }
-function strDefault(s: str?): str { return s ?? "vacio" }
-function throughPoint(p: Point?): int { return p?.n ?? -1 }
-function bools(a: bool, b: bool): bool { return a && b || !a }
+function orDefault(n: int?): int {
+    return n ?? 7
+}
+function assignDefault(n: int?): int {
+    let x = n;
+    x ??= 9;
+    return x
+}
+function strDefault(s: str?): str {
+    return s ?? "vacio"
+}
+function throughPoint(p: Point?): int {
+    return p?.n ?? -1
+}
+function bools(a: bool, b: bool): bool {
+    return a && b || !a
+}
 
 let calls = 0
-function counted(v: bool): bool { calls = calls + 1; return v }
-function orShort(): int { calls = 0; const r = counted(true) || counted(false); return (r ? 10 : 0) + calls }
-function orBoth(): int { calls = 0; const r = counted(false) || counted(true); return (r ? 10 : 0) + calls }
-function andShort(): int { calls = 0; const r = counted(false) && counted(true); return (r ? 10 : 0) + calls }
+function counted(v: bool): bool {
+    calls = calls + 1;
+    return v
+}
+function orShort(): int {
+    calls = 0;
+    const r = counted(true) || counted(false);
+    return(r ? 10 : 0) + calls
+}
+function orBoth(): int {
+    calls = 0;
+    const r = counted(false) || counted(true);
+    return(r ? 10 : 0) + calls
+}
+function andShort(): int {
+    calls = 0;
+    const r = counted(false) && counted(true);
+    return(r ? 10 : 0) + calls
+}
 
 await describe("186 conditions are booleans", async () => {
     await it("presence is tested with != null, whatever the value", () => {
-        for (let r = 0; r < 300; r = r + 1) {
-            present(r); presentStr("a"); isTrue(true); walk(new Point(3)); pick(1.0); absent(r); narrowed(r)
+        for(let r = 0; r < 300; r = r + 1) {
+            present(r);
+            presentStr("a");
+            isTrue(true);
+            walk(new Point(3));
+            pick(1.0);
+            absent(r);
+            narrowed(r)
         }
         expect(present(null)).toBe(0)
         expect(present(0)).toBe(1)
@@ -54,8 +127,12 @@ await describe("186 conditions are booleans", async () => {
     })
 
     await it("defaults are written with ??", () => {
-        for (let r = 0; r < 300; r = r + 1) {
-            orDefault(r); assignDefault(r); strDefault(null); throughPoint(null); bools(true, false)
+        for(let r = 0; r < 300; r = r + 1) {
+            orDefault(r);
+            assignDefault(r);
+            strDefault(null);
+            throughPoint(null);
+            bools(true, false)
         }
         expect(orDefault(null)).toBe(7)
         expect(orDefault(0)).toBe(0)
@@ -71,7 +148,11 @@ await describe("186 conditions are booleans", async () => {
     })
 
     await it("&& and || are boolean and evaluate the right side only when needed", () => {
-        for (let r = 0; r < 300; r = r + 1) { orShort(); orBoth(); andShort() }
+        for(let r = 0; r < 300; r = r + 1) {
+            orShort();
+            orBoth();
+            andShort()
+        }
         expect(orShort()).toBe(11)
         expect(orBoth()).toBe(12)
         expect(andShort()).toBe(1)

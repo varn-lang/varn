@@ -40,17 +40,17 @@ const TYPES: Map<str, str> = new Map<str, str>([
     #["toml", "application/toml"],
     #["yaml", "application/yaml"],
     #["yml", "application/yaml"],
-    #["bin", "application/octet-stream"]
+    #["bin", "application/octet-stream"],
 ]);
 
 export namespace Mime {
     export function lookup(ext: str): str {
         let key = ext.toLowerCase();
-        if (key.startsWith(".")) {
+        if(key.startsWith(".")) {
             key = key.slice(1);
         }
         let found = TYPES.get(key);
-        if (found != null) {
+        if(found != null) {
             return found as str;
         }
         return "application/octet-stream";
@@ -58,7 +58,7 @@ export namespace Mime {
 
     export function detect(path: str): str {
         let dot = path.lastIndexOf(".");
-        if (dot == null) {
+        if(dot == null) {
             return "application/octet-stream";
         }
         return lookup(path.slice(dot + 1));

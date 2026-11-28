@@ -6,19 +6,27 @@ class Leaf {
 
 const leaf = new Leaf()
 
-function valueOr(q: Leaf?): int { return q?.v ?? 0 }
+function valueOr(q: Leaf?): int {
+    return q?.v ?? 0
+}
 
 let moduleTotal = 0
-for (let i = 0; i < 5; i = i + 1) { moduleTotal = moduleTotal + valueOr(leaf) }
+for (let i = 0; i < 5; i = i + 1) {
+    moduleTotal = moduleTotal + valueOr(leaf)
+}
 
 let moduleNulls = 0
-for (let i = 0; i < 5; i = i + 1) { moduleNulls = moduleNulls + valueOr(null) + 1 }
+for (let i = 0; i < 5; i = i + 1) {
+    moduleNulls = moduleNulls + valueOr(null) + 1
+}
 
 function inFunction(n: int): int {
     let total = 0
-    for (let i = 0; i < n; i = i + 1) {
+    for(let i = 0; i < n; i = i + 1) {
         let q: Leaf? = null
-        if (i % 2 == 0) { q = leaf }
+        if(i % 2 == 0) {
+            q = leaf
+        }
         total = total + valueOr(q)
     }
     return total

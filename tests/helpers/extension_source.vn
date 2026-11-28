@@ -3,14 +3,22 @@ export class Meter {
 }
 
 export extension MeterMath on Meter {
-    doubled(): int { return this.value * 2 }
-    get label(): str { return `${this.value}m` }
+    doubled(): int {
+        return this.value * 2
+    }
+    get label(): str {
+        return `${this.value}m`
+    }
 }
 
 export extension<T> on readonly T[] {
-    second(): T? { return this.at(1) }
+    second(): T? {
+        return this.at(1)
+    }
 }
 
 extension Hidden on Meter {
-    secret(): int { return 42 }
+    secret(): int {
+        return 42
+    }
 }

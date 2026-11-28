@@ -1,12 +1,20 @@
 import { describe, it, expect } from "std:test";
 
-interface Sized { size(): int }
-class Box implements Sized { size(): int { return 3 } }
+interface Sized {
+    size(): int
+}
+class Box implements Sized {
+    size(): int {
+        return 3
+    }
+}
 
 extension<T extends Sized> on T[] {
     total(): int {
         let n = 0
-        for (const x in this) { n += x.size() }
+        for(const x in this) {
+            n += x.size()
+        }
         return n
     }
 }
@@ -14,8 +22,10 @@ extension<T extends Sized> on T[] {
 extension<T extends Sized> on Map<str, T> {
     biggest(): int {
         let best = 0
-        for (const x in this.values()) {
-            if (x.size() > best) { best = x.size() }
+        for(const x in this.values()) {
+            if(x.size() > best) {
+                best = x.size()
+            }
         }
         return best
     }

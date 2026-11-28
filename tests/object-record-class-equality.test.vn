@@ -1,23 +1,41 @@
 import { describe, it, expect } from "std:test";
 
-class Point { x: int; constructor(x: int) { this.x = x } }
+class Point {
+    x: int;
+    constructor(x: int) {
+        this.x = x
+    }
+}
 const p1 = new Point(1)
 const p2 = new Point(1)
 
 const o1 = #{ x: 1 }
 const alias = o1
 
-struct Cell { x: int }
-struct Holder { p: Cell; t: #[int, #[int, int]] }
-struct Bag { a: #[int, int] }
+struct Cell {
+    x: int
+}
+struct Holder {
+    p: Cell;
+    t: #[int, #[int, int]]
+}
+struct Bag {
+    a: #[int, int]
+}
 const r1 = new Holder(new Cell(1), #[1, #[2, 3]])
 const r2 = new Holder(new Cell(1), #[1, #[2, 3]])
 
-enum Shape { Circle(float), Rect(float, float), Unit }
+enum Shape {
+    Circle(float),
+    Rect(float, float),
+    Unit
+}
 await describe("131 object struct class equality", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(sameValue(p1, p1) && !(sameValue(p1, p2))).toBeTruthy();
-        expect(sameValue(o1, alias) && sameValue(o1, #{ x: 1 }) && !(sameValue(o1, #{ x: 2 }))).toBeTruthy();
+        expect(
+            sameValue(o1, alias) && sameValue(o1, #{ x: 1 }) && !(sameValue(o1, #{ x: 2 })),
+        ).toBeTruthy();
         expect(o1 == #{ x: 1 } && o1 != #{ x: 2 }).toBeTruthy();
         expect(r1 == r2).toBeTruthy();
         expect(r1).toBe(r2);
@@ -34,9 +52,10 @@ await describe("131 object struct class equality", async () => {
 
     await it("group 1 part 3", async () => {
         expect(!(Shape.Circle(1.0) == Shape.Circle(2.0))).toBeTruthy();
-        expect(Shape.Rect(1.0, 2.0) == Shape.Rect(1.0, 2.0) && !(Shape.Rect(1.0, 2.0) == Shape.Rect(2.0, 1.0))).toBeTruthy();
+        expect(
+            Shape.Rect(1.0, 2.0) == Shape.Rect(1.0, 2.0) &&
+                !(Shape.Rect(1.0, 2.0) == Shape.Rect(2.0, 1.0)),
+        ).toBeTruthy();
         expect(!(Shape.Circle(1.0) == Shape.Unit)).toBeTruthy();
     });
-
-
 });

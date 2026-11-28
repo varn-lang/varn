@@ -16,9 +16,9 @@ export function announcePort(path: str, port: int): void {
 @capability("fs.read", "fs.write")
 export async function awaitPort(path: str): Task<int> {
     let attempts = 0;
-    while (!exists(path)) {
+    while(!exists(path)) {
         attempts = attempts + 1;
-        if (attempts > 200) {
+        if(attempts > 200) {
             throw new Error("helper never announced its port at " + path);
         }
         await delay(25);

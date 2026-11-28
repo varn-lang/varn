@@ -39,9 +39,9 @@ await describe("299 timeouts", async () => {
         const client = await TcpStream.connect("127.0.0.1", server.port, 1);
         await client.write(Bytes.fromString("GET /hello HTTP/1.1\r\nHost: x\r\n"));
         let reply = "";
-        while (true) {
+        while(true) {
             const chunk = await client.read(8192);
-            if (chunk == null) {
+            if(chunk == null) {
                 break;
             }
             reply = reply + (chunk as Bytes).toString();
@@ -67,7 +67,10 @@ await describe("299 timeouts", async () => {
             code = e.code;
         }
         expect(code).toBe("timeout");
-        const quick = await fetch(`http://127.0.0.1:${server.port}/quick`, new RequestInit(timeoutMs: 2000));
+        const quick = await fetch(
+            `http://127.0.0.1:${server.port}/quick`,
+            new RequestInit(timeoutMs: 2000),
+        );
         expect(quick.text()).toBe("on time");
         server.close();
     });

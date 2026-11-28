@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // `passes::algebraic` forwards an arithmetic result to one in its operands
 // when the other operand makes the operation an identity. Every rule has to
 // hold for ALL values in the surviving operand, so this file pins both
@@ -13,28 +12,50 @@ import { describe, it, expect } from "std:test";
 // the `f2i` conversion of an infinity raises (see `122:38-40`).
 // The pass still refuses `x + 0.0`, which is the rule `-0.0` would break —
 // see the note in `algebraic.rs`.
-
-function addZero(n: int): int { return n + 0 }
-function zeroAdd(n: int): int { return 0 + n }
-function subZero(n: int): int { return n - 0 }
-function selfSub(n: int): int { return n - n }
-function mulOne(n: int): int { return n * 1 }
-function oneMul(n: int): int { return 1 * n }
-function mulZero(n: int): int { return n * 0 }
+function addZero(n: int): int {
+    return n + 0
+}
+function zeroAdd(n: int): int {
+    return 0 + n
+}
+function subZero(n: int): int {
+    return n - 0
+}
+function selfSub(n: int): int {
+    return n - n
+}
+function mulOne(n: int): int {
+    return n * 1
+}
+function oneMul(n: int): int {
+    return 1 * n
+}
+function mulZero(n: int): int {
+    return n * 0
+}
 
 // Float multiply/divide by one are exact for every value, so they forward.
-function mulOneF(x: float): float { return x * 1.0 }
-function divOneF(x: float): float { return x / 1.0 }
+function mulOneF(x: float): float {
+    return x * 1.0
+}
+function divOneF(x: float): float {
+    return x / 1.0
+}
 
-function mulZeroF(x: float): float { return x * 0.0 }
-function selfSubF(x: float): float { return x - x }
+function mulZeroF(x: float): float {
+    return x * 0.0
+}
+function selfSubF(x: float): float {
+    return x - x
+}
 
 // A converted product keeps the float result type: forwarding the int
 // operand would hand downstream code an int where a float was promised.
-function mixed(n: int): float { return 1.0 * (n as float) }
+function mixed(n: int): float {
+    return 1.0 * (n as float)
+}
 await describe("61 algebraic identities", async () => {
     await it("tests", async () => {
-        
         expect(addZero(7)).toBe(7)
         expect(zeroAdd(7)).toBe(7)
         expect(subZero(7)).toBe(7)
@@ -42,30 +63,28 @@ await describe("61 algebraic identities", async () => {
         expect(mulOne(7)).toBe(7)
         expect(oneMul(7)).toBe(7)
         expect(mulZero(7)).toBe(0)
-        
+
         // Negatives and zero still behave once the operation is gone.
         expect(addZero(-7)).toBe(-7)
         expect(mulOne(0)).toBe(0)
         expect(selfSub(-7)).toBe(0)
         expect(addZero(mulOne(subZero(9)))).toBe(9)
-        
+
         expect(mulOneF(2.5)).toBe(2.5)
         expect(divOneF(2.5)).toBe(2.5)
         expect(mulOneF(-2.5)).toBe(-2.5)
-        
+
         // `x * 0.0` is NOT `0.0` and `x - x` is NOT `0.0`: an infinity makes both
         // non-numeric (Varn surfaces the NaN as `null`). Folding either to a literal
         // zero would silently change these results, which is why the pass restricts
         // both rules to `int`.
         const inf: float = 1.0 / 0.0
-        
+
         expect(mulZeroF(inf) != 0.0).toBeTruthy()
         expect(selfSubF(inf) != 0.0).toBeTruthy()
         expect(mulZeroF(2.5)).toBe(0.0)
         expect(selfSubF(2.5)).toBe(0.0)
         expect(mixed(3)).toBe(3.0)
         expect(mixed(3) / 2.0).toBe(1.5)
-        
-        
     });
 });

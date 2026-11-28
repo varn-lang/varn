@@ -13,26 +13,26 @@ export struct CronSpec {
 function parseField(text: str, lo: int, hi: int): bool[] {
     let size = hi - lo + 1;
     let out: bool[] = [];
-    for (let i = 0; i < size; i = i + 1) {
+    for(let i = 0; i < size; i = i + 1) {
         out.push(false);
     }
     let groups = text.split(",");
-    for (let g in groups) {
+    for(let g in groups) {
         let step = 1;
         let range = g;
         let slash = g.indexOf("/");
-        if (slash != null) {
+        if(slash != null) {
             range = g.slice(0, slash);
             step = int.parse(g.slice(slash + 1));
-            if (step <= 0) {
+            if(step <= 0) {
                 step = 1;
             }
         }
         let from = lo;
         let to = hi;
-        if (range != "" && range != "*") {
+        if(range != "" && range != "*") {
             let dash = range.indexOf("-");
-            if (dash != null) {
+            if(dash != null) {
                 from = int.parse(range.slice(0, dash));
                 to = int.parse(range.slice(dash + 1));
             } else {
@@ -40,14 +40,14 @@ function parseField(text: str, lo: int, hi: int): bool[] {
                 to = from;
             }
         }
-        if (from < lo) {
+        if(from < lo) {
             from = lo;
         }
-        if (to > hi) {
+        if(to > hi) {
             to = hi;
         }
         let v = from;
-        while (v <= to) {
+        while(v <= to) {
             out[v - lo] = true;
             v = v + step;
         }
@@ -56,21 +56,21 @@ function parseField(text: str, lo: int, hi: int): bool[] {
 }
 
 function daysInMonth(year: int, month: int): int {
-    if (month == 2) {
-        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+    if(month == 2) {
+        if((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
             return 29;
         }
         return 28;
     }
-    if (month == 4 || month == 6 || month == 9 || month == 11) {
+    if(month == 4 || month == 6 || month == 9 || month == 11) {
         return 30;
     }
     return 31;
 }
 
 function allSet(flags: bool[]): bool {
-    for (let f in flags) {
-        if (!f) {
+    for(let f in flags) {
+        if(!f) {
             return false;
         }
     }
@@ -79,11 +79,11 @@ function allSet(flags: bool[]): bool {
 
 function dowOf(ms: int): int {
     let days = ms / 86400000;
-    if (ms < 0 && ms % 86400000 != 0) {
+    if(ms < 0 && ms % 86400000 != 0) {
         days = days - 1;
     }
     let d = (days + 4) % 7;
-    if (d < 0) {
+    if(d < 0) {
         d = d + 7;
     }
     return d;
@@ -93,12 +93,12 @@ export namespace Cron {
     export function parse(expr: str): CronSpec {
         let fields = expr.split(" ");
         let clean: str[] = [];
-        for (let f in fields) {
-            if (f.length > 0) {
+        for(let f in fields) {
+            if(f.length > 0) {
                 clean.push(f);
             }
         }
-        if (clean.length != 5) {
+        if(clean.length != 5) {
             throw new ParseError("Cron: expected 5 fields, got " + clean.length.toString());
         }
         let wd8 = parseField(clean[4], 0, 7);
@@ -109,7 +109,7 @@ export namespace Cron {
             hours: parseField(clean[1], 0, 23),
             days: parseField(clean[2], 1, 31),
             months: parseField(clean[3], 1, 12),
-            weekdays: wd
+            weekdays: wd,
         );
     }
 
@@ -118,15 +118,15 @@ export namespace Cron {
         let t = base - (base % 60000) + 60000;
         let domOpen = allSet(spec.days);
         let dowOpen = allSet(spec.weekdays);
-        for (let i = 0; i < 525600; i = i + 1) {
+        for(let i = 0; i < 525600; i = i + 1) {
             let parts = toParts(t);
-            if (parts.day > daysInMonth(parts.year, parts.month)) {
+            if(parts.day > daysInMonth(parts.year, parts.month)) {
                 t = t + 60000;
                 continue;
             }
             let dow = dowOf(t);
             let dayOk = false;
-            if (domOpen && dowOpen) {
+            if(domOpen && dowOpen) {
                 dayOk = true;
             } else if (!domOpen && !dowOpen) {
                 dayOk = spec.days[parts.day - 1] || spec.weekdays[dow];
@@ -135,7 +135,12 @@ export namespace Cron {
             } else {
                 dayOk = spec.weekdays[dow];
             }
-            if (dayOk && spec.months[parts.month - 1] && spec.hours[parts.hour] && spec.minutes[parts.minute]) {
+            if(
+                dayOk &&
+                    spec.months[parts.month - 1] &&
+                    spec.hours[parts.hour] &&
+                    spec.minutes[parts.minute]
+            ) {
                 return t;
             }
             t = t + 60000;
@@ -144,10 +149,10 @@ export namespace Cron {
     }
 
     export async function schedule(spec: CronSpec, action: () => void): Task<void> {
-        while (true) {
+        while(true) {
             let at = next(spec);
             let wait = at - now();
-            if (wait > 0) {
+            if(wait > 0) {
                 await sleep(wait);
             }
             action();

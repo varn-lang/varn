@@ -2,13 +2,13 @@ import { ParseError } from "std:error";
 
 function hexCharToNibble(character: str): int {
     let code = character.charCodeAt(0);
-    if (code >= 48 && code <= 57) {
+    if(code >= 48 && code <= 57) {
         return code - 48;
     }
-    if (code >= 97 && code <= 102) {
+    if(code >= 97 && code <= 102) {
         return code - 97 + 10;
     }
-    if (code >= 65 && code <= 70) {
+    if(code >= 65 && code <= 70) {
         return code - 65 + 10;
     }
     throw new ParseError("invalid hex character: " + character);
@@ -24,12 +24,12 @@ export namespace Hex {
     }
 
     export function decodeBytes(hexString: str): Bytes {
-        if (hexString.length % 2 != 0) {
+        if(hexString.length % 2 != 0) {
             throw new ParseError("invalid hex string length");
         }
         let bytes: int[] = [];
         let length: int = hexString.length;
-        for (let index = 0; index < length; index = index + 2) {
+        for(let index = 0; index < length; index = index + 2) {
             let high = hexCharToNibble(hexString[index]);
             let low = hexCharToNibble(hexString[index + 1]);
             bytes.push(high * 16 + low);

@@ -1,16 +1,26 @@
 import { describe, it, expect } from "std:test";
 
-class Animal { name: str = "animal" }
+class Animal {
+    name: str = "animal"
+}
 class Dog extends Animal {}
 
-function count(animals: readonly Animal[]): int { return animals.length }
+function count(animals: readonly Animal[]): int {
+    return animals.length
+}
 function total(xs: readonly int[]): int {
     let sum = 0
-    for (const x in xs) { sum += x }
+    for(const x in xs) {
+        sum += x
+    }
     return sum
 }
-function lookup(m: ReadonlyMap<str, int>, key: str): int? { return m.get(key) }
-function sizeOf(s: ReadonlySet<int>): int { return s.size }
+function lookup(m: ReadonlyMap<str, int>, key: str): int? {
+    return m.get(key)
+}
+function sizeOf(s: ReadonlySet<int>): int {
+    return s.size
+}
 
 await describe("350 read-only views", async () => {
     await it("an array is a read-only array of its own type and of a supertype of it", () => {
@@ -46,7 +56,9 @@ await describe("350 read-only views", async () => {
     await it("entries gives the index and the item of a view", () => {
         const ro: readonly str[] = ["a", "b"]
         let seen = ""
-        for (const #[i, v] in ro.entries()) { seen += `${i}${v}` }
+        for(const #[i, v] in ro.entries()) {
+            seen += `${i}${v}`
+        }
         expect(seen).toBe("0a1b")
         expect(ro.entries().length).toBe(2)
     })
@@ -101,14 +113,18 @@ await describe("350 read-only views", async () => {
         expect("a" in view).toBe(true)
         expect(view.keys().length).toBe(2)
         let seen = 0
-        for (const #[k, v] in view) { seen += v }
+        for(const #[k, v] in view) {
+            seen += v
+        }
         expect(seen).toBe(3)
         const s = new Set([1, 2, 3])
         expect(sizeOf(s)).toBe(3)
         const items: ReadonlySet<int> = s
         expect(items.has(2)).toBe(true)
         let sum = 0
-        for (const n in items) { sum += n }
+        for(const n in items) {
+            sum += n
+        }
         expect(sum).toBe(6)
     })
 

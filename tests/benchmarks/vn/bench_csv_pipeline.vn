@@ -8,7 +8,7 @@ type Sale = #{
     quantity: int,
     unitPrice: float,
     status: str,
-    timestamp: str
+    timestamp: str,
 };
 
 // 1. Generate 50,000 transaction records in CSV format
@@ -23,7 +23,9 @@ for (let i = 0; i < 50000; i = i + 1) {
     let stat = statuses[i % 5];
     let qty = (i % 10) + 1;
     let price = (((i % 200) + 5) as float) * 1.5;
-    rows.push(`${i},Customer_${(i % 1000)},Product_${(i % 500)},${cat},${qty},${price},${stat},2026-08-21T12:00:00Z`);
+    rows.push(
+        `${i},Customer_${(i % 1000)},Product_${(i % 500)},${cat},${qty},${price},${stat},2026-08-21T12:00:00Z`,
+    );
 }
 
 let csvText = rows.join("\n");
@@ -37,13 +39,13 @@ let totalRevenue = 0.0;
 
 for (let i = 0; i < parsed.length; i = i + 1) {
     let row = parsed[i];
-    if (row.status == "COMPLETED") {
+    if(row.status == "COMPLETED") {
         let lineTotal: float = (row.quantity as float) * row.unitPrice;
         totalRevenue = totalRevenue + lineTotal;
 
         let catName: str = row.category;
         let currentRev = categoryRevenue.get(catName);
-        if (currentRev == null) {
+        if(currentRev == null) {
             categoryRevenue.set(catName, lineTotal);
         } else {
             categoryRevenue.set(catName, (currentRev as float) + lineTotal);
@@ -55,4 +57,6 @@ for (let i = 0; i < parsed.length; i = i + 1) {
 
 let serializedExport = Csv.stringify(completedSales);
 
-print(`CSV Pipeline: Completed Sales = ${completedSales.length}, Total Revenue = $${totalRevenue as int}, Export bytes = ${serializedExport.length}`);
+print(
+    `CSV Pipeline: Completed Sales = ${completedSales.length}, Total Revenue = $${totalRevenue as int}, Export bytes = ${serializedExport.length}`,
+);

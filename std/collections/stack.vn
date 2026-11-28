@@ -14,7 +14,7 @@ export class Stack<S> {
     }
 
     peek(): S? {
-        if (this.items.length == 0) {
+        if(this.items.length == 0) {
             return null;
         }
         return this.items[this.items.length - 1];

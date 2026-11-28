@@ -14,7 +14,7 @@ import {
     copyFile$,
     readLines$,
     rename$,
-    tempDir$
+    tempDir$,
 } from "runtime:fs";
 
 import { Stats } from "std:fs/stats";

@@ -1,8 +1,6 @@
 import { describe, it, expect } from "std:test";
 import { sleep, parallel } from "std:task"
 
-
-
 let shared = 0
 
 async function writer(): Task<int> {
@@ -23,8 +21,6 @@ async function runTest() {
 }
 await describe("33 globals async coherence", async () => {
     await it("tests", async () => {
-        
         await runTest()
-        
     });
 });

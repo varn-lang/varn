@@ -7,7 +7,7 @@ async function main() {
     const argv = args();
     let listener = TcpListener.listen(0);
     announcePort(argv[argv.length - 1], listener.port);
-    while (true) {
+    while(true) {
         let client = await listener.accept();
         let msg = await client.readText();
         await client.writeAll("ECHO:" + msg.trim() + "\n");

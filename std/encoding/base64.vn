@@ -7,7 +7,7 @@ function toUrlSafe(s: str): str {
 function fromUrlSafe(s: str): str {
     let out = s.replaceAll("-", "+").replaceAll("_", "/");
     let rem = out.length % 4;
-    if (rem == 2) {
+    if(rem == 2) {
         out = out + "==";
     } else if (rem == 3) {
         out = out + "=";

@@ -33,8 +33,8 @@ await describe("example std:collections", async () => {
 
     await it("PriorityQueue pops minimum first", () => {
         let pq = new PriorityQueue<int>((a: int, b: int): int => {
-            if (a < b) return -1;
-            if (a > b) return 1;
+            if(a < b) return -1;
+            if(a > b) return 1;
             return 0;
         });
         pq.push(30);

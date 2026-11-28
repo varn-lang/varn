@@ -4,7 +4,6 @@ import { ImportedBase } from "./helpers/imported-base.vn";
 // A class is laid out after its parent whatever their names: `Zebra` sorts
 // after `Horse`, which extends it, and `Horse` must still inherit Zebra's
 // fields at Zebra's slots instead of re-declaring them as its own.
-
 class Zebra {
     stripes: int
     constructor(stripes: int) {
@@ -89,7 +88,7 @@ const horse = new Horse("h")
 const initDerived = new InitDerived()
 const alpha = new Alpha()
 await describe("137 class build order", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(horse.name == "h").toBeTruthy();
         expect(horse.stripes).toBe(0);
     });
@@ -125,6 +124,4 @@ await describe("137 class build order", async () => {
         expect(asBase.c).toBe(2.5);
         expect(sub.w).toBe(9);
     });
-
-
 });

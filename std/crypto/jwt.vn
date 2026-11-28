@@ -3,10 +3,10 @@ import { Base64, Json, JsonValue } from "std:encoding";
 import { timingSafeEqual } from "std:crypto/password";
 
 function macName(algo: str): str {
-    if (algo == "HS256") {
+    if(algo == "HS256") {
         return "sha256";
     }
-    if (algo == "HS512") {
+    if(algo == "HS512") {
         return "sha512";
     }
     throw new RangeError("Jwt: unsupported algorithm '" + algo + "'");
@@ -14,7 +14,9 @@ function macName(algo: str): str {
 
 export namespace Jwt {
     export function sign(payload: JsonValue, secret: str, algo: str = "HS256"): str {
-        let hdr = Base64.encodeUrlBytes(Bytes.fromString(Json.stringify(#{ alg: algo, typ: "JWT" })));
+        let hdr = Base64.encodeUrlBytes(
+            Bytes.fromString(Json.stringify(#{ alg: algo, typ: "JWT" })),
+        );
         let body = Base64.encodeUrlBytes(Bytes.fromString(Json.stringify(payload)));
         let input = hdr + "." + body;
         let sig = Base64.encodeUrlBytes(hmacBytes$(macName(algo), secret, input));
@@ -23,7 +25,7 @@ export namespace Jwt {
 
     export function decode(token: str): JsonValue? {
         let parts = token.split(".");
-        if (parts.length != 3) {
+        if(parts.length != 3) {
             return null;
         }
         try {
@@ -35,22 +37,24 @@ export namespace Jwt {
 
     export function verify(token: str, secret: str, algo: str = "HS256"): JsonValue? {
         let parts = token.split(".");
-        if (parts.length != 3) {
+        if(parts.length != 3) {
             return null;
         }
         let input = parts[0] + "." + parts[1];
         let expected = Base64.encodeUrlBytes(hmacBytes$(macName(algo), secret, input));
-        if (!timingSafeEqual(expected, parts[2])) {
+        if(!timingSafeEqual(expected, parts[2])) {
             return null;
         }
         try {
-            let header = Json.parse(Base64.decodeUrlBytes(parts[0]).toString()) as Map<str, JsonValue>;
+            let header = Json.parse(
+                Base64.decodeUrlBytes(parts[0]).toString(),
+            ) as Map<str, JsonValue>;
             const algorithm = header.get("alg");
-            if (!(algorithm is str)) {
+            if(!(algorithm is str)) {
                 return null;
             }
             const alg = algorithm as str;
-            if (alg != algo) {
+            if(alg != algo) {
                 return null;
             }
             return Json.parse(Base64.decodeUrlBytes(parts[1]).toString());

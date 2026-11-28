@@ -1,7 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // ── Closure capturing mutable state ─────────────────────────────
 function makeStateMachine(initial: str): #{
     transition: (event: str) => str;
@@ -28,8 +26,12 @@ const h = sm.history()
 function makeSharedCounter(): #{ inc: () => void; dec: () => void; get: () => int } {
     let n = 0
     return #{
-        inc: () => { n = n + 1 },
-        dec: () => { n = n - 1 },
+        inc: () => {
+            n = n + 1
+        },
+        dec: () => {
+            n = n - 1
+        },
         get: () => n,
     }
 }
@@ -37,10 +39,10 @@ function makeSharedCounter(): #{ inc: () => void; dec: () => void; get: () => in
 // ── Recursive closure via self-reference ─────────────────────────
 function makeRecursiveFib(): (n: int) => int {
     let memo: int[] = []
-    const fib = (n: int):int => {
-        if (n <= 1) return n
-        while (memo.length <= n) memo.push(-1)
-        if (memo[n] >= 0) return memo[n]
+    const fib = (n: int): int => {
+        if(n <= 1) return n
+        while(memo.length <= n) memo.push(-1)
+        if(memo[n] >= 0) return memo[n]
         const result = fib(n - 1) + fib(n - 2)
         memo[n] = result
         return result
@@ -51,7 +53,7 @@ function makeRecursiveFib(): (n: int) => int {
 // ── Closure over loop variable (capture by binding) ──────────────
 function makeMultipliers(count: int): ((n: int) => int)[] {
     const fns: ((n: int) => int)[] = []
-    for (let i = 1; i <= count; i = i + 1) {
+    for(let i = 1; i <= count; i = i + 1) {
         const factor = i
         fns.push((n: int) => n * factor)
     }
@@ -60,26 +62,34 @@ function makeMultipliers(count: int): ((n: int) => int)[] {
 
 // ── Partial application ──────────────────────────────────────────
 function partial<A, B, C>(f: (A, B) => C, a: A): (b: B) => C {
-    return (b: B) => f(a, b)
+    return(b: B) => f(a, b)
 }
 
-function add3(x: int, y: int): int { return x + y }
+function add3(x: int, y: int): int {
+    return x + y
+}
 
-function concat(a: str, b: str): str { return a + b }
+function concat(a: str, b: str): str {
+    return a + b
+}
 
 // ── Curried function ─────────────────────────────────────────────
 function curry<A, B, C>(f: (A, B) => C): (a: A) => (b: B) => C {
-    return (a: A) => (b: B) => f(a, b)
+    return(a: A) => (b: B) => f(a, b)
 }
 
-function mul(x: int, y: int): int { return x * y }
+function mul(x: int, y: int): int {
+    return x * y
+}
 
 // ── Closure capturing class instance ─────────────────────────────
 class EventBus {
     private handlers: ((data: str) => void)[] = []
-    subscribe(h: (data: str) => void): void { this.handlers.push(h) }
+    subscribe(h: (data: str) => void): void {
+        this.handlers.push(h)
+    }
     emit(data: str): void {
-        for (const h in this.handlers) h(data)
+        for(const h in this.handlers) h(data)
     }
 }
 await describe("37 complex closures", async () => {
@@ -92,20 +102,20 @@ await describe("37 complex closures", async () => {
         expect(h.length).toBe(3)
         expect(h[0]).toBe("idle")
         expect(h[2]).toBe("idle→start→run")
-        
+
         const sc = makeSharedCounter()
         sc.inc()
         sc.inc()
         sc.inc()
         sc.dec()
         expect(sc.get()).toBe(2)
-        
+
         const recFib = makeRecursiveFib()
         expect(recFib(0)).toBe(0)
         expect(recFib(1)).toBe(1)
         expect(recFib(10)).toBe(55)
         expect(recFib(15)).toBe(610)
-        
+
         const mults = makeMultipliers(5)
         expect(mults[0](3)).toBe(3)
         expect(mults[1](3)).toBe(6)
@@ -120,11 +130,15 @@ await describe("37 complex closures", async () => {
         expect(triple(4)).toBe(12)
         expect(triple(0)).toBe(0)
         expect(curriedMul(5)(7)).toBe(35)
-        
+
         const bus = new EventBus()
         const received: str[] = []
-        bus.subscribe((d) => { received.push(d) })
-        bus.subscribe((d) => { received.push(d + "!") })
+        bus.subscribe((d) => {
+            received.push(d)
+        })
+        bus.subscribe((d) => {
+            received.push(d + "!")
+        })
         bus.emit("hello")
         bus.emit("world")
         expect(received.length).toBe(4)
@@ -132,6 +146,5 @@ await describe("37 complex closures", async () => {
         expect(received[1]).toBe("hello!")
         expect(received[2]).toBe("world")
         expect(received[3]).toBe("world!")
-        
     });
 });

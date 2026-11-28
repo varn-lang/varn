@@ -1,10 +1,16 @@
 import { describe, it, expect } from "std:test";
 
-async function asInt(d: dynamic): Task<int> { return d as int }
-async function asInts(d: dynamic): Task<int[]> { return d as int[] }
+async function asInt(d: dynamic): Task<int> {
+    return d as int
+}
+async function asInts(d: dynamic): Task<int[]> {
+    return d as int[]
+}
 const asStr = async (d: dynamic): Task<str> => d as str
 class Reader {
-    async flag(d: dynamic): Task<bool> { return d as bool }
+    async flag(d: dynamic): Task<bool> {
+        return d as bool
+    }
 }
 function* numbers(d: dynamic): int {
     yield 1
@@ -20,7 +26,9 @@ async function outcome(f: () => Task<dynamic>): Task<str> {
         const r = await f()
         return `ok ${r}`
     } catch (e) {
-        if (e is TypeError) { return e.message }
+        if(e is TypeError) {
+            return e.message
+        }
         return "other"
     }
 }
@@ -28,7 +36,9 @@ async function outcome(f: () => Task<dynamic>): Task<str> {
 function sum(d: dynamic): str {
     try {
         let total = 0
-        for (const n in numbers(d)) { total = total + n }
+        for(const n in numbers(d)) {
+            total = total + n
+        }
         return `sum ${total}`
     } catch (e) {
         return e.message
@@ -38,7 +48,9 @@ function sum(d: dynamic): str {
 async function join(d: dynamic): Task<str> {
     try {
         let text = ""
-        for await (const w in words(d)) { text = text + w }
+        for await (const w in words(d)) {
+            text = text + w
+        }
         return "text " + text
     } catch (e) {
         return e.message
@@ -48,16 +60,24 @@ async function join(d: dynamic): Task<str> {
 await describe("169 dynamic boundary: coroutines", async () => {
     await it("an async function checks what it returns", async () => {
         expect(await outcome(async () => await asInt(5))).toBe("ok 5")
-        expect(await outcome(async () => await asInt("x"))).toBe("type mismatch: a number conversion needs a number, got 'str'")
+        expect(await outcome(async () => await asInt("x"))).toBe(
+            "type mismatch: a number conversion needs a number, got 'str'",
+        )
         expect(await outcome(async () => (await asInts([1, 2])).length)).toBe("ok 2")
-        expect(await outcome(async () => await asInts(["a"]))).toBe("type mismatch: expected 'int[]', got 'Array'")
+        expect(await outcome(async () => await asInts(["a"]))).toBe(
+            "type mismatch: expected 'int[]', got 'Array'",
+        )
     })
 
     await it("async arrows and methods check too", async () => {
         expect(await outcome(async () => await asStr("s"))).toBe("ok s")
-        expect(await outcome(async () => await asStr(3))).toBe("type mismatch: expected 'str', got 'int'")
+        expect(await outcome(async () => await asStr(3))).toBe(
+            "type mismatch: expected 'str', got 'int'",
+        )
         expect(await outcome(async () => await new Reader().flag(true))).toBe("ok true")
-        expect(await outcome(async () => await new Reader().flag(1))).toBe("type mismatch: expected 'bool', got 'int'")
+        expect(await outcome(async () => await new Reader().flag(1))).toBe(
+            "type mismatch: expected 'bool', got 'int'",
+        )
     })
 
     await it("a generator checks what it yields", async () => {

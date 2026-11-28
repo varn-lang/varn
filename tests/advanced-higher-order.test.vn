@@ -1,30 +1,34 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // ── compose: right-to-left function composition ──────────────────
-function compose<A, B, C>(f: (b:B) => C, g: (a:A) => B): (a:A) => C {
-    return (x: A) => f(g(x))
+function compose<A, B, C>(f: (b: B) => C, g: (a: A) => B): (a: A) => C {
+    return(x: A) => f(g(x))
 }
 
-function double(n: int): int { return n * 2 }
-function inc(n: int): int { return n + 1 }
-function square(n: int): int { return n * n }
+function double(n: int): int {
+    return n * 2
+}
+function inc(n: int): int {
+    return n + 1
+}
+function square(n: int): int {
+    return n * n
+}
 
 // ── pipe: left-to-right function application ─────────────────────
 function pipe<A>(val: A, fns: ((A) => A)[]): A {
     let result = val
-    for (const f in fns) result = f(result)
+    for(const f in fns) result = f(result)
     return result
 }
 
 // ── memoize: closure capturing cache ─────────────────────────────
 function memoize<A, B>(f: (A) => B): (A) => B {
     const cache = new Map<str, B>()
-    return (arg: A) => {
+    return(arg: A) => {
         const key = "" + arg
         const hit = cache[key]
-        if (hit != null) return hit
+        if(hit != null) return hit
         const val = f(arg)
         cache[key] = val
         return val
@@ -40,8 +44,8 @@ function expensiveDouble(n: int): int {
 // ── once: run function at most once ──────────────────────────────
 function once<T>(f: () => T): () => T {
     const cell: T[] = []
-    return () => {
-        if (cell.length == 0) {
+    return() => {
+        if(cell.length == 0) {
             cell.push(f())
         }
         return cell[0]
@@ -57,8 +61,8 @@ const init = once(() => {
 // ── throttle-like: skip calls after first N ───────────────────────
 function takeFirst<T>(f: (T) => void, n: int): (T) => void {
     let count = 0
-    return (x: T) => {
-        if (count < n) {
+    return(x: T) => {
+        if(count < n) {
             f(x)
             count = count + 1
         }
@@ -68,47 +72,46 @@ function takeFirst<T>(f: (T) => void, n: int): (T) => void {
 // ── flatMap via higher-order ─────────────────────────────────────
 function flatMap<A, B>(arr: A[], f: (A) => B[]): B[] {
     const out: B[] = []
-    for (const x in arr) {
+    for(const x in arr) {
         const chunk = f(x)
-        for (const y in chunk) out.push(y)
+        for(const y in chunk) out.push(y)
     }
     return out
 }
 
 // ── reduce ────────────────────────────────────────────────────────
-function reduce<A, B>(arr: A[], f: (a:B, b:A) => B, init: B): B {
+function reduce<A, B>(arr: A[], f: (a: B, b: A) => B, init: B): B {
     let acc = init
-    for (const x in arr) acc = f(acc, x)
+    for(const x in arr) acc = f(acc, x)
     return acc
 }
 await describe("38 advanced higher order", async () => {
     await it("tests", async () => {
-        
         const doubleAfterInc = compose(double, inc)
         const squareAfterDouble = compose(square, double)
-        
+
         expect(doubleAfterInc(3)).toBe(8)
         expect(doubleAfterInc(0)).toBe(2)
         expect(squareAfterDouble(3)).toBe(36)
         expect(squareAfterDouble(5)).toBe(100)
-        
+
         const result1 = pipe(1, [inc, double, inc, double])
         expect(result1).toBe(10)
-        
+
         const result2 = pipe(5, [square, inc, double])
         expect(result2).toBe(52)
-        
+
         const memoDouble = memoize(expensiveDouble)
         expect(memoDouble(5)).toBe(10)
         expect(memoDouble(5)).toBe(10)
         expect(memoDouble(7)).toBe(14)
         expect(callCount).toBe(2)
-        
+
         expect(init()).toBe(42)
         expect(init()).toBe(42)
         expect(init()).toBe(42)
         expect(initCount).toBe(1)
-        
+
         const log: int[] = []
         const logFirst3 = takeFirst((x: int) => log.push(x), 3)
         logFirst3(10)
@@ -119,22 +122,21 @@ await describe("38 advanced higher order", async () => {
         expect(log.length).toBe(3)
         expect(log[0]).toBe(10)
         expect(log[2]).toBe(30)
-        
+
         const nested = flatMap([1, 2, 3], (n: int) => [n, n * 10])
         expect(nested.length).toBe(6)
         expect(nested[0]).toBe(1)
         expect(nested[1]).toBe(10)
         expect(nested[4]).toBe(3)
         expect(nested[5]).toBe(30)
-        
+
         const sum = reduce([1, 2, 3, 4, 5], (acc: int, x: int) => acc + x, 0)
         expect(sum).toBe(15)
-        
+
         const product = reduce([1, 2, 3, 4], (acc: int, x: int) => acc * x, 1)
         expect(product).toBe(24)
-        
+
         const concat_ = reduce(["a", "b", "c"], (acc: str, x: str) => acc + x, "")
         expect(concat_).toBe("abc")
-        
     });
 });

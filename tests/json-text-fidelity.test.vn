@@ -22,7 +22,7 @@ await describe("314 JSON keeps its text and its integers exactly", async () => {
 
     await it("string literals process their escapes in object keys too", async () => {
         const keys: str[] = [];
-        for (const k in #{ "\u00e9": 1, "a\u0041": 2, "\n": 3, "\x41": 4, "\u{1F600}": 5 }) {
+        for(const k in #{ "\u00e9": 1, "a\u0041": 2, "\n": 3, "\x41": 4, "\u{1F600}": 5 }) {
             keys.push(k);
         }
         expect(keys.length).toBe(5);
@@ -53,7 +53,9 @@ await describe("314 JSON keeps its text and its integers exactly", async () => {
     });
 
     await it("the whole int range survives, including int.MIN", async () => {
-        expect(roundTrip("[9223372036854775807,-9223372036854775808,0,-1]")).toBe("[9223372036854775807,-9223372036854775808,0,-1]");
+        expect(roundTrip("[9223372036854775807,-9223372036854775808,0,-1]")).toBe(
+            "[9223372036854775807,-9223372036854775808,0,-1]",
+        );
         expect(roundTrip("[9007199254740993]")).toBe("[9007199254740993]");
     });
 

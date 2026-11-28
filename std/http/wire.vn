@@ -32,12 +32,12 @@ export class ByteBuilder {
 
     append(source: Bytes, start: int, end: int): void {
         const count = end - start;
-        if (count <= 0) {
+        if(count <= 0) {
             return;
         }
-        if (this.used + count > this.data.length) {
+        if(this.used + count > this.data.length) {
             let capacity = this.data.length * 2;
-            while (capacity < this.used + count) {
+            while(capacity < this.used + count) {
                 capacity = capacity * 2;
             }
             const grown = Bytes.alloc(capacity);
@@ -82,18 +82,18 @@ export class WireReader {
     }
 
     private compact(): void {
-        if (this.cursor > 0 && this.cursor == this.buffer.length) {
+        if(this.cursor > 0 && this.cursor == this.buffer.length) {
             this.buffer.clear();
             this.cursor = 0;
         }
     }
 
     async pull(): Task<bool> {
-        if (this.ended) {
+        if(this.ended) {
             return false;
         }
         const chunk = await tcpRead$(this.conn, READ_SIZE);
-        if (chunk == null) {
+        if(chunk == null) {
             this.ended = true;
             return false;
         }
@@ -105,11 +105,11 @@ export class WireReader {
     async line(limit: int = 65536): Task<str?> {
         this.compact();
         let scanned = this.cursor;
-        while (true) {
+        while(true) {
             const end = this.buffer.length;
-            for (let i = scanned; i + 1 < end; i = i + 1) {
-                if (this.buffer.byteAt(i) == 13 && this.buffer.byteAt(i + 1) == 10) {
-                    if (i - this.cursor > limit) {
+            for(let i = scanned; i + 1 < end; i = i + 1) {
+                if(this.buffer.byteAt(i) == 13 && this.buffer.byteAt(i + 1) == 10) {
+                    if(i - this.cursor > limit) {
                         throw new LineTooLongError(limit);
                     }
                     const text = this.buffer.slice(this.cursor, i).toString();
@@ -117,11 +117,11 @@ export class WireReader {
                     return text;
                 }
             }
-            if (end - this.cursor > limit) {
+            if(end - this.cursor > limit) {
                 throw new LineTooLongError(limit);
             }
             scanned = end - 1 > this.cursor ? end - 1 : this.cursor;
-            if (!(await this.pull())) {
+            if(!(await this.pull())) {
                 return null;
             }
         }
@@ -129,8 +129,8 @@ export class WireReader {
 
     async take(count: int): Task<Bytes?> {
         this.compact();
-        while (this.buffered < count) {
-            if (!(await this.pull())) {
+        while(this.buffered < count) {
+            if(!(await this.pull())) {
                 return null;
             }
         }
@@ -141,15 +141,15 @@ export class WireReader {
 
     async rest(limit: int): Task<Bytes> {
         this.compact();
-        while (true) {
-            if (this.buffer.length - this.cursor > limit) {
+        while(true) {
+            if(this.buffer.length - this.cursor > limit) {
                 throw new BodyTooLargeError(limit);
             }
-            if (!(await this.pull())) {
+            if(!(await this.pull())) {
                 break;
             }
         }
-        if (this.buffer.length - this.cursor > limit) {
+        if(this.buffer.length - this.cursor > limit) {
             throw new BodyTooLargeError(limit);
         }
         const out = this.buffer.slice(this.cursor, this.buffer.length);
@@ -159,22 +159,22 @@ export class WireReader {
 }
 
 function hexDigit(code: int): int {
-    if (code >= 48 && code <= 57) return code - 48;
-    if (code >= 97 && code <= 102) return code - 87;
-    if (code >= 65 && code <= 70) return code - 55;
+    if(code >= 48 && code <= 57) return code - 48;
+    if(code >= 97 && code <= 102) return code - 87;
+    if(code >= 65 && code <= 70) return code - 55;
     return -1;
 }
 
 function parseChunkSize(line: str): int {
     const extension = line.indexOf(";");
     const digits = (extension == null ? line : line.slice(0, extension)).trim();
-    if (digits.length == 0 || digits.length > 15) {
+    if(digits.length == 0 || digits.length > 15) {
         throw new ProtocolError("malformed chunk size line");
     }
     let size = 0;
-    for (let i = 0; i < digits.length; i = i + 1) {
+    for(let i = 0; i < digits.length; i = i + 1) {
         const digit = hexDigit(digits.charCodeAt(i) as int);
-        if (digit < 0) {
+        if(digit < 0) {
             throw new ProtocolError(`malformed chunk size '${digits}'`);
         }
         size = size * 16 + digit;
@@ -184,37 +184,37 @@ function parseChunkSize(line: str): int {
 
 export async function readChunkedBody(wire: WireReader, maxBytes: int): Task<Bytes> {
     const body = new ByteBuilder();
-    while (true) {
+    while(true) {
         const sizeLine = await wire.line();
-        if (sizeLine == null) {
+        if(sizeLine == null) {
             throw new ProtocolError("connection closed inside a chunked body");
         }
         const size = parseChunkSize(sizeLine as str);
-        if (size == 0) {
+        if(size == 0) {
             let trailers = 0;
-            while (true) {
+            while(true) {
                 const trailer = await wire.line();
-                if (trailer == null || (trailer as str).length == 0) {
+                if(trailer == null || (trailer as str).length == 0) {
                     break;
                 }
                 trailers = trailers + 1;
-                if (trailers > MAX_TRAILERS) {
+                if(trailers > MAX_TRAILERS) {
                     throw new ProtocolError("too many trailer fields");
                 }
             }
             break;
         }
-        if (body.length + size > maxBytes) {
+        if(body.length + size > maxBytes) {
             throw new BodyTooLargeError(maxBytes);
         }
         const data = await wire.take(size);
-        if (data == null) {
+        if(data == null) {
             throw new ProtocolError("connection closed inside a chunk");
         }
         const bytes = data as Bytes;
         body.append(bytes, 0, bytes.length);
         const terminator = await wire.line();
-        if (terminator == null || (terminator as str).length != 0) {
+        if(terminator == null || (terminator as str).length != 0) {
             throw new ProtocolError("a chunk is not followed by CRLF");
         }
     }

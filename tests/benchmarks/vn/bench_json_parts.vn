@@ -1,12 +1,12 @@
 import { Json } from "std:encoding";
 
-let items: #{ id: int, name: str, active: bool, score: float }[] = [];
+let items: #{ id: int, name: str, active: bool, score: float } [] = [];
 for (let i = 0; i < 50000; i = i + 1) {
     items.push(#{
         id: i,
         name: `Item_${i}`,
         active: (i % 2) == 0,
-        score: ((i % 100) as float) * 1.25
+        score: ((i % 100) as float) * 1.25,
     });
 }
 

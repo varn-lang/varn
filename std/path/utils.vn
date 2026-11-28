@@ -7,7 +7,7 @@ import {
     extname$,
     isAbsolute$,
     join$,
-    resolve$
+    resolve$,
 } from "runtime:path";
 
 export const SEP: str = sep$();

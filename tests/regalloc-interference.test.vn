@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Register coalescing must never alias two registers whose live ranges
 // overlap. The post-pass colourer used to fall back to the first callee
 // register when it ran out of legal colours, folding a value onto one that was
@@ -20,7 +19,6 @@ import { describe, it, expect } from "std:test";
 // twoFields, receiverOutlivesTheCall, twoObjectsOneCall. The rest cover
 // neighbouring shapes that route through the same contiguous-window path but
 // do not, on their own, exhaust the colours.
-
 interface HasId {
     id: int
 }
@@ -73,7 +71,6 @@ function throughATuple() {
 }
 await describe("74 regalloc interference", async () => {
     await it("tests", async () => {
-        
         twoFields()
         threeFields()
         literalAtCallSite()
@@ -81,6 +78,5 @@ await describe("74 regalloc interference", async () => {
         twoObjectsOneCall()
         throughAnArray()
         throughATuple()
-        
     });
 });

@@ -27,14 +27,22 @@ export class SliderNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        cx.valued(UiControlKind.Slider, x, y, w, h, Theme.colors.primary, false, this.value, this.low, this.high, (next: float) => {
-            if (next != this.value) {
+        cx.valued(UiControlKind.Slider, x, y, w, h, Theme.colors.primary, false, this.value, this.low, this.high, (
+            next: float
+        ) => {
+            if(next != this.value) {
                 this.onChange(next);
             }
         });
     }
 }
 
-export function Slider(value: float | Signal<float>, onChange: ((next: float) => void)? = null, low: float = 0.0, high: float = 1.0, h: float = 24.0): Widget {
+export function Slider(
+    value: float | Signal<float>,
+    onChange: ((next: float) => void)? = null,
+    low: float = 0.0,
+    high: float = 1.0,
+    h: float = 24.0,
+): Widget {
     return new SliderNode(current<float>(value), low, high, writer<float>(value, onChange), h);
 }

@@ -1,5 +1,17 @@
 import { TcpListener, TcpStream, connect, listen, isIP, isIPv4, isIPv6 } from "std:net";
-import { HttpServer, Request, Response, HttpStatus, json, get, post, put, patch, del, fetch } from "std:http";
+import {
+    HttpServer,
+    Request,
+    Response,
+    HttpStatus,
+    json,
+    get,
+    post,
+    put,
+    patch,
+    del,
+    fetch,
+} from "std:http";
 import { WebSocket, WebSocketReadyState } from "std:ws";
 import { Process } from "std:process";
 import { delay, Task } from "std:task";
@@ -7,35 +19,32 @@ import { describe, it, expect } from "std:test";
 import { JsonValue } from "std:encoding";
 import { freshPortFile, awaitPort } from "./helpers/port_file.vn";
 
-
-
 function testNetIpUtils(): void {
-        expect(isIP("127.0.0.1")).toBeTruthy();;
-        expect(isIP("::1")).toBeTruthy();;
-        expect(isIP("invalid-ip")).toBeFalsy();;
+    expect(isIP("127.0.0.1")).toBeTruthy();;
+    expect(isIP("::1")).toBeTruthy();;
+    expect(isIP("invalid-ip")).toBeFalsy();;
 
-        expect(isIPv4("192.168.1.1")).toBeTruthy();;
-        expect(isIPv4("::1")).toBeFalsy();;
+    expect(isIPv4("192.168.1.1")).toBeTruthy();;
+    expect(isIPv4("::1")).toBeFalsy();;
 
-        expect(isIPv6("::1")).toBeTruthy();;
-        expect(isIPv6("fe80::1")).toBeTruthy();;
-        expect(isIPv6("192.168.1.1")).toBeFalsy();;
-
+    expect(isIPv6("::1")).toBeTruthy();;
+    expect(isIPv6("fe80::1")).toBeTruthy();;
+    expect(isIPv6("192.168.1.1")).toBeFalsy();;
 }
 
 function testHttpServerAndClientApis(): void {
     // 1. Response and HttpStatus
     let res = json(#{ message: "Success", code: 200 });
-        expect(res.status).toBe(200);;
-        expect(res.ok).toBeTruthy();;
-        expect(res.statusText).toBe("OK");;
+    expect(res.status).toBe(200);;
+    expect(res.ok).toBeTruthy();;
+    expect(res.statusText).toBe("OK");;
     let parsedJson = res.json() as Map<str, JsonValue>;
-        expect(parsedJson["message"]).toBe("Success");;
+    expect(parsedJson["message"]).toBe("Success");;
 
     let errRes = new Response("boom", 404);
-        expect(errRes.status).toBe(404);;
-        expect(errRes.ok).toBeFalsy();;
-        expect(errRes.statusText).toBe("Not Found");;
+    expect(errRes.status).toBe(404);;
+    expect(errRes.ok).toBeFalsy();;
+    expect(errRes.statusText).toBe("Not Found");;
 
     // 2. HttpServer Routing & CORS
     let app = new HttpServer();
@@ -57,30 +66,31 @@ function testHttpServerAndClientApis(): void {
         return json(#{ deleted: req.params["id"] });
     });
 
-        expect(app.port).toBe(0);;
-        expect(app.isListening).toBeFalsy();;
+    expect(app.port).toBe(0);;
+    expect(app.isListening).toBeFalsy();;
 
     // 3. http client free helpers
-        expect(get::type).toBe("function");;
-        expect(post::type).toBe("function");;
-        expect(put::type).toBe("function");;
-        expect(patch::type).toBe("function");;
-        expect(del::type).toBe("function");;
-
+    expect(get::type).toBe("function");;
+    expect(post::type).toBe("function");;
+    expect(put::type).toBe("function");;
+    expect(patch::type).toBe("function");;
+    expect(del::type).toBe("function");;
 }
 
 function testWebSocket(): void {
-        expect(WebSocketReadyState.Connecting as int).toBe(0);;
-        expect(WebSocketReadyState.Open as int).toBe(1);;
-        expect(WebSocketReadyState.Closing as int).toBe(2);;
-        expect(WebSocketReadyState.Closed as int).toBe(3);;
+    expect(WebSocketReadyState.Connecting as int).toBe(0);;
+    expect(WebSocketReadyState.Open as int).toBe(1);;
+    expect(WebSocketReadyState.Closing as int).toBe(2);;
+    expect(WebSocketReadyState.Closed as int).toBe(3);;
 
-        expect(WebSocket::type).toBe("WebSocket");
-
+    expect(WebSocket::type).toBe("WebSocket");
 }
 let portFile = freshPortFile();
 let vnBin = Process.currentExe();
-let proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/tcp_echo_server.vn`, "--", portFile]);
+let proc = Process.spawn(
+    vnBin,
+    ["run", `${import.meta.dirname}/helpers/tcp_echo_server.vn`, "--", portFile],
+);
 
 async function main(): Task<void> {
     testNetIpUtils();
@@ -89,12 +99,11 @@ async function main(): Task<void> {
 }
 
 await describe("111 network apis overhaul", async () => {
-
     await it("Give child process a small moment to start listening", async () => {
         let testPort = await awaitPort(portFile);
         let attempts = 0;
         let ok = false;
-        while (!ok && attempts < 25) {
+        while(!ok && attempts < 25) {
             attempts = attempts + 1;
             try {
                 let clientSock = await TcpStream.connect("127.0.0.1", testPort);

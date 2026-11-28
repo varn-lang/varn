@@ -1,7 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
-
 // --- NOT promotable: read by a top-level function --------------------------
 let readByFunction = 41
 function readsIt(): int {
@@ -60,11 +58,11 @@ await describe("68 module locals", async () => {
         // The getter case below is not hypothetical: the first cut of the pass walked
         // only `HirClass::methods` and missed `getters`, promoting a global a getter
         // wrote. `tests/dce-purity.test.vn` caught it.
-        
+
         // --- promotable: read and written only by top-level code -------------------
         let counter = 0
         let total = 0
-        for (let i = 0; i < 1000; i = i + 1) {
+        for(let i = 0; i < 1000; i = i + 1) {
             counter = counter + 1
             total = total + i
         }
@@ -74,12 +72,12 @@ await describe("68 module locals", async () => {
         writesIt()
         writesIt()
         expect(writtenByFunction).toBe(10)
-        
+
         // --- NOT promotable: captured by a closure ---------------------------------
         let readByClosure = 7
         let closure = (): int => readByClosure * 2
         expect(closure()).toBe(14)
-        
+
         let t = new Touches(21)
         expect(ctorRuns).toBe(1)
         expect(t.doubled).toBe(42)
@@ -91,16 +89,14 @@ await describe("68 module locals", async () => {
         expect(methodRuns).toBe(1)
         Touches.make()
         expect(staticRuns).toBe(1)
-        
+
         // --- a promotable binding living alongside all of the above ----------------
         let alsoPromotable = 0
         let j = 0
-        while (j < 100) {
+        while(j < 100) {
             alsoPromotable = alsoPromotable + 2
             j = j + 1
         }
         expect(alsoPromotable).toBe(200)
-        
-        
     });
 });

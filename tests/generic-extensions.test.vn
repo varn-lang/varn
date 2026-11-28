@@ -5,10 +5,14 @@ class Crate<T> {
 }
 
 extension Tools<T> on readonly T[] {
-    head(): T? { return this.at(0) }
+    head(): T? {
+        return this.at(0)
+    }
     has(x: T): bool {
-        for (const v in this) {
-            if (sameValue(v, x)) { return true }
+        for(const v in this) {
+            if(sameValue(v, x)) {
+                return true
+            }
         }
         return false
     }
@@ -16,13 +20,17 @@ extension Tools<T> on readonly T[] {
 
 extension Pairs<K extends Hashable, V> on ReadonlyMap<K, V> {
     anyValue(): V? {
-        for (const #[_, v] in this) { return v }
+        for(const #[_, v] in this) {
+            return v
+        }
         return null
     }
 }
 
 extension<T> on Crate<T> {
-    unwrap(): T { return this.item }
+    unwrap(): T {
+        return this.item
+    }
 }
 
 await describe("351 generic extensions", async () => {

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "std:test";
 import { Frame } from "./helpers/enum-slots.vn";
 
-
 // 1. Basic Enums & Singleton Identity
 enum Direction {
     North,
@@ -72,72 +71,86 @@ enum CustomDisplay implements Display {
         return "CustomDisplay." + this.name
     }
 }
-enum Signed { Below = -2, Next, Far = 70000, After }
+enum Signed {
+    Below = -2,
+    Next,
+    Far = 70000,
+    After
+}
 
 function signedName(s: Signed): str {
-    return match (s) { Below => "below", Next => "next", Far => "far", After => "after" }
+    return match (s) {
+        Below => "below",
+        Next => "next",
+        Far => "far",
+        After => "after"
+    }
 }
 
 function frameName(f: Frame): str {
-    return match (f) { Frame.Text => "text", Frame.Close => "close", Frame.Ping => "ping", Frame.Pong => "pong" }
+    return match (f) {
+        Frame.Text => "text",
+        Frame.Close => "close",
+        Frame.Ping => "ping",
+        Frame.Pong => "pong"
+    }
 }
 
 await describe("41 advanced enums", async () => {
     await it("tests", async () => {
-        
         const dir = Direction.North
         expect(dir.name).toBe("North")
         expect(dir.rawValue).toBe(0)
         expect(Direction.North).toBe(Direction.North)
         expect(Direction.North != Direction.South).toBeTruthy()
-        
+
         expect(Status.Pending.rawValue).toBe(0)
         expect(Status.Success.rawValue).toBe(10)
         expect(Status.Error.rawValue).toBe(11)
-        
+
         const t1 = Token.Number(123)
         const t2 = Token.Identifier(name: "hello")
-        
-        Token.Number(456) // Another instance of Number variant
-        
+
+        Token.Number(
+            456,
+        ) // Another instance of Number variant
+
         expect(t1.name).toBe("Number")
         expect(t1.value).toBe(123)
         expect(t2.name).toBe("hello")
-        
+
         // Pattern matching on payload variants
         const v1 = match (t1) {
             Number(val) => val,
             _ => 0
         }
         expect(v1).toBe(123)
-        
+
         const v2 = match (t2) {
             Identifier(n) => n,
             _ => "none"
         }
         expect(v2).toBe("hello")
-        
+
         expect(CustomHttpStatus.Ok.code).toBe(200)
         expect(CustomHttpStatus.Ok.message).toBe("OK")
         expect(CustomHttpStatus.NotFound.code).toBe(404)
         expect(CustomHttpStatus.NotFound.message).toBe("Not Found")
-        
+
         const circle = Shape.Circle(10.0)
         const rect = Shape.Rectangle(10.0, 20.0)
-        
+
         expect(circle.area()).toBe(314.159)
         expect(rect.area()).toBe(200.0)
-        
+
         const resOk = Result.Ok<int, str>(42)
         const valOk = match (resOk) {
             Ok(val) => val,
             Err(err) => 0
         }
         expect(valOk).toBe(42)
-        
+
         expect(CustomDisplay.A.toString()).toBe("CustomDisplay.A")
-        
-        
     });
 
     await it("a variant's tag is its declared value, for local and imported enums", async () => {

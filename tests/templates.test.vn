@@ -6,6 +6,6 @@ await describe("04 Templates", async () => {
         expect(`answer = ${tval}`).toBe("answer = 42");
         expect(`${tval * 2}`).toBe("84");
         expect(`prefix_${"mid"}_suffix`).toBe("prefix_mid_suffix");
-        expect(`a${1 + 1}b` + "c").toBe("a2bc");
+        expect(`a${ 1 + 1}b` + "c").toBe("a2bc");
     });
 });

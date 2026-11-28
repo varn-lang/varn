@@ -8,9 +8,9 @@ async function rawGet(port: int, path: str): Task<str> {
     const client = await TcpStream.connect("127.0.0.1", port, 1);
     await client.write(`GET ${path} HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n`);
     let text = "";
-    while (true) {
+    while(true) {
         const chunk = await client.read(4096);
-        if (chunk == null) {
+        if(chunk == null) {
             break
         }
         text = text + (chunk as Bytes).toString();
@@ -21,7 +21,15 @@ async function rawGet(port: int, path: str): Task<str> {
 
 await describe("295 the http server sends the response headers it was given", async () => {
     const server = new HttpServer();
-    server.get("/custom", async (req: Request) => new Response("x", 200, new Map<str, str>([#["X-Test", "1"], #["Location", "/z"]])));
+    server.get(
+        "/custom",
+        async (req: Request) => new Response(
+            "x",
+            200,
+            new Map<str,
+            str>([#["X-Test", "1"], #["Location", "/z"]]),
+        ),
+    );
     server.get("/json", async (req: Request) => json(#{ ok: true }));
     server.listen(0);
     await delay(150);

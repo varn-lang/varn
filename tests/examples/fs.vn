@@ -1,10 +1,27 @@
 import { describe, it, expect, summary } from "std:test";
-import { writeText, readText, appendText, exists, stat, mkdirAll, readDir, remove, removeAll, rename, copy, readLines, glob, tempDir, File, FileMode } from "std:fs";
+import {
+    writeText,
+    readText,
+    appendText,
+    exists,
+    stat,
+    mkdirAll,
+    readDir,
+    remove,
+    removeAll,
+    rename,
+    copy,
+    readLines,
+    glob,
+    tempDir,
+    File,
+    FileMode,
+} from "std:fs";
 import { join } from "std:path";
 
 @capability("fs.read", "fs.write")
 function clean(path: str): void {
-    if (exists(path)) {
+    if(exists(path)) {
         removeAll(path);
     }
 }

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "std:test";
 
 // Test Suite 93: Match Guards, Object & Array Spread, Type Predicates, and Enum Casting
-
 enum HttpStatusCode {
     Ok = 200,
     Created = 201,
@@ -24,7 +23,7 @@ function isInt(val: dynamic): val is int {
 }
 
 function processValue(val: dynamic): str {
-    if (isStr(val)) {
+    if(isStr(val)) {
         return `string: ${val.toUpperCase()}`;
     } else if (isInt(val)) {
         return `int: ${val * 2}`;
@@ -36,12 +35,12 @@ function processValue(val: dynamic): str {
 await describe("93 match guards spread predicates", async () => {
     await it("Integer categorization with match guar / Match guard using external scope varia", async () => {
         function classifyNumber(n: int): str {
-        return match (n) {
-        x if x < 0 => "Negative",
-        x if x == 0 => "Zero",
-        x if x % 2 == 0 => "Positive Even",
-        _ => "Positive Odd"
-        };
+            return match (n) {
+                x if x < 0 => "Negative",
+                x if x == 0 => "Zero",
+                x if x % 2 == 0 => "Positive Even",
+                _ => "Positive Odd"
+            };
         }
         expect(classifyNumber(-10)).toBe("Negative");
         expect(classifyNumber(-1)).toBe("Negative");
@@ -50,22 +49,20 @@ await describe("93 match guards spread predicates", async () => {
         expect(classifyNumber(42)).toBe("Positive Even");
         expect(classifyNumber(3)).toBe("Positive Odd");
         expect(classifyNumber(99)).toBe("Positive Odd");
-        
 
         const threshold = 100;
         function evaluateScore(score: int, isVip: bool): str {
-        return match (score) {
-        s if s >= threshold && isVip => "VIP High Score",
-        s if s >= threshold => "Standard High Score",
-        s if s >= 50 => "Passing",
-        _ => "Needs Improvement"
-        };
+            return match (score) {
+                s if s >= threshold && isVip => "VIP High Score",
+                s if s >= threshold => "Standard High Score",
+                s if s >= 50 => "Passing",
+                _ => "Needs Improvement"
+            };
         }
         expect(evaluateScore(150, true)).toBe("VIP High Score");
         expect(evaluateScore(120, false)).toBe("Standard High Score");
         expect(evaluateScore(75, true)).toBe("Passing");
         expect(evaluateScore(30, false)).toBe("Needs Improvement");
-        
     });
 
     await it("a bare identifier guard is not read as an arrow parameter", async () => {
@@ -80,13 +77,13 @@ await describe("93 match guards spread predicates", async () => {
     });
     await it("Match guard with multi-value patterns / Object spread merging and property ove", async () => {
         function describeHttpCode(code: int): str {
-        return match (code) {
-        200 | 201 => "Success",
-        400 | 404 if code == 404 => "Not Found",
-        400 | 404 => "Other Client Error",
-        500 => "Server Error",
-        _ => "Unknown"
-        };
+            return match (code) {
+                200 | 201 => "Success",
+                400 | 404 if code == 404 => "Not Found",
+                400 | 404 => "Other Client Error",
+                500 => "Server Error",
+                _ => "Unknown"
+            };
         }
         expect(describeHttpCode(200)).toBe("Success");
         expect(describeHttpCode(201)).toBe("Success");
@@ -95,7 +92,6 @@ await describe("93 match guards spread predicates", async () => {
 
         expect(describeHttpCode(500)).toBe("Server Error");
         expect(describeHttpCode(999)).toBe("Unknown");
-        
 
         const defaults = #{ host: "127.0.0.1", port: 8080, debug: false };
         const config = #{ ...(defaults with { port: 9000 }), secure: true };
@@ -103,7 +99,6 @@ await describe("93 match guards spread predicates", async () => {
         expect(config.port).toBe(9000);
         expect(config.debug).toBe(false);
         expect(config.secure).toBe(true);
-        
     });
 
     await it("Multiple object spreads merging in ord / Array spread element merging and cloni", async () => {
@@ -115,7 +110,6 @@ await describe("93 match guards spread predicates", async () => {
         expect(combined.shared).toBe("fromA");
         expect(combined.other).toBe("fromB");
         expect(combined.c).toBe(3);
-        
 
         const head = [1, 2];
         const tail = [4, 5];
@@ -129,14 +123,12 @@ await describe("93 match guards spread predicates", async () => {
         expect(fullList[4]).toBe(4);
         expect(fullList[5]).toBe(5);
         expect(fullList[6]).toBe(6);
-        
     });
 
     await it("Type predicate narrows dynamic in cond / Type predicate in ternary expressions", async () => {
         expect(processValue("varn")).toBe("string: VARN");
         expect(processValue(21)).toBe("int: 42");
         expect(processValue(true)).toBe("other");
-        
 
         const itemA: dynamic = "test";
         const resA = isStr(itemA) ? itemA.length : 0;
@@ -144,7 +136,6 @@ await describe("93 match guards spread predicates", async () => {
         const itemB: dynamic = 123;
         const resB = isStr(itemB) ? itemB.length : -1;
         expect(resB).toBe(-1);
-        
     });
 
     await it("Cast custom enum variants to integer / Cast sequential zero-indexed enums to ", async () => {
@@ -154,7 +145,6 @@ await describe("93 match guards spread predicates", async () => {
         const codeNotFound = notFoundVal as int;
         expect(codeOk).toBe(200);
         expect(codeNotFound).toBe(404);
-        
 
         const r = Color.Red as int;
         const g = Color.Green as int;
@@ -162,10 +152,5 @@ await describe("93 match guards spread predicates", async () => {
         expect(r).toBe(0);
         expect(g).toBe(1);
         expect(b).toBe(2);
-        
     });
-
-        
-
-
 });

@@ -9,12 +9,12 @@ export struct CsvOptions {
 }
 
 export namespace Csv {
-    export function parse<T = Map<str, CsvValue>>(text: str, options?: CsvOptions): T[] {
+    export function parse<T = Map<str, CsvValue >> (text: str, options?: CsvOptions): T[] {
         let delim = ",";
         let hasHeader = true;
         let trim = true;
 
-        if (options != null) {
+        if(options != null) {
             // Los miembros de CsvOptions son opcionales (`T?`): su lectura
             // da null cuando el campo no vino. `??` aplica el default.
             delim = options.delimiter ?? delim;
@@ -28,7 +28,7 @@ export namespace Csv {
     export function stringify<T>(rows: T[], options?: CsvOptions): str {
         let delim = ",";
 
-        if (options != null) {
+        if(options != null) {
             delim = options.delimiter ?? delim;
         }
 

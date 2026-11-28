@@ -30,10 +30,16 @@ const dObj: dynamic = #{ alpha: 1 }
 
 await describe("142 jit operators beyond native types", async () => {
     await it("str equality, int? negation and is on a dynamic run compiled", async () => {
-        for (let i = 0; i < 3000; i = i + 1) {
-            if (strEquals(`key-${(i % 2)}`, "key-0")) { dStr = dStr + 1 }
-            if (intNot(i % 3 == 0 ? null : i % 3)) { dIntNot = dIntNot + 1 }
-            if (dynIs(i % 2 == 0 ? dShape : dObj)) { dIs = dIs + 1 }
+        for(let i = 0; i < 3000; i = i + 1) {
+            if(strEquals(`key-${(i % 2)}`, "key-0")) {
+                dStr = dStr + 1
+            }
+            if(intNot(i % 3 == 0 ? null : i % 3)) {
+                dIntNot = dIntNot + 1
+            }
+            if(dynIs(i % 2 == 0 ? dShape : dObj)) {
+                dIs = dIs + 1
+            }
         }
         expect(dStr).toBe(1500);
         expect(dIntNot).toBe(1000);

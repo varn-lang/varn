@@ -3,17 +3,33 @@ import { describe, it, expect } from "std:test";
 class Node {
     value: int
     next: Node?
-    constructor(value: int, next: Node? = null) { this.value = value; this.next = next }
+    constructor(value: int, next: Node? = null) {
+        this.value = value;
+        this.next = next
+    }
 }
 
-function filled(x: int?): int { x ??= 5; return x }
-function named(x: str?): str { x ??= "none"; return x }
-function assigned(x: int?): int { x = 7; return x + 1 }
-function listed(m: Map<str, int[]>, k: str): int[] { let xs = m[k]; xs ??= []; return xs }
+function filled(x: int?): int {
+    x ??= 5;
+    return x
+}
+function named(x: str?): str {
+    x ??= "none";
+    return x
+}
+function assigned(x: int?): int {
+    x = 7;
+    return x + 1
+}
+function listed(m: Map<str, int[]>, k: str): int[] {
+    let xs = m[k];
+    xs ??= [];
+    return xs
+}
 function total(head: Node?): int {
     let sum = 0
     let at = head
-    while (at != null) {
+    while(at != null) {
         sum = sum + at.value
         at = at.next
     }
@@ -22,26 +38,32 @@ function total(head: Node?): int {
 function lastValue(head: Node): int {
     let at: Node? = head
     let seen = 0
-    while (at != null) {
+    while(at != null) {
         seen = at.value
         at = at.next
     }
     return seen
 }
 function size(x: int | str): int {
-    if (x is int) { return x }
+    if(x is int) {
+        return x
+    }
     return x.length
 }
 function name(x: int | str | bool): str {
-    if (x is str) { return x }
-    if (!(x is int)) {
+    if(x is str) {
+        return x
+    }
+    if(!(x is int)) {
         const flag: bool = x
         return flag ? "yes" : "no"
     }
-    return (x + 1).toString()
+    return(x + 1).toString()
 }
 function reset(x: str?): int {
-    if (x == null) { return 0 }
+    if(x == null) {
+        return 0
+    }
     const before = x.length
     x = null
     return before + (x?.length ?? 100)
@@ -50,7 +72,9 @@ function reset(x: str?): int {
 await describe("192 narrowing follows assignment", async () => {
     await it("filling a nullable variable makes it present", () => {
         let sum = 0
-        for (let i = 0; i < 300; i = i + 1) { sum = sum + filled(null) + filled(i) + assigned(null) }
+        for(let i = 0; i < 300; i = i + 1) {
+            sum = sum + filled(null) + filled(i) + assigned(null)
+        }
         expect(sum).toBe(300 * 5 + 44850 + 300 * 8)
         expect(named(null)).toBe("none")
         expect(named("x")).toBe("x")
@@ -66,7 +90,9 @@ await describe("192 narrowing follows assignment", async () => {
 
     await it("ruling a type out with leaves::type the others", () => {
         let total = 0
-        for (let i = 0; i < 300; i = i + 1) { total = total + size(i) + size("ab") }
+        for(let i = 0; i < 300; i = i + 1) {
+            total = total + size(i) + size("ab")
+        }
         expect(total).toBe(44850 + 600)
         expect(name("s") + name(true) + name(false) + name(4)).toBe("syesno5")
     })

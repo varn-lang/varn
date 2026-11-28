@@ -1,62 +1,119 @@
 import {
-    Column, Row, Text, Title, Headline, Caption, Card, Button, ButtonKind, Checkbox, Each, Progress, Divider, Spacer,
-    State, Signal, Computed, Effect, signal, computed, effect, component, run, Widget, MainAxis, Theme, UiFrame, Focus
+    Column,
+    Row,
+    Text,
+    Title,
+    Headline,
+    Caption,
+    Card,
+    Button,
+    ButtonKind,
+    Checkbox,
+    Each,
+    Progress,
+    Divider,
+    Spacer,
+    State,
+    Signal,
+    Computed,
+    Effect,
+    signal,
+    computed,
+    effect,
+    component,
+    run,
+    Widget,
+    MainAxis,
+    Theme,
+    UiFrame,
+    Focus,
 } from "std:ui";
 
 type Todo = #{ id: int, title: str, done: bool };
-const counterState = new State<Signal<int>>();
+const counterState = new State<Signal<int >> ();
 const counterEffect = new State<Effect>();
-const todosState = new State<Signal<Todo[]>>();
-const remainingState = new State<Computed<int>>();
+const todosState = new State<Signal<Todo[] >> ();
+const remainingState = new State<Computed<int >> ();
 
 @component()
 function Counter(start: int = 0): Widget {
     const count = counterState.get(() => signal(start));
     counterEffect.get(() => effect(() => print(`count is now ${count.value}`)));
 
-    return Card([
-        Row([Text(`${count.value}`, size: 40.0), Caption(`x2 = ${count.value * 2}`)], mainAxis: MainAxis.spaceBetween),
-        Row([
-            Button("-1", () => count.update((n: int): int => n - 1)),
-            Button("+1", () => count.update((n: int): int => n + 1)),
-            Spacer(),
-            Button("reset", () => count.set(start), kind: ButtonKind.subtle, enabled: count.value != start)
-        ])
-    ], title: "Counter");
+    return Card(
+        [
+            Row(
+                [Text(`${count.value}`, size: 40.0), Caption(`x2 = ${count.value * 2}`)],
+                mainAxis: MainAxis.spaceBetween,
+            ),
+            Row([
+                Button("-1", () => count.update((n: int): int => n - 1)),
+                Button("+1", () => count.update((n: int): int => n + 1)),
+                Spacer(),
+                Button(
+                    "reset",
+                    () => count.set(start),
+                    kind: ButtonKind.subtle,
+                    enabled: count.value != start,
+                ),
+            ]),
+        ],
+        title: "Counter",
+    );
 }
 
 @component()
 function TodoList(): Widget {
-    const todos = todosState.get(() => signal<Todo[]>([
-        #{ id: 1, title: "write a component", done: true },
-        #{ id: 2, title: "keep its state between frames", done: false },
-        #{ id: 3, title: "ship it", done: false }
-    ]));
-    const remaining = remainingState.get(() => computed(() => todos.value.filter((t: Todo) => !t.done).length));
+    const todos = todosState.get(
+        () => signal<Todo[]>([
+            #{ id: 1, title: "write a component", done: true },
+            #{ id: 2, title: "keep its state between frames", done: false },
+            #{ id: 3, title: "ship it", done: false },
+        ]),
+    );
+    const remaining = remainingState.get(
+        () => computed(() => todos.value.filter((t: Todo) => !t.done).length),
+    );
 
-    const toggle = (id: int): void => todos.update((all: Todo[]): Todo[] =>
-        all.map((t: Todo): Todo => t.id == id ? #{ id: t.id, title: t.title, done: !t.done } : t)
+    const toggle = (id: int): void => todos.update(
+        (all: Todo[]): Todo[] => all.map(
+            (t: Todo): Todo => t.id == id ? #{ id: t.id, title: t.title, done: !t.done } : t,
+        ),
     );
 
     return Card([
         Row([Title("Todos"), Caption(`${remaining.value} left`)], mainAxis: MainAxis.spaceBetween),
         Divider(),
-        Each(todos.value, (t: Todo): str => `${t.id}`, (t: Todo, at: int) => Row([
-            Checkbox(t.done, onChange: (next: bool) => toggle(t.id)),
-            Text(t.title, color: t.done ? Theme.colors.muted : Theme.colors.onSurface)
-        ]), gap: 10.0)
+        Each(
+            todos.value,
+            (t: Todo): str => `${t.id}`,
+            (t: Todo, at: int) => Row([
+                Checkbox(t.done, onChange: (next: bool) => toggle(t.id)),
+                Text(t.title, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
+            ]),
+            gap: 10.0,
+        ),
     ]);
 }
 
 @component()
 function Dashboard(): Widget {
-    return Column([
-        Row([Headline("Dashboard"), Caption("Varn ui")], mainAxis: MainAxis.spaceBetween),
-        Counter(start: 10),
-        Progress(0.4),
-        TodoList()
-    ], pad: 24.0, gap: 16.0);
+    return Column(
+        [
+            Row([Headline("Dashboard"), Caption("Varn ui")], mainAxis: MainAxis.spaceBetween),
+            Counter(start: 10),
+            Progress(0.4),
+            TodoList(),
+        ],
+        pad: 24.0,
+        gap: 16.0,
+    );
 }
 
-run("Varn declarative ui", build: (fr: UiFrame, focus: Focus): Widget => Dashboard(), w: 560, h: 640);
+run(
+    "Varn declarative ui",
+    build: (fr: UiFrame, focus: Focus): Widget => Dashboard(),
+    w: 560,
+    h: 640,
+);
 print("declarative demo done");

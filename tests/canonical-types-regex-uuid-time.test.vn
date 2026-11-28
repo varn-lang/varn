@@ -5,7 +5,6 @@ import { describe, it, expect } from "std:test";
 // ==========================================
 // 1. Regex (Inmutable & Stateless)
 // ==========================================
-
 let reEmail = new Regex("^([a-zA-Z0-9_\\.-]+)@([a-zA-Z0-9\\.-]+)\\.([a-zA-Z]{2,6})$");
 
 // Exec with capture groups
@@ -29,16 +28,13 @@ let reWord = new Regex("test");
 // ==========================================
 // 2. UUID (v4 & v7)
 // ==========================================
-
 let idV4 = Uuid.v4();
 
 let idV7 = Uuid.v7();
 
-
 // ==========================================
 // 3. DateTime & Duration (Canonical Time Types)
 // ==========================================
-
 let nowDt = DateTime.now();
 
 let iso = nowDt.toISOString();
@@ -56,7 +52,7 @@ await describe("83 canonical types regex uuid time", async () => {
         expect(reEmail.test("dev@varn-lang.org")).toBe(true);
         expect(reEmail.test("invalid-email-format")).toBe(false);
         expect(matchRes != null).toBeTruthy();
-        if (matchRes != null) {
+        if(matchRes != null) {
             expect(matchRes.match).toBe("contact@google.com");
             expect(matchRes.index).toBe(0);
             expect(matchRes.groups.length).toBe(3);
@@ -95,9 +91,7 @@ await describe("83 canonical types regex uuid time", async () => {
         expect(dur1.seconds).toBe(5);
         expect(durSum.totalMilliseconds).toBe(7500);
         expect(pdt.year).toBe(2026);
-                expect(pdt.month).toBe(8);; // Mes canónico 8 (Agosto), NUNCA base 0
+        expect(pdt.month).toBe(8);; // Mes canónico 8 (Agosto), NUNCA base 0
         expect(pdt.day).toBe(22);
     });
-
-
 });

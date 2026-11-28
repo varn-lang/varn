@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // Salir de un `try { } catch { }` por `break`, `continue` o `return` debe
 // cerrar la región guardada.
 //
@@ -16,13 +15,14 @@ import { describe, it, expect } from "std:test";
 // no existe, la VM lee registros fuera de rango y revienta; cuando existe a
 // medias, el error desaparece sin mensaje y el proceso sale con código 0 —
 // un programa que debe fallar reporta éxito.
-
 let testigo = 0;
 
 function conBreak(): void {
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
-            if (i == 1) { break; }
+            if(i == 1) {
+                break;
+            }
         } catch (e) {
             // Inalcanzable: nada lanza aquí dentro.
             testigo = testigo + 1;
@@ -31,9 +31,11 @@ function conBreak(): void {
 }
 
 function conContinue(): void {
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
-            if (i == 1) { continue; }
+            if(i == 1) {
+                continue;
+            }
         } catch (e) {
             testigo = testigo + 1;
         }
@@ -41,9 +43,11 @@ function conContinue(): void {
 }
 
 function conReturn(): void {
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
-            if (i == 1) { return; }
+            if(i == 1) {
+                return;
+            }
         } catch (e) {
             testigo = testigo + 1;
         }
@@ -53,9 +57,15 @@ function conReturn(): void {
 // Lanza DESPUÉS de haber salido de la región por la vía temprana. Si quedó un
 // handler colgante, éste se traga el error y el `catch` de fuera nunca corre.
 function lanzaTrasSalir(via: str): void {
-    if (via == "break") { conBreak(); }
-    if (via == "continue") { conContinue(); }
-    if (via == "return") { conReturn(); }
+    if(via == "break") {
+        conBreak();
+    }
+    if(via == "continue") {
+        conContinue();
+    }
+    if(via == "return") {
+        conReturn();
+    }
     throw new Error("debe llegar al catch del llamante");
 }
 
@@ -73,11 +83,12 @@ function capturaEnElSitioCorrecto(via: str): bool {
 // fallo estaría en el mecanismo de salida entero y no en el `try/catch` pelado.
 function conBreakYFinally(): int {
     let pasos = 0;
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
-            if (i == 1) { break; }
-        } catch (e) {
-        } finally {
+            if(i == 1) {
+                break;
+            }
+        } catch (e) {} finally {
             pasos = pasos + 1;
         }
     }
@@ -110,36 +121,41 @@ function lanzaYCapturaTrasBreak(): bool {
 // mentiroso; `merge_blocks` confiaba en él para fusionar de más, y el
 // verificador de SSA lo cazaba más adelante. Arreglado en el propio pase:
 // ver comentario de `jump_forwarding` en crates/vn-compiler/src/passes/cfg.rs.
-
 function vacioConBreak(): int {
     let pasos = 0;
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
             pasos = pasos + 1;
-            if (i == 1) { break; }
-        } catch (e) { }
+            if(i == 1) {
+                break;
+            }
+        } catch (e) {}
     }
     return pasos;
 }
 
 function vacioConReturn(): int {
     let pasos = 0;
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
             pasos = pasos + 1;
-            if (i == 1) { return pasos; }
-        } catch (e) { }
+            if(i == 1) {
+                return pasos;
+            }
+        } catch (e) {}
     }
     return -1;
 }
 
 function vacioConContinue(): int {
     let pasos = 0;
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         try {
-            if (i == 1) { continue; }
+            if(i == 1) {
+                continue;
+            }
             pasos = pasos + 1;
-        } catch (e) { }
+        } catch (e) {}
     }
     return pasos;
 }
@@ -150,11 +166,13 @@ function vacioConContinue(): int {
 function retornaFueraDeBucle(): int {
     try {
         return 42;
-    } catch (e) { }
+    } catch (e) {}
     return -1;
 }
 let depth: int[] = []
-function depthNow(): int { return depth.length }
+function depthNow(): int {
+    return depth.length
+}
 function returnReadsBeforeFinally(): int {
     depth.push(1)
     try {
@@ -175,26 +193,24 @@ function returnInCatchReadsBeforeFinally(): int {
 }
 await describe("78 try early exit", async () => {
     await it("tests", async () => {
-        
         expect(capturaEnElSitioCorrecto("break")).toBeTruthy()
         expect(capturaEnElSitioCorrecto("continue")).toBeTruthy()
         expect(capturaEnElSitioCorrecto("return")).toBeTruthy()
-        
+
         expect(conBreakYFinally()).toBe(2)
-        
+
         expect(lanzaYCapturaTrasBreak()).toBeTruthy()
-        
+
         expect(vacioConBreak()).toBe(2)
-        
+
         expect(vacioConReturn()).toBe(2)
-        
+
         expect(vacioConContinue()).toBe(2)
-        
+
         expect(retornaFueraDeBucle()).toBe(42)
 
         expect(returnReadsBeforeFinally()).toBe(1)
         expect(returnInCatchReadsBeforeFinally()).toBe(1)
         expect(depth.length).toBe(0)
-        
     });
 });

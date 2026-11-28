@@ -29,7 +29,7 @@ export class Navigator<T> {
     }
 
     pop(): void {
-        if (this.canGoBack) {
+        if(this.canGoBack) {
             this._pages.update((pages: T[]): T[] => pages.slice(0, pages.length - 1));
         }
     }

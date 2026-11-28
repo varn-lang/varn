@@ -1,7 +1,6 @@
 import { Query, Url } from "std:net";
 import { describe, it, expect } from "std:test";
 
-
 // 1. Query basic operations
 let params = new Query("foo=1&bar=2&foo=3");
 
@@ -16,7 +15,7 @@ let rel2 = Url.resolve(base, "/auth/login?redirect=dashboard#section");
 
 let absUrl = Url.resolve(base, "http://other.org/test");
 await describe("99 stdlib net urlsearchparams", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         expect(params.get("foo")).toBe("1");
         expect(params.get("bar")).toBe("2");
         expect(params.getAll("foo").length).toBe(2);
@@ -44,6 +43,4 @@ await describe("99 stdlib net urlsearchparams", async () => {
         expect(rel2.toString()).toBe("https://example.com/auth/login?redirect=dashboard#section");
         expect(absUrl.toString()).toBe("http://other.org/test");
     });
-
-
 });

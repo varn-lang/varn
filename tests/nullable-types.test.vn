@@ -4,16 +4,16 @@ function identity(x: int?): int? {
     return x;
 }
 function first(arr: int?[]?): int? {
-    if (arr == null) return null;
-    if (arr.length == 0) return null;
+    if(arr == null) return null;
+    if(arr.length == 0) return null;
     return arr[0];
 }
 function wrap(x: int): int[]? {
-    if (x < 0) return null;
+    if(x < 0) return null;
     return [x];
 }
 function matrix(flag: bool): int?[][]? {
-    if (!flag) return null;
+    if(!flag) return null;
     return [[1, null], [null, 2]];
 }
 

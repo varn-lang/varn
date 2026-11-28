@@ -3,15 +3,15 @@ import { readLine } from "std:io";
 export namespace Prompt {
     export function ask(message: str, defaultValue?: str): str {
         let suffix = "";
-        if (defaultValue != null) {
+        if(defaultValue != null) {
             const dv = defaultValue as str;
-            if (dv != "") {
+            if(dv != "") {
                 suffix = " [" + dv + "]";
             }
         }
         let input = readLine(message + suffix + ": ");
         let trimmed = input.trim();
-        if (trimmed == "" && defaultValue != null) {
+        if(trimmed == "" && defaultValue != null) {
             return defaultValue as str;
         }
         return trimmed;
@@ -20,10 +20,14 @@ export namespace Prompt {
     export function confirm(message: str, defaultValue: bool = false): bool {
         let hint = defaultValue ? " [Y/n]: " : " [y/N]: ";
         let response = readLine(message + hint).trim().toLowerCase();
-        if (response == "") {
+        if(response == "") {
             return defaultValue;
         }
-        return response == "y" || response == "yes" || response == "true" || response == "s" || response == "si";
+        return response == "y" ||
+            response == "yes" ||
+            response == "true" ||
+            response == "s" ||
+            response == "si";
     }
 
     export function password(message: str): str {

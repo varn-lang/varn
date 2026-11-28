@@ -1,22 +1,39 @@
 import { describe, it, expect } from "std:test";
 
-class A { x: int = 1 }
-class B { x: int = 1 }
+class A {
+    x: int = 1
+}
+class B {
+    x: int = 1
+}
 class Base {}
 class Derived extends Base {}
 
 function kind(v: dynamic): str {
-    if (v is A) { return "A" }
-    if (v is B) { return "B" }
+    if(v is A) {
+        return "A"
+    }
+    if(v is B) {
+        return "B"
+    }
     return "none"
 }
 
-function add(a: int, b: int): int { return a + b }
+function add(a: int, b: int): int {
+    return a + b
+}
 
 function caught(f: () => void): str {
-    try { f(); return "none" } catch (e) {
-        if (e is IntegerOverflow) { return "overflow" }
-        if (e is DivisionByZero) { return "zero" }
+    try {
+        f();
+        return "none"
+    } catch (e) {
+        if(e is IntegerOverflow) {
+            return "overflow"
+        }
+        if(e is DivisionByZero) {
+            return "zero"
+        }
         return "other"
     }
 }
@@ -36,8 +53,12 @@ await describe("340 is tests identity", async () => {
     })
 
     await it("native error classes are told apart", () => {
-        expect(caught(() => { 1 / 0 })).toBe("zero")
-        expect(caught(() => { add(9223372036854775807, 1) })).toBe("overflow")
+        expect(caught(() => {
+            1 / 0
+        })).toBe("zero")
+        expect(caught(() => {
+            add(9223372036854775807, 1)
+        })).toBe("overflow")
     })
 
     await it("builtin kinds are tested by kind", () => {

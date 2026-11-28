@@ -1,5 +1,15 @@
 import { describe, it, expect, summary } from "std:test";
-import { join, dirname, basename, extname, normalize, isAbsolute, resolve, Path, SEP } from "std:path";
+import {
+    join,
+    dirname,
+    basename,
+    extname,
+    normalize,
+    isAbsolute,
+    resolve,
+    Path,
+    SEP,
+} from "std:path";
 
 await describe("example std:path", async () => {
     await it("joins and splits paths", () => {

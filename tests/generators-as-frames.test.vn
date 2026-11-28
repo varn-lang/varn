@@ -3,8 +3,11 @@ import { spawn } from "std:task";
 
 function* counterWithClosure() {
     let n = 0
-    const bump = (): int => { n = n + 1; return n }
-    while (n < 3) {
+    const bump = (): int => {
+        n = n + 1;
+        return n
+    }
+    while(n < 3) {
         yield bump()
     }
     yield n * 10
@@ -32,16 +35,16 @@ function* inner(base: int) {
 }
 
 function* outer() {
-    for (const v in inner(10)) {
+    for(const v in inner(10)) {
         yield v * 2
     }
-    for (const v in inner(20)) {
+    for(const v in inner(20)) {
         yield v * 2
     }
 }
 
 async function* slowCount() {
-    for (let i = 0; i < 3; i = i + 1) {
+    for(let i = 0; i < 3; i = i + 1) {
         await spawn((async () => i)())
         yield i
     }
@@ -49,7 +52,7 @@ async function* slowCount() {
 
 function collect(g: Generator<int>): int[] {
     let out: int[] = []
-    while (const item = g.next()) {
+    while(const item = g.next()) {
         out.push(item)
     }
     return out
@@ -59,7 +62,7 @@ await describe("225 generators as frames", async () => {
     await it("a closure capturing a generator local sees it across yields", async () => {
         const g = counterWithClosure()
         let seen: int[] = []
-        for (let i = 0; i < 200; i = i + 1) {
+        for(let i = 0; i < 200; i = i + 1) {
             const fresh = counterWithClosure()
             seen = collect(fresh)
         }
@@ -69,7 +72,7 @@ await describe("225 generators as frames", async () => {
 
     await it("a try region spans a yield", async () => {
         let last: dynamic = ""
-        for (let i = 0; i < 200; i = i + 1) {
+        for(let i = 0; i < 200; i = i + 1) {
             const g = guarded()
             g.next()
             last = g.next()!
@@ -80,7 +83,7 @@ await describe("225 generators as frames", async () => {
     await it("an error thrown by the body reaches the caller and ends the generator", async () => {
         let msg = ""
         let after = false
-        for (let i = 0; i < 200; i = i + 1) {
+        for(let i = 0; i < 200; i = i + 1) {
             const g = failing()
             g.next()
             try {
@@ -96,7 +99,7 @@ await describe("225 generators as frames", async () => {
 
     await it("generators driven from inside a generator keep their own state", async () => {
         let got = ""
-        for (let i = 0; i < 200; i = i + 1) {
+        for(let i = 0; i < 200; i = i + 1) {
             got = collect(outer()).join(",")
         }
         expect(got).toBe("22,24,42,44")

@@ -54,9 +54,8 @@ await describe("Extended FFI API", async () => {
 
     await it("Dynamic library loading, binding and calling native functions", () => {
         let os = platform();
-        let libName = os == "windows" ? "kernel32.dll"
-                    : os == "macos"   ? "libSystem.B.dylib"
-                    :                   "libc.so.6";
+        let libName =
+            os == "windows" ? "kernel32.dll" : os == "macos" ? "libSystem.B.dylib" : "libc.so.6";
         let fnName = os == "windows" ? "GetCurrentProcessId" : "getpid";
 
         let lib = Ffi.open(libName);

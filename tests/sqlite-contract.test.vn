@@ -5,7 +5,9 @@ import { ClosedError, SqlError, SqlConstraintError } from "std:error";
 @capability("fs.read", "fs.write")
 function seeded(): Database {
     const db = new Database(":memory:");
-    db.script("CREATE TABLE owner (id INTEGER PRIMARY KEY); CREATE TABLE pet (id INTEGER PRIMARY KEY, name TEXT UNIQUE, owner_id INTEGER REFERENCES owner(id), photo BLOB, weight REAL)");
+    db.script(
+        "CREATE TABLE owner (id INTEGER PRIMARY KEY); CREATE TABLE pet (id INTEGER PRIMARY KEY, name TEXT UNIQUE, owner_id INTEGER REFERENCES owner(id), photo BLOB, weight REAL)",
+    );
     db.exec("INSERT INTO owner (id) VALUES (?)", 1);
     return db;
 }
@@ -13,8 +15,12 @@ function seeded(): Database {
 await describe("300 sqlite contract", async () => {
     await it("exec reports the rows it changed", async () => {
         const db = seeded();
-        expect(db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 1, "rex", 1)).toBe(1);
-        expect(db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 2, "tom", 1)).toBe(1);
+        expect(db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 1, "rex", 1)).toBe(
+            1,
+        );
+        expect(db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 2, "tom", 1)).toBe(
+            1,
+        );
         expect(db.exec("UPDATE pet SET weight = ?", 3.5)).toBe(2);
         expect(db.exec("DELETE FROM pet WHERE id = ?", 99)).toBe(0);
         db.close();
@@ -22,11 +28,17 @@ await describe("300 sqlite contract", async () => {
 
     await it("rows keep the column order and the column types", async () => {
         const db = seeded();
-        db.exec("INSERT INTO pet (id, name, owner_id, weight) VALUES (?, ?, ?, ?)", 7, "rex", 1, 2.5);
+        db.exec(
+            "INSERT INTO pet (id, name, owner_id, weight) VALUES (?, ?, ?, ?)",
+            7,
+            "rex",
+            1,
+            2.5,
+        );
         const row = db.get("SELECT name, id, weight, photo FROM pet WHERE id = ?", 7);
         expect(row != null).toBe(true);
         let order = "";
-        for (const #[column, value] in row!) {
+        for(const #[column, value] in row!) {
             order = order + (order.length == 0 ? "" : ",") + column;
         }
         expect(order).toBe("name,id,weight,photo");
@@ -39,7 +51,12 @@ await describe("300 sqlite contract", async () => {
 
     await it("a blob round-trips as Bytes, not as hex text", async () => {
         const db = seeded();
-        db.exec("INSERT INTO pet (id, name, photo) VALUES (?, ?, ?)", 1, "rex", Bytes.fromString("png!"));
+        db.exec(
+            "INSERT INTO pet (id, name, photo) VALUES (?, ?, ?)",
+            1,
+            "rex",
+            Bytes.fromString("png!"),
+        );
         const row = db.get("SELECT photo FROM pet WHERE id = 1");
         expect((row!.get("photo") as Bytes).toString()).toBe("png!");
         db.close();
@@ -113,9 +130,21 @@ await describe("300 sqlite contract", async () => {
         db.close();
         expect(db.isOpen).toBe(false);
         let closed = 0;
-        try { db.exec("DELETE FROM pet"); } catch (e: ClosedError) { closed = closed + 1; }
-        try { db.all("SELECT 1"); } catch (e: ClosedError) { closed = closed + 1; }
-        try { db.get("SELECT 1"); } catch (e: ClosedError) { closed = closed + 1; }
+        try {
+            db.exec("DELETE FROM pet");
+        } catch (e: ClosedError) {
+            closed = closed + 1;
+        }
+        try {
+            db.all("SELECT 1");
+        } catch (e: ClosedError) {
+            closed = closed + 1;
+        }
+        try {
+            db.get("SELECT 1");
+        } catch (e: ClosedError) {
+            closed = closed + 1;
+        }
         expect(closed).toBe(3);
     });
 

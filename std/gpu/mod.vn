@@ -5,7 +5,7 @@ export {
     engine,
     isAvailable,
     GpuInfo,
-    getInfo
+    getInfo,
 } from "std:gpu/device";
 
 export { GpuBuffer } from "std:gpu/buffer";

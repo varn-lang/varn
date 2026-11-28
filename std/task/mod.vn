@@ -1,4 +1,3 @@
-
 export {
     channel,
     spawnIsolate,
@@ -6,11 +5,11 @@ export {
     Receiver,
     Channel,
     ChannelClosed,
-    IsolateHandle
+    IsolateHandle,
 } from "std:task/channel";
 
 export {
-    TaskGroup
+    TaskGroup,
 } from "std:task/group";
 
 export {
@@ -21,15 +20,14 @@ export {
     Task,
     delay,
     setTimeout,
-    clearTimeout
+    clearTimeout,
 } from "std:task/combinators";
 
 export {
     Mutex,
     Semaphore,
     WaitGroup,
-    RateLimiter
+    RateLimiter,
 } from "std:task/sync";
 
 export { Cron, CronSpec } from "std:task/cron";
-

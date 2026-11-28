@@ -1,41 +1,85 @@
 import { describe, it, expect } from "std:test";
 import {
-    UiWindow, UiFrame, Focus, Widget, render, present, FlexNode, TextNode, BoxNode, PaddingNode, Axis, TextAlign,
-    Column, Row, Text, Box, Padding, Stack, SizedBox, Spacer, Button, Field, Each,
-    Signal, Computed, Effect, State, signal, computed, effect, component,
-    TextStyle, MainAxis, CrossAxis, Alignment, BoxFit, Colors, Theme,
-    textSizeFor, textColorFor, run
+    UiWindow,
+    UiFrame,
+    Focus,
+    Widget,
+    render,
+    present,
+    FlexNode,
+    TextNode,
+    BoxNode,
+    PaddingNode,
+    Axis,
+    TextAlign,
+    Column,
+    Row,
+    Text,
+    Box,
+    Padding,
+    Stack,
+    SizedBox,
+    Spacer,
+    Button,
+    Field,
+    Each,
+    Signal,
+    Computed,
+    Effect,
+    State,
+    signal,
+    computed,
+    effect,
+    component,
+    TextStyle,
+    MainAxis,
+    CrossAxis,
+    Alignment,
+    BoxFit,
+    Colors,
+    Theme,
+    textSizeFor,
+    textColorFor,
+    run,
 } from "std:ui";
 import { MOUSE_LEFT, UiInjectKind, expanded } from "std:ui";
 import { beginFrame, endFrame } from "std:ui/state";
 
 let boots = 0;
-const clickState = new State<Signal<int>>();
-const labelState = new State<Computed<str>>();
+const clickState = new State<Signal<int >> ();
+const labelState = new State<Computed<str >> ();
 const bootState = new State<Effect>();
-const reorderState = new State<Signal<int>>();
-const conditionalState = new State<Computed<int>>();
-const stableState = new State<Signal<int>>();
+const reorderState = new State<Signal<int >> ();
+const conditionalState = new State<Computed<int >> ();
+const stableState = new State<Signal<int >> ();
 
 @component()
 function Clicker(): Widget {
     const clicks = clickState.get(() => signal(0));
     const label = labelState.get(() => computed(() => `clicks: ${clicks.value}`));
-    bootState.get(() => effect(() => { boots = boots + 1; }));
+    bootState.get(() => effect(() => {
+        boots = boots + 1;
+    }));
     return Column(children: [
         Text(label.value),
-        Button(label: "more", onPress: () => { clicks.value = clicks.value + 1; })
+        Button(label: "more", onPress: () => {
+            clicks.value = clicks.value + 1;
+        }),
     ]);
 }
 
-function flex(w: Widget): FlexNode { return w as FlexNode; }
-function label(w: Widget): TextNode { return w as TextNode; }
+function flex(w: Widget): FlexNode {
+    return w as FlexNode;
+}
+function label(w: Widget): TextNode {
+    return w as TextNode;
+}
 
 let reorder = false;
 
 @component()
 function Reordering(): Widget {
-    if (reorder) {
+    if(reorder) {
         conditionalState.get(() => computed(() => 1));
     }
     const kept = reorderState.get(() => signal(0));
@@ -51,16 +95,12 @@ function Stable(): Widget {
 
 type Todo = #{
     id: int;
-    title: str
+    title: str;
 };
 
 @component()
 function Counter(): Widget {
-    return Column(
-        children: [
-            Text("Counter")
-        ]
-    );
+    return Column(children: [Text("Counter")]);
 }
 
 @component()
@@ -69,30 +109,20 @@ function Dashboard(): Widget {
         gap: 16.0,
         pad: 24.0,
         children: [
-            Text(
-                "Dashboard",
-                style: TextStyle.title
-            ),
+            Text("Dashboard", style: TextStyle.title),
             Row(
                 gap: 12.0,
                 mainAxis: MainAxis.spaceBetween,
-                children: [
-                    Text("Revenue"),
-                    Text("$24,500")
-                ]
-            )
-        ]
+                children: [Text("Revenue"), Text("$24,500")],
+            ),
+        ],
     );
 }
 
 @component()
 function ConnectionStatus(): Widget {
     const connected = signal(false);
-    return Column(
-        children: [
-            Text(connected.value ? "Connected" : "Disconnected")
-        ]
-    );
+    return Column(children: [Text(connected.value ? "Connected" : "Disconnected")]);
 }
 
 @component()
@@ -133,9 +163,7 @@ await describe("220 ui declarative", async () => {
     await it("connection status flips on signal", () => {
         const connected = signal(false);
         const build = (): Widget => Column(
-            children: [
-                Text(connected.value ? "Connected" : "Disconnected")
-            ]
+            children: [Text(connected.value ? "Connected" : "Disconnected")],
         );
         expect(label(expanded(flex(build()).children[0])).text).toBe("Disconnected");
         connected.value = true;
@@ -145,7 +173,11 @@ await describe("220 ui declarative", async () => {
 
     await it("each keeps stable order with keys", () => {
         const todos: Todo[] = [#{ id: 1, title: "a" }, #{ id: 2, title: "b" }];
-        const list = Each(todos, (t: Todo): str => t.title, (t: Todo, index: int) => TodoRow(todo: t));
+        const list = Each(
+            todos,
+            (t: Todo): str => t.title,
+            (t: Todo, index: int) => TodoRow(todo: t),
+        );
         expect(list is FlexNode).toBe(true);
         expect(flex(list).children.length).toBe(2);
         expect(label(expanded(flex(list).children[0])).text).toBe("a");
@@ -159,7 +191,13 @@ await describe("220 ui declarative", async () => {
         const focus = new Focus();
         const hits: bool[] = [];
         const tree = Column(children: [
-            Button(label: "no", onPress: () => { hits.push(true); }, enabled: false)
+            Button(
+                label: "no",
+                onPress: () => {
+                    hits.push(true);
+                },
+                enabled: false,
+            ),
         ]);
         renderTree(win, fr, focus, tree);
         present(win, fr);
@@ -174,7 +212,9 @@ await describe("220 ui declarative", async () => {
         expect(hits.length).toBe(0);
         const hits2: bool[] = [];
         const tree2 = Column(children: [
-            Button(label: "yes", onPress: () => { hits2.push(true); })
+            Button(label: "yes", onPress: () => {
+                hits2.push(true);
+            }),
         ]);
         const fr2 = new UiFrame(800, 600);
         const focus2 = new Focus();
@@ -218,11 +258,17 @@ await describe("220 ui declarative", async () => {
 
     await it("a component keeps its signals between frames", () => {
         const seen: str[] = [];
-        run("t", build: (fr: UiFrame, focus: Focus): Widget => {
-            const tree = expanded(Clicker());
-            seen.push(label(expanded(flex(tree).children[0])).text);
-            return tree;
-        }, w: 400, h: 200, maxFrames: 4);
+        run(
+            "t",
+            build: (fr: UiFrame, focus: Focus): Widget => {
+                const tree = expanded(Clicker());
+                seen.push(label(expanded(flex(tree).children[0])).text);
+                return tree;
+            },
+            w: 400,
+            h: 200,
+            maxFrames: 4,
+        );
         expect(seen[0]).toBe("clicks: 0");
         expect(seen.length).toBe(1);
         expect(boots).toBe(1);
@@ -230,10 +276,16 @@ await describe("220 ui declarative", async () => {
 
     await it("run loop renders declarative trees headless", () => {
         const builds: int[] = [];
-        run("t", build: (fr: UiFrame, focus: Focus): Widget => {
-            builds.push(1);
-            return Counter();
-        }, w: 200, h: 100, maxFrames: 3);
+        run(
+            "t",
+            build: (fr: UiFrame, focus: Focus): Widget => {
+                builds.push(1);
+                return Counter();
+            },
+            w: 200,
+            h: 100,
+            maxFrames: 3,
+        );
         expect(builds.length).toBe(1);
     });
 
@@ -259,12 +311,9 @@ await describe("220 ui declarative", async () => {
                 all: 8.0,
                 child: Stack(
                     alignment: Alignment.center,
-                    children: [
-                        SizedBox(w: 120.0, h: 48.0, child: Text("Fixed")),
-                        Spacer()
-                    ]
-                )
-            )
+                    children: [SizedBox(w: 120.0, h: 48.0, child: Text("Fixed")), Spacer()],
+                ),
+            ),
         );
         expect(tree is BoxNode).toBe(true);
         expect((tree as BoxNode).child is PaddingNode).toBe(true);

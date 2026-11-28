@@ -7,7 +7,7 @@ import {
     readLinesAsync$,
     removeAllAsync$,
     writeFileBytesAsync$,
-    writeFileTextAsync$
+    writeFileTextAsync$,
 } from "runtime:fs";
 
 import { Task } from "std:task";

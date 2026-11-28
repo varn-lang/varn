@@ -5,20 +5,28 @@ function outcome(f: () => void): str {
         f()
         return "ok"
     } catch (e) {
-        if (e is TypeError) { return e.message }
+        if(e is TypeError) {
+            return e.message
+        }
         return "other: " + e.message
     }
 }
 
 function total(label: str, ...xs: int[]): int {
     let t = 0
-    for (const x in xs) { t = t + x }
+    for(const x in xs) {
+        t = t + x
+    }
     return t
 }
-function letter(c: char): char { return c }
+function letter(c: char): char {
+    return c
+}
 class Point {
     constructor(public a: int, public b: str) {}
-    shift(a: int, ...rest: str[]): int { return a + rest.length }
+    shift(a: int, ...rest: str[]): int {
+        return a + rest.length
+    }
 }
 
 const five: dynamic = 5
@@ -30,13 +38,19 @@ await describe("170 dynamic boundary: arguments", async () => {
     await it("a rest parameter takes an explicitly converted argument", () => {
         expect(total("s", 1, 2)).toBe(3)
         expect(total("s", five as int)).toBe(5)
-        expect(outcome(() => { total("s", word as int) })).toBe("type mismatch: a number conversion needs a number, got 'str'")
-        expect(outcome(() => { total("s", 1, word as int) })).toBe("type mismatch: a number conversion needs a number, got 'str'")
+        expect(outcome(() => {
+            total("s", word as int)
+        })).toBe("type mismatch: a number conversion needs a number, got 'str'")
+        expect(outcome(() => {
+            total("s", 1, word as int)
+        })).toBe("type mismatch: a number conversion needs a number, got 'str'")
     })
 
     await it("a spread array is cast to its element type first", () => {
         expect(total("s", ...(nums as int[]))).toBe(6)
-        expect(outcome(() => { total("s", ...(mixed as int[])) })).toBe("type mismatch: expected 'int[]', got 'Array'")
+        expect(outcome(() => {
+            total("s", ...(mixed as int[]))
+        })).toBe("type mismatch: expected 'int[]', got 'Array'")
     })
 
     await it("methods take a cast spread too", () => {
@@ -44,7 +58,9 @@ await describe("170 dynamic boundary: arguments", async () => {
         const tail: dynamic = ["a", "b"]
         const badTail: dynamic = ["a", 2]
         expect(p.shift(1, ...(tail as str[]))).toBe(3)
-        expect(outcome(() => { p.shift(1, ...(badTail as str[])) })).toBe("type mismatch: expected 'str[]', got 'Array'")
+        expect(outcome(() => {
+            p.shift(1, ...(badTail as str[]))
+        })).toBe("type mismatch: expected 'str[]', got 'Array'")
     })
 
     await it("a typed spread needs no cast", () => {
@@ -55,12 +71,16 @@ await describe("170 dynamic boundary: arguments", async () => {
     await it("char is checked like the other scalars", () => {
         const z: dynamic = 'z'
         expect(letter(z as char)).toBe('z')
-        expect(outcome(() => { letter(five as char) })).toBe("type mismatch: expected 'char', got 'int'")
+        expect(outcome(() => {
+            letter(five as char)
+        })).toBe("type mismatch: expected 'char', got 'int'")
     })
 
     await it("holds in a hot loop", () => {
         let n = 0
-        for (let i = 0; i < 5000; i = i + 1) { n = n + total("s", ...(nums as int[])) }
+        for(let i = 0; i < 5000; i = i + 1) {
+            n = n + total("s", ...(nums as int[]))
+        }
         expect(n).toBe(30000)
     })
 })

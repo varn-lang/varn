@@ -1,7 +1,15 @@
-import { spawn$, sleep$, parallel$, cancelTask$, yieldTask$, channel$, Channel } from "runtime:task";
+import {
+    spawn$,
+    sleep$,
+    parallel$,
+    cancelTask$,
+    yieldTask$,
+    channel$,
+    Channel,
+} from "runtime:task";
 import { TimeoutError } from "std:error";
 
-export function parallel<T>(tasks: Array<Task<T>>): TaskHandle<Array<T>> {
+export function parallel<T>(tasks: Array<Task<T >>): TaskHandle<Array<T >> {
     return parallel$(tasks);
 }
 
@@ -17,7 +25,7 @@ export function cancel<T>(handle: TaskHandle<T>): void {
     cancelTask$(handle);
 }
 
-async function wrapSettledOne<T>(task: Task<T>): Task<Result<T, Error>> {
+async function wrapSettledOne<T>(task: Task<T>): Task<Result<T, Error >> {
     try {
         return Result.Ok(await task);
     } catch (err) {
@@ -29,7 +37,12 @@ class Settled<T> {
     result: Result<T, Error>? = null;
 }
 
-async function raceOne<T>(index: int, handle: TaskHandle<T>, settled: Settled<T>[], done: Channel<int>): Task<void> {
+async function raceOne<T>(
+    index: int,
+    handle: TaskHandle<T>,
+    settled: Settled<T>[],
+    done: Channel<int>,
+): Task<void> {
     try {
         settled[index].result = Result.Ok(await handle);
     } catch (err) {
@@ -49,17 +62,17 @@ async function expire<T>(deadline: Deadline, target: TaskHandle<T>, ms: int): Ta
 }
 
 export namespace Task {
-    export async function yield(): Task<void> {
+    export async function yield (): Task<void> {
         await yieldTask$();
     }
 
-    export async function all<T>(tasks: Array<Task<T>>): Task<Array<T>> {
+    export async function all<T>(tasks: Array<Task<T >>): Task<Array<T >> {
         return await parallel$(tasks);
     }
 
-    export async function allSettled<T>(tasks: Array<Task<T>>): Task<Array<Result<T, Error>>> {
-        let wrappedTasks: Array<Task<Result<T, Error>>> = [];
-        for (let i = 0; i < tasks.length; i = i + 1) {
+    export async function allSettled<T>(tasks: Array<Task<T >>): Task<Array<Result<T, Error >>> {
+        let wrappedTasks: Array<Task<Result<T, Error >>> = [];
+        for(let i = 0; i < tasks.length; i = i + 1) {
             wrappedTasks.push(wrapSettledOne(tasks[i]));
         }
         return await parallel$(wrappedTasks);
@@ -72,7 +85,7 @@ export namespace Task {
         try {
             return await target;
         } catch (err) {
-            if (deadline.expired) {
+            if(deadline.expired) {
                 throw new TimeoutError(`timed out after ${ms}ms`);
             }
             throw err;
@@ -81,22 +94,22 @@ export namespace Task {
         }
     }
 
-    export async function race<T>(tasks: Array<Task<T>>): Task<T> {
-        if (tasks.length == 0) {
+    export async function race<T>(tasks: Array<Task<T >>): Task<T> {
+        if(tasks.length == 0) {
             throw new RangeError("Task.race requires at least one task");
         }
         const done = channel$<int>(tasks.length);
         const settled: Settled<T>[] = [];
-        const handles: Array<TaskHandle<T>> = [];
-        for (let i = 0; i < tasks.length; i = i + 1) {
+        const handles: Array<TaskHandle<T >> = [];
+        for(let i = 0; i < tasks.length; i = i + 1) {
             settled.push(new Settled<T>());
             handles.push(spawn(tasks[i]));
         }
-        for (let i = 0; i < handles.length; i = i + 1) {
+        for(let i = 0; i < handles.length; i = i + 1) {
             spawn(raceOne(i, handles[i], settled, done));
         }
         const winner = await done.rx.receive();
-        for (let i = 0; i < handles.length; i = i + 1) {
+        for(let i = 0; i < handles.length; i = i + 1) {
             cancel(handles[i]);
         }
         return match (settled[winner].result!) {
@@ -121,7 +134,7 @@ export function setTimeout(callback: () => void, ms: int): TaskHandle<void> {
 }
 
 export function clearTimeout(handle: TaskHandle<void>): void {
-    if (handle != null) {
+    if(handle != null) {
         cancel(handle);
     }
 }

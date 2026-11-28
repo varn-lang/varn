@@ -3,18 +3,36 @@ import { toParts, fromParts, toISOString, fromISO } from "std:time";
 
 class Probe {
     n: int;
-    constructor(n: int) { this.n = n; }
-    read(): int { return this.n; }
+    constructor(n: int) {
+        this.n = n;
+    }
+    read(): int {
+        return this.n;
+    }
 }
 
-function weekdayOf(ms: int): int { return toParts(ms).weekday ?? -1; }
+function weekdayOf(ms: int): int {
+    return toParts(ms).weekday ?? -1;
+}
 
 function manyReads(p: Probe): int {
     let t = 0;
-    t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n;
-    t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n;
-    t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n;
-    t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n; t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
+    t = t + p.read() + p.n;
     return t;
 }
 
@@ -341,7 +359,15 @@ await describe("321 calendar parts carry the weekday and big functions still com
     });
 
     await it("parts round-trip across leap years and century boundaries", async () => {
-        for (const ms in [951782400000, 4107542400000, -2203891200000, -62135596800000, 253402300799999]) {
+        for(
+            const ms in [
+                951782400000,
+                4107542400000,
+                -2203891200000,
+                -62135596800000,
+                253402300799999,
+            ]
+        ) {
             expect(fromParts(toParts(ms))).toBe(ms);
             expect(fromISO(toISOString(ms))).toBe(ms);
         }
@@ -364,7 +390,7 @@ await describe("321 calendar parts carry the weekday and big functions still com
         const probe = new Probe(3);
         expect(manyReads(probe)).toBe(96);
         let total = 0;
-        for (let i = 0; i < 40; i++) {
+        for(let i = 0; i < 40; i++) {
             total = total + inlinedDates(1700000000000 + i * 86400000);
         }
         expect(total > 0).toBe(true);

@@ -5,9 +5,9 @@ import { HttpServer, Request, Response, fetch } from "std:http";
 
 async function readToEnd(client: TcpStream): Task<str> {
     let text = "";
-    while (true) {
+    while(true) {
         const chunk = await client.read(8192);
-        if (chunk == null) {
+        if(chunk == null) {
             return text
         }
         text = text + (chunk as Bytes).toString();
@@ -52,9 +52,23 @@ await describe("323 http refuses hostile input", async () => {
     const server = new HttpServer();
     server.post("/echo", async (req: Request) => new Response(req.text(), 200));
     server.get("/hello", async (req: Request) => new Response("hello", 200));
-    server.get("/inject", async (req: Request) => new Response("x", 200, new Map<str, str>([#["X-A", "ok\r\nSet-Cookie: pwn=1"]])));
-    server.get("/inject-name", async (req: Request) => new Response("x", 200, new Map<str, str>([#["X-A\r\nX-B", "v"]])));
-    server.get("/cookie", async (req: Request) => new Response("x", 200).setCookie("a", "b; Domain=evil.example"));
+    server.get(
+        "/inject",
+        async (req: Request) => new Response(
+            "x",
+            200,
+            new Map<str,
+            str>([#["X-A", "ok\r\nSet-Cookie: pwn=1"]]),
+        ),
+    );
+    server.get(
+        "/inject-name",
+        async (req: Request) => new Response("x", 200, new Map<str, str>([#["X-A\r\nX-B", "v"]])),
+    );
+    server.get(
+        "/cookie",
+        async (req: Request) => new Response("x", 200).setCookie("a", "b; Domain=evil.example"),
+    );
     server.get("/status-text", async (req: Request) => {
         const res = new Response("x", 200);
         res.statusText = "OK\r\nX-Evil: 1";
@@ -64,58 +78,94 @@ await describe("323 http refuses hostile input", async () => {
     await delay(150);
 
     await it("a request with both Transfer-Encoding and Content-Length is refused", async () => {
-        const reply = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\nConnection: close\r\n\r\n0\r\n\r\n");
+        const reply = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nContent-Length: 5\r\nConnection: close\r\n\r\n0\r\n\r\n",
+        );
         expect(status(reply)).toBe("HTTP/1.1 400");
     });
 
     await it("conflicting or repeated framing headers are refused", async () => {
-        const twice = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 6\r\nConnection: close\r\n\r\nhello!");
+        const twice = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\nContent-Length: 6\r\nConnection: close\r\n\r\nhello!",
+        );
         expect(status(twice)).toBe("HTTP/1.1 400");
-        const spaced = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length : 5\r\nConnection: close\r\n\r\nhello");
+        const spaced = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length : 5\r\nConnection: close\r\n\r\nhello",
+        );
         expect(status(spaced)).toBe("HTTP/1.1 400");
-        const signed = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: +5\r\nConnection: close\r\n\r\nhello");
+        const signed = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: +5\r\nConnection: close\r\n\r\nhello",
+        );
         expect(status(signed)).toBe("HTTP/1.1 400");
     });
 
     await it("only a plain chunked coding is understood", async () => {
-        const sub = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: xchunkedx\r\nConnection: close\r\n\r\n0\r\n\r\n");
+        const sub = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: xchunkedx\r\nConnection: close\r\n\r\n0\r\n\r\n",
+        );
         expect(status(sub)).toBe("HTTP/1.1 501");
-        const stacked = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: gzip, chunked\r\nConnection: close\r\n\r\n0\r\n\r\n");
+        const stacked = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: gzip, chunked\r\nConnection: close\r\n\r\n0\r\n\r\n",
+        );
         expect(status(stacked)).toBe("HTTP/1.1 501");
-        const plain = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: Chunked\r\nConnection: close\r\n\r\n5\r\nhello\r\n0\r\n\r\n");
+        const plain = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: Chunked\r\nConnection: close\r\n\r\n5\r\nhello\r\n0\r\n\r\n",
+        );
         expect(status(plain)).toBe("HTTP/1.1 200");
     });
 
     await it("a malformed chunk size is refused", async () => {
-        const reply = await exchange(server.port, "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\nzz\r\nhello\r\n0\r\n\r\n");
+        const reply = await exchange(
+            server.port,
+            "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\nzz\r\nhello\r\n0\r\n\r\n",
+        );
         expect(status(reply)).toBe("HTTP/1.1 400");
     });
 
     await it("a handler cannot split the response through a header, a status text or a cookie", async () => {
-        const value = await exchange(server.port, "GET /inject HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n");
+        const value = await exchange(
+            server.port,
+            "GET /inject HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n",
+        );
         expect(status(value)).toBe("HTTP/1.1 500");
         expect(value.indexOf("pwn") == null).toBe(true);
-        const name = await exchange(server.port, "GET /inject-name HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n");
+        const name = await exchange(
+            server.port,
+            "GET /inject-name HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n",
+        );
         expect(status(name)).toBe("HTTP/1.1 500");
-        const cookie = await exchange(server.port, "GET /cookie HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n");
+        const cookie = await exchange(
+            server.port,
+            "GET /cookie HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n",
+        );
         expect(status(cookie)).toBe("HTTP/1.1 500");
-        const text = await exchange(server.port, "GET /status-text HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n");
+        const text = await exchange(
+            server.port,
+            "GET /status-text HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n",
+        );
         expect(status(text)).toBe("HTTP/1.1 500");
         expect(text.indexOf("X-Evil") == null).toBe(true);
     });
 
     await it("a keep-alive connection serving many requests keeps working", async () => {
         let burst = "";
-        for (let i = 0; i < 300; i = i + 1) {
+        for(let i = 0; i < 300; i = i + 1) {
             burst = burst + "GET /hello HTTP/1.1\r\nHost: x\r\n\r\n";
         }
         burst = burst + "GET /hello HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n";
         const reply = await exchange(server.port, burst);
         let answered = 0;
         let rest = reply;
-        while (true) {
+        while(true) {
             const at = rest.indexOf("HTTP/1.1 200");
-            if (at == null) {
+            if(at == null) {
                 break;
             }
             answered = answered + 1;
@@ -130,17 +180,23 @@ await describe("323 http refuses hostile input", async () => {
         expect(await fetchFails("HTTP/1.1 99 Low\r\nContent-Length: 0\r\n\r\n")).toBe(true);
         expect(await fetchFails("HTTP/1.1 abc Odd\r\nContent-Length: 0\r\n\r\n")).toBe(true);
         expect(await fetchFails("NOTHTTP 200 OK\r\nContent-Length: 0\r\n\r\n")).toBe(true);
-        expect(await fetchFails("HTTP/1.1 200 OK\r\nBad Name: 1\r\nContent-Length: 0\r\n\r\n")).toBe(true);
+        expect(
+            await fetchFails("HTTP/1.1 200 OK\r\nBad Name: 1\r\nContent-Length: 0\r\n\r\n"),
+        ).toBe(true);
         expect(await fetchFails("HTTP/1.1 200 OK\r\nContent-Length: +3\r\n\r\nabc")).toBe(true);
-        expect(await fetchFails("HTTP/1.1 200 OK\r\nTransfer-Encoding: xchunkedx\r\n\r\nabc")).toBe(true);
+        expect(await fetchFails("HTTP/1.1 200 OK\r\nTransfer-Encoding: xchunkedx\r\n\r\nabc")).toBe(
+            true,
+        );
     });
 
     await it("the client bounds the number of response headers", async () => {
         let headers = "";
-        for (let i = 0; i < 400; i = i + 1) {
+        for(let i = 0; i < 400; i = i + 1) {
             headers = headers + "X-H" + i.toString() + ": v\r\n";
         }
-        expect(await fetchFails("HTTP/1.1 200 OK\r\n" + headers + "Content-Length: 0\r\n\r\n")).toBe(true);
+        expect(
+            await fetchFails("HTTP/1.1 200 OK\r\n" + headers + "Content-Length: 0\r\n\r\n"),
+        ).toBe(true);
     });
 
     await it("a well formed response still works", async () => {

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "std:test";
 
 // Test Suite 89: Raw String Literals ("""...""") and `with` Expressions
-
 class User(public id: int, public name: str, public role: str = "guest") {}
 
 class ServerNode(public host: str, public port: int, public isMaster: bool = false) {}
@@ -10,12 +9,16 @@ class Shape {
     sides: int = 3;
     scale: float = 1.5;
     filled: bool = true;
-    describe(): str { return "shape" }
+    describe(): str {
+        return "shape"
+    }
 }
 
 class Square extends Shape {
     corner: str = "sharp";
-    override describe(): str { return "square" }
+    override describe(): str {
+        return "square"
+    }
 }
 
 interface Labelled {
@@ -25,11 +28,15 @@ interface Labelled {
 
 class Badge implements Labelled {
     label: str;
-    constructor(label: str) { this.label = label; }
-    shout(): str { return this.label + "!" }
+    constructor(label: str) {
+        this.label = label;
+    }
+    shout(): str {
+        return this.label + "!"
+    }
 }
 await describe("89 raw strings and with expressions", async () => {
-        await it("Raw string with unescaped quotes, backslashes and multiline content", async () => {
+    await it("Raw string with unescaped quotes, backslashes and multiline content", async () => {
         let jsonStr = """{
         "name": "Varn",
         "path": "C:\Program Files\Varn",
@@ -38,13 +45,13 @@ await describe("89 raw strings and with expressions", async () => {
         expect(jsonStr.includes("\"name\": \"Varn\"")).toBe(true);
         expect(jsonStr.includes("C:\\Program Files\\Varn")).toBe(true);
         expect(jsonStr.includes("""\n \t \r""")).toBe(true);
-        });
-        await it("Single-line raw string with double quotes", async () => {
+    });
+    await it("Single-line raw string with double quotes", async () => {
         let text = """Hello "world" and 'quotes' without escapes!""";
         expect(text).toBe("Hello \"world\" and 'quotes' without escapes!");
-        });
-        
-        await it("`with` expression on Class instances", async () => {
+    });
+
+    await it("`with` expression on Class instances", async () => {
         let u1 = new User(10, "Alice", "admin");
         let u2 = u1 with { name: "Bob", role: "editor" };
         expect(u2.id).toBe(10);
@@ -53,16 +60,16 @@ await describe("89 raw strings and with expressions", async () => {
         expect(u1.id).toBe(10);
         expect(u1.name).toBe("Alice");
         expect(u1.role).toBe("admin");
-        });
-        await it("`with` expression on Plain Objects", async () => {
+    });
+    await it("`with` expression on Plain Objects", async () => {
         let baseConfig = #{
-        host: "localhost",
-        port: 3000,
-        debug: true
+            host: "localhost",
+            port: 3000,
+            debug: true,
         };
         let prodConfig = baseConfig with {
-        port: 8080,
-        debug: false
+            port: 8080,
+            debug: false,
         };
         expect(prodConfig.host).toBe("localhost");
         expect(prodConfig.port).toBe(8080);
@@ -70,8 +77,8 @@ await describe("89 raw strings and with expressions", async () => {
 
         expect(baseConfig.port).toBe(3000);
         expect(baseConfig.debug).toBe(true);
-        });
-        await it("Chained or nested `with` expressions", async () => {
+    });
+    await it("Chained or nested `with` expressions", async () => {
         let node1 = new ServerNode("10.0.0.1", 5000, false);
         let node2 = node1 with { port: 5001 };
         let node3 = node2 with { isMaster: true };
@@ -80,9 +87,9 @@ await describe("89 raw strings and with expressions", async () => {
         expect(node3.isMaster).toBe(true);
         expect(node1.port).toBe(5000);
         expect(node1.isMaster).toBe(false);
-        });
+    });
 
-        await it("`with` on a class instance keeps its runtime class and its methods", async () => {
+    await it("`with` on a class instance keeps its runtime class and its methods", async () => {
         const base: Shape = new Square();
         const copy = base with { sides: 4, filled: false };
         expect(copy is Square).toBe(true);
@@ -95,13 +102,12 @@ await describe("89 raw strings and with expressions", async () => {
         expect(base.filled).toBe(true);
         const u = new User(1, "Ann") with { name: "Bea" };
         expect(u is User).toBe(true);
-        });
+    });
 
-        await it("`with` through an interface keeps the implementing class", async () => {
+    await it("`with` through an interface keeps the implementing class", async () => {
         const held: Labelled = new Badge("go");
         const renamed = held with { label: "stop" };
         expect(renamed.shout()).toBe("stop!");
         expect(held.shout()).toBe("go!");
-        });
-
+    });
 });

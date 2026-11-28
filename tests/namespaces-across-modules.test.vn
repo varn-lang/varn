@@ -6,13 +6,20 @@ import * as Lib from "./helpers/namespace-lib.vn"
 namespace Tally {
     let n = 0
     export const step = 2
-    export function bump(): int { n = n + step; return n }
-    export function read(): int { return n }
+    export function bump(): int {
+        n = n + step;
+        return n
+    }
+    export function read(): int {
+        return n
+    }
 }
 
 function hot(n: int): int {
     let acc = 0
-    for (let i = 0; i < n; i = i + 1) { acc = acc + Geo.Deep.twice(i) + Tally.step }
+    for(let i = 0; i < n; i = i + 1) {
+        acc = acc + Geo.Deep.twice(i) + Tally.step
+    }
     return acc
 }
 

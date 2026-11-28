@@ -1,6 +1,9 @@
 import { describe, it, expect } from "std:test";
 
-class Box { v: int = 1; w: int = 2 }
+class Box {
+    v: int = 1;
+    w: int = 2
+}
 
 await describe("259 record spread merges", async () => {
     await it("spreading records with different fields merges them", () => {

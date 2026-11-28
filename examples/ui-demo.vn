@@ -1,9 +1,12 @@
 import { args } from "std:sys/args";
 import { now } from "std:time";
 import {
-    UiWindow, UiFrame, Focus,
-    Box, Padding,
-    KEY_ESCAPE
+    UiWindow,
+    UiFrame,
+    Focus,
+    Box,
+    Padding,
+    KEY_ESCAPE,
 } from "std:ui";
 import { row } from "std:ui/layout";
 import { wrap as wrapText, measure } from "std:ui/text";
@@ -35,19 +38,28 @@ const t0 = now();
 const budgetMs = 25000;
 while (!fr.closed) {
     fr.update(win);
-    if (fr.held(KEY_ESCAPE)) {
+    if(fr.held(KEY_ESCAPE)) {
         break;
     }
     bx = bx + dx;
     by = by + dy;
-    if (bx < 0.0 || bx + 120.0 > (W as float)) {
+    if(bx < 0.0 || bx + 120.0 > (W as float)) {
         dx = 0.0 - dx;
     }
-    if (by < 0.0 || by + 80.0 > (H as float)) {
+    if(by < 0.0 || by + 80.0 > (H as float)) {
         dy = 0.0 - dy;
     }
     win.clear(BG);
-    render(win, fr, focus, Padding(child: Box(color: boxColor, w: 120.0, h: 80.0, onClick: toggle), left: bx, top: by), 0.0, 0.0, W as float, H as float);
+    render(
+        win,
+        fr,
+        focus,
+        Padding(child: Box(color: boxColor, w: 120.0, h: 80.0, onClick: toggle), left: bx, top: by),
+        0.0,
+        0.0,
+        W as float,
+        H as float,
+    );
     win.rect(fr.mouseX as float - 5.0, fr.mouseY as float - 5.0, 10.0, 10.0, WHITE);
 
     const cells = row(20.0, 480.0, 760.0, 90.0, [1.0, 1.0, 1.0], 12.0);
@@ -59,16 +71,26 @@ while (!fr.closed) {
     const fps = frames > 10 ? (frames as float) * 1000.0 / elapsed : 0.0;
     win.text(24.0, 60.0, "Varn native ui — click the box, move the mouse, Esc closes", 22.0, WHITE);
     win.text(24.0, 100.0, `frame ${frames}  fps ${fps}`, 22.0, WHITE);
-    const lines = wrapText("marquee: immediate-mode draw list, one submit per present", 18.0, 240.0);
-    for (let i = 0; i < lines.length; i = i + 1) {
-        win.text(cells[0][0] + 8.0, cells[0][1] + 28.0 + (i as float) * 22.0, lines[i], 18.0, WHITE);
+    const lines = wrapText(
+        "marquee: immediate-mode draw list, one submit per present",
+        18.0,
+        240.0,
+    );
+    for(let i = 0; i < lines.length; i = i + 1) {
+        win.text(
+            cells[0][0] + 8.0,
+            cells[0][1] + 28.0 + (i as float) * 22.0,
+            lines[i],
+            18.0,
+            WHITE,
+        );
     }
     win.text(cells[1][0] + 8.0, cells[1][1] + 28.0, `box ${bx},${by}`, 18.0, WHITE);
     win.text(cells[2][0] + 8.0, cells[2][1] + 28.0, `mouse ${fr.mouseX},${fr.mouseY}`, 18.0, WHITE);
 
     present(win, fr);
     frames = frames + 1;
-    if (frames >= 1500 || (now() - t0) > budgetMs) {
+    if(frames >= 1500 || (now() - t0) > budgetMs) {
         break;
     }
 }

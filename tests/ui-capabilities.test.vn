@@ -5,34 +5,42 @@ const vnBin = Process.currentExe();
 
 await describe("217 ui capabilities", async () => {
     await it("sandbox denies window open", async () => {
-        const proc = Process.spawn(vnBin, ["run", "--sandbox", `${import.meta.dirname}/helpers/ui_open_probe.vn`]);
+        const proc = Process.spawn(
+            vnBin,
+            ["run", "--sandbox", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
+        );
         const r = proc.wait();
         expect(r.success).toBe(false);
     });
 
     await it("restrictive flags without ui deny window open", async () => {
-        const proc = Process.spawn(vnBin, [
-            "run",
-            "--allow-read=.",
-            `${import.meta.dirname}/helpers/ui_open_probe.vn`
-        ]);
+        const proc = Process.spawn(
+            vnBin,
+            ["run", "--allow-read=.", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
+        );
         const r = proc.wait();
         expect(r.success).toBe(false);
     });
 
     await it("--allow-ui grants window open under restrictive flags", async () => {
-        const proc = Process.spawn(vnBin, [
-            "run",
-            "--allow-read=.",
-            "--allow-ui",
-            `${import.meta.dirname}/helpers/ui_open_probe.vn`
-        ]);
+        const proc = Process.spawn(
+            vnBin,
+            [
+                "run",
+                "--allow-read=.",
+                "--allow-ui",
+                `${import.meta.dirname}/helpers/ui_open_probe.vn`,
+            ],
+        );
         const r = proc.wait();
         expect(r.success).toBe(true);
     });
 
     await it("default run allows window open", async () => {
-        const proc = Process.spawn(vnBin, ["run", `${import.meta.dirname}/helpers/ui_open_probe.vn`]);
+        const proc = Process.spawn(
+            vnBin,
+            ["run", `${import.meta.dirname}/helpers/ui_open_probe.vn`],
+        );
         const r = proc.wait();
         expect(r.success).toBe(true);
     });

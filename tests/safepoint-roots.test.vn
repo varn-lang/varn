@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-
 // A GC safepoint spills live registers to their ctx.stack home slots so the
 // collector can root and rewrite them. `live_boxed` decides that set. This
 // file pins the set being narrow enough to be fast and wide enough to be
@@ -11,52 +10,69 @@ import { describe, it, expect } from "std:test";
 
 // Heap refs (strings) live across a concat that allocates on every iteration.
 function spRefsSurviveConcat(n: int): int {
-  const keep = "anchor-string-long-enough-to-be-heap"
-  let last = ""
-  let hits = 0
-  for (let i = 0; i < n; i = i + 1) {
-    last = `item-${i}`
-    if (keep == "anchor-string-long-enough-to-be-heap") { hits = hits + 1 }
-  }
-  if (last == `item-${(n - 1)}`) { hits = hits + 1 }
-  return hits
+    const keep = "anchor-string-long-enough-to-be-heap"
+    let last = ""
+    let hits = 0
+    for(let i = 0; i < n; i = i + 1) {
+        last = `item-${i}`
+        if(keep == "anchor-string-long-enough-to-be-heap") {
+            hits = hits + 1
+        }
+    }
+    if(last == `item-${(n - 1)}`) {
+        hits = hits + 1
+    }
+    return hits
 }
 
 // Ints interleaved with heap refs: the ints are what the kind-narrowed flush
 // set stops flushing, so their values must still be exact after collections
 // move things around.
 function spIntsExactAcrossGc(n: int): int {
-  let acc = 0
-  let s = ""
-  for (let i = 0; i < n; i = i + 1) {
-    s = `x${i}`
-    acc = acc + (i % 7)
-  }
-  if (s == "") { return -1 }
-  return acc
+    let acc = 0
+    let s = ""
+    for(let i = 0; i < n; i = i + 1) {
+        s = `x${i}`
+        acc = acc + (i % 7)
+    }
+    if(s == "") {
+        return -1
+    }
+    return acc
 }
 
 // An array of heap objects built under pressure: the array reference itself
 // is live across every push, and every element must survive.
-class SpBox { v: int
-  constructor(v: int) { this.v = v } }
+class SpBox {
+    v: int
+    constructor(v: int) {
+        this.v = v
+    }
+}
 function spArraySurvives(n: int): int {
-  const boxes: SpBox[] = []
-  const names: str[] = []
-  for (let i = 0; i < n; i = i + 1) { boxes.push(new SpBox(i)); names.push(`s${i}`) }
-  return boxes.length + names.length + boxes[0].v + boxes[n - 1].v
+    const boxes: SpBox[] = []
+    const names: str[] = []
+    for(let i = 0; i < n; i = i + 1) {
+        boxes.push(new SpBox(i));
+        names.push(`s${i}`)
+    }
+    return boxes.length + names.length + boxes[0].v + boxes[n - 1].v
 }
 
 // Nested: an outer heap ref live across an inner allocating loop.
 function spNested(outer: int, inner: int): int {
-  let total = 0
-  const tag = "outer-anchor-string"
-  for (let i = 0; i < outer; i = i + 1) {
-    let local = ""
-    for (let j = 0; j < inner; j = j + 1) { local = `${tag}${j}`}
-    if (local == `${tag}${(inner - 1)}`) { total = total + 1 }
-  }
-  return total
+    let total = 0
+    const tag = "outer-anchor-string"
+    for(let i = 0; i < outer; i = i + 1) {
+        let local = ""
+        for(let j = 0; j < inner; j = j + 1) {
+            local = `${tag}${j}`
+        }
+        if(local == `${tag}${(inner - 1)}`) {
+            total = total + 1
+        }
+    }
+    return total
 }
 
 // ---------------------------------------------------------------------------
@@ -79,59 +95,74 @@ function spNested(outer: int, inner: int): int {
 // the range is what exercises `jit_range`'s home-slot reads; iterating it adds
 // nothing here and would tie this file to that bug.
 function spRangeUnderPressure(n: int): int {
-  let total = 0
-  let junk = ""
-  for (let i = 0; i < n; i = i + 1) {
-    junk = `r${i}`
-    const lo = i % 5
-    const hi = lo + 3
-    const r = lo..hi
-    total = total + r.start + r.end
-  }
-  if (junk == "") { return -1 }
-  return total
+    let total = 0
+    let junk = ""
+    for(let i = 0; i < n; i = i + 1) {
+        junk = `r${i}`
+        const lo = i % 5
+        const hi = lo + 3
+        const r = lo..hi
+        total = total + r.start + r.end
+    }
+    if(junk == "") {
+        return -1
+    }
+    return total
 }
 
-function spSum3(a: int, b: int, c: int): int { return a + b + c }
+function spSum3(a: int, b: int, c: int): int {
+    return a + b + c
+}
 function spSpreadUnderPressure(n: int): int {
-  let total = 0
-  let junk = ""
-  for (let i = 0; i < n; i = i + 1) {
-    junk = `s${i}`
-    const args = [i % 3, i % 5, i % 7]
-    total = total + spSum3(...args)
-  }
-  if (junk == "") { return -1 }
-  return total
+    let total = 0
+    let junk = ""
+    for(let i = 0; i < n; i = i + 1) {
+        junk = `s${i}`
+        const args = [i % 3, i % 5, i % 7]
+        total = total + spSum3(...args)
+    }
+    if(junk == "") {
+        return -1
+    }
+    return total
 }
 
 // `arr.push(x)` is a CallNativeOp: the receiver and argument are read out of
 // the home slots by register number, and the pushed value here is an int.
 function spNativeOpUnderPressure(n: int): int {
-  const acc: int[] = []
-  let junk = ""
-  for (let i = 0; i < n; i = i + 1) {
-    junk = `n${i}`
-    acc.push(i % 11)
-  }
-  if (junk == "") { return -1 }
-  return acc.length + acc[0] + acc[n - 1]
+    const acc: int[] = []
+    let junk = ""
+    for(let i = 0; i < n; i = i + 1) {
+        junk = `n${i}`
+        acc.push(i % 11)
+    }
+    if(junk == "") {
+        return -1
+    }
+    return acc.length + acc[0] + acc[n - 1]
 }
 
-enum SpTag { A(int), B(int) }
+enum SpTag {
+    A(int),
+    B(int)
+}
 function spEnumUnderPressure(n: int): int {
-  let total = 0
-  let junk = ""
-  for (let i = 0; i < n; i = i + 1) {
-    junk = `e${i}`
-    const v = i % 2 == 0 ? SpTag.A(i) : SpTag.B(i)
-    total = total + match (v) {
-      A(x) => 1,
-      B(x) => 2,
+    let total = 0
+    let junk = ""
+    for(let i = 0; i < n; i = i + 1) {
+        junk = `e${i}`
+        const v = i % 2 == 0 ? SpTag.A(i) : SpTag.B(i)
+        total =
+            total +
+                match (v) {
+                    A(x) => 1,
+                    B(x) => 2,
+                }
     }
-  }
-  if (junk == "") { return -1 }
-  return total
+    if(junk == "") {
+        return -1
+    }
+    return total
 }
 
 // An exception LEAVES compiled code entirely and resumes in the INTERPRETER at
@@ -147,21 +178,25 @@ function spEnumUnderPressure(n: int): int {
 // 5000-iteration loop). That is a separate, pre-existing unwind bug with
 // nothing to do with the flush set; pinning it here would tie this file to it.
 function spTryUnderPressure(n: int): int {
-  let counter = 0
-  let caught = 0
-  let junk = ""
-  for (let i = 0; i < n; i = i + 1) {
-    const depth = i % 13
-    try {
-      junk = `t${i}`
-      if (i % 1000 == 999) { throw new Error("boom") }
-      counter = counter + depth
-    } catch (e) {
-      caught = caught + depth
+    let counter = 0
+    let caught = 0
+    let junk = ""
+    for(let i = 0; i < n; i = i + 1) {
+        const depth = i % 13
+        try {
+            junk = `t${i}`
+            if(i % 1000 == 999) {
+                throw new Error("boom")
+            }
+            counter = counter + depth
+        } catch (e) {
+            caught = caught + depth
+        }
     }
-  }
-  if (junk == "") { return -1 }
-  return counter * 10000 + caught
+    if(junk == "") {
+        return -1
+    }
+    return counter * 10000 + caught
 }
 const rRefs = spRefsSurviveConcat(50000)
 const rInts = spIntsExactAcrossGc(70000)
@@ -183,7 +218,5 @@ await describe("65 safepoint roots", async () => {
         expect(rNative).toBe(20001)
         expect(rEnum).toBe(30000)
         expect(rTry).toBe(119845 * 10000 + 134)
-
-
     });
 });

@@ -5,9 +5,9 @@ import { HttpServer, Request, Response } from "std:http";
 
 async function readToEnd(client: TcpStream): Task<str> {
     let text = "";
-    while (true) {
+    while(true) {
         const chunk = await client.read(8192);
-        if (chunk == null) {
+        if(chunk == null) {
             return text
         }
         text = text + (chunk as Bytes).toString();
@@ -17,7 +17,7 @@ async function readToEnd(client: TcpStream): Task<str> {
 @capability("net.client")
 async function exchange(port: int, pieces: Bytes[]): Task<str> {
     const client = await TcpStream.connect("127.0.0.1", port, 1);
-    for (const piece in pieces) {
+    for(const piece in pieces) {
         await client.write(piece);
         await delay(30);
     }
@@ -33,9 +33,9 @@ function text(value: str): Bytes {
 function count(haystack: str, needle: str): int {
     let found = 0;
     let from = haystack;
-    while (true) {
+    while(true) {
         const at = from.indexOf(needle);
-        if (at == null) {
+        if(at == null) {
             return found
         }
         found = found + 1;
@@ -52,23 +52,33 @@ await describe("292 http server framing", async () => {
 
     await it("a chunked request body is decoded, including a character split across chunks", async () => {
         const body = Bytes.fromString("héllo");
-        const reply = await exchange(server.port, [
-            text("POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n"),
-            text("2\r\n"),
-            body.slice(0, 2),
-            text("\r\n4\r\n"),
-            body.slice(2),
-            text("\r\n0\r\n\r\n")
-        ]);
+        const reply = await exchange(
+            server.port,
+            [
+                text(
+                    "POST /echo HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n",
+                ),
+                text("2\r\n"),
+                body.slice(0, 2),
+                text("\r\n4\r\n"),
+                body.slice(2),
+                text("\r\n0\r\n\r\n"),
+            ],
+        );
         expect(reply.startsWith("HTTP/1.1 200")).toBeTruthy();
         expect(reply.indexOf("héllo") != null).toBeTruthy();
     });
 
     await it("Content-Length counts bytes", async () => {
-        const reply = await exchange(server.port, [
-            text("POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 4\r\nConnection: close\r\n\r\n"),
-            Bytes.fromString("éé")
-        ]);
+        const reply = await exchange(
+            server.port,
+            [
+                text(
+                    "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 4\r\nConnection: close\r\n\r\n",
+                ),
+                Bytes.fromString("éé"),
+            ],
+        );
         expect(reply.indexOf("éé") != null).toBeTruthy();
     });
 
@@ -80,21 +90,42 @@ await describe("292 http server framing", async () => {
     });
 
     await it("an oversized body, an oversized header line and a bad length are refused", async () => {
-        const tooBig = await exchange(server.port, [text("POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 99999999\r\nConnection: close\r\n\r\n")]);
+        const tooBig = await exchange(
+            server.port,
+            [
+                text(
+                    "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: 99999999\r\nConnection: close\r\n\r\n",
+                ),
+            ],
+        );
         expect(tooBig.startsWith("HTTP/1.1 413")).toBeTruthy();
         let longValue = "";
-        for (let i = 0; i < 9000; i = i + 1) {
+        for(let i = 0; i < 9000; i = i + 1) {
             longValue = longValue + "a";
         }
-        const longLine = await exchange(server.port, [text("GET /hello HTTP/1.1\r\nConnection: close\r\nX-Long: " + longValue + "\r\n\r\n")]);
+        const longLine = await exchange(
+            server.port,
+            [text("GET /hello HTTP/1.1\r\nConnection: close\r\nX-Long: " + longValue + "\r\n\r\n")],
+        );
         expect(longLine.startsWith("HTTP/1.1 431")).toBeTruthy();
-        const bad = await exchange(server.port, [text("POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: abc\r\nConnection: close\r\n\r\n")]);
+        const bad = await exchange(
+            server.port,
+            [
+                text(
+                    "POST /echo HTTP/1.1\r\nHost: x\r\nContent-Length: abc\r\nConnection: close\r\n\r\n",
+                ),
+            ],
+        );
         expect(bad.startsWith("HTTP/1.1 400")).toBeTruthy();
     });
 
     await it("Expect: 100-continue gets its interim response before the body is sent", async () => {
         const client = await TcpStream.connect("127.0.0.1", server.port, 1);
-        await client.write(text("POST /echo HTTP/1.1\r\nHost: x\r\nExpect: 100-continue\r\nContent-Length: 5\r\nConnection: close\r\n\r\n"));
+        await client.write(
+            text(
+                "POST /echo HTTP/1.1\r\nHost: x\r\nExpect: 100-continue\r\nContent-Length: 5\r\nConnection: close\r\n\r\n",
+            ),
+        );
         const interim = await client.read(1024);
         expect((interim as Bytes).toString().startsWith("HTTP/1.1 100")).toBeTruthy();
         await client.write(text("hello"));

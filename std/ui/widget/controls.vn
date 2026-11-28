@@ -14,17 +14,45 @@ const FOCUS_LOST: float = 0.0;
 const SUBMITTED: float = 2.0;
 
 @capability("ui")
-function paintText(cx: PaintContext, slot: int, x: float, y: float, w: float, h: float, ed: TextEdit, kind: UiControlKind, hint: str, size: float, submit: ((text: str) => void)?, changed: (text: str) => void): void {
-    if (cx.fr.leftPressed && !hit(cx.fr.mouseX as float, cx.fr.mouseY as float, x, y, w, h) && cx.focus.current() == slot) {
+function paintText(
+    cx: PaintContext,
+    slot: int,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    ed: TextEdit,
+    kind: UiControlKind,
+    hint: str,
+    size: float,
+    submit: ((text: str) => void)?,
+    changed: (text: str) => void,
+): void {
+    if(
+        cx.fr.leftPressed &&
+            !hit(cx.fr.mouseX as float, cx.fr.mouseY as float, x, y, w, h) &&
+            cx.focus.current() == slot
+    ) {
         cx.focus.clear();
     }
     ed.focused = cx.focus.current() == slot;
-    cx.field(slot, kind, x, y, w, h, Theme.colors.onSurface, ed.focused, ed.text, hint, size,
+    cx.field(
+        slot,
+        kind,
+        x,
+        y,
+        w,
+        h,
+        Theme.colors.onSurface,
+        ed.focused,
+        ed.text,
+        hint,
+        size,
         (value: float) => {
-            if (value == FOCUS_GAINED) {
+            if(value == FOCUS_GAINED) {
                 cx.focus.claim(slot);
             } else if (value == FOCUS_LOST) {
-                if (cx.focus.current() == slot) {
+                if(cx.focus.current() == slot) {
                     cx.focus.clear();
                 }
             } else if (value == SUBMITTED && submit != null) {
@@ -34,7 +62,8 @@ function paintText(cx: PaintContext, slot: int, x: float, y: float, w: float, h:
         (text: str) => {
             ed.text = text;
             changed(text);
-        });
+        },
+    );
 }
 
 export class ButtonNode extends Widget {
@@ -55,7 +84,17 @@ export class ButtonNode extends Widget {
         return this.w >= 0.0 ? this.w : measure(this.label, this.size) + 2.0 * BUTTON_PAD;
     }
 
-    constructor(label: str, onPress: () => void, w: float, h: float, color: int, fg: int, size: float, radius: float, enabled: bool) {
+    constructor(
+        label: str,
+        onPress: () => void,
+        w: float,
+        h: float,
+        color: int,
+        fg: int,
+        size: float,
+        radius: float,
+        enabled: bool,
+    ) {
         super();
         this.label = label;
         this.onPress = onPress;
@@ -72,15 +111,20 @@ export class ButtonNode extends Widget {
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
         const h = p.size.h;
-        if (this.enabled) {
+        if(this.enabled) {
             cx.click(UiControlKind.Button, x, y, w, h, this.color, false, this.onPress);
         } else {
             cx.win.rect(x, y, w, h, Theme.colors.disabled, this.radius);
         }
-        cx.win.text(textX(x, w, this.label, this.size), textY(y, h, this.size), this.label, this.size, this.enabled ? this.fg : Theme.colors.muted);
+        cx.win.text(
+            textX(x, w, this.label, this.size),
+            textY(y, h, this.size),
+            this.label,
+            this.size,
+            this.enabled ? this.fg : Theme.colors.muted,
+        );
     }
 }
-
 
 export class FieldNode extends Widget {
     edit: TextEdit?;
@@ -90,7 +134,15 @@ export class FieldNode extends Widget {
     multiline: bool;
     onSubmit: ((text: str) => void)?;
 
-    constructor(edit: TextEdit?, bound: Signal<str>?, hint: str, h: float, size: float, multiline: bool, onSubmit: ((text: str) => void)?) {
+    constructor(
+        edit: TextEdit?,
+        bound: Signal<str>?,
+        hint: str,
+        h: float,
+        size: float,
+        multiline: bool,
+        onSubmit: ((text: str) => void)?,
+    ) {
         super();
         this.edit = edit;
         this.bound = bound;
@@ -112,25 +164,53 @@ export class FieldNode extends Widget {
         const slot = cx.idFor();
         const ed = this.edit ?? cx.fr.editFor(slot);
         const bound = this.bound;
-        if (bound != null) {
+        if(bound != null) {
             ed.text = bound.peek();
         }
         const kind = this.multiline ? UiControlKind.Area : UiControlKind.Field;
-        paintText(cx, slot, x, y, w, h, ed, kind, this.hint, this.size, this.onSubmit, (text: str) => {
-            if (bound != null) {
+        paintText(cx, slot, x, y, w, h, ed, kind, this.hint, this.size, this.onSubmit, (
+            text: str
+        ) => {
+            if(bound != null) {
                 bound.set(text);
             }
         });
     }
 }
 
-export function Button(label: str, onPress: () => void, kind: ButtonKind = ButtonKind.primary, enabled: bool = true, w: float = -1.0, h: float = 40.0, size: float = 17.0, radius: float = 8.0): Widget {
-    return new ButtonNode(label, onPress, w, h, buttonColorFor(kind), buttonTextColorFor(kind), size, radius, enabled);
+export function Button(
+    label: str,
+    onPress: () => void,
+    kind: ButtonKind = ButtonKind.primary,
+    enabled: bool = true,
+    w: float = -1.0,
+    h: float = 40.0,
+    size: float = 17.0,
+    radius: float = 8.0,
+): Widget {
+    return new ButtonNode(
+        label,
+        onPress,
+        w,
+        h,
+        buttonColorFor(kind),
+        buttonTextColorFor(kind),
+        size,
+        radius,
+        enabled,
+    );
 }
 
-export function Field(binding: TextEdit | Signal<str> | null = null, hint: str = "", multiline: bool = false, h: float = -1.0, size: float = 18.0, onSubmit: ((text: str) => void)? = null): Widget {
+export function Field(
+    binding: TextEdit | Signal<str> | null = null,
+    hint: str = "",
+    multiline: bool = false,
+    h: float = -1.0,
+    size: float = 18.0,
+    onSubmit: ((text: str) => void)? = null,
+): Widget {
     const height = h >= 0.0 ? h : (multiline ? 140.0 : 44.0);
-    if (binding is Signal<str>) {
+    if(binding is Signal<str>) {
         return new FieldNode(null, binding as Signal<str>, hint, height, size, multiline, onSubmit);
     }
     return new FieldNode(binding as TextEdit?, null, hint, height, size, multiline, onSubmit);

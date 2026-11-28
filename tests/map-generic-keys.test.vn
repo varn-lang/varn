@@ -14,7 +14,7 @@ const counts: Map<int, int> = new Map()
 
 const index = new Map<str, int>([#["a", 1]])
 await describe("129 map generic keys", async () => {
-        await it("group 1 part 1", async () => {
+    await it("group 1 part 1", async () => {
         byId.set(1, "one")
         byId.set(2, "two")
         expect(byId.get(1) == "one").toBe(true);
@@ -33,11 +33,11 @@ await describe("129 map generic keys", async () => {
         expect(letters.get('a')).toBe(1);
         counts.set(3, 30)
         counts.set(4, 40)
-        counts.forEach((v: int, k: int) => { keySum = keySum + k })
+        counts.forEach((v: int, k: int) => {
+            keySum = keySum + k
+        })
         expect(keySum).toBe(7);
         expect(counts.keys().length).toBe(2);
         expect(index["a"]).toBe(1);
     });
-
-
 });

@@ -1,9 +1,25 @@
 import { describe, it, expect } from "std:test";
 import {
-    UiWindow, UiFrame, Focus, TextEdit, Widget,
-    Text, Box, Column, Row, Button, Field, render, present, run,
-    Checkbox, Each, Spacer, Divider,
-    MOUSE_LEFT, UiInjectKind
+    UiWindow,
+    UiFrame,
+    Focus,
+    TextEdit,
+    Widget,
+    Text,
+    Box,
+    Column,
+    Row,
+    Button,
+    Field,
+    render,
+    present,
+    run,
+    Checkbox,
+    Each,
+    Spacer,
+    Divider,
+    MOUSE_LEFT,
+    UiInjectKind,
 } from "std:ui";
 import { measure, ascent, descent } from "std:ui/text";
 
@@ -32,8 +48,10 @@ await describe("219 widgets", async () => {
         const hits: bool[] = [];
         const tree = Column([
             Text("hola"),
-            Button("ok", onPress: () => { hits.push(true); }),
-            Field(ed, hint: "type")
+            Button("ok", onPress: () => {
+                hits.push(true);
+            }),
+            Field(ed, hint: "type"),
         ]);
         win.clear(0);
         render(win, fr, focus, tree, 0.0, 0.0, 800.0, 600.0);
@@ -47,7 +65,11 @@ await describe("219 widgets", async () => {
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const hits: bool[] = [];
-        const tree = Column([Button("ok", onPress: () => { hits.push(true); })]);
+        const tree = Column([
+            Button("ok", onPress: () => {
+                hits.push(true);
+            }),
+        ]);
         render(win, fr, focus, tree, 0.0, 0.0, 800.0, 600.0);
         present(win, fr);
         expect(hits.length).toBe(0);
@@ -95,10 +117,17 @@ await describe("219 widgets", async () => {
         const focus = new Focus();
         const left: bool[] = [];
         const right: bool[] = [];
-        const tree = Row([
-            Button("l", w: 100.0, onPress: () => { left.push(true); }),
-            Button("r", onPress: () => { right.push(true); })
-        ], h: 60.0);
+        const tree = Row(
+            [
+                Button("l", w: 100.0, onPress: () => {
+                    left.push(true);
+                }),
+                Button("r", onPress: () => {
+                    right.push(true);
+                }),
+            ],
+            h: 60.0,
+        );
         render(win, fr, focus, tree, 0.0, 0.0, 800.0, 60.0);
         present(win, fr);
         win.inject(UiInjectKind.MouseDown, 50, 30, MOUSE_LEFT);
@@ -116,14 +145,18 @@ await describe("219 widgets", async () => {
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const state = new ToggleState();
-        const tree = Checkbox(state.on, onChange: (next: bool) => { state.on = next; });
+        const tree = Checkbox(state.on, onChange: (next: bool) => {
+            state.on = next;
+        });
         render(win, fr, focus, tree, 10.0, 10.0, 30.0, 30.0);
         present(win, fr);
         win.inject(UiInjectKind.MouseDown, 25, 25, MOUSE_LEFT);
         fr.update(win);
         win.inject(UiInjectKind.MouseUp, 25, 25, MOUSE_LEFT);
         fr.update(win);
-        const tree2 = Checkbox(state.on, onChange: (next: bool) => { state.on = next; });
+        const tree2 = Checkbox(state.on, onChange: (next: bool) => {
+            state.on = next;
+        });
         render(win, fr, focus, tree2, 10.0, 10.0, 30.0, 30.0);
         present(win, fr);
         expect(state.on).toBe(true);
@@ -134,10 +167,15 @@ await describe("219 widgets", async () => {
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const seen: int[] = [];
-        const tree = Each(["a", "b", "c"], (t: str): str => t, (t: str, i: int) => {
-            seen.push(i);
-            return Text(t);
-        }, gap: 4.0);
+        const tree = Each(
+            ["a", "b", "c"],
+            (t: str): str => t,
+            (t: str, i: int) => {
+                seen.push(i);
+                return Text(t);
+            },
+            gap: 4.0,
+        );
         win.clear(0);
         render(win, fr, focus, tree, 0.0, 0.0, 300.0, 200.0);
         expect(seen).toEqual([0, 1, 2]);
@@ -147,10 +185,16 @@ await describe("219 widgets", async () => {
 
     await it("spacer divider and run own the loop, building once", () => {
         const builds: int[] = [];
-        run("t", build: (fr: UiFrame, focus: Focus) => {
-            builds.push(1);
-            return Column([Spacer(), Divider(), Text("x")]);
-        }, w: 200, h: 100, maxFrames: 3);
+        run(
+            "t",
+            build: (fr: UiFrame, focus: Focus) => {
+                builds.push(1);
+                return Column([Spacer(), Divider(), Text("x")]);
+            },
+            w: 200,
+            h: 100,
+            maxFrames: 3,
+        );
         expect(builds.length).toBe(1);
     });
 
@@ -159,7 +203,9 @@ await describe("219 widgets", async () => {
         const fr = new UiFrame(800, 600);
         const focus = new Focus();
         const got: str[] = [];
-        const tree = Field(hint: "type", onSubmit: (t: str) => { got.push(t); });
+        const tree = Field(hint: "type", onSubmit: (t: str) => {
+            got.push(t);
+        });
         render(win, fr, focus, tree, 10.0, 10.0, 200.0, 44.0);
         present(win, fr);
         win.inject(UiInjectKind.MouseDown, 30, 30, MOUSE_LEFT);
