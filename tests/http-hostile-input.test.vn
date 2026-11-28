@@ -52,23 +52,12 @@ await describe("323 http refuses hostile input", async () => {
     const server = new HttpServer();
     server.post("/echo", async (req: Request) => new Response(req.text(), 200));
     server.get("/hello", async (_req: Request) => new Response("hello", 200));
-    server.get(
-        "/inject",
-        async (_req: Request) => new Response(
-            "x",
-            200,
-            new Map<str,
-            str>([#["X-A", "ok\r\nSet-Cookie: pwn=1"]]),
-        ),
-    );
-    server.get(
-        "/inject-name",
-        async (_req: Request) => new Response("x", 200, new Map<str, str>([#["X-A\r\nX-B", "v"]])),
-    );
-    server.get(
-        "/cookie",
-        async (_req: Request) => new Response("x", 200).setCookie("a", "b; Domain=evil.example"),
-    );
+    server.get("/inject", async (_req: Request) =>
+        new Response("x", 200, new Map<str, str>([#["X-A", "ok\r\nSet-Cookie: pwn=1"]])));
+    server.get("/inject-name", async (_req: Request) =>
+        new Response("x", 200, new Map<str, str>([#["X-A\r\nX-B", "v"]])));
+    server.get("/cookie", async (_req: Request) =>
+        new Response("x", 200).setCookie("a", "b; Domain=evil.example"));
     server.get("/status-text", async (_req: Request) => {
         const res = new Response("x", 200);
         res.statusText = "OK\r\nX-Evil: 1";

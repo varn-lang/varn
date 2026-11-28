@@ -64,22 +64,19 @@ function Counter(start: int = 0): Widget {
 
 @component()
 function TodoList(): Widget {
-    const todos = todosState.get(
-        () => signal<Todo[]>([
+    const todos = todosState.get(() =>
+        signal<Todo[]>([
             #{ id: 1, title: "write a component", done: true },
             #{ id: 2, title: "keep its state between frames", done: false },
             #{ id: 3, title: "ship it", done: false },
-        ]),
-    );
-    const remaining = remainingState.get(
-        () => computed(() => todos.value.filter((t: Todo) => !t.done).length),
-    );
+        ]));
+    const remaining = remainingState.get(() =>
+        computed(() => todos.value.filter((t: Todo) => !t.done).length));
 
-    const toggle = (id: int): void => todos.update(
-        (all: Todo[]): Todo[] => all.map(
-            (t: Todo): Todo => t.id == id ? #{ id: t.id, title: t.title, done: !t.done } : t,
-        ),
-    );
+    const toggle = (id: int): void =>
+        todos.update((all: Todo[]): Todo[] =>
+            all.map((t: Todo): Todo =>
+                t.id == id ? #{ id: t.id, title: t.title, done: !t.done } : t));
 
     return Card([
         Row([Title("Todos"), Caption(`${remaining.value} left`)], mainAxis: MainAxis.spaceBetween),
@@ -87,10 +84,11 @@ function TodoList(): Widget {
         Each(
             todos.value,
             (t: Todo): str => `${t.id}`,
-            (t: Todo, _at: int) => Row([
-                Checkbox(t.done, onChange: (_next: bool) => toggle(t.id)),
-                Text(t.title, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
-            ]),
+            (t: Todo, _at: int) =>
+                Row([
+                    Checkbox(t.done, onChange: (_next: bool) => toggle(t.id)),
+                    Text(t.title, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
+                ]),
             gap: 10.0,
         ),
     ]);

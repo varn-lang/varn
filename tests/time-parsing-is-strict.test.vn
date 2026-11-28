@@ -48,8 +48,8 @@ await describe("281 time parsing is strict", async () => {
             ),
         ).toBe(1704067200000);
         expect(
-            rejects(
-                () => fromParts(
+            rejects(() =>
+                fromParts(
                     new TimeParts(
                         year: 2024,
                         month: 1,
@@ -59,12 +59,11 @@ await describe("281 time parsing is strict", async () => {
                         second: 0,
                         millisecond: 5000,
                     ),
-                ),
-            ),
+                )),
         ).toBeTruthy();
         expect(
-            rejects(
-                () => fromParts(
+            rejects(() =>
+                fromParts(
                     new TimeParts(
                         year: 2024,
                         month: -1,
@@ -74,8 +73,7 @@ await describe("281 time parsing is strict", async () => {
                         second: 0,
                         millisecond: 0,
                     ),
-                ),
-            ),
+                )),
         ).toBeTruthy();
     });
 });

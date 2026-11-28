@@ -86,16 +86,18 @@ async function runHttpVerification() {
 
     app.get("/api/v1/users", async (_req: Request) => {
         return json(#{ users: ["alice", "bob"] });
-    }).post("/api/v1/users", async (_req: Request) => {
-        return json(#{ created: true });
-    }).get("/api/v1/users/:id", async (_req: Request) => {
-        return new Response(
-            "<h1>User Profile</h1>",
-            200,
-            new Map<str,
-            str>([#["Content-Type", "text/html"]]),
-        );
-    });
+    })
+        .post("/api/v1/users", async (_req: Request) => {
+            return json(#{ created: true });
+        })
+        .get("/api/v1/users/:id", async (_req: Request) => {
+            return new Response(
+                "<h1>User Profile</h1>",
+                200,
+                new Map<str,
+                str>([#["Content-Type", "text/html"]]),
+            );
+        });
 
     // 6. Net helpers from std:net
     expect(isIPv4("127.0.0.1")).toBe(true);

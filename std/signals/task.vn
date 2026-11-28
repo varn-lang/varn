@@ -21,25 +21,27 @@ async function arrival<T>(arrived: Channel<T>, watcher: Effect): Task<T> {
 export function until<T>(source: Readable<T>, predicate: (v: T) => bool): Task<T> {
     const arrived = channel<T>(1);
     let settled = false;
-    const watcher = detached(() => effect(() => {
-        const current = source.value;
-        if(!settled && untracked(() => predicate(current))) {
-            settled = true;
-            arrived.tx.send(current);
-        }
-    }));
+    const watcher = detached(() =>
+        effect(() => {
+            const current = source.value;
+            if(!settled && untracked(() => predicate(current))) {
+                settled = true;
+                arrived.tx.send(current);
+            }
+        }));
     return arrival(arrived, watcher);
 }
 
 export function next<T>(source: Readable<T>): Task<T> {
     const arrived = channel<T>(1);
     let settled = false;
-    const watcher = detached(() => source.subscribe((v: T) => {
-        if(!settled) {
-            settled = true;
-            arrived.tx.send(v);
-        }
-    }));
+    const watcher = detached(() =>
+        source.subscribe((v: T) => {
+            if(!settled) {
+                settled = true;
+                arrived.tx.send(v);
+            }
+        }));
     return arrival(arrived, watcher);
 }
 
@@ -64,9 +66,10 @@ export class Changes<T> {
 
 export function changes<T>(source: Readable<T>): Changes<T> {
     const queue = channel<T>(CHANGES_BUFFER);
-    const watcher = detached(() => source.subscribe((v: T) => {
-        queue.tx.send(v);
-    }));
+    const watcher = detached(() =>
+        source.subscribe((v: T) => {
+            queue.tx.send(v);
+        }));
     return new Changes<T>(queue, watcher);
 }
 

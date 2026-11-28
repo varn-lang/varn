@@ -34,9 +34,8 @@ await describe("273 json decode interface", async () => {
     await it("a missing or mistyped member is rejected", () => {
         expect(decodeFails(() => Json.parse<Person>("{\"name\":1}"))).toBeTruthy();
         expect(
-            decodeFails(
-                () => Json.parse<Person>("{\"name\":\"a\",\"address\":{\"city\":5},\"tags\":[]}"),
-            ),
+            decodeFails(() =>
+                Json.parse<Person>("{\"name\":\"a\",\"address\":{\"city\":5},\"tags\":[]}")),
         ).toBeTruthy();
     });
 });

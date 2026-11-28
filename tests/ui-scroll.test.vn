@@ -83,13 +83,8 @@ await describe("245 ui scroll", async () => {
         render(win, fr, focus, tree, 0.0, 0.0, 200.0, 100.0);
         const cmds = win.drawn();
         expect(
-            cmds.some(
-                (c: DrawnItem): bool => c.kind == "clip" &&
-                    c.x == 0.0 &&
-                    c.y == 0.0 &&
-                    c.w == 200.0 &&
-                    c.h == 100.0,
-            ),
+            cmds.some((c: DrawnItem): bool =>
+                c.kind == "clip" && c.x == 0.0 && c.y == 0.0 && c.w == 200.0 && c.h == 100.0),
         ).toBe(true);
         expect(cmds[cmds.length - 1].kind).toBe("unclip");
     });

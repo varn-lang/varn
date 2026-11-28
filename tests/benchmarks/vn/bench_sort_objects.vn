@@ -23,12 +23,10 @@ for (let i = 0; i < 100000; i = i + 1) {
 }
 
 let byAge = people.slice().sort((a: Person, b: Person) => a.age - b.age);
-let byName = people.slice().sort(
-    (a: Person, b: Person) => a.name < b.name ? -1 : (a.name > b.name ? 1 : 0),
-);
-let byScore = people.slice().sort(
-    (a: Person, b: Person) => b.score > a.score ? 1 : (b.score < a.score ? -1 : 0),
-);
+let byName = people.slice().sort((a: Person, b: Person) =>
+    a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
+let byScore = people.slice().sort((a: Person, b: Person) =>
+    b.score > a.score ? 1 : (b.score < a.score ? -1 : 0));
 
 let check = 0;
 for (let i = 0; i < 100000; i = i + 997) {

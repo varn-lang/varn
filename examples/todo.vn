@@ -58,14 +58,11 @@ function App(): Widget {
             draft.set("");
         }
     };
-    const toggle = (at: int): void => todos.update(
-        (all: Todo[]): Todo[] => all.map(
-            (t: Todo, i: int): Todo => i == at ? #{ text: t.text, done: !t.done } : t,
-        ),
-    );
-    const remove = (at: int): void => todos.update(
-        (all: Todo[]): Todo[] => all.filter((t: Todo, i: int): bool => i != at),
-    );
+    const toggle = (at: int): void =>
+        todos.update((all: Todo[]): Todo[] =>
+            all.map((t: Todo, i: int): Todo => i == at ? #{ text: t.text, done: !t.done } : t));
+    const remove = (at: int): void =>
+        todos.update((all: Todo[]): Todo[] => all.filter((t: Todo, i: int): bool => i != at));
 
     return Column(
         [
@@ -76,17 +73,14 @@ function App(): Widget {
                 ),
                 Button("Añadir", add),
             ]),
-            Each(
-                todos.value,
-                (t: Todo): str => t.text,
-                (t: Todo, at: int) => Row([
+            Each(todos.value, (t: Todo): str => t.text, (t: Todo, at: int) =>
+                Row([
                     Checkbox(t.done, onChange: (_next: bool) => toggle(at)),
                     Expanded(
                         Text(t.text, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
                     ),
                     Button("-", () => remove(at), kind: ButtonKind.danger, w: 36.0, h: 30.0),
-                ]),
-            ),
+                ])),
             Spacer(),
             Caption(`click edita · Enter añade · Esc sale · guarda en ${FILE}`),
         ],

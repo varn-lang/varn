@@ -84,9 +84,8 @@ await describe("289 tls", async () => {
     await it("a certificate from an unknown CA is rejected with its cause", async () => {
         const listener = TcpListener.listenTls(0, cert, key);
         spawn(echoOnce(listener));
-        const message = await failureOf(
-            () => TcpStream.connectTls("localhost", listener.port, null, null, 1),
-        );
+        const message = await failureOf(() =>
+            TcpStream.connectTls("localhost", listener.port, null, null, 1));
         expect(message.indexOf("UnknownIssuer") != null).toBeTruthy();
         listener.close();
     });

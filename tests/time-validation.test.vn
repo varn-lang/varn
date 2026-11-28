@@ -42,30 +42,20 @@ await describe("312 time values reject what they cannot hold", async () => {
             outcome(() => Duration.from(new DurationParts(years: 1)).totalMilliseconds.toString()),
         ).toBe("range");
         expect(
-            outcome(
-                () => Duration.from(
-                    new DurationParts(months: 2, days: 1),
-                ).totalMilliseconds.toString(),
-            ),
+            outcome(() =>
+                Duration.from(new DurationParts(months: 2, days: 1)).totalMilliseconds.toString()),
         ).toBe("range");
         expect(
-            outcome(
-                () => Duration.from(
-                    new DurationParts(hours: 1, sign: -1),
-                ).totalMilliseconds.toString(),
-            ),
+            outcome(() =>
+                Duration.from(new DurationParts(hours: 1, sign: -1)).totalMilliseconds.toString()),
         ).toBe("-3600000");
         expect(
-            outcome(
-                () => Duration.from(
-                    new DurationParts(hours: 1, sign: 2),
-                ).totalMilliseconds.toString(),
-            ),
+            outcome(() =>
+                Duration.from(new DurationParts(hours: 1, sign: 2)).totalMilliseconds.toString()),
         ).toBe("range");
         expect(
-            outcome(
-                () => Duration.from(new DurationParts(minutes: 90)).totalMilliseconds.toString(),
-            ),
+            outcome(() =>
+                Duration.from(new DurationParts(minutes: 90)).totalMilliseconds.toString()),
         ).toBe("5400000");
     });
 
