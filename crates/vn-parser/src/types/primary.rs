@@ -1,6 +1,6 @@
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
-use vn_core::ast::{TypeNode, TypeParam};
+use vn_core::ast::{FnTypeParam, TypeNode};
 use vn_core::{ContextualKeyword, TokenKind, TypeKind};
 
 pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -> PResult<TypeNode> {
@@ -107,16 +107,11 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -
                     let full_range = s.span_from(range);
                     let params = param_types
                         .into_iter()
-                        .map(|ty| {
-                            let ty_range = *ty.range();
-                            TypeParam {
-                                variance: None,
-                                name: s.interner.intern(vn_core::TokenKind::Placeholder.as_str()),
-                                constraint: Some(ty),
-                                default: None,
-                                is_rest: false,
-                                range: ty_range,
-                            }
+                        .map(|ty| FnTypeParam {
+                            name: None,
+                            range: *ty.range(),
+                            ty,
+                            is_rest: false,
                         })
                         .collect();
                     return Ok(s.type_node(full_range, TypeKind::Fn((params, Box::new(ret)))));
@@ -131,15 +126,12 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -
                 let ret = super::entry::parse_type_in(s, ctx)?;
                 let full_range = s.span_from(range);
                 let first_range = *first.range();
-                let underscore = s.interner.intern(vn_core::TokenKind::Placeholder.as_str());
                 return Ok(s.type_node(
                     full_range,
                     TypeKind::Fn((
-                        vec![TypeParam {
-                            variance: None,
-                            name: underscore,
-                            constraint: Some(first),
-                            default: None,
+                        vec![FnTypeParam {
+                            name: None,
+                            ty: first,
                             is_rest: false,
                             range: first_range,
                         }],

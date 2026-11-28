@@ -1,11 +1,11 @@
 use crate::types::{CheckerTyTable, FunctionType, Type, TypeContext};
-use vn_core::ast::{TypeNode, TypeParam};
+use vn_core::ast::{FnTypeParam, TypeNode};
 
 use super::names::resolve_atom_name;
 use super::resolve_type_node;
 
 pub(super) fn resolve_fn_type(
-    params: &[TypeParam],
+    params: &[FnTypeParam],
     ret: &TypeNode,
     ctx: Option<&dyn TypeContext>,
     interner: &vn_core::AtomInterner,
@@ -14,13 +14,9 @@ pub(super) fn resolve_fn_type(
     let resolved_params = params
         .iter()
         .map(|p| {
-            let ty = p
-                .constraint
-                .as_ref()
-                .map(|m| resolve_type_node(m, ctx, table))
-                .unwrap_or(Type::Dynamic);
+            let ty = resolve_type_node(&p.ty, ctx, table);
             crate::types::FunctionParam {
-                name: Some(resolve_atom_name(p.name, ctx, interner)),
+                name: p.name.map(|name| resolve_atom_name(name, ctx, interner)),
                 ty: ty.0,
                 optional: false,
                 is_rest: p.is_rest,

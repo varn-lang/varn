@@ -46,7 +46,7 @@ impl<'r> Binder<'r> {
             K::Union(list) | K::Intersection(list) | K::Tuple(list) => list.iter().collect(),
             K::Fn((params, ret)) => params
                 .iter()
-                .filter_map(|p| p.constraint.as_ref())
+                .map(|p| &p.ty)
                 .chain(std::iter::once(ret.as_ref()))
                 .collect(),
             K::Record(members) => members.iter().flat_map(interface_member_types).collect(),

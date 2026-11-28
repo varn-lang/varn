@@ -29,4 +29,4 @@ pub use pattern::{
     SequenceRest, VariantPayload,
 };
 pub use stmt::{CatchClause, ForInit, StmtKind, VarDeclarator, VariableDecl};
-pub use types::{AstTypeKind, DeclaredVariance, Decorator, TypeNode, TypeParam};
+pub use types::{AstTypeKind, DeclaredVariance, Decorator, FnTypeParam, TypeNode, TypeParam};

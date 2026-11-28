@@ -50,7 +50,7 @@ pub fn parse_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::ast::TypeP
     Ok(params)
 }
 
-pub(crate) fn parse_fn_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::ast::TypeParam>> {
+pub(crate) fn parse_fn_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::ast::FnTypeParam>> {
     let mut params = vec![];
     while !s.check(TokenKind::RParen) && !s.is_eof() {
         let prange = s.range();
@@ -60,17 +60,15 @@ pub(crate) fn parse_fn_type_params(s: &mut TokenStream) -> PResult<Vec<vn_core::
         let name = if s.kind() == TokenKind::Identifier && s.peek_kind(1) == TokenKind::Colon {
             let n = s.consume_lexeme();
             s.advance();
-            n
+            Some(n)
         } else {
-            s.interner.intern(vn_core::TokenKind::Placeholder.as_str())
+            None
         };
         let ty = super::entry::parse_type(s)?;
         let full_range = s.span_from(prange);
-        params.push(vn_core::ast::TypeParam {
-            variance: None,
+        params.push(vn_core::ast::FnTypeParam {
             name,
-            constraint: Some(ty),
-            default: None,
+            ty,
             is_rest,
             range: full_range,
         });

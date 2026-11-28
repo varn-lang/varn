@@ -9,7 +9,7 @@ pub type AstTypeKind = TypeKind<
     Box<TypeNode>,
     Atom,
     Vec<TypeNode>,
-    (Vec<TypeParam>, Box<TypeNode>),
+    (Vec<FnTypeParam>, Box<TypeNode>),
     Vec<InterfaceMember>,
     std::convert::Infallible,
 >;
@@ -43,6 +43,14 @@ pub struct TypeParam {
     pub name: Atom,
     pub constraint: Option<TypeNode>,
     pub default: Option<TypeNode>,
+    pub is_rest: bool,
+    pub range: SourceRange,
+}
+
+#[derive(Clone, Debug)]
+pub struct FnTypeParam {
+    pub name: Option<Atom>,
+    pub ty: TypeNode,
     pub is_rest: bool,
     pub range: SourceRange,
 }
