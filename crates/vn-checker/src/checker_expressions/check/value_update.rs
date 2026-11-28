@@ -2,34 +2,18 @@ use crate::checker::recorder::Recorder;
 use crate::checker::Checker;
 use vn_core::ast::{ExprId, ExprKind};
 use vn_core::{Diagnostic, ErrorCode, TypeKind};
-use vn_sem::bind::{BindResult, BindView};
+use vn_sem::bind::BindResult;
 use vn_sem::symbol::SymbolKind;
-use vn_sem::types::{ObjectTypeMember, Type, TypeContext};
+use vn_sem::types::{ObjectTypeMember, Type};
 
 impl<'r> Checker<'r> {
     pub(super) fn is_value_product(&mut self, ty: &Type, bind: &BindResult) -> bool {
-        let ty = ty.non_nullified(&mut *std::sync::Arc::make_mut(&mut self.ty_table));
-        match self.ty_table.get(ty.0) {
-            TypeKind::Record(_) => true,
-            TypeKind::Named(name, origin) | TypeKind::Generic(name, _, origin) => {
-                let name = self.resolve_bind_atom(bind, name);
-                let origin = origin.map(|o| self.resolve_bind_atom(bind, o));
-                BindView::new(bind, self.resolver)
-                    .class_entry(&name, origin.as_deref())
-                    .is_some_and(|entry| entry.is_struct)
-            }
-            TypeKind::Primitive(_)
-            | TypeKind::Literal(_)
-            | TypeKind::This
-            | TypeKind::Union(_)
-            | TypeKind::Intersection(_)
-            | TypeKind::Tuple(_)
-            | TypeKind::Array(_)
-            | TypeKind::Fn(_)
-            | TypeKind::Interface(_)
-            | TypeKind::EnumVariant { .. }
-            | TypeKind::TypePredicate { .. } => false,
-        }
+        vn_sem::types::is_value_product(
+            ty,
+            std::sync::Arc::make_mut(&mut self.ty_table),
+            bind,
+            self.resolver,
+        )
     }
 
     pub(super) fn plan_value_update(

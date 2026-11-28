@@ -11,6 +11,7 @@ pub mod numeric_ops;
 mod object_member_impl;
 mod type_algebra;
 mod type_impl;
+mod value_product;
 
 pub use async_fn::{
     async_fn_return, awaited, callable_return, declared_generator, generator_of, is_awaitable,
@@ -20,6 +21,7 @@ pub use interned::{
     CheckerTyId, CheckerTyTable, FunctionTypeId, InternedTypeKind, ObjectMembersId, TyListId,
     TySlice,
 };
+pub use value_product::{is_reference_object, is_value_product};
 
 use crate::symbol::{SymbolArena, SymbolKind};
 use rustc_hash::FxHashMap;
