@@ -1,0 +1,11 @@
+[fmt]
+exclude = [
+    "target/**",
+    "crates/**",
+    "dist/**",
+    "tests/errors/**",
+    "tests/planned/**",
+    "tests/helpers/broken-escape.vn",
+    "tests/benchmarks/probes/repr_rows.vn",
+    "tests/examples/reflect.vn",
+]

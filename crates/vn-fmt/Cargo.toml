@@ -1,0 +1,12 @@
+[package]
+name = "vn-fmt"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+vn-core = { path = "../vn-core" }
+vn-lexer = { path = "../vn-lexer" }
+vn-parser = { path = "../vn-parser" }
+
+[lints]
+workspace = true

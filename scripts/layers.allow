@@ -3,17 +3,18 @@
 vn-binder: vn-core vn-modules vn-sem
 vn-builtins: vn-core vn-modules
 vn-checker: vn-binder vn-core vn-modules vn-sem
-vn-cli: vn-binder vn-builtins vn-checker vn-compiler vn-contract vn-core vn-dap vn-debug vn-emit vn-gpu vn-jit vn-lexer vn-lsp vn-macros vn-modules vn-parser vn-pipeline vn-runtime vn-sem vn-tir vn-types vn-ui vn-vm
+vn-cli: vn-binder vn-builtins vn-checker vn-compiler vn-contract vn-core vn-dap vn-debug vn-emit vn-fmt vn-gpu vn-jit vn-lexer vn-lsp vn-macros vn-modules vn-parser vn-pipeline vn-runtime vn-sem vn-tir vn-types vn-ui vn-vm
 vn-compiler: vn-core vn-tir vn-types
 vn-contract: vn-core vn-lexer vn-parser
 vn-core:
 vn-dap: vn-binder vn-builtins vn-checker vn-compiler vn-contract vn-core vn-emit vn-gpu vn-jit vn-lexer vn-macros vn-modules vn-parser vn-pipeline vn-runtime vn-sem vn-tir vn-types vn-ui vn-vm
 vn-debug: vn-compiler vn-core vn-emit vn-jit vn-modules vn-sem vn-tir vn-types
 vn-emit: vn-core vn-modules vn-sem vn-tir
+vn-fmt: vn-core vn-lexer vn-parser
 vn-gpu:
 vn-jit: vn-core vn-types
 vn-lexer: vn-core
-vn-lsp: vn-binder vn-builtins vn-checker vn-compiler vn-core vn-emit vn-lexer vn-modules vn-parser vn-pipeline vn-sem vn-tir vn-types
+vn-lsp: vn-binder vn-builtins vn-checker vn-compiler vn-core vn-emit vn-fmt vn-lexer vn-modules vn-parser vn-pipeline vn-sem vn-tir vn-types
 vn-macros: vn-contract vn-core vn-lexer vn-parser
 vn-modules: vn-core
 vn-parser: vn-core

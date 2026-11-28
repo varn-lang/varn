@@ -305,6 +305,16 @@ if ($corpusFailures.Count -gt 0) {
     Write-Success "Corpus de errores: todas las fixtures conformes."
 }
 
+Write-StepHeader "4d/6: Formato del codigo Varn (vn fmt --check)"
+$fmtOut = & $vnBin fmt --check 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+    Write-Failure "Hay codigo Varn sin formatear (o que el formateador no puede procesar)."
+    Write-Host $fmtOut -ForegroundColor Red
+    $failedSteps += "Formato del codigo Varn"
+} else {
+    Write-Success "Formato del codigo Varn: todo conforme a vn fmt."
+}
+
 if (-not $Quick) {
     Write-StepHeader "4e/6: Bails del JIT (funciones que el JIT deja al interprete)"
     $bailsOut = & (Join-Path $PSScriptRoot "jit-bails.ps1") -VnBin $vnBin 2>&1 | Out-String

@@ -401,10 +401,16 @@ pub struct TaskArgs {
 
 #[derive(Args)]
 pub struct FmtArgs {
-    pub path: Option<String>,
+    pub paths: Vec<String>,
 
     #[arg(long)]
     pub check: bool,
+
+    #[arg(long)]
+    pub stdin: bool,
+
+    #[arg(long, value_name = "PATH")]
+    pub stdin_filename: Option<String>,
 
     #[arg(short, long)]
     pub verbose: bool,

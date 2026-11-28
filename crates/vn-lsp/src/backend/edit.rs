@@ -146,7 +146,7 @@ pub(crate) async fn formatting(
     Ok(backend
         .query("formatting", move |an| {
             let doc = an.workspace.get(&uri)?;
-            build_formatting(&doc.source, params.options)
+            build_formatting(&doc.source)
         })
         .await)
 }
@@ -162,7 +162,6 @@ pub(crate) async fn range_formatting(
             let doc = an.workspace.get(&uri)?;
             crate::features::formatting::build_range_edits(
                 &doc.source,
-                params.options,
                 range.start.line,
                 range.end.line,
             )

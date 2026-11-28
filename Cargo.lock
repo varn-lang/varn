@@ -3789,6 +3789,7 @@ dependencies = [
  "vn-core",
  "vn-dap",
  "vn-debug",
+ "vn-fmt",
  "vn-jit",
  "vn-lexer",
  "vn-lsp",
@@ -3878,6 +3879,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "vn-fmt"
+version = "0.1.0"
+dependencies = [
+ "vn-core",
+ "vn-lexer",
+ "vn-parser",
+]
+
+[[package]]
 name = "vn-gpu"
 version = "0.1.0"
 dependencies = [
@@ -3925,6 +3935,7 @@ dependencies = [
  "vn-compiler",
  "vn-core",
  "vn-emit",
+ "vn-fmt",
  "vn-modules",
  "vn-pipeline",
  "vn-sem",

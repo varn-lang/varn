@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 vn-core    = { path = "../vn-core" }
+vn-fmt     = { path = "../vn-fmt" }
 vn-checker = { path = "../vn-checker" }
 vn-emit    = { path = "../vn-emit" }
 vn-modules  = { path = "../vn-modules" }

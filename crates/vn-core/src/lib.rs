@@ -12,7 +12,6 @@ pub mod errors;
 pub mod extension_names;
 pub mod ffi_kind;
 pub mod fingerprint;
-pub mod fmt;
 pub mod foreign_forms;
 pub mod intrinsic_ops;
 pub mod intrinsics;

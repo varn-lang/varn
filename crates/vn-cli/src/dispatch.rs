@@ -29,7 +29,11 @@ fn anchor_of(cmd: &Commands) -> Option<Anchor<'_>> {
         Commands::Build(args) => Some(path_anchor(Some(&args.file))),
         Commands::Check(args) => Some(path_anchor(args.files.first().map(String::as_str))),
         Commands::Test(args) => Some(path_anchor(args.path.as_deref())),
-        Commands::Fmt(args) => Some(path_anchor(args.path.as_deref())),
+        Commands::Fmt(args) => Some(path_anchor(
+            args.stdin_filename
+                .as_deref()
+                .or_else(|| args.paths.first().map(String::as_str)),
+        )),
         Commands::Eval(_)
         | Commands::Repl(_)
         | Commands::Task(_)
