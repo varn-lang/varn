@@ -6,7 +6,7 @@ function send(m: Method): int {
     return m.length
 }
 
-let m: Method = "GET"
+const m: Method = "GET"
 const asStr: str = m
 
 const code: 200 | 404 = 404

@@ -57,8 +57,8 @@ class Point {
 }
 extension PointOps on Point {
     distanceTo(other: Point): float {
-        let dx: float = (this.x - other.x) as float;
-        let dy: float = (this.y - other.y) as float;
+        const dx: float = (this.x - other.x) as float;
+        const dy: float = (this.y - other.y) as float;
         return(dx * dx + dy * dy) ** 0.5;
     }
     isOrigin(): bool {

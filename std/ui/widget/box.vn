@@ -216,8 +216,8 @@ export class PaddingNode extends Widget {
         return new Placement(this, size, children);
     }
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        const w = p.size.w;
-        const h = p.size.h;
+        const _w = p.size.w;
+        const _h = p.size.h;
         for(const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
@@ -250,8 +250,8 @@ export class SizedBoxNode extends Widget {
         return new Placement(this, size, children);
     }
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        const w = p.size.w;
-        const h = p.size.h;
+        const _w = p.size.w;
+        const _h = p.size.h;
         for(const placed in p.children) {
             cx.keyed("child", () => paintPlaced(cx, placed, x, y));
         }
@@ -281,8 +281,8 @@ export class ExpandedNode extends Widget {
     }
 
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        const w = p.size.w;
-        const h = p.size.h;
+        const _w = p.size.w;
+        const _h = p.size.h;
         cx.keyed("child", () => paintPlaced(cx, p.children[0], x, y));
     }
 }
@@ -316,7 +316,7 @@ export class DividerNode extends Widget {
     @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
-        const h = p.size.h;
+        const _h = p.size.h;
         cx.win.rect(x, y, w, 1.0, this.color);
     }
 }

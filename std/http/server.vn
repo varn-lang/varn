@@ -80,9 +80,9 @@ export class HttpServer {
     }
 
     route(method: HttpMethod?, pattern: str, handler: Handler): HttpServer {
-        let route = new Route(method, pattern, handler);
+        const route = new Route(method, pattern, handler);
         if(route.isStatic) {
-            let bucket = this._staticRoutes.get(pattern);
+            const bucket = this._staticRoutes.get(pattern);
             if(bucket == null) {
                 this._staticRoutes.set(pattern, [route]);
             } else {
@@ -123,16 +123,16 @@ export class HttpServer {
     }
 
     cors(origin: str = "*", methods: HttpMethod[] = ALL_METHODS, headers: str = "*"): HttpServer {
-        let allowed = methods.map((m: HttpMethod): str => httpMethodName$(m)).join(",");
+        const allowed = methods.map((m: HttpMethod): str => httpMethodName$(m)).join(",");
         this.use(async (req: Request, next: () => Task<Response?>): Task<Response?> => {
             if(req.method == HttpMethod.OPTIONS) {
-                let res = new Response("", 204);
+                const res = new Response("", 204);
                 res.headers.set("Access-Control-Allow-Origin", origin);
                 res.headers.set("Access-Control-Allow-Methods", allowed);
                 res.headers.set("Access-Control-Allow-Headers", headers);
                 return res;
             }
-            let res = await next();
+            const res = await next();
             if(res != null) {
                 res.headers.set("Access-Control-Allow-Origin", origin);
                 res.headers.set("Access-Control-Allow-Methods", allowed);
@@ -198,12 +198,12 @@ export class HttpServer {
     }
 
     private async _sendWebResponse(connId: int, responseObj: Response): Task<void> {
-        let stream = responseObj.bodyStream;
+        const stream = responseObj.bodyStream;
         if(stream != null) {
             await this._sendChunked(connId, responseObj, stream);
             return;
         }
-        let hdrs = responseObj.headers.toMap();
+        const hdrs = responseObj.headers.toMap();
         await sendHttpResponse$(
             connId,
             responseObj.status,
@@ -228,13 +228,13 @@ export class HttpServer {
         );
         let reading = true;
         while(reading) {
-            let chunk = await reader.read(8192);
+            const chunk = await reader.read(8192);
             if(chunk == null) {
                 reading = false;
             } else if (chunk.length == 0) {
                 reading = false;
             } else {
-                let hexLen = chunk.length.toHex();
+                const hexLen = chunk.length.toHex();
                 await tcpWrite$(connId, hexLen + "\r\n");
                 await tcpWrite$(connId, chunk);
                 await tcpWrite$(connId, "\r\n");
@@ -244,7 +244,7 @@ export class HttpServer {
     }
 
     private _match(method: HttpMethod, pathOnly: str): Matched? {
-        let bucket = this._staticRoutes.get(pathOnly);
+        const bucket = this._staticRoutes.get(pathOnly);
         if(bucket != null) {
             for(let route in bucket) {
                 if(route.accepts(method)) {
@@ -253,15 +253,15 @@ export class HttpServer {
             }
         }
         if(this._dynamicRoutes.length > 0) {
-            let pathSegments = pathOnly.split("/");
+            const pathSegments = pathOnly.split("/");
             for(let route in this._dynamicRoutes) {
-                let params = route.match(method, pathSegments);
+                const params = route.match(method, pathSegments);
                 if(params != null) {
                     return new Matched(handler: route.handler, params: params);
                 }
             }
         }
-        let fallback = this._fetchHandler;
+        const fallback = this._fetchHandler;
         if(fallback != null) {
             return new Matched(handler: fallback, params: new Map<str, str>());
         }
@@ -271,13 +271,13 @@ export class HttpServer {
     private async _respond(connId: int, rawReq: RawRequest, method: HttpMethod): Task<void> {
         let pathOnly = rawReq.path;
         let queryStr = "";
-        let qIdx = rawReq.path.indexOf("?");
+        const qIdx = rawReq.path.indexOf("?");
         if(qIdx != null) {
             pathOnly = rawReq.path.slice(0, qIdx);
             queryStr = rawReq.path.slice(qIdx + 1);
         }
 
-        let matched = this._match(method, pathOnly);
+        const matched = this._match(method, pathOnly);
 
         let reqObj = new Request(
             rawReq.path,
@@ -288,10 +288,10 @@ export class HttpServer {
 
         const queryMap = new Map<str, str>();
         if(queryStr.length > 0) {
-            let pairs = queryStr.split("&");
+            const pairs = queryStr.split("&");
             for(let i = 0; i < pairs.length; i = i + 1) {
-                let pair = pairs[i];
-                let eqIdx = pair.indexOf("=");
+                const pair = pairs[i];
+                const eqIdx = pair.indexOf("=");
                 if(eqIdx != null) {
                     const ei = eqIdx as int;
                     if(ei > 0) {
@@ -309,11 +309,11 @@ export class HttpServer {
             reqObj.params = matched.params;
         }
 
-        let self = this;
-        let runPipeline = async (idx: int): Task<Response?> => {
+        const self = this;
+        const runPipeline = async (idx: int): Task<Response?> => {
             if(idx < self._middlewares.length) {
-                let mw = self._middlewares[idx];
-                let next = async (): Task<Response?> => {
+                const mw = self._middlewares[idx];
+                const next = async (): Task<Response?> => {
                     return await runPipeline(idx + 1);
                 };
                 return await mw(reqObj, next);
@@ -324,11 +324,11 @@ export class HttpServer {
             return null;
         };
 
-        let finalResp = await runPipeline(0);
+        const finalResp = await runPipeline(0);
         if(finalResp != null) {
             await self._sendWebResponse(connId, finalResp);
         } else {
-            let notFoundHeaders = new Map<str, str>([#["Content-Type", "text/plain"]]);
+            const notFoundHeaders = new Map<str, str>([#["Content-Type", "text/plain"]]);
             await sendHttpResponse$(connId, 404, "Not Found", notFoundHeaders, "Not Found", []);
         }
     }
@@ -344,7 +344,7 @@ export class HttpServer {
                     this._readTimeoutMs,
                 );
             } catch (err: TimeoutError) {
-                let errHeaders = new Map<str, str>([
+                const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
                 ]);
@@ -357,7 +357,7 @@ export class HttpServer {
                 );
                 break;
             } catch (err: HttpRejection) {
-                let errHeaders = new Map<str, str>([
+                const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
                 ]);
@@ -369,13 +369,13 @@ export class HttpServer {
             if(rawReq == null) {
                 break;
             }
-            let connHdr = rawReq.headers.get("connection");
+            const connHdr = rawReq.headers.get("connection");
             if(connHdr != null && connHdr.toLowerCase() == "close") {
                 keepAlive = false;
             }
-            let method = rawReq.method;
+            const method = rawReq.method;
             if(method == null) {
-                let errHeaders = new Map<str, str>([
+                const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
                 ]);
@@ -392,7 +392,7 @@ export class HttpServer {
             try {
                 await this._respond(connId, rawReq, method);
             } catch (err) {
-                let errHeaders = new Map<str, str>([
+                const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
                 ]);
@@ -419,13 +419,15 @@ export class HttpServer {
     ): Task<void> {
         try {
             await sendHttpResponse$(connId, status, statusText, headers, body, []);
-        } catch (err) {}
+        } catch (err) {
+            // best effort: the connection may already be closed
+        }
     }
 }
 
 @capability("net.server")
 export function serve(handler?: Handler, port: int = 3000): HttpServer {
-    let server = new HttpServer();
+    const server = new HttpServer();
     if(handler != null) {
         server.all("*", handler);
         server.listen(port);

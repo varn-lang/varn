@@ -7,7 +7,7 @@ await describe("example std:math", async () => {
         expect(pow(2.0, 10.0)).toBe(1024.0);
         expect(floor(3.9)).toBe(3.0);
         expect(sin(PI / 2.0)).toBe(1.0);
-        let dice = floor(random() * 6.0) + 1.0;
+        const dice = floor(random() * 6.0) + 1.0;
         expect(dice >= 1.0 && dice <= 6.0).toBe(true);
     });
 

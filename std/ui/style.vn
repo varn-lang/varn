@@ -222,13 +222,3 @@ export function windowClassOf(width: float): WindowClass {
     }
     return WindowClass.expanded;
 }
-
-function classKey(cls: WindowClass): str {
-    if(cls == WindowClass.compact) {
-        return "compact";
-    }
-    if(cls == WindowClass.medium) {
-        return "medium";
-    }
-    return "expanded";
-}

@@ -10,7 +10,7 @@ function takeGeneric(arr: Array<str>): int {
 await describe("05 Arrays", async () => {
     await it("basics", () => {
         const nums = [3, 1, 4, 1, 5, 9, 2, 6];
-        const strs = ["banana", "apple", "cherry"];
+        const _strs = ["banana", "apple", "cherry"];
         expect(nums.length).toBe(8);
         expect(nums.indexOf(5)).toBe(4);
         expect(nums.indexOf(99)).toBe(null);
@@ -48,7 +48,7 @@ await describe("05 Arrays", async () => {
         expect(sorted[0]).toBe("apple");
         const rev = [1, 2, 3].reverse();
         expect(rev[0]).toBe(3);
-        const labels: str[] = [1, 2].map((n) => "n");
+        const labels: str[] = [1, 2].map((_n) => "n");
         expect(labels.length).toBe(2);
         const fallback: int[] = labels.length > 5 ? [1] : [];
         expect(fallback.length).toBe(0);
@@ -75,17 +75,17 @@ await describe("05 Arrays", async () => {
     });
 
     await it("generic and bracket identity", () => {
-        let explicitGeneric: Array<int> = [10, 20, 30];
-        let explicitBracket: int[] = explicitGeneric;
-        let crossGeneric: Array<int> = explicitBracket;
+        const explicitGeneric: Array<int> = [10, 20, 30];
+        const explicitBracket: int[] = explicitGeneric;
+        const crossGeneric: Array<int> = explicitBracket;
         expect(explicitBracket.length == 3 && explicitBracket[1] == 20).toBeTruthy();
         expect(crossGeneric.length == 3 && crossGeneric[2] == 30).toBeTruthy();
-        let strGenericList: Array<str> = ["a", "b", "c"];
-        let strBracketList: str[] = ["x", "y", "z"];
+        const strGenericList: Array<str> = ["a", "b", "c"];
+        const strBracketList: str[] = ["x", "y", "z"];
         expect(takeBracket(strGenericList)).toBe(3);
         expect(takeGeneric(strBracketList)).toBe(3);
-        let nestedGen: Array<Array<int >> = [[1, 2], [3, 4]];
-        let nestedBrk: int[][] = nestedGen;
+        const nestedGen: Array<Array<int >> = [[1, 2], [3, 4]];
+        const nestedBrk: int[][] = nestedGen;
         expect(nestedBrk[1][0]).toBe(3);
     });
 });

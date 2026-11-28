@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { Duration, PlainDateTime, nowInstant, Instant } from 'std:time';
+import { Duration, PlainDateTime, nowInstant } from 'std:time';
 import { List, Stack, Queue } from 'std:collections';
 import { fetch, HttpServer, Request, Response } from 'std:http';
 import { Json, JsonValue } from 'std:encoding';
@@ -14,10 +14,10 @@ import {
 import { write as ioWrite, writeln as ioWriteln } from 'std:io';
 import { PI as mathPI, abs as mathAbs, min as mathMin, max as mathMax } from 'std:math';
 import { platform as sysPlatform, cwd as sysCwd } from 'std:sys';
-import { isIP as netIsIP, Query, Url } from 'std:net';
+import { isIP as netIsIP, Url } from 'std:net';
 import { Path } from 'std:path';
 import { defineMetadata, getMetadata, hasMetadata, MetaKey } from 'std:reflect';
-import { sleep, delay, TaskGroup, spawn, parallel } from 'std:task';
+import { delay, TaskGroup, spawn, parallel } from 'std:task';
 
 // Disposable, AsyncDisposable, Partial, Required, Readonly, Mutable, Record
 // are now globally available (prelude) — no import needed.
@@ -32,11 +32,11 @@ class ResourceImpl implements Disposable {
 @capability("fs.read", "fs.write", "net.server", "net.client")
 async function runComprehensiveTest(): Task<void> {
     // 1. std:time
-    let d = Duration.from("PT1H30M");
+    const d = Duration.from("PT1H30M");
     expect(d.hours).toBe(1);
-    let dt = new PlainDateTime(2026, 4, 21, 10, 0, 0, 0);
+    const dt = new PlainDateTime(2026, 4, 21, 10, 0, 0, 0);
     expect(dt.year).toBe(2026);
-    let t1 = nowInstant();
+    const t1 = nowInstant();
     expect(t1.toString().length > 0).toBeTruthy();
 
     // 2. std:math
@@ -46,46 +46,46 @@ async function runComprehensiveTest(): Task<void> {
     expect(mathMax(5.0, 3.0, 8.0)).toBe(8.0);
 
     // 3. std:crypto
-    let uuidVal = uuid();
+    const uuidVal = uuid();
     expect(uuidVal.length).toBe(36);
-    let hash = sha256("Hello");
+    const hash = sha256("Hello");
     expect(hash.length).toBe(64);
 
     // 4. std:json
-    let serialized = Json.stringify(#{ test: "json", value: 123 });
-    let parsed = Json.parse<Map<str, JsonValue >> (serialized);
+    const serialized = Json.stringify(#{ test: "json", value: 123 });
+    const parsed = Json.parse<Map<str, JsonValue >> (serialized);
     expect(parsed["test"]).toBe("json");
     expect(parsed["value"]).toBe(123);
 
     // 5. std:collections
-    let list = new List<str>(["A"]);
+    const list = new List<str>(["A"]);
     list.add("B");
     expect(list.toArray()[1]).toBe("B");
 
-    let stack = new Stack<int>();
+    const stack = new Stack<int>();
     stack.push(42);
     expect(stack.peek()).toBe(42);
     expect(stack.pop()).toBe(42);
 
-    let queue = new Queue<str>();
+    const queue = new Queue<str>();
     queue.enqueue("first");
     expect(queue.peek()).toBe("first");
     expect(queue.dequeue()).toBe("first");
 
-    let mapInst = new Map<str, int>();
+    const mapInst = new Map<str, int>();
     mapInst.set("key", 100);
     expect(mapInst.has("key")).toBeTruthy();
     expect(mapInst.get("key")).toBe(100);
 
-    let rangeObj = Range.from(1, 5);
+    const rangeObj = Range.from(1, 5);
     expect(rangeObj.start).toBe(1);
     expect(rangeObj.contains(3)).toBeTruthy();
 
     // 6. std:fs
-    let testFile = Path.join(fsTempDir(), "varn-42-stdlib-fs.txt");
+    const testFile = Path.join(fsTempDir(), "varn-42-stdlib-fs.txt");
     fsWrite(testFile, "Varn File System Test");
     expect(fsExists(testFile)).toBeTruthy();
-    let readContent = fsRead(testFile);
+    const readContent = fsRead(testFile);
     expect(readContent).toBe("Varn File System Test");
     fsRemove(testFile);
 
@@ -100,7 +100,7 @@ async function runComprehensiveTest(): Task<void> {
     // 9. std:net
     expect(netIsIP("127.0.0.1")).toBeTruthy();
     expect(!netIsIP("not-an-ip")).toBeTruthy();
-    let urlObj = Url.parse("https://varn-lang.dev:8080/docs?q=1#main");
+    const urlObj = Url.parse("https://varn-lang.dev:8080/docs?q=1#main");
     expect(urlObj.protocol).toBe("https");
     expect(urlObj.host).toBe("varn-lang.dev");
     expect(urlObj.port).toBe(8080);
@@ -109,13 +109,13 @@ async function runComprehensiveTest(): Task<void> {
     expect(urlObj.fragment).toBe("main");
 
     // 10. std:path
-    let isWindows = sysPlatform() == "windows";
-    let expectedNormalize = isWindows ? "a\\c" : "a/c";
-    let expectedJoin = isWindows ? "a\\b\\c" : "a/b/c";
+    const isWindows = sysPlatform() == "windows";
+    const expectedNormalize = isWindows ? "a\\c" : "a/c";
+    const expectedJoin = isWindows ? "a\\b\\c" : "a/b/c";
     expect(Path.normalize("a/b/../c")).toBe(expectedNormalize);
     expect(Path.dirname("a/b/c")).toBe("a/b");
     expect(Path.basename("a/b/file.txt")).toBe("file.txt");
-    let ext_res = Path.extname("file.txt");
+    const ext_res = Path.extname("file.txt");
     expect(ext_res).toBe(".txt");
     expect(Path.join("a", "b", "c")).toBe(expectedJoin);
 
@@ -124,16 +124,16 @@ async function runComprehensiveTest(): Task<void> {
     expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
-    let mkey = MetaKey.create<int[], str>();
+    const _mkey = MetaKey.create<int[], str>();
     expect(getMetadata<str, str, List<str >> ("my_key", list)).toBe("my_val");
     expect(hasMetadata("my_key", list)).toBeTruthy();
 
     // 12. std:http
-    let httpServer = new HttpServer();
-    httpServer.get("/", async (req: Request) => new Response("hello from 42", 200));
+    const httpServer = new HttpServer();
+    httpServer.get("/", async (_req: Request) => new Response("hello from 42", 200));
     httpServer.listen(0);
     await delay(150);
-    let clientRes = await fetch(`http://127.0.0.1:${httpServer.port}/`);
+    const clientRes = await fetch(`http://127.0.0.1:${httpServer.port}/`);
     expect(clientRes.status).toBe(200);
     expect(clientRes.body).toBe("hello from 42");
     httpServer.close();
@@ -142,8 +142,8 @@ async function runComprehensiveTest(): Task<void> {
     async function threeHundred(): Task<int> {
         return 100 + 200;
     }
-    let h1 = spawn(threeHundred());
-    let val = await h1;
+    const h1 = spawn(threeHundred());
+    const val = await h1;
     expect(val).toBe(300);
 
     async function one(): Task<int> {
@@ -152,7 +152,7 @@ async function runComprehensiveTest(): Task<void> {
     async function two(): Task<int> {
         return 2;
     }
-    let all = await parallel([one(), two()]);
+    const all = await parallel([one(), two()]);
     expect(all[0] == 1 && all[1] == 2).toBeTruthy();
 
     using group = new TaskGroup<int>();
@@ -162,13 +162,13 @@ async function runComprehensiveTest(): Task<void> {
     async function twenty(): Task<int> {
         return 20;
     }
-    let g1 = group.spawn(ten());
-    let g2 = group.spawn(twenty());
-    let joined = await group.join();
+    const _g1 = group.spawn(ten());
+    const _g2 = group.spawn(twenty());
+    const joined = await group.join();
     expect(joined[0] == 10 && joined[1] == 20).toBeTruthy();
 
     // 14. std:dispose
-    let dispObj = new ResourceImpl();
+    const dispObj = new ResourceImpl();
     {
         using r = dispObj;
         expect(dispObj.disposed).toBe(false);
@@ -176,8 +176,8 @@ async function runComprehensiveTest(): Task<void> {
     expect(dispObj.disposed).toBe(true);
 
     // 15. null is the single absent value: `T?`, `??` and a binding condition.
-    let optSome: int? = 99;
-    let optNone: int? = null;
+    const optSome: int? = 99;
+    const optNone: int? = null;
     expect(optSome != null).toBeTruthy();
     expect(optNone == null).toBeTruthy();
     expect(optSome!).toBe(99);
@@ -190,8 +190,8 @@ async function runComprehensiveTest(): Task<void> {
     }
 
     // 16. std:result (Result)
-    let resOk = Ok<str, int>("success");
-    let resErr = Err<str, int>(500);
+    const resOk = Ok<str, int>("success");
+    const resErr = Err<str, int>(500);
     match(resOk) {
         Ok(v) => expect(v).toBe("success"),
         Err(_) => expect(false).toBeTruthy(),
@@ -200,7 +200,7 @@ async function runComprehensiveTest(): Task<void> {
         Ok(_) => expect(false).toBeTruthy(),
         Err(e) => expect(e).toBe(500),
     }
-    let resTry = Result.catching<int>(() => {
+    const resTry = Result.catching<int>(() => {
         return 888;
     });
     match(resTry) {
@@ -214,11 +214,11 @@ async function runComprehensiveTest(): Task<void> {
     expect(777).toBe(777);
 
     // 18. std:types
-    let partialVar: #{ x?: int; y?: str } = #{ x: 42 };
-    let readonlyVar: #{ readonly a: bool } = #{ a: true };
-    let requiredVar: #{ x: int; y: str } = #{ x: 10, y: "yes" };
-    let mutableVar: #{ a: bool } = #{ a: false };
-    let recordVar = new Map([#["tested", 100]]);
+    const partialVar: #{ x?: int; y?: str } = #{ x: 42 };
+    const readonlyVar: #{ readonly a: bool } = #{ a: true };
+    const requiredVar: #{ x: int; y: str } = #{ x: 10, y: "yes" };
+    const mutableVar: #{ a: bool } = #{ a: false };
+    const recordVar = new Map([#["tested", 100]]);
 
     expect(partialVar.x).toBe(42);
     expect(readonlyVar.a).toBe(true);

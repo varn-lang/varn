@@ -36,50 +36,50 @@ await describe("example std:task", async () => {
     });
 
     await it("spawns and joins handles", async () => {
-        let handle = spawn(work(21));
+        const handle = spawn(work(21));
         expect(await handle).toBe(42);
     });
 
     await it("runs tasks in parallel", async () => {
-        let results = await parallel([work(1), work(2), work(3)]);
+        const results = await parallel([work(1), work(2), work(3)]);
         expect(results.length).toBe(3);
         expect(results[0]).toBe(2);
         expect(results[2]).toBe(6);
     });
 
     await it("races and settles task sets", async () => {
-        let first = await Task.race([work(5), work(6)]);
+        const first = await Task.race([work(5), work(6)]);
         expect(first == 10 || first == 12).toBe(true);
-        let all = await Task.all([work(1), work(2)]);
+        const all = await Task.all([work(1), work(2)]);
         expect(all.length).toBe(2);
-        let settled = await Task.allSettled([work(1), work(2)]);
+        const settled = await Task.allSettled([work(1), work(2)]);
         expect(settled.length).toBe(2);
         expect(settled[0].isOk()).toBe(true);
     });
 
     await it("passes messages through channels", async () => {
-        let pair = channel<str>(4);
+        const pair = channel<str>(4);
         await pair.tx.send("ping");
         expect(await pair.rx.receive()).toBe("ping");
         pair.tx.close();
     });
 
     await it("groups tasks and guards with a mutex", async () => {
-        let group = new TaskGroup<int>();
+        const group = new TaskGroup<int>();
         _ = group.spawn(work(4));
         _ = group.spawn(work(5));
-        let joined = await group.join();
+        const joined = await group.join();
         expect(joined.length).toBe(2);
-        let mutex = new Mutex();
-        let guarded = await mutex.withLock(async () => {
+        const mutex = new Mutex();
+        const guarded = await mutex.withLock(async () => {
             return 7;
         });
         expect(guarded).toBe(7);
-        let sem = new Semaphore(2);
+        const sem = new Semaphore(2);
         await sem.withPermit(async () => {
             return 1;
         });
-        let wg = new WaitGroup();
+        const wg = new WaitGroup();
         wg.add(1);
         spawn((async (): Task<void> => {
             wg.done();
@@ -89,16 +89,16 @@ await describe("example std:task", async () => {
     });
 
     await it("limits rates and parses cron", () => {
-        let limiter = new RateLimiter(2, 1.0);
+        const limiter = new RateLimiter(2, 1.0);
         expect(limiter.take()).toBe(true);
         expect(limiter.take()).toBe(true);
         expect(limiter.take()).toBe(false);
-        let spec = Cron.parse("*/5 * * * *");
+        const spec = Cron.parse("*/5 * * * *");
         expect(Cron.next(spec) > 0).toBe(true);
     });
 
     await it("cancels pending handles", async () => {
-        let slow = sleep(60000);
+        const slow = sleep(60000);
         cancel(slow);
         let cancelled = false;
         try {
@@ -110,7 +110,7 @@ await describe("example std:task", async () => {
     });
 
     await it("cancels spawned work", async () => {
-        let handle = spawn(work(7));
+        const handle = spawn(work(7));
         cancel(handle);
         let cancelled = false;
         try {
@@ -123,7 +123,7 @@ await describe("example std:task", async () => {
 
     await it("clearTimeout suppresses the callback", async () => {
         let fired = false;
-        let timer = setTimeout(
+        const timer = setTimeout(
             () => {
                 fired = true;
             },
@@ -135,7 +135,7 @@ await describe("example std:task", async () => {
     });
 
     await it("race returns the fastest settlement", async () => {
-        let winner = await Task.race([work(5), work(1)]);
+        const winner = await Task.race([work(5), work(1)]);
         expect(winner == 10 || winner == 2).toBe(true);
     });
 
@@ -153,24 +153,24 @@ await describe("example std:task", async () => {
     });
 
     await it("join honors timeouts", async () => {
-        let group = new TaskGroup<int>();
+        const group = new TaskGroup<int>();
         _ = group.spawn(slowWork(3));
-        let start = now();
+        const start = now();
         let timedOut = false;
         try {
             await group.join(50);
         } catch (e) {
             timedOut = true;
         }
-        let elapsed = now() - start;
+        const elapsed = now() - start;
         expect(timedOut).toBe(true);
         expect(elapsed < 400).toBe(true);
     });
 
     await it("cancel propagates through TaskGroup", async () => {
-        let group = new TaskGroup<int>();
+        const group = new TaskGroup<int>();
         _ = group.spawn(slowWork(4));
-        let canceller = (async (): Task<Array<int >> => {
+        const canceller = (async (): Task<Array<int >> => {
             await sleep(50);
             group.cancel();
             return [];

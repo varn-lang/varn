@@ -29,37 +29,37 @@ class Formatter {
 }
 await describe("86 tagged templates", async () => {
     await it("Free-function tagged template", async () => {
-        let name = "Varn";
-        let version = 1;
-        let output = customTag `Language: ${name}, Version: ${version}!`;
+        const name = "Varn";
+        const version = 1;
+        const output = customTag `Language: ${name}, Version: ${version}!`;
         expect(output).toBe("Language: [Varn], Version: [1]!");
 
-        let rawOnly = customTag `No interpolations here.`;
+        const rawOnly = customTag `No interpolations here.`;
         expect(rawOnly).toBe("No interpolations here.");
     });
     await it("Class-method tagged template", async () => {
-        let fmt = new Formatter();
-        let user = "Alice";
-        let score = 95;
-        let formatted = fmt.format `Player ${user} scored ${score} points`;
+        const fmt = new Formatter();
+        const user = "Alice";
+        const score = 95;
+        const formatted = fmt.format `Player ${user} scored ${score} points`;
         expect(formatted).toBe(">> Player Alice scored 95 points");
     });
     await it("Safe SQL parameterized queries with db.sql and db.sqlOne", async () => {
-        let db = new Database(":memory:");
+        const db = new Database(":memory:");
         db.exec(
             "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, role TEXT, active INTEGER);",
         );
         db.exec("INSERT INTO users VALUES (1, 'Alice', 'admin', 1);");
         db.exec("INSERT INTO users VALUES (2, 'Bob', 'editor', 1);");
         db.exec("INSERT INTO users VALUES (3, 'Charlie', 'viewer', 0);");
-        let targetRole = "admin";
-        let isActive = 1;
-        let rows = db.sql `SELECT id, name, role FROM users WHERE role = ${targetRole} AND active = ${isActive};`;
+        const targetRole = "admin";
+        const isActive = 1;
+        const rows = db.sql `SELECT id, name, role FROM users WHERE role = ${targetRole} AND active = ${isActive};`;
         expect(rows.length).toBe(1);
         expect(rows[0]["name"]).toBe("Alice");
         expect(rows[0]["id"]).toBe(1);
-        let targetId = 2;
-        let singleUser = db.sqlOne `SELECT id, name, role FROM users WHERE id = ${targetId};`;
+        const targetId = 2;
+        const singleUser = db.sqlOne `SELECT id, name, role FROM users WHERE id = ${targetId};`;
         expect(singleUser != null).toBe(true);
         if(singleUser != null) {
             expect(singleUser["name"]).toBe("Bob");

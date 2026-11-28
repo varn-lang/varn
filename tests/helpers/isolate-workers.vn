@@ -81,5 +81,5 @@ export function unexportedWorkerRef(): (tx: Sender<str>) => void {
 }
 
 export function anonymousWorkerRef(): (tx: Sender<str>) => void {
-    return(tx: Sender<str>) => {};
+    return(_tx: Sender<str>) => {};
 }

@@ -3,7 +3,7 @@ import { describe, it, expect } from "std:test";
 function definedNotCalled(): int {
     let x: int? = null
     x = 5
-    const f = () => {
+    const _f = () => {
         x = null
     }
     return x

@@ -50,7 +50,7 @@ export class Logger {
     }
 
     child(subName: str): Logger {
-        let childName = this._name.length > 0 ? this._name + "." + subName : subName;
+        const childName = this._name.length > 0 ? this._name + "." + subName : subName;
         return new Logger(childName, this._minLevel, this._jsonOutput, this._useColors, this._sink);
     }
 
@@ -59,8 +59,8 @@ export class Logger {
             return;
         }
 
-        let timestampStr = toISOString(now());
-        let levelTag = this._levelToString(level);
+        const timestampStr = toISOString(now());
+        const levelTag = this._levelToString(level);
 
         let outputLine: str = "";
         if(this._jsonOutput) {
@@ -94,7 +94,7 @@ export class Logger {
         }
 
         if(this._sink != null) {
-            let writeFn = this._sink as (line: str) => void;
+            const writeFn = this._sink as (line: str) => void;
             writeFn(outputLine);
         } else {
             writeln(outputLine);

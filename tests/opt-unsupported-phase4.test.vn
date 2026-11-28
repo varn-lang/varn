@@ -56,7 +56,7 @@ enum ExtendedEnum {
         return ExtendedEnum.val;
     }
 }
-let AnonClass = class {
+const AnonClass = class {
     x: int;
     constructor(x: int) {
         this.x = x;
@@ -65,34 +65,34 @@ let AnonClass = class {
         return this.x;
     }
 };
-let namedExpr = function foo(x: int): int {
+const namedExpr = function foo(x: int): int {
     return x + 1;
 };
 await describe("51 opt unsupported phase4", async () => {
     await it("tests", async () => {
         expect(identity<int>(123)).toBe(123);
         expect(identity<str>("hello")).toBe("hello");
-        let container = new Container<int>(456);
+        const container = new Container<int>(456);
         expect(container.val).toBe(456);
         expect(container.getVal()).toBe(456);
-        let child = new Child();
+        const child = new Child();
         child.mutateSuper(5);
         expect(child.getVal()).toBe(15);
         // 2. Anonymous classes
-        let anonInst = new AnonClass(789);
+        const anonInst = new AnonClass(789);
         expect(anonInst.x).toBe(789);
         expect(anonInst.getX()).toBe(789);
 
         // 3. Named function expressions
         expect(namedExpr(10)).toBe(11);
-        let pt = VariantRecord.Point(3, 4);
-        let ptArea = match (pt) {
+        const pt = VariantRecord.Point(3, 4);
+        const ptArea = match (pt) {
             Point { x, y } => x * y,
             _ => 0
         };
         expect(ptArea).toBe(12);
         expect(ExtendedEnum.val).toBe(42);
-        let inst = ExtendedEnum.A;
+        const inst = ExtendedEnum.A;
         expect(inst.getVal()).toBe(42);
     });
 });

@@ -12,8 +12,8 @@ export function isWhitespaceChar(c: str): bool {
 
 export function findFrom(s: str, search: str, fromIdx: int): int {
     if(fromIdx >= s.length) return -1;
-    let sub = s.slice(fromIdx);
-    let idx = sub.indexOf(search);
+    const sub = s.slice(fromIdx);
+    const idx = sub.indexOf(search);
     if(idx == null) return -1;
     return fromIdx + idx;
 }
@@ -24,11 +24,11 @@ export function startsWithAt(s: str, prefix: str, pos: int): bool {
 }
 
 export function slugify(text: str): str {
-    let s = text.trim().toLowerCase();
+    const s = text.trim().toLowerCase();
     let out = "";
     for(let i = 0; i < s.length; i = i + 1) {
-        let code = s.charCodeAt(i);
-        let isAlphaNum = (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
+        const code = s.charCodeAt(i);
+        const isAlphaNum = (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
         if(isAlphaNum) {
             out = out + s[i];
         } else if (code == 32 || code == 45 || code == 95) {

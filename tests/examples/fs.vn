@@ -28,10 +28,10 @@ function clean(path: str): void {
 
 await describe("example std:fs", async () => {
     await it("writes, reads and stats a file", () => {
-        let base = join(tempDir(), "ex-fs");
+        const base = join(tempDir(), "ex-fs");
         clean(base);
         mkdirAll(base);
-        let file = join(base, "hello.txt");
+        const file = join(base, "hello.txt");
         writeText(file, "hola");
         appendText(file, " mundo");
         expect(readText(file)).toBe("hola mundo");
@@ -44,7 +44,7 @@ await describe("example std:fs", async () => {
     });
 
     await it("lists directories and globs", () => {
-        let base = join(tempDir(), "ex-fs-glob");
+        const base = join(tempDir(), "ex-fs-glob");
         clean(base);
         mkdirAll(join(base, "sub"));
         writeText(join(base, "a.vn"), "1");
@@ -56,7 +56,7 @@ await describe("example std:fs", async () => {
     });
 
     await it("renames and copies", () => {
-        let base = join(tempDir(), "ex-fs-mv");
+        const base = join(tempDir(), "ex-fs-mv");
         clean(base);
         mkdirAll(base);
         writeText(join(base, "orig.txt"), "data");
@@ -70,15 +70,15 @@ await describe("example std:fs", async () => {
     });
 
     await it("reads lines and streams a file", () => {
-        let base = join(tempDir(), "ex-fs-lines");
+        const base = join(tempDir(), "ex-fs-lines");
         clean(base);
         mkdirAll(base);
-        let file = join(base, "lines.txt");
+        const file = join(base, "lines.txt");
         writeText(file, "one\ntwo\nthree\n");
-        let lines = readLines(file);
+        const lines = readLines(file);
         expect(lines.length).toBe(3);
         expect(lines[1]).toBe("two");
-        let handle = new File(file, FileMode.Read);
+        const handle = new File(file, FileMode.Read);
         expect(handle.readAll()).toBe("one\ntwo\nthree\n");
         handle.close();
         clean(base);

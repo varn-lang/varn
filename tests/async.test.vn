@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { sleep, TaskGroup, spawn, parallel } from "std:task";
+import { TaskGroup, spawn, parallel } from "std:task";
 
 async function asyncAdd(a: int, b: int): Task<int> {
     return a + b;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
 function continueThenTry(a: int): int {
-    let v0 = a;
+    const v0 = a;
     for(let i = 0; i < 4; i++) {
         if(4 < v0 + 1) {
             continue;

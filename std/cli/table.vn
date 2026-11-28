@@ -20,9 +20,9 @@ export class Table {
         }
 
         for(let r = 0; r < this._rows.length; r = r + 1) {
-            let row = this._rows[r];
+            const row = this._rows[r];
             for(let c = 0; c < row.length; c = c + 1) {
-                let cellLen = Color.stripAnsi(row[c]).length;
+                const cellLen = Color.stripAnsi(row[c]).length;
                 if(c >= colWidths.length) {
                     colWidths.push(cellLen);
                 } else if (cellLen > colWidths[c]) {
@@ -38,20 +38,20 @@ export class Table {
 
         let output = separator + "\n|";
         for(let h = 0; h < this._headers.length; h = h + 1) {
-            let cell = this._headers[h];
-            let visibleLen = Color.stripAnsi(cell).length;
-            let pad = colWidths[h] - visibleLen;
+            const cell = this._headers[h];
+            const visibleLen = Color.stripAnsi(cell).length;
+            const pad = colWidths[h] - visibleLen;
             output = output + " " + cell + " ".repeat(pad) + " |";
         }
         output = output + "\n" + separator + "\n";
 
         for(let i = 0; i < this._rows.length; i = i + 1) {
-            let row = this._rows[i];
+            const row = this._rows[i];
             output = output + "|";
             for(let j = 0; j < colWidths.length; j = j + 1) {
-                let cell = j < row.length ? row[j] : "";
-                let visibleLen = Color.stripAnsi(cell).length;
-                let pad = colWidths[j] - visibleLen;
+                const cell = j < row.length ? row[j] : "";
+                const visibleLen = Color.stripAnsi(cell).length;
+                const pad = colWidths[j] - visibleLen;
                 output = output + " " + cell + " ".repeat(pad) + " |";
             }
             output = output + "\n";

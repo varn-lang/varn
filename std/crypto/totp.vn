@@ -17,15 +17,15 @@ function macName(algo: str): str {
 }
 
 function hotpCode(key: Bytes, counter: int, digits: int, algo: str): str {
-    let msg = Bytes.alloc(8);
+    const msg = Bytes.alloc(8);
     let c = counter;
     for(let i = 7; i >= 0; i = i - 1) {
         msg.setByte(i, c & 255);
         c = c >> 8;
     }
-    let mac = hmacBytes$(macName(algo), key, msg);
-    let offset = mac.getByte(mac.length - 1) & 15;
-    let code =
+    const mac = hmacBytes$(macName(algo), key, msg);
+    const offset = mac.getByte(mac.length - 1) & 15;
+    const code =
         ((mac.getByte(offset) & 127) << 24) |
             (mac.getByte(offset + 1) << 16) |
             (mac.getByte(offset + 2) << 8) |
@@ -53,7 +53,7 @@ export namespace Totp {
         digits: int = 6,
         algo: str = "SHA1",
     ): str {
-        let counter = ((timeMs ?? now()) / 1000) / step;
+        const counter = ((timeMs ?? now()) / 1000) / step;
         return hotp(secret, counter, digits, algo);
     }
 
@@ -66,8 +66,8 @@ export namespace Totp {
         algo: str = "SHA1",
         window: int = 1,
     ): bool {
-        let counter = ((timeMs ?? now()) / 1000) / step;
-        let key = Base32.decode(secret);
+        const counter = ((timeMs ?? now()) / 1000) / step;
+        const key = Base32.decode(secret);
         for(let d = 0 - window; d <= window; d = d + 1) {
             if(timingSafeEqual(hotpCode(key, counter + d, digits, algo), code)) {
                 return true;

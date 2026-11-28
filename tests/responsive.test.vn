@@ -5,7 +5,6 @@ import {
     Focus,
     Widget,
     Column,
-    Row,
     Text,
     Box,
     Responsive,
@@ -13,7 +12,6 @@ import {
     WindowClass,
     render,
     present,
-    signal,
     DrawnItem,
 } from "std:ui";
 
@@ -76,7 +74,7 @@ await describe("252 responsive", async () => {
         const fr = new UiFrame(960, 300);
         const focus = new Focus();
         let builds = 0;
-        const tree = Responsive((cls: WindowClass): Widget => {
+        const tree = Responsive((_cls: WindowClass): Widget => {
             builds = builds + 1;
             return Text("x");
         });

@@ -75,7 +75,7 @@ await describe("135 callback exceptions", async () => {
             })).toBeTruthy();
         byKey.set(2, 2)
         expect(raisesBoom(() => {
-            byKey.forEach((v: int, k: int) => {
+            byKey.forEach((v: int, _k: int) => {
                 boom(v)
             })
         })).toBeTruthy();

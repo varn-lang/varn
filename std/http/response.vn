@@ -237,8 +237,8 @@ export function json<T>(
     str> = new Map<str,
     str>(),
 ): Response {
-    let body = Json.stringify(data);
-    let h = new Headers(headers);
+    const body = Json.stringify(data);
+    const h = new Headers(headers);
     if(!h.has("content-type")) {
         h.set("Content-Type", "application/json");
     }

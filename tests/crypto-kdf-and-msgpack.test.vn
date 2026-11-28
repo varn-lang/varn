@@ -4,19 +4,19 @@ import { describe, it, expect } from "std:test";
 
 function testCryptoPrimitives(): void {
     // 1. randomBytes returning Bytes
-    let rnd = randomBytes(32);
+    const rnd = randomBytes(32);
     expect(rnd.length).toBe(32);;
-    let rndHex = rnd.toHex();
+    const rndHex = rnd.toHex();
     expect(rndHex.length).toBe(64);;
 
     // 2. pbkdf2 derivation
-    let salt = Bytes.fromString("mysalt123");
-    let key1 = pbkdf2("my_password", salt, 1000, 32);
-    let key2 = pbkdf2("my_password", salt, 1000, 32);
+    const salt = Bytes.fromString("mysalt123");
+    const key1 = pbkdf2("my_password", salt, 1000, 32);
+    const key2 = pbkdf2("my_password", salt, 1000, 32);
     expect(key1.length).toBe(32);;
     expect(key1.toHex()).toBe(key2.toHex());;
 
-    let differentKey = pbkdf2("other_password", salt, 1000, 32);
+    const differentKey = pbkdf2("other_password", salt, 1000, 32);
     expect(key1.toHex() != differentKey.toHex()).toBeTruthy();;
 
     // 3. timingSafeEqual
@@ -26,7 +26,7 @@ function testCryptoPrimitives(): void {
     expect(timingSafeEqual("constant_time_secret", "wrong_secret")).toBeFalsy();;
 
     // 4. hashPassword and verifyPassword
-    let hash = hashPassword("super_secure_vn_2026", 1000);
+    const hash = hashPassword("super_secure_vn_2026", 1000);
     expect(hash.startsWith("$pbkdf2-sha256$i=1000$")).toBeTruthy();;
     expect(verifyPassword("super_secure_vn_2026", hash)).toBeTruthy();;
     expect(verifyPassword("wrong_attempt", hash)).toBeFalsy();;
@@ -35,14 +35,14 @@ function testCryptoPrimitives(): void {
 
 function testMsgPackPrimitives(): void {
     // Null
-    let nullBytes = MsgPack.encode(null);
-    let nullDec = MsgPack.decode(nullBytes);
+    const nullBytes = MsgPack.encode(null);
+    const nullDec = MsgPack.decode(nullBytes);
     expect(nullDec).toBe(null);;
 
     // Booleans
-    let trueBytes = MsgPack.encode(true);
+    const trueBytes = MsgPack.encode(true);
     expect(MsgPack.decode(trueBytes)).toBe(true);;
-    let falseBytes = MsgPack.encode(false);
+    const falseBytes = MsgPack.encode(false);
     expect(MsgPack.decode(falseBytes)).toBe(false);;
 
     // Small integers (positive and negative fixint)
@@ -58,20 +58,20 @@ function testMsgPackPrimitives(): void {
     expect(MsgPack.decode(MsgPack.encode(1000000))).toBe(1000000);;
 
     // Strings
-    let shortStr = "Hello Varn MsgPack";
+    const shortStr = "Hello Varn MsgPack";
     expect(MsgPack.decode(MsgPack.encode(shortStr))).toBe(shortStr);;
 
-    let mediumStr = "Varn ".repeat(50);
+    const mediumStr = "Varn ".repeat(50);
     expect(MsgPack.decode(MsgPack.encode(mediumStr))).toBe(mediumStr);;
 
     // Raw Bytes (binary format)
-    let rawBin = Bytes.alloc(4);
+    const rawBin = Bytes.alloc(4);
     rawBin.setByte(0, 10);
     rawBin.setByte(1, 20);
     rawBin.setByte(2, 30);
     rawBin.setByte(3, 40);
-    let binEncoded = MsgPack.encode(rawBin);
-    let binDecoded = MsgPack.decode(binEncoded) as Bytes;
+    const binEncoded = MsgPack.encode(rawBin);
+    const binDecoded = MsgPack.decode(binEncoded) as Bytes;
     expect(binDecoded.length).toBe(4);;
     expect(binDecoded.getByte(0)).toBe(10);;
     expect(binDecoded.getByte(3)).toBe(40);;
@@ -79,16 +79,16 @@ function testMsgPackPrimitives(): void {
 
 function testMsgPackStructured(): void {
     // Arrays
-    let list: MsgPackValue[] = [1, 2, 3, "four", true];
-    let listEnc = MsgPack.encode(list);
-    let listDec = MsgPack.decode(listEnc) as MsgPackValue[];
+    const list: MsgPackValue[] = [1, 2, 3, "four", true];
+    const listEnc = MsgPack.encode(list);
+    const listDec = MsgPack.decode(listEnc) as MsgPackValue[];
     expect(listDec.length).toBe(5);;
     expect(listDec[0]).toBe(1);;
     expect(listDec[3]).toBe("four");;
     expect(listDec[4]).toBe(true);;
 
     // Objects / Maps
-    let user: MsgPackValue = new Map<str, MsgPackValue>([
+    const user: MsgPackValue = new Map<str, MsgPackValue>([
         #["name", "Alice"],
         #["age", 30],
         #["active", true],
@@ -96,12 +96,12 @@ function testMsgPackStructured(): void {
         #["meta", new Map<str, MsgPackValue>([#["tier", 1]])],
     ]);
 
-    let userEnc = MsgPack.encode(user);
-    let userDec = MsgPack.decode(userEnc) as Map<str, MsgPackValue>;
+    const userEnc = MsgPack.encode(user);
+    const userDec = MsgPack.decode(userEnc) as Map<str, MsgPackValue>;
     expect(userDec.get("name")).toBe("Alice");;
     expect(userDec.get("age")).toBe(30);;
     expect(userDec.get("active")).toBe(true);;
-    let skills = userDec.get("skills") as str[];
+    const skills = userDec.get("skills") as str[];
     expect(skills.length).toBe(2);;
     expect(skills[0]).toBe("systems");;
     expect(skills[1]).toBe("compilers");;

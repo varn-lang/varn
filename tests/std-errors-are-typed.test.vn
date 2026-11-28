@@ -3,7 +3,7 @@ import { readDir, readText, stat } from "std:fs";
 
 @capability("fs.read")
 function sources(dir: str): str[] {
-    let found: str[] = [];
+    const found: str[] = [];
     for(const name in readDir(dir)) {
         const path = dir + "/" + name;
         if(stat(path).isDir) {

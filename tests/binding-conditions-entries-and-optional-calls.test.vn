@@ -44,7 +44,7 @@ await describe("318 binding conditions, entries and optional calls", async () =>
             seen = a.toString() + b;
         }
         expect(seen).toBe("1x");
-        if(const p = pair(false)) {
+        if(const _p = pair(false)) {
             seen = "unexpected";
         }
         expect(seen).toBe("1x");

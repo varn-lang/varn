@@ -35,28 +35,28 @@ class AppConfig {
 }
 await describe("87 primary constructors nullish assign", async () => {
     await it("primary constructors", async () => {
-        let u1 = new User(1, "Alice", "admin");
+        const u1 = new User(1, "Alice", "admin");
         expect(u1.id).toBe(1);
         expect(u1.name).toBe("Alice");
         expect(u1.getRole()).toBe("admin");
         expect(u1.greet()).toBe("User #1: Alice [admin]");
-        let u2 = new User(2, "Bob");
+        const u2 = new User(2, "Bob");
         expect(u2.id).toBe(2);
         expect(u2.name).toBe("Bob");
         expect(u2.getRole()).toBe("guest");
         expect(u2.greet()).toBe("User #2: Bob [guest]");
-        let pt = new Point(10, 25);
+        const pt = new Point(10, 25);
         expect(pt.x).toBe(10);
         expect(pt.y).toBe(25);
         expect(pt.sum()).toBe(35);
     });
 
     await it("parameter properties", async () => {
-        let h1 = new Hero(101, "Superman");
+        const h1 = new Hero(101, "Superman");
         expect(h1.id).toBe(101);
         expect(h1.name).toBe("Superman");
         expect(h1.getPower()).toBe(95.5);
-        let h2 = new Hero(102, "Batman", 80.0);
+        const h2 = new Hero(102, "Batman", 80.0);
         expect(h2.id).toBe(102);
         expect(h2.name).toBe("Batman");
         expect(h2.getPower()).toBe(80.0);

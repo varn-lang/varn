@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { channel, ChannelClosed, spawnIsolate, Sender, Receiver } from "std:task";
+import { channel, ChannelClosed, spawnIsolate } from "std:task";
 import { echoWorker } from "./helpers/isolate-workers.vn";
 
 async function testBasics(): Task<void> {

@@ -2,14 +2,14 @@ import { describe, it, expect, summary } from "std:test";
 
 await describe("example Regex", async () => {
     await it("tests patterns", () => {
-        let digits = new Regex("\\d+");
+        const digits = new Regex("\\d+");
         expect(digits.test("abc123")).toBe(true);
         expect(digits.test("no digits")).toBe(false);
         expect(new Regex("foo", "i").test("FOO")).toBe(true);
     });
 
     await it("execs first match with groups", () => {
-        let found = new Regex("(\\w+)@(\\w+)").exec("user@host");
+        const found = new Regex("(\\w+)@(\\w+)").exec("user@host");
         expect(found != null).toBe(true);
         expect(found!!.match).toBe("user@host");
         expect(found!!.groups[0]).toBe("user");
@@ -18,7 +18,7 @@ await describe("example Regex", async () => {
     });
 
     await it("finds all matches", () => {
-        let all = new Regex("\\d+").findAll("a1 b22 c333");
+        const all = new Regex("\\d+").findAll("a1 b22 c333");
         expect(all.length).toBe(3);
         expect(all[0].match).toBe("1");
         expect(all[2].index).toBe(8);
@@ -26,7 +26,7 @@ await describe("example Regex", async () => {
 
     await it("replaces and splits", () => {
         expect(new Regex("\\d+").replaceAll("a1 b2", "X")).toBe("aX bX");
-        let parts = new Regex(",\\s*").split("a, b,c");
+        const parts = new Regex(",\\s*").split("a, b,c");
         expect(parts.length).toBe(3);
         expect(parts[1]).toBe("b");
     });

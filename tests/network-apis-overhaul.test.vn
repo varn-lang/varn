@@ -1,16 +1,14 @@
-import { TcpListener, TcpStream, connect, listen, isIP, isIPv4, isIPv6 } from "std:net";
+import { TcpStream, isIP, isIPv4, isIPv6 } from "std:net";
 import {
     HttpServer,
     Request,
     Response,
-    HttpStatus,
     json,
     get,
     post,
     put,
     patch,
     del,
-    fetch,
 } from "std:http";
 import { WebSocket, WebSocketReadyState } from "std:ws";
 import { Process } from "std:process";
@@ -34,27 +32,27 @@ function testNetIpUtils(): void {
 
 function testHttpServerAndClientApis(): void {
     // 1. Response and HttpStatus
-    let res = json(#{ message: "Success", code: 200 });
+    const res = json(#{ message: "Success", code: 200 });
     expect(res.status).toBe(200);;
     expect(res.ok).toBeTruthy();;
     expect(res.statusText).toBe("OK");;
-    let parsedJson = res.json() as Map<str, JsonValue>;
+    const parsedJson = res.json() as Map<str, JsonValue>;
     expect(parsedJson["message"]).toBe("Success");;
 
-    let errRes = new Response("boom", 404);
+    const errRes = new Response("boom", 404);
     expect(errRes.status).toBe(404);;
     expect(errRes.ok).toBeFalsy();;
     expect(errRes.statusText).toBe("Not Found");;
 
     // 2. HttpServer Routing & CORS
-    let app = new HttpServer();
+    const app = new HttpServer();
     app.cors("*");
 
-    app.get("/api/items", async (req: Request) => {
+    app.get("/api/items", async (_req: Request) => {
         return json([#{ id: 1, name: "Item1" }]);
     });
 
-    app.post("/api/items", async (req: Request) => {
+    app.post("/api/items", async (_req: Request) => {
         return json(#{ created: true });
     });
 
@@ -85,9 +83,9 @@ function testWebSocket(): void {
 
     expect(WebSocket::type).toBe("WebSocket");
 }
-let portFile = freshPortFile();
-let vnBin = Process.currentExe();
-let proc = Process.spawn(
+const portFile = freshPortFile();
+const vnBin = Process.currentExe();
+const proc = Process.spawn(
     vnBin,
     ["run", `${import.meta.dirname}/helpers/tcp_echo_server.vn`, "--", portFile],
 );
@@ -100,18 +98,18 @@ async function main(): Task<void> {
 
 await describe("111 network apis overhaul", async () => {
     await it("Give child process a small moment to start listening", async () => {
-        let testPort = await awaitPort(portFile);
+        const testPort = await awaitPort(portFile);
         let attempts = 0;
         let ok = false;
         while(!ok && attempts < 25) {
             attempts = attempts + 1;
             try {
-                let clientSock = await TcpStream.connect("127.0.0.1", testPort);
+                const clientSock = await TcpStream.connect("127.0.0.1", testPort);
                 expect(clientSock.isOpen).toBeTruthy();
                 expect(clientSock.remoteHost).toBe("127.0.0.1");
                 expect(clientSock.remotePort).toBe(testPort);
                 await clientSock.writeAll("vn_test\n");
-                let echoMsg = await clientSock.readText();
+                const echoMsg = await clientSock.readText();
                 expect(echoMsg.trim()).toBe("ECHO:vn_test");
                 clientSock.close();
                 ok = true;

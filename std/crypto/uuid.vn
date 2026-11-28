@@ -23,17 +23,17 @@ export namespace Uuid {
     }
 
     export function ulid(timeMs?: int): str {
-        let t = timeMs ?? nowMs$();
-        let rand = randomBytesBuffer$(10);
+        const t = timeMs ?? nowMs$();
+        const rand = randomBytesBuffer$(10);
         let out = "";
         for(let i = 0; i < 10; i = i + 1) {
             out = out + ULID_ALPHABET[(t >> (45 - i * 5)) & 31];
         }
         for(let i = 0; i < 16; i = i + 1) {
-            let bitpos = i * 5;
-            let byteIdx = bitpos >> 3;
-            let b0 = rand.getByte(byteIdx);
-            let b1 = byteIdx + 1 < 10 ? rand.getByte(byteIdx + 1) : 0;
+            const bitpos = i * 5;
+            const byteIdx = bitpos >> 3;
+            const b0 = rand.getByte(byteIdx);
+            const b1 = byteIdx + 1 < 10 ? rand.getByte(byteIdx + 1) : 0;
             out = out + ULID_ALPHABET[(((b0 << 8) | b1) >> (11 - (bitpos & 7))) & 31];
         }
         return out;

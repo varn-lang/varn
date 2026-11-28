@@ -4,7 +4,7 @@ import { Redis } from "std:db";
 await describe("example std:db", async () => {
     await it("redis set/get/incr/expire (skips without server)", async () => {
         try {
-            let db = await Redis.connect("127.0.0.1", 6379);
+            const db = await Redis.connect("127.0.0.1", 6379);
             expect(await db.ping()).toBe("PONG");
             await db.set("ex:key", "ex-val");
             expect(await db.get("ex:key")).toBe("ex-val");

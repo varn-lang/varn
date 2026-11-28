@@ -44,8 +44,8 @@ function nrSum(head: NrNode): int {
     }
     return acc
 }
-let nrLists: NrNode[] = []
-let nrJunk: str[] = []
+const nrLists: NrNode[] = []
+const nrJunk: str[] = []
 let nrTotal = 0
 for (let round = 0; round < 20; round = round + 1) {
     nrLists.push(nrBuild(3000))

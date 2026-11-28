@@ -49,7 +49,7 @@ export namespace Mime {
         if(key.startsWith(".")) {
             key = key.slice(1);
         }
-        let found = TYPES.get(key);
+        const found = TYPES.get(key);
         if(found != null) {
             return found as str;
         }
@@ -57,7 +57,7 @@ export namespace Mime {
     }
 
     export function detect(path: str): str {
-        let dot = path.lastIndexOf(".");
+        const dot = path.lastIndexOf(".");
         if(dot == null) {
             return "application/octet-stream";
         }

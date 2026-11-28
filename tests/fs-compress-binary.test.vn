@@ -8,8 +8,8 @@ import { describe, it, expect } from "std:test";
 
 @capability("fs.read", "fs.write")
 function testBinaryFsOps(): void {
-    let testPath = scratch + "-binary.bin";
-    let testData = Bytes.alloc(4);
+    const testPath = scratch + "-binary.bin";
+    const testData = Bytes.alloc(4);
     testData.setByte(0, 0xDE);
     testData.setByte(1, 0xAD);
     testData.setByte(2, 0xBE);
@@ -17,7 +17,7 @@ function testBinaryFsOps(): void {
 
     // 1. Standalone writeBytes and readBytes
     writeBytes(testPath, testData);
-    let readBack = readBytes(testPath);
+    const readBack = readBytes(testPath);
     expect(readBack.length).toBe(4);;
     expect(readBack.getByte(0)).toBe(0xDE);;
     expect(readBack.getByte(1)).toBe(0xAD);;
@@ -26,55 +26,55 @@ function testBinaryFsOps(): void {
     expect(readBack.toHex()).toBe("deadbeef");;
 
     // 2. File instance operations
-    let file = new File(testPath);
-    let appendData = Bytes.alloc(2);
+    const file = new File(testPath);
+    const appendData = Bytes.alloc(2);
     appendData.setByte(0, 0xCA);
     appendData.setByte(1, 0xFE);
     file.appendBytes(appendData);
 
-    let fullData = file.readBytes();
+    const fullData = file.readBytes();
     expect(fullData.length).toBe(6);;
     expect(fullData.toHex()).toBe("deadbeefcafe");;
 }
 
 function testBinaryCompression(): void {
-    let raw = Bytes.alloc(256);
+    const raw = Bytes.alloc(256);
     for(let i = 0; i < 256; i = i + 1) {
         raw.setByte(i, 42); // Highly compressible
     }
 
     // Gzip roundtrip on Bytes
-    let gzipped = Compress.gzip(raw);
+    const gzipped = Compress.gzip(raw);
     expect(gzipped.length < raw.length).toBeTruthy();;
-    let gunzipped = Compress.gunzip(gzipped);
+    const gunzipped = Compress.gunzip(gzipped);
     expect(gunzipped.length).toBe(256);;
     expect(gunzipped.getByte(0)).toBe(42);;
     expect(gunzipped.getByte(255)).toBe(42);;
 
     // Deflate roundtrip on Bytes
-    let deflated = Compress.deflate(raw);
+    const deflated = Compress.deflate(raw);
     expect(deflated.length < raw.length).toBeTruthy();;
-    let inflated = Compress.inflate(deflated);
+    const inflated = Compress.inflate(deflated);
     expect(inflated.length).toBe(256);;
     expect(inflated.getByte(0)).toBe(42);;
     expect(inflated.getByte(255)).toBe(42);;
 }
 @capability("fs.read", "fs.write")
 async function testFileStreamAsync(): Task<void> {
-    let srcPath = scratch + "-src.bin";
-    let dstPath = scratch + "-dst.bin";
-    let payload = Bytes.alloc(1024);
+    const srcPath = scratch + "-src.bin";
+    const dstPath = scratch + "-dst.bin";
+    const payload = Bytes.alloc(1024);
     for(let i = 0; i < 1024; i = i + 1) {
         payload.setByte(i, i & 0xFF);
     }
     writeBytes(srcPath, payload);
-    let srcStream = new FileStream(srcPath, FileMode.Read);
-    let dstStream = new FileStream(dstPath, FileMode.Write);
-    let piped = await Stream.pipe(srcStream, dstStream);
+    const srcStream = new FileStream(srcPath, FileMode.Read);
+    const dstStream = new FileStream(dstPath, FileMode.Write);
+    const piped = await Stream.pipe(srcStream, dstStream);
     expect(piped).toBe(1024);
     srcStream.close();
     dstStream.close();
-    let dstData = readBytes(dstPath);
+    const dstData = readBytes(dstPath);
     expect(dstData.length).toBe(1024);
     expect(dstData.getByte(255)).toBe(255);
     expect(dstData.getByte(256)).toBe(0);

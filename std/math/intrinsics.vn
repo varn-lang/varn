@@ -107,7 +107,7 @@ export function hypot(x: float, y: float): float {
 export function max(first: float, ...rest: float[]): float {
     let current = first;
     for(let i = 0; i < rest.length; i = i + 1) {
-        let v = rest[i];
+        const v = rest[i];
         current = max2$(current, v);
     }
     return current;
@@ -116,7 +116,7 @@ export function max(first: float, ...rest: float[]): float {
 export function min(first: float, ...rest: float[]): float {
     let current = first;
     for(let i = 0; i < rest.length; i = i + 1) {
-        let v = rest[i];
+        const v = rest[i];
         current = min2$(current, v);
     }
     return current;

@@ -174,17 +174,17 @@ export class Request {
         this.headers = new Headers(init.headers ?? new Map<str, str>());
         this.body = init.body ?? "";
 
-        let cookieHdr = this.headers.get("cookie");
+        const cookieHdr = this.headers.get("cookie");
         if(cookieHdr != null) {
             if(cookieHdr.length > 0) {
-                let pairs = cookieHdr.split(";");
+                const pairs = cookieHdr.split(";");
                 for(let p in pairs) {
-                    let eq = p.indexOf("=");
+                    const eq = p.indexOf("=");
                     if(eq != null) {
                         const ei = eq as int;
                         if(ei > 0) {
-                            let k = p.slice(0, ei).trim();
-                            let v = p.slice(ei + 1).trim();
+                            const k = p.slice(0, ei).trim();
+                            const v = p.slice(ei + 1).trim();
                             this.cookies.set(k, v);
                         }
                     }
@@ -209,14 +209,14 @@ export class Request {
     formData(): Map<str, str> {
         const res = new Map<str, str>();
         if(this.body.length == 0) return res;
-        let pairs = this.body.split("&");
+        const pairs = this.body.split("&");
         for(let p in pairs) {
-            let eq = p.indexOf("=");
+            const eq = p.indexOf("=");
             if(eq != null) {
                 const ei = eq as int;
                 if(ei > 0) {
-                    let k = p.slice(0, ei);
-                    let v = p.slice(ei + 1);
+                    const k = p.slice(0, ei);
+                    const v = p.slice(ei + 1);
                     res.set(k, v);
                 }
             }

@@ -32,7 +32,7 @@ function divideOrDefault(a: int, b: int): int {
     }
 }
 function inner(): int {
-    let z: int[] = [0];
+    const z: int[] = [0];
     return 5 % z[0];
 }
 
@@ -92,11 +92,11 @@ await describe("11 Errors", async () => {
     });
 
     await it("runtime errors are catchable", () => {
-        let zeros: int[] = [0];
+        const zeros: int[] = [0];
         let divCaught = false;
         let divMsg = "";
         try {
-            let q = 10 / zeros[0];
+            const _q = 10 / zeros[0];
         } catch (e) {
             divCaught = true;
             divMsg = e.message;
@@ -106,7 +106,7 @@ await describe("11 Errors", async () => {
         let modCaught = false;
         let modMsg = "";
         try {
-            let q = 10 % zeros[0];
+            const _q = 10 % zeros[0];
         } catch (e) {
             modCaught = true;
             modMsg = e.message;
@@ -118,7 +118,7 @@ await describe("11 Errors", async () => {
         let nestedCaught = false;
         let nestedMsg = "";
         try {
-            let v = inner();
+            const _v = inner();
         } catch (e) {
             nestedCaught = true;
             nestedMsg = e.message;

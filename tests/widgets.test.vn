@@ -6,7 +6,6 @@ import {
     TextEdit,
     Widget,
     Text,
-    Box,
     Column,
     Row,
     Button,
@@ -21,7 +20,6 @@ import {
     MOUSE_LEFT,
     UiInjectKind,
 } from "std:ui";
-import { measure, ascent, descent } from "std:ui/text";
 
 @capability("ui")
 function tapEnter(win: UiWindow, fr: UiFrame, focus: Focus, tree: Widget): void {
@@ -187,7 +185,7 @@ await describe("219 widgets", async () => {
         const builds: int[] = [];
         run(
             "t",
-            build: (fr: UiFrame, focus: Focus) => {
+            build: (_fr: UiFrame, _focus: Focus) => {
                 builds.push(1);
                 return Column([Spacer(), Divider(), Text("x")]);
             },

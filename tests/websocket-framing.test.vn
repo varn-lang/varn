@@ -14,7 +14,7 @@ const HANDSHAKE =
 function frame(first: int, payload: Bytes, masked: bool = true, lengthBytes: int = 0): Bytes {
     const key = [1, 2, 3, 4];
     const size = payload.length;
-    let head: int[] = [first];
+    const head: int[] = [first];
     const maskBit = masked ? 128 : 0;
     if(lengthBytes == 8) {
         head.push(maskBit + 127);

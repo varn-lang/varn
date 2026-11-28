@@ -23,7 +23,7 @@ export namespace Auth {
         } catch (e) {
             return null;
         }
-        let colon = decoded.indexOf(":");
+        const colon = decoded.indexOf(":");
         if(colon == null) {
             return null;
         }

@@ -56,10 +56,10 @@ export namespace Stats {
         if(values.length == 0) {
             throw new RangeError("Stats.variance requires at least one value");
         }
-        let avg = mean(values);
+        const avg = mean(values);
         let total = 0.0;
         for(let v in values) {
-            let d = v - avg;
+            const d = v - avg;
             total = total + d * d;
         }
         return total / (values.length as float);
@@ -78,8 +78,8 @@ export namespace Stats {
                 return v;
             }
         }
-        let ordered = sortedCopy(values);
-        let mid = ordered.length >> 1;
+        const ordered = sortedCopy(values);
+        const mid = ordered.length >> 1;
         if(ordered.length % 2 == 1) {
             return ordered[mid];
         }

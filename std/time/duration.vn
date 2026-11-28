@@ -27,12 +27,12 @@ export class Duration {
         if(input is Duration) {
             return input as Duration;
         } else if (input is str) {
-            let ms = parseIsoDuration$(input as str);
+            const ms = parseIsoDuration$(input as str);
             return new Duration(ms);
         } else if (input is int) {
             return new Duration(input as int);
         } else {
-            let parts = input as DurationParts;
+            const parts = input as DurationParts;
             if(parts.years != null || parts.months != null) {
                 throw new RangeError(
                     "a Duration is a fixed span of time and cannot hold years or months",
@@ -66,24 +66,24 @@ export class Duration {
     }
 
     add(other: DurationLike): Duration {
-        let od = Duration.from(other);
+        const od = Duration.from(other);
         return new Duration(this.totalMilliseconds + od.totalMilliseconds);
     }
 
     subtract(other: DurationLike): Duration {
-        let od = Duration.from(other);
+        const od = Duration.from(other);
         return new Duration(this.totalMilliseconds - od.totalMilliseconds);
     }
 
     compare(other: DurationLike): int {
-        let od = Duration.from(other);
+        const od = Duration.from(other);
         if(this.totalMilliseconds < od.totalMilliseconds) return -1;
         if(this.totalMilliseconds > od.totalMilliseconds) return 1;
         return 0;
     }
 
     equals(other: DurationLike): bool {
-        let od = Duration.from(other);
+        const od = Duration.from(other);
         return this.totalMilliseconds == od.totalMilliseconds;
     }
 

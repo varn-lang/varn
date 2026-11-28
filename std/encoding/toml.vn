@@ -21,8 +21,8 @@ function parseInteger(digits: str): int {
         start = 1;
     }
     for(let index = start; index < digits.length; index = index + 1) {
-        let char = digits[index];
-        let code = char.charCodeAt(0);
+        const char = digits[index];
+        const code = char.charCodeAt(0);
         if(code >= 48 && code <= 57) {
             result = result * 10 + (code - 48);
         }
@@ -31,14 +31,14 @@ function parseInteger(digits: str): int {
 }
 
 function parseFloating(text: str): float {
-    let dotIndex = text.indexOf(".");
+    const dotIndex = text.indexOf(".");
     if(dotIndex == null) {
         return parseInteger(text) as float;
     }
-    let wholePart = text.slice(0, dotIndex);
-    let fractionalPart = text.slice(dotIndex + 1);
-    let wholeVal = parseInteger(wholePart) as float;
-    let fractionVal = parseInteger(fractionalPart) as float;
+    const wholePart = text.slice(0, dotIndex);
+    const fractionalPart = text.slice(dotIndex + 1);
+    const wholeVal = parseInteger(wholePart) as float;
+    const fractionVal = parseInteger(fractionalPart) as float;
     let divisor = 1.0;
     for(let index = 0; index < fractionalPart.length; index = index + 1) {
         divisor = divisor * 10.0;
@@ -52,7 +52,7 @@ function parseFloating(text: str): float {
 export type TomlValue = bool | int | float | str | TomlValue[] | Map<str, TomlValue>;
 
 function parseTomlValue(valueText: str): TomlValue {
-    let raw = trimWhitespace(valueText);
+    const raw = trimWhitespace(valueText);
     if(raw == "true") {
         return true;
     }
@@ -66,12 +66,12 @@ function parseTomlValue(valueText: str): TomlValue {
         return raw.slice(1, raw.length - 1);
     }
     if(raw.startsWith("[") && raw.endsWith("]")) {
-        let inner = raw.slice(1, raw.length - 1);
-        let items: TomlValue[] = [];
+        const inner = raw.slice(1, raw.length - 1);
+        const items: TomlValue[] = [];
         if(trimWhitespace(inner).length == 0) {
             return items;
         }
-        let parts = inner.split(",");
+        const parts = inner.split(",");
         for(let index = 0; index < parts.length; index = index + 1) {
             items.push(parseTomlValue(parts[index]));
         }
@@ -98,7 +98,7 @@ function formatTomlValue(val: TomlValue): str {
     }
     if(val is TomlValue[]) {
         const arr = val as TomlValue[];
-        let items: str[] = [];
+        const items: str[] = [];
         for(let i = 0; i < arr.length; i = i + 1) {
             items.push(formatTomlValue(arr[i]));
         }
@@ -111,27 +111,27 @@ export namespace Toml {
     export function parse(content: str): Map<str, TomlValue> {
         const root = new Map<str, TomlValue>();
         let currentSection = root;
-        let lines = content.split("\n");
+        const lines = content.split("\n");
 
         for(let lineIndex = 0; lineIndex < lines.length; lineIndex = lineIndex + 1) {
-            let line = trimWhitespace(lines[lineIndex]);
+            const line = trimWhitespace(lines[lineIndex]);
             if(line.length == 0 || line.startsWith("#")) {
                 continue;
             }
             if(line.startsWith("[") && line.endsWith("]")) {
-                let sectionName = line.slice(1, line.length - 1);
+                const sectionName = line.slice(1, line.length - 1);
                 const sectionObj = new Map<str, TomlValue>();
                 root.set(sectionName, sectionObj);
                 currentSection = sectionObj;
                 continue;
             }
-            let equalsIndex = line.indexOf("=");
+            const equalsIndex = line.indexOf("=");
             if(equalsIndex != null) {
                 const ei = equalsIndex as int;
                 if(ei > 0) {
-                    let key = trimWhitespace(line.slice(0, ei));
-                    let rawVal = line.slice(ei + 1);
-                    let parsedVal = parseTomlValue(rawVal);
+                    const key = trimWhitespace(line.slice(0, ei));
+                    const rawVal = line.slice(ei + 1);
+                    const parsedVal = parseTomlValue(rawVal);
                     currentSection.set(key, parsedVal);
                 }
             }
@@ -148,8 +148,8 @@ export namespace Toml {
     }
 
     export function stringify(value: Map<str, TomlValue>): str {
-        let lines: str[] = [];
-        let sectionKeys: str[] = [];
+        const lines: str[] = [];
+        const sectionKeys: str[] = [];
 
         for(const #[key, val] in value) {
             if(val::type == "Map") {
@@ -160,7 +160,7 @@ export namespace Toml {
         }
 
         for(let s = 0; s < sectionKeys.length; s = s + 1) {
-            let sectionName = sectionKeys[s];
+            const sectionName = sectionKeys[s];
             if(lines.length > 0) {
                 lines.push("");
             }

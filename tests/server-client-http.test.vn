@@ -17,19 +17,19 @@ import { isIP, isIPv4, isIPv6, encodeURIComponent, decodeURIComponent } from "st
 
 @capability("net.server", "net.client")
 async function runHttpVerification() {
-    let live = new HttpServer();
-    live.get("/", async (req: Request) => json(#{ ok: true }));
+    const live = new HttpServer();
+    live.get("/", async (_req: Request) => json(#{ ok: true }));
     live.post("/api", async (req: Request) => new Response(req.text(), 200));
     live.listen(0);
     await delay(150);
 
     // 1. Test Client: Fetch GET
-    let getRes = await fetch(`http://127.0.0.1:${live.port}/`);
+    const getRes = await fetch(`http://127.0.0.1:${live.port}/`);
     expect(getRes.status).toBe(200);
     expect(getRes.text().indexOf('"ok":true') != null).toBeTruthy();
 
     // 2. Test Client: Fetch POST with body & headers
-    let postRes = await fetch(
+    const postRes = await fetch(
         `http://127.0.0.1:${live.port}/api`,
         new RequestInit(
             method: HttpMethod.POST,
@@ -43,7 +43,7 @@ async function runHttpVerification() {
     live.close();
 
     // 3. Web Standard Headers
-    let hdrs = new Headers(
+    const hdrs = new Headers(
         new Map<str,
         str>([#["Content-Type", "application/json"], #["X-Varn-Engine", "v1"]]),
     );
@@ -55,7 +55,7 @@ async function runHttpVerification() {
     expect(hdrs.has("x-varn-engine")).toBe(false);
 
     // 4. Web Standard Request & Response
-    let req = new Request(
+    const req = new Request(
         "http://localhost:8080/api/users",
         new RequestInit(
             method: HttpMethod.POST,
@@ -68,27 +68,27 @@ async function runHttpVerification() {
     expect(req.url).toBe("http://localhost:8080/api/users");
     expect(req.text()).toBe('{"name":"Varn"}');
 
-    let resp = json(#{ success: true, count: 42 });
+    const resp = json(#{ success: true, count: 42 });
     expect(resp.status).toBe(200);
     expect(resp.ok).toBe(true);
     expect(resp.text().indexOf('"success":true') != null).toBeTruthy();
 
-    let redir = redirect("https://varn.dev", 301);
+    const redir = redirect("https://varn.dev", 301);
     expect(redir.status).toBe(301);
     expect(redir.headers.get("location")).toBe("https://varn.dev");
 
-    let errResp = error(404, "Not Found");
+    const errResp = error(404, "Not Found");
     expect(errResp.status).toBe(404);
     expect(errResp.ok).toBe(false);
 
     // 5. Test Server registration & routing configuration
-    let app = serve();
+    const app = serve();
 
-    app.get("/api/v1/users", async (req: Request) => {
+    app.get("/api/v1/users", async (_req: Request) => {
         return json(#{ users: ["alice", "bob"] });
-    }).post("/api/v1/users", async (req: Request) => {
+    }).post("/api/v1/users", async (_req: Request) => {
         return json(#{ created: true });
-    }).get("/api/v1/users/:id", async (req: Request) => {
+    }).get("/api/v1/users/:id", async (_req: Request) => {
         return new Response(
             "<h1>User Profile</h1>",
             200,

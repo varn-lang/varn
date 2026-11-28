@@ -59,7 +59,7 @@ function extras(a: int, ...more: int[]): int {
 }
 
 function fixedBound(): int {
-    let items: int[] = []
+    const items: int[] = []
     for(let i = 0; i < 1000; i = i + 1) {
         items.push(i)
     }
@@ -72,7 +72,7 @@ function fixedBound(): int {
     return sum + last
 }
 function shortArray(): int {
-    let items: int[] = [1, 2, 3]
+    const items: int[] = [1, 2, 3]
     let sum = 0
     for(let i = 0; i < 5; i = i + 1) {
         if(i < items.length) {

@@ -35,7 +35,7 @@ class GcMixed {
 }
 
 function gcChurn(n: int): int {
-    let junk: str[] = []
+    const junk: str[] = []
     for(let i = 0; i < n; i = i + 1) {
         junk.push(`churn-${i}`)
     }
@@ -43,7 +43,7 @@ function gcChurn(n: int): int {
 }
 
 // Born holding young references, then churned through several collections.
-let gcMixed: GcMixed[] = []
+const gcMixed: GcMixed[] = []
 
 function gcMixedChecksum(xs: GcMixed[]): int {
     let acc = 0
@@ -78,14 +78,14 @@ class GcScalars {
         this.d = true
     }
 }
-let gcScalars: GcScalars[] = []
+const gcScalars: GcScalars[] = []
 let gcScalarSum = 0
 
 for (let i = 0; i < 2000; i = i + 1) {
     gcMixed.push(new GcMixed(i))
 }
 gcChurn(60000)
-let gcMixedSum = gcMixedChecksum(gcMixed)
+const gcMixedSum = gcMixedChecksum(gcMixed)
 gcChurn(60000)
 for (let round = 0; round < 20; round = round + 1) {
     gcOld.leaf = new GcLeaf(round)
@@ -94,10 +94,10 @@ for (let round = 0; round < 20; round = round + 1) {
     gcOld.any = new GcLeaf(round * 10)
     gcChurn(5000)
 }
-let gcOldLeafN = gcOld.leaf.n
-let gcOldItem1 = gcOld.items[1]
-let gcOldLabel = gcOld.label
-let gcOldAnyN = (gcOld.any as GcLeaf).n
+const gcOldLeafN = gcOld.leaf.n
+const gcOldItem1 = gcOld.items[1]
+const gcOldLabel = gcOld.label
+const gcOldAnyN = (gcOld.any as GcLeaf).n
 for (let i = 0; i < 5000; i = i + 1) {
     gcScalars.push(new GcScalars(i))
 }

@@ -1,6 +1,6 @@
 import { ParseError } from "std:error";
 import { sleep } from "std:task/combinators";
-import { now, toParts, fromParts, TimeParts } from "std:time";
+import { now, toParts } from "std:time";
 
 export struct CronSpec {
     minutes: bool[];
@@ -11,16 +11,16 @@ export struct CronSpec {
 }
 
 function parseField(text: str, lo: int, hi: int): bool[] {
-    let size = hi - lo + 1;
+    const size = hi - lo + 1;
     let out: bool[] = [];
     for(let i = 0; i < size; i = i + 1) {
         out.push(false);
     }
-    let groups = text.split(",");
+    const groups = text.split(",");
     for(let g in groups) {
         let step = 1;
         let range = g;
-        let slash = g.indexOf("/");
+        const slash = g.indexOf("/");
         if(slash != null) {
             range = g.slice(0, slash);
             step = int.parse(g.slice(slash + 1));
@@ -31,7 +31,7 @@ function parseField(text: str, lo: int, hi: int): bool[] {
         let from = lo;
         let to = hi;
         if(range != "" && range != "*") {
-            let dash = range.indexOf("-");
+            const dash = range.indexOf("-");
             if(dash != null) {
                 from = int.parse(range.slice(0, dash));
                 to = int.parse(range.slice(dash + 1));
@@ -91,8 +91,8 @@ function dowOf(ms: int): int {
 
 export namespace Cron {
     export function parse(expr: str): CronSpec {
-        let fields = expr.split(" ");
-        let clean: str[] = [];
+        const fields = expr.split(" ");
+        const clean: str[] = [];
         for(let f in fields) {
             if(f.length > 0) {
                 clean.push(f);
@@ -101,7 +101,7 @@ export namespace Cron {
         if(clean.length != 5) {
             throw new ParseError("Cron: expected 5 fields, got " + clean.length.toString());
         }
-        let wd8 = parseField(clean[4], 0, 7);
+        const wd8 = parseField(clean[4], 0, 7);
         let wd = wd8.slice(0, 7);
         wd[0] = wd[0] || wd8[7];
         return new CronSpec(
@@ -114,17 +114,17 @@ export namespace Cron {
     }
 
     export function next(spec: CronSpec, fromMs?: int): int {
-        let base = fromMs ?? now();
+        const base = fromMs ?? now();
         let t = base - (base % 60000) + 60000;
-        let domOpen = allSet(spec.days);
-        let dowOpen = allSet(spec.weekdays);
+        const domOpen = allSet(spec.days);
+        const dowOpen = allSet(spec.weekdays);
         for(let i = 0; i < 525600; i = i + 1) {
-            let parts = toParts(t);
+            const parts = toParts(t);
             if(parts.day > daysInMonth(parts.year, parts.month)) {
                 t = t + 60000;
                 continue;
             }
-            let dow = dowOf(t);
+            const dow = dowOf(t);
             let dayOk = false;
             if(domOpen && dowOpen) {
                 dayOk = true;
@@ -150,8 +150,8 @@ export namespace Cron {
 
     export async function schedule(spec: CronSpec, action: () => void): Task<void> {
         while(true) {
-            let at = next(spec);
-            let wait = at - now();
+            const at = next(spec);
+            const wait = at - now();
             if(wait > 0) {
                 await sleep(wait);
             }

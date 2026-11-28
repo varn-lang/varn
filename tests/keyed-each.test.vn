@@ -34,7 +34,7 @@ await describe("251 keyed each", async () => {
         const build = (): Widget => Each(
             items.value,
             (s: str): str => s,
-            (s: str, at: int): Widget => Field(editFor(s), hint: s),
+            (s: str, _at: int): Widget => Field(editFor(s), hint: s),
         );
         drawFrame(win, fr, focus, build());
         win.inject(UiInjectKind.MouseDown, 60, 70, MOUSE_LEFT);

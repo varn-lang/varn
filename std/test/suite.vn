@@ -27,10 +27,10 @@ export function afterEach(fn: () => void): void {
 
 export async function describe(suiteName: str, body: () => void): Task<void> {
     logLine("=== Suite: " + suiteName + " ===");
-    let prevBeforeAll = beforeAllFns;
-    let prevAfterAll = afterAllFns;
-    let prevBeforeEach = beforeEachFns;
-    let prevAfterEach = afterEachFns;
+    const prevBeforeAll = beforeAllFns;
+    const prevAfterAll = afterAllFns;
+    const prevBeforeEach = beforeEachFns;
+    const prevAfterEach = afterEachFns;
 
     beforeAllFns = [];
     afterAllFns = [];

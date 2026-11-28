@@ -17,7 +17,7 @@ export type FfiScalar = int | float | str | bool | null;
 export type FfiValue = FfiScalar | Pointer;
 
 function marshal(args: FfiValue[]): FfiScalar[] {
-    let out: FfiScalar[] = [];
+    const out: FfiScalar[] = [];
     for(let arg in args) {
         if(arg is Pointer) {
             out.push(arg.address);
@@ -29,7 +29,7 @@ function marshal(args: FfiValue[]): FfiScalar[] {
 }
 
 function rawTypes(types: FfiType[]): int[] {
-    let out: int[] = [];
+    const out: int[] = [];
     for(let type in types) {
         out.push(type.rawValue);
     }
@@ -72,13 +72,13 @@ export class DynamicLibrary {
 
     @capability("sys.ffi")
     symbol(name: str): Pointer {
-        let ptr = dlsym$(this._handle, name);
+        const ptr = dlsym$(this._handle, name);
         return new Pointer(ptr);
     }
 
     @capability("sys.ffi")
     bind(name: str, returnType: FfiType, paramTypes: FfiType[] = []): FfiFunction {
-        let ptr = dlsym$(this._handle, name);
+        const ptr = dlsym$(this._handle, name);
         return new FfiFunction(ptr, returnType, paramTypes);
     }
 
@@ -91,13 +91,13 @@ export class DynamicLibrary {
 export class Ffi {
     @capability("sys.ffi")
     static open(path: str): DynamicLibrary {
-        let handle = dlopen$(path);
+        const handle = dlopen$(path);
         return new DynamicLibrary(handle);
     }
 
     @capability("sys.ffi")
     static alloc(size: int): Pointer {
-        let ptr = alloc$(size);
+        const ptr = alloc$(size);
         return new Pointer(ptr);
     }
 
@@ -116,7 +116,7 @@ export class Ffi {
 
     @capability("sys.ffi")
     static cStr(s: str): Pointer {
-        let ptr = allocCString$(s);
+        const ptr = allocCString$(s);
         return new Pointer(ptr);
     }
 
@@ -135,7 +135,7 @@ export class Ffi {
         paramTypes: FfiType[],
         args: FfiValue[] = [],
     ): FfiScalar {
-        let addr = fnPtr is Pointer ? fnPtr.address : fnPtr;
+        const addr = fnPtr is Pointer ? fnPtr.address : fnPtr;
         return call$(addr, returnType.rawValue, rawTypes(paramTypes), marshal(args));
     }
 

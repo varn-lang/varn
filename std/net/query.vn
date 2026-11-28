@@ -103,8 +103,8 @@ export class Query {
     }
 
     values(): str[] {
-        let res: str[] = [];
-        for(const #[key, bucket] in this.buckets) {
+        const res: str[] = [];
+        for(const #[_key, bucket] in this.buckets) {
             for(const val in bucket) {
                 res.push(val);
             }
@@ -113,7 +113,7 @@ export class Query {
     }
 
     entries(): #[str, str][] {
-        let res: #[str, str][] = [];
+        const res: #[str, str][] = [];
         for(const #[key, bucket] in this.buckets) {
             for(const val in bucket) {
                 res.push(#[key, val]);

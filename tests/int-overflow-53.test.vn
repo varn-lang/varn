@@ -81,8 +81,8 @@ await describe("53 int overflow", async () => {
 
         // Values held in variables take the register path rather than the folder, so
         // the same arithmetic has to agree through both.
-        let a: int = 1000000007
-        let b: int = 1000000007
+        const a: int = 1000000007
+        const b: int = 1000000007
         expect(a * b).toBe(1000000014000000049)
 
         expect(accumulate(0, 1000000000, 100)).toBe(100000000000)

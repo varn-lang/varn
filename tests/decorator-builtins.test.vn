@@ -12,7 +12,7 @@ function add(a: int, b: int): int {
 
 @pure
 function pureMul(a: int, b: int): int {
-    let t = a * b;
+    const t = a * b;
     return t;
 }
 
@@ -45,7 +45,7 @@ function builtinSum(): void {
 
 @test
 async function builtinAsync(): Task<void> {
-    let v = pureMul(6, 7);
+    const v = pureMul(6, 7);
     if(v != 42) {
         throw new Error("builtin async broke");
     }
@@ -68,7 +68,7 @@ class WithOld {
     }
 }
 
-let ctxLog: str[] = [];
+const ctxLog: str[] = [];
 
 function ctxMethod(fn: FunctionRef, ctx: MethodContext): FunctionRef {
     ctxLog.push(`method:${ctx.name}:static=${ctx.isStatic}`);

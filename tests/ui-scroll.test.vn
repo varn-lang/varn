@@ -4,7 +4,6 @@ import {
     UiFrame,
     Focus,
     Column,
-    Text,
     Scroll,
     Widget,
     render,

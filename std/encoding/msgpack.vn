@@ -10,8 +10,8 @@ class ByteWriter {
 
     private ensure(needed: int): void {
         if(this.pos + needed > this.buf.length) {
-            let nextCap = (this.buf.length * 2) + needed;
-            let next = Bytes.alloc(nextCap);
+            const nextCap = (this.buf.length * 2) + needed;
+            const next = Bytes.alloc(nextCap);
             this.buf.copy(next, 0, 0, this.pos);
             this.buf = next;
         }
@@ -68,22 +68,22 @@ class ByteReader {
 
     readU8(): int {
         if(this.pos >= this.buf.length) throw new ParseError("MsgPack: unexpected EOF");
-        let b = this.buf.getByte(this.pos);
+        const b = this.buf.getByte(this.pos);
         this.pos = this.pos + 1;
         return b;
     }
 
     readU16(): int {
-        let b1 = this.readU8();
-        let b2 = this.readU8();
+        const b1 = this.readU8();
+        const b2 = this.readU8();
         return(b1 << 8) | b2;
     }
 
     readU32(): int {
-        let b1 = this.readU8();
-        let b2 = this.readU8();
-        let b3 = this.readU8();
-        let b4 = this.readU8();
+        const b1 = this.readU8();
+        const b2 = this.readU8();
+        const b3 = this.readU8();
+        const b4 = this.readU8();
         return(b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
     }
 
@@ -99,7 +99,7 @@ class ByteReader {
         if(this.pos + len > this.buf.length) throw new ParseError(
             "MsgPack: unexpected EOF reading bytes",
         );
-        let slice = this.buf.slice(this.pos, this.pos + len);
+        const slice = this.buf.slice(this.pos, this.pos + len);
         this.pos = this.pos + len;
         return slice;
     }
@@ -119,7 +119,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
     }
 
     if(val is int) {
-        let n = val;
+        const n = val;
         if(n >= 0 && n <= 127) {
             w.writeU8(n);
         } else if (n < 0 && n >= -32) {
@@ -150,8 +150,8 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
     }
 
     if(val is str) {
-        let raw = Bytes.fromString(val);
-        let len = raw.length;
+        const raw = Bytes.fromString(val);
+        const len = raw.length;
         if(len <= 31) {
             w.writeU8(0xA0 | len);
         } else if (len <= 255) {
@@ -169,8 +169,8 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
     }
 
     if(val is Bytes) {
-        let b = val;
-        let len = b.length;
+        const b = val;
+        const len = b.length;
         if(len <= 255) {
             w.writeU8(0xC4);
             w.writeU8(len);
@@ -186,8 +186,8 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
     }
 
     if(val is MsgPackValue[]) {
-        let arr = val;
-        let len = arr.length;
+        const arr = val;
+        const len = arr.length;
         if(len <= 15) {
             w.writeU8(0x90 | len);
         } else if (len <= 65535) {
@@ -205,7 +205,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
 
     {
         const obj = val as Map<str, MsgPackValue>;
-        let len = obj.size;
+        const len = obj.size;
         if(len <= 15) {
             w.writeU8(0x80 | len);
         } else if (len <= 65535) {
@@ -224,7 +224,7 @@ function encodeValue(w: ByteWriter, val: MsgPackValue): void {
 }
 
 function decodeValue(r: ByteReader): MsgPackValue {
-    let tag = r.readU8();
+    const tag = r.readU8();
 
     // Positive fixint (0x00 - 0x7f)
     if(tag <= 0x7F) {
@@ -238,11 +238,11 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Fixmap (0x80 - 0x8f)
     if((tag & 0xF0) == 0x80) {
-        let len = tag & 0x0F;
+        const len = tag & 0x0F;
         const map = new Map<str, MsgPackValue>();
         for(let i = 0; i < len; i = i + 1) {
-            let k = decodeValue(r) as str;
-            let v = decodeValue(r);
+            const k = decodeValue(r) as str;
+            const v = decodeValue(r);
             map.set(k, v);
         }
         return map;
@@ -250,8 +250,8 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Fixarray (0x90 - 0x9f)
     if((tag & 0xF0) == 0x90) {
-        let len = tag & 0x0F;
-        let arr: MsgPackValue[] = [];
+        const len = tag & 0x0F;
+        const arr: MsgPackValue[] = [];
         for(let i = 0; i < len; i = i + 1) {
             arr.push(decodeValue(r));
         }
@@ -260,8 +260,8 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Fixstr (0xa0 - 0xbf)
     if((tag & 0xE0) == 0xA0) {
-        let len = tag & 0x1F;
-        let b = r.readBytes(len);
+        const len = tag & 0x1F;
+        const b = r.readBytes(len);
         return b.toString();
     }
 
@@ -276,15 +276,15 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Bin 8, 16, 32
     if(tag == 0xC4) {
-        let len = r.readU8();
+        const len = r.readU8();
         return r.readBytes(len);
     }
     if(tag == 0xC5) {
-        let len = r.readU16();
+        const len = r.readU16();
         return r.readBytes(len);
     }
     if(tag == 0xC6) {
-        let len = r.readU32();
+        const len = r.readU32();
         return r.readBytes(len);
     }
 
@@ -296,15 +296,15 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Signed ints
     if(tag == 0xD0) {
-        let v = r.readU8();
+        const v = r.readU8();
         return v >= 128 ? v - 256 : v;
     }
     if(tag == 0xD1) {
-        let v = r.readU16();
+        const v = r.readU16();
         return v >= 32768 ? v - 65536 : v;
     }
     if(tag == 0xD2) {
-        let v = r.readU32();
+        const v = r.readU32();
         return v >= 2147483648 ? v - 4294967296 : v;
     }
     if(tag == 0xD3) {
@@ -313,30 +313,30 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Strings 8, 16, 32
     if(tag == 0xD9) {
-        let len = r.readU8();
+        const len = r.readU8();
         return r.readBytes(len).toString();
     }
     if(tag == 0xDA) {
-        let len = r.readU16();
+        const len = r.readU16();
         return r.readBytes(len).toString();
     }
     if(tag == 0xDB) {
-        let len = r.readU32();
+        const len = r.readU32();
         return r.readBytes(len).toString();
     }
 
     // Array 16, 32
     if(tag == 0xDC) {
-        let len = r.readU16();
-        let arr: MsgPackValue[] = [];
+        const len = r.readU16();
+        const arr: MsgPackValue[] = [];
         for(let i = 0; i < len; i = i + 1) {
             arr.push(decodeValue(r));
         }
         return arr;
     }
     if(tag == 0xDD) {
-        let len = r.readU32();
-        let arr: MsgPackValue[] = [];
+        const len = r.readU32();
+        const arr: MsgPackValue[] = [];
         for(let i = 0; i < len; i = i + 1) {
             arr.push(decodeValue(r));
         }
@@ -345,21 +345,21 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
     // Map 16, 32
     if(tag == 0xDE) {
-        let len = r.readU16();
+        const len = r.readU16();
         const map = new Map<str, MsgPackValue>();
         for(let i = 0; i < len; i = i + 1) {
-            let k = decodeValue(r) as str;
-            let v = decodeValue(r);
+            const k = decodeValue(r) as str;
+            const v = decodeValue(r);
             map.set(k, v);
         }
         return map;
     }
     if(tag == 0xDF) {
-        let len = r.readU32();
+        const len = r.readU32();
         const map = new Map<str, MsgPackValue>();
         for(let i = 0; i < len; i = i + 1) {
-            let k = decodeValue(r) as str;
-            let v = decodeValue(r);
+            const k = decodeValue(r) as str;
+            const v = decodeValue(r);
             map.set(k, v);
         }
         return map;
@@ -370,13 +370,13 @@ function decodeValue(r: ByteReader): MsgPackValue {
 
 export namespace MsgPack {
     export function encode(val: MsgPackValue): Bytes {
-        let w = new ByteWriter();
+        const w = new ByteWriter();
         encodeValue(w, val);
         return w.toBytes();
     }
 
     export function decode(buf: Bytes): MsgPackValue {
-        let r = new ByteReader(buf);
+        const r = new ByteReader(buf);
         return decodeValue(r);
     }
 }

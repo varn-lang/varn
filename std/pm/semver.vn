@@ -24,15 +24,15 @@ function cmpPre(a: str[], b: str[]): int {
     if(b.length == 0) {
         return -1;
     }
-    let n = a.length < b.length ? a.length : b.length;
+    const n = a.length < b.length ? a.length : b.length;
     for(let i = 0; i < n; i = i + 1) {
-        let x = a[i];
-        let y = b[i];
+        const x = a[i];
+        const y = b[i];
         if(x == y) {
             continue;
         }
-        let xn = isNumIdent(x);
-        let yn = isNumIdent(y);
+        const xn = isNumIdent(x);
+        const yn = isNumIdent(y);
         if(xn && yn) {
             return int.parse(x) < int.parse(y) ? -1 : 1;
         }
@@ -55,7 +55,7 @@ function isNumIdent(s: str): bool {
         return false;
     }
     for(let i = 0; i < s.length; i = i + 1) {
-        let c = s.charCodeAt(i);
+        const c = s.charCodeAt(i);
         if(c < 48 || c > 57) {
             return false;
         }
@@ -80,18 +80,18 @@ export namespace Semver {
             v = v.slice(1);
         }
         let build = "";
-        let plus = v.indexOf("+");
+        const plus = v.indexOf("+");
         if(plus != null) {
             build = v.slice(plus + 1);
             v = v.slice(0, plus);
         }
         let pre: str[] = [];
-        let dash = v.indexOf("-");
+        const dash = v.indexOf("-");
         if(dash != null) {
             pre = parsePre(v.slice(dash + 1));
             v = v.slice(0, dash);
         }
-        let nums = v.split(".");
+        const nums = v.split(".");
         if(nums.length != 3) {
             throw new ParseError("Semver: expected major.minor.patch, got '" + text + "'");
         }
@@ -129,7 +129,7 @@ export namespace Semver {
     }
 
     function testOp(v: SemVer, op: Comparator, ref: SemVer): bool {
-        let c = compare(v, ref);
+        const c = compare(v, ref);
         return match (op) {
             Eq => c == 0,
             Gt => c > 0,
@@ -158,12 +158,12 @@ export namespace Semver {
     }
 
     function satisfiesAnd(v: SemVer, group: str): bool {
-        let parts = group.split(" ");
+        const parts = group.split(" ");
         for(let part in parts) {
             if(part.length == 0) {
                 continue;
             }
-            let #[op, width] = comparatorOf(part);
+            const #[op, width] = comparatorOf(part);
             if(!testOp(v, op, parse(part.slice(width)))) {
                 return false;
             }
@@ -172,7 +172,7 @@ export namespace Semver {
     }
 
     export function satisfies(v: SemVer, range: str): bool {
-        let groups = range.split("||");
+        const groups = range.split("||");
         for(let g in groups) {
             if(satisfiesAnd(v, g.trim())) {
                 return true;

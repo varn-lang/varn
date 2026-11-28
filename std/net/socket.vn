@@ -63,7 +63,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
         let last: NetError = new ConnectError(host, port);
         while(attempt < attempts) {
             try {
-                let connId =
+                const connId =
                     secure
                         ? await tcpConnectTls$(host, port, ca, identity)
                         : await tcpConnect$(host, port);
@@ -103,33 +103,33 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     }
 
     async readText(size: int = 4096): Task<str> {
-        let b = await this.read(size);
+        const b = await this.read(size);
         if(b == null) {
             return "";
         }
-        let valid = b as Bytes;
+        const valid = b as Bytes;
         return valid.toString();
     }
 
     async readAll(): Task<Bytes> {
-        let chunks: Bytes[] = [];
+        const chunks: Bytes[] = [];
         let totalLen = 0;
         while(this._isOpen) {
-            let chunk = await this.read(4096);
+            const chunk = await this.read(4096);
             if(chunk == null) {
                 break;
             }
-            let valid = chunk as Bytes;
+            const valid = chunk as Bytes;
             if(valid.length == 0) {
                 break;
             }
             chunks.push(valid);
             totalLen = totalLen + valid.length;
         }
-        let merged = Bytes.alloc(totalLen);
+        const merged = Bytes.alloc(totalLen);
         let offset = 0;
         for(let i = 0; i < chunks.length; i = i + 1) {
-            let c = chunks[i];
+            const c = chunks[i];
             c.copy(merged, offset);
             offset = offset + c.length;
         }
@@ -140,7 +140,7 @@ export class TcpStream implements AsyncReader, AsyncWriter {
         if(!this._isOpen) {
             throw new ClosedError("socket is closed");
         }
-        let b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
+        const b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
         try {
             return await tcpWrite$(this._connId, b);
         } catch (e) {
@@ -150,11 +150,11 @@ export class TcpStream implements AsyncReader, AsyncWriter {
     }
 
     async writeAll(data: Bytes | str): Task<void> {
-        let b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
+        const b: Bytes = data is str ? Bytes.fromString(data) : data as Bytes;
         let offset = 0;
         while(offset < b.length) {
-            let chunk = b.slice(offset, b.length);
-            let written = await this.write(chunk);
+            const chunk = b.slice(offset, b.length);
+            const written = await this.write(chunk);
             if(written <= 0) {
                 break;
             }

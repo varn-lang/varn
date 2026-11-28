@@ -71,7 +71,7 @@ export namespace Task {
     }
 
     export async function allSettled<T>(tasks: Array<Task<T >>): Task<Array<Result<T, Error >>> {
-        let wrappedTasks: Array<Task<Result<T, Error >>> = [];
+        const wrappedTasks: Array<Task<Result<T, Error >>> = [];
         for(let i = 0; i < tasks.length; i = i + 1) {
             wrappedTasks.push(wrapSettledOne(tasks[i]));
         }

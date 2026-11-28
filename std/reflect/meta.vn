@@ -45,6 +45,7 @@ export function hasMetaKey<T>(metaId: str, target: T): bool {
     return hasMetaKey$(metaId, target);
 }
 
+// vn-lint-ignore unused-binding
 export function getMetadataKeys<T>(target: T): str[] {
     return [];
 }

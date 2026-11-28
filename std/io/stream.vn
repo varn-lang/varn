@@ -25,15 +25,15 @@ export class Stream {
     static async pipe(reader: AsyncReader, writer: AsyncWriter, bufferSize: int = 8192): Task<int> {
         let total = 0;
         while(true) {
-            let chunk = await reader.read(bufferSize);
+            const chunk = await reader.read(bufferSize);
             if(chunk == null) {
                 break;
             }
-            let b = chunk as Bytes;
+            const b = chunk as Bytes;
             if(b.length == 0) {
                 break;
             }
-            let written = await writer.write(b);
+            const written = await writer.write(b);
             total = total + written;
         }
         await writer.flush();

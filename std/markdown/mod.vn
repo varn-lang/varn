@@ -64,12 +64,12 @@ export namespace Markdown {
     }
 
     export function parse(source: str, options?: MarkdownOptions): MarkdownNode {
-        let optGfm = options?.gfm ?? true;
-        let optEscape = options?.escapeHtml ?? true;
+        const optGfm = options?.gfm ?? true;
+        const optEscape = options?.escapeHtml ?? true;
 
-        let root = new MarkdownNode(MarkdownNodeKind.Root);
-        let rawLines = source.split("\n");
-        let lines: str[] = [];
+        const root = new MarkdownNode(MarkdownNodeKind.Root);
+        const rawLines = source.split("\n");
+        const lines: str[] = [];
         for(let l in rawLines) {
             if(l.endsWith("\r")) {
                 lines.push(l.slice(0, l.length - 1));
@@ -79,11 +79,11 @@ export namespace Markdown {
         }
 
         let idx = 0;
-        let total = lines.length;
+        const total = lines.length;
 
         while(idx < total) {
-            let line = lines[idx];
-            let trimmed = line.trim();
+            const line = lines[idx];
+            const trimmed = line.trim();
 
             if(trimmed.length == 0) {
                 idx = idx + 1;
@@ -91,12 +91,12 @@ export namespace Markdown {
             }
 
             if(trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
-                let fenceChar = trimmed.slice(0, 3);
-                let lang = trimmed.slice(3).trim();
+                const fenceChar = trimmed.slice(0, 3);
+                const lang = trimmed.slice(3).trim();
                 idx = idx + 1;
-                let codeLines: str[] = [];
+                const codeLines: str[] = [];
                 while(idx < total) {
-                    let curLine = lines[idx];
+                    const curLine = lines[idx];
                     if(curLine.trim().startsWith(fenceChar)) {
                         idx = idx + 1;
                         break;
@@ -111,9 +111,9 @@ export namespace Markdown {
             }
 
             if(line.startsWith("    ") || line.startsWith("\t")) {
-                let codeLines: str[] = [];
+                const codeLines: str[] = [];
                 while(idx < total) {
-                    let curLine = lines[idx];
+                    const curLine = lines[idx];
                     if(curLine.trim().length == 0) {
                         codeLines.push("");
                         idx = idx + 1;
@@ -129,14 +129,14 @@ export namespace Markdown {
                         break;
                     }
                 }
-                let codeNode = new MarkdownNode(MarkdownNodeKind.CodeBlock, codeLines.join("\n"));
+                const codeNode = new MarkdownNode(MarkdownNodeKind.CodeBlock, codeLines.join("\n"));
                 root.addChild(codeNode);
                 continue;
             }
 
-            let headingLevel = isHeadingLine(line);
+            const headingLevel = isHeadingLine(line);
             if(headingLevel > 0) {
-                let trimmedStart = line.trimStart();
+                const trimmedStart = line.trimStart();
                 let headingText = trimmedStart.slice(headingLevel).trim();
                 if(headingText.endsWith("#")) {
                     let endIdx = headingText.length - 1;
@@ -147,7 +147,7 @@ export namespace Markdown {
                 }
                 let headingNode = new MarkdownNode(MarkdownNodeKind.Heading, headingText);
                 headingNode.level = headingLevel;
-                let inlines = parseInlineTokens(headingText, optEscape);
+                const inlines = parseInlineTokens(headingText, optEscape);
                 for(let c in inlines) {
                     headingNode.addChild(c);
                 }
@@ -163,24 +163,24 @@ export namespace Markdown {
             }
 
             if(trimmed.startsWith(">")) {
-                let quoteLines: str[] = [];
+                const quoteLines: str[] = [];
                 while(idx < total) {
-                    let cur = lines[idx];
-                    let curTrim = cur.trim();
+                    const cur = lines[idx];
+                    const curTrim = cur.trim();
                     if(curTrim.length == 0) {
                         break;
                     }
                     if(curTrim.startsWith(">")) {
-                        let content = curTrim.slice(1).trimStart();
+                        const content = curTrim.slice(1).trimStart();
                         quoteLines.push(content);
                     } else {
                         quoteLines.push(cur);
                     }
                     idx = idx + 1;
                 }
-                let quoteContent = quoteLines.join("\n");
-                let blockNode = new MarkdownNode(MarkdownNodeKind.Blockquote);
-                let innerAst = parse(quoteContent, options);
+                const quoteContent = quoteLines.join("\n");
+                const blockNode = new MarkdownNode(MarkdownNodeKind.Blockquote);
+                const innerAst = parse(quoteContent, options);
                 for(let c in innerAst.children) {
                     blockNode.addChild(c);
                 }
@@ -189,15 +189,15 @@ export namespace Markdown {
             }
 
             if(optGfm && idx + 1 < total && isTableSeparator(lines[idx + 1])) {
-                let headerRow = splitTableRow(lines[idx]);
-                let alignments = parseTableAlignments(lines[idx + 1]);
+                const headerRow = splitTableRow(lines[idx]);
+                const alignments = parseTableAlignments(lines[idx + 1]);
                 let tableNode = new MarkdownNode(MarkdownNodeKind.Table);
                 tableNode.align = alignments;
 
-                let headRowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
+                const headRowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
                 for(let cell in headerRow) {
-                    let cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
-                    let inlines = parseInlineTokens(cell, optEscape);
+                    const cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
+                    const inlines = parseInlineTokens(cell, optEscape);
                     for(let c in inlines) {
                         cellNode.addChild(c);
                     }
@@ -207,15 +207,15 @@ export namespace Markdown {
                 idx = idx + 2;
 
                 while(idx < total) {
-                    let cur = lines[idx];
+                    const cur = lines[idx];
                     if(cur.trim().length == 0 || !cur.includes("|")) {
                         break;
                     }
-                    let rowCells = splitTableRow(cur);
-                    let rowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
+                    const rowCells = splitTableRow(cur);
+                    const rowNode = new MarkdownNode(MarkdownNodeKind.TableRow);
                     for(let cell in rowCells) {
-                        let cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
-                        let inlines = parseInlineTokens(cell, optEscape);
+                        const cellNode = new MarkdownNode(MarkdownNodeKind.TableCell, cell);
+                        const inlines = parseInlineTokens(cell, optEscape);
                         for(let c in inlines) {
                             cellNode.addChild(c);
                         }
@@ -232,7 +232,7 @@ export namespace Markdown {
             if(isListItemLine(line)) {
                 let isOrdered = false;
                 let listStart = 1;
-                let firstTrimmed = line.trimStart();
+                const firstTrimmed = line.trimStart();
                 if(
                     !firstTrimmed.startsWith("- ") &&
                         !firstTrimmed.startsWith("* ") &&
@@ -254,7 +254,7 @@ export namespace Markdown {
                 listNode.start = listStart;
 
                 while(idx < total) {
-                    let cur = lines[idx];
+                    const cur = lines[idx];
                     if(cur.trim().length == 0) {
                         idx = idx + 1;
                         let shouldCont = false;
@@ -272,7 +272,7 @@ export namespace Markdown {
                         break;
                     }
 
-                    let curTrimmed = cur.trimStart();
+                    const curTrimmed = cur.trimStart();
                     let content = "";
                     if(
                         curTrimmed.startsWith("- ") ||
@@ -281,7 +281,7 @@ export namespace Markdown {
                     ) {
                         content = curTrimmed.slice(2);
                     } else {
-                        let spaceIdx = curTrimmed.indexOf(" ");
+                        const spaceIdx = curTrimmed.indexOf(" ");
                         if(spaceIdx != null) {
                             const si = spaceIdx as int;
                             if(si > 0) {
@@ -303,13 +303,13 @@ export namespace Markdown {
                                     content.startsWith("[X] ")
                             )
                     ) {
-                        let isChecked = content.startsWith("[x] ") || content.startsWith("[X] ");
+                        const isChecked = content.startsWith("[x] ") || content.startsWith("[X] ");
                         itemNode.checked = isChecked;
                         content = content.slice(4);
                     }
 
                     itemNode.text = content;
-                    let inlines = parseInlineTokens(content, optEscape);
+                    const inlines = parseInlineTokens(content, optEscape);
                     for(let c in inlines) {
                         itemNode.addChild(c);
                     }
@@ -321,10 +321,10 @@ export namespace Markdown {
                 continue;
             }
 
-            let pLines: str[] = [];
+            const pLines: str[] = [];
             while(idx < total) {
-                let cur = lines[idx];
-                let curTrim = cur.trim();
+                const cur = lines[idx];
+                const curTrim = cur.trim();
                 if(curTrim.length == 0) {
                     break;
                 }
@@ -335,9 +335,9 @@ export namespace Markdown {
                 idx = idx + 1;
             }
 
-            let pText = pLines.join("\n");
-            let pNode = new MarkdownNode(MarkdownNodeKind.Paragraph, pText);
-            let inlines = parseInlineTokens(pText, optEscape);
+            const pText = pLines.join("\n");
+            const pNode = new MarkdownNode(MarkdownNodeKind.Paragraph, pText);
+            const inlines = parseInlineTokens(pText, optEscape);
             for(let c in inlines) {
                 pNode.addChild(c);
             }
@@ -352,22 +352,22 @@ export namespace Markdown {
     }
 
     export function render(source: str, options?: MarkdownOptions): str {
-        let ast = parse(source, options);
+        const ast = parse(source, options);
         return renderAstImpl(ast, options);
     }
 
     export function toPlainText(source: str): str {
-        let ast = parse(source, new MarkdownOptions(escapeHtml: false));
+        const ast = parse(source, new MarkdownOptions(escapeHtml: false));
         return toPlainTextImpl(ast);
     }
 
     export function extractHeadings(source: str): MarkdownHeading[] {
-        let ast = parse(source);
+        const ast = parse(source);
         return extractHeadingsImpl(ast);
     }
 
     export function extractLinks(source: str): MarkdownLink[] {
-        let ast = parse(source);
+        const ast = parse(source);
         return extractLinksImpl(ast);
     }
 }

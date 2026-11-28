@@ -9,8 +9,8 @@ export namespace Prompt {
                 suffix = " [" + dv + "]";
             }
         }
-        let input = readLine(message + suffix + ": ");
-        let trimmed = input.trim();
+        const input = readLine(message + suffix + ": ");
+        const trimmed = input.trim();
         if(trimmed == "" && defaultValue != null) {
             return defaultValue as str;
         }
@@ -18,8 +18,8 @@ export namespace Prompt {
     }
 
     export function confirm(message: str, defaultValue: bool = false): bool {
-        let hint = defaultValue ? " [Y/n]: " : " [y/N]: ";
-        let response = readLine(message + hint).trim().toLowerCase();
+        const hint = defaultValue ? " [Y/n]: " : " [y/N]: ";
+        const response = readLine(message + hint).trim().toLowerCase();
         if(response == "") {
             return defaultValue;
         }

@@ -42,8 +42,8 @@ export class DialogNode extends Widget {
 
     @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        const w = p.size.w;
-        const h = p.size.h;
+        const _w = p.size.w;
+        const _h = p.size.h;
         if(this.open.peek()) {
             cx.overlay(
                 (layer: PaintContext) => paintDialog(layer, this.open, this.title, this.body),
@@ -111,8 +111,8 @@ export class ToastsNode extends Widget {
     }
 
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
-        const w = p.size.w;
-        const h = p.size.h;
+        const _w = p.size.w;
+        const _h = p.size.h;
         cx.overlay((layer: PaintContext) => paintToasts(layer, this.toaster), false);
     }
 }
@@ -166,7 +166,7 @@ export class SelectNode extends Widget {
     @capability("ui")
     override paint(cx: PaintContext, p: Placement, x: float, y: float): void {
         const w = p.size.w;
-        const h = p.size.h;
+        const _h = p.size.h;
         const anchor = this.h;
         const at = this.value.peek();
         const label = at >= 0 && at < this.options.length ? this.options[at] : "";

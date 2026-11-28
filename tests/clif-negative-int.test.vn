@@ -28,7 +28,7 @@ function negParam(a: int): int {
     return -a
 }
 function viaZero(a: int): int {
-    let z = 0;
+    const z = 0;
     return z - a
 }
 function mulNeg(a: int, b: int): int {

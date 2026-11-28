@@ -60,7 +60,7 @@ await describe("70 result extensions", async () => {
 
         let unwrapNoneThrew = false;
         try {
-            const forced: str = noneOpt!;
+            const _forced: str = noneOpt!;
         } catch (e) {
             unwrapNoneThrew = true;
         }

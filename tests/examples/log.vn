@@ -3,8 +3,8 @@ import { Logger, LogLevel, getLogger, info } from "std:log";
 
 await describe("example std:log", async () => {
     await it("filters by level", () => {
-        let lines: str[] = [];
-        let log = getLogger("filter", LogLevel.Warn);
+        const lines: str[] = [];
+        const log = getLogger("filter", LogLevel.Warn);
         log.setSink((line: str) => {
             lines.push(line);
         });
@@ -16,11 +16,11 @@ await describe("example std:log", async () => {
     });
 
     await it("child loggers inherit the sink", () => {
-        let lines: str[] = [];
-        let log = new Logger("svc", LogLevel.Info, false, false, (line: str) => {
+        const lines: str[] = [];
+        const log = new Logger("svc", LogLevel.Info, false, false, (line: str) => {
             lines.push(line);
         });
-        let child = log.child("db");
+        const child = log.child("db");
         child.info("connected");
         expect(lines.length).toBe(1);
         expect(lines[0].indexOf("svc.db") != null).toBe(true);

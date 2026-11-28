@@ -21,7 +21,7 @@ await describe("example std:crypto", async () => {
     });
 
     await it("uuid v4/v7 roundtrip", () => {
-        let id = Uuid.v4();
+        const id = Uuid.v4();
         expect(Uuid.isValid(id)).toBe(true);
         expect(Uuid.isValid("not-a-uuid")).toBe(false);
         expect(Uuid.isValid(Uuid.v7())).toBe(true);
@@ -29,21 +29,21 @@ await describe("example std:crypto", async () => {
     });
 
     await it("password hashing verifies", () => {
-        let hash = hashPassword("s3cret", 1000);
+        const hash = hashPassword("s3cret", 1000);
         expect(verifyPassword("s3cret", hash)).toBe(true);
         expect(verifyPassword("wrong", hash)).toBe(false);
     });
 
     await it("jwt signs and verifies", () => {
-        let token = Jwt.sign(#{ sub: "u1" }, "secret");
-        let payload = Jwt.verify(token, "secret");
+        const token = Jwt.sign(#{ sub: "u1" }, "secret");
+        const payload = Jwt.verify(token, "secret");
         expect(payload != null).toBe(true);
         expect(Jwt.verify(token, "other-secret") == null).toBe(true);
     });
 
     await it("totp generates and verifies", () => {
-        let secret = "JBSWY3DPEHPK3PXP";
-        let code = Totp.generate(secret);
+        const secret = "JBSWY3DPEHPK3PXP";
+        const code = Totp.generate(secret);
         expect(code.length).toBe(6);
         expect(Totp.verify(secret, code)).toBe(true);
         expect(Totp.verify(secret, "000000")).toBe(false);

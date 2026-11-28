@@ -11,7 +11,7 @@ class LoopProbe {
 }
 
 let andFrames = 0;
-let andGo = true;
+const andGo = true;
 using andProbe = new LoopProbe();
 while (andGo && andFrames < 5) {
     if(andFrames > 2) {

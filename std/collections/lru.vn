@@ -17,7 +17,7 @@ export class LRUCache<V> {
 
     get(key: str): V? {
         for(let index = 0; index < this._entries.length; index = index + 1) {
-            let entry = this._entries[index];
+            const entry = this._entries[index];
             if(entry.key == key) {
                 this._entries.splice(index, 1);
                 this._entries.push(entry);
@@ -29,7 +29,7 @@ export class LRUCache<V> {
 
     set(key: str, value: V): void {
         for(let index = 0; index < this._entries.length; index = index + 1) {
-            let entry = this._entries[index];
+            const entry = this._entries[index];
             if(entry.key == key) {
                 this._entries.splice(index, 1);
                 this._entries.push(new CacheEntry(key: key, value: value));

@@ -51,7 +51,7 @@ async function* slowCount() {
 }
 
 function collect(g: Generator<int>): int[] {
-    let out: int[] = []
+    const out: int[] = []
     while(const item = g.next()) {
         out.push(item)
     }
@@ -114,7 +114,7 @@ await describe("225 generators as frames", async () => {
     })
 
     await it("an async generator settles its awaits inside next", async () => {
-        let out: int[] = []
+        const out: int[] = []
         for await (const v in slowCount()) {
             out.push(v)
         }

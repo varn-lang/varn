@@ -45,7 +45,7 @@ await describe("179 explicit collection decoding", async () => {
 
     await it("typed decoders check values and construct nested collections", () => {
         expect(outcome(() => {
-            const m: Map<str, int> = Json.parse<Map<str, int >> ("{\"a\":\"x\"}")
+            const _m: Map<str, int> = Json.parse<Map<str, int >> ("{\"a\":\"x\"}")
         })).toBe("type mismatch: expected 'Map<str, int>', got 'Map'")
         const nested = Json.parse<Map<str, Map<str, int >>> ("{\"x\":{\"y\":1}}")
         expect(nested.get("x")?.get("y")).toBe(1)

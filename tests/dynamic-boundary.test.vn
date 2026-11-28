@@ -15,12 +15,12 @@ class Holder {
 }
 
 function declStr(d: dynamic): int {
-    let s: str = d as str
+    const s: str = d as str
     return s.length
 }
 
 function declBool(d: dynamic): bool {
-    let b: bool = d as bool
+    const b: bool = d as bool
     return b
 }
 
@@ -86,12 +86,12 @@ class Taker {
 const arrowLen = (s: str): int => s.length
 
 function optStr(d: dynamic): str {
-    let s: str? = d as str?
+    const s: str? = d as str?
     return s ?? "none"
 }
 
 function optBool(d: dynamic): bool {
-    let b: bool? = d as bool?
+    const b: bool? = d as bool?
     return b ?? false
 }
 
@@ -142,7 +142,7 @@ function legsOf(a: Animal): int {
     return a.legs
 }
 function declAnimal(d: dynamic): int {
-    let a: Animal = d as Animal
+    const a: Animal = d as Animal
     return a.legs
 }
 function passAnimal(d: dynamic): int {
@@ -152,7 +152,7 @@ function castAnimal(d: dynamic): int {
     return(d as Animal).legs
 }
 function optAnimal(d: dynamic): bool {
-    let a: Animal? = d as Animal?
+    const a: Animal? = d as Animal?
     return a == null
 }
 
@@ -162,19 +162,19 @@ class Reading {
 }
 
 function declInt(d: dynamic): int {
-    let n: int = d as int
+    const n: int = d as int
     return n + 1
 }
 function declFloat(d: dynamic): float {
-    let f: float = d as float
+    const f: float = d as float
     return f / 2.0
 }
 function optInt(d: dynamic): int {
-    let n: int? = d as int?
+    const n: int? = d as int?
     return n ?? -1
 }
 function optFloat(d: dynamic): float {
-    let f: float? = d as float?
+    const f: float? = d as float?
     return f ?? -1.0
 }
 function retInt(d: dynamic): int {

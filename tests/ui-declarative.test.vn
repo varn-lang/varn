@@ -11,7 +11,6 @@ import {
     BoxNode,
     PaddingNode,
     Axis,
-    TextAlign,
     Column,
     Row,
     Text,
@@ -36,7 +35,6 @@ import {
     CrossAxis,
     Alignment,
     BoxFit,
-    Colors,
     Theme,
     textSizeFor,
     textColorFor,
@@ -176,7 +174,7 @@ await describe("220 ui declarative", async () => {
         const list = Each(
             todos,
             (t: Todo): str => t.title,
-            (t: Todo, index: int) => TodoRow(todo: t),
+            (t: Todo, _index: int) => TodoRow(todo: t),
         );
         expect(list is FlexNode).toBe(true);
         expect(flex(list).children.length).toBe(2);
@@ -260,7 +258,7 @@ await describe("220 ui declarative", async () => {
         const seen: str[] = [];
         run(
             "t",
-            build: (fr: UiFrame, focus: Focus): Widget => {
+            build: (_fr: UiFrame, _focus: Focus): Widget => {
                 const tree = expanded(Clicker());
                 seen.push(label(expanded(flex(tree).children[0])).text);
                 return tree;
@@ -278,7 +276,7 @@ await describe("220 ui declarative", async () => {
         const builds: int[] = [];
         run(
             "t",
-            build: (fr: UiFrame, focus: Focus): Widget => {
+            build: (_fr: UiFrame, _focus: Focus): Widget => {
                 builds.push(1);
                 return Counter();
             },

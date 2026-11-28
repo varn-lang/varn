@@ -2,9 +2,9 @@ import { WsServer } from "std:ws";
 
 @capability("net.server")
 async function main(): Task<void> {
-    let srv = WsServer.listen(19884);
-    let conn = await srv.accept();
-    let msg = await conn.read();
+    const srv = WsServer.listen(19884);
+    const conn = await srv.accept();
+    const msg = await conn.read();
     if(msg != null) {
         await conn.send("ECHO:" + (msg as Bytes).toString());
     }

@@ -10,10 +10,10 @@ await describe("80 capabilities security", async () => {
         // ============================================================================
 
         // 1. Verificación de operaciones permitidas por defecto
-        let current_platform = platform();
+        const current_platform = platform();
         expect(current_platform.length > 0).toBeTruthy();
 
-        let current_cwd = cwd();
+        const current_cwd = cwd();
         expect(current_cwd.length > 0).toBeTruthy();
 
         // 2. Comprobación de existencia: un fichero ausente reporta false sin error.
@@ -22,18 +22,18 @@ await describe("80 capabilities security", async () => {
         expect(exists("test_cap_security_absent.tmp")).toBe(false);
 
         // 3. Comprobación de ciclo de vida seguro de escritura y borrado
-        let temp_file = "test_cap_security.tmp";
+        const temp_file = "test_cap_security.tmp";
         writeText(temp_file, "security_payload_ok");
         expect(exists(temp_file)).toBe(true);
 
-        let read_back = readText(temp_file);
+        const read_back = readText(temp_file);
         expect(read_back).toBe("security_payload_ok");
 
         remove(temp_file);
         expect(exists(temp_file)).toBe(false);
 
         // 4. Comprobación de lectura de variables de entorno
-        let os_val = Env.get("OS");
+        const os_val = Env.get("OS");
         // En Windows OS es "Windows_NT", en Unix puede estar ausente ("" o null) pero no debe crashear
         expect(os_val::type == "str").toBeTruthy();
     });

@@ -2,7 +2,7 @@ import { MarkdownNode, MarkdownNodeKind } from "std:markdown/ast";
 import { findFrom, startsWithAt } from "std:markdown/utils";
 
 export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
-    let nodes: MarkdownNode[] = [];
+    const nodes: MarkdownNode[] = [];
     let i = 0;
     let buf = "";
 
@@ -21,10 +21,10 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(text[i] == "`") {
-            let endBacktick = findFrom(text, "`", i + 1);
+            const endBacktick = findFrom(text, "`", i + 1);
             if(endBacktick != -1) {
                 flushBuf();
-                let codeContent = text.slice(i + 1, endBacktick);
+                const codeContent = text.slice(i + 1, endBacktick);
                 nodes.push(new MarkdownNode(MarkdownNodeKind.InlineCode, codeContent));
                 i = endBacktick + 1;
                 continue;
@@ -32,20 +32,20 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(startsWithAt(text, "![", i)) {
-            let closeBracket = findFrom(text, "]", i + 2);
+            const closeBracket = findFrom(text, "]", i + 2);
             if(closeBracket != -1 && startsWithAt(text, "(", closeBracket + 1)) {
-                let closeParen = findFrom(text, ")", closeBracket + 2);
+                const closeParen = findFrom(text, ")", closeBracket + 2);
                 if(closeParen != -1) {
                     flushBuf();
-                    let altText = text.slice(i + 2, closeBracket);
-                    let urlAndTitle = text.slice(closeBracket + 2, closeParen).trim();
+                    const altText = text.slice(i + 2, closeBracket);
+                    const urlAndTitle = text.slice(closeBracket + 2, closeParen).trim();
                     let url = urlAndTitle;
                     let title = "";
-                    let quoteIdx = urlAndTitle.indexOf("\"");
+                    const quoteIdx = urlAndTitle.indexOf("\"");
                     if(quoteIdx != null) {
                         const qi = quoteIdx as int;
                         url = urlAndTitle.slice(0, qi).trim();
-                        let endQuote = urlAndTitle.lastIndexOf("\"");
+                        const endQuote = urlAndTitle.lastIndexOf("\"");
                         if(endQuote != null) {
                             const eq2 = endQuote as int;
                             if(eq2 > qi) {
@@ -64,20 +64,20 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(text[i] == "[") {
-            let closeBracket = findFrom(text, "]", i + 1);
+            const closeBracket = findFrom(text, "]", i + 1);
             if(closeBracket != -1 && startsWithAt(text, "(", closeBracket + 1)) {
-                let closeParen = findFrom(text, ")", closeBracket + 2);
+                const closeParen = findFrom(text, ")", closeBracket + 2);
                 if(closeParen != -1) {
                     flushBuf();
-                    let linkText = text.slice(i + 1, closeBracket);
-                    let urlAndTitle = text.slice(closeBracket + 2, closeParen).trim();
+                    const linkText = text.slice(i + 1, closeBracket);
+                    const urlAndTitle = text.slice(closeBracket + 2, closeParen).trim();
                     let url = urlAndTitle;
                     let title = "";
-                    let quoteIdx = urlAndTitle.indexOf("\"");
+                    const quoteIdx = urlAndTitle.indexOf("\"");
                     if(quoteIdx != null) {
                         const qi = quoteIdx as int;
                         url = urlAndTitle.slice(0, qi).trim();
-                        let endQuote = urlAndTitle.lastIndexOf("\"");
+                        const endQuote = urlAndTitle.lastIndexOf("\"");
                         if(endQuote != null) {
                             const eq2 = endQuote as int;
                             if(eq2 > qi) {
@@ -88,7 +88,7 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                     let linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkText);
                     linkNode.url = url;
                     linkNode.title = title;
-                    let innerTokens = parseInlineTokens(linkText, escapeHtml);
+                    const innerTokens = parseInlineTokens(linkText, escapeHtml);
                     for(let c in innerTokens) {
                         linkNode.addChild(c);
                     }
@@ -100,9 +100,9 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(text[i] == "<") {
-            let closeAngle = findFrom(text, ">", i + 1);
+            const closeAngle = findFrom(text, ">", i + 1);
             if(closeAngle != -1) {
-                let linkContent = text.slice(i + 1, closeAngle);
+                const linkContent = text.slice(i + 1, closeAngle);
                 if(
                     linkContent.startsWith("http://") ||
                         linkContent.startsWith("https://") ||
@@ -120,12 +120,12 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(startsWithAt(text, "~~", i)) {
-            let endStrike = findFrom(text, "~~", i + 2);
+            const endStrike = findFrom(text, "~~", i + 2);
             if(endStrike != -1) {
                 flushBuf();
-                let strikeContent = text.slice(i + 2, endStrike);
-                let strikeNode = new MarkdownNode(MarkdownNodeKind.Strikethrough);
-                let inner = parseInlineTokens(strikeContent, escapeHtml);
+                const strikeContent = text.slice(i + 2, endStrike);
+                const strikeNode = new MarkdownNode(MarkdownNodeKind.Strikethrough);
+                const inner = parseInlineTokens(strikeContent, escapeHtml);
                 for(let c in inner) {
                     strikeNode.addChild(c);
                 }
@@ -136,14 +136,14 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(startsWithAt(text, "***", i) || startsWithAt(text, "___", i)) {
-            let marker = text.slice(i, i + 3);
-            let endIdx = findFrom(text, marker, i + 3);
+            const marker = text.slice(i, i + 3);
+            const endIdx = findFrom(text, marker, i + 3);
             if(endIdx != -1) {
                 flushBuf();
-                let content = text.slice(i + 3, endIdx);
-                let boldNode = new MarkdownNode(MarkdownNodeKind.Bold);
-                let italicNode = new MarkdownNode(MarkdownNodeKind.Italic);
-                let inner = parseInlineTokens(content, escapeHtml);
+                const content = text.slice(i + 3, endIdx);
+                const boldNode = new MarkdownNode(MarkdownNodeKind.Bold);
+                const italicNode = new MarkdownNode(MarkdownNodeKind.Italic);
+                const inner = parseInlineTokens(content, escapeHtml);
                 for(let c in inner) {
                     italicNode.addChild(c);
                 }
@@ -155,13 +155,13 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(startsWithAt(text, "**", i) || startsWithAt(text, "__", i)) {
-            let marker = text.slice(i, i + 2);
-            let endIdx = findFrom(text, marker, i + 2);
+            const marker = text.slice(i, i + 2);
+            const endIdx = findFrom(text, marker, i + 2);
             if(endIdx != -1) {
                 flushBuf();
-                let content = text.slice(i + 2, endIdx);
-                let boldNode = new MarkdownNode(MarkdownNodeKind.Bold);
-                let inner = parseInlineTokens(content, escapeHtml);
+                const content = text.slice(i + 2, endIdx);
+                const boldNode = new MarkdownNode(MarkdownNodeKind.Bold);
+                const inner = parseInlineTokens(content, escapeHtml);
                 for(let c in inner) {
                     boldNode.addChild(c);
                 }
@@ -172,13 +172,13 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
         }
 
         if(text[i] == "*" || text[i] == "_") {
-            let marker = text[i];
-            let endIdx = findFrom(text, marker, i + 1);
+            const marker = text[i];
+            const endIdx = findFrom(text, marker, i + 1);
             if(endIdx != -1 && endIdx > i + 1) {
                 flushBuf();
-                let content = text.slice(i + 1, endIdx);
-                let italicNode = new MarkdownNode(MarkdownNodeKind.Italic);
-                let inner = parseInlineTokens(content, escapeHtml);
+                const content = text.slice(i + 1, endIdx);
+                const italicNode = new MarkdownNode(MarkdownNodeKind.Italic);
+                const inner = parseInlineTokens(content, escapeHtml);
                 for(let c in inner) {
                     italicNode.addChild(c);
                 }

@@ -27,7 +27,7 @@ export class ChildProcess {
     }
 
     async waitAsync(): Task<ProcessStatus> {
-        let exitCode = await waitProcessAsync$(this.pid);
+        const exitCode = await waitProcessAsync$(this.pid);
         return { exitCode: exitCode, success: exitCode == 0 };
     }
 
@@ -48,13 +48,13 @@ export namespace Process {
 
     @capability("sys.exec")
     export async function execAsync(command: str): Task<ProcessResult> {
-        let id = await execAsync$(command);
+        const id = await execAsync$(command);
         return execResult$(id);
     }
 
     @capability("sys.exec")
     export function spawn(command: str, args: str[] = []): ChildProcess {
-        let pid = spawnProcess$(command, args);
+        const pid = spawnProcess$(command, args);
         return new ChildProcess(pid);
     }
 }

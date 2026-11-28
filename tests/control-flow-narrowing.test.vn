@@ -55,7 +55,7 @@ function speak(a: Animal): str {
     }
     return a.name;
 }
-let a = new Animal("Generic");
+const a = new Animal("Generic");
 await describe("79 control flow narrowing", async () => {
     await it("tests", async () => {
         expect(processOptional("hello")).toBe(5);
@@ -70,7 +70,7 @@ await describe("79 control flow narrowing", async () => {
         expect(processTypeof("abc")).toBe("ABC");
         expect(processTypeof(42)).toBe("number:42");
 
-        let d = new Dog("Rex");
+        const d = new Dog("Rex");
 
         expect(speak(d)).toBe("woof");
         expect(speak(a)).toBe("Generic");

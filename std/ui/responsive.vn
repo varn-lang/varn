@@ -1,13 +1,12 @@
 import {
     Widget,
-    Size,
     PaintContext,
     Constraints,
     Placement,
     paintPlaced,
     layoutAt,
 } from "std:ui/widget/base";
-import { WindowClass, windowClassOf } from "std:ui/style";
+import { WindowClass } from "std:ui/style";
 import { Signal } from "std:signals";
 import { newComponentDefinition, scopeAtMount } from "std:ui/state";
 import { viewAt } from "std:ui/mount";

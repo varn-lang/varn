@@ -40,7 +40,7 @@ const a = new Vec2(1, 2)
 const b = new Vec2(3, 4)
 const s = a + b
 
-let maybe: Vec2? = null
+const maybe: Vec2? = null
 
 class Plain {
     v: int;

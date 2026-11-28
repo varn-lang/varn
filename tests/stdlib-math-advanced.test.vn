@@ -1,13 +1,13 @@
 import * as Math from "std:math";
-import { exp, log, log10, log2, pow, hypot, cbrt, sign, trunc } from "std:math";
+import { exp, log, log10, log2, pow, hypot, cbrt } from "std:math";
 import { describe, it, expect } from "std:test";
 
 // 1. exp and log
-let e1 = Math.exp(1.0);
-let lne = Math.log(Math.E);
+const e1 = Math.exp(1.0);
+const lne = Math.log(Math.E);
 
-let e1Free = exp(1.0);
-let lneFree = log(Math.E);
+const e1Free = exp(1.0);
+const lneFree = log(Math.E);
 
 // 2. log10 and log2
 

@@ -11,7 +11,7 @@ function segMatch(seg: str, name: str): bool {
 
 function matchFrom(seg: str, si: int, name: str, ni: int): bool {
     while(si < seg.length) {
-        let c = seg[si];
+        const c = seg[si];
         if(c == "*") {
             let k = ni;
             while(k <= name.length) {
@@ -31,12 +31,12 @@ function matchFrom(seg: str, si: int, name: str, ni: int): bool {
             continue;
         }
         if(c == "[") {
-            let rel = seg.slice(si).indexOf("]");
+            const rel = seg.slice(si).indexOf("]");
             if(rel == null) {
                 return false;
             }
-            let close = si + rel;
-            let set = seg.slice(si + 1, close);
+            const close = si + rel;
+            const set = seg.slice(si + 1, close);
             let hit = false;
             let j = 0;
             while(j < set.length) {
@@ -83,7 +83,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
         out.push(dir);
         return;
     }
-    let seg = segs[idx];
+    const seg = segs[idx];
     if(seg == "**") {
         walk(dir, segs, idx + 1, out);
         let entries: str[];
@@ -93,7 +93,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
             return;
         }
         for(let entry in entries) {
-            let full = join(dir, entry);
+            const full = join(dir, entry);
             if(isDir(full)) {
                 walk(full, segs, idx, out);
             }
@@ -110,7 +110,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
         if(!segMatch(seg, entry)) {
             continue;
         }
-        let full = join(dir, entry);
+        const full = join(dir, entry);
         if(idx == segs.length - 1) {
             out.push(full);
         } else if (isDir(full)) {
@@ -121,7 +121,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
 
 @capability("fs.read")
 export function glob(pattern: str): str[] {
-    let norm = pattern.replaceAll("\\", "/");
+    const norm = pattern.replaceAll("\\", "/");
     let segs: str[] = [];
     for(let s in norm.split("/")) {
         if(s.length > 0) {
@@ -147,7 +147,7 @@ export function glob(pattern: str): str[] {
     let out: str[] = [];
     walk(base, segs, 0, out);
     for(let i = 1; i < out.length; i = i + 1) {
-        let key = out[i];
+        const key = out[i];
         let j = i - 1;
         while(j >= 0 && out[j].compare(key) > 0) {
             out[j + 1] = out[j];

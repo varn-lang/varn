@@ -10,7 +10,7 @@ class AsyncCounter {
     }
     async next(): Task<int?> {
         if(this.i < 3) {
-            let val = this.i;
+            const val = this.i;
             this.i = this.i + 1;
             return val;
         }
@@ -50,7 +50,7 @@ class PremiumDisposable {
 }
 
 function testUsingDestructure(): void {
-    let resource = new PremiumDisposable();
+    const resource = new PremiumDisposable();
     {
         using { res1, res2 } = resource;
         expect(res1).toBe(100);
@@ -104,7 +104,7 @@ function testLocalNamespace(): void {
 
 // Execution block
 async function runAll(): Task<void> {
-    let sum = await testForAwait();
+    const sum = await testForAwait();
     expect(sum).toBe(3);
 
     testUsingDestructure();

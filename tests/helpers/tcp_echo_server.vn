@@ -5,11 +5,11 @@ import { announcePort } from "./port_file.vn";
 @capability("net.server", "fs.read", "fs.write")
 async function main() {
     const argv = args();
-    let listener = TcpListener.listen(0);
+    const listener = TcpListener.listen(0);
     announcePort(argv[argv.length - 1], listener.port);
     while(true) {
-        let client = await listener.accept();
-        let msg = await client.readText();
+        const client = await listener.accept();
+        const msg = await client.readText();
         await client.writeAll("ECHO:" + msg.trim() + "\n");
         client.close();
     }

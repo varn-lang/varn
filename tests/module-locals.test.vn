@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
 // --- NOT promotable: read by a top-level function --------------------------
-let readByFunction = 41
+const readByFunction = 41
 function readsIt(): int {
     return readByFunction + 1
 }
@@ -74,8 +74,8 @@ await describe("68 module locals", async () => {
         expect(writtenByFunction).toBe(10)
 
         // --- NOT promotable: captured by a closure ---------------------------------
-        let readByClosure = 7
-        let closure = (): int => readByClosure * 2
+        const readByClosure = 7
+        const closure = (): int => readByClosure * 2
         expect(closure()).toBe(14)
 
         let t = new Touches(21)

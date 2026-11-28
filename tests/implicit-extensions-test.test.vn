@@ -4,8 +4,8 @@ import { Reader, Writer } from "std:io";
 
 @capability("fs.read", "fs.write")
 function runTest(): void {
-    let testFile = "./temp_implicit_ext.txt";
-    let backupFile = "./temp_implicit_ext.bak";
+    const testFile = "./temp_implicit_ext.txt";
+    const backupFile = "./temp_implicit_ext.bak";
 
     // 1. Escribir a un archivo usando el Stream Writer
     {

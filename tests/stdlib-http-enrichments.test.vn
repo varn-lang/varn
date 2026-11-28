@@ -4,7 +4,6 @@ import {
     RequestInit,
     Response,
     json,
-    HttpStatus,
     fetch,
     HttpMethod,
 } from "std:http";
@@ -13,7 +12,7 @@ import { describe, it, expect } from "std:test";
 import { delay } from "std:task";
 
 // 1. Request Cookies parsing
-let reqWithCookies = new Request(
+const reqWithCookies = new Request(
     "http://localhost:3000/api",
     new RequestInit(
         method: HttpMethod.GET,
@@ -23,7 +22,7 @@ let reqWithCookies = new Request(
 );
 
 // 2. Request.json and Request.formData
-let reqJson = new Request(
+const reqJson = new Request(
     "http://localhost:3000/api",
     new RequestInit(
         method: HttpMethod.POST,
@@ -33,9 +32,9 @@ let reqJson = new Request(
     ),
 );
 
-let parsedJson = reqJson.json() as Map<str, JsonValue>;
+const parsedJson = reqJson.json() as Map<str, JsonValue>;
 
-let reqForm = new Request(
+const reqForm = new Request(
     "http://localhost:3000/api",
     new RequestInit(
         method: HttpMethod.POST,
@@ -45,11 +44,11 @@ let reqForm = new Request(
     ),
 );
 
-let parsedForm = reqForm.formData();
+const parsedForm = reqForm.formData();
 
 // 3. Middleware Pipeline
-let server = new HttpServer();
-let middlewareLog: str[] = [];
+const server = new HttpServer();
+const middlewareLog: str[] = [];
 await describe("100 stdlib http enrichments", async () => {
     await it("group 1 part 1", async () => {
         expect(reqWithCookies.cookies["session_id"]).toBe("xyz789");
@@ -64,17 +63,17 @@ await describe("100 stdlib http enrichments", async () => {
         expect(parsedForm["action"]).toBe("login");
         server.use(async (req: Request, next: () => Task<Response?>) => {
             middlewareLog.push("mw1_before");
-            let res = await next();
+            const res = await next();
             middlewareLog.push("mw1_after");
             return res;
         });
         server.use(async (req: Request, next: () => Task<Response?>) => {
             middlewareLog.push("mw2_before");
-            let res = await next();
+            const res = await next();
             middlewareLog.push("mw2_after");
             return res;
         });
-        server.get("/test", async (req: Request) => {
+        server.get("/test", async (_req: Request) => {
             middlewareLog.push("handler");
             return json(#{ ok: true });
         });
@@ -83,7 +82,7 @@ await describe("100 stdlib http enrichments", async () => {
     await it("middleware executes on live request", async () => {
         server.listen(0);
         await delay(150);
-        let res = await fetch(`http://127.0.0.1:${server.port}/test`);
+        const res = await fetch(`http://127.0.0.1:${server.port}/test`);
         expect(res.status).toBe(200);
         server.close();
         expect(middlewareLog.length).toBe(5);

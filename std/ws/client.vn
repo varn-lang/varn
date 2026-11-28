@@ -34,7 +34,7 @@ export function bytesConcat(a: Bytes, b: Bytes): Bytes {
     if(b.length == 0) {
         return a;
     }
-    let out = Bytes.alloc(a.length + b.length);
+    const out = Bytes.alloc(a.length + b.length);
     a.copy(out, 0, 0, a.length);
     b.copy(out, a.length, 0, b.length);
     return out;
@@ -51,14 +51,14 @@ export struct HttpHead {
 export async function readHttpHead(connId: int): Task<HttpHead> {
     let buf = Bytes.alloc(0);
     while(true) {
-        let end = findHeadEnd(buf);
+        const end = findHeadEnd(buf);
         if(end >= 0) {
             return new HttpHead(head: buf.slice(0, end).toString(), rest: buf.slice(end));
         }
         if(buf.length > MAX_HANDSHAKE) {
             throw new ProtocolError("the WebSocket handshake is too large");
         }
-        let chunk = await tcpRead$(connId, 4096);
+        const chunk = await tcpRead$(connId, 4096);
         if(chunk == null) {
             throw new ProtocolError("connection closed during handshake");
         }
@@ -106,25 +106,25 @@ export class WebSocket implements AsyncReader, AsyncWriter {
 
     @capability("net.client")
     static async connect(url: str): Task<WebSocket> {
-        let parsed = Url.parse(url);
+        const parsed = Url.parse(url);
         const secure = parsed.protocol == "wss";
         if(!secure && parsed.protocol != "ws") {
             throw new TypeError("only ws:// and wss:// URLs are supported");
         }
-        let port = parsed.port ?? (secure ? 443 : 80);
+        const port = parsed.port ?? (secure ? 443 : 80);
         const conn =
             secure ? await tcpConnectTls$(parsed.host, port) : await tcpConnect$(parsed.host, port);
         try {
-            let key = wsKey$();
+            const key = wsKey$();
             let target = parsed.path;
-            let qs = parsed.query.toString();
+            const qs = parsed.query.toString();
             if(qs.length > 0) {
                 target = target + "?" + qs;
             }
             if(target.length == 0) {
                 target = "/";
             }
-            let req =
+            const req =
                 "GET " +
                     target +
                     " HTTP/1.1\r\nHost: " +
@@ -133,9 +133,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     key +
                     "\r\nSec-WebSocket-Version: 13\r\n\r\n";
             await tcpWrite$(conn, req);
-            let head = await readHttpHead(conn);
+            const head = await readHttpHead(conn);
             wsValidateResponse$(head.head, key);
-            let ws = new WebSocket(conn, url);
+            const ws = new WebSocket(conn, url);
             ws.absorb(head.rest);
             return ws;
         } catch (e) {
@@ -242,7 +242,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             body.setByte(0, code / 256);
             body.setByte(1, code % 256);
             await tcpWrite$(this._conn, wsFrameBytes$(body, WsOpcode.Close, !this._server));
-        } catch (e) {}
+        } catch (e) {
+            // best effort: the connection may already be closed
+        }
         this.close();
     }
 
@@ -284,7 +286,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     !this._server,
                 ),
             );
-        } catch (e) {}
+        } catch (e) {
+            // best effort: the connection may already be closed
+        }
         this.close();
     }
 
@@ -319,9 +323,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             }
             const parsed = frame as WsFrame;
             this._recvBuf = this._recvBuf.slice(parsed.consumed);
-            let opcode = parsed.opcode;
-            let payload = parsed.payload;
-            let fin = parsed.fin;
+            const opcode = parsed.opcode;
+            const payload = parsed.payload;
+            const fin = parsed.fin;
             if(opcode == WsOpcode.Ping || opcode == WsOpcode.Close) {
                 try {
                     await this._pumpControl(opcode, payload);
@@ -347,8 +351,8 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                 }
                 this._fragBuf = joined;
                 if(fin) {
-                    let done = this._fragBuf as Bytes;
-                    let op = this._fragOp as WsOpcode;
+                    const done = this._fragBuf as Bytes;
+                    const op = this._fragOp as WsOpcode;
                     this._fragBuf = null;
                     this._fragOp = null;
                     return await this._deliver(op, done);
@@ -399,7 +403,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             if(this._conn >= 0) {
                 try {
                     tcpClose$(this._conn);
-                } catch (e) {}
+                } catch (e) {
+                    // best effort: the connection may already be closed
+                }
             }
             this._readyState = WebSocketReadyState.Closed;
             this._conn = -1;
@@ -416,7 +422,9 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     this._conn,
                     wsFrameBytes$(Bytes.alloc(0), WsOpcode.Close, !this._server),
                 );
-            } catch (e) {}
+            } catch (e) {
+                // best effort: the connection may already be closed
+            }
             this.close();
         }
     }

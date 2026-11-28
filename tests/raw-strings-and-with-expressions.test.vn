@@ -37,7 +37,7 @@ class Badge implements Labelled {
 }
 await describe("89 raw strings and with expressions", async () => {
     await it("Raw string with unescaped quotes, backslashes and multiline content", async () => {
-        let jsonStr = """{
+        const jsonStr = """{
         "name": "Varn",
         "path": "C:\Program Files\Varn",
         "escapes": "\n \t \r"
@@ -47,13 +47,13 @@ await describe("89 raw strings and with expressions", async () => {
         expect(jsonStr.includes("""\n \t \r""")).toBe(true);
     });
     await it("Single-line raw string with double quotes", async () => {
-        let text = """Hello "world" and 'quotes' without escapes!""";
+        const text = """Hello "world" and 'quotes' without escapes!""";
         expect(text).toBe("Hello \"world\" and 'quotes' without escapes!");
     });
 
     await it("`with` expression on Class instances", async () => {
-        let u1 = new User(10, "Alice", "admin");
-        let u2 = u1 with { name: "Bob", role: "editor" };
+        const u1 = new User(10, "Alice", "admin");
+        const u2 = u1 with { name: "Bob", role: "editor" };
         expect(u2.id).toBe(10);
         expect(u2.name).toBe("Bob");
         expect(u2.role).toBe("editor");
@@ -62,12 +62,12 @@ await describe("89 raw strings and with expressions", async () => {
         expect(u1.role).toBe("admin");
     });
     await it("`with` expression on Plain Objects", async () => {
-        let baseConfig = #{
+        const baseConfig = #{
             host: "localhost",
             port: 3000,
             debug: true,
         };
-        let prodConfig = baseConfig with {
+        const prodConfig = baseConfig with {
             port: 8080,
             debug: false,
         };
@@ -79,9 +79,9 @@ await describe("89 raw strings and with expressions", async () => {
         expect(baseConfig.debug).toBe(true);
     });
     await it("Chained or nested `with` expressions", async () => {
-        let node1 = new ServerNode("10.0.0.1", 5000, false);
-        let node2 = node1 with { port: 5001 };
-        let node3 = node2 with { isMaster: true };
+        const node1 = new ServerNode("10.0.0.1", 5000, false);
+        const node2 = node1 with { port: 5001 };
+        const node3 = node2 with { isMaster: true };
         expect(node3.host).toBe("10.0.0.1");
         expect(node3.port).toBe(5001);
         expect(node3.isMaster).toBe(true);

@@ -1,7 +1,7 @@
 import { ParseError } from "std:error";
 
 function hexCharToNibble(character: str): int {
-    let code = character.charCodeAt(0);
+    const code = character.charCodeAt(0);
     if(code >= 48 && code <= 57) {
         return code - 48;
     }
@@ -27,11 +27,11 @@ export namespace Hex {
         if(hexString.length % 2 != 0) {
             throw new ParseError("invalid hex string length");
         }
-        let bytes: int[] = [];
-        let length: int = hexString.length;
+        const bytes: int[] = [];
+        const length: int = hexString.length;
         for(let index = 0; index < length; index = index + 2) {
-            let high = hexCharToNibble(hexString[index]);
-            let low = hexCharToNibble(hexString[index + 1]);
+            const high = hexCharToNibble(hexString[index]);
+            const low = hexCharToNibble(hexString[index + 1]);
             bytes.push(high * 16 + low);
         }
         return Bytes.fromBytes(bytes);

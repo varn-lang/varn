@@ -20,9 +20,9 @@ function makeCounter(i: int): #{ g: () => int; bump: () => void } {
 }
 
 function churn(n: int): int {
-    let a = n * 3;
-    let b = a + 7;
-    let c = [a, b, n];
+    const a = n * 3;
+    const b = a + 7;
+    const c = [a, b, n];
     return c[0] + c[1] + c[2];
 }
 

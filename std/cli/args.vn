@@ -7,20 +7,20 @@ export struct ParsedArgs {
 
 export namespace Cli {
     export function parse(rawArgs?: str[]): ParsedArgs {
-        let input = rawArgs != null ? rawArgs : args$();
+        const input = rawArgs != null ? rawArgs : args$();
         const flags = new Map<str, str>();
-        let positionals: str[] = [];
+        const positionals: str[] = [];
 
         for(let i = 0; i < input.length; i = i + 1) {
-            let arg = input[i];
+            const arg = input[i];
             if(arg.startsWith("--")) {
-                let body = arg.slice(2);
-                let eqIdx = body.indexOf("=");
+                const body = arg.slice(2);
+                const eqIdx = body.indexOf("=");
                 if(eqIdx != null) {
                     const ei = eqIdx as int;
                     if(ei > 0) {
-                        let k = body.slice(0, ei);
-                        let v = body.slice(ei + 1);
+                        const k = body.slice(0, ei);
+                        const v = body.slice(ei + 1);
                         flags.set(k, v);
                     } else {
                         flags.set(body, "true");
@@ -29,7 +29,7 @@ export namespace Cli {
                     flags.set(body, "true");
                 }
             } else if (arg.startsWith("-")) {
-                let flag = arg.slice(1);
+                const flag = arg.slice(1);
                 flags.set(flag, "true");
             } else {
                 positionals.push(arg);

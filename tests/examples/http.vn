@@ -7,7 +7,6 @@ import {
     error,
     Request,
     RequestInit,
-    Response,
     Headers,
     Mime,
     Auth,
@@ -19,7 +18,7 @@ import { delay } from "std:task";
 
 await describe("example std:http", async () => {
     await it("headers are case-insensitive", () => {
-        let headers = new Headers({ "Content-Type": "application/json" });
+        const headers = new Headers({ "Content-Type": "application/json" });
         expect(headers.get("content-type")).toBe("application/json");
         headers.set("X-Token", "abc");
         expect(headers.has("x-token")).toBe(true);
@@ -28,7 +27,7 @@ await describe("example std:http", async () => {
     });
 
     await it("builds requests and responses", () => {
-        let req = new Request(
+        const req = new Request(
             "http://localhost:8080/items",
             new RequestInit(
                 method: HttpMethod.POST,
@@ -38,7 +37,7 @@ await describe("example std:http", async () => {
         );
         expect(req.method).toBe(HttpMethod.POST);
         expect(req.text()).toBe("{\"name\":\"Varn\"}");
-        let res = json(#{ ok: true });
+        const res = json(#{ ok: true });
         expect(res.status).toBe(200);
         expect(res.ok).toBe(true);
         expect(redirect("https://example.com", 301).status).toBe(301);
@@ -46,21 +45,21 @@ await describe("example std:http", async () => {
     });
 
     await it("serves a live roundtrip via child server", async () => {
-        let proc = Process.spawn(
+        const proc = Process.spawn(
             Process.currentExe(),
             ["run", "tests/examples/servers/http-server.vn"],
         );
         await delay(800);
-        let res = await get("http://127.0.0.1:19882/hello");
+        const res = await get("http://127.0.0.1:19882/hello");
         expect(res.status).toBe(200);
         expect(res.text().indexOf("world") != null).toBe(true);
         proc.kill();
     });
 
     await it("registers routes with params", () => {
-        let app = new HttpServer();
+        const app = new HttpServer();
         app.get("/users/:id", async (req: Request) => json(#{ id: req.params["id"] }));
-        app.post("/users", async (req: Request) => json(#{ created: true }, 201));
+        app.post("/users", async (_req: Request) => json(#{ created: true }, 201));
         expect(app.isListening).toBe(false);
     });
 
@@ -68,9 +67,9 @@ await describe("example std:http", async () => {
         expect(Mime.detect("photo.png")).toBe("image/png");
         expect(Auth.bearer("Bearer abc123")).toBe("abc123");
         expect(Auth.basic("Basic dXNlcjpwYXNz") != null).toBe(true);
-        let boundary = Multipart.boundaryOf("multipart/form-data; boundary=----xyz");
+        const boundary = Multipart.boundaryOf("multipart/form-data; boundary=----xyz");
         expect(boundary).toBe("----xyz");
-        let parts = Multipart.parse(
+        const parts = Multipart.parse(
             "------xyz\r\nContent-Disposition: form-data; name=\"f\"\r\n\r\nv\r\n------xyz--\r\n",
             "----xyz",
         );

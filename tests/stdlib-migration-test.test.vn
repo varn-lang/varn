@@ -1,6 +1,5 @@
 import { describe, it, expect } from "std:test";
 import { List } from "std:collections";
-import { fetch } from "std:http";
 import { Json, JsonValue } from "std:encoding";
 import { uuid, sha256 } from "std:crypto";
 import { Duration, PlainDateTime, nowInstant, Instant } from "std:time";
@@ -8,13 +7,13 @@ import { Duration, PlainDateTime, nowInstant, Instant } from "std:time";
 await describe("31 stdlib migration test", async () => {
     await it("tests", async () => {
         // ── std:time / Duration ───────────────────────────────────────────
-        let d = Duration.from("PT1H30M");
+        const d = Duration.from("PT1H30M");
         expect(d.totalMilliseconds).toBe(5400000)
         expect(d.hours).toBe(1)
         expect(d.minutes).toBe(30)
         expect(d.seconds).toBe(0)
 
-        let d2 = Duration.from("P1DT2H30M10S");
+        const d2 = Duration.from("P1DT2H30M10S");
         expect(d2.totalMilliseconds).toBe(95410000)
         expect(d2.days).toBe(1)
         expect(d2.hours).toBe(2)
@@ -22,7 +21,7 @@ await describe("31 stdlib migration test", async () => {
         expect(d2.seconds).toBe(10)
 
         // ── std:time / PlainDateTime ──────────────────────────────────────
-        let now = new PlainDateTime(2026, 4, 21, 10, 0, 0, 0);
+        const now = new PlainDateTime(2026, 4, 21, 10, 0, 0, 0);
         expect(now.year).toBe(2026)
         expect(now.month).toBe(4)
         expect(now.day).toBe(21)
@@ -30,55 +29,55 @@ await describe("31 stdlib migration test", async () => {
         expect(now.toString()).toBe("2026-04-21T10:00:00.000")
 
         // ── std:time / Instant ────────────────────────────────────────────
-        let t1 = nowInstant();
-        let t2 = nowInstant();
+        const t1 = nowInstant();
+        const t2 = nowInstant();
 
         expect(t1.toString().length > 0).toBeTruthy()
         expect(Instant.compare(t1, t1)).toBe(0)
         expect(Instant.compare(t1, t2) <= 0).toBeTruthy()
 
         // ── std:collections / Range ───────────────────────────────────────
-        let r = Range.from(0, 5);
+        const r = Range.from(0, 5);
         expect(r.start).toBe(0)
         expect(r.end).toBe(5)
         expect(r.contains(3)).toBeTruthy()
         expect(!r.contains(5)).toBeTruthy()
         expect(!r.contains(-1)).toBeTruthy()
 
-        let ri = Range.fromInclusive(0, 5);
+        const ri = Range.fromInclusive(0, 5);
         expect(ri.contains(5)).toBeTruthy()
         expect(!ri.contains(6)).toBeTruthy()
 
         // ── std:collections / Range primitive ─────────────────────────────
-        let items = Range.from(0, 10).step(2);
+        const items = Range.from(0, 10).step(2);
         expect(items.length).toBe(5)
         expect(items[0]).toBe(0)
         expect(items[4]).toBe(8)
 
         // ── globals / Error classes ───────────────────────────────────────
-        let err = new Error("boom");
+        const err = new Error("boom");
         expect(err.name).toBe("Error")
         expect(err.toString()).toBe("Error: boom")
 
         // ── std:collections / List ────────────────────────────────────────
-        let list = new List<str>(["A", "B"]);
+        const list = new List<str>(["A", "B"]);
         list.add("C");
         expect(list.length).toBe(3)
         expect(list.toArray()[0]).toBe("A")
         expect(list.toArray()[2]).toBe("C")
 
         // ── std:json ──────────────────────────────────────────────────────
-        let obj = #{ name: "Varn", version: 1 };
-        let json_str = Json.stringify(obj);
+        const obj = #{ name: "Varn", version: 1 };
+        const json_str = Json.stringify(obj);
         expect(json_str.length > 0).toBeTruthy()
         expect(json_str.includes("Varn")).toBeTruthy()
 
-        let back = Json.parse<Map<str, JsonValue >> (json_str);
+        const back = Json.parse<Map<str, JsonValue >> (json_str);
         expect(back["name"]).toBe("Varn")
         expect(back["version"]).toBe(1)
 
         // ── std:crypto / uuid ─────────────────────────────────────────────
-        let u = uuid();
+        const u = uuid();
         expect(u.length).toBe(36)
         expect(u[8]).toBe("-")
         expect(u[13]).toBe("-")
@@ -86,12 +85,12 @@ await describe("31 stdlib migration test", async () => {
         expect(u[23]).toBe("-")
 
         // ── std:crypto / sha256 ───────────────────────────────────────────
-        let hash = sha256("Hello Varn");
+        const hash = sha256("Hello Varn");
         expect(hash.length).toBe(64)
         let allHex = true;
         let hi = 0;
         while(hi < hash.length) {
-            let c = hash[hi];
+            const c = hash[hi];
             if(!((c >= "0" && c <= "9") || (c >= "a" && c <= "f"))) {
                 allHex = false;
             }

@@ -14,7 +14,7 @@ function lenOfStr(s: str): int {
 
 // Length must agree across representations.
 function lenOf(n: int): int {
-    let d = `ab${n}`;
+    const d = `ab${n}`;
     return d.length
 }
 
@@ -22,7 +22,7 @@ function lenOf(n: int): int {
 // string cannot hand out a zero-copy view (its bytes move with the heap slot),
 // so this exercises the copying fallback.
 function sliceOf(n: int, from: int): str {
-    let d = `ab${n}`;
+    const d = `ab${n}`;
     return d.slice(from)
 }
 

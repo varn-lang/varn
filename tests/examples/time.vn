@@ -13,15 +13,15 @@ import {
 
 await describe("example std:time", async () => {
     await it("reads the wall clock", () => {
-        let ms = now();
+        const ms = now();
         expect(ms > 0).toBe(true);
-        let parts = toParts(ms);
+        const parts = toParts(ms);
         expect(parts.year >= 2026).toBe(true);
         expect(parts.month >= 1 && parts.month <= 12).toBe(true);
     });
 
     await it("roundtrips calendar parts", () => {
-        let back = fromParts(
+        const back = fromParts(
             new TimeParts(
                 year: 2026,
                 month: 1,
@@ -32,7 +32,7 @@ await describe("example std:time", async () => {
                 millisecond: 0,
             ),
         );
-        let parts = toParts(back);
+        const parts = toParts(back);
         expect(parts.year).toBe(2026);
         expect(parts.day).toBe(15);
     });
@@ -40,13 +40,13 @@ await describe("example std:time", async () => {
     await it("formats durations", () => {
         expect(durationToString(90000)).toBe("Duration(90000ms)");
         expect(formatDurationMs(90000)).toBe("1m 30s");
-        let span = Duration.from(new DurationParts(hours: 1, minutes: 30));
+        const span = Duration.from(new DurationParts(hours: 1, minutes: 30));
         expect(span.add(60000).subtract(60000).equals(span)).toBe(true);
     });
 
     await it("computes with DateTime", () => {
-        let start = DateTime.now();
-        let later = start.addDays(1).addHours(2);
+        const start = DateTime.now();
+        const later = start.addDays(1).addHours(2);
         expect(later.diff(start)).toBe(26 * 3600 * 1000);
         expect(start.toISOString().indexOf("T") != null).toBe(true);
         expect(DateTime.fromTimestamp(start.toMs).toMs).toBe(start.toMs);

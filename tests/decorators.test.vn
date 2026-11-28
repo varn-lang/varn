@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 import { MetaKey, ClassRef, FunctionRef } from "std:reflect";
 
-let deco_log: str[] = [];
+const deco_log: str[] = [];
 function trackClass(cls: ClassRef): void {
     deco_log.push(cls.name);
 }
@@ -37,7 +37,7 @@ function rolesDeco(...r: str[]) {
 }
 const TagKey = MetaKey.create<ClassRef, str>();
 const TagKey2 = MetaKey.create<ClassRef, str>();
-let method_log: str[] = [];
+const method_log: str[] = [];
 function logMethod(fn: FunctionRef, ctx: MethodContext): FunctionRef {
     const name = ctx.name;
     const isStatic = ctx.isStatic;
@@ -59,7 +59,7 @@ class DecoratedPassthrough {
         return n * 2;
     }
 }
-let fnLog: str[] = [];
+const fnLog: str[] = [];
 function tagFn(label: str) {
     return(fn: FunctionRef): FunctionRef => {
         fnLog.push(label);

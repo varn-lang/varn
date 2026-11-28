@@ -169,7 +169,7 @@ function retornaFueraDeBucle(): int {
     } catch (e) {}
     return -1;
 }
-let depth: int[] = []
+const depth: int[] = []
 function depthNow(): int {
     return depth.length
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "std:test";
-import { sleep, parallel } from "std:task"
+import { parallel } from "std:task"
 
 let shared = 0
 

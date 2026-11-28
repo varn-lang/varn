@@ -113,7 +113,7 @@ export class Expectation<T> {
     }
 
     toBeCloseTo(expected: float, epsilon: float = 0.00001): void {
-        let a = this.actual as float;
+        const a = this.actual as float;
         let diff = a - expected;
         if(diff < 0.0) diff = -diff;
         if(diff > epsilon) {
@@ -125,7 +125,7 @@ export class Expectation<T> {
 
     toContain<E>(item: E): void {
         let found = false;
-        let actual = this.actual;
+        const actual = this.actual;
         if(actual is str) {
             found = item is str && actual.includes(item);
         } else {

@@ -3,25 +3,25 @@ import { platform, cwd, args, now, getSystemInfo } from "std:sys";
 
 await describe("example std:sys", async () => {
     await it("reports the platform", () => {
-        let os = platform();
+        const os = platform();
         expect(os.length > 0).toBe(true);
         expect(os == "windows" || os == "linux" || os == "macos").toBe(true);
     });
 
     await it("reports cwd and argv", () => {
         expect(cwd().length > 0).toBe(true);
-        let argv = args();
+        const argv = args();
         expect(argv.length > 0).toBe(true);
     });
 
     await it("reads a monotonic clock", () => {
-        let start = now();
+        const start = now();
         expect(start > 0.0).toBe(true);
         expect(now() >= start).toBe(true);
     });
 
     await it("bundles a system record", () => {
-        let info = getSystemInfo();
+        const info = getSystemInfo();
         expect(info.platform).toBe(platform());
         expect(info.cwd).toBe(cwd());
         expect(info.args.length).toBe(args().length);

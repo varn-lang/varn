@@ -4,7 +4,6 @@ import {
     parseIsoInstant$,
     msToParts$,
     partsToMs$,
-    RuntimeTimeParts,
     TimeParts,
 } from "runtime:time";
 
@@ -90,22 +89,22 @@ export function durationToString(ms: int): str {
 }
 
 export function durationParts(ms: int): DurationParts {
-    let total_s = ms / 1000;
+    const totalSeconds = ms / 1000;
     return new DurationParts(
-        days: total_s / 86400,
-        hours: total_s % 86400 / 3600,
-        minutes: total_s % 3600 / 60,
-        seconds: (total_s % 60),
+        days: totalSeconds / 86400,
+        hours: totalSeconds % 86400 / 3600,
+        minutes: totalSeconds % 3600 / 60,
+        seconds: (totalSeconds % 60),
         milliseconds: (ms % 1000),
     );
 }
 
 export function formatDurationMs(ms: int): str {
-    let seconds = ms / 1000;
-    let minutes = seconds / 60;
-    let hours = minutes / 60;
-    let remSec = seconds % 60;
-    let remMin = minutes % 60;
+    const seconds = ms / 1000;
+    const minutes = seconds / 60;
+    const hours = minutes / 60;
+    const remSec = seconds % 60;
+    const remMin = minutes % 60;
     if(hours > 0) {
         return `${hours}h ${remMin}m ${remSec}s`;
     }

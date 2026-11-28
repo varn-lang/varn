@@ -1,52 +1,52 @@
 import { Uuid } from "std:crypto";
-import { DateTime, Duration, Instant, PlainDateTime } from "std:time";
+import { DateTime, Duration, PlainDateTime } from "std:time";
 import { describe, it, expect } from "std:test";
 
 // ==========================================
 // 1. Regex (Inmutable & Stateless)
 // ==========================================
-let reEmail = new Regex("^([a-zA-Z0-9_\\.-]+)@([a-zA-Z0-9\\.-]+)\\.([a-zA-Z]{2,6})$");
+const reEmail = new Regex("^([a-zA-Z0-9_\\.-]+)@([a-zA-Z0-9\\.-]+)\\.([a-zA-Z]{2,6})$");
 
 // Exec with capture groups
-let matchRes = reEmail.exec("contact@google.com");
+const matchRes = reEmail.exec("contact@google.com");
 
 // FindAll
-let reDigits = new Regex("[0-9]+");
-let allDigits = reDigits.findAll("order 1024 has 42 items and cost 99 dollars");
+const reDigits = new Regex("[0-9]+");
+const allDigits = reDigits.findAll("order 1024 has 42 items and cost 99 dollars");
 
 // Replace
-let reSpaces = new Regex("\\s+");
-let normalized = reSpaces.replaceAll("hello    world\tfrom   varn", " ");
+const reSpaces = new Regex("\\s+");
+const normalized = reSpaces.replaceAll("hello    world\tfrom   varn", " ");
 
 // Split
-let reDelim = new Regex("[,;\\s]+");
-let parts = reDelim.split("alpha,beta; gamma   delta");
+const reDelim = new Regex("[,;\\s]+");
+const parts = reDelim.split("alpha,beta; gamma   delta");
 
 // Stateless test (calling .test multiple times has NO side-effect state mutations)
-let reWord = new Regex("test");
+const reWord = new Regex("test");
 
 // ==========================================
 // 2. UUID (v4 & v7)
 // ==========================================
-let idV4 = Uuid.v4();
+const idV4 = Uuid.v4();
 
-let idV7 = Uuid.v7();
+const idV7 = Uuid.v7();
 
 // ==========================================
 // 3. DateTime & Duration (Canonical Time Types)
 // ==========================================
-let nowDt = DateTime.now();
+const nowDt = DateTime.now();
 
-let iso = nowDt.toISOString();
+const iso = nowDt.toISOString();
 
-let dt2 = nowDt.addSeconds(10);
+const dt2 = nowDt.addSeconds(10);
 
-let dur1 = new Duration(5000);
+const dur1 = new Duration(5000);
 
-let dur2 = new Duration(2500);
-let durSum = dur1.add(dur2);
+const dur2 = new Duration(2500);
+const durSum = dur1.add(dur2);
 
-let pdt = new PlainDateTime(2026, 8, 22, 14, 30, 0, 0);
+const pdt = new PlainDateTime(2026, 8, 22, 14, 30, 0, 0);
 await describe("83 canonical types regex uuid time", async () => {
     await it("regex matching", async () => {
         expect(reEmail.test("dev@varn-lang.org")).toBe(true);

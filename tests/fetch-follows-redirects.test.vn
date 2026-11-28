@@ -15,25 +15,25 @@ await describe("294 fetch follows redirects", async () => {
     const origin = new HttpServer();
     const other = new HttpServer();
 
-    origin.get("/start", async (req: Request) => redirect("/two", 302));
-    origin.get("/two", async (req: Request) => new Response("arrived", 200));
-    origin.get("/dir/start", async (req: Request) => redirect("sub/page?x=1", 302));
+    origin.get("/start", async (_req: Request) => redirect("/two", 302));
+    origin.get("/two", async (_req: Request) => new Response("arrived", 200));
+    origin.get("/dir/start", async (_req: Request) => redirect("sub/page?x=1", 302));
     origin.get(
         "/dir/sub/page",
         async (req: Request) => new Response("relative " + (req.query["x"] ?? "none"), 200),
     );
-    origin.get("/up/start", async (req: Request) => redirect("../two", 302));
-    origin.post("/post-redirect", async (req: Request) => redirect("/method", 302));
+    origin.get("/up/start", async (_req: Request) => redirect("../two", 302));
+    origin.post("/post-redirect", async (_req: Request) => redirect("/method", 302));
     origin.get(
         "/method",
         async (req: Request) => new Response(req.method == HttpMethod.GET ? "GET" : "other", 200),
     );
-    origin.post("/keep", async (req: Request) => redirect("/echo-body", 307));
+    origin.post("/keep", async (_req: Request) => redirect("/echo-body", 307));
     origin.post("/echo-body", async (req: Request) => new Response("body=" + req.text(), 200));
-    origin.get("/loop", async (req: Request) => redirect("/loop", 302));
+    origin.get("/loop", async (_req: Request) => redirect("/loop", 302));
     origin.get(
         "/to-other",
-        async (req: Request) => redirect(`http://127.0.0.1:${other.port}/who`, 302),
+        async (_req: Request) => redirect(`http://127.0.0.1:${other.port}/who`, 302),
     );
     other.get(
         "/who",
@@ -49,7 +49,7 @@ await describe("294 fetch follows redirects", async () => {
             200,
         ),
     );
-    origin.get("/same", async (req: Request) => redirect("/who", 302));
+    origin.get("/same", async (_req: Request) => redirect("/who", 302));
 
     origin.listen(0);
     other.listen(0);

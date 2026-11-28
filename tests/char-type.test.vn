@@ -98,7 +98,7 @@ await describe("34 char type", async () => {
         // Literals and basic identity
         const a: char = 'a'
         const z: char = 'z'
-        const excl: char = '!'
+        const _excl: char = '!'
         expect(a).toBe('a')
         expect(a != z).toBeTruthy()
         expect('A'.charCodeAt()).toBe(65)

@@ -27,7 +27,7 @@ export class Mutex {
     async withLock<T>(action: () => Task<T>): Task<T> {
         await this.lock();
         try {
-            let result = await action();
+            const result = await action();
             this.unlock();
             return result;
         } catch (error) {
@@ -70,7 +70,7 @@ export class Semaphore {
     async withPermit<T>(action: () => Task<T>): Task<T> {
         await this.acquire();
         try {
-            let result = await action();
+            const result = await action();
             this.release();
             return result;
         } catch (error) {
@@ -114,7 +114,7 @@ export class WaitGroup {
     }
 
     private _notifyWaiters(): void {
-        let n = this._waiterCount;
+        const n = this._waiterCount;
         let i = 0;
         while(i < n) {
             this._waiters.tx.send(true);
@@ -143,8 +143,8 @@ export class RateLimiter {
     }
 
     take(count: int = 1): bool {
-        let at = now();
-        let elapsed = at - this._last;
+        const at = now();
+        const elapsed = at - this._last;
         if(elapsed > 0) {
             this._tokens = this._tokens + (elapsed as float) * this._perMs;
             if(this._tokens > this._capacity as float) {

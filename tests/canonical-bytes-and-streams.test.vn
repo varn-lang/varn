@@ -19,19 +19,19 @@ function testBytesBasics(): void {
     expect(b[4]).toBe(111);;
     expect(b.toString()).toBe("Hello");;
 
-    let sub = b.slice(0, 4);
+    const sub = b.slice(0, 4);
     expect(sub.length).toBe(4);;
     expect(sub.toString()).toBe("Hell");;
 
-    let hex = b.toHex();
+    const hex = b.toHex();
     expect(hex).toBe("48656c6c6f");;
 
-    let b64 = b.toBase64();
+    const b64 = b.toBase64();
     expect(b64).toBe("SGVsbG8=");;
 
     // Test binary transparency: arbitrary non-UTF8 bytes with null byte
-    let rawArr = [0x00, 0xFF, 0xFE, 0x80, 0x7F];
-    let bin = Bytes.fromBytes(rawArr);
+    const rawArr = [0x00, 0xFF, 0xFE, 0x80, 0x7F];
+    const bin = Bytes.fromBytes(rawArr);
     expect(bin.length).toBe(5);;
     expect(bin[0]).toBe(0x00);;
     expect(bin[1]).toBe(0xFF);;
@@ -52,7 +52,7 @@ class MockChunkReader implements AsyncReader {
         if(this.idx >= this.chunks.length) {
             return null;
         }
-        let chunk = this.chunks[this.idx];
+        const chunk = this.chunks[this.idx];
         this.idx = this.idx + 1;
         return chunk;
     }
@@ -74,11 +74,11 @@ class MockChunkWriter implements AsyncWriter {
     close(): void {}
 }
 async function testStreamPipe(): Task<void> {
-    let chunk1 = Bytes.fromString("Chunk1_");
-    let chunk2 = Bytes.fromString("Chunk2_");
-    let chunk3 = Bytes.fromString("Chunk3");
-    let reader = new MockChunkReader([chunk1, chunk2, chunk3]);
-    let writer = new MockChunkWriter();
+    const chunk1 = Bytes.fromString("Chunk1_");
+    const chunk2 = Bytes.fromString("Chunk2_");
+    const chunk3 = Bytes.fromString("Chunk3");
+    const reader = new MockChunkReader([chunk1, chunk2, chunk3]);
+    const writer = new MockChunkWriter();
     await Stream.pipe(reader, writer);
     expect(writer.flushed).toBeTruthy();
     expect(writer.received.length).toBe(3);
@@ -91,20 +91,20 @@ async function testStreamPipe(): Task<void> {
 @capability("net.client")
 @capability("fs.read", "fs.write")
 async function testTcpBinaryRoundtrip(): Task<void> {
-    let portFile = freshPortFile();
-    let vnBin = Process.currentExe();
-    let proc = Process.spawn(
+    const portFile = freshPortFile();
+    const vnBin = Process.currentExe();
+    const proc = Process.spawn(
         vnBin,
         ["run", `${import.meta.dirname}/helpers/tcp_binary_echo_server.vn`, "--", portFile],
     );
     try {
-        let port = await awaitPort(portFile);
-        let client = await TcpStream.connect("127.0.0.1", port);
-        let original = Bytes.fromBytes([0x00, 0x01, 0xFF, 0xFE, 0x80, 0x7F, 0xAB, 0xCD]);
+        const port = await awaitPort(portFile);
+        const client = await TcpStream.connect("127.0.0.1", port);
+        const original = Bytes.fromBytes([0x00, 0x01, 0xFF, 0xFE, 0x80, 0x7F, 0xAB, 0xCD]);
         await client.writeAll(original);
-        let received = await client.read(1024);
+        const received = await client.read(1024);
         expect(received != null).toBeTruthy();
-        let recBytes = received as Bytes;
+        const recBytes = received as Bytes;
         expect(recBytes.length).toBe(8);
         expect(recBytes[0]).toBe(0x00);
         expect(recBytes[1]).toBe(0x01);
@@ -115,7 +115,7 @@ async function testTcpBinaryRoundtrip(): Task<void> {
         expect(recBytes[6]).toBe(0xAB);
         expect(recBytes[7]).toBe(0xCD);
         client.close();
-        let exitInfo = proc.wait();
+        const exitInfo = proc.wait();
         expect(exitInfo.exitCode).toBe(0);
     } catch (e) {
         proc.kill();

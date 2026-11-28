@@ -72,7 +72,7 @@ function App(): Widget {
             Title(`tareas (${todos.value.length})`),
             Row([
                 Expanded(
-                    Field(draft, hint: "nueva tarea, Enter añade", onSubmit: (v: str) => add()),
+                    Field(draft, hint: "nueva tarea, Enter añade", onSubmit: (_v: str) => add()),
                 ),
                 Button("Añadir", add),
             ]),
@@ -80,7 +80,7 @@ function App(): Widget {
                 todos.value,
                 (t: Todo): str => t.text,
                 (t: Todo, at: int) => Row([
-                    Checkbox(t.done, onChange: (next: bool) => toggle(at)),
+                    Checkbox(t.done, onChange: (_next: bool) => toggle(at)),
                     Expanded(
                         Text(t.text, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
                     ),
@@ -95,5 +95,5 @@ function App(): Widget {
     );
 }
 
-run("tareas", build: (fr: UiFrame, focus: Focus): Widget => App(), w: 800, h: 640);
+run("tareas", build: (_fr: UiFrame, _focus: Focus): Widget => App(), w: 800, h: 640);
 print(`tareas: ${todos.value.length} en ${FILE}`);

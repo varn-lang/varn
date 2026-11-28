@@ -74,13 +74,13 @@ export class PlainDateTime {
     }
 
     toString(): str {
-        let yr = this.year;
-        let mo = this.month;
-        let dy = this.day;
-        let hr = this.hour;
-        let mn = this.minute;
-        let sc = this.second;
-        let ms = this.millisecond;
+        const yr = this.year;
+        const mo = this.month;
+        const dy = this.day;
+        const hr = this.hour;
+        const mn = this.minute;
+        const sc = this.second;
+        const ms = this.millisecond;
 
         return pad4(yr) +
             "-" +

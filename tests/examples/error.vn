@@ -4,7 +4,7 @@ import { readText } from "std:fs";
 
 await describe("example std:error", async () => {
     await it("a class is the discriminant and carries typed fields", () => {
-        let err = new FsNotFoundError("/data/report.csv");
+        const err = new FsNotFoundError("/data/report.csv");
         expect(err.code).toBe("fs.not_found");
         expect(err.path).toBe("/data/report.csv");
         expect(err.message).toBe("no such file or directory: /data/report.csv");
@@ -46,8 +46,8 @@ await describe("example std:error", async () => {
     });
 
     await it("errors chain their cause", () => {
-        let cause = new ParseError("unexpected token", 3);
-        let wrapped = new DecodeError("$.user.age", "age is not a number", cause);
+        const cause = new ParseError("unexpected token", 3);
+        const wrapped = new DecodeError("$.user.age", "age is not a number", cause);
         expect(wrapped.cause == cause).toBe(true);
         expect(wrapped.path).toBe("$.user.age");
         expect(wrapped is ParseError).toBe(true);

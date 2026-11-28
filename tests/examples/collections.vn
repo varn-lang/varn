@@ -3,7 +3,7 @@ import { List, Stack, Queue, PriorityQueue, LRUCache } from "std:collections";
 
 await describe("example std:collections", async () => {
     await it("List add/get/remove", () => {
-        let list = new List<int>([1, 2]);
+        const list = new List<int>([1, 2]);
         list.add(3);
         expect(list.length).toBe(3);
         expect(list.get(0)).toBe(1);
@@ -13,7 +13,7 @@ await describe("example std:collections", async () => {
     });
 
     await it("Stack push/pop/peek", () => {
-        let stack = new Stack<str>();
+        const stack = new Stack<str>();
         expect(stack.isEmpty).toBe(true);
         stack.push("a");
         stack.push("b");
@@ -23,7 +23,7 @@ await describe("example std:collections", async () => {
     });
 
     await it("Queue fifo order", () => {
-        let queue = new Queue<str>();
+        const queue = new Queue<str>();
         queue.enqueue("first");
         queue.enqueue("second");
         expect(queue.dequeue()).toBe("first");
@@ -32,7 +32,7 @@ await describe("example std:collections", async () => {
     });
 
     await it("PriorityQueue pops minimum first", () => {
-        let pq = new PriorityQueue<int>((a: int, b: int): int => {
+        const pq = new PriorityQueue<int>((a: int, b: int): int => {
             if(a < b) return -1;
             if(a > b) return 1;
             return 0;
@@ -45,7 +45,7 @@ await describe("example std:collections", async () => {
     });
 
     await it("LRUCache evicts least recently used", () => {
-        let cache = new LRUCache<str>(2);
+        const cache = new LRUCache<str>(2);
         cache.set("a", "alpha");
         cache.set("b", "beta");
         expect(cache.get("a")).toBe("alpha");

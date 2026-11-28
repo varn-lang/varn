@@ -5,14 +5,14 @@ import { Uuid } from "std:crypto";
 
 await describe("45 simple file test", async () => {
     await it("tests", async () => {
-        let path = join(tempDir(), "varn-45-simple-file-" + Uuid.v4() + ".txt");
+        const path = join(tempDir(), "varn-45-simple-file-" + Uuid.v4() + ".txt");
         {
             using file = File.open(path, FileMode.Write);
             file.write("Hello simple using!");
         }
         {
             using file = File.open(path, FileMode.Read);
-            let contenido = file.readAll();
+            const contenido = file.readAll();
             expect(contenido).toBe("Hello simple using!");
         }
         remove(path);

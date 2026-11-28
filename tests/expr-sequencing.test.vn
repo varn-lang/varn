@@ -27,8 +27,8 @@ function side(): int? {
 
 function nullishGetter(): int {
     calls = 0
-    let l = new Lazy()
-    let r = l.v ?? 0
+    const l = new Lazy()
+    const r = l.v ?? 0
     return calls * 100 + r
 }
 
@@ -36,29 +36,29 @@ function compoundGetter(): int {
     calls = 0
     let h = new Holder()
     h.c.v += 5
-    let afterAssign = calls
+    const afterAssign = calls
     h.c.v++
     return afterAssign * 1000 + calls * 100 + h._c.v
 }
 
 function shortCircuitAnd(): int {
     calls = 0
-    let ok = false
-    let r = ok && ((side() ?? 0) > 1)
+    const ok = false
+    const _r = ok && ((side() ?? 0) > 1)
     return calls
 }
 
 function shortCircuitTernary(): int {
     calls = 0
-    let ok = false
-    let t = ok ? (side() ?? 0) : 9
+    const ok = false
+    const t = ok ? (side() ?? 0) : 9
     return calls * 100 + t
 }
 
 function mapNullish(): int {
-    let m = new Map<str, int?>()
+    const m = new Map<str, int?>()
     m.set("a", 3)
-    let n = new Map<str, int>()
+    const n = new Map<str, int>()
     n.set("c", 5)
     return(m["a"] ?? 0) * 1000 + (m["b"] ?? 4) * 100 + (n.get("c") ?? 0) * 10 + (n.get("d") ?? 6)
 }
@@ -108,8 +108,8 @@ function bump(): int {
 }
 function evalOrder(): int {
     calls = 0
-    let l = new Lazy()
-    let r = bump() + (l.v ?? 0)
+    const l = new Lazy()
+    const r = bump() + (l.v ?? 0)
     return calls * 100 + r
 }
 

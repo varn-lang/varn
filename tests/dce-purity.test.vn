@@ -32,12 +32,12 @@ class Ticker {
 }
 
 function dropGetter(t: Ticker): int {
-    const unused = t.tick
+    const _unused = t.tick
     return 42
 }
 
 function dropMethod(t: Ticker): int {
-    const unused = t.bump()
+    const _unused = t.bump()
     return 42
 }
 
@@ -52,12 +52,12 @@ function useGetter(t: Ticker): int {
 // observable, so these only assert the program stays correct while the values
 // go unused.
 function dropPure(a: int[], t: Ticker): int {
-    const deadArith = a.length * 2 + 7
-    const deadField = t.n
-    const deadArray = [1, 2, 3]
-    const deadObject = #{ a: 1, b: 2 }
-    const deadIndex = a[0]
-    const deadCompare = a.length > 1
+    const _deadArith = a.length * 2 + 7
+    const _deadField = t.n
+    const _deadArray = [1, 2, 3]
+    const _deadObject = #{ a: 1, b: 2 }
+    const _deadIndex = a[0]
+    const _deadCompare = a.length > 1
     return 42
 }
 await describe("60 dce purity", async () => {

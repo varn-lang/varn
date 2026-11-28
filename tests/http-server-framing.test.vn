@@ -46,7 +46,7 @@ function count(haystack: str, needle: str): int {
 await describe("292 http server framing", async () => {
     const server = new HttpServer();
     server.post("/echo", async (req: Request) => new Response(req.text(), 200));
-    server.get("/hello", async (req: Request) => new Response("hello", 200));
+    server.get("/hello", async (_req: Request) => new Response("hello", 200));
     server.listen(0);
     await delay(150);
 

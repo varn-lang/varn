@@ -1,77 +1,77 @@
-import { Markdown, MarkdownNode, MarkdownNodeKind, MarkdownOptions } from "std:markdown";
+import { Markdown, MarkdownNodeKind, MarkdownOptions } from "std:markdown";
 import { describe, it, expect } from "std:test";
 
 // 1. Headings and Slugify
-let mdHeadings = "# Main Title\n## Sub Title ##\n### Section 3\n###### Level 6";
-let headingsAst = Markdown.parse(mdHeadings);
+const mdHeadings = "# Main Title\n## Sub Title ##\n### Section 3\n###### Level 6";
+const headingsAst = Markdown.parse(mdHeadings);
 
-let renderedH1 = Markdown.render("# Hello World");
+const renderedH1 = Markdown.render("# Hello World");
 
-let slug = Markdown.slugify("Varn 1.0: Next-Gen Language & Runtime!");
+const slug = Markdown.slugify("Varn 1.0: Next-Gen Language & Runtime!");
 
-let extractedHeadings = Markdown.extractHeadings(
+const extractedHeadings = Markdown.extractHeadings(
     "# Introduction\nSome text\n## Quick Start\nMore text\n### API Reference",
 );
 
 // 2. Paragraphs and Inlines (Bold, Italic, Strikethrough, Inline Code)
-let mdInlines =
+const mdInlines =
     "This is **bold text**, *italic text*, ***bold and italic***, ~~strikethrough~~, and `inline_code()`.";
-let htmlInlines = Markdown.render(mdInlines);
+const htmlInlines = Markdown.render(mdInlines);
 
 // 3. Fenced and Indented Code Blocks
-let mdFenced = "```varn\nlet msg = \"Hello from Varn\";\nprint(msg);\n```";
-let htmlFenced = Markdown.render(mdFenced);
+const mdFenced = "```varn\nlet msg = \"Hello from Varn\";\nprint(msg);\n```";
+const htmlFenced = Markdown.render(mdFenced);
 
-let mdIndented = "    let x = 10;\n    let y = 20;";
-let htmlIndented = Markdown.render(mdIndented);
+const mdIndented = "    let x = 10;\n    let y = 20;";
+const htmlIndented = Markdown.render(mdIndented);
 
 // 4. Blockquotes and Nested Content
-let mdQuote = "> This is a blockquote.\n> Second line of quote.";
-let htmlQuote = Markdown.render(mdQuote);
+const mdQuote = "> This is a blockquote.\n> Second line of quote.";
+const htmlQuote = Markdown.render(mdQuote);
 
 // 5. Links, Images and Autolinks
-let mdLinks =
+const mdLinks =
     "Visit [Varn Language](https://varn-lang.org \"Official Site\") or check ![Varn Logo](https://varn-lang.org/logo.png \"Logo\"). Also check <https://github.com/carlos-burelo/varn>.";
-let htmlLinks = Markdown.render(mdLinks);
+const htmlLinks = Markdown.render(mdLinks);
 
-let extractedLinks = Markdown.extractLinks(mdLinks);
+const extractedLinks = Markdown.extractLinks(mdLinks);
 
 // 6. Lists (Unordered, Ordered, Task lists)
-let mdLists = "- Item 1\n- Item 2 with **bold**\n- Item 3";
-let htmlLists = Markdown.render(mdLists);
+const mdLists = "- Item 1\n- Item 2 with **bold**\n- Item 3";
+const htmlLists = Markdown.render(mdLists);
 
-let mdOrdered = "1. First\n2. Second\n3. Third";
-let htmlOrdered = Markdown.render(mdOrdered);
+const mdOrdered = "1. First\n2. Second\n3. Third";
+const htmlOrdered = Markdown.render(mdOrdered);
 
-let mdOrderedStart = "5. Fifth item\n6. Sixth item";
-let htmlOrderedStart = Markdown.render(mdOrderedStart);
+const mdOrderedStart = "5. Fifth item\n6. Sixth item";
+const htmlOrderedStart = Markdown.render(mdOrderedStart);
 
-let mdTasks = "- [ ] Pending task\n- [x] Completed task";
-let htmlTasks = Markdown.render(mdTasks);
+const mdTasks = "- [ ] Pending task\n- [x] Completed task";
+const htmlTasks = Markdown.render(mdTasks);
 
 // 7. GFM Pipe Tables with Alignments
-let mdTable =
+const mdTable =
     "| Feature | Status | Speed |\n|:---|:---:|---:|\n| JIT | Active | Fast |\n| GC | Generational | 10x |";
-let htmlTable = Markdown.render(mdTable);
+const htmlTable = Markdown.render(mdTable);
 
 // 8. Thematic Breaks / Horizontal Rules
-let mdHR = "Paragraph 1\n\n---\n\nParagraph 2";
-let htmlHR = Markdown.render(mdHR);
+const mdHR = "Paragraph 1\n\n---\n\nParagraph 2";
+const htmlHR = Markdown.render(mdHR);
 
 // 9. Plain Text Extractor (toPlainText)
-let mdComplex =
+const mdComplex =
     "# Title\n\nThis is **formatted** markdown with `code` and [links](https://example.com).\n\n```\nlet block = 1;\n```";
-let plainText = Markdown.toPlainText(mdComplex);
+const plainText = Markdown.toPlainText(mdComplex);
 
 // 10. Options (XHTML mode, HTML escaping, line breaks)
-let mdXhtml = "![Alt](img.png)\n\n---";
-let htmlXhtml = Markdown.render(mdXhtml, new MarkdownOptions(xhtml: true));
+const mdXhtml = "![Alt](img.png)\n\n---";
+const htmlXhtml = Markdown.render(mdXhtml, new MarkdownOptions(xhtml: true));
 
-let mdXss = "<script>alert('xss')</script>";
-let htmlEscaped = Markdown.render(mdXss, new MarkdownOptions(escapeHtml: true));
+const mdXss = "<script>alert('xss')</script>";
+const htmlEscaped = Markdown.render(mdXss, new MarkdownOptions(escapeHtml: true));
 
-let mdBreaks = "Line 1\nLine 2";
-let htmlBreaks = Markdown.render(mdBreaks, new MarkdownOptions(breaks: true));
+const mdBreaks = "Line 1\nLine 2";
+const htmlBreaks = Markdown.render(mdBreaks, new MarkdownOptions(breaks: true));
 await describe("95 stdlib markdown", async () => {
     await it("group 1 part 1", async () => {
         expect(headingsAst.children.length).toBe(4);

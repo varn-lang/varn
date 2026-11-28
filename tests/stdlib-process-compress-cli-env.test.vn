@@ -8,38 +8,38 @@ import { describe, it, expect } from "std:test";
 // ==========================================
 // 1. Process Execution (std:process)
 // ==========================================
-let procRes = Process.exec("echo VarnProcessTest");
+const procRes = Process.exec("echo VarnProcessTest");
 
 // ==========================================
 // 2. Compression & Decompression (std:compress)
 // ==========================================
-let originalText =
+const originalText =
     "Varn Language: Fast, Type-Safe, High-Performance Systems Language with Register VM!";
 
 // Gzip roundtrip
-let gzipped = Compress.gzip(originalText);
-let unzipped = Compress.gunzip(gzipped);
+const gzipped = Compress.gzip(originalText);
+const unzipped = Compress.gunzip(gzipped);
 
 // Deflate / Inflate roundtrip
-let deflated = Compress.deflate(originalText);
-let inflated = Compress.inflate(deflated);
+const deflated = Compress.deflate(originalText);
+const inflated = Compress.inflate(deflated);
 
 // ==========================================
 // 3. CLI Argument Parser (std:cli)
 // ==========================================
-let sampleArgs = ["--port=9000", "--host=localhost", "-d", "serve", "api/v1"];
-let parsed = Cli.parse(sampleArgs);
+const sampleArgs = ["--port=9000", "--host=localhost", "-d", "serve", "api/v1"];
+const parsed = Cli.parse(sampleArgs);
 
 // ==========================================
 // 4. Environment Variables (std:env)
 // ==========================================
-let dotEnvContent = "# Configuration\nAPP_NAME=VarnServer\nPORT=4000\nDEBUG=true\n";
-let envMap = Env.parse(dotEnvContent);
+const dotEnvContent = "# Configuration\nAPP_NAME=VarnServer\nPORT=4000\nDEBUG=true\n";
+const envMap = Env.parse(dotEnvContent);
 
 // ==========================================
 // 5. Canonical Path Namespace (std:path)
 // ==========================================
-let joinedPath = Path.join("src", "modules", "app.vn");
+const joinedPath = Path.join("src", "modules", "app.vn");
 await describe("84 stdlib process compress cli env", async () => {
     await it("group 1 part 1", async () => {
         expect(procRes.exitCode).toBe(0);

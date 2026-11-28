@@ -7,8 +7,8 @@ enum R {
 
 await describe("29 Option Destructuring", async () => {
     await it("enum match", () => {
-        let x = R.A(42);
-        let v = match (x) {
+        const x = R.A(42);
+        const v = match (x) {
             A(n) => n,
             B(_) => -1,
         };
@@ -16,8 +16,8 @@ await describe("29 Option Destructuring", async () => {
             throw new Error(`DEBUG FAIL: v is not 42, it is: ${v}`);
         }
         expect(v).toBe(42);
-        let y = R.B("boom");
-        let v2 = match (y) {
+        const y = R.B("boom");
+        const v2 = match (y) {
             A(n) => n,
             B(_) => -1,
         };

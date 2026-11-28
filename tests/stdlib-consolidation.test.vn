@@ -1,30 +1,30 @@
 import { Json, JsonValue, Base64, Hex, Toml, TomlValue } from "std:encoding";
 import { Color, Table, Cli, Prompt } from "std:cli";
 import { Mutex, Semaphore, WaitGroup, delay, spawn, Task } from "std:task";
-import { LogLevel, Logger, getLogger } from "std:log";
+import { LogLevel, Logger } from "std:log";
 import { PriorityQueue, LRUCache } from "std:collections";
 import { describe, it, expect } from "std:test";
 
 @capability("sys.env")
 function testCli(): void {
     // 1. Color & ANSI stripping
-    let styled = Color.red("critical error");
+    const styled = Color.red("critical error");
     expect(styled.includes("\x1b[31m")).toBeTruthy();;
     expect(Color.stripAnsi(styled)).toBe("critical error");;
-    let isTermInteractive = Color.isInteractive();
+    const isTermInteractive = Color.isInteractive();
     expect(isTermInteractive == true || isTermInteractive == false).toBeTruthy();;
 
     // 2. Table
-    let table = new Table(["ID", "Name", "Role"]);
+    const table = new Table(["ID", "Name", "Role"]);
     table.addRow(["1", "Alice", "Admin"]);
     table.addRow(["2", "Bob", "User"]);
-    let renderedTable = table.render();
+    const renderedTable = table.render();
     expect(renderedTable.includes("Alice")).toBeTruthy();;
     expect(renderedTable.includes("Admin")).toBeTruthy();;
     expect(renderedTable.includes("+")).toBeTruthy();;
 
     // 3. CLI Args
-    let parsed = Cli.parse(["--env=production", "-v", "src/main.vn"]);
+    const parsed = Cli.parse(["--env=production", "-v", "src/main.vn"]);
     expect(parsed.flags["env"]).toBe("production");;
     expect(parsed.flags["v"]).toBe("true");;
     expect(parsed.positionals.length).toBe(1);;
@@ -44,11 +44,11 @@ class SyncState {
 
 let syncState = new SyncState();
 
-let logCapturedLines: str[] = [];
-let logJsonLines: str[] = [];
+const logCapturedLines: str[] = [];
+const logJsonLines: str[] = [];
 
 function testLog(): void {
-    let logger = new Logger("service", LogLevel.Info, false, false, (line: str): void => {
+    const logger = new Logger("service", LogLevel.Info, false, false, (line: str): void => {
         logCapturedLines.push(line);
     });
 
@@ -64,25 +64,25 @@ function testLog(): void {
     expect(logCapturedLines[0].includes("\"port\":3000")).toBeTruthy();;
 
     // JSON format output
-    let jsonLogger = new Logger("jsonApp", LogLevel.Debug, true, false, (line: str): void => {
+    const jsonLogger = new Logger("jsonApp", LogLevel.Debug, true, false, (line: str): void => {
         logJsonLines.push(line);
     });
     jsonLogger.debug("testing json", #{ "ok": true });
     expect(logJsonLines.length).toBe(1);;
 
-    let parsedRecord = Json.parse<Map<str, JsonValue >> (logJsonLines[0]);
+    const parsedRecord = Json.parse<Map<str, JsonValue >> (logJsonLines[0]);
     expect(parsedRecord.get("level")).toBe("DEBUG");;
     expect(parsedRecord.get("target")).toBe("jsonApp");;
     expect(parsedRecord.get("message")).toBe("testing json");;
 
     // Child logger
-    let childLogger = logger.child("worker");
+    const childLogger = logger.child("worker");
     expect(childLogger.name).toBe("service.worker");;
 }
 
 function testCollections(): void {
     // 1. PriorityQueue (Min-Heap default)
-    let minPq = new PriorityQueue<int>((a: int, b: int): int => {
+    const minPq = new PriorityQueue<int>((a: int, b: int): int => {
         if(a < b) return -1;
         if(a > b) return 1;
         return 0;
@@ -100,7 +100,7 @@ function testCollections(): void {
     expect(minPq.pop()).toBe(null);;
 
     // Custom comparator (Max-Heap)
-    let maxPq = new PriorityQueue<int>((a: int, b: int): int => {
+    const maxPq = new PriorityQueue<int>((a: int, b: int): int => {
         if(a > b) return -1;
         if(a < b) return 1;
         return 0;
@@ -113,7 +113,7 @@ function testCollections(): void {
     expect(maxPq.pop()).toBe(15);;
 
     // 2. LRUCache
-    let cache = new LRUCache<str>(2);
+    const cache = new LRUCache<str>(2);
     cache.set("key1", "val1");
     cache.set("key2", "val2");
     expect(cache.get("key1")).toBe("val1");; // key1 becomes most recently used
@@ -123,13 +123,13 @@ function testCollections(): void {
     expect(cache.get("key3")).toBe("val3");;
 }
 async function testEncoding(): Task<void> {
-    let tomlSample = "[server]\nhost = \"localhost\"\nport = 8080\nenabled = true\n";
-    let parsedToml = Toml.parse(tomlSample);
-    let serverObj = parsedToml.get("server") as Map<str, TomlValue>;
+    const tomlSample = "[server]\nhost = \"localhost\"\nport = 8080\nenabled = true\n";
+    const parsedToml = Toml.parse(tomlSample);
+    const serverObj = parsedToml.get("server") as Map<str, TomlValue>;
     expect(serverObj.get("host")).toBe("localhost");
     expect(serverObj.get("port")).toBe(8080);
     expect(serverObj.get("enabled")).toBe(true);
-    let stringifiedToml = Toml.stringify(parsedToml);
+    const stringifiedToml = Toml.stringify(parsedToml);
     expect(stringifiedToml.includes("[server]")).toBeTruthy();
     expect(stringifiedToml.includes("host = \"localhost\"")).toBeTruthy();
 }
@@ -137,7 +137,7 @@ async function testEncoding(): Task<void> {
 await describe("110 stdlib consolidation", async () => {
     await it("3. TOML; 3. WaitGroup", async () => {
         async function testTaskSync(): Task<void> {
-            let wg = new WaitGroup();
+            const wg = new WaitGroup();
             wg.add(2);
             spawn((async (): Task<void> => {
                 await delay(5);
@@ -164,11 +164,11 @@ await describe("110 stdlib consolidation", async () => {
     });
 
     await it("1. Base64; 1. Mutex", async () => {
-        let originalText = "Hello Varn Language!";
-        let encoded = Base64.encode(originalText);
-        let decoded = Base64.decode(encoded);
+        const originalText = "Hello Varn Language!";
+        const encoded = Base64.encode(originalText);
+        const decoded = Base64.decode(encoded);
         expect(decoded).toBe(originalText);
-        let mutex = new Mutex();
+        const mutex = new Mutex();
         await mutex.withLock(async (): Task<void> => {
             syncState.counter = syncState.counter + 5;
         });
@@ -176,10 +176,10 @@ await describe("110 stdlib consolidation", async () => {
     });
 
     await it("2. Hex; 2. Semaphore", async () => {
-        let hexEncoded = Hex.encode("Varn");
-        let hexDecoded = Hex.decode(hexEncoded);
+        const hexEncoded = Hex.encode("Varn");
+        const hexDecoded = Hex.decode(hexEncoded);
         expect(hexDecoded).toBe("Varn");
-        let semaphore = new Semaphore(2);
+        const semaphore = new Semaphore(2);
         await semaphore.withPermit(async (): Task<void> => {
             syncState.semCounter = syncState.semCounter + 2;
         });

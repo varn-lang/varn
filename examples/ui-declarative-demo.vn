@@ -87,8 +87,8 @@ function TodoList(): Widget {
         Each(
             todos.value,
             (t: Todo): str => `${t.id}`,
-            (t: Todo, at: int) => Row([
-                Checkbox(t.done, onChange: (next: bool) => toggle(t.id)),
+            (t: Todo, _at: int) => Row([
+                Checkbox(t.done, onChange: (_next: bool) => toggle(t.id)),
                 Text(t.title, color: t.done ? Theme.colors.muted : Theme.colors.onSurface),
             ]),
             gap: 10.0,
@@ -112,7 +112,7 @@ function Dashboard(): Widget {
 
 run(
     "Varn declarative ui",
-    build: (fr: UiFrame, focus: Focus): Widget => Dashboard(),
+    build: (_fr: UiFrame, _focus: Focus): Widget => Dashboard(),
     w: 560,
     h: 640,
 );

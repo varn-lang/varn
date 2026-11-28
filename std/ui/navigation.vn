@@ -1,4 +1,4 @@
-import { Readable, Signal, signal } from "std:signals";
+import { Signal, signal } from "std:signals";
 
 export class Navigator<T> {
     private _pages: Signal<T[]>;

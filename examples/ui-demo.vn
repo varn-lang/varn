@@ -9,7 +9,7 @@ import {
     KEY_ESCAPE,
 } from "std:ui";
 import { row } from "std:ui/layout";
-import { wrap as wrapText, measure } from "std:ui/text";
+import { wrap as wrapText } from "std:ui/text";
 import { present, render } from "std:ui/render";
 
 const W = 800;

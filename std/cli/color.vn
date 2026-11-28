@@ -77,10 +77,10 @@ export namespace Color {
     export function stripAnsi(text: str): str {
         let result: str = "";
         let inEscape: bool = false;
-        let length: int = text.length;
+        const length: int = text.length;
 
         for(let index = 0; index < length; index = index + 1) {
-            let character = text[index];
+            const character = text[index];
             if(character == "\x1b") {
                 inEscape = true;
             } else if (inEscape) {
@@ -96,11 +96,11 @@ export namespace Color {
 
     @capability("sys.env")
     export function isInteractive(): bool {
-        let noColor = env$("NO_COLOR");
+        const noColor = env$("NO_COLOR");
         if(noColor != null && noColor.length > 0) {
             return false;
         }
-        let term = env$("TERM");
+        const term = env$("TERM");
         if(term == "dumb") {
             return false;
         }

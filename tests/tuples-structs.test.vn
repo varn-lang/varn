@@ -12,7 +12,7 @@ struct Marker {
 
 await describe("69 tuples structs", async () => {
     await it("tuple creation and element access", async () => {
-        let t1 = #[1, "hello", true]
+        const t1 = #[1, "hello", true]
         expect(t1[0] == 1).toBeTruthy()
         expect(t1[1] == "hello").toBeTruthy()
         expect(t1[2] == true).toBeTruthy()
@@ -20,19 +20,19 @@ await describe("69 tuples structs", async () => {
     });
 
     await it("tuple structural equality", async () => {
-        let t1 = #[1, "hello", true]
-        let t2 = #[1, "hello", true]
-        let t3 = #[1, "hello", false]
+        const t1 = #[1, "hello", true]
+        const t2 = #[1, "hello", true]
+        const t3 = #[1, "hello", false]
         expect(t1 == t2).toBeTruthy()
         expect(t1 != t3).toBeTruthy()
 
-        let a1 = [1, 2]
-        let a2 = [1, 2]
+        const a1 = [1, 2]
+        const a2 = [1, 2]
         expect(!sameValue(a1, a2)).toBeTruthy()
     });
 
     await it("struct creation, access and equality", async () => {
-        let r1 = new Release("Varn", 1)
+        const r1 = new Release("Varn", 1)
         expect(r1.name == "Varn").toBeTruthy()
         expect(r1.version == 1).toBeTruthy()
         expect(r1["name"] == "Varn").toBeTruthy()
@@ -41,7 +41,7 @@ await describe("69 tuples structs", async () => {
     });
 
     await it("structs holding tuples compare deeply", async () => {
-        let a = new Marker(#[10, 20], true)
+        const a = new Marker(#[10, 20], true)
         expect(a == new Marker(#[10, 20], true)).toBeTruthy()
         expect(a != new Marker(#[10, 99], true)).toBeTruthy()
     });

@@ -23,14 +23,14 @@ await describe("295 the http server sends the response headers it was given", as
     const server = new HttpServer();
     server.get(
         "/custom",
-        async (req: Request) => new Response(
+        async (_req: Request) => new Response(
             "x",
             200,
             new Map<str,
             str>([#["X-Test", "1"], #["Location", "/z"]]),
         ),
     );
-    server.get("/json", async (req: Request) => json(#{ ok: true }));
+    server.get("/json", async (_req: Request) => json(#{ ok: true }));
     server.listen(0);
     await delay(150);
 

@@ -34,7 +34,7 @@ class TierBox {
 }
 await describe("56 tier parity", async () => {
     await it("tests", async () => {
-        let tierFirst = new TierBox(10)
+        const tierFirst = new TierBox(10)
         let tierLast = new TierBox(10)
         for(let i = 0; i < 64; i = i + 1) {
             tierLast = new TierBox(10)
@@ -49,8 +49,8 @@ await describe("56 tier parity", async () => {
 
         // The stdlib constructor that actually broke: every field but the first comes
         // from `int_div`, and the calls straddle the tiering threshold.
-        let tierD1 = Duration.from("PT1H30M")
-        let tierD2 = Duration.from("PT1H30M")
+        const tierD1 = Duration.from("PT1H30M")
+        const tierD2 = Duration.from("PT1H30M")
 
         expect(tierD1.hours).toBe(tierD2.hours)
         expect(tierD2.hours).toBe(1)

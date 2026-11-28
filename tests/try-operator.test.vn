@@ -8,21 +8,21 @@ function parse_positive(n: int): Result<int, str> {
     return Result.Ok(n * 2);
 }
 
-let test_direct = parse_positive(5);
-let test_direct_val = match (test_direct) {
+const test_direct = parse_positive(5);
+const _test_direct_val = match (test_direct) {
     Ok(val) => val,
     Err(_) => 0
 };
 
 function compute_result(a: int, b: int): Result<int, str> {
-    let x: int = try parse_positive(a);
-    let y: int = try parse_positive(b);
+    const x: int = try parse_positive(a);
+    const y: int = try parse_positive(b);
     return Result.Ok(x + y);
 }
 
-let ok_res = compute_result(5, 10);
+const ok_res = compute_result(5, 10);
 
-let err_res = compute_result(-2, 10);
+const err_res = compute_result(-2, 10);
 
 function find_user_id(name: str): int? {
     if(name == "alice") {
@@ -32,37 +32,37 @@ function find_user_id(name: str): int? {
 }
 
 function get_user_score(name: str): int? {
-    let uid: int = try find_user_id(name);
+    const uid: int = try find_user_id(name);
     return uid + 50;
 }
 
-let some_opt = get_user_score("alice");
+const some_opt = get_user_score("alice");
 
-let none_opt = get_user_score("bob");
+const none_opt = get_user_score("bob");
 
 function get_suffix(s: str?): str? {
-    let non_null_str: str = try s;
+    const non_null_str: str = try s;
     return non_null_str + "_suffix";
 }
 
-let suffixed_ok = get_suffix("test");
+const suffixed_ok = get_suffix("test");
 
-let suffixed_null = get_suffix(null);
+const suffixed_null = get_suffix(null);
 
-let cond = true;
-let ternary_unary_neg = cond ? -1 : 1;
+const cond = true;
+const ternary_unary_neg = cond ? -1 : 1;
 
-let ternary_unary_not = cond ? !false : false;
+const ternary_unary_not = cond ? !false : false;
 
-let opt_chain: str? = "hello";
-let opt_len = opt_chain?.length ?? 0;
+const opt_chain: str? = "hello";
+const opt_len = opt_chain?.length ?? 0;
 await describe("109 try operator", async () => {
     await it("group 1 part 1a", async () => {
-        let ok_val = match (ok_res) {
+        const ok_val = match (ok_res) {
             Ok(v) => v,
             Err(_) => 0
         };
-        let err_msg = match (err_res) {
+        const err_msg = match (err_res) {
             Ok(_) => "unexpected",
             Err(e) => e
         };
@@ -71,8 +71,8 @@ await describe("109 try operator", async () => {
     });
 
     await it("group 1 part 1b", async () => {
-        let some_val = some_opt ?? -1;
-        let is_none = none_opt == null;
+        const some_val = some_opt ?? -1;
+        const is_none = none_opt == null;
         expect(some_val).toBe(151);
         expect(is_none).toBe(true);
         expect(suffixed_ok).toBe("test_suffix");

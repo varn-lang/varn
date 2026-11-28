@@ -3,7 +3,6 @@ import {
     Readable,
     Signal,
     Computed,
-    Effect,
     signal,
     computed,
     effect,
@@ -11,7 +10,6 @@ import {
     untracked,
     onCleanup,
     Owner,
-    Scope,
     State,
     scope,
     withOwner,
@@ -106,7 +104,7 @@ await describe("235 signals", async () => {
         plain.value = 1
         expect(plainRuns).toBe(1)
 
-        const always = signal(1, equals: (a: int, b: int): bool => false)
+        const always = signal(1, equals: (_a: int, _b: int): bool => false)
         let alwaysRuns = 0
         effect(() => {
             alwaysRuns = alwaysRuns + 1;

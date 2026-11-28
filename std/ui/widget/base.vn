@@ -55,7 +55,7 @@ export class PaintContext {
         flag: bool,
         onActivate: () => void,
     ): void {
-        this.valued(kind, x, y, w, h, color, flag, 0.0, 0.0, 0.0, (value: float) => {
+        this.valued(kind, x, y, w, h, color, flag, 0.0, 0.0, 0.0, (_value: float) => {
             onActivate();
         });
     }

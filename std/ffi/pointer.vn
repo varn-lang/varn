@@ -1,12 +1,10 @@
 import {
-    alloc$,
     free$,
     readInt$,
     writeInt$,
     readFloat$,
     writeFloat$,
     readCString$,
-    allocCString$,
 } from "runtime:ffi";
 
 export class Pointer {

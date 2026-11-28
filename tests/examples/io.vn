@@ -19,15 +19,15 @@ await describe("example std:io", async () => {
     });
 
     await it("pipes a file stream into another file", async () => {
-        let base = join(tempDir(), "ex-io");
+        const base = join(tempDir(), "ex-io");
         clean(base);
         mkdirAll(base);
-        let src = new FileStream(join(base, "in.bin"), FileMode.Write);
+        const src = new FileStream(join(base, "in.bin"), FileMode.Write);
         await src.write(Bytes.fromString("stream-payload"));
         src.close();
-        let reader = new FileStream(join(base, "in.bin"), FileMode.Read);
-        let writer = new FileStream(join(base, "out.bin"), FileMode.Write);
-        let bytes = await Stream.pipe(reader, writer, 8192);
+        const reader = new FileStream(join(base, "in.bin"), FileMode.Read);
+        const writer = new FileStream(join(base, "out.bin"), FileMode.Write);
+        const bytes = await Stream.pipe(reader, writer, 8192);
         expect(bytes).toBe(14);
         reader.close();
         writer.close();

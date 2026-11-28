@@ -1,7 +1,7 @@
 const B32_ALPHABET: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 function b32Val(ch: str): int {
-    let code = ch.charCodeAt(0);
+    const code = ch.charCodeAt(0);
     if(code >= 65 && code <= 90) {
         return code - 65;
     }
@@ -16,12 +16,12 @@ export namespace Base32 {
         let out = "";
         let i = 0;
         while(i < data.length) {
-            let b0 = data.getByte(i);
-            let b1 = i + 1 < data.length ? data.getByte(i + 1) : 0;
-            let b2 = i + 2 < data.length ? data.getByte(i + 2) : 0;
-            let b3 = i + 3 < data.length ? data.getByte(i + 3) : 0;
-            let b4 = i + 4 < data.length ? data.getByte(i + 4) : 0;
-            let remain = data.length - i;
+            const b0 = data.getByte(i);
+            const b1 = i + 1 < data.length ? data.getByte(i + 1) : 0;
+            const b2 = i + 2 < data.length ? data.getByte(i + 2) : 0;
+            const b3 = i + 3 < data.length ? data.getByte(i + 3) : 0;
+            const b4 = i + 4 < data.length ? data.getByte(i + 4) : 0;
+            const remain = data.length - i;
             out = out + B32_ALPHABET[b0 >> 3];
             out = out + B32_ALPHABET[((b0 & 7) << 2) | (b1 >> 6)];
             out = out + (remain > 1 ? B32_ALPHABET[((b1 & 63) >> 1)] : "=");
@@ -36,13 +36,13 @@ export namespace Base32 {
     }
 
     export function decode(text: str): Bytes {
-        let clean = text.replaceAll("=", "").toUpperCase();
-        let out = Bytes.alloc((clean.length * 5) >> 3);
+        const clean = text.replaceAll("=", "").toUpperCase();
+        const out = Bytes.alloc((clean.length * 5) >> 3);
         let pos = 0;
         let acc = 0;
         let bits = 0;
         for(let i = 0; i < clean.length; i = i + 1) {
-            let v = b32Val(clean[i]);
+            const v = b32Val(clean[i]);
             if(v < 0) {
                 continue;
             }

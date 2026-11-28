@@ -22,7 +22,7 @@ export interface Observer {
 
 const MAX_FLUSH_ROUNDS = 1000;
 
-let _running: Observer[] = [];
+const _running: Observer[] = [];
 let _paused = 0;
 let _depth = 0;
 let _flushing = false;

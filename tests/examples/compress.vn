@@ -12,17 +12,17 @@ function clean(path: str): void {
 
 await describe("example std:compress", async () => {
     await it("gzip roundtrip", () => {
-        let gz = Compress.gzip("hello varn");
+        const gz = Compress.gzip("hello varn");
         expect(Compress.gunzip(gz).toString()).toBe("hello varn");
     });
 
     await it("deflate roundtrip", () => {
-        let raw = Compress.deflate("payload-123");
+        const raw = Compress.deflate("payload-123");
         expect(Compress.inflate(raw).toString()).toBe("payload-123");
     });
 
     await it("tar packs and unpacks a directory", () => {
-        let base = join(tempDir(), "ex-compress-tar");
+        const base = join(tempDir(), "ex-compress-tar");
         clean(base);
         mkdirAll(join(base, "data"));
         mkdirAll(join(base, "out"));
@@ -34,7 +34,7 @@ await describe("example std:compress", async () => {
     });
 
     await it("zip packs and unpacks a directory", () => {
-        let base = join(tempDir(), "ex-compress-zip");
+        const base = join(tempDir(), "ex-compress-zip");
         clean(base);
         mkdirAll(join(base, "data"));
         mkdirAll(join(base, "out"));

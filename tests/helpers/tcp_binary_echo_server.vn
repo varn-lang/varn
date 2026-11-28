@@ -5,12 +5,12 @@ import { announcePort } from "./port_file.vn";
 @capability("net.server", "fs.read", "fs.write")
 async function main() {
     const argv = args();
-    let listener = TcpListener.listen(0);
+    const listener = TcpListener.listen(0);
     announcePort(argv[argv.length - 1], listener.port);
-    let client = await listener.accept();
-    let data = await client.read(1024);
+    const client = await listener.accept();
+    const data = await client.read(1024);
     if(data != null) {
-        let b = data as Bytes;
+        const b = data as Bytes;
         await client.writeAll(b);
     }
     client.close();

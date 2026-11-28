@@ -33,22 +33,22 @@ function userMapGet(m: Map<str, int>): str {
 
 await describe("226 builtin names shadowed", async () => {
     await it("a user class named like a builtin is the user class", async () => {
-        let m: Map<str, int> = new Map<str, int>()
+        const m: Map<str, int> = new Map<str, int>()
         expect(m.size).toBe(7)
         expect(m.get("a")).toBe("user map")
         expect(userMapGet(m)).toBe("user map")
         expect(new Set<int>().has(1)).toBe("user set")
         expect(new Array<int>().get(0)).toBe("user array")
-        let r: Range = new Range()
+        const r: Range = new Range()
         expect(r.length).toBe(42)
-        let u: Unit = new Unit()
+        const u: Unit = new Unit()
         expect(u.tag).toBe("user unit")
     });
 
     await it("the core builtins stay reachable through literals", async () => {
-        let xs = [1, 2, 3]
+        const xs = [1, 2, 3]
         expect(xs.length).toBe(3)
-        let span = 0..4
+        const span = 0..4
         expect(span.length).toBe(4)
     });
 });
