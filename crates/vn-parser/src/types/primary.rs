@@ -32,7 +32,7 @@ pub(crate) fn parse_primary_type(
                 let name = s.consume_name();
                 let full_range = s.span_from(range);
                 s.push_error(vn_core::ForeignForm::InferType.message(), full_range);
-                return Ok(s.type_node(full_range, TypeKind::Named(name, None)));
+                return Ok(s.type_node(full_range, TypeKind::Named(name, ())));
             }
 
             let mut name_buf = s.lexeme().to_owned();
@@ -57,9 +57,9 @@ pub(crate) fn parse_primary_type(
             };
             let full_range = s.span_from(range);
             let kind = if type_args.is_empty() {
-                TypeKind::Named(name, None)
+                TypeKind::Named(name, ())
             } else {
-                TypeKind::Generic(name, type_args, None)
+                TypeKind::Generic(name, type_args, ())
             };
             Ok(s.type_node(full_range, kind))
         }
@@ -188,7 +188,7 @@ pub(crate) fn parse_primary_type(
         | TokenKind::Native
         | TokenKind::Constructor => {
             let name = s.consume_name();
-            Ok(s.type_node(range, TypeKind::Named(name, None)))
+            Ok(s.type_node(range, TypeKind::Named(name, ())))
         }
 
         TokenKind::EOF

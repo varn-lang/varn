@@ -158,7 +158,7 @@ impl<'r> Checker<'r> {
 
     fn check_type_name(&mut self, name: vn_core::Atom, node: &TypeNode, bind: &BindResult) -> bool {
         let text = self.resolve_bind_atom(bind, name);
-        if TypeKind::<(), (), (), (), (), ()>::of_primitive_name(&text).is_some()
+        if TypeKind::<(), (), (), (), (), (), ()>::of_primitive_name(&text).is_some()
             || text.as_ref() == vn_core::well_known::RECORD
             || self.active_type_params.contains(text.as_ref())
         {

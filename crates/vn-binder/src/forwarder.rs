@@ -37,7 +37,7 @@ impl Binder<'_> {
         {
             decodes |= matches!(
                 &type_ann.kind,
-                vn_core::ast::AstTypeKind::Named(name, None)
+                vn_core::ast::AstTypeKind::Named(name, ())
                     if f.type_params.iter().any(|param| param.name == *name)
             );
             value = *expression;

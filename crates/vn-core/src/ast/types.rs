@@ -12,6 +12,7 @@ pub type AstTypeKind = TypeKind<
     (Vec<FnTypeParam>, Box<TypeNode>),
     Vec<InterfaceMember>,
     std::convert::Infallible,
+    (),
 >;
 
 #[derive(Clone, Debug)]

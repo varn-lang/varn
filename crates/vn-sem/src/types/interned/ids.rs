@@ -20,8 +20,15 @@ pub struct FunctionTypeId(pub(super) u128);
 )]
 pub struct ObjectMembersId(pub(super) u128);
 
-pub type InternedTypeKind =
-    TypeKind<CheckerTyId, Atom, TyListId, FunctionTypeId, ObjectMembersId, ObjectMembersId>;
+pub type InternedTypeKind = TypeKind<
+    CheckerTyId,
+    Atom,
+    TyListId,
+    FunctionTypeId,
+    ObjectMembersId,
+    ObjectMembersId,
+    Option<Atom>,
+>;
 
 impl CheckerTyId {
     pub const INT: CheckerTyId = CheckerTyId(0);

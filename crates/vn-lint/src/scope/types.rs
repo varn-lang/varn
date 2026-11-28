@@ -10,17 +10,9 @@ impl<'a> Scopes<'a> {
                     self.ty(item);
                 }
             }
-            TypeKind::Named(name, qualifier) => {
+            TypeKind::Named(name, ()) => self.read_qualified(*name),
+            TypeKind::Generic(name, args, ()) => {
                 self.read_qualified(*name);
-                if let Some(qualifier) = qualifier {
-                    self.read_qualified(*qualifier);
-                }
-            }
-            TypeKind::Generic(name, args, qualifier) => {
-                self.read_qualified(*name);
-                if let Some(qualifier) = qualifier {
-                    self.read_qualified(*qualifier);
-                }
                 for arg in args {
                     self.ty(arg);
                 }
