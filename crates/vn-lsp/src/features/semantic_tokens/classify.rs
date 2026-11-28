@@ -58,15 +58,15 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         return Some(TT_PARAMETER);
     }
 
-    if let Some(id) = ctx.declared {
-        return Some(declared_tt(state, state.db.bind.arena.get(id)));
-    }
-
     if let Some(role) = ctx.pattern {
         return Some(match role {
             super::roles::PatternRole::Variant => TT_ENUM_MEMBER,
             super::roles::PatternRole::Binding => TT_VARIABLE,
         });
+    }
+
+    if let Some(id) = ctx.declared {
+        return Some(declared_tt(state, state.db.bind.arena.get(id)));
     }
 
     if let Some(role) = ctx.member {
