@@ -47,13 +47,13 @@ pub(super) fn after_eq(tokens: &[&TokenRecord], eq: usize) -> CompletionSite {
         return CompletionSite::Expression;
     }
     i -= 1;
-    if matches!(tokens[i].kind, TokenKind::RAngle | TokenKind::Gt) {
+    if matches!(tokens[i].kind, TokenKind::RAngle) {
         let mut depth = 0usize;
         loop {
             let kind = tokens[i].kind;
-            if matches!(kind, TokenKind::RAngle | TokenKind::Gt) {
+            if matches!(kind, TokenKind::RAngle) {
                 depth += 1;
-            } else if matches!(kind, TokenKind::LAngle | TokenKind::Lt) {
+            } else if matches!(kind, TokenKind::LAngle) {
                 depth -= 1;
                 if depth == 0 {
                     break;
@@ -83,9 +83,9 @@ pub(super) fn after_angle(
     let mut depth = 0usize;
     for i in (0..=last).rev() {
         let kind = tokens[i].kind;
-        if matches!(kind, TokenKind::RAngle | TokenKind::Gt) {
+        if matches!(kind, TokenKind::RAngle) {
             depth += 1;
-        } else if matches!(kind, TokenKind::LAngle | TokenKind::Lt) {
+        } else if matches!(kind, TokenKind::LAngle) {
             if depth == 0 {
                 let Some(owner) = i.checked_sub(1) else {
                     return CompletionSite::Expression;

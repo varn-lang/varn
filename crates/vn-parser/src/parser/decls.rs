@@ -117,9 +117,7 @@ pub(super) fn parse_var_decl_with_declare(
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

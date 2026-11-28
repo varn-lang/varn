@@ -117,9 +117,7 @@ pub fn keyword_hover(kind: TokenKind) -> Option<Hover> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

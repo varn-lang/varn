@@ -161,9 +161,7 @@ fn parse_match_pattern(s: &mut TokenStream) -> PResult<MatchPattern> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

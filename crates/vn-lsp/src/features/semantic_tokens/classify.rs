@@ -32,7 +32,7 @@ pub fn resolve_token(state: &DocumentState, tok: &TokenRecord, ctx: &TokenContex
         | StarStar | StarEq | StarStarEq | Slash | SlashEq | Percent | PercentEq | Amp | AmpAmp
         | AmpEq | AmpAmpEq | Pipe | PipePipe | PipeEq | PipePipeEq | Caret | CaretEq | Tilde
         | LtLt | LtLtEq | GtGt | GtGtEq | GtGtGt | GtGtGtEq | Eq | EqEq | EqEqEq | Bang
-        | BangEq | BangEqEq | Lt | LtEq | Gt | GtEq | Let | Const | Var | Function | Class
+        | BangEq | BangEqEq | LtEq | GtEq | Let | Const | Var | Function | Class
         | Struct | Interface | Type | Enum | Namespace | Extension | On | If | Else | Switch
         | Case | Default | While | For | Do | Break | Continue | Return | Throw | Try | Catch
         | Finally | Using | With | Import | Export | From | As | Async | Await | Yield | New

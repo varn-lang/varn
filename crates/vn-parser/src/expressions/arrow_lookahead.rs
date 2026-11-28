@@ -109,9 +109,7 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
                                 | TokenKind::Bang
                                 | TokenKind::BangEq
                                 | TokenKind::BangEqEq
-                                | TokenKind::Lt
                                 | TokenKind::LtEq
-                                | TokenKind::Gt
                                 | TokenKind::GtEq
                                 | TokenKind::Arrow
                                 | TokenKind::FatArrow
@@ -268,9 +266,7 @@ fn paren_leads_to_arrow(s: &TokenStream) -> bool {
             | TokenKind::Bang
             | TokenKind::BangEq
             | TokenKind::BangEqEq
-            | TokenKind::Lt
             | TokenKind::LtEq
-            | TokenKind::Gt
             | TokenKind::GtEq
             | TokenKind::Arrow
             | TokenKind::FatArrow

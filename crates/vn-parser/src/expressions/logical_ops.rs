@@ -78,9 +78,7 @@ pub(crate) fn token_to_logical_op(kind: TokenKind) -> Option<LogicalOp> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

@@ -103,9 +103,7 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

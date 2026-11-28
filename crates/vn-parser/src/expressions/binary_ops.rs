@@ -79,8 +79,6 @@ pub(crate) fn token_to_binary_op(kind: TokenKind) -> Option<BinOp> {
         | TokenKind::GtGtGtEq
         | TokenKind::Eq
         | TokenKind::Bang
-        | TokenKind::Lt
-        | TokenKind::Gt
         | TokenKind::Arrow
         | TokenKind::FatArrow
         | TokenKind::Let

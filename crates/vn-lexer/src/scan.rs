@@ -126,9 +126,7 @@ fn parse_num_lexeme(kind: vn_core::TokenKind, lexeme: &str) -> Option<vn_core::P
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

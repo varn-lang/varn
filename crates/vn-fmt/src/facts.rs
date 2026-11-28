@@ -222,7 +222,7 @@ pub fn collect(stream: &TokenStream, program: &Program, arena: &AstArena) -> Fac
                 if let Some(index) = (from..stream.toks.len()).take(4).find(|index| {
                     matches!(
                         stream.toks[*index].kind,
-                        TokenKind::LAngle | TokenKind::RAngle | TokenKind::Lt | TokenKind::Gt
+                        TokenKind::LAngle | TokenKind::RAngle
                     )
                 }) {
                     collector.comparisons.insert(index);

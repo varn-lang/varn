@@ -161,9 +161,7 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

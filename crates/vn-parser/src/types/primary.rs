@@ -258,9 +258,7 @@ pub(crate) fn parse_primary_type(s: &mut TokenStream, ctx: super::TypeContext) -
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

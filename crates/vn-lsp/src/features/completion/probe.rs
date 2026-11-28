@@ -128,7 +128,6 @@ fn receiver_start(tokens: &[TokenRecord], dot: usize) -> Option<usize> {
                         | TokenKind::RParen
                         | TokenKind::RBracket
                         | TokenKind::RAngle
-                        | TokenKind::Gt
                         | TokenKind::Bang
                 )
             });

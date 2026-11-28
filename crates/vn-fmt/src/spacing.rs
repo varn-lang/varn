@@ -65,9 +65,7 @@ fn is_spaced_operator(kind: K) -> bool {
             | K::EqEqEq
             | K::BangEq
             | K::BangEqEq
-            | K::Lt
             | K::LtEq
-            | K::Gt
             | K::GtEq
             | K::PlusEq
             | K::MinusEq

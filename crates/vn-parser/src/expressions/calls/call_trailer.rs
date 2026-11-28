@@ -292,9 +292,7 @@ pub(super) fn parse_call_expr(s: &mut TokenStream) -> PResult<ExprId> {
             | TokenKind::EqEqEq
             | TokenKind::BangEq
             | TokenKind::BangEqEq
-            | TokenKind::Lt
             | TokenKind::LtEq
-            | TokenKind::Gt
             | TokenKind::GtEq
             | TokenKind::Arrow
             | TokenKind::FatArrow

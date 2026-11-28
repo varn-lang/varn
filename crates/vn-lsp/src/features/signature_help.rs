@@ -110,9 +110,7 @@ pub fn build_signature_help(state: &DocumentState, line: u32, col: u32) -> Optio
             | TokenKind::Bang
             | TokenKind::BangEq
             | TokenKind::BangEqEq
-            | TokenKind::Lt
             | TokenKind::LtEq
-            | TokenKind::Gt
             | TokenKind::GtEq
             | TokenKind::Arrow
             | TokenKind::FatArrow

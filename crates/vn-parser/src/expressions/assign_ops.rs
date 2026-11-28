@@ -80,9 +80,7 @@ pub(crate) fn token_to_assign_op(kind: TokenKind) -> Option<AssignOp> {
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

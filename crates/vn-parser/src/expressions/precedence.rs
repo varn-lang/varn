@@ -92,8 +92,6 @@ pub(crate) fn binary_prec(kind: TokenKind) -> Option<(Prec, bool)> {
         | TokenKind::GtGtGtEq
         | TokenKind::Eq
         | TokenKind::Bang
-        | TokenKind::Lt
-        | TokenKind::Gt
         | TokenKind::Arrow
         | TokenKind::FatArrow
         | TokenKind::Let

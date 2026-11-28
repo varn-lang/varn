@@ -82,9 +82,7 @@ pub(super) fn literal_receiver(state: &DocumentState, tok: &TokenRecord) -> Opti
         | TokenKind::Bang
         | TokenKind::BangEq
         | TokenKind::BangEqEq
-        | TokenKind::Lt
         | TokenKind::LtEq
-        | TokenKind::Gt
         | TokenKind::GtEq
         | TokenKind::Arrow
         | TokenKind::FatArrow

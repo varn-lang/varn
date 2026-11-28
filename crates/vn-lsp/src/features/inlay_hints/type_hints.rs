@@ -182,9 +182,7 @@ fn find_rparen_col_on_line(state: &DocumentState, line: u32, after_col: u32) -> 
             | vn_core::TokenKind::Bang
             | vn_core::TokenKind::BangEq
             | vn_core::TokenKind::BangEqEq
-            | vn_core::TokenKind::Lt
             | vn_core::TokenKind::LtEq
-            | vn_core::TokenKind::Gt
             | vn_core::TokenKind::GtEq
             | vn_core::TokenKind::Arrow
             | vn_core::TokenKind::FatArrow

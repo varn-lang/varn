@@ -36,7 +36,7 @@ pub(super) fn classify(
     if kind == TokenKind::Comma && type_body_kind(tokens, last + 1) == Some(BodyKind::Enum) {
         return CompletionSite::EnumBody;
     }
-    if matches!(kind, TokenKind::LAngle | TokenKind::Lt | TokenKind::Comma) {
+    if matches!(kind, TokenKind::LAngle | TokenKind::Comma) {
         return after_angle(state, tokens, last);
     }
     if matches!(kind, TokenKind::Pipe | TokenKind::Amp) {
@@ -75,9 +75,9 @@ pub(super) fn extends_site(tokens: &[&TokenRecord], extends: usize) -> Option<Co
     let mut angle_depth = 0usize;
     for token in tokens[..extends].iter().rev() {
         let kind = token.kind;
-        if matches!(kind, TokenKind::RAngle | TokenKind::Gt) {
+        if matches!(kind, TokenKind::RAngle) {
             angle_depth += 1;
-        } else if matches!(kind, TokenKind::LAngle | TokenKind::Lt) {
+        } else if matches!(kind, TokenKind::LAngle) {
             if angle_depth == 0 {
                 return Some(CompletionSite::Type);
             }

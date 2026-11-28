@@ -157,7 +157,7 @@ pub(super) fn is_parameter_list_open(tokens: &[&TokenRecord], open: usize) -> bo
         }
         return in_type_body(tokens, callee) && is_declaration_slot_name(tokens, callee);
     }
-    if kind == TokenKind::RAngle || kind == TokenKind::Gt {
+    if kind == TokenKind::RAngle {
         return generic_declaration_open(tokens, callee);
     }
     matches!(
@@ -189,9 +189,9 @@ pub(super) fn generic_declaration_open(tokens: &[&TokenRecord], close: usize) ->
     let mut depth = 0usize;
     for i in (0..=close).rev() {
         let kind = tokens[i].kind;
-        if matches!(kind, TokenKind::RAngle | TokenKind::Gt) {
+        if matches!(kind, TokenKind::RAngle) {
             depth += 1;
-        } else if matches!(kind, TokenKind::LAngle | TokenKind::Lt) {
+        } else if matches!(kind, TokenKind::LAngle) {
             depth -= 1;
             if depth == 0 {
                 return i

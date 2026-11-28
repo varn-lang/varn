@@ -217,9 +217,7 @@ pub fn build_semantic_tokens(state: &DocumentState) -> Vec<u32> {
             | TokenKind::Bang
             | TokenKind::BangEq
             | TokenKind::BangEqEq
-            | TokenKind::Lt
             | TokenKind::LtEq
-            | TokenKind::Gt
             | TokenKind::GtEq
             | TokenKind::Arrow
             | TokenKind::FatArrow
