@@ -69,6 +69,8 @@ pub enum Commands {
     Dap,
 
     StdBundle(StdBundleArgs),
+
+    View(ViewArgs),
 }
 
 #[derive(Args)]
@@ -228,6 +230,25 @@ pub struct InitArgs {
 
     #[arg(long)]
     pub name: Option<String>,
+}
+
+#[derive(ValueEnum, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ViewKind {
+    Machine,
+    Clif,
+}
+
+#[derive(Args)]
+pub struct ViewArgs {
+    pub kind: ViewKind,
+
+    pub file: String,
+
+    #[arg(long)]
+    pub stdin: bool,
+
+    #[arg(long)]
+    pub wrapper: bool,
 }
 
 #[derive(Args)]

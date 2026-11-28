@@ -3924,14 +3924,12 @@ dependencies = [
  "vn-checker",
  "vn-compiler",
  "vn-core",
- "vn-debug",
  "vn-emit",
  "vn-modules",
  "vn-pipeline",
  "vn-sem",
  "vn-tir",
  "vn-types",
- "vn-vm",
 ]
 
 [[package]]

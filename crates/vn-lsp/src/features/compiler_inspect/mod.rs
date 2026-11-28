@@ -1,6 +1,5 @@
 mod ast_json;
 mod cfg;
-mod machine_view;
 
 use vn_sem::resolver::ImportResolver;
 use vn_tir::TirModule;
@@ -33,9 +32,6 @@ pub fn execute_command(
         "vn.showSSA" => Ok(Some(serde_json::Value::String(compile_and_dump_ssa(
             &*document()?,
         )?))),
-        "vn.showMachineCode" | "vn.showClif" => Ok(Some(serde_json::Value::String(
-            machine_view::command(command, &arguments, &*document()?)?,
-        ))),
         "vn.getCFG" => Ok(Some(compile_and_get_cfg_json(&*document()?)?)),
         "vn.memoryStats" => Ok(Some(memory_stats(workspace))),
         "vn.stdList" => Ok(Some(std_list())),
@@ -149,7 +145,7 @@ fn memory_stats(workspace: &Workspace) -> serde_json::Value {
     })
 }
 
-pub(super) fn emit_tir(state: &DocumentState) -> Result<TirModule, String> {
+fn emit_tir(state: &DocumentState) -> Result<TirModule, String> {
     let program = state
         .ast
         .as_ref()

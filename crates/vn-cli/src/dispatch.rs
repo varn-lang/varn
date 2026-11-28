@@ -38,6 +38,7 @@ fn anchor_of(cmd: &Commands) -> Option<Anchor<'_>> {
         | Commands::Lsp(_)
         | Commands::Dap
         | Commands::StdBundle(_) => Some(Anchor::Cwd),
+        Commands::View(args) => Some(path_anchor(Some(&args.file))),
         Commands::Init(_)
         | Commands::Cache(_)
         | Commands::Completions(_)
@@ -76,5 +77,6 @@ pub fn run(cmd: Commands, session: &Arc<Session>) -> Result<(), CliError> {
             commands::pkg::execute(&project, sub)
         }
         Commands::StdBundle(args) => commands::std_bundle::execute(session, args),
+        Commands::View(args) => commands::view::execute(session, args),
     }
 }

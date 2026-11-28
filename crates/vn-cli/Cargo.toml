@@ -32,7 +32,7 @@ vn-builtins = { path = "../vn-builtins", features = ["runtime"] }
 vn-types    = { path = "../vn-types" }
 vn-sem      = { path = "../vn-sem" }
 vn-debug    = { path = "../vn-debug" }
-vn-lsp      = { path = "../vn-lsp", features = ["machine-view"] }
+vn-lsp      = { path = "../vn-lsp" }
 vn-modules  = { path = "../vn-modules" }
 vn-runtime  = { path = "../vn-runtime" }
 vn-dap      = { path = "../vn-dap" }
