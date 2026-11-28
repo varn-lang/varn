@@ -22,7 +22,7 @@ function benchConcatParts(): int {
     let total = 0;
     let i = 0;
     while(i < 200000) {
-        let piece = "a" + i.toString() + "b";
+        const piece = "a" + i.toString() + "b";
         total = total + piece.length;
         i = i + 1;
     }
@@ -31,19 +31,19 @@ function benchConcatParts(): int {
 
 // 3. Array<str> build + join
 function benchJoin(): int {
-    let parts: str[] = [];
+    const parts: str[] = [];
     let i = 0;
     while(i < 100000) {
         parts.push("item" + i.toString());
         i = i + 1;
     }
-    let joined = parts.join(",");
+    const joined = parts.join(",");
     return joined.length;
 }
 
 // 4. indexOf + includes over a large haystack
 function benchSearch(): int {
-    let haystack = "abcdefghij".repeat(1000) + "needle";
+    const haystack = "abcdefghij".repeat(1000) + "needle";
     let total = 0;
     let i = 0;
     while(i < 2000) {
@@ -58,17 +58,17 @@ function benchSearch(): int {
 
 // 5. split on a big CSV line
 function benchSplit(): int {
-    let parts: str[] = [];
+    const parts: str[] = [];
     let i = 0;
     while(i < 10000) {
         parts.push(i.toString());
         i = i + 1;
     }
-    let csv = parts.join(",");
+    const csv = parts.join(",");
     let total = 0;
     let r = 0;
     while(r < 100) {
-        let fields = csv.split(",");
+        const fields = csv.split(",");
         total = total + fields.length;
         r = r + 1;
     }
@@ -77,12 +77,12 @@ function benchSplit(): int {
 
 // 6. substring/slice windows over a large string
 function benchSlice(): int {
-    let base = "abcdefghijklmnopqrstuvwxyz".repeat(400);
+    const base = "abcdefghijklmnopqrstuvwxyz".repeat(400);
     let total = 0;
     let i = 0;
     while(i < 200000) {
-        let start = i % 10000;
-        let sub = base.substring(start, start + 10);
+        const start = i % 10000;
+        const sub = base.substring(start, start + 10);
         total = total + sub.length;
         i = i + 1;
     }
@@ -91,7 +91,7 @@ function benchSlice(): int {
 
 // 7. toUpperCase / toLowerCase on a 10k-char string
 function benchCase(): int {
-    let base = "AbCdEfGhIj".repeat(1000);
+    const base = "AbCdEfGhIj".repeat(1000);
     let total = 0;
     let i = 0;
     while(i < 500) {
@@ -104,7 +104,7 @@ function benchCase(): int {
 
 // 8. replaceAll with growth
 function benchReplaceAll(): int {
-    let base = "the quick brown fox jumps over the lazy dog ".repeat(200);
+    const base = "the quick brown fox jumps over the lazy dog ".repeat(200);
     let total = 0;
     let i = 0;
     while(i < 200) {
@@ -116,7 +116,7 @@ function benchReplaceAll(): int {
 
 // 9. startsWith / endsWith over many strings
 function benchPrefixSuffix(): int {
-    let items: str[] = [];
+    const items: str[] = [];
     let i = 0;
     while(i < 100000) {
         items.push("item" + i.toString() + "x");
@@ -138,12 +138,12 @@ function benchPrefixSuffix(): int {
 
 // 10. charCodeAt scan
 function benchCharCode(): int {
-    let base = "abcdefghijklmnopqrstuvwxyz0123456789".repeat(2000);
+    const base = "abcdefghijklmnopqrstuvwxyz0123456789".repeat(2000);
     let total = 0;
     let r = 0;
     while(r < 20) {
         let i = 0;
-        let len = base.length;
+        const len = base.length;
         while(i < len) {
             total = total + base.charCodeAt(i);
             i = i + 1;
@@ -155,7 +155,7 @@ function benchCharCode(): int {
 
 // 11. string equality comparisons
 function benchEquality(): int {
-    let items: str[] = [];
+    const items: str[] = [];
     let i = 0;
     while(i < 1000) {
         items.push("key" + (i % 100).toString());
@@ -188,9 +188,9 @@ function benchIntToStr(): int {
 }
 
 function runSection(name: str, f: () => int) {
-    let start = now();
-    let checksum = f();
-    let elapsed = now() - start;
+    const start = now();
+    const checksum = f();
+    const elapsed = now() - start;
     report(name, checksum, elapsed);
 }
 

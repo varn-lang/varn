@@ -2,7 +2,7 @@ import { Json } from "std:encoding";
 
 type Item = #{ id: int, name: str, active: bool, score: float };
 
-let items: Item[] = [];
+const items: Item[] = [];
 for (let i = 0; i < 50000; i = i + 1) {
     items.push(#{
         id: i,
@@ -12,14 +12,14 @@ for (let i = 0; i < 50000; i = i + 1) {
     });
 }
 
-let jsonStr = Json.stringify(items);
+const jsonStr = Json.stringify(items);
 
 // Warmup and pure parse/stringify benchmark
-let iterations = 20;
+const iterations = 20;
 let parsed = Json.parse<Item[]>(jsonStr);
 for (let k = 0; k < iterations; k = k + 1) {
     parsed = Json.parse<Item[]>(jsonStr);
-    let s = Json.stringify(parsed);
+    const _s = Json.stringify(parsed);
 }
 
 print(parsed.length);

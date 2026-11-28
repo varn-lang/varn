@@ -28,7 +28,7 @@ await describe("214 gpu compute", async () => {
         let failed = false;
         try {
             adapterName(deviceCount());
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -68,7 +68,7 @@ await describe("214 gpu compute", async () => {
         let failed = false;
         try {
             a.add(b);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -92,7 +92,7 @@ await describe("214 gpu compute", async () => {
         let failed = false;
         try {
             a.reshape([2, 2]);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -104,7 +104,7 @@ await describe("214 gpu compute", async () => {
         let failed = false;
         try {
             tmp.download();
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);

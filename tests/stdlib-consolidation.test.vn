@@ -42,7 +42,7 @@ class SyncState {
     wgProgress: int = 0;
 }
 
-let syncState = new SyncState();
+const syncState = new SyncState();
 
 const logCapturedLines: str[] = [];
 const logJsonLines: str[] = [];

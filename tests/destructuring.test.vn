@@ -16,7 +16,7 @@ await describe("06 Destructuring", async () => {
     });
 
     await it("array patterns", () => {
-        const [f1, f2, f3] = [10, 20, 30];
+        const [f1, _f2, f3] = [10, 20, 30];
         expect(f1 == 10 && f3 == 30).toBeTruthy();
         const [skip1, _, skip3] = [100, 200, 300];
         expect(skip1 == 100 && skip3 == 300).toBeTruthy();

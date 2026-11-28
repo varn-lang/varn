@@ -34,7 +34,7 @@ await describe("216 text shaping", async () => {
         let failed = false;
         try {
             shape("hola", 0.0);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -51,14 +51,14 @@ await describe("216 text shaping", async () => {
         let failed = false;
         try {
             ascent(0.0);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
         failed = false;
         try {
             descent(-1.0);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -74,7 +74,7 @@ await describe("216 text shaping", async () => {
         let failed = false;
         try {
             wrap("hola", 16.0, 0.0);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);

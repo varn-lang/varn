@@ -80,9 +80,9 @@ function swapped(t: #[int, int]): int {
 function shape(xs: int[]): str {
     return match (xs) {
         [] => "empty",
-        [x] => "one",
-        [a, b] => "two",
-        [first, ...rest] => `many${rest.length}`,
+        [_x] => "one",
+        [_a, _b] => "two",
+        [_first, ...rest] => `many${rest.length}`,
     };
 }
 
@@ -103,7 +103,7 @@ function startsWithOne(xs: int[]): bool {
 function nullable(xs: int[]?): str {
     return match (xs) {
         null => "null",
-        [x] => "one",
+        [_x] => "one",
         _ => "other",
     };
 }
@@ -173,7 +173,7 @@ function axis(t: #[int, int]): str {
 function anything(s: Shape): str {
     return match (s) {
         Dot => "dot",
-        other => "shape",
+        _other => "shape",
     };
 }
 

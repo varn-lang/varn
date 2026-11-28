@@ -113,7 +113,7 @@ await describe("350 read-only views", async () => {
         expect("a" in view).toBe(true)
         expect(view.keys().length).toBe(2)
         let seen = 0
-        for(const #[k, v] in view) {
+        for(const #[_k, v] in view) {
             seen += v
         }
         expect(seen).toBe(3)

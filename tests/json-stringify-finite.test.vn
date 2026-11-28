@@ -5,7 +5,7 @@ function stringifyFails(value: float): bool {
     try {
         Json.stringify(value)
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

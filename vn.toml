@@ -9,4 +9,11 @@ exclude = [
 ]
 
 [lint]
-exclude = ["target/**", "crates/**", "dist/**", "tests/**"]
+exclude = [
+    "target/**",
+    "crates/**",
+    "dist/**",
+    "tests/errors/**",
+    "tests/planned/**",
+    "tests/helpers/broken-escape.vn",
+]

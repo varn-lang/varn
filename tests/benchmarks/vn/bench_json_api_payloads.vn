@@ -9,12 +9,12 @@ type User = #{ id: str, email: str, roles: Role[], metadata: Meta };
 type AuditEvent = #{ event: str, status: str, ts: int, endpoint: str? };
 type Payload = #{ requestId: str, organization: Org, user: User, auditEvents: AuditEvent[] };
 
-let rawPayloads: str[] = [];
+const rawPayloads: str[] = [];
 
 // 1. Generate 5,000 nested JSON documents
 for (let i = 0; i < 5000; i = i + 1) {
-    let orgId = `org_${(i % 50)}`;
-    let doc = #{
+    const orgId = `org_${(i % 50)}`;
+    const doc = #{
         "requestId": `req_${i}`,
         "organization": #{
             "id": orgId,
@@ -53,7 +53,7 @@ let enterpriseCount = 0;
 let totalFeaturesCount = 0;
 
 for (let i = 0; i < rawPayloads.length; i = i + 1) {
-    let parsed = Json.parse<Payload>(rawPayloads[i]);
+    const parsed = Json.parse<Payload>(rawPayloads[i]);
 
     if(parsed.organization.tier == "enterprise") {
         enterpriseCount = enterpriseCount + 1;

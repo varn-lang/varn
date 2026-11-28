@@ -11,9 +11,9 @@ class Route {
         this.handler = handler;
         this.segments = [];
 
-        let rawSegs = pattern.split("/");
+        const rawSegs = pattern.split("/");
         for(let i = 0; i < rawSegs.length; i = i + 1) {
-            let s = rawSegs[i];
+            const s = rawSegs[i];
             if(s.length > 0) {
                 this.segments.push(s);
             }
@@ -30,7 +30,7 @@ class Route {
 
         // Fast check: verify literal segments match first
         for(let i = 0; i < this.segments.length; i = i + 1) {
-            let seg = this.segments[i];
+            const seg = this.segments[i];
             if(!seg.startsWith(":") && seg != pathSegments[i]) {
                 return null;
             }
@@ -38,9 +38,9 @@ class Route {
 
         const params = new Map<str, str>();
         for(let i = 0; i < this.segments.length; i = i + 1) {
-            let seg = this.segments[i];
+            const seg = this.segments[i];
             if(seg.startsWith(":")) {
-                let pName = seg.slice(1);
+                const pName = seg.slice(1);
                 params[pName] = pathSegments[i];
             }
         }
@@ -65,14 +65,14 @@ class ReqContext {
         this.query = new Map<str, str>();
         this.user = null;
 
-        let qIdx = url.indexOf("?");
+        const qIdx = url.indexOf("?");
         if(qIdx != null) {
             this.path = url.slice(0, qIdx);
-            let qStr = url.slice(qIdx + 1);
-            let pairs = qStr.split("&");
+            const qStr = url.slice(qIdx + 1);
+            const pairs = qStr.split("&");
             for(let i = 0; i < pairs.length; i = i + 1) {
-                let p = pairs[i];
-                let eq = p.indexOf("=");
+                const p = pairs[i];
+                const eq = p.indexOf("=");
                 if(eq != null && eq > 0) {
                     this.query[p.slice(0, eq)] = p.slice(eq + 1);
                 } else {
@@ -110,7 +110,7 @@ class Router {
 
     dispatch(req: ReqContext): ResContext {
         // 1. Auth Middleware
-        let auth = req.headers["authorization"];
+        const auth = req.headers["authorization"];
         if(auth == null || !auth.startsWith("Bearer ")) {
             return new ResContext(
                 401,
@@ -121,21 +121,21 @@ class Router {
         req.user = "user_" + auth.slice(7, 12);
 
         // 2. Route Matching
-        let segs: str[] = [];
-        let rawSegs = req.path.split("/");
+        const segs: str[] = [];
+        const rawSegs = req.path.split("/");
         for(let i = 0; i < rawSegs.length; i = i + 1) {
-            let s = rawSegs[i];
+            const s = rawSegs[i];
             if(s.length > 0) {
                 segs.push(s);
             }
         }
 
         for(let i = 0; i < this.routes.length; i = i + 1) {
-            let r = this.routes[i];
-            let matchedParams = r.match(req.method, segs);
+            const r = this.routes[i];
+            const matchedParams = r.match(req.method, segs);
             if(matchedParams != null) {
                 req.params = matchedParams;
-                let h = r.handler;
+                const h = r.handler;
                 return h(req);
             }
         }
@@ -149,7 +149,7 @@ class Router {
 }
 
 // Setup 20 Production REST Routes
-let router = new Router();
+const router = new Router();
 
 function jsonRes<T>(status: int, data: T): ResContext {
     return new ResContext(
@@ -159,45 +159,46 @@ function jsonRes<T>(status: int, data: T): ResContext {
     );
 }
 
-router.add("GET", "/api/v1/health", (req: ReqContext) =>
+router.add("GET", "/api/v1/health", (_req: ReqContext) =>
     jsonRes(200, #{ status: "OK", uptime: 3600 }));
 router.add("GET", "/api/v1/users", (req: ReqContext) =>
     jsonRes(200, #{ users: ["Alice", "Bob"], page: req.query["page"] }));
-router.add("POST", "/api/v1/users", (req: ReqContext) => jsonRes(201, #{ created: true, id: 999 }));
+router.add("POST", "/api/v1/users", (_req: ReqContext) =>
+    jsonRes(201, #{ created: true, id: 999 }));
 router.add("GET", "/api/v1/users/:id", (req: ReqContext) =>
     jsonRes(200, #{ id: req.params["id"], name: "User_" + (req.params["id"] as str) }));
 router.add("PUT", "/api/v1/users/:id", (req: ReqContext) =>
     jsonRes(200, #{ updated: true, id: req.params["id"] }));
-router.add("DELETE", "/api/v1/users/:id", (req: ReqContext) => jsonRes(204, #{ deleted: true }));
+router.add("DELETE", "/api/v1/users/:id", (_req: ReqContext) => jsonRes(204, #{ deleted: true }));
 router.add("GET", "/api/v1/users/:id/orders", (req: ReqContext) =>
     jsonRes(200, #{ userId: req.params["id"], count: 5 }));
 router.add("POST", "/api/v1/users/:id/orders", (req: ReqContext) =>
     jsonRes(201, #{ orderId: 888, userId: req.params["id"] }));
 router.add("GET", "/api/v1/users/:id/orders/:orderId", (req: ReqContext) =>
     jsonRes(200, #{ userId: req.params["id"], orderId: req.params["orderId"], status: "shipped" }));
-router.add("GET", "/api/v1/products", (req: ReqContext) => jsonRes(200, #{ products: [1, 2, 3] }));
+router.add("GET", "/api/v1/products", (_req: ReqContext) => jsonRes(200, #{ products: [1, 2, 3] }));
 router.add("GET", "/api/v1/products/:id", (req: ReqContext) =>
     jsonRes(200, #{ productId: req.params["id"], inStock: true }));
-router.add("POST", "/api/v1/products", (req: ReqContext) => jsonRes(201, #{ created: true }));
-router.add("GET", "/api/v1/categories", (req: ReqContext) =>
+router.add("POST", "/api/v1/products", (_req: ReqContext) => jsonRes(201, #{ created: true }));
+router.add("GET", "/api/v1/categories", (_req: ReqContext) =>
     jsonRes(200, #{ categories: ["A", "B"] }));
 router.add("GET", "/api/v1/categories/:id/products", (req: ReqContext) =>
     jsonRes(200, #{ categoryId: req.params["id"], items: 10 }));
 router.add("GET", "/api/v1/cart/:userId", (req: ReqContext) =>
     jsonRes(200, #{ cart: req.params["userId"], items: 2 }));
-router.add("POST", "/api/v1/cart/:userId/items", (req: ReqContext) =>
+router.add("POST", "/api/v1/cart/:userId/items", (_req: ReqContext) =>
     jsonRes(201, #{ added: true }));
 router.add("DELETE", "/api/v1/cart/:userId/items/:itemId", (req: ReqContext) =>
     jsonRes(200, #{ removed: req.params["itemId"] }));
 router.add("POST", "/api/v1/checkout/:userId", (req: ReqContext) =>
     jsonRes(200, #{ invoice: 12345, user: req.params["userId"] }));
-router.add("GET", "/api/v1/analytics/overview", (req: ReqContext) =>
+router.add("GET", "/api/v1/analytics/overview", (_req: ReqContext) =>
     jsonRes(200, #{ activeUsers: 1500, sales: 45000 }));
-router.add("GET", "/api/v1/system/metrics", (req: ReqContext) =>
+router.add("GET", "/api/v1/system/metrics", (_req: ReqContext) =>
     jsonRes(200, #{ cpu: 12.5, memoryMb: 64 }));
 
 // Generate 100,000 realistic requests
-let samplePaths = [
+const samplePaths = [
     "/api/v1/health",
     "/api/v1/users?page=2",
     "/api/v1/users/42",
@@ -210,11 +211,11 @@ let samplePaths = [
     "/api/v1/system/metrics",
 ];
 
-let methods = ["GET", "GET", "GET", "GET", "GET", "GET", "GET", "DELETE", "GET", "GET"];
+const methods = ["GET", "GET", "GET", "GET", "GET", "GET", "GET", "DELETE", "GET", "GET"];
 
-let reqs: ReqContext[] = [];
+const reqs: ReqContext[] = [];
 for (let i = 0; i < 100000; i = i + 1) {
-    let idx = i % 10;
+    const idx = i % 10;
     const hdrs = new Map([
         #["authorization", `Bearer token_secret_${(i % 1000)}`],
         #["content-type", "application/json"],
@@ -228,7 +229,7 @@ let successCount = 0;
 let totalBytes = 0;
 
 for (let i = 0; i < reqs.length; i = i + 1) {
-    let res = router.dispatch(reqs[i]);
+    const res = router.dispatch(reqs[i]);
     if(res.status == 200 || res.status == 201) {
         successCount = successCount + 1;
     }

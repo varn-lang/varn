@@ -20,7 +20,9 @@ async function echoOnce(listener: TcpListener): Task<void> {
             }
             await conn.write(chunk as Bytes);
         }
-    } catch (e) {}
+    } catch {
+        // the failed handshake is the expected outcome; the assertions below check what it left behind
+    }
     conn.close();
 }
 
@@ -124,7 +126,9 @@ await describe("289 tls", async () => {
             if(reply != null) {
                 echoed = (reply as Bytes).toString();
             }
-        } catch (e) {}
+        } catch {
+            // the failed handshake is the expected outcome; the assertions below check what it left behind
+        }
         expect(echoed).toBe("");
         listener.close();
     });
@@ -144,7 +148,9 @@ await describe("289 tls", async () => {
             anonymous = (
                 await fetch(`https://localhost:${server.port}/mutual`, new RequestInit(ca: ca))
             ).text();
-        } catch (e) {}
+        } catch {
+            // the failed handshake is the expected outcome; the assertions below check what it left behind
+        }
         expect(anonymous).toBe("");
         server.close();
     });

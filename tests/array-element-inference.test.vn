@@ -13,7 +13,7 @@ function pushInt(): int {
 }
 
 function indexWrite(): int {
-    let a: int[] = []
+    const a: int[] = []
     for(let i = 0; i < 5; i = i + 1) {
         a.push(0)
     }
@@ -54,7 +54,7 @@ function matmulShape(): int {
     const n = 4
     const a: int[] = []
     const b: int[] = []
-    let c: int[] = []
+    const c: int[] = []
     for(let i = 0; i < n * n; i = i + 1) {
         a.push(i + 1)
         b.push(i + 1)
@@ -95,7 +95,7 @@ function shadowedByObjectPattern(): float {
 }
 
 function genericSpelling(): int {
-    let a: Array<int> = []
+    const a: Array<int> = []
     a.push(10)
     a.push(20)
     a[0] = a[0] + 5
@@ -103,7 +103,7 @@ function genericSpelling(): int {
 }
 
 function suffixSpelling(): int {
-    let a: int[] = []
+    const a: int[] = []
     a.push(10)
     a.push(20)
     a[0] = a[0] + 5

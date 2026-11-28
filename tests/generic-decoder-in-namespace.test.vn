@@ -17,7 +17,7 @@ function readFails(text: str): bool {
     try {
         Wire.read<Point>(text)
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

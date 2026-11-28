@@ -67,7 +67,7 @@ await describe("215 ui headless", async () => {
         let failed = false;
         try {
             UiWindow.open("t", 0, 600);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -118,7 +118,7 @@ await describe("215 ui headless", async () => {
         let failed = false;
         try {
             win.size();
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);
@@ -146,7 +146,7 @@ await describe("215 ui headless", async () => {
         let failed = false;
         try {
             keyCode("nope");
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);

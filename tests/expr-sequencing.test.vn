@@ -34,7 +34,7 @@ function nullishGetter(): int {
 
 function compoundGetter(): int {
     calls = 0
-    let h = new Holder()
+    const h = new Holder()
     h.c.v += 5
     const afterAssign = calls
     h.c.v++
@@ -116,7 +116,7 @@ function evalOrder(): int {
 class Box {
     x: int = 0
 }
-let shared = new Box()
+const shared = new Box()
 function boxed(): Box {
     calls = calls + 1;
     return shared

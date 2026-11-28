@@ -30,7 +30,7 @@ function overflows(f: () => int): bool {
     try {
         f()
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

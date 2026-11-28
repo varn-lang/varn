@@ -38,7 +38,7 @@ function makeSharedCounter(): #{ inc: () => void; dec: () => void; get: () => in
 
 // ── Recursive closure via self-reference ─────────────────────────
 function makeRecursiveFib(): (n: int) => int {
-    let memo: int[] = []
+    const memo: int[] = []
     const fib = (n: int): int => {
         if(n <= 1) return n
         while(memo.length <= n) memo.push(-1)

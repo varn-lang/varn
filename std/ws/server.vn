@@ -50,7 +50,7 @@ export class WsServer {
         } catch (e) {
             try {
                 tcpClose$(conn);
-            } catch (ce) {
+            } catch {
                 // best effort: the connection may already be closed
             }
             throw e;

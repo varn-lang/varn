@@ -18,7 +18,7 @@ await describe("71 phase2 std features", async () => {
         fsWrite(testPath, "line1\nline2\nline3");
 
         let lineCount = 0;
-        for(const line in readLines(testPath)) {
+        for(const _line in readLines(testPath)) {
             lineCount = lineCount + 1;
         }
         expect(lineCount).toBe(3);

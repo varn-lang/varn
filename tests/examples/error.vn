@@ -26,7 +26,7 @@ await describe("example std:error", async () => {
         try {
             try {
                 throw new ParseError("bad input");
-            } catch (e: FsError) {
+            } catch (_e: FsError) {
                 outer = "wrong";
             }
         } catch (e: StdError) {

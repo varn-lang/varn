@@ -20,6 +20,7 @@ await describe("103 boxed int range", async () => {
             sink = identity(wrapBig());
             i = i + 1
         }
+        expect(sink).toBe(1125899906842624)
     });
 
     await it("boxed range values", async () => {

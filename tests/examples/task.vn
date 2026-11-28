@@ -103,7 +103,7 @@ await describe("example std:task", async () => {
         let cancelled = false;
         try {
             await slow;
-        } catch (e) {
+        } catch {
             cancelled = true;
         }
         expect(cancelled).toBe(true);
@@ -115,7 +115,7 @@ await describe("example std:task", async () => {
         let cancelled = false;
         try {
             await handle;
-        } catch (e) {
+        } catch {
             cancelled = true;
         }
         expect(cancelled).toBe(true);
@@ -146,7 +146,7 @@ await describe("example std:task", async () => {
         let rejected = false;
         try {
             await Task.race([work(9), failFast()]);
-        } catch (e) {
+        } catch {
             rejected = true;
         }
         expect(rejected).toBe(true);
@@ -159,7 +159,7 @@ await describe("example std:task", async () => {
         let timedOut = false;
         try {
             await group.join(50);
-        } catch (e) {
+        } catch {
             timedOut = true;
         }
         const elapsed = now() - start;
@@ -178,7 +178,7 @@ await describe("example std:task", async () => {
         let cancelled = false;
         try {
             await parallel([group.join(), canceller]);
-        } catch (e) {
+        } catch {
             cancelled = true;
         }
         expect(cancelled).toBe(true);

@@ -70,7 +70,7 @@ function guarded(n: int): int {
                 throw new Error("seven")
             }
             sum = sum + i;
-        } catch (e) {
+        } catch {
             sum = sum + 1000;
         }
     }
@@ -82,14 +82,14 @@ function afterTry(n: int): int {
     for(let i = 0; i < n; i = i + 1) {
         try {
             caught = caught + 0;
-        } catch (e) {
+        } catch {
             caught = caught + 100000;
         }
         try {
             if(i % 5 >= 3) {
                 throw new Error("late")
             }
-        } catch (e) {
+        } catch {
             caught = caught + 1;
         }
     }

@@ -30,7 +30,7 @@ await describe("285 async process", async () => {
         let rejected = false;
         try {
             await waiting
-        } catch (e) {
+        } catch {
             rejected = true
         }
         expect(rejected).toBe(true);

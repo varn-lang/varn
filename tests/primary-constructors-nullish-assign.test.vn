@@ -68,13 +68,13 @@ await describe("87 primary constructors nullish assign", async () => {
         expect(a).toBe(42);
         a ??= 999;
         expect(a).toBe(42);
-        let cfg = new AppConfig();
+        const cfg = new AppConfig();
         expect(cfg.timeout).toBeNull();
         cfg.timeout ??= 3000;
         expect(cfg.timeout).toBe(3000);
         cfg.timeout ??= 8000;
         expect(cfg.timeout).toBe(3000);
-        let items: dynamic[] = [null, "existing", null];
+        const items: dynamic[] = [null, "existing", null];
         items[0] ??= "filled_0";
         items[1] ??= "overwritten_1";
         items[2] ??= "filled_2";

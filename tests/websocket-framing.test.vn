@@ -196,7 +196,7 @@ await describe("325 websocket framing", async () => {
         spawn((async (): Task<void> => {
             try {
                 await server.accept();
-            } catch (e) {
+            } catch {
                 outcome.value = true;
             }
         })());

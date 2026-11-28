@@ -28,28 +28,28 @@ class UserDTO {
     }
 }
 
-let count = 100000
+const count = 100000
 
-let users: User[] = []
+const users: User[] = []
 for (let i = 0; i < count; i = i + 1) {
     users.push(new User(i, `User_${i}`, (i % 60) + 10, (i % 2) == 0, ((i % 100) as float) * 1.5))
 }
 
-let start = now()
+const start = now()
 
-let activeAdults: UserDTO[] = []
+const activeAdults: UserDTO[] = []
 let totalScore = 0.0
 
 for (let i = 0; i < count; i = i + 1) {
-    let u = users[i]
+    const u = users[i]
     if(u.isActive && u.age >= 18) {
-        let dto = new UserDTO(u.id, u.name, u.score)
+        const dto = new UserDTO(u.id, u.name, u.score)
         activeAdults.push(dto)
         totalScore = totalScore + u.score
     }
 }
 
-let end = now()
+const end = now()
 
 print("Count:", activeAdults.length)
 print("Total Score:", totalScore as int)

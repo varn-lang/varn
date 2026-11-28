@@ -7,7 +7,9 @@ function continueThenTry(a: int): int {
             continue;
         }
     }
-    try {} catch (e) {}
+    try {} catch {
+        // an empty catch is the shape under test: the loop header must survive it
+    }
     return v0;
 }
 

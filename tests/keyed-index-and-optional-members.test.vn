@@ -45,7 +45,7 @@ function describeValue(value: str | str[] | null): int {
 }
 function afterContinue(q: Map<str, str | str[]>): int {
     let n = 0
-    for(const #[key, value] in q) {
+    for(const #[_key, value] in q) {
         if(value is str[]) {
             for(const item in value) {
                 n = n + size(item)

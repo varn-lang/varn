@@ -79,7 +79,7 @@ await describe("90 multi catch", async () => {
                 } else {
                     throw new CustomDatabaseError("SQL_ERR", "query failed");
                 }
-            } catch (e: TypeError) {
+            } catch (_e: TypeError) {
                 return "handled TypeError";
             } catch (e) {
                 return `handled fallback: ${e.name}`;
@@ -102,9 +102,9 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomDatabaseError("ERR_DEADLOCK", "deadlock detected");
-            } catch (e: TypeError) {
+            } catch (_e: TypeError) {
                 outerCaught = "wrongly caught by inner TypeError";
-            } catch (e: RangeError) {
+            } catch (_e: RangeError) {
                 outerCaught = "wrongly caught by inner RangeError";
             }
         } catch (e: CustomDatabaseError) {
@@ -117,14 +117,14 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomNetworkError(500, "internal server error");
-            } catch (e: TypeError) {
+            } catch (_e: TypeError) {
                 result = "TypeError";
             } catch (e: CustomNetworkError) {
                 result = `NetworkError: ${e.statusCode}`;
             } finally {
                 finallyRan = true;
             }
-        } catch (e) {
+        } catch {
             result = "outer catch";
         }
         expect(result).toBe("NetworkError: 500");
@@ -137,7 +137,7 @@ await describe("90 multi catch", async () => {
         try {
             try {
                 throw new CustomDatabaseError("ERR_AUTH", "bad credentials");
-            } catch (e: TypeError) {
+            } catch (_e: TypeError) {
                 outerCaught = "inner TypeError";
             } finally {
                 finallyRan = true;

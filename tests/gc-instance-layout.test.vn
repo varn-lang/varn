@@ -63,7 +63,7 @@ function gcMixedChecksum(xs: GcMixed[]): int {
 
 // An old instance written with fresh references between collections: the
 // write barrier remembers it, the nursery rewrites its compact slots.
-let gcOld = new GcMixed(7)
+const gcOld = new GcMixed(7)
 
 // A class with only scalar fields has an empty GcLayout.
 class GcScalars {

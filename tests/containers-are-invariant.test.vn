@@ -13,7 +13,7 @@ class Crate implements Sized {
     size: int = 3
 }
 
-function count(value: Json): int {
+function count(_value: Json): int {
     return 1
 }
 function widest(values: (int | str)[]): int {
@@ -56,7 +56,7 @@ await describe("199 containers are invariant", async () => {
         const tight: Generator<int> = numbers()
         const view: Sized = new Crate()
         let seen = 0
-        for(const value in tight) {
+        for(const _value in tight) {
             seen = seen + 1
         }
         expect(await maybe).toBe(4)

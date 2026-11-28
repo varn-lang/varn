@@ -38,7 +38,7 @@ function loadTodos(): Todo[] {
         return Json.parse<Todo[]>(readText(FILE)).map(
             (t: Todo): Todo => (#{ text: t.text, done: t.done == true }),
         );
-    } catch (e) {
+    } catch {
         return [];
     }
 }

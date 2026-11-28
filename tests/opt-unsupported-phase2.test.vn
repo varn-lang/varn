@@ -1,7 +1,7 @@
 import { describe, it, expect } from "std:test";
 
 // 2. Index updates
-let arr = [100, 200];
+const arr = [100, 200];
 
 // 4. Updates on instance fields in subclass (via `this`)
 class ParentClass {
@@ -80,7 +80,7 @@ await describe("49 opt unsupported phase2", async () => {
         expect(arr[1]).toBe(198);
 
         // 3. Nested updates
-        let complex = #{ arr: [#{ val: 5 }] };
+        const complex = #{ arr: [#{ val: 5 }] };
         const r9 = complex.arr[0].val;
         complex.arr[0].val++;
         expect(r9).toBe(5);

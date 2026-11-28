@@ -5,10 +5,12 @@ type Todo = #{
     title: str;
 };
 
+// vn-lint-ignore unused-binding
 function ident<T>(value: T, label: str): T {
     return value;
 }
 
+// vn-lint-ignore unused-binding
 function swapNamed<A, B>(first: A, second: B, tag: str = ""): B {
     return second;
 }

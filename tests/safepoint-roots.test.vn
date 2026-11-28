@@ -155,8 +155,8 @@ function spEnumUnderPressure(n: int): int {
         total =
             total +
                 match (v) {
-                    A(x) => 1,
-                    B(x) => 2,
+                    A(_x) => 1,
+                    B(_x) => 2,
                 }
     }
     if(junk == "") {
@@ -189,7 +189,7 @@ function spTryUnderPressure(n: int): int {
                 throw new Error("boom")
             }
             counter = counter + depth
-        } catch (e) {
+        } catch {
             caught = caught + depth
         }
     }

@@ -16,7 +16,7 @@ function decodeFails(decode: () => dynamic): bool {
     try {
         decode()
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

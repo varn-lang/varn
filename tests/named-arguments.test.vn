@@ -23,6 +23,7 @@ class Person {
 }
 
 // 6. Generic functions with named args
+// vn-lint-ignore unused-binding
 function identity<T>(value: T, label: str): T {
     return value;
 }

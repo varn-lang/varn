@@ -23,7 +23,7 @@ function conBreak(): void {
             if(i == 1) {
                 break;
             }
-        } catch (e) {
+        } catch {
             // Inalcanzable: nada lanza aquí dentro.
             testigo = testigo + 1;
         }
@@ -36,7 +36,7 @@ function conContinue(): void {
             if(i == 1) {
                 continue;
             }
-        } catch (e) {
+        } catch {
             testigo = testigo + 1;
         }
     }
@@ -48,7 +48,7 @@ function conReturn(): void {
             if(i == 1) {
                 return;
             }
-        } catch (e) {
+        } catch {
             testigo = testigo + 1;
         }
     }
@@ -73,7 +73,7 @@ function capturaEnElSitioCorrecto(via: str): bool {
     let llego = false;
     try {
         lanzaTrasSalir(via);
-    } catch (e) {
+    } catch {
         llego = true;
     }
     return llego;
@@ -88,7 +88,9 @@ function conBreakYFinally(): int {
             if(i == 1) {
                 break;
             }
-        } catch (e) {} finally {
+        } catch {
+            // an empty catch body is the shape under test
+        } finally {
             pasos = pasos + 1;
         }
     }
@@ -103,7 +105,7 @@ function lanzaYCapturaTrasBreak(): bool {
     let ok = false;
     try {
         throw new Error("local");
-    } catch (e) {
+    } catch {
         ok = true;
     }
     return ok;
@@ -129,7 +131,9 @@ function vacioConBreak(): int {
             if(i == 1) {
                 break;
             }
-        } catch (e) {}
+        } catch {
+            // an empty catch body is the shape under test
+        }
     }
     return pasos;
 }
@@ -142,7 +146,9 @@ function vacioConReturn(): int {
             if(i == 1) {
                 return pasos;
             }
-        } catch (e) {}
+        } catch {
+            // an empty catch body is the shape under test
+        }
     }
     return -1;
 }
@@ -155,7 +161,9 @@ function vacioConContinue(): int {
                 continue;
             }
             pasos = pasos + 1;
-        } catch (e) {}
+        } catch {
+            // an empty catch body is the shape under test
+        }
     }
     return pasos;
 }
@@ -166,7 +174,9 @@ function vacioConContinue(): int {
 function retornaFueraDeBucle(): int {
     try {
         return 42;
-    } catch (e) {}
+    } catch {
+        // an empty catch body is the shape under test
+    }
     return -1;
 }
 const depth: int[] = []
@@ -185,7 +195,7 @@ function returnInCatchReadsBeforeFinally(): int {
     depth.push(1)
     try {
         throw new Error("x")
-    } catch (e) {
+    } catch {
         return depthNow()
     } finally {
         depth.pop()

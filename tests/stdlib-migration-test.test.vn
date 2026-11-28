@@ -68,11 +68,11 @@ await describe("31 stdlib migration test", async () => {
 
         // ── std:json ──────────────────────────────────────────────────────
         const obj = #{ name: "Varn", version: 1 };
-        const json_str = Json.stringify(obj);
-        expect(json_str.length > 0).toBeTruthy()
-        expect(json_str.includes("Varn")).toBeTruthy()
+        const jsonStr = Json.stringify(obj);
+        expect(jsonStr.length > 0).toBeTruthy()
+        expect(jsonStr.includes("Varn")).toBeTruthy()
 
-        const back = Json.parse<Map<str, JsonValue >> (json_str);
+        const back = Json.parse<Map<str, JsonValue >> (jsonStr);
         expect(back["name"]).toBe("Varn")
         expect(back["version"]).toBe(1)
 

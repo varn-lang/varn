@@ -115,8 +115,8 @@ async function runComprehensiveTest(): Task<void> {
     expect(Path.normalize("a/b/../c")).toBe(expectedNormalize);
     expect(Path.dirname("a/b/c")).toBe("a/b");
     expect(Path.basename("a/b/file.txt")).toBe("file.txt");
-    const ext_res = Path.extname("file.txt");
-    expect(ext_res).toBe(".txt");
+    const extRes = Path.extname("file.txt");
+    expect(extRes).toBe(".txt");
     expect(Path.join("a", "b", "c")).toBe(expectedJoin);
 
     // 11. std:reflect

@@ -42,10 +42,10 @@ await describe("35 decimal bigint", async () => {
         expect(d2 >= d2).toBeTruthy()
 
         // toFixed — exact decimal rounding
-        const pi_d: decimal = 3.14159d
-        expect(pi_d.toFixed(2)).toBe("3.14")
-        expect(pi_d.toFixed(0)).toBe("3")
-        expect(pi_d.toFixed(4)).toBe("3.1416")
+        const piD: decimal = 3.14159d
+        expect(piD.toFixed(2)).toBe("3.14")
+        expect(piD.toFixed(0)).toBe("3")
+        expect(piD.toFixed(4)).toBe("3.1416")
 
         // Instance methods
         const neg: decimal = -7.5d

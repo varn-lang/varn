@@ -22,37 +22,37 @@ type Enriched = #{
 // Real-world CSV ETL: Parse, Validate, Enrich, Aggregate, and Re-export
 
 // 1. Generate realistic 10,000 row CSV dataset
-let csvLines: str[] = ["id,customer_id,product_category,amount,tax_rate,status,created_at"];
-let categories = ["Electronics", "Fashion", "Home", "Automotive", "Garden"];
-let statuses = ["completed", "refunded", "completed", "pending", "completed"];
+const csvLines: str[] = ["id,customer_id,product_category,amount,tax_rate,status,created_at"];
+const categories = ["Electronics", "Fashion", "Home", "Automotive", "Garden"];
+const statuses = ["completed", "refunded", "completed", "pending", "completed"];
 
 for (let i = 1; i <= 10000; i = i + 1) {
-    let cat = categories[i % 5];
-    let stat = statuses[i % 5];
-    let amt = ((i * 17) % 1000) + 15;
-    let tax = 0.16;
-    let cust = `CUST_${(i % 800)}`;
-    let date = `2026-08-${((i % 28) + 1)}`;
+    const cat = categories[i % 5];
+    const stat = statuses[i % 5];
+    const amt = ((i * 17) % 1000) + 15;
+    const tax = 0.16;
+    const cust = `CUST_${(i % 800)}`;
+    const date = `2026-08-${((i % 28) + 1)}`;
     csvLines.push(`${i},${cust},${cat},${amt},${tax},${stat},${date}`);
 }
 
-let rawCsv = csvLines.join("\n");
+const rawCsv = csvLines.join("\n");
 
 // 2. Parse CSV Dataset
-let parsedRows = Csv.parse<Row>(rawCsv);
+const parsedRows = Csv.parse<Row>(rawCsv);
 
 // 3. Filter & Enrich Records
-let enrichedRows: Enriched[] = [];
+const enrichedRows: Enriched[] = [];
 let totalCompletedRevenue = 0.0;
 let vipCount = 0;
 
 for (let i = 0; i < parsedRows.length; i = i + 1) {
-    let row = parsedRows[i];
+    const row = parsedRows[i];
     if(row.status == "completed") {
-        let amt = row.amount as float;
-        let taxRate = row.tax_rate;
-        let finalTotal = amt * (1.0 + taxRate);
-        let isVip = amt >= 500.0;
+        const amt = row.amount as float;
+        const taxRate = row.tax_rate;
+        const finalTotal = amt * (1.0 + taxRate);
+        const isVip = amt >= 500.0;
 
         if(isVip) {
             vipCount = vipCount + 1;
@@ -72,7 +72,7 @@ for (let i = 0; i < parsedRows.length; i = i + 1) {
 }
 
 // 4. Serialize back to CSV format
-let exportedCsv = Csv.stringify(enrichedRows);
+const exportedCsv = Csv.stringify(enrichedRows);
 
 print("CSV ETL Benchmark:");
 print(`  Total parsed rows: ${parsedRows.length}`);

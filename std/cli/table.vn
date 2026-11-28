@@ -14,7 +14,7 @@ export class Table {
     }
 
     render(): str {
-        let colWidths: int[] = [];
+        const colWidths: int[] = [];
         for(let col = 0; col < this._headers.length; col = col + 1) {
             colWidths.push(Color.stripAnsi(this._headers[col]).length);
         }

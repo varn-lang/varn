@@ -124,12 +124,12 @@ await describe("296 error model", async () => {
         try {
             try {
                 throw new ConnectError("h", 1);
-            } catch (e: FsError) {
+            } catch (_e: FsError) {
                 seen = "wrong";
             } catch (e: NetError) {
                 seen = e.code;
             }
-        } catch (e) {
+        } catch {
             seen = "escaped";
         }
         expect(seen).toBe("net.connect");

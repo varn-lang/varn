@@ -242,7 +242,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             body.setByte(0, code / 256);
             body.setByte(1, code % 256);
             await tcpWrite$(this._conn, wsFrameBytes$(body, WsOpcode.Close, !this._server));
-        } catch (e) {
+        } catch {
             // best effort: the connection may already be closed
         }
         this.close();
@@ -273,7 +273,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             }
             try {
                 wsDecodeText$(payload.slice(2));
-            } catch (e) {
+            } catch {
                 await this._reject(1007, "the close reason is not valid UTF-8");
             }
         }
@@ -286,7 +286,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     !this._server,
                 ),
             );
-        } catch (e) {
+        } catch {
             // best effort: the connection may already be closed
         }
         this.close();
@@ -375,7 +375,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             let text = "";
             try {
                 text = wsDecodeText$(payload);
-            } catch (e) {
+            } catch {
                 await this._reject(1007, "a text message is not valid UTF-8");
             }
             this._dispatchText(text);
@@ -403,7 +403,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
             if(this._conn >= 0) {
                 try {
                     tcpClose$(this._conn);
-                } catch (e) {
+                } catch {
                     // best effort: the connection may already be closed
                 }
             }
@@ -422,7 +422,7 @@ export class WebSocket implements AsyncReader, AsyncWriter {
                     this._conn,
                     wsFrameBytes$(Bytes.alloc(0), WsOpcode.Close, !this._server),
                 );
-            } catch (e) {
+            } catch {
                 // best effort: the connection may already be closed
             }
             this.close();

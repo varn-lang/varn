@@ -12,7 +12,7 @@ export struct CronSpec {
 
 function parseField(text: str, lo: int, hi: int): bool[] {
     const size = hi - lo + 1;
-    let out: bool[] = [];
+    const out: bool[] = [];
     for(let i = 0; i < size; i = i + 1) {
         out.push(false);
     }
@@ -102,7 +102,7 @@ export namespace Cron {
             throw new ParseError("Cron: expected 5 fields, got " + clean.length.toString());
         }
         const wd8 = parseField(clean[4], 0, 7);
-        let wd = wd8.slice(0, 7);
+        const wd = wd8.slice(0, 7);
         wd[0] = wd[0] || wd8[7];
         return new CronSpec(
             minutes: parseField(clean[0], 0, 59),

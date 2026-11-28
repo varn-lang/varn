@@ -1,87 +1,87 @@
 import { describe, it, expect } from "std:test";
 
 // `try` works on the core Result and on nullable types.
-function parse_positive(n: int): Result<int, str> {
+function parsePositive(n: int): Result<int, str> {
     if(n <= 0) {
         return Result.Err("must be positive");
     }
     return Result.Ok(n * 2);
 }
 
-const test_direct = parse_positive(5);
-const _test_direct_val = match (test_direct) {
+const testDirect = parsePositive(5);
+const _testDirectVal = match (testDirect) {
     Ok(val) => val,
     Err(_) => 0
 };
 
-function compute_result(a: int, b: int): Result<int, str> {
-    const x: int = try parse_positive(a);
-    const y: int = try parse_positive(b);
+function computeResult(a: int, b: int): Result<int, str> {
+    const x: int = try parsePositive(a);
+    const y: int = try parsePositive(b);
     return Result.Ok(x + y);
 }
 
-const ok_res = compute_result(5, 10);
+const okRes = computeResult(5, 10);
 
-const err_res = compute_result(-2, 10);
+const errRes = computeResult(-2, 10);
 
-function find_user_id(name: str): int? {
+function findUserId(name: str): int? {
     if(name == "alice") {
         return 101;
     }
     return null;
 }
 
-function get_user_score(name: str): int? {
-    const uid: int = try find_user_id(name);
+function getUserScore(name: str): int? {
+    const uid: int = try findUserId(name);
     return uid + 50;
 }
 
-const some_opt = get_user_score("alice");
+const someOpt = getUserScore("alice");
 
-const none_opt = get_user_score("bob");
+const noneOpt = getUserScore("bob");
 
-function get_suffix(s: str?): str? {
-    const non_null_str: str = try s;
-    return non_null_str + "_suffix";
+function getSuffix(s: str?): str? {
+    const nonNullStr: str = try s;
+    return nonNullStr + "_suffix";
 }
 
-const suffixed_ok = get_suffix("test");
+const suffixedOk = getSuffix("test");
 
-const suffixed_null = get_suffix(null);
+const suffixedNull = getSuffix(null);
 
 const cond = true;
-const ternary_unary_neg = cond ? -1 : 1;
+const ternaryUnaryNeg = cond ? -1 : 1;
 
-const ternary_unary_not = cond ? !false : false;
+const ternaryUnaryNot = cond ? !false : false;
 
-const opt_chain: str? = "hello";
-const opt_len = opt_chain?.length ?? 0;
+const optChain: str? = "hello";
+const optLen = optChain?.length ?? 0;
 await describe("109 try operator", async () => {
     await it("group 1 part 1a", async () => {
-        const ok_val = match (ok_res) {
+        const okVal = match (okRes) {
             Ok(v) => v,
             Err(_) => 0
         };
-        const err_msg = match (err_res) {
+        const errMsg = match (errRes) {
             Ok(_) => "unexpected",
             Err(e) => e
         };
-        expect(ok_val).toBe(30);
-        expect(err_msg).toBe("must be positive");
+        expect(okVal).toBe(30);
+        expect(errMsg).toBe("must be positive");
     });
 
     await it("group 1 part 1b", async () => {
-        const some_val = some_opt ?? -1;
-        const is_none = none_opt == null;
-        expect(some_val).toBe(151);
-        expect(is_none).toBe(true);
-        expect(suffixed_ok).toBe("test_suffix");
+        const someVal = someOpt ?? -1;
+        const isNone = noneOpt == null;
+        expect(someVal).toBe(151);
+        expect(isNone).toBe(true);
+        expect(suffixedOk).toBe("test_suffix");
     });
 
     await it("group 1 part 2", async () => {
-        expect(suffixed_null == null).toBeTruthy();
-        expect(ternary_unary_neg == -1).toBeTruthy();
-        expect(ternary_unary_not == true).toBeTruthy();
-        expect(opt_len == 5).toBeTruthy();
+        expect(suffixedNull == null).toBeTruthy();
+        expect(ternaryUnaryNeg == -1).toBeTruthy();
+        expect(ternaryUnaryNot == true).toBeTruthy();
+        expect(optLen == 5).toBeTruthy();
     });
 });

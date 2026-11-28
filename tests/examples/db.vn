@@ -15,7 +15,7 @@ await describe("example std:db", async () => {
             expect(await db.exists("ex:key")).toBe(1);
             expect(await db.delete("ex:key", "ex:counter")).toBe(2);
             db.close();
-        } catch (e) {
+        } catch {
             print("skip: no redis server on 127.0.0.1:6379");
         }
     });

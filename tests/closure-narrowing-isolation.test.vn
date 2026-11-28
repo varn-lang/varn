@@ -17,7 +17,7 @@ function unrelated(): int {
         y = null
     }
     f()
-    return x
+    return x + (y ?? 0)
 }
 
 function counts(): int {

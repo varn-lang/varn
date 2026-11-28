@@ -53,7 +53,6 @@ interface Strict {
 }
 const narrowed: Loose & Strict = #{ id: 3 }
 
-type Method = "GET" | "POST"
 const onlyGet: "GET" & str = "GET"
 await describe("118 intersections", async () => {
     await it("group 1 part 1", async () => {

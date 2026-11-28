@@ -4,7 +4,7 @@ function fails(f: () => str): bool {
     try {
         f()
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

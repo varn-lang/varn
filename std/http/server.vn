@@ -190,7 +190,7 @@ export class HttpServer {
         let connId = -1;
         try {
             connId = await tcpAccept$(this._listenerId);
-        } catch (e) {
+        } catch {
             this._isListening = false;
             return;
         }
@@ -279,7 +279,7 @@ export class HttpServer {
 
         const matched = this._match(method, pathOnly);
 
-        let reqObj = new Request(
+        const reqObj = new Request(
             rawReq.path,
             new RequestInit(method: method, headers: rawReq.headers, body: rawReq.body),
         );
@@ -343,7 +343,7 @@ export class HttpServer {
                     readHttpRequest(wire, this._maxContentLength),
                     this._readTimeoutMs,
                 );
-            } catch (err: TimeoutError) {
+            } catch (_err: TimeoutError) {
                 const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
@@ -363,7 +363,7 @@ export class HttpServer {
                 ]);
                 await this._sendBestEffort(connId, err.status, err.reason, errHeaders, err.reason);
                 break;
-            } catch (err) {
+            } catch {
                 break;
             }
             if(rawReq == null) {
@@ -391,7 +391,7 @@ export class HttpServer {
             }
             try {
                 await this._respond(connId, rawReq, method);
-            } catch (err) {
+            } catch {
                 const errHeaders = new Map<str, str>([
                     #["Content-Type", "text/plain"],
                     #["Connection", "close"],
@@ -419,7 +419,7 @@ export class HttpServer {
     ): Task<void> {
         try {
             await sendHttpResponse$(connId, status, statusText, headers, body, []);
-        } catch (err) {
+        } catch {
             // best effort: the connection may already be closed
         }
     }

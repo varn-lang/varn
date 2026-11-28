@@ -92,7 +92,7 @@ function boom(n: int): int {
 function guarded(n: int): int {
     try {
         return boom(n)
-    } catch (e) {
+    } catch {
         return -1
     }
 }
@@ -109,7 +109,7 @@ function keepsLocals(n: int): int {
     try {
         seen = boom(n)
         before = before + 1
-    } catch (e) {
+    } catch {
         seen = before
     } finally {
         before = before + 100

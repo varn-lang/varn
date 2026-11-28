@@ -3,5 +3,5 @@ function fib(n: int): int {
     return fib(n - 1) + fib(n - 2)
 }
 
-let result = fib(35)
+const result = fib(35)
 print(result)

@@ -132,7 +132,7 @@ await describe("241 ui controls", async () => {
         let failed = false;
         try {
             Switch(true);
-        } catch (e) {
+        } catch {
             failed = true;
         }
         expect(failed).toBe(true);

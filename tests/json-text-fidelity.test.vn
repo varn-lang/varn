@@ -9,7 +9,7 @@ function parses(text: str): bool {
     try {
         Json.parse(text);
         return true;
-    } catch (e) {
+    } catch {
         return false;
     }
 }

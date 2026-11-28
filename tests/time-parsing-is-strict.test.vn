@@ -5,7 +5,7 @@ function rejects(run: () => int): bool {
     try {
         run()
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

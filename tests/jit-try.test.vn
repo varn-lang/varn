@@ -25,7 +25,7 @@ function tyReads(i: int, label: str): int {
             throw new Error("five")
         }
         r = k
-    } catch (e) {
+    } catch {
         r = k + (flag ? 1000 : 2000) + label.length
         if(f > 1000000.0) {
             r = 0
@@ -39,7 +39,7 @@ function tyHelper(t: TyFail, i: int): int {
     let r = -1
     try {
         r = t.check(i)
-    } catch (e) {
+    } catch {
         r = 0
     }
     return r + 1
@@ -55,7 +55,7 @@ function tyPinned(i: int): int {
             throw new Error("three")
         }
         steps = steps + 100
-    } catch (e) {
+    } catch {
         steps = steps + 1000
     }
     return steps
@@ -70,13 +70,13 @@ function tyNested(i: int): int {
                 throw new Error("inner")
             }
             r = 1
-        } catch (e) {
+        } catch {
             r = 10
             if(i % 4 == 0) {
                 throw new Error("again")
             }
         }
-    } catch (e2) {
+    } catch {
         r = r + 100
     }
     return r
@@ -94,7 +94,7 @@ function tyCaller(i: int): int {
     let r = 0
     try {
         r = tyThrows(i)
-    } catch (e) {
+    } catch {
         r = -1
     }
     return r

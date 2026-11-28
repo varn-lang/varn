@@ -53,7 +53,7 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                             }
                         }
                     }
-                    let imgNode = new MarkdownNode(MarkdownNodeKind.Image, altText);
+                    const imgNode = new MarkdownNode(MarkdownNodeKind.Image, altText);
                     imgNode.url = url;
                     imgNode.title = title;
                     nodes.push(imgNode);
@@ -85,7 +85,7 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                             }
                         }
                     }
-                    let linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkText);
+                    const linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkText);
                     linkNode.url = url;
                     linkNode.title = title;
                     const innerTokens = parseInlineTokens(linkText, escapeHtml);
@@ -109,7 +109,7 @@ export function parseInlineTokens(text: str, escapeHtml: bool): MarkdownNode[] {
                         linkContent.startsWith("mailto:")
                 ) {
                     flushBuf();
-                    let linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkContent);
+                    const linkNode = new MarkdownNode(MarkdownNodeKind.Link, linkContent);
                     linkNode.url = linkContent;
                     linkNode.addChild(new MarkdownNode(MarkdownNodeKind.Text, linkContent));
                     nodes.push(linkNode);

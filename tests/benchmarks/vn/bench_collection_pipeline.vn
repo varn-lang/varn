@@ -44,47 +44,47 @@ class OrderSummary {
 }
 
 // 1. Generate 100,000 Order Items
-let categories = ["Electronics", "Apparel", "Home", "Books", "Sports"];
-let statuses = ["completed", "pending", "cancelled", "completed", "completed"];
+const categories = ["Electronics", "Apparel", "Home", "Books", "Sports"];
+const statuses = ["completed", "pending", "cancelled", "completed", "completed"];
 
-let orders: OrderItem[] = [];
+const orders: OrderItem[] = [];
 for (let i = 0; i < 100000; i = i + 1) {
-    let cat = categories[i % 5];
-    let stat = statuses[i % 5];
-    let qty = (i % 8) + 1;
-    let price = (((i % 150) + 10) as float) * 1.5;
-    let disc = (i % 3) == 0;
+    const cat = categories[i % 5];
+    const stat = statuses[i % 5];
+    const qty = (i % 8) + 1;
+    const price = (((i % 150) + 10) as float) * 1.5;
+    const disc = (i % 3) == 0;
     orders.push(new OrderItem(i, `SKU_${(i % 2000)}`, cat, qty, price, disc, stat));
 }
 
 // 2. Multi-Stage Pipeline Execution
 
 // Stage 1: Filter active completed orders
-let validOrders: OrderItem[] = [];
+const validOrders: OrderItem[] = [];
 for (let i = 0; i < orders.length; i = i + 1) {
-    let o = orders[i];
+    const o = orders[i];
     if(o.status == "completed" && o.quantity > 0) {
         validOrders.push(o);
     }
 }
 
 // Stage 2: Map to financial summaries with tax and discounts
-let summaries: OrderSummary[] = [];
+const summaries: OrderSummary[] = [];
 for (let i = 0; i < validOrders.length; i = i + 1) {
-    let o = validOrders[i];
+    const o = validOrders[i];
     let gross = (o.quantity as float) * o.unitPrice;
     if(o.isDiscounted) {
         gross = gross * 0.9;
     }
-    let tax = gross * 0.16;
-    let net = gross + tax;
+    const tax = gross * 0.16;
+    const net = gross + tax;
     summaries.push(new OrderSummary(o.id, o.category, gross, tax, net));
 }
 
 // Stage 3: Filter high value summaries
-let highValueSummaries: OrderSummary[] = [];
+const highValueSummaries: OrderSummary[] = [];
 for (let i = 0; i < summaries.length; i = i + 1) {
-    let s = summaries[i];
+    const s = summaries[i];
     if(s.netTotal >= 50.0) {
         highValueSummaries.push(s);
     }
@@ -96,7 +96,7 @@ let totalTax = 0.0;
 let totalNet = 0.0;
 
 for (let i = 0; i < highValueSummaries.length; i = i + 1) {
-    let s = highValueSummaries[i];
+    const s = highValueSummaries[i];
     totalGross = totalGross + s.grossTotal;
     totalTax = totalTax + s.tax;
     totalNet = totalNet + s.netTotal;
@@ -104,7 +104,7 @@ for (let i = 0; i < highValueSummaries.length; i = i + 1) {
 
 // Stage 5: Find & Verification
 let foundItem: OrderSummary? = null;
-let targetId = 4242;
+const targetId = 4242;
 for (let i = 0; i < highValueSummaries.length; i = i + 1) {
     if(highValueSummaries[i].id == targetId) {
         foundItem = highValueSummaries[i];

@@ -5,7 +5,7 @@ function outcome(f: () => void): str {
     try {
         f()
         return "ok"
-    } catch (e) {
+    } catch {
         return "rejected"
     }
 }

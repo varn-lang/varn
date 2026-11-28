@@ -33,10 +33,6 @@ function count(d: dynamic): int {
 function folder(d: dynamic): Folder {
     return d as Folder
 }
-function head(d: dynamic): int {
-    const node: Chain = d as Chain
-    return node.value
-}
 
 await describe("178 dynamic boundary: recursive types", async () => {
     await it("a recursive object type is checked at every level", () => {

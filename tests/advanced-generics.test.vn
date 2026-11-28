@@ -1,9 +1,5 @@
 import { describe, it, expect } from "std:test";
 
-interface Comparable<T> {
-    compareTo(other: T): int
-}
-
 class SortedPair<T> {
     first: T
     second: T

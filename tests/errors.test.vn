@@ -5,7 +5,7 @@ function safeDivide(a: int, b: int): float {
     try {
         if(b == 0) throw new RangeError("division by zero");
         return(a as float) / (b as float);
-    } catch (e) {
+    } catch {
         return -1;
     }
 }
@@ -27,7 +27,7 @@ function withFinally(): int {
 function divideOrDefault(a: int, b: int): int {
     try {
         return a / b;
-    } catch (e) {
+    } catch {
         return -1;
     }
 }
@@ -66,7 +66,7 @@ await describe("11 Errors", async () => {
                 innerCaught = true;
                 throw e;
             }
-        } catch (e) {
+        } catch {
             outerCaught = true;
         }
         expect(innerCaught).toBeTruthy();

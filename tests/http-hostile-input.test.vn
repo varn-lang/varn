@@ -41,7 +41,7 @@ async function fetchFails(script: str): Task<bool> {
     let failed = false;
     try {
         await fetch(`http://127.0.0.1:${listener.port}/`);
-    } catch (e) {
+    } catch {
         failed = true;
     }
     listener.close();

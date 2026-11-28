@@ -14,7 +14,7 @@ await describe("270 handled task rejections", async () => {
         let seen = "";
         try {
             await handle
-        } catch (e) {
+        } catch {
             seen = "caught"
         }
         expect(seen).toBe("caught");
@@ -26,7 +26,7 @@ await describe("270 handled task rejections", async () => {
         let seen = "";
         try {
             await handle
-        } catch (e) {
+        } catch {
             seen = "late"
         }
         expect(seen).toBe("late");

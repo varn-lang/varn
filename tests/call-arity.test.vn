@@ -47,7 +47,7 @@ function mixed(a: int, b: str, c: float, d: bool, e: int): str {
     return a.toString() + b + c.toString() + flag + e.toString()
 }
 
-function checkAll(where: str) {
+function checkAll(_where: str) {
     expect(arity1(7)).toBe(7)
     expect(arity2(1, 2)).toBe(12)
     expect(arity3(1, 2, 3)).toBe(123)

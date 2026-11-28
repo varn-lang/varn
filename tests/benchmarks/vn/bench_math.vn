@@ -12,5 +12,5 @@ function benchMath(iterations: int): float {
     return r
 }
 
-let result = benchMath(500000)
+const result = benchMath(500000)
 print(result)

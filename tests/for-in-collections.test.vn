@@ -33,7 +33,7 @@ function countA(text: str): int {
 }
 function countChars(text: str): int {
     let n = 0
-    for(const c in text) {
+    for(const _c in text) {
         n = n + 1
     }
     return n
@@ -49,7 +49,7 @@ await describe("180 for-in over collections", async () => {
         expect(seen.length).toBe(2)
         expect(seen[0]).toBe("Tuple")
         const names: str[] = []
-        for(const #[name, age] in ages) {
+        for(const #[name, _age] in ages) {
             names.push(name)
         }
         expect(names[0]).toBe("ana")
@@ -68,7 +68,7 @@ await describe("180 for-in over collections", async () => {
     await it("a tuple yields its slots", () => {
         const mixed = #[1, "x", true]
         let slots = 0
-        for(const slot in mixed) {
+        for(const _slot in mixed) {
             slots = slots + 1
         }
         expect(slots).toBe(3)
@@ -77,7 +77,7 @@ await describe("180 for-in over collections", async () => {
     await it("a map built from entries iterates over its entries", () => {
         const dict = new Map([#["x", 1], #["y", 2]])
         let total = 0
-        for(const #[k, v] in dict) {
+        for(const #[_k, v] in dict) {
             total = total + v
         }
         expect(total).toBe(3)

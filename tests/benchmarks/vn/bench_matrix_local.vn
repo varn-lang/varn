@@ -1,12 +1,12 @@
 import { now } from "std:time";
 
 function run(): void {
-    let n = 150
-    let size = n * n
+    const n = 150
+    const size = n * n
 
-    let a: int[] = []
-    let b: int[] = []
-    let c: int[] = []
+    const a: int[] = []
+    const b: int[] = []
+    const c: int[] = []
 
     for(let i = 0; i < size; i = i + 1) {
         a.push((i % 100) + 1)
@@ -14,7 +14,7 @@ function run(): void {
         c.push(0)
     }
 
-    let start = now()
+    const start = now()
 
     for(let row = 0; row < n; row = row + 1) {
         for(let col = 0; col < n; col = col + 1) {
@@ -26,7 +26,7 @@ function run(): void {
         }
     }
 
-    let end = now()
+    const end = now()
 
     print("c[0] =", c[0])
     print("c[last] =", c[size - 1])

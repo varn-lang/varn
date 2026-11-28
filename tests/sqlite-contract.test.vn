@@ -38,7 +38,7 @@ await describe("300 sqlite contract", async () => {
         const row = db.get("SELECT name, id, weight, photo FROM pet WHERE id = ?", 7);
         expect(row != null).toBe(true);
         let order = "";
-        for(const #[column, value] in row!) {
+        for(const #[column, _value] in row!) {
             order = order + (order.length == 0 ? "" : ",") + column;
         }
         expect(order).toBe("name,id,weight,photo");
@@ -102,7 +102,7 @@ await describe("300 sqlite contract", async () => {
         let rejected = false;
         try {
             db.exec("INSERT INTO pet (id, name, owner_id) VALUES (?, ?, ?)", 1, "rex", 42);
-        } catch (e: SqlConstraintError) {
+        } catch (_e: SqlConstraintError) {
             rejected = true;
         }
         expect(rejected).toBe(true);
@@ -115,9 +115,9 @@ await describe("300 sqlite contract", async () => {
         let plain = false;
         try {
             db.all("SELEC nothing");
-        } catch (e: SqlConstraintError) {
+        } catch (_e: SqlConstraintError) {
             constraint = true;
-        } catch (e: SqlError) {
+        } catch (_e: SqlError) {
             plain = true;
         }
         expect(constraint).toBe(false);
@@ -132,17 +132,17 @@ await describe("300 sqlite contract", async () => {
         let closed = 0;
         try {
             db.exec("DELETE FROM pet");
-        } catch (e: ClosedError) {
+        } catch (_e: ClosedError) {
             closed = closed + 1;
         }
         try {
             db.all("SELECT 1");
-        } catch (e: ClosedError) {
+        } catch (_e: ClosedError) {
             closed = closed + 1;
         }
         try {
             db.get("SELECT 1");
-        } catch (e: ClosedError) {
+        } catch (_e: ClosedError) {
             closed = closed + 1;
         }
         expect(closed).toBe(3);
@@ -159,7 +159,7 @@ await describe("300 sqlite contract", async () => {
                 db.exec("INSERT INTO pet (id, name) VALUES (?, ?)", 2, "undone");
                 db.exec("INSERT INTO pet (id, name) VALUES (?, ?)", 3, "kept");
             });
-        } catch (e: SqlConstraintError) {
+        } catch (_e: SqlConstraintError) {
             failed = true;
         }
         expect(failed).toBe(true);

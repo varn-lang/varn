@@ -6,7 +6,7 @@ import { describe, it, expect } from "std:test";
 import { freshPortFile, awaitPort } from "./helpers/port_file.vn";
 
 function testBytesBasics(): void {
-    let b = Bytes.alloc(5);
+    const b = Bytes.alloc(5);
     expect(b.length).toBe(5);;
 
     b[0] = 72; // 'H'

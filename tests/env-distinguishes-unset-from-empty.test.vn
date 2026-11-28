@@ -5,7 +5,7 @@ function fails(run: () => bool): bool {
     try {
         run()
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

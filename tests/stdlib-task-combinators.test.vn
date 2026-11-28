@@ -1,7 +1,7 @@
 import { Task, TaskGroup, delay } from "std:task";
 import { describe, it, expect } from "std:test";
 
-let trackerArray = [false];
+const trackerArray = [false];
 
 await describe("97 stdlib task combinators", async () => {
     await it("1. Task.all", async () => {

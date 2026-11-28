@@ -44,9 +44,9 @@ class Square implements Shape {
     }
 }
 
-let shapes: Shape[] = [];
+const shapes: Shape[] = [];
 for (let i = 0; i < 300000; i = i + 1) {
-    let k = i % 3;
+    const k = i % 3;
     if(k == 0) {
         shapes.push(new Circle((i % 10) as float + 1.0));
     } else if (k == 1) {

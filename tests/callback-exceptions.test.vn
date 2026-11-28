@@ -38,7 +38,7 @@ function unsortable(): bool {
     try {
         [#{ a: 1 }, #{ a: 2 }].sort();
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

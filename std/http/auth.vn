@@ -20,7 +20,7 @@ export namespace Auth {
         let decoded: str;
         try {
             decoded = Base64.decode(header.slice(6).trim());
-        } catch (e) {
+        } catch {
             return null;
         }
         const colon = decoded.indexOf(":");

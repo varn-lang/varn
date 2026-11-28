@@ -72,7 +72,7 @@ function matchFrom(seg: str, si: int, name: str, ni: int): bool {
 function isDir(path: str): bool {
     try {
         return stat$(path).isDir;
-    } catch (e) {
+    } catch {
         return false;
     }
 }
@@ -89,7 +89,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
         let entries: str[];
         try {
             entries = readDir$(dir) as str[];
-        } catch (e) {
+        } catch {
             return;
         }
         for(let entry in entries) {
@@ -103,7 +103,7 @@ function walk(dir: str, segs: str[], idx: int, out: str[]): void {
     let entries: str[];
     try {
         entries = readDir$(dir) as str[];
-    } catch (e) {
+    } catch {
         return;
     }
     for(let entry in entries) {
@@ -144,7 +144,7 @@ export function glob(pattern: str): str[] {
     } else {
         base = cwd();
     }
-    let out: str[] = [];
+    const out: str[] = [];
     walk(base, segs, 0, out);
     for(let i = 1; i < out.length; i = i + 1) {
         const key = out[i];

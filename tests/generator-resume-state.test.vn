@@ -27,7 +27,7 @@ function* guardedAcrossYield(limit: int): Generator<int> {
             if(i % 3 == 2) {
                 throw new Error("third")
             }
-        } catch (e) {
+        } catch {
             yield 100 + i;
         }
     }

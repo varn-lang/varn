@@ -70,11 +70,11 @@ export async function reportMain(tx: Sender<bool>) {
     tx.close()
 }
 
-export async function workerThrows(tx: Sender<int>): Task<void> {
+export async function workerThrows(_tx: Sender<int>): Task<void> {
     throw new Error("worker-failed")
 }
 
-function unexportedWorker(tx: Sender<str>) {}
+function unexportedWorker(_tx: Sender<str>) {}
 
 export function unexportedWorkerRef(): (tx: Sender<str>) => void {
     return unexportedWorker;

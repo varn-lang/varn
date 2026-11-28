@@ -8,7 +8,7 @@ const ring: Node[] = []
 for (let i = 0; i < 1024; i = i + 1) {
     ring.push(new Node(0))
 }
-let keep: Node[] = []
+const keep: Node[] = []
 for (let i = 0; i < 4000000; i = i + 1) {
     keep.push(new Node(i))
 }

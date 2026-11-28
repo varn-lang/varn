@@ -12,20 +12,20 @@ class Person {
     }
 }
 
-let people: Person[] = [];
+const people: Person[] = [];
 let seed = 12345;
 for (let i = 0; i < 100000; i = i + 1) {
     seed = (seed * 1103515245 + 12345) % 2147483648;
-    let age = 18 + (seed % 60);
+    const age = 18 + (seed % 60);
     seed = (seed * 1103515245 + 12345) % 2147483648;
-    let score = (seed % 10000) as float / 100.0;
+    const score = (seed % 10000) as float / 100.0;
     people.push(new Person(i, `name_${seed % 5000}`, age, score));
 }
 
-let byAge = people.slice().sort((a: Person, b: Person) => a.age - b.age);
-let byName = people.slice().sort((a: Person, b: Person) =>
+const byAge = people.slice().sort((a: Person, b: Person) => a.age - b.age);
+const byName = people.slice().sort((a: Person, b: Person) =>
     a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
-let byScore = people.slice().sort((a: Person, b: Person) =>
+const byScore = people.slice().sort((a: Person, b: Person) =>
     b.score > a.score ? 1 : (b.score < a.score ? -1 : 0));
 
 let check = 0;

@@ -23,14 +23,14 @@ function failure(run: () => dynamic): str {
 function typedHot(text: str, i: int): str {
     try {
         return text[i]
-    } catch (e) {
+    } catch {
         return "out"
     }
 }
 function arrayHot(xs: int[], i: int): int {
     try {
         return xs[i]
-    } catch (e) {
+    } catch {
         return -1
     }
 }
@@ -38,7 +38,7 @@ function storeHot(xs: int[], i: int): int {
     try {
         xs[i] = 7;
         return xs[i]
-    } catch (e) {
+    } catch {
         return -1
     }
 }

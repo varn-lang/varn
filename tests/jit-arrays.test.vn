@@ -99,7 +99,7 @@ function arOverflows(start: int): int {
         for(let k = start; k <= 9223372036854775807; k = k + 1) {
             n = n + 1
         }
-    } catch (e) {
+    } catch {
         n = -n
     }
     return n

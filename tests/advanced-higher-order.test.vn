@@ -136,7 +136,7 @@ await describe("38 advanced higher order", async () => {
         const product = reduce([1, 2, 3, 4], (acc: int, x: int) => acc * x, 1)
         expect(product).toBe(24)
 
-        const concat_ = reduce(["a", "b", "c"], (acc: str, x: str) => acc + x, "")
-        expect(concat_).toBe("abc")
+        const concat = reduce(["a", "b", "c"], (acc: str, x: str) => acc + x, "")
+        expect(concat).toBe("abc")
     });
 });

@@ -7,9 +7,9 @@ class P {
 }
 
 function run(): void {
-    let count = 200000
+    const count = 200000
 
-    let items: P[] = []
+    const items: P[] = []
     for(let i = 0; i < count; i = i + 1) {
         items.push(new P(i))
     }

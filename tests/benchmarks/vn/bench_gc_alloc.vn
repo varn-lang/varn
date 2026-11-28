@@ -16,25 +16,25 @@ class GcVtB {
     }
 }
 
-let t0 = now()
+const t0 = now()
 
-let gcJunk: str[] = []
+const gcJunk: str[] = []
 for (let i = 0; i < 400000; i = i + 1) {
     gcJunk.push(`gc_${i}`)
 }
 
-let t1 = now()
+const t1 = now()
 
 let gcAccA = 0
 let gcAccB = 0
 for (let i = 0; i < 100000; i = i + 1) {
-    let a = new GcVtA(i)
+    const a = new GcVtA(i)
     gcAccA = gcAccA + a.x
-    let b = new GcVtB(i)
+    const b = new GcVtB(i)
     gcAccB = gcAccB + b.y
 }
 
-let t2 = now()
+const t2 = now()
 
 print(`junk_ms=${(t1 - t0)}`)
 print(`alloc_ms=${(t2 - t1)}`)

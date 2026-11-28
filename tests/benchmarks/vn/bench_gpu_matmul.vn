@@ -57,7 +57,7 @@ function bench(n: int, reps: int): void {
     const t1 = now();
     for(let r = 0; r < reps; r = r + 1) {
         using gc = ga.matmul(gb);
-        const cGpu = gc.download();
+        const _cGpu = gc.download();
     }
     const tGpu = ((now() - t1) as float) / (reps as float);
     const cGpu = gc0.download();

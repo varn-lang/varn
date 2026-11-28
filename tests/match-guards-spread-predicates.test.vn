@@ -68,7 +68,7 @@ await describe("93 match guards spread predicates", async () => {
     await it("a bare identifier guard is not read as an arrow parameter", async () => {
         function gate(n: int, open: bool): str {
             return match (n) {
-                x if open => "open",
+                _x if open => "open",
                 _ => "closed"
             };
         }

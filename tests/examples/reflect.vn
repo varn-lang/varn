@@ -3,7 +3,7 @@ import { Reflect, MetaKey, defineMetadata, getMetadata, hasMetadata } from "std:
 
 await describe("example std:reflect", async () => {
     await it("inspects objects", () => {
-        let keys = Reflect.keys({ a: 1, b: 2 });
+        const keys = Reflect.keys({ a: 1, b: 2 });
         expect(keys.length).toBe(2);
         expect(Reflect.hasOwn({ x: 1 }, "x")).toBe(true);
         expect(Reflect.hasOwn({ x: 1 }, "missing")).toBe(false);
@@ -21,7 +21,7 @@ await describe("example std:reflect", async () => {
     });
 
     await it("stores untyped metadata", () => {
-        let target = { name: "svc" };
+        const target = { name: "svc" };
         defineMetadata("role", "admin", target);
         expect(hasMetadata("role", target)).toBe(true);
         expect(getMetadata("role", target)).toBe("admin");
@@ -29,8 +29,8 @@ await describe("example std:reflect", async () => {
     });
 
     await it("scopes metadata with typed keys", () => {
-        let tag = MetaKey.create<#{ id: int }, str>();
-        let target = { id: 1 };
+        const tag = MetaKey.create<#{ id: int }, str>();
+        const target = { id: 1 };
         tag.set(target, "v1");
         expect(tag.has(target)).toBe(true);
         expect(tag.get(target)).toBe("v1");

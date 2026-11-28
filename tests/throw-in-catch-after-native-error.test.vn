@@ -8,7 +8,7 @@ async function nativeFails(s: str): Task<int> {
     await ready();
     try {
         return int.parse(s);
-    } catch (err) {
+    } catch {
         throw new Error("replaced after native error");
     }
 }
@@ -17,7 +17,7 @@ async function awaitInsideTry(s: str): Task<int> {
     try {
         await ready();
         return int.parse(s);
-    } catch (err) {
+    } catch {
         throw new Error("replaced after await in try");
     }
 }

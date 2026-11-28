@@ -40,7 +40,7 @@ function raises(f: () => void): bool {
     try {
         f();
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }

@@ -19,7 +19,7 @@ function* swallowsNothing(): Generator<int> {
     try {
         yield 1;
         log.push("not reached");
-    } catch (e) {
+    } catch {
         log.push("caught");
     } finally {
         log.push("finally");
@@ -84,7 +84,7 @@ await describe("317 closing a generator runs the finally blocks it is suspended 
         fresh.close();
         expect(log.join(",")).toBe("a");
         const done = counted("c");
-        for(const v in done) {}
+        for(const _v in done) {}
         expect(log.join(",")).toBe("a,c");
         done.close();
         expect(log.join(",")).toBe("a,c");
@@ -118,7 +118,7 @@ await describe("317 closing a generator runs the finally blocks it is suspended 
                     throw new Error("x");
                 }
             }
-        } catch (e) {
+        } catch {
             log.push("caught");
         }
         expect(log.join(",")).toBe("break,return,throw,caught");

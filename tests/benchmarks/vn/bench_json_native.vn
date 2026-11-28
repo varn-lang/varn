@@ -2,7 +2,7 @@ import { Json } from "std:encoding";
 
 type Item = #{ id: int, name: str, active: bool, score: float };
 
-let items: Item[] = [];
+const items: Item[] = [];
 for (let i = 0; i < 50000; i = i + 1) {
     items.push(#{
         id: i,
@@ -12,8 +12,8 @@ for (let i = 0; i < 50000; i = i + 1) {
     });
 }
 
-let jsonStr = Json.stringify(items);
-let parsed = Json.parse<Item[]>(jsonStr);
+const jsonStr = Json.stringify(items);
+const parsed = Json.parse<Item[]>(jsonStr);
 
 print(parsed.length);
 let totalScore = 0.0;

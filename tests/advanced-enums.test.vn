@@ -146,7 +146,7 @@ await describe("41 advanced enums", async () => {
         const resOk = Result.Ok<int, str>(42)
         const valOk = match (resOk) {
             Ok(val) => val,
-            Err(err) => 0
+            Err(_err) => 0
         }
         expect(valOk).toBe(42)
 

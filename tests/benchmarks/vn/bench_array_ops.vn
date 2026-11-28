@@ -1,5 +1,5 @@
-let arr: Array<int> = [];
-let size = 500000;
+const arr: Array<int> = [];
+const size = 500000;
 let i = 0;
 while (i < size) {
     arr.push(i);

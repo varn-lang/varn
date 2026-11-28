@@ -33,7 +33,7 @@ async function catchesAfterSuspend(n: int): Task<int> {
     const box = new TaskGcBox(n)
     try {
         await failsLater(n)
-    } catch (e) {
+    } catch {
         return box.v
     }
     return -1

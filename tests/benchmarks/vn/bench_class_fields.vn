@@ -8,8 +8,8 @@ class Point {
     }
 }
 
-let pt = new Point(10, 20);
-let iterations = 1000000;
+const pt = new Point(10, 20);
+const iterations = 1000000;
 let i = 0;
 let sum = 0;
 

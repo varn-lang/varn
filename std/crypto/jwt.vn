@@ -30,7 +30,7 @@ export namespace Jwt {
         }
         try {
             return Json.parse(Base64.decodeUrlBytes(parts[1]).toString());
-        } catch (e) {
+        } catch {
             return null;
         }
     }
@@ -58,7 +58,7 @@ export namespace Jwt {
                 return null;
             }
             return Json.parse(Base64.decodeUrlBytes(parts[1]).toString());
-        } catch (e) {
+        } catch {
             return null;
         }
     }

@@ -337,7 +337,7 @@ await describe("220 ui declarative", async () => {
         let failed = false;
         try {
             expanded(Reordering());
-        } catch (e) {
+        } catch {
             failed = true;
         }
         endFrame();

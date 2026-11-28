@@ -110,6 +110,7 @@ await describe("94 ecma features and meta reflection", async () => {
         let count = 0;
         do {
             count = count + 1;
+            // vn-lint-ignore constant-condition
         } while (false);
         expect(count).toBe(1);
     });

@@ -51,7 +51,7 @@ async function runAsync(): Task<void> {
     let joinThrew = false;
     try {
         await failGroup.join();
-    } catch (e) {
+    } catch {
         joinThrew = true;
     }
     expect(joinThrew).toBeTruthy();
@@ -61,7 +61,7 @@ async function runAsync(): Task<void> {
     let cancelThrew = false;
     try {
         await c1;
-    } catch (e) {
+    } catch {
         cancelThrew = true;
     }
     expect(cancelThrew).toBeTruthy();
@@ -71,7 +71,7 @@ async function runAsync(): Task<void> {
     let disposeThrew = false;
     try {
         await d1;
-    } catch (e) {
+    } catch {
         disposeThrew = true;
     }
     expect(disposeThrew).toBeTruthy();

@@ -278,7 +278,7 @@ await describe("235 signals", async () => {
             effect(() => {
                 left.value = right.value + 1
             })
-        } catch (e) {
+        } catch {
             failed = true
         }
         expect(failed).toBe(true)
@@ -291,7 +291,7 @@ await describe("235 signals", async () => {
         let failed = false
         try {
             selfish.value
-        } catch (e) {
+        } catch {
             failed = true
         }
         expect(failed).toBe(true)
@@ -311,7 +311,7 @@ await describe("235 signals", async () => {
         let failed = false
         try {
             source.value = 1
-        } catch (e) {
+        } catch {
             failed = true
         }
         expect(failed).toBe(true)

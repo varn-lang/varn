@@ -8,7 +8,7 @@ function castFails(source: dynamic[]): bool {
             total = total + x
         }
         return false
-    } catch (e) {
+    } catch {
         return true
     }
 }
