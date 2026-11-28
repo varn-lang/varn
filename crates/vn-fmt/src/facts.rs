@@ -311,17 +311,7 @@ pub fn collect(stream: &TokenStream, program: &Program, arena: &AstArena) -> Fac
         }
     }
 
-    let spans = collector.decorators.clone();
-    let mut containers = collector.containers;
-    for items in containers.values_mut() {
-        for item in items.iter_mut() {
-            *item = extend_start(stream, &spans, *item);
-        }
-    }
-    let root_items: Vec<u32> = root_items
-        .into_iter()
-        .map(|item| extend_start(stream, &spans, item))
-        .collect();
+    let containers = collector.containers;
 
     Facts {
         containers,
@@ -332,33 +322,4 @@ pub fn collect(stream: &TokenStream, program: &Program, arena: &AstArena) -> Fac
         comparisons: collector.comparisons,
         decorator_ends,
     }
-}
-
-fn extend_start(stream: &TokenStream, decorators: &[(u32, u32)], start: u32) -> u32 {
-    let mut index = stream.index_at_or_after(start);
-    loop {
-        if index == 0 {
-            break;
-        }
-        let previous = &stream.toks[index - 1];
-        if matches!(
-            previous.kind,
-            TokenKind::DocComment
-                | TokenKind::Async
-                | TokenKind::Abstract
-                | TokenKind::Declare
-                | TokenKind::Native
-        ) {
-            index -= 1;
-            continue;
-        }
-        let Some((decorator_start, _)) = decorators
-            .iter()
-            .find(|(_, end)| *end == previous.end && *end <= stream.toks[index].start)
-        else {
-            break;
-        };
-        index = stream.index_at_or_after(*decorator_start);
-    }
-    stream.toks[index.min(stream.toks.len() - 1)].start
 }

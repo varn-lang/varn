@@ -18,9 +18,9 @@ pub fn member_doc(s: &mut TokenStream) -> Option<String> {
 pub fn parse_class_member(
     s: &mut TokenStream,
     class_is_declare: bool,
+    range: vn_core::SourceRange,
     doc: Option<String>,
 ) -> PResult<ClassMember> {
-    let range = s.range();
     let decorators = super::super::patterns::parse_decorator_list(s)?;
 
     let mods = super::class_mods::parse_member_mods(s);

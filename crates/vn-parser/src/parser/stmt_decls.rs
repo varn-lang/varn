@@ -1,20 +1,31 @@
 use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
 use vn_core::ast::{Decl, StmtId, StmtKind};
-use vn_core::TokenKind;
+use vn_core::{SourceRange, TokenKind};
+
+fn cover(s: &mut TokenStream, stmt: StmtId, start: SourceRange) -> StmtId {
+    let full = s.span_from(start);
+    let node = s.arena.stmt_mut(stmt);
+    node.range = full;
+    if let StmtKind::Decl(decl) = &mut node.kind {
+        decl.set_range(full);
+    }
+    stmt
+}
 
 pub(super) fn try_parse_decl_stmt(
     s: &mut TokenStream,
     kind: TokenKind,
     next_kind: TokenKind,
     decorators: Vec<vn_core::ast::Decorator>,
+    start: SourceRange,
 ) -> Option<PResult<StmtId>> {
     if kind == TokenKind::Declare {
         s.advance();
-        return try_parse_decl_stmt_mode(s, s.kind(), s.peek_kind(1), decorators, true);
+        return try_parse_decl_stmt_mode(s, s.kind(), s.peek_kind(1), decorators, true, start);
     }
 
-    try_parse_decl_stmt_mode(s, kind, next_kind, decorators, false)
+    try_parse_decl_stmt_mode(s, kind, next_kind, decorators, false, start)
 }
 
 pub(super) fn try_parse_decl_stmt_mode(
@@ -23,6 +34,7 @@ pub(super) fn try_parse_decl_stmt_mode(
     next_kind: TokenKind,
     decorators: Vec<vn_core::ast::Decorator>,
     is_declare: bool,
+    start: SourceRange,
 ) -> Option<PResult<StmtId>> {
     let result = match kind {
         TokenKind::Function => {
@@ -328,5 +340,5 @@ pub(super) fn try_parse_decl_stmt_mode(
         | TokenKind::RawStr => return None,
     };
 
-    Some(result)
+    Some(result.map(|stmt| cover(s, stmt, start)))
 }

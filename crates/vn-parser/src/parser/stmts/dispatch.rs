@@ -10,6 +10,7 @@ use vn_core::ast::{StmtId, StmtKind};
 use vn_core::TokenKind;
 
 pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
+    let start = s.range();
     while s.check(TokenKind::DocComment) {
         let lexeme: std::sync::Arc<str> = std::sync::Arc::from(s.lexeme());
         s.advance();
@@ -26,7 +27,7 @@ pub fn parse_stmt_or_decl_inner(s: &mut TokenStream) -> PResult<StmtId> {
 
     let has_decorators = !decorators.is_empty();
     if let Some(decl_stmt) =
-        super::super::stmt_decls::try_parse_decl_stmt(s, kind, next_kind, decorators)
+        super::super::stmt_decls::try_parse_decl_stmt(s, kind, next_kind, decorators, start)
     {
         return decl_stmt;
     }

@@ -38,11 +38,12 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
     let mut members: Vec<ClassMember> = vec![];
     while !s.check(TokenKind::RBrace) && !s.is_eof() {
         while s.eat(TokenKind::Semicolon) || s.eat(TokenKind::Comma) {}
+        let member_start = s.range();
         let doc = member_doc(s);
         if s.check(TokenKind::RBrace) {
             break;
         }
-        match parse_class_member(s, false, doc)? {
+        match parse_class_member(s, false, member_start, doc)? {
             ClassMember::Property {
                 key,
                 type_ann,

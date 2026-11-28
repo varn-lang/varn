@@ -7,6 +7,7 @@ use vn_core::TokenKind;
 pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PResult<ExportDecl> {
     let range = s.range();
     s.expect(TokenKind::Export)?;
+    let inner_start = s.range();
     let is_declare = s.eat(TokenKind::Declare);
 
     if s.check(TokenKind::Type) && s.peek_kind(1) == TokenKind::LBrace {
@@ -120,6 +121,7 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             s.peek_kind(1),
             decorators,
             true,
+            inner_start,
         ) {
             Some(Ok(stmt)) => stmt,
             Some(Err(e)) => return Err(e),
@@ -136,6 +138,7 @@ pub fn parse_export_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             s.peek_kind(1),
             decorators,
             false,
+            inner_start,
         ) {
             Some(Ok(stmt)) => stmt,
             Some(Err(e)) => return Err(e),

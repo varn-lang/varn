@@ -37,6 +37,21 @@ impl Decl {
         }
     }
 
+    pub fn set_range(&mut self, range: SourceRange) {
+        match self {
+            Decl::Variable(d) => d.range = range,
+            Decl::Function(d) => d.range = range,
+            Decl::Class(d) => d.range = range,
+            Decl::Interface(d) => d.range = range,
+            Decl::TypeAlias(d) => d.range = range,
+            Decl::Enum(d) => d.range = range,
+            Decl::Namespace(d) => d.range = range,
+            Decl::Import(d) => d.range = range,
+            Decl::Export(d) => d.set_range(range),
+            Decl::Extension(d) => d.range = range,
+        }
+    }
+
     pub fn range(&self) -> &SourceRange {
         match self {
             Decl::Variable(d) => &d.range,

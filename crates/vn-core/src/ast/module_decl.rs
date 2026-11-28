@@ -64,6 +64,14 @@ impl ExportDecl {
         }
     }
 
+    pub fn set_range(&mut self, new_range: SourceRange) {
+        match self {
+            ExportDecl::Named { range, .. }
+            | ExportDecl::All { range, .. }
+            | ExportDecl::Decl { range, .. } => *range = new_range,
+        }
+    }
+
     pub fn range(&self) -> &SourceRange {
         match self {
             ExportDecl::Named { range, .. } => range,
