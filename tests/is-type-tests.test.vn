@@ -34,9 +34,7 @@ function nullable(x: int?): str {
     return x is int ? "int" : "null"
 }
 function broken(x: int | str): str {
-    return x is str
-        ? "str"
-        : "other"
+    return x is str ? "str" : "other"
 }
 function imported<T>(x: T | Signal<T>): str {
     return x is Signal<T> ? "signal" : "plain"

@@ -29,7 +29,7 @@ await describe("example std:reflect", async () => {
     });
 
     await it("scopes metadata with typed keys", () => {
-        let tag = MetaKey.create<{ id: int }, str>();
+        let tag = MetaKey.create<#{ id: int }, str>();
         let target = { id: 1 };
         tag.set(target, "v1");
         expect(tag.has(target)).toBe(true);
