@@ -26,7 +26,9 @@ impl<'a> Scopes<'a> {
                 }
             }
             TypeKind::Fn((params, ret)) => {
-                self.type_params(params);
+                for param in params {
+                    self.ty(&param.ty);
+                }
                 self.ty(ret);
             }
             TypeKind::Record(members) => {
