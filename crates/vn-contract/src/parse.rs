@@ -144,6 +144,17 @@ fn class_members(
     interner: &AtomInterner,
 ) -> Result<Vec<Member>, ContractError> {
     let mut out = Vec::new();
+    let positional = decl.positional_constructor();
+    if let Some(constructor) = &positional {
+        out.push(Member {
+            symbol: vn_core::TokenKind::Constructor.as_str().to_string(),
+            kind: Kind::Constructor,
+            params: params(&constructor.params, interner),
+            ret: ContractTy::Dynamic,
+            throws: Vec::new(),
+            capability: Vec::new(),
+        });
+    }
     for m in &decl.body {
         let member = match m {
             ClassMember::Method {
@@ -218,27 +229,24 @@ fn class_members(
             },
             ClassMember::Property { .. }
             | ClassMember::Setter { .. }
-            | ClassMember::StaticBlock { .. } => continue,
+            | ClassMember::StaticBlock { .. }
+            | ClassMember::Field { .. } => continue,
         };
         out.push(member);
     }
-    if decl.is_struct {
-        for m in &decl.body {
-            if let ClassMember::Constructor { params: ps, .. } = m {
-                for p in ps {
-                    let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
-                        continue;
-                    };
-                    out.push(Member {
-                        symbol: interner.resolve(*name).to_string(),
-                        kind: Kind::Property,
-                        params: Vec::new(),
-                        ret: ty(p.type_ann.as_ref(), interner, ContractTy::Dynamic),
-                        throws: Vec::new(),
-                        capability: Vec::new(),
-                    });
-                }
-            }
+    if let Some(constructor) = &positional {
+        for p in &constructor.params {
+            let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
+                continue;
+            };
+            out.push(Member {
+                symbol: interner.resolve(*name).to_string(),
+                kind: Kind::Property,
+                params: Vec::new(),
+                ret: ty(p.type_ann.as_ref(), interner, ContractTy::Dynamic),
+                throws: Vec::new(),
+                capability: Vec::new(),
+            });
         }
     }
     Ok(out)

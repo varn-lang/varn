@@ -37,7 +37,7 @@ pub fn generate_class_member_actions(
                 );
                 fields.push((state.name(*key).to_owned(), ty_str));
             }
-            ClassMember::Constructor { .. } => {
+            ClassMember::Constructor { .. } | ClassMember::Field { .. } => {
                 has_constructor = true;
             }
             ClassMember::Method { key, .. } => {

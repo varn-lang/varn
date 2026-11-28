@@ -26,6 +26,7 @@ pub fn generate_interface_impl_action(
         .filter_map(|m| match m {
             ClassMember::Method { key, .. } => Some(state.name(*key).to_owned()),
             ClassMember::Constructor { .. }
+            | ClassMember::Field { .. }
             | ClassMember::Property { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }

@@ -3,7 +3,7 @@ use crate::error::{PResult, ParseError};
 use crate::stream::TokenStream;
 use crate::types::{parse_type, parse_type_params};
 use vn_core::ast::operators::Modifiers;
-use vn_core::ast::{ClassDecl, ClassMember, Decorator, Param, Pattern, StmtKind};
+use vn_core::ast::{ClassDecl, ClassMember, Decorator};
 use vn_core::TokenKind;
 
 pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PResult<ClassDecl> {
@@ -34,8 +34,7 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
     };
 
     s.expect(TokenKind::LBrace)?;
-    let mut fields: Vec<Param> = vec![];
-    let mut members: Vec<ClassMember> = vec![];
+    let mut body: Vec<ClassMember> = vec![];
     while !s.check(TokenKind::RBrace) && !s.is_eof() {
         while s.eat(TokenKind::Semicolon) || s.eat(TokenKind::Comma) {}
         let member_start = s.range();
@@ -46,48 +45,41 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
         match parse_class_member(s, false, member_start, doc)? {
             ClassMember::Property {
                 key,
+                key_range,
                 type_ann,
                 init,
                 modifiers,
                 decorators,
+                doc,
                 range: field_range,
-                ..
             } if !modifiers.is_static => {
                 if !decorators.is_empty() {
                     return Err(ParseError::invalid(
                         "decorators are not supported on struct fields".to_owned(),
                     ));
                 }
-                if fields
+                let repeated = body
                     .iter()
-                    .any(|f| matches!(&f.pattern, Pattern::Identifier { name, .. } if *name == key))
-                {
+                    .any(|m| matches!(m, ClassMember::Field { key: other, .. } if *other == key));
+                if repeated {
                     return Err(ParseError::invalid(format!(
                         "the struct already has a field named '{}'",
                         s.interner.resolve(key)
                     )));
                 }
-                if type_ann.is_none() {
+                let Some(type_ann) = type_ann else {
                     return Err(ParseError::invalid(format!(
                         "the field '{}' of a struct needs a type: write `name: Type`",
                         s.interner.resolve(key)
                     )));
-                }
-                fields.push(Param {
-                    pattern: Pattern::Identifier {
-                        name: key,
-                        range: field_range,
-                        origin: vn_core::ast::BindingOrigin::Written,
-                    },
+                };
+                body.push(ClassMember::Field {
+                    key,
+                    key_range,
                     type_ann,
                     default: init,
-                    is_rest: false,
-                    is_optional: false,
-                    modifiers: Modifiers {
-                        visibility: modifiers.visibility,
-                        is_readonly: true,
-                        ..Default::default()
-                    },
+                    visibility: modifiers.visibility,
+                    doc,
                     range: field_range,
                 });
             }
@@ -104,22 +96,13 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
             member @ (ClassMember::Property { .. }
             | ClassMember::Method { .. }
             | ClassMember::Getter { .. }
-            | ClassMember::StaticBlock { .. }) => members.push(member),
+            | ClassMember::StaticBlock { .. }
+            | ClassMember::Field { .. }) => body.push(member),
         }
     }
     s.expect(TokenKind::RBrace)?;
 
     let full_range = s.span_from(range);
-    let empty_body = s.stmt(full_range, StmtKind::Block { stmts: vec![] });
-    let mut body = Vec::with_capacity(members.len() + 1);
-    body.push(ClassMember::Constructor {
-        params: fields,
-        body: empty_body,
-        decorators: vec![],
-        doc: None,
-        range: full_range,
-    });
-    body.extend(members);
 
     Ok(ClassDecl {
         id: Some(id),

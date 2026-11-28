@@ -135,8 +135,16 @@ pub(super) fn collect_class_decl(a: &AstArena, c: &ClassDecl, out: &mut Vec<Spat
     if let Some(super_cls) = &c.super_class {
         collect_expr(a, super_cls, out);
     }
+    if let Some(constructor) = c.positional_constructor() {
+        for p in &constructor.params {
+            if let Some(default) = &p.default {
+                collect_expr(a, default, out);
+            }
+        }
+    }
     for member in &c.body {
         match member {
+            ClassMember::Field { .. } => {}
             ClassMember::Constructor { params, body, .. } => {
                 for p in params {
                     if let Some(default) = &p.default {

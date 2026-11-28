@@ -57,10 +57,8 @@ impl<'a> Collector<'a> {
         let mut items = Vec::new();
         for member in &class.body {
             match member {
-                ClassMember::Constructor { params, .. } if class.is_struct => {
-                    items.extend(params.iter().map(|param| param.range.start.offset));
-                }
                 ClassMember::Constructor { .. }
+                | ClassMember::Field { .. }
                 | ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
@@ -91,7 +89,9 @@ impl<'a> Collector<'a> {
                 self.decorators(decorators);
                 range.start.offset
             }
-            ClassMember::StaticBlock { range, .. } => range.start.offset,
+            ClassMember::StaticBlock { range, .. } | ClassMember::Field { range, .. } => {
+                range.start.offset
+            }
         }
     }
 

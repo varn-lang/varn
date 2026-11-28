@@ -123,6 +123,7 @@ impl<'r> Checker<'r> {
                 }
                 ClassMember::Constructor { .. }
                 | ClassMember::Property { .. }
+                | ClassMember::Field { .. }
                 | ClassMember::StaticBlock { .. } => {}
             }
         }

@@ -1,7 +1,7 @@
 use super::Binder;
 use rustc_hash::FxHashMap;
 use std::sync::Arc;
-use vn_core::ast::ClassMember;
+use vn_core::ast::{ClassMember, Decorator, Param};
 use vn_sem::infer::pattern_lead_name;
 use vn_sem::symbol::{Symbol, SymbolKind};
 use vn_sem::types::{ClassMemberInfo, ClassMemberKind};
@@ -28,6 +28,58 @@ impl<'r> Binder<'r> {
         }
     }
 
+    pub(crate) fn push_constructor_entry(
+        &mut self,
+        params: &[Param],
+        range: &vn_core::SourceRange,
+        decorators: &[Decorator],
+        members: &mut Vec<ClassMemberInfo>,
+    ) {
+        let ps: Vec<FunctionParam> = params
+            .iter()
+            .map(|p| self.function_param(p, super::binding_types::ParamSite::Declared))
+            .collect();
+
+        let fn_ty = Type::fn_(
+            FunctionType {
+                params: ps,
+                return_type: Type::Void.0,
+                is_arrow: false,
+                type_params: vec![],
+                type_param_defaults: Vec::new(),
+            },
+            &mut *std::sync::Arc::make_mut(&mut self.ty_table),
+        );
+
+        let ctor_atom = self.intern_local(vn_core::TokenKind::Constructor.as_str());
+        let mut sym = Symbol::new(SymbolKind::Method, ctor_atom, range.start.line).with_type(fn_ty);
+        sym.col = range.start.column;
+        sym.offset = range.start.offset;
+        sym.has_explicit_type = true;
+        let symbol_id = self.arena.push(sym);
+        crate::decorator_attrs::record_decorators(self, symbol_id, decorators);
+
+        members.push(ClassMemberInfo {
+            name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
+            kind: ClassMemberKind::Constructor,
+            is_async: false,
+            is_generator: false,
+            is_static: false,
+            is_optional: false,
+            line: range.start.line.saturating_sub(1),
+            col: range.start.column,
+            offset: range.start.offset,
+            ty: fn_ty,
+            members: Vec::new(),
+            visibility: None,
+            is_abstract: false,
+            is_readonly: false,
+            is_override: false,
+            symbol_id: Some(symbol_id),
+            ..Default::default()
+        });
+    }
+
     fn collect_member_entries(
         &mut self,
         member: &ClassMember,
@@ -41,50 +93,7 @@ impl<'r> Binder<'r> {
                 decorators,
                 ..
             } => {
-                let ps: Vec<FunctionParam> = params
-                    .iter()
-                    .map(|p| self.function_param(p, super::binding_types::ParamSite::Declared))
-                    .collect();
-
-                let fn_ty = Type::fn_(
-                    FunctionType {
-                        params: ps,
-                        return_type: Type::Void.0,
-                        is_arrow: false,
-                        type_params: vec![],
-                        type_param_defaults: Vec::new(),
-                    },
-                    &mut *std::sync::Arc::make_mut(&mut self.ty_table),
-                );
-
-                let ctor_atom = self.intern_local(vn_core::TokenKind::Constructor.as_str());
-                let mut sym =
-                    Symbol::new(SymbolKind::Method, ctor_atom, range.start.line).with_type(fn_ty);
-                sym.col = range.start.column;
-                sym.offset = range.start.offset;
-                sym.has_explicit_type = true;
-                let symbol_id = self.arena.push(sym);
-                crate::decorator_attrs::record_decorators(self, symbol_id, decorators);
-
-                members.push(ClassMemberInfo {
-                    name: Arc::from(vn_core::TokenKind::Constructor.as_str()),
-                    kind: ClassMemberKind::Constructor,
-                    is_async: false,
-                    is_generator: false,
-                    is_static: false,
-                    is_optional: false,
-                    line: range.start.line.saturating_sub(1),
-                    col: range.start.column,
-                    offset: range.start.offset,
-                    ty: fn_ty,
-                    members: Vec::new(),
-                    visibility: None,
-                    is_abstract: false,
-                    is_readonly: false,
-                    is_override: false,
-                    symbol_id: Some(symbol_id),
-                    ..Default::default()
-                });
+                self.push_constructor_entry(params, range, decorators, members);
 
                 for p in params {
                     if p.modifiers.visibility.is_some() || p.modifiers.is_readonly {
@@ -349,6 +358,42 @@ impl<'r> Binder<'r> {
                 });
             }
             ClassMember::StaticBlock { .. } => {}
+            ClassMember::Field {
+                key,
+                key_range,
+                type_ann,
+                default,
+                visibility,
+                ..
+            } => {
+                let ty = self.resolve_type(type_ann);
+                let mut sym =
+                    Symbol::new(SymbolKind::Property, *key, key_range.start.line).with_type(ty);
+                sym.col = key_range.start.column;
+                sym.offset = key_range.start.offset;
+                sym.has_explicit_type = true;
+                let symbol_id = self.arena.push(sym);
+                members.push(ClassMemberInfo {
+                    name: Arc::from(self.interner.resolve(*key)),
+                    kind: ClassMemberKind::Property,
+                    is_async: false,
+                    is_generator: false,
+                    is_static: false,
+                    is_optional: false,
+                    line: key_range.start.line.saturating_sub(1),
+                    col: key_range.start.column,
+                    offset: key_range.start.offset,
+                    ty,
+                    members: Vec::new(),
+                    visibility: *visibility,
+                    is_abstract: false,
+                    is_readonly: true,
+                    is_override: false,
+                    has_init: default.is_some(),
+                    symbol_id: Some(symbol_id),
+                    ..Default::default()
+                });
+            }
         }
     }
 }
@@ -359,7 +404,8 @@ fn member_doc(member: &ClassMember) -> Option<&str> {
         | ClassMember::Method { doc, .. }
         | ClassMember::Property { doc, .. }
         | ClassMember::Getter { doc, .. }
-        | ClassMember::Setter { doc, .. } => doc.as_deref(),
+        | ClassMember::Setter { doc, .. }
+        | ClassMember::Field { doc, .. } => doc.as_deref(),
         ClassMember::StaticBlock { .. } => None,
     }
 }

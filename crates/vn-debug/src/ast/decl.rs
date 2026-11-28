@@ -90,6 +90,11 @@ pub(super) fn print_decl(
                         chalk("Property").bold(),
                         chalk(interner.resolve(*key)).cyan()
                     )),
+                    ClassMember::Field { key, .. } => terminal::log(format!(
+                        "{child_indent}{mk}{} {}",
+                        chalk("Field").bold(),
+                        chalk(interner.resolve(*key)).cyan()
+                    )),
                     ClassMember::Constructor { .. } => {
                         terminal::log(format!("{child_indent}{mk}{}", chalk("Constructor").bold()))
                     }

@@ -40,7 +40,8 @@ pub(super) fn emit_enum(
             | ClassMember::Method { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
-            | ClassMember::StaticBlock { .. } => None,
+            | ClassMember::StaticBlock { .. }
+            | ClassMember::Field { .. } => None,
         })
         .collect();
     let info = enum_id.and_then(|id| ctx.enums.get(id.0 as usize));
@@ -339,7 +340,8 @@ pub(super) fn emit_enum(
             }
             ClassMember::Method { .. }
             | ClassMember::Getter { .. }
-            | ClassMember::Setter { .. } => {}
+            | ClassMember::Setter { .. }
+            | ClassMember::Field { .. } => {}
         }
     }
     def

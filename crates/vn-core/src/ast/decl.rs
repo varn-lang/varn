@@ -1,7 +1,7 @@
 use super::arena::{ExprId, StmtId};
 use super::expr::AstId;
 use super::module_decl::{ExportDecl, ImportDecl};
-use super::operators::Modifiers;
+use super::operators::{Modifiers, Visibility};
 use super::pattern::Param;
 use super::stmt::VariableDecl;
 use super::types::{Decorator, TypeNode, TypeParam};
@@ -159,6 +159,73 @@ pub enum ClassMember {
         body: StmtId,
         range: SourceRange,
     },
+    Field {
+        key: Atom,
+        key_range: SourceRange,
+        type_ann: TypeNode,
+        default: Option<ExprId>,
+        visibility: Option<Visibility>,
+        doc: Option<String>,
+        range: SourceRange,
+    },
+}
+
+#[derive(Clone, Debug)]
+pub struct PositionalConstructor {
+    pub params: Vec<Param>,
+    pub range: SourceRange,
+}
+
+impl ClassDecl {
+    pub fn positional_constructor(&self) -> Option<PositionalConstructor> {
+        if !self.is_struct {
+            return None;
+        }
+        let mut params = Vec::new();
+        let mut span: Option<SourceRange> = None;
+        for member in &self.body {
+            let ClassMember::Field {
+                key,
+                key_range,
+                type_ann,
+                default,
+                visibility,
+                range,
+                ..
+            } = member
+            else {
+                continue;
+            };
+            params.push(Param {
+                pattern: super::pattern::Pattern::Identifier {
+                    name: *key,
+                    range: *key_range,
+                    origin: super::pattern::BindingOrigin::Written,
+                },
+                type_ann: Some(type_ann.clone()),
+                default: *default,
+                is_rest: false,
+                is_optional: false,
+                modifiers: Modifiers {
+                    visibility: *visibility,
+                    is_readonly: true,
+                    ..Default::default()
+                },
+                range: *range,
+            });
+            span = Some(match span {
+                Some(existing) => SourceRange {
+                    start: existing.start,
+                    end: range.end,
+                },
+                None => *range,
+            });
+        }
+        Some(PositionalConstructor {
+            params,
+            range: span.unwrap_or(self.range),
+        })
+    }
 }
 
 #[derive(Clone, Debug)]

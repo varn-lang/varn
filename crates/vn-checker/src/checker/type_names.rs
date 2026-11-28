@@ -254,6 +254,9 @@ impl<'r> Checker<'r> {
                             checker.check_type_names(ann, bind);
                         }
                     }
+                    ClassMember::Field { type_ann, .. } => {
+                        checker.check_type_names(type_ann, bind);
+                    }
                     ClassMember::Getter { return_type, .. } => {
                         if let Some(ret) = return_type {
                             checker.check_type_names(ret, bind);

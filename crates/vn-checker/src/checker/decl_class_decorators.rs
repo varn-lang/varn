@@ -248,6 +248,7 @@ impl<'r> Checker<'r> {
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }
+                | ClassMember::Field { .. }
                 | ClassMember::StaticBlock { .. } => {}
             }
         }

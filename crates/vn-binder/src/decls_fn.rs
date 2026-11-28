@@ -27,6 +27,20 @@ impl<'r> Binder<'r> {
         self.current = saved;
     }
 
+    pub(super) fn bind_parameter_scope(
+        &mut self,
+        params: &[vn_core::ast::Param],
+        range: &vn_core::SourceRange,
+    ) {
+        use vn_sem::scope::ScopeKind;
+
+        let child = self.scopes.child(ScopeKind::Function, self.current);
+        let saved = self.current;
+        self.current = child;
+        self.bind_function_params(params, range.start.line);
+        self.current = saved;
+    }
+
     pub(super) fn bind_inline_function_expr(
         &mut self,
         params: &[Param],

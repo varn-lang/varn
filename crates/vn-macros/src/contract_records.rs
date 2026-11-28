@@ -89,25 +89,22 @@ fn class_fields(c: &ClassDecl, interner: &AtomInterner) -> Fields {
             | ClassMember::Method { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
-            | ClassMember::StaticBlock { .. } => None,
+            | ClassMember::StaticBlock { .. }
+            | ClassMember::Field { .. } => None,
         })
         .collect();
-    if c.is_struct {
-        for member in &c.body {
-            if let ClassMember::Constructor { params: ps, .. } = member {
-                for p in ps {
-                    let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
-                        continue;
-                    };
-                    out.push((
-                        interner.resolve(*name).to_string(),
-                        p.type_ann
-                            .as_ref()
-                            .map(|t| classify(t, interner))
-                            .unwrap_or(Mapped::Dynamic),
-                    ));
-                }
-            }
+    if let Some(constructor) = c.positional_constructor() {
+        for p in &constructor.params {
+            let vn_core::ast::Pattern::Identifier { name, .. } = &p.pattern else {
+                continue;
+            };
+            out.push((
+                interner.resolve(*name).to_string(),
+                p.type_ann
+                    .as_ref()
+                    .map(|t| classify(t, interner))
+                    .unwrap_or(Mapped::Dynamic),
+            ));
         }
     }
     out

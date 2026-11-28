@@ -51,6 +51,7 @@ impl<'r> Checker<'r> {
                             self.da_stmt(*body, &mut inner, bind);
                         }
                         ClassMember::Constructor { .. }
+                        | ClassMember::Field { .. }
                         | ClassMember::Method { .. }
                         | ClassMember::Property { .. }
                         | ClassMember::Getter { .. }
@@ -90,7 +91,8 @@ impl<'r> Checker<'r> {
                         | ClassMember::Setter { body: Some(b), .. } => Some(*b),
                         ClassMember::Constructor { body, .. }
                         | ClassMember::StaticBlock { body, .. } => Some(*body),
-                        ClassMember::Method { .. }
+                        ClassMember::Field { .. }
+                        | ClassMember::Method { .. }
                         | ClassMember::Property { .. }
                         | ClassMember::Getter { .. }
                         | ClassMember::Setter { .. } => None,

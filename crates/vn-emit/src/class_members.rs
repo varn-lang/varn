@@ -24,6 +24,59 @@ pub(super) fn class_info_sig(
         })
         .unwrap_or_else(|| fresh_sig(signatures, arity))
 }
+fn emit_constructor(
+    params: &[vn_core::ast::Param],
+    body: Option<vn_core::ast::StmtId>,
+    decorators: &[vn_core::ast::Decorator],
+    class_name: &Arc<str>,
+    class_id: Option<vn_tir::ClassId>,
+    def: &mut vn_tir::TirClassDef,
+    ast_arena: &AstArena,
+    ctx: &ModuleCtx<'_>,
+    expr_table: &FxHashMap<AstId, TypeEntry>,
+    types: &mut TyTable,
+    signatures: &mut Vec<Signature>,
+    out: &mut Vec<TirFunction>,
+) {
+    let sig = class_id
+        .and_then(|cid| ctx.classes[cid.0 as usize].constructor)
+        .unwrap_or_else(|| fresh_sig(signatures, params.len()));
+    let id = emit_member_fn(
+        Arc::from(format!("{class_name}.constructor")),
+        params,
+        body,
+        ast_arena,
+        false,
+        false,
+        class_id,
+        None,
+        sig,
+        decorators,
+        ctx,
+        expr_table,
+        types,
+        signatures,
+        out,
+    );
+    def.methods.push(vn_tir::TirClassMember {
+        key: Arc::from(vn_core::TokenKind::Constructor.as_str()),
+        func: id,
+        is_static: false,
+        is_private: false,
+        decorators: lower_decorator_exprs(
+            decorators,
+            ast_arena,
+            ctx,
+            expr_table,
+            types,
+            signatures,
+            out,
+            &mut def.prelude,
+            class_id,
+        ),
+    });
+}
+
 pub(super) fn emit_class_members(
     class: &vn_core::ast::ClassDecl,
     class_name: &Arc<str>,
@@ -38,6 +91,22 @@ pub(super) fn emit_class_members(
     out: &mut Vec<TirFunction>,
 ) {
     use vn_core::ast::ClassMember;
+    if let Some(constructor) = class.positional_constructor() {
+        emit_constructor(
+            &constructor.params,
+            None,
+            &[],
+            class_name,
+            class_id,
+            def,
+            ast_arena,
+            ctx,
+            expr_table,
+            types,
+            signatures,
+            out,
+        );
+    }
     for member in &class.body {
         match member {
             ClassMember::Constructor {
@@ -45,45 +114,20 @@ pub(super) fn emit_class_members(
                 body,
                 decorators,
                 ..
-            } => {
-                let sig = class_id
-                    .and_then(|cid| ctx.classes[cid.0 as usize].constructor)
-                    .unwrap_or_else(|| fresh_sig(signatures, params.len()));
-                let id = emit_member_fn(
-                    Arc::from(format!("{class_name}.constructor")),
-                    params,
-                    Some(*body),
-                    ast_arena,
-                    false,
-                    false,
-                    class_id,
-                    None,
-                    sig,
-                    decorators,
-                    ctx,
-                    expr_table,
-                    types,
-                    signatures,
-                    out,
-                );
-                def.methods.push(vn_tir::TirClassMember {
-                    key: Arc::from(vn_core::TokenKind::Constructor.as_str()),
-                    func: id,
-                    is_static: false,
-                    is_private: false,
-                    decorators: lower_decorator_exprs(
-                        decorators,
-                        ast_arena,
-                        ctx,
-                        expr_table,
-                        types,
-                        signatures,
-                        out,
-                        &mut def.prelude,
-                        class_id,
-                    ),
-                });
-            }
+            } => emit_constructor(
+                params,
+                Some(*body),
+                decorators,
+                class_name,
+                class_id,
+                def,
+                ast_arena,
+                ctx,
+                expr_table,
+                types,
+                signatures,
+                out,
+            ),
             ClassMember::Method {
                 key,
                 params,
@@ -307,7 +351,8 @@ pub(super) fn emit_class_members(
             }
             ClassMember::Method { .. }
             | ClassMember::Getter { .. }
-            | ClassMember::Setter { .. } => {}
+            | ClassMember::Setter { .. }
+            | ClassMember::Field { .. } => {}
         }
     }
 }

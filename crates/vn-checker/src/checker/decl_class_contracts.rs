@@ -140,7 +140,9 @@ impl<'r> Checker<'r> {
                 | ClassMember::Property { key, .. } => {
                     Some(std::sync::Arc::from(bind.interner.resolve(*key)))
                 }
-                ClassMember::Constructor { .. } | ClassMember::StaticBlock { .. } => None,
+                ClassMember::Constructor { .. }
+                | ClassMember::Field { .. }
+                | ClassMember::StaticBlock { .. } => None,
             })
             .collect();
         for inherited in superclass_members {
@@ -166,14 +168,17 @@ impl<'r> Checker<'r> {
 
     pub(super) fn check_member_names(&mut self, c: &vn_core::ast::ClassDecl, bind: &BindResult) {
         let mut seen: Vec<(vn_core::Atom, bool, u8)> = Vec::new();
-        for param in c.body.iter().flat_map(|member| match member {
+        let positional = c.positional_constructor();
+        let positional_params = positional.iter().flat_map(|ctor| ctor.params.iter());
+        for param in positional_params.chain(c.body.iter().flat_map(|member| match member {
             ClassMember::Constructor { params, .. } => params.as_slice(),
-            ClassMember::Method { .. }
+            ClassMember::Field { .. }
+            | ClassMember::Method { .. }
             | ClassMember::Property { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
             | ClassMember::StaticBlock { .. } => &[],
-        }) {
+        })) {
             let declares_property =
                 param.modifiers.is_readonly || param.modifiers.visibility.is_some();
             let vn_core::ast::Pattern::Identifier { name, range, .. } = &param.pattern else {
@@ -225,7 +230,9 @@ impl<'r> Checker<'r> {
                     range,
                     ..
                 } => (key, modifiers, range, 2u8),
-                ClassMember::Constructor { .. } | ClassMember::StaticBlock { .. } => continue,
+                ClassMember::Constructor { .. }
+                | ClassMember::Field { .. }
+                | ClassMember::StaticBlock { .. } => continue,
             };
             let clash = seen.iter().any(|(name, is_static, other)| {
                 name == key

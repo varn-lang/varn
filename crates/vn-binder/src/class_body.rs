@@ -8,6 +8,9 @@ use vn_sem::types::ClassMemberInfo;
 
 impl<'r> Binder<'r> {
     pub(super) fn bind_class_bodies(&mut self, c: &ClassDecl, name_atom: vn_core::Atom) {
+        if let Some(constructor) = c.positional_constructor() {
+            self.bind_parameter_scope(&constructor.params, &constructor.range);
+        }
         for member in &c.body {
             match member {
                 ClassMember::Constructor {
@@ -87,7 +90,8 @@ impl<'r> Binder<'r> {
                 } => {
                     self.bind_expr(*init);
                 }
-                ClassMember::Method { .. }
+                ClassMember::Field { .. }
+                | ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }
@@ -99,7 +103,8 @@ impl<'r> Binder<'r> {
     pub(super) fn mark_optional_fields(&mut self, c: &ClassDecl, members: &mut [ClassMemberInfo]) {
         let declared_ctor = c.body.iter().find_map(|m| match m {
             ClassMember::Constructor { body, .. } => Some(body),
-            ClassMember::Method { .. }
+            ClassMember::Field { .. }
+            | ClassMember::Method { .. }
             | ClassMember::Property { .. }
             | ClassMember::Getter { .. }
             | ClassMember::Setter { .. }
@@ -116,6 +121,7 @@ impl<'r> Binder<'r> {
                     ..
                 } if !modifiers.is_static => Some(Arc::from(self.interner.resolve(*key))),
                 ClassMember::Constructor { .. }
+                | ClassMember::Field { .. }
                 | ClassMember::Method { .. }
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }

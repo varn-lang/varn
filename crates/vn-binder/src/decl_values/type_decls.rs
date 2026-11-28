@@ -295,7 +295,8 @@ impl<'r> super::super::Binder<'r> {
                 | ClassMember::Property { .. }
                 | ClassMember::Getter { .. }
                 | ClassMember::Setter { .. }
-                | ClassMember::StaticBlock { .. } => {}
+                | ClassMember::StaticBlock { .. }
+                | ClassMember::Field { .. } => {}
             }
         }
 

@@ -166,7 +166,8 @@ impl AstJson<'_> {
                     .body
                     .iter()
                     .filter_map(|member| match member {
-                        ClassMember::Property { key, range, .. } => Some(leaf(
+                        ClassMember::Property { key, range, .. }
+                        | ClassMember::Field { key, range, .. } => Some(leaf(
                             format!("prop {}", self.name(*key)),
                             "property",
                             range.start.line,

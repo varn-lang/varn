@@ -11,8 +11,23 @@ impl<'r> Checker<'r> {
         c: &vn_core::ast::ClassDecl,
         bind: &BindResult,
     ) {
+        if let Some(constructor) = c.positional_constructor() {
+            let saved_scope = self.current_scope;
+            if let Some(ctor_scope) = self.next_child_scope(bind) {
+                self.current_scope = ctor_scope;
+                self.record_scope_span(
+                    rec,
+                    constructor.range.start.offset,
+                    constructor.range.end.offset,
+                    ctor_scope,
+                );
+            }
+            self.check_param_defaults(rec, &constructor.params, bind);
+            self.current_scope = saved_scope;
+        }
         for member in &c.body {
             match member {
+                ClassMember::Field { .. } => {}
                 ClassMember::Property {
                     key,
                     type_ann,

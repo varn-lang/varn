@@ -22,6 +22,7 @@ impl<'r> Checker<'r> {
 
         for member in &e.body {
             match member {
+                ClassMember::Field { .. } => {}
                 ClassMember::Property {
                     key,
                     type_ann,

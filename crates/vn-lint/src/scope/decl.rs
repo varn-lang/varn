@@ -185,6 +185,14 @@ impl<'a> Scopes<'a> {
                 self.stack.pop();
             }
             ClassMember::StaticBlock { body, .. } => self.stmt(*body),
+            ClassMember::Field {
+                type_ann, default, ..
+            } => {
+                self.ty(type_ann);
+                if let Some(default) = default {
+                    self.expr(*default);
+                }
+            }
         }
     }
     pub(super) fn interface(&mut self, interface: &InterfaceDecl) {

@@ -51,6 +51,10 @@ impl<'r> super::Binder<'r> {
         let mut methods: FxHashMap<Arc<str>, Type> = FxHashMap::default();
         let mut members: Vec<ClassMemberInfo> = Vec::new();
 
+        if let Some(constructor) = c.positional_constructor() {
+            self.push_constructor_entry(&constructor.params, &constructor.range, &[], &mut members);
+        }
+
         for member in &c.body {
             self.collect_class_member(member, c.modifiers.is_declare, &mut methods, &mut members);
         }
