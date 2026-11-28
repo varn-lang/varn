@@ -40,7 +40,7 @@ export enum Result<out T, out E> {
     static catching<V>(run: () => V): Result<V, Error> {
         try {
             return Result.Ok(run());
-        } catch (e) {
+        } catch(e) {
             return Result.Err(e);
         }
     }

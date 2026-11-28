@@ -54,7 +54,6 @@ pub struct Group {
 }
 
 pub struct Scopes<'a> {
-    pub text: &'a str,
     pub facts: &'a TypeFacts,
     pub arena: &'a AstArena,
     pub interner: &'a AtomInterner,
@@ -92,14 +91,8 @@ mod stmt;
 mod types;
 
 impl<'a> Scopes<'a> {
-    pub fn new(
-        text: &'a str,
-        arena: &'a AstArena,
-        interner: &'a AtomInterner,
-        facts: &'a TypeFacts,
-    ) -> Self {
+    pub fn new(arena: &'a AstArena, interner: &'a AtomInterner, facts: &'a TypeFacts) -> Self {
         Self {
-            text,
             facts,
             arena,
             interner,

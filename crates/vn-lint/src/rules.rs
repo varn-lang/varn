@@ -14,7 +14,7 @@ pub fn run(
     trivia: &[Trivia],
     facts: &TypeFacts,
 ) -> Vec<Diagnostic> {
-    let mut scopes = Scopes::new(source.text, arena, interner, facts);
+    let mut scopes = Scopes::new(arena, interner, facts);
     scopes.program(&program.body);
     let mut found = Vec::new();
     bindings(source, &scopes, interner, &mut found);
