@@ -1,8 +1,11 @@
+mod facts;
 mod naming;
 mod rules;
 mod scope;
 
+pub use facts::TypeFacts;
 use std::collections::HashSet;
+use vn_core::ast::{AstArena, Program};
 use vn_core::{
     AtomInterner, Diagnostic, ErrorCode, SourceLocation, SourceRange, Suggestion, Trivia,
 };
@@ -50,32 +53,36 @@ pub fn rule_of(name: &str) -> Option<ErrorCode> {
         .find(|code| code.name() == name || code.to_string().eq_ignore_ascii_case(name))
 }
 
-pub fn lint(text: &str, filename: &str) -> Result<Vec<Diagnostic>, String> {
-    let (tokens, buffer, errors, trivia) = vn_lexer::scan_with_trivia(text, filename);
-    if let Some(error) = errors.first() {
-        return Err(error.message.to_string());
-    }
-    let (program, diagnostics, arena, interner) =
-        vn_parser::parse_partial(tokens, buffer, filename, AtomInterner::new());
-    if let Some(error) = diagnostics.iter().next() {
-        return Err(format!(
-            "{}:{}: {}",
-            error.range.start.line, error.range.start.column, error.message
-        ));
-    }
-    let source = Source::new(text);
-    let mut found = rules::run(&source, &program, &arena, &interner, &trivia);
-    let ignored = suppressions(&source, &trivia);
+pub struct Unit<'a> {
+    pub text: &'a str,
+    pub filename: &'a str,
+    pub program: &'a Program,
+    pub arena: &'a AstArena,
+    pub interner: &'a AtomInterner,
+    pub trivia: &'a [Trivia],
+}
+
+pub fn lint(unit: &Unit<'_>, facts: &TypeFacts) -> Vec<Diagnostic> {
+    let source = Source::new(unit.text);
+    let mut found = rules::run(
+        &source,
+        unit.program,
+        unit.arena,
+        unit.interner,
+        unit.trivia,
+        facts,
+    );
+    let ignored = suppressions(&source, unit.trivia);
     found.retain(|diagnostic| {
         !ignored.iter().any(|(line, code)| {
             *line == diagnostic.range.start.line && code.is_none_or(|c| c == diagnostic.code)
         })
     });
     found.sort_by_key(|d| (d.range.start.offset, d.code.code_number()));
-    Ok(found
+    found
         .into_iter()
-        .map(|d| d.with_file(filename.to_string()))
-        .collect())
+        .map(|d| d.with_file(unit.filename.to_string()))
+        .collect()
 }
 
 fn suppressions(source: &Source<'_>, trivia: &[Trivia]) -> HashSet<(u32, Option<ErrorCode>)> {

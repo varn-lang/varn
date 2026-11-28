@@ -57,6 +57,7 @@ impl<'a> Scopes<'a> {
                     group: None,
                     param_of: Some((function, position)),
                     renamable: anonymous && matches!(param.pattern, Pattern::Identifier { .. }),
+                    shorthand: false,
                     import: None,
                 },
             );

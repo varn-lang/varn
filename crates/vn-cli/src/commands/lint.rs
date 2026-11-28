@@ -1,31 +1,17 @@
 use crate::cli::LintArgs;
 use crate::error::CliError;
-use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use vn_core::term::chalk;
-use vn_core::{Diagnostic, DiagnosticKind, ErrorCode};
-
-const MAX_FIX_PASSES: usize = 5;
-
-fn codes(names: &[String], what: &str) -> Result<HashSet<ErrorCode>, CliError> {
-    names
-        .iter()
-        .map(|name| {
-            vn_lint::rule_of(name).ok_or_else(|| {
-                CliError::usage(format!("`{name}` in [lint] {what} is not a lint rule"))
-            })
-        })
-        .collect()
-}
+use vn_core::{Diagnostic, DiagnosticKind};
+use vn_pipeline::Source;
 
 pub fn execute(session: &vn_pipeline::Session, args: LintArgs) -> Result<(), CliError> {
     let start = Instant::now();
     let project = session.project();
     let config = &project.manifest.lint;
-    let allowed = codes(&config.allow, "allow")?;
-    let denied = codes(&config.deny, "deny")?;
+    let policy = session.lint_policy().map_err(CliError::usage)?;
 
     let targets: Vec<&str> = if args.paths.is_empty() {
         vec!["."]
@@ -52,7 +38,24 @@ pub fn execute(session: &vn_pipeline::Session, args: LintArgs) -> Result<(), Cli
         let path = file.to_string_lossy().to_string();
         let mut text = fs::read_to_string(file)
             .map_err(|e| CliError::fatal(format!("Failed to read {}: {e}", file.display())))?;
-        let mut found = match vn_lint::lint(&text, &path) {
+        if args.fix {
+            match session.fix(&path, &text, &policy) {
+                Ok((rewritten, applied)) if applied > 0 => {
+                    fs::write(file, &rewritten).map_err(|e| {
+                        CliError::fatal(format!("Failed to write {}: {e}", file.display()))
+                    })?;
+                    fixed += applied;
+                    text = rewritten;
+                }
+                Ok(_) => {}
+                Err(message) => {
+                    eprintln!("{}: {path}:{message}", chalk("error").red());
+                    errors += 1;
+                    continue;
+                }
+            }
+        }
+        let found = match session.lint(&Source::virtual_source(&path, &text), &policy) {
             Ok(found) => found,
             Err(message) => {
                 eprintln!("{}: {path}:{message}", chalk("error").red());
@@ -60,26 +63,7 @@ pub fn execute(session: &vn_pipeline::Session, args: LintArgs) -> Result<(), Cli
                 continue;
             }
         };
-        found.retain(|d| !allowed.contains(&d.code));
-        let mut passes = 0;
-        while args.fix && passes < MAX_FIX_PASSES && found.iter().any(|d| !d.suggestions.is_empty())
-        {
-            passes += 1;
-            let (rewritten, applied) = vn_lint::apply_fixes(&text, &found);
-            if applied == 0 {
-                break;
-            }
-            fs::write(file, &rewritten)
-                .map_err(|e| CliError::fatal(format!("Failed to write {}: {e}", file.display())))?;
-            fixed += applied;
-            text = rewritten;
-            found = vn_lint::lint(&text, &path).unwrap_or_default();
-            found.retain(|d| !allowed.contains(&d.code));
-        }
-        for mut diagnostic in found {
-            if denied.contains(&diagnostic.code) {
-                diagnostic.kind = DiagnosticKind::Error;
-            }
+        for diagnostic in found {
             report(&diagnostic, &text);
             if diagnostic.kind == DiagnosticKind::Error {
                 errors += 1;

@@ -17,7 +17,15 @@ impl<'a> Scopes<'a> {
                 computed,
                 ..
             } => {
-                self.assign_target(*object, true);
+                let range = arena.expr(*object).range;
+                if self
+                    .facts
+                    .is_reference(range.start.offset, range.end.offset)
+                {
+                    self.expr(*object);
+                } else {
+                    self.assign_target(*object, true);
+                }
                 if *computed {
                     self.expr(*property);
                 }
@@ -129,25 +137,25 @@ impl<'a> Scopes<'a> {
             }
         }
     }
-    pub(super) fn match_pattern(&mut self, pattern: &MatchPattern) {
+    pub(super) fn match_pattern(&mut self, pattern: &MatchPattern, arm: SourceRange) {
         match pattern {
             MatchPattern::Wildcard => {}
             MatchPattern::Literal(expression) => self.expr(*expression),
-            MatchPattern::Identifier(name) => self.exempt(*name, 0, 0),
+            MatchPattern::Identifier(name) => self.match_binding(*name, arm),
             MatchPattern::Tuple(items) => {
                 for item in items {
-                    self.match_pattern(item);
+                    self.match_pattern(item, arm);
                 }
             }
             MatchPattern::Array { elements, rest } => {
                 for element in elements {
-                    self.match_pattern(element);
+                    self.match_pattern(element, arm);
                 }
                 if let vn_core::ast::SequenceRest::Bind(name) = rest {
-                    self.exempt(*name, 0, 0);
+                    self.match_binding(*name, arm);
                 }
             }
-            MatchPattern::Record { fields, .. } => self.match_fields(fields),
+            MatchPattern::Record { fields, .. } => self.match_fields(fields, arm),
             MatchPattern::EnumVariant {
                 enum_name, payload, ..
             } => {
@@ -157,19 +165,24 @@ impl<'a> Scopes<'a> {
                 match payload {
                     VariantPayload::Positional(items) => {
                         for item in items {
-                            self.match_pattern(item);
+                            self.match_pattern(item, arm);
                         }
                     }
-                    VariantPayload::Named { fields, .. } => self.match_fields(fields),
+                    VariantPayload::Named { fields, .. } => self.match_fields(fields, arm),
                 }
             }
         }
     }
-    pub(super) fn match_fields(&mut self, fields: &[vn_core::ast::MatchField]) {
+    pub(super) fn match_fields(&mut self, fields: &[vn_core::ast::MatchField], arm: SourceRange) {
         for field in fields {
             match &field.pattern {
-                Some(inner) => self.match_pattern(inner),
-                None => self.exempt(field.name, 0, 0),
+                Some(inner) => self.match_pattern(inner, arm),
+                None => self.declare_match(
+                    field.name,
+                    field.range.start.offset,
+                    field.range.end.offset,
+                    true,
+                ),
             }
         }
     }
@@ -340,7 +353,7 @@ impl<'a> Scopes<'a> {
                 self.expr(*subject);
                 for case in cases {
                     self.stack.push(HashMap::new());
-                    self.match_pattern(&case.pattern);
+                    self.match_pattern(&case.pattern, case.range);
                     if let Some(guard) = case.guard {
                         self.expr(guard);
                     }

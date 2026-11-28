@@ -81,6 +81,7 @@ impl<'a> Scopes<'a> {
                         group: Some(group),
                         param_of: None,
                         renamable: false,
+                        shorthand: false,
                         import: None,
                     },
                 );
@@ -108,15 +109,25 @@ impl<'a> Scopes<'a> {
                         self.declare_pattern(
                             param,
                             &Declare {
-                                kind: Kind::Exempt,
+                                kind: Kind::CatchParam,
                                 exported: false,
                                 initialized: true,
                                 group: None,
                                 param_of: None,
-                                renamable: false,
+                                renamable: matches!(param, Pattern::Identifier { .. }),
+                                shorthand: false,
                                 import: None,
                             },
                         );
+                    }
+                    if clause.type_ann.is_none()
+                        && matches!(clause.param, Some(Pattern::Identifier { .. }))
+                    {
+                        let head = (
+                            clause.range.start.offset,
+                            arena.stmt(clause.body).range.start.offset,
+                        );
+                        self.catch_heads.insert(self.bindings.len() - 1, head);
                     }
                     self.stmt(clause.body);
                     self.stack.pop();
@@ -142,6 +153,7 @@ impl<'a> Scopes<'a> {
                             group: None,
                             param_of: None,
                             renamable: false,
+                            shorthand: false,
                             import: None,
                         },
                     );
@@ -187,6 +199,7 @@ impl<'a> Scopes<'a> {
                     group: Some(group),
                     param_of: None,
                     renamable: false,
+                    shorthand: false,
                     import: None,
                 },
             );

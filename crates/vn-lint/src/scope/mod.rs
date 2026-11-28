@@ -1,3 +1,4 @@
+use crate::TypeFacts;
 use std::collections::HashMap;
 use vn_core::ast::{
     Arg, ArrayEl, ArrowBody, ClassDecl, ClassMember, Decl, EnumDecl, ExportDecl, ExprKind,
@@ -7,7 +8,7 @@ use vn_core::ast::{
 };
 use vn_core::ast::{AstArena, ExprId, StmtId};
 use vn_core::ast::{Decorator, TypeNode, TypeParam};
-use vn_core::{Atom, AtomInterner, TypeKind};
+use vn_core::{Atom, AtomInterner, SourceRange, TypeKind};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Kind {
@@ -17,6 +18,11 @@ pub enum Kind {
     Import,
     Function,
     Class,
+    Enum,
+    Interface,
+    TypeAlias,
+    CatchParam,
+    MatchBinding,
     Exempt,
 }
 
@@ -31,6 +37,7 @@ pub struct Binding {
     pub initialized: bool,
     pub param_of: Option<(usize, usize)>,
     pub renamable: bool,
+    pub shorthand: bool,
     pub import: Option<(usize, usize)>,
 }
 
@@ -47,11 +54,14 @@ pub struct Group {
 }
 
 pub struct Scopes<'a> {
+    pub text: &'a str,
+    pub facts: &'a TypeFacts,
     pub arena: &'a AstArena,
     pub interner: &'a AtomInterner,
     pub bindings: Vec<Binding>,
     pub groups: Vec<Group>,
     pub imports: Vec<ImportInfo>,
+    pub catch_heads: HashMap<usize, (u32, u32)>,
     pub functions: usize,
     pub(super) stack: Vec<HashMap<Atom, usize>>,
 }
@@ -63,22 +73,32 @@ pub(super) struct Declare {
     group: Option<usize>,
     param_of: Option<(usize, usize)>,
     renamable: bool,
+    shorthand: bool,
     import: Option<(usize, usize)>,
 }
 
 mod decl;
 mod expr;
+mod sites;
 mod stmt;
 mod types;
 
 impl<'a> Scopes<'a> {
-    pub fn new(arena: &'a AstArena, interner: &'a AtomInterner) -> Self {
+    pub fn new(
+        text: &'a str,
+        arena: &'a AstArena,
+        interner: &'a AtomInterner,
+        facts: &'a TypeFacts,
+    ) -> Self {
         Self {
+            text,
+            facts,
             arena,
             interner,
             bindings: Vec::new(),
             groups: Vec::new(),
             imports: Vec::new(),
+            catch_heads: HashMap::new(),
             functions: 0,
             stack: Vec::new(),
         }
@@ -104,6 +124,7 @@ impl<'a> Scopes<'a> {
             initialized: how.initialized,
             param_of: how.param_of,
             renamable: how.renamable,
+            shorthand: how.shorthand,
             import: how.import,
         });
         if let Some(group) = how.group {
@@ -155,6 +176,25 @@ impl<'a> Scopes<'a> {
                 group: None,
                 param_of: None,
                 renamable: false,
+                shorthand: false,
+                import: None,
+            },
+        );
+    }
+    fn declare_type(&mut self, name: Atom, offset: u32, kind: Kind, exported: bool) {
+        let length = self.interner.resolve(name).len() as u32;
+        self.declare(
+            name,
+            offset,
+            offset + length,
+            Declare {
+                kind,
+                exported,
+                initialized: true,
+                group: None,
+                param_of: None,
+                renamable: false,
+                shorthand: false,
                 import: None,
             },
         );
@@ -199,6 +239,7 @@ impl<'a> Scopes<'a> {
                             group: Some(group),
                             param_of: None,
                             renamable: matches!(declarator.id, Pattern::Identifier { .. }),
+                            shorthand: false,
                             import: None,
                         },
                     );
@@ -216,6 +257,7 @@ impl<'a> Scopes<'a> {
                     group: None,
                     param_of: None,
                     renamable: false,
+                    shorthand: false,
                     import: None,
                 };
                 let start = function.id_offset;
@@ -235,6 +277,7 @@ impl<'a> Scopes<'a> {
                         group: None,
                         param_of: None,
                         renamable: false,
+                        shorthand: false,
                         import: None,
                     };
                     let start = class.id_offset;
@@ -242,9 +285,20 @@ impl<'a> Scopes<'a> {
                     self.declare(id, start, start + length, how);
                 }
             }
-            Decl::Interface(interface) => self.exempt(interface.id, 0, 0),
-            Decl::TypeAlias(alias) => self.exempt(alias.id, 0, 0),
-            Decl::Enum(declaration) => self.exempt(declaration.id, 0, 0),
+            Decl::Interface(interface) => {
+                self.declare_type(interface.id, interface.id_offset, Kind::Interface, exported)
+            }
+            Decl::TypeAlias(alias) => {
+                self.declare_type(alias.id, alias.id_offset, Kind::TypeAlias, exported)
+            }
+            Decl::Enum(declaration) => {
+                let kind = if declaration.is_declare {
+                    Kind::Exempt
+                } else {
+                    Kind::Enum
+                };
+                self.declare_type(declaration.id, declaration.id_offset, kind, exported)
+            }
             Decl::Namespace(namespace) => self.exempt(namespace.id, 0, 0),
             Decl::Import(import) => {
                 let decl = self.imports.len();
@@ -279,6 +333,7 @@ impl<'a> Scopes<'a> {
                             group: None,
                             param_of: None,
                             renamable: false,
+                            shorthand: false,
                             import: Some((decl, position)),
                         },
                     );
@@ -305,6 +360,7 @@ impl<'a> Scopes<'a> {
                     group: how.group,
                     param_of: how.param_of,
                     renamable: how.renamable,
+                    shorthand: how.shorthand,
                     import: how.import,
                 },
             ),

@@ -1,6 +1,6 @@
 use crate::naming;
 use crate::scope::{Kind, Scopes};
-use crate::Source;
+use crate::{Source, TypeFacts};
 use std::collections::HashMap;
 use vn_core::ast::{AssignOp, AstArena, ExprId, ExprKind, Program, StmtKind};
 use vn_core::{AtomInterner, Diagnostic, ErrorCode, Suggestion, Trivia};
@@ -11,8 +11,9 @@ pub fn run(
     arena: &AstArena,
     interner: &AtomInterner,
     trivia: &[Trivia],
+    facts: &TypeFacts,
 ) -> Vec<Diagnostic> {
-    let mut scopes = Scopes::new(arena, interner);
+    let mut scopes = Scopes::new(source.text, arena, interner, facts);
     scopes.program(&program.body);
     let mut found = Vec::new();
     bindings(source, &scopes, interner, &mut found);
@@ -36,7 +37,7 @@ fn bindings(
             *entry = (*entry).max(position);
         }
     }
-    for binding in &scopes.bindings {
+    for (index, binding) in scopes.bindings.iter().enumerate() {
         let name = interner.resolve(binding.name);
         let located = binding.end > binding.start;
         let written = name
@@ -61,34 +62,51 @@ fn bindings(
                 Kind::Param => format!("the parameter `{name}` is never used"),
                 Kind::Function => format!("the function `{name}` is never used"),
                 Kind::Class => format!("the class `{name}` is never used"),
+                Kind::Enum => format!("the enum `{name}` is never used"),
+                Kind::Interface => format!("the interface `{name}` is never used"),
+                Kind::TypeAlias => format!("the type alias `{name}` is never used"),
+                Kind::CatchParam => format!("the caught error `{name}` is never used"),
+                Kind::MatchBinding => format!("the pattern binding `{name}` is never used"),
+                Kind::Let | Kind::Const if binding.writes > 0 => {
+                    format!("`{name}` is assigned but its value is never read")
+                }
                 Kind::Let | Kind::Const | Kind::Exempt => {
                     format!("`{name}` is declared but never read")
                 }
             };
             let mut diagnostic =
                 Diagnostic::warning(ErrorCode::LintUnusedBinding, message).with_range(range);
-            if let Some(fix) = unused_fix(source, scopes, binding, name, range) {
+            if let Some(fix) = unused_fix(source, scopes, index, name, range) {
                 diagnostic = diagnostic.with_suggestion(fix);
             }
             found.push(diagnostic);
             continue;
         }
         let acceptable = match binding.kind {
-            Kind::Let | Kind::Const | Kind::Param | Kind::Function => {
+            Kind::Let
+            | Kind::Const
+            | Kind::Param
+            | Kind::Function
+            | Kind::CatchParam
+            | Kind::MatchBinding => {
                 naming::is_value_name(name)
                     || naming::is_constant_name(name)
                     || naming::is_type_name(name)
             }
-            Kind::Class => naming::is_type_name(name),
+            Kind::Class | Kind::Enum | Kind::Interface | Kind::TypeAlias => {
+                naming::is_type_name(name)
+            }
             Kind::Import | Kind::Exempt => true,
         };
         if !acceptable {
             let expected = match binding.kind {
-                Kind::Class => "PascalCase",
+                Kind::Class | Kind::Enum | Kind::Interface | Kind::TypeAlias => "PascalCase",
                 Kind::Let
                 | Kind::Const
                 | Kind::Param
                 | Kind::Function
+                | Kind::CatchParam
+                | Kind::MatchBinding
                 | Kind::Import
                 | Kind::Exempt => {
                     "camelCase, PascalCase or UPPER_SNAKE_CASE (no underscores inside a word)"
@@ -322,10 +340,11 @@ fn self_assign(source: &Source<'_>, arena: &AstArena, found: &mut Vec<Diagnostic
 fn unused_fix(
     source: &Source<'_>,
     scopes: &Scopes<'_>,
-    binding: &crate::scope::Binding,
+    index: usize,
     name: &str,
     range: vn_core::SourceRange,
 ) -> Option<Suggestion> {
+    let binding = &scopes.bindings[index];
     if let Some((declaration, position)) = binding.import {
         let info = &scopes.imports[declaration];
         let unused_all = info.specifiers.len() == 1
@@ -369,14 +388,34 @@ fn unused_fix(
                 .replace(""),
         );
     }
+    if let Some((start, body)) = scopes.catch_heads.get(&index).copied()
+        && binding.writes == 0
+    {
+        let head = source.text.get(start as usize..body as usize)?;
+        if head.starts_with('(') {
+            return Some(
+                Suggestion::new(format!("Remove the unused `{name}` binding"))
+                    .with_range(source.range(start, body))
+                    .replace(""),
+            );
+        }
+    }
     if binding.renamable
         && binding.writes == 0
-        && matches!(binding.kind, Kind::Let | Kind::Const | Kind::Param)
+        && matches!(
+            binding.kind,
+            Kind::Let | Kind::Const | Kind::Param | Kind::CatchParam | Kind::MatchBinding
+        )
     {
+        let replacement = if binding.shorthand {
+            format!("{name}: _{name}")
+        } else {
+            format!("_{name}")
+        };
         return Some(
             Suggestion::new(format!("Rename to `_{name}`"))
                 .with_range(range)
-                .replace(format!("_{name}")),
+                .replace(replacement),
         );
     }
     None
