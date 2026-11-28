@@ -207,6 +207,31 @@ impl<'a> Layout<'a> {
                 let _ = toks;
                 Doc::group(Doc::Concat(vec![first, Doc::indent(Doc::Concat(tail))]))
             }
+            ChainKind::Members(dots) => {
+                let head_end = dots[0];
+                let short_head = head_end == start + 1
+                    && matches!(toks[start].kind, K::This | K::Identifier)
+                    && toks[start].text.chars().count() <= crate::INDENT_WIDTH;
+                let first_link = usize::from(short_head);
+                let head = self.sequence(start, dots.get(first_link).copied().unwrap_or(end + 1));
+                let mut links = Vec::new();
+                for (position, dot) in dots.iter().enumerate().skip(first_link) {
+                    let stop = dots.get(position + 1).copied().unwrap_or(end + 1);
+                    links.push(self.sequence(*dot, stop));
+                }
+                let spill = head.forces_break()
+                    || links[..links.len().saturating_sub(1)]
+                        .iter()
+                        .any(Doc::forces_break);
+                let mut tail = Vec::new();
+                for link in links {
+                    tail.extend([Doc::Soft, link]);
+                }
+                Doc::Group(
+                    Box::new(Doc::Concat(vec![head, Doc::indent(Doc::Concat(tail))])),
+                    spill,
+                )
+            }
             ChainKind::Ternary {
                 question,
                 colon,
@@ -447,6 +472,34 @@ impl<'a> Layout<'a> {
             return Doc::group(Doc::Concat(parts));
         }
 
+        let arrow_head = if kind == K::LParen && !flat && !docs.is_empty() {
+            self.arrow_tail(ranges[ranges.len() - 1])
+        } else {
+            None
+        };
+        let hugged = arrow_head.and_then(|head_end| {
+            let (last_lo, _) = ranges[ranges.len() - 1];
+            if docs[..docs.len() - 1].iter().any(Doc::forces_break) || !dangling.is_empty() {
+                return None;
+            }
+            let mut head_parts = vec![open_doc.clone()];
+            let mut parts = vec![open_doc.clone()];
+            for (position, doc) in docs.iter().enumerate() {
+                parts.push(doc.clone());
+                if position + 1 < docs.len() {
+                    let separator = self.token(separators[position]);
+                    head_parts.extend([doc.clone(), separator.clone(), Doc::Space]);
+                    parts.extend([separator, Doc::Space]);
+                }
+            }
+            head_parts.push(self.sequence(last_lo, head_end + 1));
+            if let (Some(index), false) = (trailing_separator, trailing_allowed) {
+                parts.push(self.token(index));
+            }
+            parts.push(close_core.clone());
+            Some((Doc::Concat(head_parts), Doc::group(Doc::Concat(parts))))
+        });
+
         let spaced = kind == K::LBrace;
         let soft = if flat {
             if spaced {
@@ -489,6 +542,31 @@ impl<'a> Layout<'a> {
         if forced {
             parts.insert(0, Doc::BreakParent);
         }
-        Doc::group(Doc::Concat(parts))
+        let expanded = Doc::group(Doc::Concat(parts));
+        match hugged {
+            Some((head, hugged)) => Doc::hugging(head, hugged, expanded),
+            None => expanded,
+        }
+    }
+
+    fn arrow_tail(&self, range: (usize, usize)) -> Option<usize> {
+        let toks = &self.stream.toks;
+        let (lo, hi) = range;
+        let mut index = lo;
+        while index < hi {
+            if toks[index].kind == K::FatArrow {
+                return self
+                    .facts
+                    .assigns
+                    .get(&index)
+                    .filter(|end| **end + 1 == hi)
+                    .map(|_| index);
+            }
+            index = match self.stream.close_of[index] {
+                Some(close) if is_open(toks[index].kind) => close + 1,
+                _ => index + 1,
+            };
+        }
+        None
     }
 }

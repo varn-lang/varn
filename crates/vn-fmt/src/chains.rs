@@ -1,13 +1,14 @@
 use crate::tokens::TokenStream;
 use std::collections::{HashMap, HashSet};
 use vn_core::ast::arena::ExprNode;
-use vn_core::ast::{AstArena, ExprKind};
+use vn_core::ast::{ArrowBody, AstArena, ExprKind};
 use vn_core::{BinOp, TokenKind};
 
 #[derive(Clone, Debug)]
 pub enum ChainKind {
     Operators(Vec<usize>),
     Pipeline(Vec<usize>),
+    Members(Vec<usize>),
     Ternary {
         question: usize,
         colon: usize,
@@ -118,6 +119,72 @@ pub fn wraps_after_assign(kind: &ExprKind) -> bool {
     )
 }
 
+fn descend(kind: &ExprKind) -> Option<vn_core::ast::ExprId> {
+    match kind {
+        ExprKind::Call { callee, .. } => Some(*callee),
+        ExprKind::Member { object, .. } => Some(*object),
+        ExprKind::NonNull { expression } => Some(*expression),
+        ExprKind::IntLiteral { .. }
+        | ExprKind::FloatLiteral { .. }
+        | ExprKind::BigIntLiteral { .. }
+        | ExprKind::DecimalLiteral { .. }
+        | ExprKind::StrLiteral { .. }
+        | ExprKind::CharLiteral { .. }
+        | ExprKind::BoolLiteral { .. }
+        | ExprKind::NullLiteral
+        | ExprKind::Template { .. }
+        | ExprKind::TaggedTemplate { .. }
+        | ExprKind::Identifier { .. }
+        | ExprKind::Missing
+        | ExprKind::This
+        | ExprKind::Super
+        | ExprKind::ImportMeta(_)
+        | ExprKind::Array { .. }
+        | ExprKind::Object { .. }
+        | ExprKind::Tuple { .. }
+        | ExprKind::Unary { .. }
+        | ExprKind::Update { .. }
+        | ExprKind::Binary { .. }
+        | ExprKind::Logical { .. }
+        | ExprKind::Assign { .. }
+        | ExprKind::Conditional { .. }
+        | ExprKind::New { .. }
+        | ExprKind::Function { .. }
+        | ExprKind::Arrow { .. }
+        | ExprKind::Sequence { .. }
+        | ExprKind::Paren { .. }
+        | ExprKind::Await { .. }
+        | ExprKind::Yield { .. }
+        | ExprKind::Spread { .. }
+        | ExprKind::Pipeline { .. }
+        | ExprKind::Range { .. }
+        | ExprKind::Try { .. }
+        | ExprKind::As { .. }
+        | ExprKind::Satisfies { .. }
+        | ExprKind::ClassExpr { .. }
+        | ExprKind::Match { .. }
+        | ExprKind::Is { .. }
+        | ExprKind::With { .. }
+        | ExprKind::MetaAccess { .. } => None,
+    }
+}
+
+pub fn wraps_after_arrow(kind: &ExprKind) -> bool {
+    !matches!(
+        kind,
+        ExprKind::Object { .. }
+            | ExprKind::Array { .. }
+            | ExprKind::Tuple { .. }
+            | ExprKind::Template { .. }
+            | ExprKind::TaggedTemplate { .. }
+            | ExprKind::Match { .. }
+            | ExprKind::ClassExpr { .. }
+            | ExprKind::Arrow { .. }
+            | ExprKind::Function { .. }
+            | ExprKind::Paren { .. }
+    )
+}
+
 pub struct Scanner<'a> {
     pub stream: &'a TokenStream,
     pub arena: &'a AstArena,
@@ -164,8 +231,20 @@ impl Scanner<'_> {
                 }
             }
         }
+        let mut inner_calls: HashSet<(u32, u32)> = HashSet::new();
+        for node in self.arena.exprs() {
+            if matches!(node.kind, ExprKind::Call { .. }) {
+                self.inner_calls(node, &mut inner_calls);
+            }
+        }
         for node in self.arena.exprs() {
             match &node.kind {
+                ExprKind::Call { .. } => {
+                    if !inner_calls.contains(&(node.range.start.offset, node.range.end.offset)) {
+                        self.members(node, &mut shapes);
+                    }
+                }
+                ExprKind::Arrow { body, .. } => self.arrow(node, body, &mut shapes),
                 ExprKind::Conditional {
                     test, consequent, ..
                 } => self.ternary(node, *test, *consequent, &mut shapes),
@@ -207,10 +286,8 @@ impl Scanner<'_> {
                 | ExprKind::Unary { .. }
                 | ExprKind::Update { .. }
                 | ExprKind::Member { .. }
-                | ExprKind::Call { .. }
                 | ExprKind::New { .. }
                 | ExprKind::Function { .. }
-                | ExprKind::Arrow { .. }
                 | ExprKind::Sequence { .. }
                 | ExprKind::Paren { .. }
                 | ExprKind::Await { .. }
@@ -233,6 +310,101 @@ impl Scanner<'_> {
             list.dedup_by(|a, b| a.end == b.end);
         }
         shapes
+    }
+
+    fn strip_non_null(&self, mut id: vn_core::ast::ExprId) -> vn_core::ast::ExprId {
+        while let ExprKind::NonNull { expression } = &self.arena.expr(id).kind {
+            id = *expression;
+        }
+        id
+    }
+
+    fn inner_calls(&self, root: &ExprNode, inner: &mut HashSet<(u32, u32)>) {
+        let mut cursor = root;
+        loop {
+            let Some(next) = descend(&cursor.kind) else {
+                return;
+            };
+            cursor = self.arena.expr(next);
+            if matches!(cursor.kind, ExprKind::Call { .. }) {
+                inner.insert((cursor.range.start.offset, cursor.range.end.offset));
+            }
+        }
+    }
+
+    fn members(&self, root: &ExprNode, shapes: &mut Shapes) {
+        let toks = &self.stream.toks;
+        let mut dots = Vec::new();
+        let mut calls = 0usize;
+        let mut cursor = root;
+        loop {
+            if let ExprKind::Call { callee, .. } = &cursor.kind
+                && matches!(
+                    self.arena.expr(self.strip_non_null(*callee)).kind,
+                    ExprKind::Member { .. }
+                )
+            {
+                calls += 1;
+            }
+            if let ExprKind::Member {
+                property,
+                computed: false,
+                ..
+            } = &cursor.kind
+            {
+                let at = self.first(self.arena.expr(*property).range.start.offset);
+                let Some(dot) = at.checked_sub(1) else {
+                    return;
+                };
+                if !matches!(toks[dot].kind, TokenKind::Dot | TokenKind::QuestionDot) {
+                    return;
+                }
+                dots.push(dot);
+            }
+            let Some(next) = descend(&cursor.kind) else {
+                break;
+            };
+            cursor = self.arena.expr(next);
+        }
+        if calls < 3 || dots.len() < 2 {
+            return;
+        }
+        dots.reverse();
+        let start = self.first(root.range.start.offset);
+        let end = self.last(root.range.end.offset);
+        if dots[0] <= start || dots.iter().any(|dot| *dot >= end) {
+            return;
+        }
+        shapes.chains.entry(start).or_default().push(Chain {
+            end,
+            kind: ChainKind::Members(dots),
+        });
+    }
+
+    fn arrow(&self, node: &ExprNode, body: &ArrowBody, shapes: &mut Shapes) {
+        let ArrowBody::Expr(body) = body else {
+            return;
+        };
+        let body = self.arena.expr(*body);
+        if !wraps_after_arrow(&body.kind) {
+            return;
+        }
+        let toks = &self.stream.toks;
+        let mut index = self.first(node.range.start.offset);
+        let limit = self.first(body.range.start.offset);
+        while index < limit {
+            if toks[index].kind == TokenKind::FatArrow {
+                let end = self.last(body.range.end.offset);
+                if end > index {
+                    shapes.assigns.insert(index, end);
+                }
+                return;
+            }
+            index = match self.stream.close_of[index] {
+                Some(close) if crate::tokens::is_open(toks[index].kind) => close + 1,
+                _ => index + 1,
+            };
+        }
     }
 
     fn operators(&self, root: &ExprNode, class: u32, shapes: &mut Shapes) {

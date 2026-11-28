@@ -12,7 +12,15 @@ pub enum Doc {
     Concat(Vec<Doc>),
     Group(Box<Doc>, bool),
     Indent(Box<Doc>),
-    IfBreak { broken: Box<Doc>, flat: Box<Doc> },
+    IfBreak {
+        broken: Box<Doc>,
+        flat: Box<Doc>,
+    },
+    Hugging {
+        head: Box<Doc>,
+        hugged: Box<Doc>,
+        expanded: Box<Doc>,
+    },
 }
 
 impl Doc {
@@ -36,6 +44,14 @@ impl Doc {
         }
     }
 
+    pub fn hugging(head: Doc, hugged: Doc, expanded: Doc) -> Doc {
+        Doc::Hugging {
+            head: Box::new(head),
+            hugged: Box::new(hugged),
+            expanded: Box::new(expanded),
+        }
+    }
+
     pub fn forces_break(&self) -> bool {
         match self {
             Doc::Hard | Doc::BreakParent => true,
@@ -43,6 +59,7 @@ impl Doc {
             Doc::Group(_, forced) => *forced,
             Doc::Indent(inner) => inner.forces_break(),
             Doc::IfBreak { broken, flat } => broken.forces_break() || flat.forces_break(),
+            Doc::Hugging { hugged, .. } => hugged.forces_break(),
             Doc::Nil
             | Doc::Text(_)
             | Doc::Raw(_)

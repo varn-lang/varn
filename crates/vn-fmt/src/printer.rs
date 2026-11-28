@@ -100,6 +100,18 @@ impl Printer {
                         doc: inner,
                     });
                 }
+                Doc::Hugging {
+                    head,
+                    hugged,
+                    expanded,
+                } => {
+                    let hug = command.mode == Mode::Flat || self.fits(head, column, &[]);
+                    stack.push(Command {
+                        indent: command.indent,
+                        mode: command.mode,
+                        doc: if hug { hugged } else { expanded },
+                    });
+                }
                 Doc::IfBreak { broken, flat } => stack.push(Command {
                     indent: command.indent,
                     mode: command.mode,
@@ -187,6 +199,7 @@ impl Printer {
                 Doc::IfBreak { broken, flat } => {
                     work.push((mode, if mode == Mode::Break { broken } else { flat }));
                 }
+                Doc::Hugging { hugged, .. } => work.push((mode, hugged)),
             }
         }
     }
