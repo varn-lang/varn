@@ -104,9 +104,6 @@ impl<'r> Checker<'r> {
     pub(super) fn da_read(&mut self, name: Atom, at: ExprId, flow: &mut Flow, bind: &BindResult) {
         let range = self.ast_arena.expr(at).range;
         let text = bind.interner.resolve(name);
-        if vn_core::intrinsics::is_regex_literal_binding(text) {
-            return;
-        }
         if flow.undeclared.remove(&name) {
             flow.assigned.insert(name);
             self.emit(

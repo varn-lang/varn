@@ -126,10 +126,7 @@ pub fn build_code_lenses_with_options(
     }
 
     for sym in analysis.symbols() {
-        if sym.line() == u32::MAX
-            || sym.is_from_stdlib()
-            || vn_core::intrinsics::is_synthetic_name(sym.name())
-        {
+        if sym.line() == u32::MAX || sym.is_from_stdlib() || sym.is_synthetic() {
             continue;
         }
 

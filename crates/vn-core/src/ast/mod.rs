@@ -25,8 +25,8 @@ pub use expr::{
 pub use module_decl::{ExportDecl, ExportSpecifier, ImportDecl, ImportSpecifier};
 pub use operators::{AssignOp, LogicalOp, Modifiers, UnaryOp, UpdateOp, VarKind, Visibility};
 pub use pattern::{
-    literal_variant_name, ArrayPatternEl, MatchField, MatchPattern, ObjPatternProp, Param, Pattern,
-    SequenceRest, VariantPayload,
+    literal_variant_name, ArrayPatternEl, BindingOrigin, MatchField, MatchPattern, ObjPatternProp,
+    Param, Pattern, SequenceRest, VariantPayload,
 };
 pub use stmt::{CatchClause, ForInit, StmtKind, VarDeclarator, VariableDecl};
 pub use types::{AstTypeKind, DeclaredVariance, Decorator, FnTypeParam, TypeNode, TypeParam};

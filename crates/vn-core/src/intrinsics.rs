@@ -1,17 +1,8 @@
 pub const DELEGATED_ITEM: &str = "<yield*>";
 pub const BOUND_SOURCE: &str = "<bound>";
-const REGEX_LITERAL_BINDING_PREFIX: &str = "<regex ";
-
-pub fn is_regex_literal_binding(name: &str) -> bool {
-    name.starts_with(REGEX_LITERAL_BINDING_PREFIX)
-}
-
-pub fn is_synthetic_name(name: &str) -> bool {
-    name.starts_with('<')
-}
 
 pub fn regex_literal_binding(index: usize) -> String {
-    format!("{REGEX_LITERAL_BINDING_PREFIX}{index}>")
+    format!("<regex {index}>")
 }
 
 crate::named_enum! {

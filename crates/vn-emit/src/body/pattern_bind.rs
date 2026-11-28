@@ -87,7 +87,7 @@ impl<'a> FnEmitter<'a> {
             {
                 out.push(TirStmt::Expr(src));
             }
-            Pattern::Identifier { name, range } => {
+            Pattern::Identifier { name, range, .. } => {
                 let ty = if src.ty == BackendTy::Dynamic(DynReason::Unrecorded) {
                     self.declared_ty(range.start.offset).unwrap_or(src.ty)
                 } else {

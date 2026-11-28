@@ -76,6 +76,7 @@ pub fn parse_struct_decl(s: &mut TokenStream, decorators: Vec<Decorator>) -> PRe
                     pattern: Pattern::Identifier {
                         name: key,
                         range: field_range,
+                        origin: vn_core::ast::BindingOrigin::Written,
                     },
                     type_ann,
                     default: init,

@@ -30,6 +30,9 @@ impl<'a> SymbolView<'a> {
     pub fn name(&self) -> &'a str {
         self.text(self.sym.name)
     }
+    pub fn is_synthetic(&self) -> bool {
+        self.sym.binding_origin.is_synthetic()
+    }
     pub fn kind(&self) -> SymbolKind {
         self.sym.kind
     }

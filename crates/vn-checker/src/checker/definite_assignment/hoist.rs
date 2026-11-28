@@ -16,6 +16,9 @@ fn hoist_decl(arena: &AstArena, decl: &Decl, out: &mut Vec<Hoisted>) {
     match decl {
         Decl::Variable(v) => {
             for d in &v.declarators {
+                if matches!(&d.id, Pattern::Identifier { origin, .. } if origin.is_synthetic()) {
+                    continue;
+                }
                 let reads = match (&d.id, d.init) {
                     (Pattern::Identifier { .. }, Some(init)) => match &arena.expr(init).kind {
                         ExprKind::Arrow { params, body, .. } => {

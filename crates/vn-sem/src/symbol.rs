@@ -90,6 +90,8 @@ pub struct Symbol {
     pub type_param_variances: Vec<Option<vn_core::ast::DeclaredVariance>>,
     pub decorated: bool,
     pub offset: u32,
+    #[serde(default)]
+    pub binding_origin: vn_core::ast::BindingOrigin,
     #[serde(skip)]
     pub full_range: vn_core::SourceRange,
     pub origin_module: Option<Atom>,
@@ -160,6 +162,7 @@ impl Symbol {
             type_param_variances: Vec::new(),
             decorated: false,
             offset: 0,
+            binding_origin: vn_core::ast::BindingOrigin::Written,
             full_range: SourceRange::default(),
             origin_module: None,
             re_export_path: Vec::new(),

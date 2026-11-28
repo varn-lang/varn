@@ -53,7 +53,11 @@ pub(crate) fn parse_yield_stmt(s: &mut TokenStream) -> PResult<StmtId> {
         range,
         StmtKind::ForIn {
             kind: VarKind::Const,
-            left: Pattern::Identifier { name: item, range },
+            left: Pattern::Identifier {
+                name: item,
+                range,
+                origin: vn_core::ast::BindingOrigin::DelegatedItem,
+            },
             right: source,
             body,
             is_await: s.async_body,

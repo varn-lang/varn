@@ -79,7 +79,7 @@ impl<'a> FnEmitter<'a> {
         let lower_clause = |this: &mut Self, c: &vn_core::ast::CatchClause| -> Vec<TirStmt> {
             this.scopes.push(FxHashMap::default());
             let mut out = Vec::new();
-            if let Some(Pattern::Identifier { name, range }) = &c.param
+            if let Some(Pattern::Identifier { name, range, .. }) = &c.param
                 && this.m.interner.resolve(*name) != "<catch>"
             {
                 let ty = this.declared_ty(range.start.offset).unwrap_or(dyn_ty);

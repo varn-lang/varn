@@ -10,17 +10,15 @@ pub fn build_document_symbols(state: &DocumentState) -> DocumentSymbolResponse {
     let mut sorted: Vec<SymbolView<'_>> = state
         .symbols()
         .filter(|s| s.line() != u32::MAX && !s.is_from_stdlib())
-        .filter(|s| is_outlinable(s.name(), s.kind()))
+        .filter(|s| is_outlinable(s.name(), s.kind(), s.is_synthetic()))
         .collect();
     sorted.sort_by_key(|s| (s.line(), s.col()));
 
     DocumentSymbolResponse::DocumentSymbolList(nest_symbols(state, &sorted))
 }
 
-fn is_outlinable(name: &str, kind: SymbolKind) -> bool {
-    if vn_core::extension_names::is_extension_name(name)
-        || vn_core::intrinsics::is_synthetic_name(name)
-    {
+fn is_outlinable(name: &str, kind: SymbolKind, synthetic: bool) -> bool {
+    if vn_core::extension_names::is_extension_name(name) || synthetic {
         return false;
     }
     !matches!(

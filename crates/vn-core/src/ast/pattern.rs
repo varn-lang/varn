@@ -4,11 +4,34 @@ use super::types::TypeNode;
 use crate::source::SourceRange;
 use crate::Atom;
 
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize,
+)]
+pub enum BindingOrigin {
+    #[default]
+    Written,
+    DelegatedItem,
+    BoundSource,
+    RegexLiteral,
+}
+
+impl BindingOrigin {
+    pub fn is_synthetic(self) -> bool {
+        match self {
+            BindingOrigin::Written => false,
+            BindingOrigin::DelegatedItem
+            | BindingOrigin::BoundSource
+            | BindingOrigin::RegexLiteral => true,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Pattern {
     Identifier {
         name: Atom,
         range: SourceRange,
+        origin: BindingOrigin,
     },
     Array {
         elements: Vec<Option<ArrayPatternEl>>,

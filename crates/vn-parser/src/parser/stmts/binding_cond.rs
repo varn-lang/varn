@@ -69,7 +69,11 @@ struct Pieces {
 fn pieces(s: &mut TokenStream, binding: Binding) -> Pieces {
     let range = binding.range;
     let tmp: Atom = s.interner.intern(vn_core::intrinsics::BOUND_SOURCE);
-    let tmp_pattern = Pattern::Identifier { name: tmp, range };
+    let tmp_pattern = Pattern::Identifier {
+        name: tmp,
+        range,
+        origin: vn_core::ast::BindingOrigin::BoundSource,
+    };
     let source_decl = variable(s, range, VarKind::Const, tmp_pattern, binding.source);
     let tmp_ref = s.expr(range, ExprKind::Identifier { name: tmp });
     let bound_decl = variable(s, range, binding.kind, binding.pattern, tmp_ref);

@@ -17,12 +17,17 @@ impl<'r> super::super::Binder<'r> {
         match pattern {
             Pattern::Identifier { name, .. }
                 if self.interner.resolve(*name) == vn_core::TokenKind::Placeholder.as_str() => {}
-            Pattern::Identifier { name, range } => {
+            Pattern::Identifier {
+                name,
+                range,
+                origin,
+            } => {
                 let mut sym = Symbol::new(kind, *name, line);
                 sym.doc = doc.map(|d| self.intern_local(&d));
                 sym.col = range.start.column;
                 sym.offset = range.start.offset;
                 sym.full_range = *range;
+                sym.binding_origin = *origin;
                 sym.has_explicit_type = explicit;
                 sym.ty = ty;
                 self.define(*name, sym);

@@ -32,6 +32,7 @@ fn parse_arrow_attempt(s: &mut TokenStream) -> PResult<ExprId> {
             pattern: Pattern::Identifier {
                 name: param_name,
                 range: param_range,
+                origin: vn_core::ast::BindingOrigin::Written,
             },
             type_ann: None,
             default: None,

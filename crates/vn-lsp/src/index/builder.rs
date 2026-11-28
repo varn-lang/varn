@@ -21,7 +21,7 @@ pub fn index_file(index: &mut ProjectIndex, uri: &str, state: &DocumentState) {
             .collect();
     let mut exports: Vec<Arc<ExportEntry>> = state
         .symbols()
-        .filter(|s| is_indexable(s.name(), s.kind(), s.line()))
+        .filter(|s| is_indexable(s.kind(), s.line(), s.is_synthetic()))
         .map(|s| {
             let parent = match s.kind() {
                 SymbolKind::Class => heritage.get(s.name()).map(|p| Arc::from(p.as_str())),
@@ -57,7 +57,7 @@ pub fn index_file(index: &mut ProjectIndex, uri: &str, state: &DocumentState) {
 
     for sym in state
         .symbols()
-        .filter(|s| is_indexable(s.name(), s.kind(), s.line()))
+        .filter(|s| is_indexable(s.kind(), s.line(), s.is_synthetic()))
     {
         collect_member_exports(state, &uri_shared, sym, &mut exports);
     }
@@ -164,8 +164,8 @@ fn is_stable_specifier(specifier: &str) -> bool {
     vn_core::ModuleKind::of(specifier).is_some()
 }
 
-fn is_indexable(name: &str, kind: SymbolKind, line: u32) -> bool {
-    if line == u32::MAX || vn_core::intrinsics::is_synthetic_name(name) {
+fn is_indexable(kind: SymbolKind, line: u32, synthetic: bool) -> bool {
+    if line == u32::MAX || synthetic {
         return false;
     }
     !matches!(kind, SymbolKind::Parameter | SymbolKind::TypeParameter)

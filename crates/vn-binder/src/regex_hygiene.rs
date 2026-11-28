@@ -1,5 +1,5 @@
 use super::Binder;
-use vn_core::ast::{Decl, Pattern, Program, StmtKind};
+use vn_core::ast::{BindingOrigin, Decl, Pattern, Program, StmtKind};
 use vn_core::{Diagnostic, ErrorCode};
 
 impl Binder<'_> {
@@ -20,9 +20,7 @@ impl Binder<'_> {
                 continue;
             };
             let is_literal = variable.declarators.iter().any(|d| match &d.id {
-                Pattern::Identifier { name, .. } => {
-                    vn_core::intrinsics::is_regex_literal_binding(self.interner.resolve(*name))
-                }
+                Pattern::Identifier { origin, .. } => *origin == BindingOrigin::RegexLiteral,
                 Pattern::Array { .. }
                 | Pattern::Tuple { .. }
                 | Pattern::Object { .. }

@@ -30,6 +30,7 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
             Ok(Pattern::Identifier {
                 name: s.interner.intern(vn_core::TokenKind::Placeholder.as_str()),
                 range: full_range,
+                origin: vn_core::ast::BindingOrigin::Written,
             })
         }
         TokenKind::EOF
@@ -186,6 +187,7 @@ pub fn parse_pattern(s: &mut TokenStream) -> PResult<Pattern> {
             Ok(Pattern::Identifier {
                 name,
                 range: full_range,
+                origin: vn_core::ast::BindingOrigin::Written,
             })
         }
     }
@@ -241,6 +243,7 @@ fn parse_hash_pattern(s: &mut TokenStream) -> PResult<Pattern> {
                     Pattern::Identifier {
                         name: key,
                         range: prop_range,
+                        origin: vn_core::ast::BindingOrigin::Written,
                     },
                     true,
                 )
@@ -350,6 +353,7 @@ fn parse_object_pattern(s: &mut TokenStream) -> PResult<Pattern> {
                 Pattern::Identifier {
                     name: alias,
                     range: alias_range,
+                    origin: vn_core::ast::BindingOrigin::Written,
                 },
                 false,
             )
@@ -358,6 +362,7 @@ fn parse_object_pattern(s: &mut TokenStream) -> PResult<Pattern> {
                 Pattern::Identifier {
                     name: key,
                     range: prop_range,
+                    origin: vn_core::ast::BindingOrigin::Written,
                 },
                 true,
             )

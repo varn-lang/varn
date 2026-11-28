@@ -357,7 +357,7 @@ impl<'a> Scopes<'a> {
     }
     pub(super) fn declare_pattern(&mut self, pattern: &Pattern, how: &Declare) {
         match pattern {
-            Pattern::Identifier { name, range } => self.declare(
+            Pattern::Identifier { name, range, .. } => self.declare(
                 *name,
                 range.start.offset,
                 range.end.offset,

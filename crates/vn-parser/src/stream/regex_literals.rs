@@ -71,6 +71,7 @@ impl TokenStream {
                     id: Pattern::Identifier {
                         name: literal.binding,
                         range,
+                        origin: vn_core::ast::BindingOrigin::RegexLiteral,
                     },
                     type_ann: None,
                     init: Some(init),
