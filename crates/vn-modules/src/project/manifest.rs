@@ -54,6 +54,37 @@ pub struct Manifest {
     pub fmt: FileFilter,
     #[serde(default, skip_serializing_if = "FileFilter::is_empty")]
     pub test: FileFilter,
+    #[serde(default, skip_serializing_if = "LintConfig::is_empty")]
+    pub lint: LintConfig,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LintConfig {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub include: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub exclude: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub allow: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub deny: Vec<String>,
+}
+
+impl LintConfig {
+    pub fn is_empty(&self) -> bool {
+        self.include.is_empty()
+            && self.exclude.is_empty()
+            && self.allow.is_empty()
+            && self.deny.is_empty()
+    }
+
+    pub fn files(&self) -> FileFilter {
+        FileFilter {
+            include: self.include.clone(),
+            exclude: self.exclude.clone(),
+        }
+    }
 }
 
 #[derive(Debug)]

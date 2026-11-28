@@ -71,7 +71,7 @@ See the [getting started guide](https://varn.twwk.cc/guias/primeros-pasos/) and 
 
 ## The `vn` CLI
 
-`run`, `check`, `eval`, `repl`, `bench`, `debug`, `build`, `test`, `task`, `fmt`, `pkg`, `init`, `doctor`, `cache`, `lsp`, `completions`, `explain`, `dap`, `std-bundle`.
+`run`, `check`, `eval`, `repl`, `bench`, `debug`, `build`, `test`, `task`, `fmt`, `lint`, `pkg`, `init`, `doctor`, `cache`, `lsp`, `completions`, `explain`, `dap`, `std-bundle`.
 
 The full reference, including environment variables (`VN_*`, `VN_NO_JIT`, `VN_STD`, `VN_CACHE_DIR`), is in the [CLI guide](https://varn.twwk.cc/guias/cli/).
 

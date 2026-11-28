@@ -12,6 +12,7 @@ pub mod eval;
 pub mod explain;
 pub mod fmt;
 pub mod init;
+pub mod lint;
 
 pub mod install;
 pub mod lsp;

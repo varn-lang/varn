@@ -3792,6 +3792,7 @@ dependencies = [
  "vn-fmt",
  "vn-jit",
  "vn-lexer",
+ "vn-lint",
  "vn-lsp",
  "vn-modules",
  "vn-parser",
@@ -3918,6 +3919,15 @@ name = "vn-lexer"
 version = "0.1.0"
 dependencies = [
  "vn-core",
+]
+
+[[package]]
+name = "vn-lint"
+version = "0.1.0"
+dependencies = [
+ "vn-core",
+ "vn-lexer",
+ "vn-parser",
 ]
 
 [[package]]

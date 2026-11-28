@@ -34,6 +34,7 @@ fn anchor_of(cmd: &Commands) -> Option<Anchor<'_>> {
                 .as_deref()
                 .or_else(|| args.paths.first().map(String::as_str)),
         )),
+        Commands::Lint(args) => Some(path_anchor(args.paths.first().map(String::as_str))),
         Commands::Eval(_)
         | Commands::Repl(_)
         | Commands::Task(_)
@@ -69,6 +70,7 @@ pub fn run(cmd: Commands, session: &Arc<Session>) -> Result<(), CliError> {
         Commands::Test(args) => commands::test::execute(Arc::clone(session), args),
         Commands::Task(args) => commands::task::execute(session, args),
         Commands::Fmt(args) => commands::fmt::execute(session, args),
+        Commands::Lint(args) => commands::lint::execute(session, args),
         Commands::Doctor => commands::doctor::execute(),
         Commands::Cache(sub) => commands::cache::execute(sub),
         Commands::Lsp(args) => commands::lsp::execute(args),

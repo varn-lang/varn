@@ -305,6 +305,16 @@ if ($corpusFailures.Count -gt 0) {
     Write-Success "Corpus de errores: todas las fixtures conformes."
 }
 
+Write-StepHeader "4d/6: Lint del codigo Varn (vn lint)"
+$lintOut = & $vnBin lint --deny-warnings 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+    Write-Failure "El linter encontro problemas en el codigo Varn."
+    Write-Host $lintOut -ForegroundColor Red
+    $failedSteps += "Lint del codigo Varn"
+} else {
+    Write-Success "Lint del codigo Varn: sin avisos."
+}
+
 Write-StepHeader "4d/6: Formato del codigo Varn (vn fmt --check)"
 $fmtOut = & $vnBin fmt --check 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {

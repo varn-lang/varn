@@ -50,6 +50,8 @@ pub enum Commands {
 
     Fmt(FmtArgs),
 
+    Lint(LintArgs),
+
     #[command(subcommand)]
     Pkg(PkgCommands),
 
@@ -414,6 +416,17 @@ pub struct FmtArgs {
 
     #[arg(short, long)]
     pub verbose: bool,
+}
+
+#[derive(Args)]
+pub struct LintArgs {
+    pub paths: Vec<String>,
+
+    #[arg(long)]
+    pub fix: bool,
+
+    #[arg(long)]
+    pub deny_warnings: bool,
 }
 
 #[derive(Args)]

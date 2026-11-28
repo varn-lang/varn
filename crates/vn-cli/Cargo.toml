@@ -34,6 +34,7 @@ vn-sem      = { path = "../vn-sem" }
 vn-debug    = { path = "../vn-debug" }
 vn-lsp      = { path = "../vn-lsp" }
 vn-fmt      = { path = "../vn-fmt" }
+vn-lint     = { path = "../vn-lint" }
 vn-modules  = { path = "../vn-modules" }
 vn-runtime  = { path = "../vn-runtime" }
 vn-dap      = { path = "../vn-dap" }

@@ -92,6 +92,12 @@ crate::named_enum! {
         CapabilityViolation = 4302 => "capability-violation",
         InvalidDecoratorSignature = 4401 => "invalid-decorator-signature",
         CompilationInternalError = 5005 => "compilation-internal-error",
+        LintUnusedBinding = 6001 => "unused-binding",
+        LintPreferConst = 6002 => "prefer-const",
+        LintEmptyCatch = 6003 => "empty-catch",
+        LintConstantCondition = 6004 => "constant-condition",
+        LintNamingConvention = 6005 => "naming-convention",
+        LintSelfAssign = 6006 => "self-assign",
     }
 }
 
@@ -103,6 +109,7 @@ impl ErrorCode {
             3000..=3999 => "TypeChecker",
             4000..=4999 => "Semantic",
             5000..=5999 => "Compiler",
+            6000..=6999 => "Lint",
             _ => "General",
         }
     }

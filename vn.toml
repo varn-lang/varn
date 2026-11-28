@@ -9,3 +9,6 @@ exclude = [
     "tests/benchmarks/probes/repr_rows.vn",
     "tests/examples/reflect.vn",
 ]
+
+[lint]
+exclude = ["target/**", "crates/**", "dist/**", "tests/**"]

@@ -11,9 +11,15 @@ impl ErrorCode {
 
     pub fn severity(self) -> DiagnosticKind {
         match self {
-            ErrorCode::DeprecatedUse | ErrorCode::UnreachableCode | ErrorCode::AwaitHasNoEffect => {
-                DiagnosticKind::Warning
-            }
+            ErrorCode::DeprecatedUse
+            | ErrorCode::UnreachableCode
+            | ErrorCode::AwaitHasNoEffect
+            | ErrorCode::LintUnusedBinding
+            | ErrorCode::LintPreferConst
+            | ErrorCode::LintEmptyCatch
+            | ErrorCode::LintConstantCondition
+            | ErrorCode::LintNamingConvention
+            | ErrorCode::LintSelfAssign => DiagnosticKind::Warning,
             ErrorCode::UnterminatedString
             | ErrorCode::InvalidNumericLiteral
             | ErrorCode::DuplicateRecordField
@@ -106,6 +112,12 @@ impl ErrorCode {
 
     pub fn summary(self) -> &'static str {
         match self {
+            ErrorCode::LintUnusedBinding => "A variable, parameter, import, function or class is declared and never read. Prefix the name with `_` to mark it as intentionally unused.",
+            ErrorCode::LintPreferConst => "A `let` binding is never reassigned and can be a `const`.",
+            ErrorCode::LintEmptyCatch => "A `catch` block has no statements, so the error is swallowed silently.",
+            ErrorCode::LintConstantCondition => "The condition of an `if`, `while`, `do` or ternary is a literal, so one of its branches can never run.",
+            ErrorCode::LintNamingConvention => "A name does not follow the convention of Varn code: camelCase for values and functions, PascalCase for types, UPPER_SNAKE_CASE for module constants.",
+            ErrorCode::LintSelfAssign => "A variable or member is assigned to itself, which has no effect.",
             ErrorCode::UnterminatedString => "A string literal reaches the end of the file without its closing quote.",
             ErrorCode::InvalidNumericLiteral => "A number literal is malformed: a prefix without digits, a misplaced `_`, an exponent without digits, or an unknown suffix.",
             ErrorCode::UnknownCharacter => "The source contains a character that is not part of Varn's syntax.",
