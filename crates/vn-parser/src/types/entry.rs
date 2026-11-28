@@ -32,7 +32,7 @@ pub(super) fn parse_type_in(s: &mut TokenStream, ctx: TypeContext) -> PResult<Ty
     let ty = super::combinators::parse_union_type(s, ctx)?;
 
     if s.eat(TokenKind::Extends) {
-        super::combinators::parse_union_type(s, TypeContext::Annotation)?;
+        super::combinators::parse_union_type(s, TypeContext::Operand)?;
         s.expect(TokenKind::Question)?;
         parse_type(s)?;
         s.expect(TokenKind::Colon)?;
